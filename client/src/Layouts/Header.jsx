@@ -5,12 +5,6 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import { Toolbar, Typography, Button, IconButton, Container, Link } from '@material-ui/core'
 import SearchIcon from '@material-ui/icons/Search';
 
-function underline() {
-
-
-    
-}
-
 const useStyles = makeStyles(theme => ({
     toolbar: {
         borderBottom: `1px solid ${theme.palette.divider}`,
@@ -25,7 +19,7 @@ const useStyles = makeStyles(theme => ({
         color: 'white',
         borderBottom: 'solid 3px #fff'
     },
-    
+
     toolbarLink: {
         padding: theme.spacing(1),
         flexShrink: 0,
@@ -99,7 +93,6 @@ const sections = [
 export default function () {
 
     const [path, setSelected] = useState(document.location.pathname)
-    console.log(document.location.pathname)
 
     const classes = useStyles();
     return (
@@ -126,25 +119,22 @@ export default function () {
                     </Button>
                 </Toolbar>
                 <Toolbar component="nav" variant="dense" className={classes.toolbarSecondary}>
-                    {sections.map(section => (
-                        <div className={path === section.link ? classes.divSelected : classes.div}>   
-                            <Link
-                                component={RouterLink}
-                                to={section.link}
-                                color="inherit"
-                                noWrap
-                                key={section.title}
-                                variant="body2"
-                                href=""
-                                className={classes.toolbarLink}
-                                onClick={()=> setSelected(section.link)}
-                            >
-                                {path === section.link ?
-                                    <strong> {section.title} </strong> : section.title
-                                }
-                            </Link>
-                        </div>
-
+                    {sections.map((section, i) => (
+                        <Link
+                            component={RouterLink}
+                            to={section.link}
+                            key={i}
+                            color="inherit"
+                            noWrap                            
+                            variant="body2"
+                            href=""
+                            className={classes.toolbarLink}
+                            onClick={() => setSelected(section.link)}
+                        >
+                            {path === section.link ?
+                                <strong> {section.title} </strong> : section.title
+                            }
+                        </Link>
                     ))}
                 </Toolbar>
             </Container>

@@ -1,5 +1,5 @@
 import React from 'react'
-import { Grid, Paper, Button, Typography } from '@material-ui/core'
+import { Grid, Paper, Button, Typography, MenuItem } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
 import { vehiculeForm } from '../Forms/vehiculeForm'
@@ -16,10 +16,10 @@ const useStyles = makeStyles(theme => ({
         width: 300,
         fontSize: '0.7rem',
         fontColor: '#bbb',
-        textAlign: 'center'     
+        textAlign: 'center'
     },
     input: {
-        textAlign: 'center'        
+        textAlign: 'center'
     },
     paper: {
         padding: theme.spacing(2),
@@ -34,8 +34,9 @@ const useStyles = makeStyles(theme => ({
 
 }));
 
-export default function ({ tab, items }) {
+export default function ({ tab, items, empresas, selectEmpresa, selectedEmpresa }) {
     const classes = useStyles(), { paper, container } = classes
+
     return (
         <Grid
             container
@@ -46,11 +47,8 @@ export default function ({ tab, items }) {
                 <Paper className={paper}>
                     <Typography> Selecione a Viação</Typography>
                     <br />
-                    <TextField select={true} className={classes.textField} value='' primaryText={'hi'}>
-                        <option value='x1'>x</option>
-                        <option value='x22'>y</option>
-                        <option value='x33'>z</option>
-                        <option value='x44'>w</option>
+                    <TextField select={true} className={classes.textField} value={selectedEmpresa} onChange={selectEmpresa}>
+                        {empresas.map((e, i) => <MenuItem key={i} value={e}>{e}</MenuItem>)}
                     </TextField>
                     <br />
                     {items[tab]} - Viação Xyz

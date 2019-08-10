@@ -1,8 +1,10 @@
 import React from 'react'
 import { makeStyles } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import { Typography, Grid, Container, Paper, Card, CardContent, CardActionArea, 
-    Hidden, CardMedia } from '@material-ui/core'
+import {
+    Typography, Grid, Container, Paper, Card, CardContent, CardActionArea,
+    Hidden, CardMedia
+} from '@material-ui/core'
 
 const useStyles = makeStyles(theme => ({
     toolbar: {
@@ -92,20 +94,20 @@ const featuredPosts = [
 
 
 export default function () {
-
+    
     const classes = useStyles();
     return (
         <React.Fragment>
             <CssBaseline />
             <Container maxWidth="lg">
-            
+
                 <main>
                     {/* Main featured post */}
                     <Paper className={classes.mainFeaturedPost}>
                         {/* Increase the priority of the hero background image */}
                         {
                             <img
-                                style={{ position: 'absolute', height:'240px', width:'1215px'  }}
+                                style={{ position: 'absolute', height: '240px', width: '1215px' }}
                                 src="/images/bus_wallpaper.jpg"
                                 alt="background"
                             />
@@ -116,11 +118,11 @@ export default function () {
                                 <div className={classes.mainFeaturedPostContent}>
                                     <Typography component="h1" variant="h3" color="inherit" gutterBottom>
                                         SisMob - MG
-                  </Typography>
+                                    </Typography>
                                     <Typography variant="h5" color="inherit" paragraph>
                                         Sistema de Gestão da Mobilidade do Estado de Minas Gerais
-                  </Typography>
-                                    
+                                    </Typography>
+
                                 </div>
                             </Grid>
                         </Grid>
