@@ -8,7 +8,7 @@ dotenv.config()
 app.use(bodyParser.json())
 
 const HOST = '127.0.0.1'
-const PORT = 4000
+const PORT = 3001
 
 const Pool = pg.Pool
 const pool = new Pool({
@@ -20,15 +20,15 @@ const pool = new Pool({
 })
 console.log(process.env.DB, process.env.DB_USER)
 
-app.get('/', (req, res) => {
-    pool.query('SELECT * FROM public."marcasChassi" ORDER BY "id"', (err, table) => {
+app.get('/api/empresas', (req, res) => {
+    pool.query('SELECT * FROM public.delegatarios ORDER BY "razaoSocial"', (err, table) => {
         if (err) throw err
         let a = []
-        table.rows.map(r=> a.push(r.nomeMarca))
-        res.json(a)
+        //table.rows.map(r=> a.push(r.nomeMarca))
+        res.json(table)
     })
 })
 
 app.listen(PORT, HOST)
 
-console.log('Running on port 4000, dude...')
+console.log('Running on port 3001, dude...')
