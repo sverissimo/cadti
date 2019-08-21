@@ -25,7 +25,18 @@ app.get('/api/empresas', (req, res) => {
         if (err) throw err
         let a = []
         //table.rows.map(r=> a.push(r.nomeMarca))
-        res.json(table)
+        res.json(table.rows)
+    })
+})
+
+app.get('/api/veiculo/:id', (req, res) => {
+    const { id } = req.params
+    const { column, filter } = req.query
+
+    pool.query(`SELECT ${column} FROM public.veiculo WHERE ${filter} = $1`, [id], (err, table) => {
+        if (err) res.send(err)
+        if (table.rows.length === 0) {res.send('Veículo não encontrado.'); return}
+        res.json(table.rows.map(r=> r[column]))
     })
 })
 
