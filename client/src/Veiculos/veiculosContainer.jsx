@@ -3,6 +3,7 @@ import axios from 'axios'
 import VeiculosTemplate from './VeiculosTemplate'
 import { TabMenu } from '../Layouts'
 import { Container } from '@material-ui/core'
+import humps from 'humps'
 
 export default class extends Component {
 
@@ -15,13 +16,14 @@ export default class extends Component {
         razaoSocial: ''
     }
 
-    componentDidMount() {
-        axios.get('/api/empresas')
+    async componentDidMount() {
+        await axios.get('/api/empresas')
             .then(res => {
-                this.setState({ empresas: res.data.rows })                
+                const empresas = humps.camelizeKeys(res.data)
+                this.setState({ empresas })
             })
-
     }
+
     changeTab = (e, value) => this.setState({ tab: value })
 
     selectEmpresa = (e) => this.setState({ selectedEmpresa: e.target.value })
@@ -29,6 +31,21 @@ export default class extends Component {
     handleInput = e => {
         const { name, value } = e.target
         this.setState({ [name]: value })
+    }
+
+    handleBlur = async  e => {
+        const { empresas } = this.state
+        const { value } = e.target
+        
+        const selectedEmpresa = empresas.filter(e => e.razaoSocial.match(value))[0]
+        if (selectedEmpresa) {
+            await this.setState({ selectedEmpresa })
+            axios.get(`/api/veiculo/${selectedEmpresa.delegatarioId}?column=modelocarroceria_id&filter=veiculo_id`)
+            .then(r=> console.log(r.data))
+        
+        }
+            
+        
     }
 
     render() {
@@ -45,7 +62,7 @@ export default class extends Component {
                 selectEmpresa={this.selectEmpresa}
                 selectedEmpresa={selectedEmpresa}
                 handleInput={this.handleInput}
-
+                handleBlur={this.handleBlur}
             />
         </Container>
     }

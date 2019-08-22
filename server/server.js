@@ -21,13 +21,13 @@ const pool = new Pool({
 console.log(process.env.DB, process.env.DB_USER)
 
 app.get('/api/empresas', (req, res) => {
-    pool.query('SELECT * FROM public.delegatarios ORDER BY "razaoSocial"', (err, table) => {
+    pool.query('SELECT * FROM public.delegatario ORDER BY "delegatario_id"', (err, table) => {
         if (err) throw err
         let a = []
         //table.rows.map(r=> a.push(r.nomeMarca))
         res.json(table.rows)
     })
-})
+});
 
 app.get('/api/veiculo/:id', (req, res) => {
     const { id } = req.params

@@ -35,7 +35,7 @@ const useStyles = makeStyles(theme => ({
 
 }));
 
-export default function ({ tab, items, empresas, handleInput, razaoSocial, selectEmpresa, selectedEmpresa }) {
+export default function ({ tab, empresas, handleInput, razaoSocial, handleBlur, selectedEmpresa }) {
     const classes = useStyles(), { paper, container } = classes
 
     return (
@@ -55,11 +55,13 @@ export default function ({ tab, items, empresas, handleInput, razaoSocial, selec
                     <TextField
                         inputProps={{
                             list: 'razaoSocial',
-                            name: 'razaoSocial'
+                            name: 'razaoSocial',                            
                         }}
                         className={classes.textField}
                         value={razaoSocial}
                         onChange={handleInput}
+                        onBlur={handleBlur}
+                        
                     />
                     <AutoComplete
                         collection={empresas}
