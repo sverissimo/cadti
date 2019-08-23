@@ -17,8 +17,7 @@ const pool = new Pool({
     database: process.env.DB,
     password: process.env.DB_PASS,
     port: 5432
-})
-console.log(process.env.DB, process.env.DB_USER)
+});
 
 app.get('/api/empresas', (req, res) => {
     pool.query('SELECT * FROM public.delegatario ORDER BY "delegatario_id"', (err, table) => {
@@ -27,7 +26,7 @@ app.get('/api/empresas', (req, res) => {
         //table.rows.map(r=> a.push(r.nomeMarca))
         res.json(table.rows)
     })
-});
+})
 
 app.get('/api/veiculo/:id', (req, res) => {
     const { id } = req.params
@@ -35,10 +34,30 @@ app.get('/api/veiculo/:id', (req, res) => {
 
     pool.query(`SELECT ${column} FROM public.veiculo WHERE ${filter} = $1`, [id], (err, table) => {
         if (err) res.send(err)
-        if (table.rows.length === 0) {res.send('Veículo não encontrado.'); return}
-        res.json(table.rows.map(r=> r[column]))
+        if (table.rows.length === 0) { res.send('Veículo não encontrado.'); return }
+        res.json(table.rows.map(r => r[column]))
     })
 })
+
+app.get('/api/veiculosInit', (req, res) => {   
+
+    pool.query(`SELECT * FROM public.veiculo ORDER BY data_registro ASC`, (err, table) => {        
+        if (err) res.send(err)
+        if (table.rows.length === 0) { res.send('Nenhum veículo cadastrado para esse delegatário.'); return }
+        res.json(table.rows)
+    })
+})
+
+/* app.get('/api/veiculos', (req, res) => {
+    const { razaoSocial } = req.query
+
+    pool.query(`SELECT * FROM public.veiculo WHERE delegatario_id = $1`, [razaoSocial], (err, table) => {
+        console.log('f', table.rows)
+        if (err) res.send(err)
+        if (table.rows.length === 0) { res.send('Nenhum veículo cadastrado para esse delegatário.'); return }
+        res.json(table.rows)
+    })
+}) */
 
 app.listen(PORT, HOST)
 

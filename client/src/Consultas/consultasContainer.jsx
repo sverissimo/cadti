@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import axios from 'axios'
-import VeiculosTemplate from './VeiculosTemplate'
+import ConsultasTemplate from './consultasTemplate'
 import { TabMenu } from '../Layouts'
 import { Container } from '@material-ui/core'
 import humps from 'humps'
@@ -9,8 +9,8 @@ export default class extends Component {
 
     state = {
         tab: 0,
-        items: ['Cadastro de Veículo', 'Atualização de Seguro',
-            'Alteração de dados', 'Baixa de Veículo'],
+        items: ['Veículos', 'Delegatários',
+            'Procuradores', 'Outros'],
         empresas: [],
         selectedEmpresa: '',
         razaoSocial: ''
@@ -22,6 +22,12 @@ export default class extends Component {
                 const empresas = humps.camelizeKeys(res.data)
                 this.setState({ empresas })
             })
+        await axios.get('/api/veiculosInit')
+            .then(res => {
+                const veiculos = humps.camelizeKeys(res.data)            
+                this.setState({ veiculos })            
+            })
+        console.log(this.state)
     }
 
     changeTab = (e, value) => this.setState({ tab: value })
@@ -38,11 +44,11 @@ export default class extends Component {
         const selectedEmpresa = empresas.filter(e => e.razaoSocial.toLowerCase().match(value.toLowerCase()))[0]
         console.log()
         if (selectedEmpresa) {
-            await this.setState({ selectedEmpresa, [name]: selectedEmpresa.razaoSocial })            
-           axios.get(`/api/veiculos?razaoSocial=${selectedEmpresa.razaoSocial}`)
-           .then(res=> console.log(res.data))
-           
-           
+            await this.setState({ selectedEmpresa, [name]: selectedEmpresa.razaoSocial })
+            axios.get(`/api/veiculos?razaoSocial=${selectedEmpresa.razaoSocial}`)
+                .then(res => console.log(res.data))
+
+
             /*  axios.get(`/api/veiculo/${selectedEmpresa.delegatarioId}?column=modelocarroceria_id&filter=veiculo_id`)
                 .then(r => console.log(r.data)) */
         }
@@ -51,16 +57,17 @@ export default class extends Component {
     }
 
     render() {
-        const { tab, items, empresas, selectedEmpresa, razaoSocial } = this.state
+        const { tab, items, empresas, veiculos, selectedEmpresa, razaoSocial } = this.state
         return <Container>
             <TabMenu items={items}
                 tab={tab}
                 changeTab={this.changeTab} />
-            <VeiculosTemplate
+            <ConsultasTemplate
                 tab={tab}
                 items={items}
                 razaoSocial={razaoSocial}
                 empresas={empresas}
+                veiculos={veiculos}
                 selectedEmpresa={selectedEmpresa}
                 handleInput={this.handleInput}
                 handleBlur={this.handleBlur}
