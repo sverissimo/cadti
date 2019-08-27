@@ -39,13 +39,39 @@ app.get('/api/veiculo/:id', (req, res) => {
     })
 })
 
-app.get('/api/veiculosInit', (req, res) => {   
+app.get('/api/veiculosInit', (req, res) => {
 
-    pool.query(`SELECT * FROM public.veiculo ORDER BY data_registro ASC`, (err, table) => {        
+    pool.query(`SELECT * FROM public.veiculo ORDER BY data_registro ASC`, (err, table) => {
         if (err) res.send(err)
         if (table.rows.length === 0) { res.send('Nenhum veículo cadastrado para esse delegatário.'); return }
         res.json(table.rows)
     })
+})
+
+app.get('/api/procuradores', (req, res) => {
+    pool.query(
+        `SELECT public.procurador.*, public.delegatario.razao_social
+         FROM public.procurador 
+         LEFT JOIN public.delegatario 
+         ON delegatario.delegatario_id = procurador.delegatario_id
+         ORDER BY nome_procurador ASC`, (err, table) => {
+            if (err) res.send(err)
+            if (table.rows.length === 0) { res.send('Nenhum procurador cadastrado para esse delegatário.'); return }
+            res.json(table.rows)
+        })
+})
+
+app.get('/api/delegatarios', (req, res) => {
+
+    pool.query(`SELECT delegatario.*, ARRAY_AGG(DISTINCT procurador.nome_procurador) AS procuradores_list
+    FROM delegatario
+    LEFT JOIN procurador
+    ON procurador.delegatario_id = delegatario.delegatario_id    
+	GROUP BY delegatario.delegatario_id;`, (err, table) => {            
+            if (err) res.send(err)
+            if (table.rows.length === 0) { res.send('Nenhum delegatário cadastrado.'); return }
+            res.json(table.rows)
+        })
 })
 
 /* app.get('/api/veiculos', (req, res) => {

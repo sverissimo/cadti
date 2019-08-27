@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter } from 'react-router-dom'
 import { makeStyles } from '@material-ui/core'
 import { Header, Footer } from './Layouts'
-import { Grid } from '@material-ui/core';
+import { Container } from '@material-ui/core';
 import Routes from './Routes'
 
 function App() {
@@ -22,23 +22,13 @@ function App() {
   return (
     <div className={root}>
 
-      <Grid
-        container spacing={2}
-        justify="center"
-        alignItems="center"
-        style={{
-          margin: 0,
-          top: 0,
-          width: '100%',
-        }}
-      >
+      <Container maxWidth="lg">
         <BrowserRouter>
           <Header />
           <Routes />
         </BrowserRouter>
         <Footer />
-
-      </Grid>
+      </Container>
     </div>
   )
 }

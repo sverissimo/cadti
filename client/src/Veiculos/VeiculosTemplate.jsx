@@ -31,8 +31,7 @@ const useStyles = makeStyles(theme => ({
     button: {
         margin: theme.spacing(1),
         float: 'right',
-    },
-
+    }
 }));
 
 export default function ({ tab, empresas, handleInput, razaoSocial, handleBlur, selectedEmpresa }) {

@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { Link as RouterLink } from 'react-router-dom'
 import { makeStyles } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import { Toolbar, Typography, Button, IconButton, Container, Link } from '@material-ui/core'
+import { Toolbar, Typography, Button, IconButton, Link } from '@material-ui/core'
 import SearchIcon from '@material-ui/icons/Search';
 
 const useStyles = makeStyles(theme => ({
@@ -17,7 +17,7 @@ const useStyles = makeStyles(theme => ({
         overflowX: 'auto',
         backgroundColor: '#03a9f4',
         color: 'white',
-        borderBottom: 'solid 3px #fff'
+        borderBottom: 'solid 3px #fff',        
     },
 
     toolbarLink: {
@@ -98,7 +98,7 @@ export default function () {
     return (
         <React.Fragment>
             <CssBaseline />
-            <Container maxWidth="lg">
+            
                 <Toolbar className={classes.toolbar}>
                     <Button size="small">Criar usuário</Button>
                     <Typography
@@ -136,8 +136,7 @@ export default function () {
                             }
                         </Link>
                     ))}
-                </Toolbar>
-            </Container>
+                </Toolbar>            
         </React.Fragment>
     )
 }

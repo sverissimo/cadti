@@ -1,9 +1,9 @@
-import React, { Component } from 'react'
+import React, { Component, Fragment } from 'react'
 import axios from 'axios'
 import ConsultasTemplate from './consultasTemplate'
 import { TabMenu } from '../Layouts'
-import { Container } from '@material-ui/core'
 import humps from 'humps'
+//import formatDate from '../Utils/formatDate'
 
 export default class extends Component {
 
@@ -11,67 +11,49 @@ export default class extends Component {
         tab: 0,
         items: ['Veículos', 'Delegatários',
             'Procuradores', 'Outros'],
+        selectedOption: ['veiculos', 'empresas',
+            'procuradores', 'outros'],
         empresas: [],
         selectedEmpresa: '',
         razaoSocial: ''
     }
 
     async componentDidMount() {
-        await axios.get('/api/empresas')
+        await axios.get('/api/delegatarios')
             .then(res => {
                 const empresas = humps.camelizeKeys(res.data)
-                this.setState({ empresas })
+                this.setState({ empresas })                
             })
         await axios.get('/api/veiculosInit')
             .then(res => {
-                const veiculos = humps.camelizeKeys(res.data)            
-                this.setState({ veiculos })            
+                const veiculos = humps.camelizeKeys(res.data)
+                this.setState({ veiculos, collection: veiculos })
             })
-        console.log(this.state)
+        axios.get('/api/procuradores')
+            .then(res => {
+                const procuradores = humps.camelizeKeys(res.data)                
+                this.setState({ procuradores })
+            })            
     }
 
-    changeTab = (e, value) => this.setState({ tab: value })
-
-    handleInput = e => {
-        const { name, value } = e.target
-        this.setState({ [name]: value })
-    }
-
-    handleBlur = async  e => {
-        const { empresas } = this.state
-        const { value, name } = e.target
-
-        const selectedEmpresa = empresas.filter(e => e.razaoSocial.toLowerCase().match(value.toLowerCase()))[0]
-        console.log()
-        if (selectedEmpresa) {
-            await this.setState({ selectedEmpresa, [name]: selectedEmpresa.razaoSocial })
-            axios.get(`/api/veiculos?razaoSocial=${selectedEmpresa.razaoSocial}`)
-                .then(res => console.log(res.data))
-
-
-            /*  axios.get(`/api/veiculo/${selectedEmpresa.delegatarioId}?column=modelocarroceria_id&filter=veiculo_id`)
-                .then(r => console.log(r.data)) */
-        }
-
-
+    changeTab = async (e, value) => {
+        await this.setState({ tab: value })
+        const options = ['veiculos', 'empresas', 'procuradores', 'outros']
+        let collection = this.state[options[value]]
+        this.setState({ collection })
     }
 
     render() {
-        const { tab, items, empresas, veiculos, selectedEmpresa, razaoSocial } = this.state
-        return <Container>
+        const { tab, items, collection } = this.state
+        return <Fragment>
             <TabMenu items={items}
                 tab={tab}
                 changeTab={this.changeTab} />
             <ConsultasTemplate
                 tab={tab}
-                items={items}
-                razaoSocial={razaoSocial}
-                empresas={empresas}
-                veiculos={veiculos}
-                selectedEmpresa={selectedEmpresa}
-                handleInput={this.handleInput}
-                handleBlur={this.handleBlur}
+                items={items}                
+                collection={collection}                
             />
-        </Container>
+        </Fragment>
     }
 }

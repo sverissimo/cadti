@@ -1,8 +1,7 @@
-import React, { Component } from 'react'
+import React, { Component, Fragment } from 'react'
 import axios from 'axios'
 import VeiculosTemplate from './VeiculosTemplate'
 import { TabMenu } from '../Layouts'
-import { Container } from '@material-ui/core'
 import humps from 'humps'
 
 export default class extends Component {
@@ -41,18 +40,15 @@ export default class extends Component {
             await this.setState({ selectedEmpresa, [name]: selectedEmpresa.razaoSocial })            
            axios.get(`/api/veiculos?razaoSocial=${selectedEmpresa.razaoSocial}`)
            .then(res=> console.log(res.data))
-           
-           
+                      
             /*  axios.get(`/api/veiculo/${selectedEmpresa.delegatarioId}?column=modelocarroceria_id&filter=veiculo_id`)
                 .then(r => console.log(r.data)) */
         }
-
-
     }
 
     render() {
         const { tab, items, empresas, selectedEmpresa, razaoSocial } = this.state
-        return <Container>
+        return <Fragment>
             <TabMenu items={items}
                 tab={tab}
                 changeTab={this.changeTab} />
@@ -65,6 +61,6 @@ export default class extends Component {
                 handleInput={this.handleInput}
                 handleBlur={this.handleBlur}
             />
-        </Container>
+        </Fragment>
     }
 }
