@@ -85,7 +85,7 @@ const sections = [
     { title: 'Certidões', link: '/certidoes' },
     { title: 'Consultas', link: '/consultas' },
     { title: 'Veículos', link: '/veiculos' },
-    { title: 'Mapas interativos', link: '/mapas' },
+    { title: 'Delegatários', link: '/delegatarios' },
     { title: 'Fale Conosco', link: '/faleConosco' },
 ];
 

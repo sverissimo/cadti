@@ -1,8 +1,8 @@
-import React from 'react'
+import React, { Fragment } from 'react'
 import { Grid, Paper, Button, Typography } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
-import { vehiculeForm } from '../Forms/vehiculeForm'
+import { vehicleForm } from '../Forms/vehicleForm'
 import AutoComplete from '../Utils/autoComplete'
 
 const useStyles = makeStyles(theme => ({
@@ -34,7 +34,7 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-export default function ({ tab, empresas, handleInput, razaoSocial, handleBlur, selectedEmpresa }) {
+export default function ({ tab, empresas, handleInput, razaoSocial, handleBlur, data, handleCadastro }) {
     const classes = useStyles(), { paper, container } = classes
 
     return (
@@ -47,20 +47,15 @@ export default function ({ tab, empresas, handleInput, razaoSocial, handleBlur, 
                 <Paper className={paper}>
                     <Typography> Selecione a Viação</Typography>
                     <br />
-                    {/*  <TextField  select={true} className={classes.textField} value={selectedEmpresa} onChange={selectEmpresa} >
-                        {empresas.map((e, i) => <MenuItem key={i} value={e.razaoSocial}>{e.razaoSocial}</MenuItem>)}
-                    </TextField>  */}
-
                     <TextField
                         inputProps={{
                             list: 'razaoSocial',
-                            name: 'razaoSocial',                            
+                            name: 'razaoSocial',
                         }}
                         className={classes.textField}
                         value={razaoSocial}
                         onChange={handleInput}
                         onBlur={handleBlur}
-                        
                     />
                     <AutoComplete
                         collection={empresas}
@@ -68,27 +63,47 @@ export default function ({ tab, empresas, handleInput, razaoSocial, handleBlur, 
                         value={razaoSocial}
                     />
                     <br />
-                     {/*items[tab]} - {razaoSocial*/} 
                 </Paper>
                 <Grid item xs={12}>
                     <Paper className={paper}>
                         <Typography> Preencha dos dados do veículo</Typography>
-                        {vehiculeForm[tab].map((el, i) =>
-                            <TextField
-                                id="standard-name"
-                                key={i}
-                                name={el.field}
-                                label={el.label}
-                                margin={el.margin}
-                                className={classes.textField}
-                                error={false}
-                                helperText=''
-                                InputLabelProps={{ className: classes.textField }}
-                                inputProps={{ style: { textAlign: 'center', color: '#000', fontWeight:'500' } }}
-                            />
+
+                        {vehicleForm[tab].map((el, i) =>
+                            <Fragment key={i}>
+                                <TextField
+                                    id="standard-name"
+                                    name={el.field}
+                                    label={el.label}
+                                    margin={el.margin}
+                                    className={classes.textField}
+                                    onChange={handleInput}
+                                    onBlur={handleBlur}
+                                    error={false}
+                                    helperText=''
+                                    InputLabelProps={{ className: classes.textField, shrink: true }}
+                                    inputProps={{
+                                        style: { textAlign: 'center', color: '#000', fontWeight: '500' },
+                                        value: `${data[el.field] || ''}`,
+                                        list: el.datalist || '',
+                                    }}
+                                    multiline={el.multiline || false}
+                                    rows={el.rows || null}
+                                    variant={el.variant || 'standard'}
+                                />
+                                {el.field === 'placa' && <AutoComplete
+                                    collection={data.frota}
+                                    datalist={el.datalist}
+                                    value={data.placa || ''}
+                                />}
+                            </Fragment>
                         )}
                         <div>
-                            <Button variant="contained" color="primary" className={classes.button}>
+                            <Button 
+                            variant="contained" 
+                            color="primary" 
+                            className={classes.button}
+                            onClick={handleCadastro()}
+                            >
                                 Enviar
                         </Button>
                         </div>

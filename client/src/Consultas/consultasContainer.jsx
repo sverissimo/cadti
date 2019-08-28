@@ -3,7 +3,6 @@ import axios from 'axios'
 import ConsultasTemplate from './consultasTemplate'
 import { TabMenu } from '../Layouts'
 import humps from 'humps'
-//import formatDate from '../Utils/formatDate'
 
 export default class extends Component {
 
@@ -26,12 +25,12 @@ export default class extends Component {
             })
         await axios.get('/api/veiculosInit')
             .then(res => {
-                const veiculos = humps.camelizeKeys(res.data)
+                const veiculos = humps.camelizeKeys(res.data)                
                 this.setState({ veiculos, collection: veiculos })
             })
         axios.get('/api/procuradores')
             .then(res => {
-                const procuradores = humps.camelizeKeys(res.data)                
+                const procuradores = humps.camelizeKeys(res.data)                                
                 this.setState({ procuradores })
             })            
     }
