@@ -17,28 +17,36 @@ export default class extends Component {
         selectedEmpresa: '',
         razaoSocial: '',
         frota: [],
-        msg: 'Veículo cadastrado!'
+        msg: 'Veículo cadastrado!',
+        confirmToast: false
     }
 
-    componentDidMount() {
+    async componentDidMount() {
         const { tab } = this.state
-        axios.get('/api/empresas')
+        await axios.get('/api/empresas')
             .then(res => {
-                const empresas = humps.camelizeKeys(res.data)
+                const empresas = humps.camelizeKeys(res.data)                
                 this.setState({ empresas })
             })
-        vehicleForm[tab].forEach(e => this.setState({ [e.field]: '' }))
+        let form = {}
+        vehicleForm[tab].forEach(e => {
+            const keys = humps.decamelize(e.field)
+            Object.assign(form, { [keys]: '' })
+            this.setState({ [e.field]: '', form })
+        })
+
     }
 
     changeTab = (e, value) => {
         const opt = ['Veículo cadastrado!', 'Seguro atualizado!', 'Dados Alterados!', 'Veículo Baixado.']
         this.setState({ tab: value, msg: opt[value] })
-
     }
 
     handleInput = e => {
         const { name, value } = e.target
-        this.setState({ [name]: value })
+        const parsedName = humps.decamelize(name)
+        if (name !== 'razaoSocial') this.setState({ [name]: value, form: { ...this.state.form, [parsedName]: value } })
+        else this.setState({ [name]: value })
     }
 
     handleBlur = async  e => {
@@ -70,14 +78,16 @@ export default class extends Component {
         }
     }
 
-    handleCadastro = e => {
-        
-        
-        
-        this.setState({ confirmToast: true })
-        setTimeout(() => {
-            this.setState({ confirmToast: false })
-        }, 2000);
+    handleCadastro = async e => {
+
+        const { form } = this.state
+        await axios.post('/api/cadastroVeiculo', form)
+            .then(res => console.log(res.data))
+        this.toast()
+    }
+
+    toast = e => {
+        this.setState({ confirmToast: !this.state.confirmToast })
     }
 
     render() {
@@ -97,7 +107,7 @@ export default class extends Component {
                 handleBlur={this.handleBlur}
                 handleCadastro={() => this.handleCadastro}
             />
-            <ReactToast confirmToast={confirmToast} msg={msg} />
+            <ReactToast open={confirmToast} close={this.toast} msg={msg} />
         </Fragment>
     }
 }

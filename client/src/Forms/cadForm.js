@@ -2,50 +2,50 @@ export const cadForm = [{
     type: 'TextField',
     field: 'placa',
     label: 'Placa',
-    margin: 'normal'    
+    margin: 'normal'
 },
 {
     type: 'TextField',
     field: 'renavam',
     label: 'Renavam',
-    margin: 'normal'    
+    margin: 'normal'
 },
 {
     type: 'TextField',
-    field: 'chassi',
+    field: 'nChassi',
     label: 'Número do Chassi',
-    margin: 'normal'    
+    margin: 'normal'
 },
 {
     type: 'TextField',
-    field: 'chassiModel',
+    field: 'modelochassiId',
     label: 'Modelo do Chassi',
-    margin: 'normal'    
+    margin: 'normal'
 },
 {
-    type: 'TextField',
-    field: 'chassiYear',
+    type: 'number',
+    field: 'anoChassi',
     label: 'Ano do Chassi',
-    margin: 'normal'    
+    margin: 'normal'
 },
-{
+/* {
     type: 'TextField',
     field: 'marcaCarroceria',
     label: 'Marca da Carroceria',
     margin: 'normal'    
-},
+}, */
 {
     type: 'TextField',
-    field: 'modeloCarroceria',
+    field: 'modeloCarroceriaId',
     label: 'Modelo da Carroceria',
-    margin: 'normal'    
+    margin: 'normal'
 },
-{
+/* {
     type: 'TextField',
     field: 'TipoCarroceria',
     label: 'Tipo de Carroceria',
     margin: 'normal'    
-},
+}, */
 {
     type: 'TextField',
     field: 'cores',

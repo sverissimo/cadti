@@ -4,6 +4,9 @@ const bodyParser = require('body-parser')
 const pg = require('pg')
 const dotenv = require('dotenv')
 
+const { empresas, veiculoInit } = require('./queries')
+
+
 dotenv.config()
 app.use(bodyParser.json())
 
@@ -19,14 +22,12 @@ const pool = new Pool({
     port: 5432
 });
 
-app.get('/api/empresas', (req, res) => {
-    pool.query('SELECT * FROM public.delegatario ORDER BY "delegatario_id"', (err, table) => {
-        if (err) throw err
-        let a = []
-        //table.rows.map(r=> a.push(r.nomeMarca))
-        res.json(table.rows)
-    })
+app.get('/api/empresas', (req, res) => pool.query(empresas, (err, table) => {
+    if (err) res.send(err)
+    if (table.rows.length === 0) { res.send('Nenhum delegatário cadastrado.'); return }
+    res.json(table.rows)
 })
+)
 
 app.get('/api/veiculo/:id', (req, res) => {
     const { id } = req.params
@@ -41,12 +42,7 @@ app.get('/api/veiculo/:id', (req, res) => {
 
 app.get('/api/veiculosInit', (req, res) => {
 
-    pool.query(`
-        SELECT public.veiculo.*, public.modelo_chassi.marca_chassi as marca
-        FROM veiculo
-        LEFT JOIN public.modelo_chassi
-        ON veiculo.modelochassi_id = public.modelo_chassi.modelo_chassi
-        ORDER BY data_registro ASC`, (err, table) => {
+    pool.query(veiculoInit, (err, table) => {
             if (err) res.send(err)
             if (table.rows.length === 0) { res.send('Nenhum veículo cadastrado para esse delegatário.'); return }
             res.json(table.rows)
@@ -86,6 +82,21 @@ app.get('/api/veiculos', (req, res) => {
     pool.query(
         `SELECT * FROM public.veiculo WHERE delegatario_id = $1`, [id], (err, table) => {
 
+            if (err) res.send(err)
+            if (table.rows.length === 0) { res.send('Nenhum veículo cadastrado para esse delegatário.'); return }
+            res.json(table.rows)
+        })
+})
+
+app.post('/api/cadastroVeiculo', (req, res) => {
+
+    let pv = []
+    const keys = Object.keys(req.body).toString()
+    Object.values(req.body).map(v => pv.push('\'' + v + '\''))
+
+    //res.send(`INSERT INTO public.veiculo (${keys}) VALUES (${values})`);
+    pool.query(
+        `INSERT INTO public.veiculo (${keys}) VALUES (${pv}) RETURNING *`, (err, table) => {
             if (err) res.send(err)
             if (table.rows.length === 0) { res.send('Nenhum veículo cadastrado para esse delegatário.'); return }
             res.json(table.rows)

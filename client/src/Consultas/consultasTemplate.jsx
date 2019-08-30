@@ -35,7 +35,7 @@ const useStyles = makeStyles(theme => ({
 
 }));
 
-export default function ({ tab, collection }) {
+export default function ({ tab, collection, handleEdit }) {
     const classes = useStyles(), { paper } = classes
 
     return (
@@ -46,11 +46,15 @@ export default function ({ tab, collection }) {
                     columns={tables[tab]}
                     data={collection}
                     options={{
-                        filtering: true
+                        filtering: true,
+                        actionsColumnIndex: -1,                        
+                        searchFieldStyle: { color: '#00B' },
+                        headerStyle: { backgroundColor: '#aaccee', color: '#FFF' }
                     }}
                     localization={{
                         body: {
-                            emptyDataSourceMessage: 'Carregando...'
+                            emptyDataSourceMessage: 'Carregando...',
+                            editRow: { deleteText: 'Tem certeza que deseja apagar esse registro ?' }
                         },
                         toolbar: {
                             searchTooltip: 'Procurar',
@@ -65,6 +69,41 @@ export default function ({ tab, collection }) {
                             lastTooltip: 'Última Página'
                         }
                     }}
+                    actions={[
+                        {
+                            icon: 'info',
+                            iconProps: { color: 'primary' },
+                            tooltip: 'Mais informações',
+                            onClick: (event, rowData) => alert("You saved " + rowData.name)
+                        }
+                    ]}
+                    editable={{
+                        onRowUpdate: (newData, oldData) =>
+                            new Promise((resolve, reject) => {
+                                setTimeout(() => {
+                                    {
+                                        const data = collection;
+                                        const index = data.indexOf(oldData);
+                                        data[index] = newData;
+                                        handleEdit({ data }, () => resolve());
+                                    }
+                                    resolve();
+                                }, 1000);
+                            }),
+                        onRowDelete: oldData =>
+                            new Promise((resolve, reject) => {
+                                setTimeout(() => {
+                                    {
+                                        let data = collection;
+                                        const index = data.indexOf(oldData);
+                                        data.splice(index, 1);
+                                        handleEdit({ data }, () => resolve());
+                                    }
+                                    resolve()
+                                }, 1000)
+                            }),
+                    }}
+
                 />
                 <div>
                 </div>

@@ -54,7 +54,7 @@ function MySnackbarContentWrapper(props) {
 }
 
 export default function CustomizedSnackbars(props) {
-
+    
     return (
         <div>
             <Snackbar
@@ -62,12 +62,13 @@ export default function CustomizedSnackbars(props) {
                     vertical: 'top',
                     horizontal: 'right',
                 }}
-                open={props.confirmToast}
-                autoHideDuration={3000}
+                open={props.open}
+                autoHideDuration={2000}
+                onClose={props.close}
             >
                 <MySnackbarContentWrapper
                     variant="success"
-                    message={props.msg}
+                    message={props.msg}                    
                 />
             </Snackbar>
         </div>

@@ -34,7 +34,7 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-export default function ({ tab, empresas, handleInput, razaoSocial, handleBlur, data, handleCadastro }) {
+export default function ({ tab, empresas, handleInput, razaoSocial, handleBlur, data, handleCadastro, form }) {
     const classes = useStyles(), { paper, container } = classes
 
     return (
@@ -68,7 +68,7 @@ export default function ({ tab, empresas, handleInput, razaoSocial, handleBlur, 
                     <Paper className={paper}>
                         <Typography> Preencha dos dados do veículo</Typography>
 
-                        {vehicleForm[tab].map((el, i) =>
+                        {data.form && vehicleForm[tab].map((el, i) =>
                             <Fragment key={i}>
                                 <TextField
                                     id="standard-name"
@@ -78,6 +78,7 @@ export default function ({ tab, empresas, handleInput, razaoSocial, handleBlur, 
                                     className={classes.textField}
                                     onChange={handleInput}
                                     onBlur={handleBlur}
+                                    type={el.type || ''}                                    
                                     error={false}
                                     helperText=''
                                     InputLabelProps={{ className: classes.textField, shrink: true }}

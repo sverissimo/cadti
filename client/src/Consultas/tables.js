@@ -9,7 +9,7 @@ export const vehicleTable = [
         title: 'Utilização',
     },
     {
-        field: 'delegatarioId',
+        field: 'empresa',
         title: 'Delegatário',
     },
     {
@@ -22,9 +22,10 @@ export const vehicleTable = [
         filtering: false
     },
     {
-        field: 'pbt',
-        title: 'Peso Bruto Total',
-        filtering: false
+        field: 'dataRegistro',
+        title: 'Data de Registro',
+        filtering: false,
+        render: rowData => formatDate(rowData.dataRegistro)
     },
     {
         field: 'indicadorIdade',
