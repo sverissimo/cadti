@@ -3,8 +3,10 @@ import axios from 'axios'
 import humps from 'humps'
 import ReactToast from '../Utils/ReactToast'
 import VeiculosTemplate from './VeiculosTemplate'
+import CadVehicle from './CadVehicle'
 import { TabMenu } from '../Layouts'
 import { vehicleForm } from '../Forms/vehicleForm'
+import CustomStepper from '../Utils/Stepper'
 
 
 export default class extends Component {
@@ -18,14 +20,16 @@ export default class extends Component {
         razaoSocial: '',
         frota: [],
         msg: 'Veículo cadastrado!',
-        confirmToast: false
+        confirmToast: false,
+        activeStep: 0,
+        fileName: ''
     }
 
     async componentDidMount() {
         const { tab } = this.state
         await axios.get('/api/empresas')
             .then(res => {
-                const empresas = humps.camelizeKeys(res.data)                
+                const empresas = humps.camelizeKeys(res.data)
                 this.setState({ empresas })
             })
         let form = {}
@@ -89,24 +93,42 @@ export default class extends Component {
     toast = e => {
         this.setState({ confirmToast: !this.state.confirmToast })
     }
+    setActiveStep = action => {
+        const prevActiveStep = this.state.activeStep
+        if (action === 'next') this.setState({ activeStep: prevActiveStep + 1 });
+        if (action === 'back') this.setState({ activeStep: prevActiveStep - 1 });
+        if (action === 'reset') this.setState({ activeStep: 0 });
+    }
+
+    handleFiles = e => {
+        const { files } = e.target
+        if (files && files.length > 0) this.setState({ fileName: files[0].name })
+    }
 
     render() {
-        const { tab, items, empresas, selectedEmpresa, razaoSocial, confirmToast, msg } = this.state
+        const { tab, items, selectedEmpresa, confirmToast, msg, activeStep, fileName } = this.state
         return <Fragment>
             <TabMenu items={items}
                 tab={tab}
                 changeTab={this.changeTab} />
-            <VeiculosTemplate
-                tab={tab}
-                items={items}
-                razaoSocial={razaoSocial}
-                empresas={empresas}
+            <CustomStepper
+                activeStep={activeStep}
+                setActiveStep={this.setActiveStep}
+            />
+            {tab === 5 ? <VeiculosTemplate
                 data={this.state}
                 selectedEmpresa={selectedEmpresa}
                 handleInput={this.handleInput}
                 handleBlur={this.handleBlur}
                 handleCadastro={() => this.handleCadastro}
+                setActiveStep={this.setActiveStep}
             />
+                :
+                <CadVehicle
+                    handleFiles={this.handleFiles}
+                    fileName={fileName}
+                />
+            }
             <ReactToast open={confirmToast} close={this.toast} msg={msg} />
         </Fragment>
     }

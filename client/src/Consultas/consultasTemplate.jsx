@@ -48,8 +48,8 @@ export default function ({ tab, collection, handleEdit }) {
                     options={{
                         filtering: true,
                         actionsColumnIndex: -1,                        
-                        searchFieldStyle: { color: '#00B' },
-                        headerStyle: { backgroundColor: '#aaccee', color: '#FFF' }
+                        searchFieldStyle: { color: '#024' },
+                        headerStyle: { backgroundColor: '#FAFAFC' }
                     }}
                     localization={{
                         body: {
@@ -103,7 +103,6 @@ export default function ({ tab, collection, handleEdit }) {
                                 }, 1000)
                             }),
                     }}
-
                 />
                 <div>
                 </div>

@@ -54,7 +54,7 @@ export default class extends Component {
         return <Fragment>
             <TabMenu items={items}
                 tab={tab}
-                changeTab={this.changeTab} />
+                changeTab={this.changeTab} />                
             <ConsultasTemplate
                 tab={tab}
                 items={items}

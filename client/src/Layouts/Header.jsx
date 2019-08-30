@@ -15,7 +15,7 @@ const useStyles = makeStyles(theme => ({
     toolbarSecondary: {
         justifyContent: 'space-between',
         overflowX: 'auto',
-        backgroundColor: '#03a9f4',
+        backgroundColor: '#0398c1',
         color: 'white',
         borderBottom: 'solid 3px #fff',        
     },

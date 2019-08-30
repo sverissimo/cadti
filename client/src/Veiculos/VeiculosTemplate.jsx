@@ -9,7 +9,7 @@ const useStyles = makeStyles(theme => ({
     container: {
         display: 'flex',
         flexWrap: 'wrap',
-        padding: theme.spacing(2)
+        padding: theme.spacing(1)
     },
     textField: {
         marginLeft: theme.spacing(1),
@@ -30,12 +30,19 @@ const useStyles = makeStyles(theme => ({
     },
     button: {
         margin: theme.spacing(1),
-        float: 'right',
+        float: 'right'
+    },
+    backButton: {
+        margin: theme.spacing(1),
+        float: 'left',
+        color: '#333',
+        backgroundColor: '#eee'
     }
 }));
 
-export default function ({ tab, empresas, handleInput, razaoSocial, handleBlur, data, handleCadastro, form }) {
-    const classes = useStyles(), { paper, container } = classes
+export default function ({ handleInput, handleBlur, data, handleCadastro, setActiveStep }) {
+    const { tab, empresas, razaoSocial, activeStep } = data,
+        classes = useStyles(), { paper, container } = classes
 
     return (
         <Grid
@@ -78,7 +85,7 @@ export default function ({ tab, empresas, handleInput, razaoSocial, handleBlur, 
                                     className={classes.textField}
                                     onChange={handleInput}
                                     onBlur={handleBlur}
-                                    type={el.type || ''}                                    
+                                    type={el.type || ''}
                                     error={false}
                                     helperText=''
                                     InputLabelProps={{ className: classes.textField, shrink: true }}
@@ -99,14 +106,43 @@ export default function ({ tab, empresas, handleInput, razaoSocial, handleBlur, 
                             </Fragment>
                         )}
                         <div>
-                            <Button 
-                            variant="contained" 
-                            color="primary" 
-                            className={classes.button}
-                            onClick={handleCadastro()}
+                            <Button
+                                variant="contained"
+                                className={classes.backButton}
+                                onClick={() => setActiveStep('back')}
+                                disabled={activeStep === 0}
                             >
-                                Enviar
+                                Voltar
                         </Button>
+                            {activeStep <= 2 ?
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    className={classes.button}
+                                    onClick={() => setActiveStep('next')}
+                                >
+                                    Avançar
+                            </Button>
+                                :
+                                <Button
+                                    variant="contained"
+                                    color="primary"
+                                    className={classes.button}
+                                    onClick={handleCadastro()}
+                                >
+                                    Concluir
+                            </Button>}
+                            {/*                            <Button
+                                variant="contained"
+                                component="label"
+                            >
+                                Upload File
+                                <input
+                                    type="file"
+                                    style={{ display: "none" }}
+                                />
+                            </Button> */}
+
                         </div>
                     </Paper>
                 </Grid>
