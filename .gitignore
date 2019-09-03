@@ -1,6 +1,7 @@
 /node_modules
 /.vscode
 /database
+/files
 .env
 sismob.code-workspace
 

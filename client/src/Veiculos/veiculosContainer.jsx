@@ -6,6 +6,7 @@ import VeiculosTemplate from './VeiculosTemplate'
 import CadVehicle from './CadVehicle'
 import { TabMenu } from '../Layouts'
 import { vehicleForm } from '../Forms/vehicleForm'
+import { cadVehicleFiles } from '../Forms/cadVehicleFiles'
 import CustomStepper from '../Utils/Stepper'
 
 
@@ -22,7 +23,7 @@ export default class extends Component {
         msg: 'Veículo cadastrado!',
         confirmToast: false,
         activeStep: 0,
-        fileName: ''
+        files: []
     }
 
     async componentDidMount() {
@@ -100,13 +101,49 @@ export default class extends Component {
         if (action === 'reset') this.setState({ activeStep: 0 });
     }
 
-    handleFiles = e => {
-        const { files } = e.target
-        if (files && files.length > 0) this.setState({ fileName: files[0].name })
+    handleFiles = async e => {
+        const { name, files } = e.target
+        if (files && files[0]) {
+            this.setState({ [name]: files[0].name })
+
+            let formData = new FormData()
+            //formData.append('id', name)
+            let f = this.state.files
+
+            if (files && files.length > 0) {
+                f.push({ [name]: files[0] })
+                await this.setState({ files: f })
+
+                cadVehicleFiles.forEach(({ name }) => {
+                    for (let keys in this.state) {
+                        if (keys.match(name)) {
+                            //console.log(name)
+                            const file = this.state.files.filter(el => Object.keys(el)[0] === name)[0]
+                            formData.append('id', name)
+                            formData.append(name, file[name])
+                        }
+                        else void 0
+                    }
+                })
+                this.setState({ form: formData })
+            }
+            /* for (var pair of formData.entries()) {
+                console.log(pair[0] + ', ' + pair[1], 'ASDKJAHSD'); } */
+        }
+        //console.log(this.state.files)
+    }
+
+    handleSubmit = e => {
+        const { form } = this.state
+        //for (var pair of form.entries()) console.log(pair[0] + ', ' + pair[1], 'ASDKJAHSD')
+        
+        axios.post('/api/upload', form)
+            .then(res => console.log(res.data))
+            .catch(err => console.log(err))
     }
 
     render() {
-        const { tab, items, selectedEmpresa, confirmToast, msg, activeStep, fileName } = this.state
+        const { tab, items, selectedEmpresa, confirmToast, msg, activeStep } = this.state
         return <Fragment>
             <TabMenu items={items}
                 tab={tab}
@@ -125,8 +162,9 @@ export default class extends Component {
             />
                 :
                 <CadVehicle
+                    data={this.state}
                     handleFiles={this.handleFiles}
-                    fileName={fileName}
+                    handleSubmit={this.handleSubmit}
                 />
             }
             <ReactToast open={confirmToast} close={this.toast} msg={msg} />

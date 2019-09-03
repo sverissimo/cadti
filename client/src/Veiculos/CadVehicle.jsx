@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react'
-import { Grid, Paper, Typography, TextField, Button, } from '@material-ui/core'
+import { Grid, Paper, TextField, Button, } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
-
+import { cadVehicleFiles } from '../Forms/cadVehicleFiles'
 
 const useStyles = makeStyles(theme => ({
 
@@ -19,7 +19,6 @@ const useStyles = makeStyles(theme => ({
         fontColor: '#bbb',
     },
     input: {
-
         display: 'none'
     },
     paper: {
@@ -32,11 +31,9 @@ const useStyles = makeStyles(theme => ({
     },
 
     button: {
-
-
-        //backgroundColor: 'LightSkyBlue',
-        //color: 'white'
-        // float: 'right'
+        margin: '3% 0 3% 0',        
+        backgroundColor: 'LightSkyBlue',
+        float: 'right'
     },
     text: {
         textAlign: 'left',
@@ -51,34 +48,34 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-const docs = ['CRLV do Veículo', 'Apólice do Seguro']
+
 
 const link = (id) => {
     document.getElementById(id).click()
 }
 
-export default function CadVehicle({ handleFiles, fileName }) {
-
-    const { root, textField, button, input, paper, text, resize } = useStyles()
+export default function CadVehicle({ handleFiles, data, handleSubmit }) {
+    const { root, textField, button, input, paper, resize } = useStyles()
     return (
         <div className={root}>
             <Paper className={paper}>
                 <Grid container>
-                    {docs.map((d, k) =>
+                    {cadVehicleFiles.map(({ title, name }, k) =>
                         <Fragment key={k}>
 
-                            <Grid item xs={10} md={4} >
+                            <Grid item xs={10} md={4} style={{ cursor: 'pointer' }} >
                                 <TextField
                                     className={textField}
                                     fullWidth={true}
                                     placeholder='Selecionar arquivo'
-                                    value={fileName}
-                                    onClick={() => link(k)}
+                                    value={data[name] || ''}
+                                    onChange={handleFiles}
+                                    onClick={() => link(name)}
                                     disabled={true}
                                     InputProps={{ classes: { input: resize } }}
-                                    label={d}
+                                    label={title}
                                     InputLabelProps={{
-                                        shrink: true,
+                                        shrink: true
                                     }}
                                 />
 
@@ -89,22 +86,32 @@ export default function CadVehicle({ handleFiles, fileName }) {
                                 <Button
                                     variant="contained"
                                     component='label'
-                                    className={button}
+                                    //className={button}
                                     color='primary'
                                 >
                                     {'Selecionar'}
                                     <input
+                                        id={name}
                                         className={input}
-                                        id={k}
-                                        name='files'
+                                        name={name}
                                         type="file"
                                         onChange={handleFiles}
                                     />
                                 </Button>
                             </Grid>
-                            <Grid md={1}></Grid>
+                            <Grid item md={1}></Grid>
                         </Fragment>
                     )}
+                    <Grid item md={12}>
+                        <Button
+                            variant="contained"
+                            component='label'
+                            className={button}
+                            color='primary'
+                            onClick={handleSubmit}
+                        > Enviar
+                        </Button>
+                    </Grid>
                 </Grid>
             </Paper>
 

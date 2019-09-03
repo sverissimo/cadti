@@ -2,6 +2,9 @@ const express = require('express')
 const app = express()
 const bodyParser = require('body-parser')
 const pg = require('pg')
+const fs = require('fs')
+const path = require('path')
+const formidable = require('formidable')
 const dotenv = require('dotenv')
 
 const { empresas, veiculoInit } = require('./queries')
@@ -43,10 +46,10 @@ app.get('/api/veiculo/:id', (req, res) => {
 app.get('/api/veiculosInit', (req, res) => {
 
     pool.query(veiculoInit, (err, table) => {
-            if (err) res.send(err)
-            if (table.rows.length === 0) { res.send('Nenhum veículo cadastrado para esse delegatário.'); return }
-            res.json(table.rows)
-        })
+        if (err) res.send(err)
+        if (table.rows.length === 0) { res.send('Nenhum veículo cadastrado para esse delegatário.'); return }
+        res.json(table.rows)
+    })
 })
 
 app.get('/api/procuradores', (req, res) => {
@@ -102,6 +105,37 @@ app.post('/api/cadastroVeiculo', (req, res) => {
             res.json(table.rows)
         })
 })
+
+app.post('/api/upload', (req, res) => {
+
+    const parsedForm = new formidable.IncomingForm().parse(req)
+    parsedForm.on('field', (name, field) => {
+        //console.log('Field', name, field)
+    })
+
+
+    parsedForm.on('file', function (name, file) {
+        const newPath = path.resolve(__dirname, '../files', file.name)
+        fs.rename(file.path, newPath, err => console.log(err))
+    });
+
+    parsedForm.on('error', (err) => {
+        console.error('Error', err)
+        throw err
+    })
+    parsedForm.on('end', () => {
+        res.send('uploaded!')
+    })
+
+    /* , (err, fields, files) => {
+        if (err) console.log(err)
+        console.log(fields, files)
+        res.send(files)
+        return */
+})
+
+
+
 
 app.listen(PORT, HOST)
 
