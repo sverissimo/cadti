@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Stepper from '@material-ui/core/Stepper';
 import Step from '@material-ui/core/Step';
@@ -8,13 +8,13 @@ import Typography from '@material-ui/core/Typography';
 const useStyles = makeStyles(theme => ({
     root: {
         width: '100%',
-        marginTop: '1%',        
+        marginTop: '1%',
     },
     button: {
         marginRight: theme.spacing(1),
     },
     instructions: {
-        marginTop: theme.spacing(1),        
+        marginTop: theme.spacing(1),
         padding: '1% 0 0 3%',
         fontWeight: 500
     },
@@ -24,21 +24,24 @@ function getSteps() {
     return ['Dados do Veículo', 'Vistorias, seguros e documentos', 'Revisão'];
 }
 
-function getStepContent(step) {
-    switch (step) {
-        case 0:
-            return 'Informe os dados do veículo';
-        case 1:
-            return 'Informar dados da vistoria/seguro e anexar documentos';
-        case 2:
-            return 'Revisão das informações e deferimento';
-        default:
-            return 'Selecione';
-    }
-}
+export default function CustomStepper({ activeStep, selectedEmpresa }) {
 
-export default function CustomStepper({ activeStep, setActiveStep }) {
-    const classes = useStyles()    
+    function getStepContent(step) {
+        switch (step) {
+            case 0:
+                return 'Informe os dados do veículo';
+            case 1:
+                return <Fragment>
+                    Informar dados da vistoria/seguro e anexar documentos - {selectedEmpresa && selectedEmpresa.razaoSocial}
+                </Fragment>
+            case 2:
+                return 'Revisão das informações e deferimento';
+            default:
+                return 'Selecione';
+        }
+    }
+
+    const classes = useStyles()
     const steps = getSteps()
 
     return (
@@ -60,11 +63,11 @@ export default function CustomStepper({ activeStep, setActiveStep }) {
                         <Typography className={classes.instructions}>
                             All steps completed - you&apos;re finished
                         </Typography>
-                       
+
                     </div>
                 ) : (
                         <div>
-                            <Typography className={classes.instructions}>{getStepContent(activeStep)}</Typography>                            
+                            <Typography className={classes.instructions}>{getStepContent(activeStep)}</Typography>
                         </div>
                     )}
             </div>

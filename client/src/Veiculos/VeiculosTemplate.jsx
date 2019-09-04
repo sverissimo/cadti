@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react'
-import { Grid, Paper, Button, Typography } from '@material-ui/core'
+import { Grid, Paper, Typography } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
 import { vehicleForm } from '../Forms/vehicleForm'
@@ -23,25 +23,15 @@ const useStyles = makeStyles(theme => ({
         textAlign: 'center'
     },
     paper: {
-        padding: theme.spacing(2),
+        padding: theme.spacing(1),
         textAlign: 'center',
         color: theme.palette.text.secondary,
-        margin: theme.spacing(2)
-    },
-    button: {
-        margin: theme.spacing(1),
-        float: 'right'
-    },
-    backButton: {
-        margin: theme.spacing(1),
-        float: 'left',
-        color: '#333',
-        backgroundColor: '#eee'
-    }
+        margin: theme.spacing(1)
+    }  
 }));
 
-export default function ({ handleInput, handleBlur, data, handleCadastro, setActiveStep }) {
-    const { tab, empresas, razaoSocial, activeStep } = data,
+export default function ({ handleInput, handleBlur, data }) {
+    const { tab, empresas, razaoSocial } = data,
         classes = useStyles(), { paper, container } = classes
 
     return (
@@ -104,46 +94,7 @@ export default function ({ handleInput, handleBlur, data, handleCadastro, setAct
                                     value={data.placa || ''}
                                 />}
                             </Fragment>
-                        )}
-                        <div>
-                            <Button
-                                variant="contained"
-                                className={classes.backButton}
-                                onClick={() => setActiveStep('back')}
-                                disabled={activeStep === 0}
-                            >
-                                Voltar
-                        </Button>
-                            {activeStep <= 2 ?
-                                <Button
-                                    variant="contained"
-                                    color="primary"
-                                    className={classes.button}
-                                    onClick={() => setActiveStep('next')}
-                                >
-                                    Avançar
-                            </Button>
-                                :
-                                <Button
-                                    variant="contained"
-                                    color="primary"
-                                    className={classes.button}
-                                    onClick={handleCadastro()}
-                                >
-                                    Concluir
-                            </Button>}
-                            {/*                            <Button
-                                variant="contained"
-                                component="label"
-                            >
-                                Upload File
-                                <input
-                                    type="file"
-                                    style={{ display: "none" }}
-                                />
-                            </Button> */}
-
-                        </div>
+                        )}                       
                     </Paper>
                 </Grid>
             </Grid>

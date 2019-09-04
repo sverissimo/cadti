@@ -9,7 +9,6 @@ const useStyles = makeStyles(theme => ({
         flexGrow: '1',
         margin: '1%',
         padding: '1%',
-
     },
     textField: {
         marginLeft: theme.spacing(1),
@@ -22,7 +21,7 @@ const useStyles = makeStyles(theme => ({
         display: 'none'
     },
     paper: {
-        textAlign: 'center',
+        
         color: theme.palette.text.secondary,
         margin: theme.spacing(2),
         width: "100%",
@@ -31,8 +30,13 @@ const useStyles = makeStyles(theme => ({
     },
 
     button: {
+        margin: '3% 0 3% 0',
+        backgroundColor: 'DodgerBlue',
+        float: 'right bottom'
+    },
+    sendButton: {
         margin: '3% 0 3% 0',        
-        backgroundColor: 'LightSkyBlue',
+        backgroundColor: 'teal',
         float: 'right'
     },
     text: {
@@ -45,30 +49,31 @@ const useStyles = makeStyles(theme => ({
     resize: {
         fontSize: '0.8rem',
         color: '#888'
+    },
+    item: {
+        marginTop: '2%'
     }
-}));
-
-
+}))
 
 const link = (id) => {
     document.getElementById(id).click()
 }
 
-export default function CadVehicle({ handleFiles, data, handleSubmit }) {
-    const { root, textField, button, input, paper, resize } = useStyles()
+export default function CadVehicle({ handleFiles, handleSubmit }) {
+    const { root, textField, button, input, paper, sendButton, resize, item } = useStyles()
+
     return (
-        <div className={root}>
+        <div >
             <Paper className={paper}>
-                <Grid container>
+                <Grid container className={root}>
                     {cadVehicleFiles.map(({ title, name }, k) =>
                         <Fragment key={k}>
-
-                            <Grid item xs={10} md={4} style={{ cursor: 'pointer' }} >
+                            <Grid item xs={10} md={4} className={item}>
                                 <TextField
+                                    id={name}
                                     className={textField}
                                     fullWidth={true}
-                                    placeholder='Selecionar arquivo'
-                                    value={data[name] || ''}
+                                    placeholder='Nenhum arquivo selecionado'
                                     onChange={handleFiles}
                                     onClick={() => link(name)}
                                     disabled={true}
@@ -78,15 +83,12 @@ export default function CadVehicle({ handleFiles, data, handleSubmit }) {
                                         shrink: true
                                     }}
                                 />
-
                             </Grid>
-
-
-                            <Grid item xs={2} md={1}>
+                            <Grid item xs={2} md={1} style={{paddingTop: '2%'}}>
                                 <Button
                                     variant="contained"
                                     component='label'
-                                    //className={button}
+                                    className={button}
                                     color='primary'
                                 >
                                     {'Selecionar'}
@@ -102,11 +104,11 @@ export default function CadVehicle({ handleFiles, data, handleSubmit }) {
                             <Grid item md={1}></Grid>
                         </Fragment>
                     )}
-                    <Grid item md={12}>
+                    <Grid item md={12} style={{paddingRight: '2%', marginTop:'-1%'}}>
                         <Button
                             variant="contained"
                             component='label'
-                            className={button}
+                            className={sendButton}
                             color='primary'
                             onClick={handleSubmit}
                         > Enviar
@@ -114,9 +116,6 @@ export default function CadVehicle({ handleFiles, data, handleSubmit }) {
                     </Grid>
                 </Grid>
             </Paper>
-
-
-
         </div>
     )
 }

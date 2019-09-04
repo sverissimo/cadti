@@ -23,29 +23,29 @@ export const cadForm = [{
     margin: 'normal'
 },
 {
-    type: 'number',
-    field: 'anoChassi',
-    label: 'Ano do Chassi',
-    margin: 'normal'
-},
-/* {
-    type: 'TextField',
-    field: 'marcaCarroceria',
-    label: 'Marca da Carroceria',
-    margin: 'normal'    
-}, */
-{
     type: 'TextField',
     field: 'modeloCarroceriaId',
     label: 'Modelo da Carroceria',
     margin: 'normal'
 },
-/* {
+{
+    type: 'TextField',
+    field: 'pneumaticos',
+    label: 'Número de Pneumáticos',
+    margin: 'normal'
+},
+{
     type: 'TextField',
     field: 'TipoCarroceria',
     label: 'Tipo de Carroceria',
     margin: 'normal'    
-}, */
+},
+{
+    type: 'TextField',
+    field: 'ano_carroceria',
+    label: 'Ano da Carroceria',
+    margin: 'normal'    
+},
 {
     type: 'TextField',
     field: 'cores',

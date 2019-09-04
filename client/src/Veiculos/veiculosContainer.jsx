@@ -7,6 +7,7 @@ import CadVehicle from './CadVehicle'
 import { TabMenu } from '../Layouts'
 import { vehicleForm } from '../Forms/vehicleForm'
 import { cadVehicleFiles } from '../Forms/cadVehicleFiles'
+import StepperButtons from './StepperButtons'
 import CustomStepper from '../Utils/Stepper'
 
 
@@ -22,8 +23,9 @@ export default class extends Component {
         frota: [],
         msg: 'Veículo cadastrado!',
         confirmToast: false,
-        activeStep: 0,
-        files: []
+        activeStep: 1,
+        files: [],
+        fileNames: []
     }
 
     async componentDidMount() {
@@ -39,12 +41,28 @@ export default class extends Component {
             Object.assign(form, { [keys]: '' })
             this.setState({ [e.field]: '', form })
         })
-
+        /*  axios({
+             url: `/api/download/`,
+             method: 'GET',
+             responseType: 'blob',
+         }).then((response) => {
+             const url = window.URL.createObjectURL(new Blob([response.data]));
+             const link = document.createElement('a');
+             link.href = url;
+             link.setAttribute('download', 'recA.pdf');
+             document.body.appendChild(link);
+             link.click();
+         })
+             .catch(err => {
+                 console.log(err)                
+             }) */
     }
 
     changeTab = (e, value) => {
         const opt = ['Veículo cadastrado!', 'Seguro atualizado!', 'Dados Alterados!', 'Veículo Baixado.']
         this.setState({ tab: value, msg: opt[value] })
+
+        console.log(this.state.tab)
     }
 
     handleInput = e => {
@@ -103,24 +121,25 @@ export default class extends Component {
 
     handleFiles = async e => {
         const { name, files } = e.target
+
         if (files && files[0]) {
-            this.setState({ [name]: files[0].name })
+
+            document.getElementById(name).value = files[0].name
 
             let formData = new FormData()
-            //formData.append('id', name)
-            let f = this.state.files
+
+            let fn = this.state.fileNames
 
             if (files && files.length > 0) {
-                f.push({ [name]: files[0] })
-                await this.setState({ files: f })
+
+                fn.push({ [name]: files[0].name })
+                await this.setState({ filesNames: fn, [name]: files[0] })
 
                 cadVehicleFiles.forEach(({ name }) => {
                     for (let keys in this.state) {
                         if (keys.match(name)) {
-                            //console.log(name)
-                            const file = this.state.files.filter(el => Object.keys(el)[0] === name)[0]
                             formData.append('id', name)
-                            formData.append(name, file[name])
+                            formData.append(name, this.state[name])
                         }
                         else void 0
                     }
@@ -133,13 +152,14 @@ export default class extends Component {
         //console.log(this.state.files)
     }
 
-    handleSubmit = e => {
+    handleSubmit = async e => {
         const { form } = this.state
         //for (var pair of form.entries()) console.log(pair[0] + ', ' + pair[1], 'ASDKJAHSD')
-        
-        axios.post('/api/upload', form)
+
+        await axios.post('/api/upload', form)
             .then(res => console.log(res.data))
             .catch(err => console.log(err))
+        this.toast()
     }
 
     render() {
@@ -151,22 +171,28 @@ export default class extends Component {
             <CustomStepper
                 activeStep={activeStep}
                 setActiveStep={this.setActiveStep}
+                selectedEmpresa={selectedEmpresa}
             />
-            {tab === 5 ? <VeiculosTemplate
+            {activeStep === 0 ? <VeiculosTemplate
                 data={this.state}
                 selectedEmpresa={selectedEmpresa}
                 handleInput={this.handleInput}
                 handleBlur={this.handleBlur}
-                handleCadastro={() => this.handleCadastro}
+            />
+                : activeStep === 1 ?
+                    <CadVehicle
+                        data={this.state}
+                        handleFiles={this.handleFiles}
+                        handleSubmit={this.handleSubmit}
+                        handleNames={this.handleNames}
+                    />
+                    : <div>hi </div>
+            }
+            <StepperButtons
+                activeStep={activeStep}
+                handleCadastro={this.handleCadastro}
                 setActiveStep={this.setActiveStep}
             />
-                :
-                <CadVehicle
-                    data={this.state}
-                    handleFiles={this.handleFiles}
-                    handleSubmit={this.handleSubmit}
-                />
-            }
             <ReactToast open={confirmToast} close={this.toast} msg={msg} />
         </Fragment>
     }

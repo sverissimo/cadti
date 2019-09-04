@@ -4,10 +4,10 @@ const bodyParser = require('body-parser')
 const pg = require('pg')
 const fs = require('fs')
 const path = require('path')
-const formidable = require('formidable')
 const dotenv = require('dotenv')
 
 const { empresas, veiculoInit } = require('./queries')
+const { upload } = require('./upload')
 
 
 dotenv.config()
@@ -106,35 +106,22 @@ app.post('/api/cadastroVeiculo', (req, res) => {
         })
 })
 
-app.post('/api/upload', (req, res) => {
+app.post('/api/upload', upload)
 
-    const parsedForm = new formidable.IncomingForm().parse(req)
-    parsedForm.on('field', (name, field) => {
-        //console.log('Field', name, field)
-    })
-
-
-    parsedForm.on('file', function (name, file) {
-        const newPath = path.resolve(__dirname, '../files', file.name)
-        fs.rename(file.path, newPath, err => console.log(err))
+app.get('/api/download', (req, res) => {
+    const fPath = path.join(__dirname, '../files', 'a.xls')
+    res.set({
+        'Content-Type': 'application/vnd.ms-excel',
+        'Content-Disposition': 'attachment'
     });
 
-    parsedForm.on('error', (err) => {
-        console.error('Error', err)
-        throw err
-    })
-    parsedForm.on('end', () => {
-        res.send('uploaded!')
-    })
+    //const pathZ = path.resolve(__dirname, '../files', 'delegas.xls')
+    const stream = fs.createReadStream(fPath, { autoClose: true })
 
-    /* , (err, fields, files) => {
-        if (err) console.log(err)
-        console.log(fields, files)
-        res.send(files)
-        return */
+    stream.on('close', () => res.end())
+    stream.pipe(res)
+
 })
-
-
 
 
 app.listen(PORT, HOST)
