@@ -3,6 +3,7 @@ import { Grid, Paper, Typography } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
 import { vehicleForm } from '../Forms/vehicleForm'
+import { cadForm } from '../Forms/cadForm'
 import AutoComplete from '../Utils/autoComplete'
 
 const useStyles = makeStyles(theme => ({
@@ -27,12 +28,15 @@ const useStyles = makeStyles(theme => ({
         textAlign: 'center',
         color: theme.palette.text.secondary,
         margin: theme.spacing(1)
-    }  
+    }
 }));
 
 export default function ({ handleInput, handleBlur, data }) {
-    const { tab, empresas, razaoSocial } = data,
+    const { tab, empresas, razaoSocial, activeStep } = data,
         classes = useStyles(), { paper, container } = classes
+    let form = []
+    if (tab !== 0) form = vehicleForm[tab]
+    else form = cadForm[activeStep]    
 
     return (
         <Grid
@@ -65,7 +69,7 @@ export default function ({ handleInput, handleBlur, data }) {
                     <Paper className={paper}>
                         <Typography> Preencha dos dados do veículo</Typography>
 
-                        {data.form && vehicleForm[tab].map((el, i) =>
+                        {data.form && form[0] && form.map((el, i) =>
                             <Fragment key={i}>
                                 <TextField
                                     id="standard-name"
@@ -94,7 +98,7 @@ export default function ({ handleInput, handleBlur, data }) {
                                     value={data.placa || ''}
                                 />}
                             </Fragment>
-                        )}                       
+                        )}
                     </Paper>
                 </Grid>
             </Grid>

@@ -28,7 +28,7 @@ const classes = useStyles(), {backButton, button} = classes
             >
                 Voltar
             </Button>
-            {activeStep <= 2 ?
+            {activeStep <= 3 ?
                 <Button
                     variant="contained"
                     color="primary"

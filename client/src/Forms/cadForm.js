@@ -1,4 +1,6 @@
-export const cadForm = [{
+import { vistoriaForm } from './vistoriaForm'
+
+export const cadForm = [[{
     type: 'TextField',
     field: 'placa',
     label: 'Placa',
@@ -38,17 +40,21 @@ export const cadForm = [{
     type: 'TextField',
     field: 'TipoCarroceria',
     label: 'Tipo de Carroceria',
-    margin: 'normal'    
+    margin: 'normal'
 },
 {
     type: 'TextField',
     field: 'ano_carroceria',
     label: 'Ano da Carroceria',
-    margin: 'normal'    
+    margin: 'normal'
 },
 {
     type: 'TextField',
     field: 'cores',
     label: 'Cores',
-    margin: 'normal'    
-}]
+    margin: 'normal'
+}]]
+    .concat([vistoriaForm])
+    .concat([[]])
+    .concat([[]])
+

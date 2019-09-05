@@ -7,7 +7,7 @@ const path = require('path')
 const dotenv = require('dotenv')
 
 const { empresas, veiculoInit } = require('./queries')
-const { upload } = require('./upload')
+const { upload } = require('./upload');
 
 
 dotenv.config()

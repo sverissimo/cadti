@@ -4,6 +4,7 @@ import humps from 'humps'
 import ReactToast from '../Utils/ReactToast'
 import VeiculosTemplate from './VeiculosTemplate'
 import CadVehicle from './CadVehicle'
+import Review from './Review'
 import { TabMenu } from '../Layouts'
 import { vehicleForm } from '../Forms/vehicleForm'
 import { cadVehicleFiles } from '../Forms/cadVehicleFiles'
@@ -23,7 +24,7 @@ export default class extends Component {
         frota: [],
         msg: 'Veículo cadastrado!',
         confirmToast: false,
-        activeStep: 1,
+        activeStep: 0,
         files: [],
         fileNames: []
     }
@@ -36,33 +37,16 @@ export default class extends Component {
                 this.setState({ empresas })
             })
         let form = {}
+
         vehicleForm[tab].forEach(e => {
             const keys = humps.decamelize(e.field)
             Object.assign(form, { [keys]: '' })
             this.setState({ [e.field]: '', form })
         })
-        /*  axios({
-             url: `/api/download/`,
-             method: 'GET',
-             responseType: 'blob',
-         }).then((response) => {
-             const url = window.URL.createObjectURL(new Blob([response.data]));
-             const link = document.createElement('a');
-             link.href = url;
-             link.setAttribute('download', 'recA.pdf');
-             document.body.appendChild(link);
-             link.click();
-         })
-             .catch(err => {
-                 console.log(err)                
-             }) */
     }
-
     changeTab = (e, value) => {
         const opt = ['Veículo cadastrado!', 'Seguro atualizado!', 'Dados Alterados!', 'Veículo Baixado.']
         this.setState({ tab: value, msg: opt[value] })
-
-        console.log(this.state.tab)
     }
 
     handleInput = e => {
@@ -116,7 +100,7 @@ export default class extends Component {
         const prevActiveStep = this.state.activeStep
         if (action === 'next') this.setState({ activeStep: prevActiveStep + 1 });
         if (action === 'back') this.setState({ activeStep: prevActiveStep - 1 });
-        if (action === 'reset') this.setState({ activeStep: 0 });
+        if (action === 'reset') this.setState({ activeStep: 0 })        
     }
 
     handleFiles = async e => {
@@ -145,11 +129,8 @@ export default class extends Component {
                     }
                 })
                 this.setState({ form: formData })
-            }
-            /* for (var pair of formData.entries()) {
-                console.log(pair[0] + ', ' + pair[1], 'ASDKJAHSD'); } */
-        }
-        //console.log(this.state.files)
+            }           
+        }        
     }
 
     handleSubmit = async e => {
@@ -168,31 +149,33 @@ export default class extends Component {
             <TabMenu items={items}
                 tab={tab}
                 changeTab={this.changeTab} />
-            <CustomStepper
+            {tab === 0 && <CustomStepper
                 activeStep={activeStep}
                 setActiveStep={this.setActiveStep}
                 selectedEmpresa={selectedEmpresa}
-            />
-            {activeStep === 0 ? <VeiculosTemplate
+            />}
+            {activeStep < 2 ? <VeiculosTemplate
                 data={this.state}
                 selectedEmpresa={selectedEmpresa}
                 handleInput={this.handleInput}
                 handleBlur={this.handleBlur}
             />
-                : activeStep === 1 ?
+                : tab === 0 && activeStep === 2 ?
                     <CadVehicle
                         data={this.state}
                         handleFiles={this.handleFiles}
                         handleSubmit={this.handleSubmit}
                         handleNames={this.handleNames}
                     />
-                    : <div>hi </div>
+                    : tab === 0 && activeStep === 3 ?
+                        <Review data={this.state} />
+                        : <Fragment></Fragment>
             }
-            <StepperButtons
+            {tab === 0 && <StepperButtons
                 activeStep={activeStep}
                 handleCadastro={this.handleCadastro}
                 setActiveStep={this.setActiveStep}
-            />
+            />}
             <ReactToast open={confirmToast} close={this.toast} msg={msg} />
         </Fragment>
     }
