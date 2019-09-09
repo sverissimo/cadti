@@ -46,6 +46,7 @@ app.get('/api/veiculo/:id', (req, res) => {
 app.get('/api/veiculosInit', (req, res) => {
 
     pool.query(veiculoInit, (err, table) => {
+
         if (err) res.send(err)
         if (table.rows.length === 0) { res.send('Nenhum veículo cadastrado para esse delegatário.'); return }
         res.json(table.rows)
@@ -59,10 +60,10 @@ app.get('/api/procuradores', (req, res) => {
          LEFT JOIN public.delegatario 
          ON delegatario.delegatario_id = procurador.delegatario_id
          ORDER BY nome_procurador ASC`, (err, table) => {
-            if (err) res.send(err)
-            if (table.rows.length === 0) { res.send('Nenhum procurador cadastrado para esse delegatário.'); return }
-            res.json(table.rows)
-        })
+        if (err) res.send(err)
+        if (table.rows.length === 0) { res.send('Nenhum procurador cadastrado para esse delegatário.'); return }
+        res.json(table.rows)
+    })
 })
 
 app.get('/api/delegatarios', (req, res) => {
@@ -73,10 +74,13 @@ app.get('/api/delegatarios', (req, res) => {
          LEFT JOIN procurador
          ON procurador.delegatario_id = delegatario.delegatario_id    
 	     GROUP BY delegatario.delegatario_id;`, (err, table) => {
-            if (err) res.send(err)
-            if (table.rows.length === 0) { res.send('Nenhum delegatário cadastrado.'); return }
-            res.json(table.rows)
-        })
+        if (err) res.send(err)
+        if (table.rows && table.rows.length === 0) {
+            res.send('Nenhum delegatário cadastrado.')
+            return
+        }
+        res.json(table.rows)
+    })
 })
 
 app.get('/api/veiculos', (req, res) => {
@@ -93,15 +97,16 @@ app.get('/api/veiculos', (req, res) => {
 
 app.post('/api/cadastroVeiculo', (req, res) => {
 
-    let pv = []
-    const keys = Object.keys(req.body).toString()
-    Object.values(req.body).map(v => pv.push('\'' + v + '\''))
+    const keys = Object.keys(req.body).toString(),
+        values = Object.values(req.body)
 
-    //res.send(`INSERT INTO public.veiculo (${keys}) VALUES (${values})`);
+
+    //res.send(`INSERT INTO public.veiculo (${keys}) VALUES (${values})`)
+    console.log(keys, values)
     pool.query(
-        `INSERT INTO public.veiculo (${keys}) VALUES (${pv}) RETURNING *`, (err, table) => {
+        `INSERT INTO public.veiculo (${keys}) VALUES ${1} RETURNING *`, values, (err, table) => {
             if (err) res.send(err)
-            if (table.rows.length === 0) { res.send('Nenhum veículo cadastrado para esse delegatário.'); return }
+            if (table.rows && table.rows.length === 0) { res.send('Nenhum veículo cadastrado para esse delegatário.'); return }
             res.json(table.rows)
         })
 })

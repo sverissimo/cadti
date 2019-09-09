@@ -28,7 +28,7 @@ const classes = useStyles(), {backButton, button} = classes
             >
                 Voltar
             </Button>
-            {activeStep <= 3 ?
+            {activeStep <= 2 ?
                 <Button
                     variant="contained"
                     color="primary"
@@ -42,7 +42,7 @@ const classes = useStyles(), {backButton, button} = classes
                     variant="contained"
                     color="primary"
                     className={button}
-                    onClick={handleCadastro()}
+                    onClick={()=> handleCadastro()}
                 >
                     Concluir
             </Button>}

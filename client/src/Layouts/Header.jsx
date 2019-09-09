@@ -103,7 +103,7 @@ export default function () {
                     <Button size="small">Criar usuário</Button>
                     <Typography
                         component="h2"
-                        variant="h5"
+                        variant="h6"
                         color="inherit"
                         align="center"
                         noWrap

@@ -8,6 +8,7 @@ import Review from './Review'
 import { TabMenu } from '../Layouts'
 import { vehicleForm } from '../Forms/vehicleForm'
 import { cadVehicleFiles } from '../Forms/cadVehicleFiles'
+import { cadForm } from '../Forms/cadForm'
 import StepperButtons from './StepperButtons'
 import CustomStepper from '../Utils/Stepper'
 
@@ -86,9 +87,18 @@ export default class extends Component {
     }
 
     handleCadastro = async e => {
-
-        const { form } = this.state
-        await axios.post('/api/cadastroVeiculo', form)
+        let review = {}
+        cadForm.forEach(form => {
+            form.forEach(obj => {
+                for (let k in this.state) {
+                    if (k.match(obj.field)) {
+                        Object.assign(review, { [k]: this.state[k] })
+                    }
+                }
+            })
+        })
+        const parsedReview = humps.decamelizeKeys(review)
+        await axios.post('/api/cadastroVeiculo', parsedReview)
             .then(res => console.log(res.data))
         this.toast()
     }
@@ -100,7 +110,7 @@ export default class extends Component {
         const prevActiveStep = this.state.activeStep
         if (action === 'next') this.setState({ activeStep: prevActiveStep + 1 });
         if (action === 'back') this.setState({ activeStep: prevActiveStep - 1 });
-        if (action === 'reset') this.setState({ activeStep: 0 })        
+        if (action === 'reset') this.setState({ activeStep: 0 })
     }
 
     handleFiles = async e => {
@@ -129,8 +139,8 @@ export default class extends Component {
                     }
                 })
                 this.setState({ form: formData })
-            }           
-        }        
+            }
+        }
     }
 
     handleSubmit = async e => {

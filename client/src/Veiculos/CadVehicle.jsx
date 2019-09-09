@@ -20,15 +20,13 @@ const useStyles = makeStyles(theme => ({
     input: {
         display: 'none'
     },
-    paper: {
-        
+    paper: {        
         color: theme.palette.text.secondary,
         margin: theme.spacing(2),
         width: "100%",
         padding: '2% 0 4% 0',
         height: '400px'
     },
-
     button: {
         margin: '3% 0 3% 0',
         backgroundColor: 'DodgerBlue',
