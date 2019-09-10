@@ -21,7 +21,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 function getSteps() {
-    return ['Dados do Veículo', 'Dados do seguro', 'Vistorias, seguros e documentos', 'Revisão'];
+    return ['Dados do Veículo', 'Dados da vistoria e seguro', 'Vistorias, seguros e documentos', 'Revisão'];
 }
 
 export default function CustomStepper({ activeStep, selectedEmpresa }) {

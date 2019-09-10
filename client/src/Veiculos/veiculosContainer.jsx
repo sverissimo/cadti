@@ -68,7 +68,8 @@ export default class extends Component {
             await axios.get(`/api/veiculos?id=${selectedEmpresa.delegatarioId}`)
                 .then(res => this.setState({ frota: humps.camelizeKeys(res.data) }))
         }
-        if (name === 'placa') {
+        if (name === 'placa' && typeof this.state.frota !== 'string') {
+
             const vehicle = this.state.frota.filter(v => v.placa === value)[0]
             await this.setState({ ...vehicle })
         }
@@ -87,12 +88,16 @@ export default class extends Component {
     }
 
     handleCadastro = async e => {
+        const { selectedEmpresa } = this.state,
+            { delegatarioId } = selectedEmpresa,
+            situacao = 'Ativo'
         let review = {}
+
         cadForm.forEach(form => {
             form.forEach(obj => {
                 for (let k in this.state) {
                     if (k.match(obj.field)) {
-                        Object.assign(review, { [k]: this.state[k] })
+                        Object.assign(review, { [k]: this.state[k], delegatarioId, situacao })
                     }
                 }
             })

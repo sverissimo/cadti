@@ -97,17 +97,21 @@ app.get('/api/veiculos', (req, res) => {
 
 app.post('/api/cadastroVeiculo', (req, res) => {
 
+    let parsed = []
     const keys = Object.keys(req.body).toString(),
         values = Object.values(req.body)
 
+    values.forEach(v => {
+        parsed.push(('\'' + v + '\'').toString())
 
-    //res.send(`INSERT INTO public.veiculo (${keys}) VALUES (${values})`)
-    console.log(keys, values)
+    })
+    parsed = parsed.toString().replace(/'\['/g, '').replace(/'\]'/g, '')        
+    console.log(`INSERT INTO public.veiculo (${keys}) VALUES (${parsed}) RETURNING *`)
     pool.query(
-        `INSERT INTO public.veiculo (${keys}) VALUES ${1} RETURNING *`, values, (err, table) => {
+        `INSERT INTO public.veiculo (${keys}) VALUES (${parsed}) RETURNING *`, (err, table) => {
             if (err) res.send(err)
             if (table.rows && table.rows.length === 0) { res.send('Nenhum veículo cadastrado para esse delegatário.'); return }
-            res.json(table.rows)
+            res.json(table.rows);
         })
 })
 

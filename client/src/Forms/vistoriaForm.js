@@ -1,62 +1,83 @@
 export const vistoriaForm = [
     {
-        type: 'TextField',
         field: 'cilindros',
         label: 'Cilindros',
-        margin: 'normal'
+        margin: 'normal',
+        type: 'number',
+        max: 12,
+        step: 1
     },
     {
-        type: 'TextField',
         field: 'potencia',
-        label: 'Potência',
-        margin: 'normal'
+        label: 'Potência (cv)',
+        margin: 'normal',
+        type: 'number',
+        max: 600
     },
     {
-        type: 'TextField',
         field: 'eixos',
         label: 'Eixos',
-        margin: 'normal'
+        margin: 'normal',
+        type: 'number',
+        max: 8
     },
     {
-        type: 'TextField',
+        field: 'pneumaticos',
+        label: 'Pneumáticos',
+        margin: 'normal',
+        type: 'number',
+        max: 20
+    },
+    {
         field: 'peso_dianteiro',
-        label: 'Peso Dianteiro',
-        margin: 'normal'
+        label: 'Peso Dianteiro (kg)',
+        margin: 'normal',
+        type: 'number',
+        max: 12000
     },
     {
-        type: 'TextField',
         field: 'peso_traseiro',
-        label: 'Peso Trasiero',
-        margin: 'normal'
+        label: 'Peso Trasiero (kg)',
+        margin: 'normal',
+        type: 'number',
+        max: 15000
     },
     {
-        type: 'TextField',
         field: 'poltronas',
         label: 'Poltronas',
-        margin: 'normal'
+        margin: 'normal',
+        type: 'number',
+        max: 120
     },
     {
-        type: 'TextField',
         field: 'piques_poltrona',
         label: 'Piques poltrona',
-        margin: 'normal'
+        margin: 'normal',
+        type: 'number',
+        max: 12
     },
     {
-        type: 'TextField',
         field: 'distancia_minima',
-        label: 'Distância Mínima',
-        margin: 'normal'
+        label: 'Distância Mínima (cm)',
+        margin: 'normal',
+        type: 'number',        
+        max: 150
     },
     {
-        type: 'TextField',
         field: 'distancia_maxima',
-        label: 'Distância Máxima',
-        margin: 'normal'
+        label: 'Distância Máxima (cm)',
+        margin: 'normal',
+        type: 'number',
+        max: 150
     },
     {
-        type: 'TextField',
         field: 'equipamentos_id',
         label: 'Equipamentos',
         margin: 'normal'
-    }       
+    },
+    {
+        field: 'seguroId',
+        label: 'Apólice de seguro',
+        margin: 'normal'
+    },
 ]

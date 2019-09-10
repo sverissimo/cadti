@@ -1,55 +1,76 @@
 import { vistoriaForm } from './vistoriaForm'
 
-export const cadForm = [[{
-    type: 'TextField',
+export const cadForm = [[{    
     field: 'placa',
     label: 'Placa',
-    margin: 'normal'
+    margin: 'normal',
+    maxLength: 8
 },
-{
-    type: 'TextField',
+{    
     field: 'renavam',
     label: 'Renavam',
-    margin: 'normal'
+    margin: 'normal',
+    maxLength: 11
 },
-{
-    type: 'TextField',
+{ 
+    field: 'utilizacao',
+    label: 'Utilização',
+    margin: 'normal',
+    select: true,
+    options: ['Convencional', 'Executivo', 'Leito', 'Semi-Leito', 'Urbano']
+},
+{ 
     field: 'nChassi',
     label: 'Número do Chassi',
-    margin: 'normal'
+    margin: 'normal',
+    maxLength: 17
 },
-{
-    type: 'TextField',
+{ 
     field: 'modelochassiId',
     label: 'Modelo do Chassi',
     margin: 'normal'
 },
 {
-    type: 'TextField',
+    type: 'number',
+    field: 'anoChassi',
+    label: 'Ano do Chassi',
+    margin: 'normal',
+    max: 2020
+},
+{
+    type: 'number',
+    field: 'valorChassi',
+    label: 'Valor do Chassi (R$)',
+    margin: 'normal',
+    zero: true
+},
+{    
     field: 'modeloCarroceriaId',
     label: 'Modelo da Carroceria',
     margin: 'normal'
 },
 {
-    type: 'TextField',
-    field: 'pneumaticos',
-    label: 'Número de Pneumáticos',
-    margin: 'normal'
-},
-{
-    type: 'TextField',
-    field: 'TipoCarroceria',
-    label: 'Tipo de Carroceria',
-    margin: 'normal'
-},
-{
-    type: 'TextField',
-    field: 'ano_carroceria',
+    type: 'number',
+    field: 'anoCarroceria',
     label: 'Ano da Carroceria',
-    margin: 'normal'
+    margin: 'normal',
+    max: new Date().getFullYear()+1
 },
 {
-    type: 'TextField',
+    type: 'number',
+    field: 'valorCarroceria',
+    label: 'Valor da Carroceria (R$)',
+    margin: 'normal',
+    zero: true
+},
+{    
+    field: 'dominio',
+    label: 'Situação da Propriedade',
+    margin: 'normal',
+    select: true,
+    options: ['Veículo próprio', 'Leasing', 'Possuidor']
+},
+{ 
     field: 'cores',
     label: 'Cores',
     margin: 'normal'

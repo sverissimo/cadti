@@ -1,5 +1,5 @@
-import React, { Fragment } from 'react'
-import { Grid, Paper, Typography } from '@material-ui/core'
+import React, { Fragment, useState } from 'react'
+import { Grid, Paper, Typography, MenuItem, Checkbox, FormControlLabel } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
 import { vehicleForm } from '../Forms/vehicleForm'
@@ -34,10 +34,13 @@ const useStyles = makeStyles(theme => ({
 export default function ({ handleInput, handleBlur, data }) {
     const { tab, empresas, razaoSocial, activeStep } = data,
         classes = useStyles(), { paper, container } = classes
+
+    const [shared, setShared] = useState(false)
+
     let form = []
     if (tab !== 0) form = vehicleForm[tab]
-    else form = cadForm[activeStep]    
-
+    else form = cadForm[activeStep]
+    console.group(shared)
     return (
         <Grid
             container
@@ -45,24 +48,40 @@ export default function ({ handleInput, handleBlur, data }) {
             className={container}
         >
             <Grid>
-                <Paper className={paper}>
-                    <Typography> Selecione a Viação</Typography>
-                    <br />
-                    <TextField
-                        inputProps={{
-                            list: 'razaoSocial',
-                            name: 'razaoSocial',
-                        }}
-                        className={classes.textField}
-                        value={razaoSocial}
-                        onChange={handleInput}
-                        onBlur={handleBlur}
-                    />
-                    <AutoComplete
-                        collection={empresas}
-                        datalist='razaoSocial'
-                        value={razaoSocial}
-                    />
+                <Paper className={paper} style={{ padding: '0 2% 0 2%' }}>
+                    <Grid item xs={12}>
+
+                        <Typography> Selecione a Viação</Typography>
+                        <br />
+                        <TextField
+                            inputProps={{
+                                list: 'razaoSocial',
+                                name: 'razaoSocial',
+                            }}
+                            className={classes.textField}
+                            value={razaoSocial}
+                            onChange={handleInput}
+                            onBlur={handleBlur}
+                        />
+                        <AutoComplete
+                            collection={empresas}
+                            datalist='razaoSocial'
+                            value={razaoSocial}
+                        />
+                    </Grid>
+                    <Grid item xs={12}>
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={shared === true}
+                                    onChange={() => setShared(!shared)}
+                                    value={shared}
+                                />
+                            }
+                            label={<Typography style={{ color: '#2979ff', fontSize: '0.7rem', float: 'right' }}>Veículo Compartilhado? </Typography>}
+                        />
+                    </Grid>
+
                     <br />
                 </Paper>
                 <Grid item xs={12}>
@@ -80,18 +99,26 @@ export default function ({ handleInput, handleBlur, data }) {
                                     onChange={handleInput}
                                     onBlur={handleBlur}
                                     type={el.type || ''}
-                                    error={false}
-                                    helperText=''
-                                    InputLabelProps={{ className: classes.textField, shrink: true }}
+                                    error={data.form[el.field] > el.max}
+                                    helperText={data.form[el.field] > el.max && 'Valor Inválido'}
+                                    select={el.select || false}
+                                    InputLabelProps={{ className: classes.textField, shrink: true, style: { fontSize: '0.9rem', fontWeight: 400, color: '#000', marginBottom: '5%' }  }}
                                     inputProps={{
                                         style: { textAlign: 'center', color: '#000', fontWeight: '500' },
                                         value: `${data[el.field] || ''}`,
                                         list: el.datalist || '',
+                                        maxLength: el.maxLength || '',
+                                        max: el.max || ''
                                     }}
                                     multiline={el.multiline || false}
                                     rows={el.rows || null}
                                     variant={el.variant || 'standard'}
-                                />
+                                >
+                                    {el.select === true && el.options.map((opt, i) =>
+                                        <MenuItem key={i} value={opt}>
+                                            {opt}
+                                        </MenuItem>)}
+                                </TextField>
                                 {el.field === 'placa' && <AutoComplete
                                     collection={data.frota}
                                     datalist={el.datalist}

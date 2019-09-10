@@ -107,7 +107,7 @@ export default function () {
                         {/* Increase the priority of the hero background image */}
                         {
                             <img
-                                style={{ position: 'absolute', height: '240px', width: '1215px' }}
+                                style={{ position: 'absolute', height: '240px', width: '100%' }}
                                 src="/images/bus_wallpaper.jpg"
                                 alt="background"
                             />
