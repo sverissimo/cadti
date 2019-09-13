@@ -17,23 +17,22 @@ export default class extends Component {
         razaoSocial: ''
     }
 
-   async componentDidMount() {
+    componentDidMount() {
         axios.get('/api/delegatarios')
-            .then(res => {                
+            .then(res => {
                 const empresas = humps.camelizeKeys(res.data)
                 this.setState({ empresas })
             })
-       await  axios.get('/api/veiculosInit')
-             .then(res => {
-                 const veiculos = humps.camelizeKeys(res.data)
-                 this.setState({ veiculos, collection: veiculos })
-             })
-             console.log(this.state)
-         axios.get('/api/procuradores')
-             .then(res => {
-                 const procuradores = humps.camelizeKeys(res.data)
-                 this.setState({ procuradores })
-             })
+        axios.get('/api/veiculosInit')
+            .then(res => {
+                const veiculos = humps.camelizeKeys(res.data)
+                this.setState({ veiculos, collection: veiculos })
+            })
+        axios.get('/api/procuradores')
+            .then(res => {
+                const procuradores = humps.camelizeKeys(res.data)
+                this.setState({ procuradores })
+            })
     }
 
     changeTab = async (e, value) => {

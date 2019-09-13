@@ -38,11 +38,18 @@ export default class extends Component {
                 const modelosChassi = humps.camelizeKeys(res.data)
                 this.setState({ modelosChassi })
             })
+        axios.get('/api/carrocerias')
+            .then(res => {
+                const carrocerias = humps.camelizeKeys(res.data)
+                this.setState({ carrocerias })
+            })
+
         axios.get('/api/empresas')
             .then(res => {
                 const empresas = humps.camelizeKeys(res.data)
                 this.setState({ empresas })
             })
+        
         let form = {}
 
         vehicleForm[tab].forEach(e => {
@@ -60,7 +67,7 @@ export default class extends Component {
         const { name, value } = e.target
         const parsedName = humps.decamelize(name)
         if (name !== 'razaoSocial') this.setState({ [name]: value, form: { ...this.state.form, [parsedName]: value } })
-        else this.setState({ [name]: value })       
+        else this.setState({ [name]: value })
     }
 
     handleBlur = async  e => {
@@ -94,7 +101,7 @@ export default class extends Component {
     }
 
     handleCadastro = async e => {
-        const { selectedEmpresa, modelosChassi } = this.state,
+        const { selectedEmpresa, modelosChassi, carrocerias } = this.state,
             { delegatarioId } = selectedEmpresa,
             situacao = 'Ativo'
         let review = {}
@@ -108,10 +115,12 @@ export default class extends Component {
                 }
             })
         })
-        
+
         const chassiModel = modelosChassi.filter(el => el.modeloChassi.toLowerCase() === review.modeloChassiId.toLowerCase())[0]
         if (chassiModel) review.modeloChassiId = chassiModel.id
-        
+        const carroceriaModel = carrocerias.filter(el => el.modelo.toLowerCase() === review.modeloCarroceriaId.toLowerCase())[0]
+        if (carroceriaModel) review.modeloCarroceriaId = carroceriaModel.id
+
         const parsedReview = humps.decamelizeKeys(review)
         await axios.post('/api/cadastroVeiculo', parsedReview)
             .then(res => console.log(res.data))

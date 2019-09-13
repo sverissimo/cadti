@@ -51,7 +51,10 @@ export const cadForm = [[{
 {
     field: 'modeloCarroceriaId',
     label: 'Modelo da Carroceria',
-    margin: 'normal'
+    margin: 'normal',
+    datalist: 'modelo',
+    autoComplete: true,
+    collection: 'carrocerias'
 },
 {
     type: 'number',
@@ -82,4 +85,3 @@ export const cadForm = [[{
     .concat([vistoriaForm])
     .concat([[]])
     .concat([[]])
-

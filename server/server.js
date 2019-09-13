@@ -6,7 +6,7 @@ const fs = require('fs')
 const path = require('path')
 const dotenv = require('dotenv')
 
-const { empresas, veiculoInit, modeloChassi } = require('./queries')
+const { empresas, veiculoInit, modeloChassi, carrocerias } = require('./queries')
 const { upload } = require('./upload');
 
 
@@ -117,6 +117,14 @@ app.post('/api/cadastroVeiculo', (req, res) => {
 
 app.get('/api/modeloChassi', (req, res) => {
     pool.query(modeloChassi, (err, table) => {
+        if (err) res.send(err)
+        if (table.rows && table.rows.length === 0) { res.send('Nenhum veículo cadastrado para esse delegatário.'); return }
+        res.json(table.rows);
+    })
+})
+
+app.get('/api/carrocerias', (req, res) => {
+    pool.query(carrocerias, (err, table) => {
         if (err) res.send(err)
         if (table.rows && table.rows.length === 0) { res.send('Nenhum veículo cadastrado para esse delegatário.'); return }
         res.json(table.rows);
