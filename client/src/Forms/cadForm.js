@@ -1,34 +1,38 @@
 import { vistoriaForm } from './vistoriaForm'
 
-export const cadForm = [[{    
+export const cadForm = [[{
     field: 'placa',
     label: 'Placa',
     margin: 'normal',
-    maxLength: 8
+    minLength: 7,
+    maxLength: 8   
 },
-{    
+{
     field: 'renavam',
     label: 'Renavam',
-    margin: 'normal',
+    margin: 'normal',    
     maxLength: 11
 },
-{ 
+{
     field: 'utilizacao',
     label: 'Utilização',
     margin: 'normal',
     select: true,
     options: ['Convencional', 'Executivo', 'Leito', 'Semi-Leito', 'Urbano']
 },
-{ 
+{
     field: 'nChassi',
     label: 'Número do Chassi',
     margin: 'normal',
     maxLength: 17
 },
-{ 
-    field: 'modelochassiId',
+{
+    field: 'modeloChassiId',
     label: 'Modelo do Chassi',
-    margin: 'normal'
+    margin: 'normal',
+    datalist: 'modeloChassi',
+    autoComplete: true,
+    collection: 'modelosChassi'
 },
 {
     type: 'number',
@@ -44,7 +48,7 @@ export const cadForm = [[{
     margin: 'normal',
     zero: true
 },
-{    
+{
     field: 'modeloCarroceriaId',
     label: 'Modelo da Carroceria',
     margin: 'normal'
@@ -54,7 +58,7 @@ export const cadForm = [[{
     field: 'anoCarroceria',
     label: 'Ano da Carroceria',
     margin: 'normal',
-    max: new Date().getFullYear()+1
+    max: new Date().getFullYear() + 1
 },
 {
     type: 'number',
@@ -63,14 +67,14 @@ export const cadForm = [[{
     margin: 'normal',
     zero: true
 },
-{    
+{
     field: 'dominio',
     label: 'Situação da Propriedade',
     margin: 'normal',
     select: true,
     options: ['Veículo próprio', 'Leasing', 'Possuidor']
 },
-{ 
+{
     field: 'cores',
     label: 'Cores',
     margin: 'normal'

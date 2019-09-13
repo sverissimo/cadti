@@ -6,7 +6,7 @@ const fs = require('fs')
 const path = require('path')
 const dotenv = require('dotenv')
 
-const { empresas, veiculoInit } = require('./queries')
+const { empresas, veiculoInit, modeloChassi } = require('./queries')
 const { upload } = require('./upload');
 
 
@@ -105,7 +105,7 @@ app.post('/api/cadastroVeiculo', (req, res) => {
         parsed.push(('\'' + v + '\'').toString())
 
     })
-    parsed = parsed.toString().replace(/'\['/g, '').replace(/'\]'/g, '')        
+    parsed = parsed.toString().replace(/'\['/g, '').replace(/'\]'/g, '')
     console.log(`INSERT INTO public.veiculo (${keys}) VALUES (${parsed}) RETURNING *`)
     pool.query(
         `INSERT INTO public.veiculo (${keys}) VALUES (${parsed}) RETURNING *`, (err, table) => {
@@ -113,6 +113,14 @@ app.post('/api/cadastroVeiculo', (req, res) => {
             if (table.rows && table.rows.length === 0) { res.send('Nenhum veículo cadastrado para esse delegatário.'); return }
             res.json(table.rows);
         })
+})
+
+app.get('/api/modeloChassi', (req, res) => {
+    pool.query(modeloChassi, (err, table) => {
+        if (err) res.send(err)
+        if (table.rows && table.rows.length === 0) { res.send('Nenhum veículo cadastrado para esse delegatário.'); return }
+        res.json(table.rows);
+    })
 })
 
 app.post('/api/upload', upload)

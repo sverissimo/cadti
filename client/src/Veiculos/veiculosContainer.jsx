@@ -27,12 +27,18 @@ export default class extends Component {
         confirmToast: false,
         activeStep: 0,
         files: [],
-        fileNames: []
+        fileNames: [],
+        modelosChassi: []
     }
 
-    async componentDidMount() {
+    componentDidMount() {
         const { tab } = this.state
-        await axios.get('/api/empresas')
+        axios.get('/api/modeloChassi')
+            .then(res => {
+                const modelosChassi = humps.camelizeKeys(res.data)
+                this.setState({ modelosChassi })
+            })
+        axios.get('/api/empresas')
             .then(res => {
                 const empresas = humps.camelizeKeys(res.data)
                 this.setState({ empresas })
@@ -54,7 +60,7 @@ export default class extends Component {
         const { name, value } = e.target
         const parsedName = humps.decamelize(name)
         if (name !== 'razaoSocial') this.setState({ [name]: value, form: { ...this.state.form, [parsedName]: value } })
-        else this.setState({ [name]: value })
+        else this.setState({ [name]: value })       
     }
 
     handleBlur = async  e => {
@@ -88,7 +94,7 @@ export default class extends Component {
     }
 
     handleCadastro = async e => {
-        const { selectedEmpresa } = this.state,
+        const { selectedEmpresa, modelosChassi } = this.state,
             { delegatarioId } = selectedEmpresa,
             situacao = 'Ativo'
         let review = {}
@@ -102,6 +108,10 @@ export default class extends Component {
                 }
             })
         })
+        
+        const chassiModel = modelosChassi.filter(el => el.modeloChassi.toLowerCase() === review.modeloChassiId.toLowerCase())[0]
+        if (chassiModel) review.modeloChassiId = chassiModel.id
+        
         const parsedReview = humps.decamelizeKeys(review)
         await axios.post('/api/cadastroVeiculo', parsedReview)
             .then(res => console.log(res.data))

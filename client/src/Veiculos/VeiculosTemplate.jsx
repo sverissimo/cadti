@@ -32,15 +32,15 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function ({ handleInput, handleBlur, data }) {
-    const { tab, empresas, razaoSocial, activeStep } = data,
+    const { tab, empresas, razaoSocial, activeStep, frota, modeloChassiId, modelosChassi } = data,
         classes = useStyles(), { paper, container } = classes
-
+    
     const [shared, setShared] = useState(false)
 
     let form = []
     if (tab !== 0) form = vehicleForm[tab]
     else form = cadForm[activeStep]
-    console.group(shared)
+
     return (
         <Grid
             container
@@ -81,7 +81,6 @@ export default function ({ handleInput, handleBlur, data }) {
                             label={<Typography style={{ color: '#2979ff', fontSize: '0.7rem', float: 'right' }}>Veículo Compartilhado? </Typography>}
                         />
                     </Grid>
-
                     <br />
                 </Paper>
                 <Grid item xs={12}>
@@ -102,7 +101,7 @@ export default function ({ handleInput, handleBlur, data }) {
                                     error={data.form[el.field] > el.max}
                                     helperText={data.form[el.field] > el.max && 'Valor Inválido'}
                                     select={el.select || false}
-                                    InputLabelProps={{ className: classes.textField, shrink: true, style: { fontSize: '0.9rem', fontWeight: 400, color: '#000', marginBottom: '5%' }  }}
+                                    InputLabelProps={{ className: classes.textField, shrink: true, style: { fontSize: '0.9rem', fontWeight: 400, color: '#000', marginBottom: '5%' } }}
                                     inputProps={{
                                         style: { textAlign: 'center', color: '#000', fontWeight: '500' },
                                         value: `${data[el.field] || ''}`,
@@ -119,11 +118,12 @@ export default function ({ handleInput, handleBlur, data }) {
                                             {opt}
                                         </MenuItem>)}
                                 </TextField>
-                                {el.field === 'placa' && <AutoComplete
-                                    collection={data.frota}
+                                {el.autoComplete === true && <AutoComplete
+                                    collection={data[el.collection]}
                                     datalist={el.datalist}
-                                    value={data.placa || ''}
+                                    value={data[el.field] || ''}
                                 />}
+
                             </Fragment>
                         )}
                     </Paper>

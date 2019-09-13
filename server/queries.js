@@ -4,15 +4,30 @@ ORDER BY "razao_social"
 `
 
 const veiculoInit = `
-SELECT public.veiculo.*,    
-    public.delegatario.razao_social as empresa,
-	public.modelo_chassi.marca_chassi as marca
+SELECT veiculo.*,	
+	modelo_chassi.modelo_chassi,
+	marca_chassi.marca as marca_chassi,
+	modelo_carroceria.marca as marca_carroceria,
+	modelo_carroceria.modelo as modelo_carroceria,
+	delegatario.razao_social as empresa
 FROM veiculo
-LEFT JOIN public.delegatario
-	ON veiculo.delegatario_id = public.delegatario.delegatario_id
 LEFT JOIN public.modelo_chassi
-	ON veiculo.modelochassi_id = public.modelo_chassi.modelo_chassi
-ORDER BY veiculo_id DESC
+	ON veiculo.modelo_chassi_id = public.modelo_chassi.id
+LEFT JOIN public.marca_chassi
+	ON modelo_chassi.marca_id = marca_chassi.id
+LEFT JOIN public.modelo_carroceria
+	ON veiculo.modelo_carroceria_id = public.modelo_carroceria.id
+LEFT JOIN public.delegatario
+	ON veiculo.delegatario_id = delegatario.delegatario_id
+ORDER BY veiculo.veiculo_id DESC
 `
 
-module.exports = { empresas, veiculoInit }
+const modeloChassi = `
+SELECT modelo_chassi.id, modelo_chassi,
+	public.marca_chassi.marca as marca
+FROM modelo_chassi 
+LEFT JOIN marca_chassi
+	ON public.marca_chassi.id = public.modelo_chassi.marca_id
+`
+
+module.exports = { empresas, veiculoInit, modeloChassi }

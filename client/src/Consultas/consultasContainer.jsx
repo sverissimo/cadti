@@ -17,22 +17,23 @@ export default class extends Component {
         razaoSocial: ''
     }
 
-    componentDidMount() {
+   async componentDidMount() {
         axios.get('/api/delegatarios')
-            .then(res => {
+            .then(res => {                
                 const empresas = humps.camelizeKeys(res.data)
                 this.setState({ empresas })
             })
-        axios.get('/api/veiculosInit')
-            .then(res => {
-                const veiculos = humps.camelizeKeys(res.data)
-                this.setState({ veiculos, collection: veiculos })
-            })
-        axios.get('/api/procuradores')
-            .then(res => {
-                const procuradores = humps.camelizeKeys(res.data)
-                this.setState({ procuradores })
-            })
+       await  axios.get('/api/veiculosInit')
+             .then(res => {
+                 const veiculos = humps.camelizeKeys(res.data)
+                 this.setState({ veiculos, collection: veiculos })
+             })
+             console.log(this.state)
+         axios.get('/api/procuradores')
+             .then(res => {
+                 const procuradores = humps.camelizeKeys(res.data)
+                 this.setState({ procuradores })
+             })
     }
 
     changeTab = async (e, value) => {
@@ -42,7 +43,7 @@ export default class extends Component {
         this.setState({ collection })
     }
 
-    handleEdit = ( data ) => {
+    handleEdit = (data) => {
 
         this.setState({ data })
         console.log(this.state)
@@ -54,7 +55,7 @@ export default class extends Component {
         return <Fragment>
             <TabMenu items={items}
                 tab={tab}
-                changeTab={this.changeTab} />                
+                changeTab={this.changeTab} />
             <ConsultasTemplate
                 tab={tab}
                 items={items}

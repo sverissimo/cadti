@@ -13,7 +13,7 @@ export const vehicleTable = [
         title: 'Delegatário',
     },
     {
-        field: 'modeloCarroceriaId',
+        field: 'modeloCarroceria',
         title: 'Modelo da Carroceria',
     },
     {

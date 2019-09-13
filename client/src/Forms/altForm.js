@@ -4,7 +4,9 @@ export const altForm = [
         field: 'placa',
         label: 'Placa',
         margin: 'normal',
-        datalist: 'placa'
+        datalist: 'placa',
+        autoComplete: true,
+        collection: 'frota'
     },
     {
         type: 'TextField',
@@ -26,7 +28,7 @@ export const altForm = [
     },
     {
         type: 'TextField',
-        field: 'modelochassiId',
+        field: 'modeloChassiId',
         label: 'Modelo do Chassi',
         margin: 'normal'
     },    
