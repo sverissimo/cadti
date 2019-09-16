@@ -40,4 +40,8 @@ LEFT JOIN marca_carroceria
 	ON public.marca_carroceria.id = public.modelo_carroceria.marca_id
 `
 
-module.exports = { empresas, veiculoInit, modeloChassi, carrocerias }
+const equipamentos = `
+SELECT * FROM equipamentos
+`
+
+module.exports = { empresas, veiculoInit, modeloChassi, carrocerias, equipamentos }

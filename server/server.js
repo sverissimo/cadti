@@ -6,7 +6,7 @@ const fs = require('fs')
 const path = require('path')
 const dotenv = require('dotenv')
 
-const { empresas, veiculoInit, modeloChassi, carrocerias } = require('./queries')
+const { empresas, veiculoInit, modeloChassi, carrocerias, equipamentos } = require('./queries')
 const { upload } = require('./upload');
 
 
@@ -148,7 +148,13 @@ app.get('/api/download', (req, res) => {
 
 })
 
-
+app.get('/api/equipa', (req, res) => {
+    pool.query(equipamentos, (err, table) => {
+        if (err) res.send(err)
+        if (table.rows && table.rows.length === 0) { res.send('Nenhum equipamento encontrado.'); return }
+        res.json(table.rows);
+    })
+})
 app.listen(PORT, HOST)
 
 console.log('Running on port 3001, dude...')

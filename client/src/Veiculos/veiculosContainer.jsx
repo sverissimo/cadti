@@ -28,7 +28,9 @@ export default class extends Component {
         activeStep: 0,
         files: [],
         fileNames: [],
-        modelosChassi: []
+        modelosChassi: [],
+        equipamentos: [],
+        addEquipa: false
     }
 
     componentDidMount() {
@@ -49,7 +51,15 @@ export default class extends Component {
                 const empresas = humps.camelizeKeys(res.data)
                 this.setState({ empresas })
             })
-        
+        axios.get('/api/equipa')
+            .then(res => {
+                const equipamentos = humps.camelizeKeys(res.data)
+                this.setState({ equipamentos })
+                let obj = {}
+                equipamentos.forEach(e => Object.assign(obj, { [e.item]: false }))
+                this.setState(obj)
+            })
+
         let form = {}
 
         vehicleForm[tab].forEach(e => {
@@ -131,10 +141,21 @@ export default class extends Component {
         this.setState({ confirmToast: !this.state.confirmToast })
     }
     setActiveStep = action => {
+        let array = []
+        const { equipamentos } = this.state
         const prevActiveStep = this.state.activeStep
         if (action === 'next') this.setState({ activeStep: prevActiveStep + 1 });
         if (action === 'back') this.setState({ activeStep: prevActiveStep - 1 });
         if (action === 'reset') this.setState({ activeStep: 0 })
+        if (prevActiveStep === 1) {
+            equipamentos.forEach(async e => {
+                if (this.state[e.item] === true) {
+                    await array.push(e.item)
+
+                }
+            })
+            this.setState({ equipamentos_id: array })
+        }
     }
 
     handleFiles = async e => {
@@ -177,6 +198,14 @@ export default class extends Component {
         this.toast()
     }
 
+    handleEquipa = e => {
+        this.setState({ addEquipa: !this.state.addEquipa })
+    }
+
+    handleCheck = item => {
+        this.setState({ ...this.state, [item]: !this.state[item] })
+    };
+
     render() {
         const { tab, items, selectedEmpresa, confirmToast, msg, activeStep } = this.state
         return <Fragment>
@@ -193,6 +222,8 @@ export default class extends Component {
                 selectedEmpresa={selectedEmpresa}
                 handleInput={this.handleInput}
                 handleBlur={this.handleBlur}
+                handleEquipa={this.handleEquipa}
+                handleCheck={this.handleCheck}
             />
                 : tab === 0 && activeStep === 2 ?
                     <CadVehicle

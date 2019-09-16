@@ -1,10 +1,12 @@
 import React, { Fragment, useState } from 'react'
-import { Grid, Paper, Typography, MenuItem, Checkbox, FormControlLabel } from '@material-ui/core'
+import { Grid, Paper, Typography, MenuItem, Checkbox, FormControlLabel, Button } from '@material-ui/core'
+import AddIcon from '@material-ui/icons/Add'
 import { makeStyles } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
 import { vehicleForm } from '../Forms/vehicleForm'
 import { cadForm } from '../Forms/cadForm'
 import AutoComplete from '../Utils/autoComplete'
+import AddEquipa from './AddEquipa'
 
 const useStyles = makeStyles(theme => ({
     container: {
@@ -31,10 +33,10 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-export default function ({ handleInput, handleBlur, data }) {
-    const { tab, empresas, razaoSocial, activeStep, frota, modeloChassiId, modelosChassi } = data,
+export default function ({ handleInput, handleBlur, data, handleEquipa, handleCheck }) {
+    const { tab, empresas, razaoSocial, activeStep, equipamentos, addEquipa } = data,
         classes = useStyles(), { paper, container } = classes
-    
+
     const [shared, setShared] = useState(false)
 
     let form = []
@@ -46,6 +48,7 @@ export default function ({ handleInput, handleBlur, data }) {
             container
             direction="row"
             className={container}
+
         >
             <Grid>
                 <Paper className={paper} style={{ padding: '0 2% 0 2%' }}>
@@ -124,8 +127,30 @@ export default function ({ handleInput, handleBlur, data }) {
                                     value={data[el.field] || ''}
                                 />}
 
+
                             </Fragment>
                         )}
+                        {activeStep === 0 && <Grid container justify="center"
+
+                        >
+                            <Button
+                                variant="outlined"
+                                size="small"
+                                color="primary"
+                                className={classes.button}
+                                onClick={handleEquipa}
+                            >
+
+                                <AddIcon />
+                                Equipamentos
+                            </Button>
+                        </Grid>}
+                        {addEquipa && <AddEquipa
+                            equipamentos={equipamentos}
+                            close={handleEquipa}
+                            handleCheck={handleCheck}
+                            data={data}
+                        />}
                     </Paper>
                 </Grid>
             </Grid>

@@ -29,13 +29,22 @@ const useStyles = makeStyles(theme => ({
         width: "100%",
         padding: '2% 0 4% 0',
         height: '500px'
-    }
+    },
+    equipa: {
+        marginLeft: theme.spacing(1),
+        marginRight: theme.spacing(1),
+        marginTop: '9%',
+        width: 500,
+        fontSize: '0.8rem',
+        fontColor: '#bbb',
+        textAlign: 'center'
+    },
 }))
 
 export default function Revisao({ data }) {
     let review = []
     const classes = useStyles(),
-        { textField, paper, root } = classes
+        { textField, paper, root, equipa } = classes
 
     cadForm.forEach(form => {
         form.forEach(obj => {
@@ -45,6 +54,7 @@ export default function Revisao({ data }) {
 
         })
     })
+    let a = data.equipamentos_id.toString().replace(/,/g, ', ')   
     
     return (
         <Paper className={paper}>
@@ -68,7 +78,23 @@ export default function Revisao({ data }) {
                         />
                     </Grid>
                 )}
+                <Grid item xs={12}>
+                    <TextField
+                        id='equipamentos'
+                        className={equipa}
+                        value={a}
+                        label='acessórios'
+                        disabled={true}
+                        type='text'                        
+                        InputLabelProps={{ shrink: true, style: { fontSize: '0.9rem', fontWeight: 600, color: '#000', marginBottom: '5%' } }}
+                        inputProps={{
+                            style: { textAlign: 'center', color: '#000', backgroundColor: '#f7f7ff', paddingBottom: '2%', height: '40px', fontSize: '0.9rem' }
+                        }}
+                        variant='outlined'
+                    />
+                </Grid>
             </Grid>
+
         </Paper>
     )
 }
