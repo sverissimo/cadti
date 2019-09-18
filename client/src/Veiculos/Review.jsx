@@ -83,7 +83,7 @@ export default function Revisao({ data }) {
                         id='equipamentos'
                         className={equipa}
                         value={a}
-                        label='acessórios'
+                        label='Acessórios'
                         disabled={true}
                         type='text'                        
                         InputLabelProps={{ shrink: true, style: { fontSize: '0.9rem', fontWeight: 600, color: '#000', marginBottom: '5%' } }}

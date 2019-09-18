@@ -69,12 +69,7 @@ export const vistoriaForm = [
         margin: 'normal',
         type: 'number',
         max: 150
-    },
-    {
-        field: 'equipamentos_id',
-        label: 'Equipamentos',
-        margin: 'normal'
-    },
+    },   
     {
         field: 'seguroId',
         label: 'Apólice de seguro',

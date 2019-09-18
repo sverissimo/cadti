@@ -1,42 +1,24 @@
-import React from 'react'
-import CssBaseline from '@material-ui/core/CssBaseline';
-import Typography from '@material-ui/core/Typography';
-import { makeStyles } from '@material-ui/core/styles';
-import Container from '@material-ui/core/Container';
+//import React from 'react'
 
-const useStyles = makeStyles(theme => ({
-    root: {
-        display: 'flex',
-        flexDirection: 'column',
-        minHeight: '10vh',
-        maxHeight: '15vh',
-    },
-    main: {
-        marginTop: theme.spacing(8),
-        marginBottom: theme.spacing(2),
-    },
-    footer: {
-
-        marginTop: 'auto',
-        backgroundColor: 'white',
-        bottom: '0%'
-    },
-}));
-
-export default () => {
-    const classes = useStyles()
-    return (
-
-        <div className={classes.root}>
-            <CssBaseline />
-            <footer className={classes.footer}>
-                <Container >
-                    <Typography variant="body1">
-
-                        GOVERNO DO ESTADO DE MINAS GERAIS
-                    </Typography>
-                </Container>
-            </footer>
-        </div>
-    )
+const Footer = () => {
+    return null
+    
+    /* (
+        <footer className="grey lighten-2 black-text"
+            style={{
+                
+                bottom: 0,
+                width: '100%',
+                borderTop: '0.1px solid #999',
+                marginTop: 'auto',
+                maxHeight: '20px',
+                left: 0
+            }}>
+            <span style={{ fontSize: '0.6rem' }}>
+                Seinfra, Governo de Minas Gerais. Desenvolvido por Sandro Veríssimo, © 2019.
+            </span>
+        </footer>
+    ) */
 }
+
+export default Footer;

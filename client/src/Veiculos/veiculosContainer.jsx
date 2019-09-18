@@ -22,6 +22,7 @@ export default class extends Component {
         empresas: [],
         selectedEmpresa: '',
         razaoSocial: '',
+        delegatarioCompartilhado: '',
         frota: [],
         msg: 'Veículo cadastrado!',
         confirmToast: false,
@@ -81,21 +82,41 @@ export default class extends Component {
     }
 
     handleBlur = async  e => {
-        const { empresas } = this.state
-        const { value, name } = e.target
+        const { empresas, tab, frota, placa, modelosChassi, carrocerias } = this.state
+        const { name } = e.target
+        let { value } = e.target
 
         const selectedEmpresa = empresas.filter(e => e.razaoSocial.toLowerCase().match(value.toLowerCase()))[0]
 
-        if (name === 'razaoSocial' && selectedEmpresa) {
+        if (name === 'modeloChassiId') this.setState({ modeloChassiId: modelosChassi.filter(c => c.modeloChassi.toLowerCase().match(value.toLowerCase()))[0].modeloChassi})
+        if (name === 'modeloCarroceriaId') this.setState({ modeloCarroceriaId: carrocerias.filter(c => c.modelo.toLowerCase().match(value.toLowerCase()))[0].modelo})
+
+        if ((name === 'razaoSocial' || name === 'delegatarioCompartilhado') && selectedEmpresa) {
             await this.setState({ selectedEmpresa, [name]: selectedEmpresa.razaoSocial, oldId: selectedEmpresa.oldId })
-            await axios.get(`/api/veiculos?id=${selectedEmpresa.delegatarioId}`)
+            if (name === 'razaoSocial') axios.get(`/api/veiculos?id=${selectedEmpresa.delegatarioId}`)
                 .then(res => this.setState({ frota: humps.camelizeKeys(res.data) }))
         }
-        if (name === 'placa' && typeof this.state.frota !== 'string') {
 
+        if (name === 'placa' && typeof this.state.frota !== 'string') {
+            if (tab === 0) {
+                if (value.length === 7) {
+                    const x = value.replace(/(\w{3})/, '$1-')
+                    this.setState({ placa: x })
+                    value = x
+                }
+
+                const matchPlaca = frota.filter(v => v.placa === placa)[0]
+                if (matchPlaca) {
+                    await this.setState({ placa: null })
+                    value = ''
+                    alert('Placa já cadastrada!')
+                    document.getElementById('placa').focus()
+                }
+            }
             const vehicle = this.state.frota.filter(v => v.placa === value)[0]
             await this.setState({ ...vehicle })
         }
+
     }
 
     handleCadBlur = async  e => {
@@ -111,20 +132,26 @@ export default class extends Component {
     }
 
     handleCadastro = async e => {
-        const { selectedEmpresa, modelosChassi, carrocerias } = this.state,
+        const { selectedEmpresa, modelosChassi, carrocerias, anoCarroceria,
+            equipamentos_id, peso_dianteiro, peso_traseiro, poltronas } = this.state,
             { delegatarioId } = selectedEmpresa,
-            situacao = 'Ativo'
+            situacao = 'Ativo',
+            indicadorIdade = anoCarroceria
+
+        const pbt = Number(poltronas) * 93 + (Number(peso_dianteiro) + Number(peso_traseiro))
+        
         let review = {}
 
         cadForm.forEach(form => {
             form.forEach(obj => {
                 for (let k in this.state) {
                     if (k.match(obj.field)) {
-                        Object.assign(review, { [k]: this.state[k], delegatarioId, situacao })
+                        Object.assign(review, { [k]: this.state[k] })
                     }
                 }
             })
         })
+        Object.assign(review, { delegatarioId, situacao, indicadorIdade, pbt, equipamentos_id })
 
         const chassiModel = modelosChassi.filter(el => el.modeloChassi.toLowerCase() === review.modeloChassiId.toLowerCase())[0]
         if (chassiModel) review.modeloChassiId = chassiModel.id
@@ -151,7 +178,6 @@ export default class extends Component {
             equipamentos.forEach(async e => {
                 if (this.state[e.item] === true) {
                     await array.push(e.item)
-
                 }
             })
             this.setState({ equipamentos_id: array })

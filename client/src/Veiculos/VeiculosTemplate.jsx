@@ -7,6 +7,7 @@ import { vehicleForm } from '../Forms/vehicleForm'
 import { cadForm } from '../Forms/cadForm'
 import AutoComplete from '../Utils/autoComplete'
 import AddEquipa from './AddEquipa'
+import PopUp from '../Utils/PopUp'
 
 const useStyles = makeStyles(theme => ({
     container: {
@@ -34,7 +35,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function ({ handleInput, handleBlur, data, handleEquipa, handleCheck }) {
-    const { tab, empresas, razaoSocial, activeStep, equipamentos, addEquipa } = data,
+    const { tab, empresas, razaoSocial, activeStep, equipamentos, addEquipa, delegatarioCompartilhado } = data,
         classes = useStyles(), { paper, container } = classes
 
     const [shared, setShared] = useState(false)
@@ -52,28 +53,52 @@ export default function ({ handleInput, handleBlur, data, handleEquipa, handleCh
         >
             <Grid>
                 <Paper className={paper} style={{ padding: '0 2% 0 2%' }}>
-                    <Grid item xs={12}>
+                    <Grid container justify="center">
+                        <Grid item xs={shared ? 4 : 12}>
+                            <Typography> Selecione a Viação</Typography>
 
-                        <Typography> Selecione a Viação</Typography>
-                        <br />
-                        <TextField
-                            inputProps={{
-                                list: 'razaoSocial',
-                                name: 'razaoSocial',
-                            }}
-                            className={classes.textField}
-                            value={razaoSocial}
-                            onChange={handleInput}
-                            onBlur={handleBlur}
-                        />
-                        <AutoComplete
-                            collection={empresas}
-                            datalist='razaoSocial'
-                            value={razaoSocial}
-                        />
+                            <TextField
+                                inputProps={{
+                                    list: 'razaoSocial',
+                                    name: 'razaoSocial',
+                                }}
+                                className={classes.textField}
+                                value={razaoSocial}
+                                onChange={handleInput}
+                                onBlur={handleBlur}
+                            />
+                            <AutoComplete
+                                collection={empresas}
+                                datalist='razaoSocial'
+                                value={razaoSocial}
+                            />
+                        </Grid>
+                        {
+                            shared && <Grid item xs={4}>
+
+                                <Typography> Empresa autorizada a compartilhar</Typography>
+
+                                <TextField
+                                    inputProps={{
+                                        list: 'razaoSocial',
+                                        name: 'delegatarioCompartilhado',
+                                    }}
+                                    className={classes.textField}
+                                    value={delegatarioCompartilhado}
+                                    onChange={handleInput}
+                                    onBlur={handleBlur}
+                                />
+                                <AutoComplete
+                                    collection={empresas}
+                                    datalist='razaoSocial'
+                                    value={delegatarioCompartilhado}
+                                />
+                            </Grid>
+                        }
                     </Grid>
                     <Grid item xs={12}>
                         <FormControlLabel
+                            style={{ marginTop: '10px' }}
                             control={
                                 <Checkbox
                                     checked={shared === true}
@@ -84,7 +109,7 @@ export default function ({ handleInput, handleBlur, data, handleEquipa, handleCh
                             label={<Typography style={{ color: '#2979ff', fontSize: '0.7rem', float: 'right' }}>Veículo Compartilhado? </Typography>}
                         />
                     </Grid>
-                    <br />
+
                 </Paper>
                 <Grid item xs={12}>
                     <Paper className={paper}>
@@ -93,7 +118,7 @@ export default function ({ handleInput, handleBlur, data, handleEquipa, handleCh
                         {data.form && form[0] && form.map((el, i) =>
                             <Fragment key={i}>
                                 <TextField
-                                    id="standard-name"
+                                    id={el.field}
                                     name={el.field}
                                     label={el.label}
                                     margin={el.margin}
@@ -101,7 +126,7 @@ export default function ({ handleInput, handleBlur, data, handleEquipa, handleCh
                                     onChange={handleInput}
                                     onBlur={handleBlur}
                                     type={el.type || ''}
-                                    error={data.form[el.field] > el.max}
+                                    error={el.pattern && data.form[el.field] ? data.form[el.field].match(el.pattern) === null : false}
                                     helperText={data.form[el.field] > el.max && 'Valor Inválido'}
                                     select={el.select || false}
                                     InputLabelProps={{ className: classes.textField, shrink: true, style: { fontSize: '0.9rem', fontWeight: 400, color: '#000', marginBottom: '5%' } }}
@@ -110,7 +135,7 @@ export default function ({ handleInput, handleBlur, data, handleEquipa, handleCh
                                         value: `${data[el.field] || ''}`,
                                         list: el.datalist || '',
                                         maxLength: el.maxLength || '',
-                                        max: el.max || ''
+                                        max: el.max || '',                                        
                                     }}
                                     multiline={el.multiline || false}
                                     rows={el.rows || null}
@@ -140,17 +165,17 @@ export default function ({ handleInput, handleBlur, data, handleEquipa, handleCh
                                 className={classes.button}
                                 onClick={handleEquipa}
                             >
-
                                 <AddIcon />
                                 Equipamentos
                             </Button>
                         </Grid>}
-                        {addEquipa && <AddEquipa
-                            equipamentos={equipamentos}
-                            close={handleEquipa}
-                            handleCheck={handleCheck}
-                            data={data}
-                        />}
+                        {addEquipa && <PopUp close={handleEquipa} title='Equipa'>
+                            <AddEquipa
+                                equipamentos={equipamentos}
+                                close={handleEquipa}
+                                handleCheck={handleCheck}
+                                data={data} />
+                        </PopUp>}
                     </Paper>
                 </Grid>
             </Grid>

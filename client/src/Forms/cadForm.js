@@ -4,14 +4,15 @@ export const cadForm = [[{
     field: 'placa',
     label: 'Placa',
     margin: 'normal',
-    minLength: 7,
-    maxLength: 8   
+    maxLength: 8,
+    pattern: '[a-zA-Z]{3}[-]?\\d{4}'
 },
-{
+{    
     field: 'renavam',
     label: 'Renavam',
-    margin: 'normal',    
-    maxLength: 11
+    margin: 'normal',
+    maxLength: 11,    
+    pattern: '\\d{11}'
 },
 {
     field: 'utilizacao',
@@ -39,7 +40,7 @@ export const cadForm = [[{
     field: 'anoChassi',
     label: 'Ano do Chassi',
     margin: 'normal',
-    max: 2020
+    max: 2020    
 },
 {
     type: 'number',
