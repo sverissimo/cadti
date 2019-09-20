@@ -44,4 +44,15 @@ const equipamentos = `
 SELECT * FROM equipamentos
 `
 
-module.exports = { empresas, veiculoInit, modeloChassi, carrocerias, equipamentos }
+const seguradoras = `
+SELECT * FROM seguradora
+`
+
+const seguros = `
+SELECT seguro.* , seguradora.seguradora
+FROM seguro
+LEFT JOIN public.seguradora
+	ON public.seguro.seguradora_id = public.seguradora.id
+`
+
+module.exports = { empresas, veiculoInit, modeloChassi, carrocerias, equipamentos, seguradoras, seguros }

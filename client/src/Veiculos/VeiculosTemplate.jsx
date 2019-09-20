@@ -156,7 +156,6 @@ export default function ({ handleInput, handleBlur, data, handleEquipa, handleCh
                             </Fragment>
                         )}
                         {activeStep === 0 && <Grid container justify="center"
-
                         >
                             <Button
                                 variant="outlined"

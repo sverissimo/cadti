@@ -69,10 +69,15 @@ export const vistoriaForm = [
         margin: 'normal',
         type: 'number',
         max: 150
-    },   
-    {
-        field: 'seguroId',
-        label: 'Apólice de seguro',
-        margin: 'normal'
     },
+    {       
+        field: 'laudo',
+        label: 'Laudo',
+        margin: 'normal'        
+    },   
+    {       
+        field: 'empresaLaudo',
+        label: 'Empresa Laudo',
+        margin: 'normal'        
+    },   
 ]

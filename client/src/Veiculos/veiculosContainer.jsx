@@ -6,12 +6,10 @@ import VeiculosTemplate from './VeiculosTemplate'
 import CadVehicle from './CadVehicle'
 import Review from './Review'
 import { TabMenu } from '../Layouts'
-import { vehicleForm } from '../Forms/vehicleForm'
 import { cadVehicleFiles } from '../Forms/cadVehicleFiles'
 import { cadForm } from '../Forms/cadForm'
 import StepperButtons from './StepperButtons'
 import CustomStepper from '../Utils/Stepper'
-
 
 export default class extends Component {
 
@@ -19,6 +17,7 @@ export default class extends Component {
         tab: 0,
         items: ['Cadastro de Veículo', 'Atualização de Seguro',
             'Alteração de dados', 'Baixa de Veículo'],
+        form: {},
         empresas: [],
         selectedEmpresa: '',
         razaoSocial: '',
@@ -30,12 +29,12 @@ export default class extends Component {
         files: [],
         fileNames: [],
         modelosChassi: [],
+        seguradoras: [],
         equipamentos: [],
         addEquipa: false
     }
 
     componentDidMount() {
-        const { tab } = this.state
         axios.get('/api/modeloChassi')
             .then(res => {
                 const modelosChassi = humps.camelizeKeys(res.data)
@@ -52,6 +51,11 @@ export default class extends Component {
                 const empresas = humps.camelizeKeys(res.data)
                 this.setState({ empresas })
             })
+        axios.get('/api/seguradoras')
+            .then(res => {
+                const seguradoras = humps.camelizeKeys(res.data)
+                this.setState({ seguradoras })
+            })
         axios.get('/api/equipa')
             .then(res => {
                 const equipamentos = humps.camelizeKeys(res.data)
@@ -60,15 +64,8 @@ export default class extends Component {
                 equipamentos.forEach(e => Object.assign(obj, { [e.item]: false }))
                 this.setState(obj)
             })
-
-        let form = {}
-
-        vehicleForm[tab].forEach(e => {
-            const keys = humps.decamelize(e.field)
-            Object.assign(form, { [keys]: '' })
-            this.setState({ [e.field]: '', form })
-        })
     }
+
     changeTab = (e, value) => {
         const opt = ['Veículo cadastrado!', 'Seguro atualizado!', 'Dados Alterados!', 'Veículo Baixado.']
         this.setState({ tab: value, msg: opt[value] })
@@ -78,7 +75,7 @@ export default class extends Component {
         const { name, value } = e.target
         const parsedName = humps.decamelize(name)
         if (name !== 'razaoSocial') this.setState({ [name]: value, form: { ...this.state.form, [parsedName]: value } })
-        else this.setState({ [name]: value })
+        else this.setState({ [name]: value })        
     }
 
     handleBlur = async  e => {
@@ -88,8 +85,32 @@ export default class extends Component {
 
         const selectedEmpresa = empresas.filter(e => e.razaoSocial.toLowerCase().match(value.toLowerCase()))[0]
 
-        if (name === 'modeloChassiId') this.setState({ modeloChassiId: modelosChassi.filter(c => c.modeloChassi.toLowerCase().match(value.toLowerCase()))[0].modeloChassi})
-        if (name === 'modeloCarroceriaId') this.setState({ modeloCarroceriaId: carrocerias.filter(c => c.modelo.toLowerCase().match(value.toLowerCase()))[0].modelo})
+        if (name === 'modeloChassiId') {
+            const chassi = modelosChassi.filter(c => c.modeloChassi.toLowerCase().match(value.toLowerCase()))
+            if (chassi[0]) {
+                const modeloChassiId = chassi[0].modeloChassi
+                if (value !== '') this.setState({ modeloChassiId })
+            } else {
+                await this.setState({ modeloChassiId: '' })
+                value = ''
+                alert('Chassi não cadastrado')
+                document.getElementById('modeloChassiId').focus()
+            }
+
+        }
+        if (name === 'modeloCarroceriaId') {
+
+            const carroceria = carrocerias.filter(c => c.modelo.toLowerCase().match(value.toLowerCase()))
+            if (carroceria[0]) {
+                const modeloCarroceriaId = carroceria[0].modelo
+                if (value !== '') this.setState({ modeloCarroceriaId })
+            } else {
+                await this.setState({ modeloCarroceriaId: '' })
+                value = ''
+                alert('Carroceria não cadastrada')
+                document.getElementById('modeloCarroceriaId').focus()
+            }
+        }
 
         if ((name === 'razaoSocial' || name === 'delegatarioCompartilhado') && selectedEmpresa) {
             await this.setState({ selectedEmpresa, [name]: selectedEmpresa.razaoSocial, oldId: selectedEmpresa.oldId })
@@ -132,14 +153,14 @@ export default class extends Component {
     }
 
     handleCadastro = async e => {
-        const { selectedEmpresa, modelosChassi, carrocerias, anoCarroceria,
+        const { selectedEmpresa, seguradoras, modelosChassi, carrocerias, anoCarroceria,
             equipamentos_id, peso_dianteiro, peso_traseiro, poltronas } = this.state,
             { delegatarioId } = selectedEmpresa,
             situacao = 'Ativo',
             indicadorIdade = anoCarroceria
 
         const pbt = Number(poltronas) * 93 + (Number(peso_dianteiro) + Number(peso_traseiro))
-        
+
         let review = {}
 
         cadForm.forEach(form => {
@@ -151,15 +172,27 @@ export default class extends Component {
                 }
             })
         })
-        Object.assign(review, { delegatarioId, situacao, indicadorIdade, pbt, equipamentos_id })
 
-        const chassiModel = modelosChassi.filter(el => el.modeloChassi.toLowerCase() === review.modeloChassiId.toLowerCase())[0]
-        if (chassiModel) review.modeloChassiId = chassiModel.id
-        const carroceriaModel = carrocerias.filter(el => el.modelo.toLowerCase() === review.modeloCarroceriaId.toLowerCase())[0]
-        if (carroceriaModel) review.modeloCarroceriaId = carroceriaModel.id
+        const chassiModel = modelosChassi.filter(el => el.modeloChassi.toLowerCase() === review.modeloChassiId.toLowerCase())
+        if (chassiModel && chassiModel[0]) review.modeloChassiId = chassiModel[0].id
+        const carroceriaModel = carrocerias.filter(el => el.modelo.toLowerCase() === review.modeloCarroceriaId.toLowerCase())
+        if (carroceriaModel && carroceriaModel[0]) review.modeloCarroceriaId = carroceriaModel[0].id
 
-        const parsedReview = humps.decamelizeKeys(review)
-        await axios.post('/api/cadastroVeiculo', parsedReview)
+        let { seguradoraId, dataEmissao, vencimento, ...vReview } = review
+
+        let seguro = { apolice: review.seguroId, seguradoraId, dataEmissao, vencimento }
+
+        const insurer = seguradoras.filter(el => el.seguradora.toLowerCase() === review.seguradoraId.toLowerCase())
+        if (insurer && insurer[0]) seguro.seguradoraId = insurer[0].id
+
+        Object.assign(vReview, { delegatarioId, situacao, indicadorIdade, pbt, equipamentos_id })
+
+        const vehicle = humps.decamelizeKeys(vReview)
+        const insurance = humps.decamelizeKeys(seguro)
+
+        await axios.post('/api/cadastroVeiculo', vehicle)
+            .then(res => console.log(res.data))
+        await axios.post('/api/cadSeguro', insurance)
             .then(res => console.log(res.data))
         this.toast()
     }
@@ -169,11 +202,19 @@ export default class extends Component {
     }
     setActiveStep = action => {
         let array = []
-        const { equipamentos } = this.state
+        const { equipamentos, seguros, activeStep } = this.state
         const prevActiveStep = this.state.activeStep
         if (action === 'next') this.setState({ activeStep: prevActiveStep + 1 });
         if (action === 'back') this.setState({ activeStep: prevActiveStep - 1 });
         if (action === 'reset') this.setState({ activeStep: 0 })
+
+        if (prevActiveStep === 0 || activeStep === 1) {
+            if (!seguros) axios.get('/api/seguros').then(async res => {
+                const seguros = humps.camelizeKeys(res.data)
+                this.setState({ seguros })
+            })
+        }
+
         if (prevActiveStep === 1) {
             equipamentos.forEach(async e => {
                 if (this.state[e.item] === true) {
@@ -181,7 +222,7 @@ export default class extends Component {
                 }
             })
             this.setState({ equipamentos_id: array })
-        }
+        }        
     }
 
     handleFiles = async e => {
@@ -216,7 +257,6 @@ export default class extends Component {
 
     handleSubmit = async e => {
         const { form } = this.state
-        //for (var pair of form.entries()) console.log(pair[0] + ', ' + pair[1], 'ASDKJAHSD')
 
         await axios.post('/api/upload', form)
             .then(res => console.log(res.data))
@@ -243,7 +283,7 @@ export default class extends Component {
                 setActiveStep={this.setActiveStep}
                 selectedEmpresa={selectedEmpresa}
             />}
-            {activeStep < 2 ? <VeiculosTemplate
+            {activeStep < 3 ? <VeiculosTemplate
                 data={this.state}
                 selectedEmpresa={selectedEmpresa}
                 handleInput={this.handleInput}
@@ -251,14 +291,14 @@ export default class extends Component {
                 handleEquipa={this.handleEquipa}
                 handleCheck={this.handleCheck}
             />
-                : tab === 0 && activeStep === 2 ?
+                : tab === 0 && activeStep === 3 ?
                     <CadVehicle
                         data={this.state}
                         handleFiles={this.handleFiles}
                         handleSubmit={this.handleSubmit}
                         handleNames={this.handleNames}
                     />
-                    : tab === 0 && activeStep === 3 ?
+                    : tab === 0 && activeStep === 4 ?
                         <Review data={this.state} />
                         : <Fragment></Fragment>
             }

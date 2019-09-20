@@ -2,8 +2,7 @@ import React from 'react'
 
 export default function autoComplete({ collection, datalist, value }) {
     
-    if (value.length > 2 && typeof collection !== 'string') {
-        
+    if (value.length > 2 && typeof collection !== 'string') {        
         return (
             <datalist id={datalist}>
                 {

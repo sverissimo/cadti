@@ -1,4 +1,5 @@
 import { vistoriaForm } from './vistoriaForm'
+import { seguroForm } from './seguroForm'
 
 export const cadForm = [[{
     field: 'placa',
@@ -7,11 +8,11 @@ export const cadForm = [[{
     maxLength: 8,
     pattern: '[a-zA-Z]{3}[-]?\\d{4}'
 },
-{    
+{
     field: 'renavam',
     label: 'Renavam',
     margin: 'normal',
-    maxLength: 11,    
+    maxLength: 11,
     pattern: '\\d{11}'
 },
 {
@@ -40,7 +41,7 @@ export const cadForm = [[{
     field: 'anoChassi',
     label: 'Ano do Chassi',
     margin: 'normal',
-    max: 2020    
+    max: 2020
 },
 {
     type: 'number',
@@ -82,7 +83,9 @@ export const cadForm = [[{
     field: 'cores',
     label: 'Cores',
     margin: 'normal'
-}]]
+}
+]]
+    .concat([seguroForm])
     .concat([vistoriaForm])
     .concat([[]])
     .concat([[]])

@@ -6,7 +6,7 @@ const fs = require('fs')
 const path = require('path')
 const dotenv = require('dotenv')
 
-const { empresas, veiculoInit, modeloChassi, carrocerias, equipamentos } = require('./queries')
+const { empresas, veiculoInit, modeloChassi, carrocerias, equipamentos, seguradoras, seguros } = require('./queries')
 const { upload } = require('./upload');
 
 
@@ -46,9 +46,8 @@ app.get('/api/veiculo/:id', (req, res) => {
 app.get('/api/veiculosInit', (req, res) => {
 
     pool.query(veiculoInit, (err, table) => {
-
         if (err) res.send(err)
-        if (table.rows.length === 0) { res.send('Nenhum veículo cadastrado para esse delegatário.'); return }
+        else if (table.rows.length === 0) { res.send('Nenhum veículo cadastrado para esse delegatário.'); return }
         res.json(table.rows)
     })
 })
@@ -61,7 +60,7 @@ app.get('/api/procuradores', (req, res) => {
          ON delegatario.delegatario_id = procurador.delegatario_id
          ORDER BY nome_procurador ASC`, (err, table) => {
         if (err) res.send(err)
-        if (table.rows.length === 0) { res.send('Nenhum procurador cadastrado para esse delegatário.'); return }
+        else if (table.rows.length === 0) { res.send('Nenhum procurador cadastrado para esse delegatário.'); return }
         res.json(table.rows)
     })
 })
@@ -75,7 +74,7 @@ app.get('/api/delegatarios', (req, res) => {
          ON procurador.delegatario_id = delegatario.delegatario_id    
 	     GROUP BY delegatario.delegatario_id;`, (err, table) => {
         if (err) res.send(err)
-        if (table.rows && table.rows.length === 0) {
+        else if (table.rows && table.rows.length === 0) {
             res.send('Nenhum delegatário cadastrado.')
             return
         }
@@ -90,7 +89,7 @@ app.get('/api/veiculos', (req, res) => {
         `SELECT * FROM public.veiculo WHERE delegatario_id = $1`, [id], (err, table) => {
 
             if (err) res.send(err)
-            if (table.rows.length === 0) { res.send('Nenhum veículo cadastrado para esse delegatário.'); return }
+            else if (table.rows.length === 0) { res.send('Nenhum veículo cadastrado para esse delegatário.'); return }
             res.json(table.rows)
         })
 })
@@ -98,27 +97,28 @@ app.get('/api/veiculos', (req, res) => {
 app.post('/api/cadastroVeiculo', (req, res) => {
 
     let parsed = []
+    console.log(req.body)
     const keys = Object.keys(req.body).toString(),
         values = Object.values(req.body)
 
     values.forEach(v => {
         parsed.push(('\'' + v + '\'').toString())
-
     })
+
     parsed = parsed.toString().replace(/'\['/g, '').replace(/'\]'/g, '')
     console.log(`INSERT INTO public.veiculo (${keys}) VALUES (${parsed}) RETURNING *`)
     pool.query(
         `INSERT INTO public.veiculo (${keys}) VALUES (${parsed}) RETURNING *`, (err, table) => {
             if (err) res.send(err)
             if (table.rows && table.rows.length === 0) { res.send('Nenhum veículo cadastrado para esse delegatário.'); return }
-            res.json(table.rows);
+            res.json(table.rows)
         })
 })
 
 app.get('/api/modeloChassi', (req, res) => {
     pool.query(modeloChassi, (err, table) => {
         if (err) res.send(err)
-        if (table.rows && table.rows.length === 0) { res.send('Nenhum veículo cadastrado para esse delegatário.'); return }
+        else if (table.rows && table.rows.length === 0) { res.send('Nenhum veículo cadastrado para esse delegatário.'); return }
         res.json(table.rows);
     })
 })
@@ -126,8 +126,8 @@ app.get('/api/modeloChassi', (req, res) => {
 app.get('/api/carrocerias', (req, res) => {
     pool.query(carrocerias, (err, table) => {
         if (err) res.send(err)
-        if (table.rows && table.rows.length === 0) { res.send('Nenhum veículo cadastrado para esse delegatário.'); return }
-        res.json(table.rows);
+        else if (table.rows && table.rows.length === 0) { res.send('Nenhum veículo cadastrado para esse delegatário.'); return }
+        res.json(table.rows)
     })
 })
 
@@ -151,10 +151,47 @@ app.get('/api/download', (req, res) => {
 app.get('/api/equipa', (req, res) => {
     pool.query(equipamentos, (err, table) => {
         if (err) res.send(err)
-        if (table.rows && table.rows.length === 0) { res.send('Nenhum equipamento encontrado.'); return }
+        else if (table.rows && table.rows.length === 0) { res.send('Nenhum equipamento encontrado.'); return }
         res.json(table.rows);
     })
 })
-app.listen(PORT, HOST)
 
+app.get('/api/seguros', (req, res) => {
+    pool.query(seguros, (err, table) => {
+        if (err) res.send(err)
+        else if (table.rows && table.rows.length === 0) { res.send('Nenhum equipamento encontrado.'); return }
+        res.json(table.rows);
+    })
+})
+
+
+app.get('/api/seguradoras', (req, res) => {
+    pool.query(seguradoras, (err, table) => {
+        if (err) res.send(err)
+        else if (table.rows && table.rows.length === 0) { res.send('Nenhum equipamento encontrado.'); return }
+        res.json(table.rows);
+    })
+})
+
+app.post('/api/cadSeguro', (req, res) => {
+    let parsed = []
+    console.log(req.body)
+    const keys = Object.keys(req.body).toString(),
+        values = Object.values(req.body)
+
+    values.forEach(v => {
+        parsed.push(('\'' + v + '\'').toString())
+    })
+
+    parsed = parsed.toString().replace(/'\['/g, '').replace(/'\]'/g, '')
+    console.log(`INSERT INTO public.seguro (${keys}) VALUES (${parsed}) RETURNING *`)
+    pool.query(
+        `INSERT INTO public.seguro (${keys}) VALUES (${parsed}) RETURNING *`, (err, table) => {
+            if (err) res.send(err)
+            if (table.rows && table.rows.length === 0) { res.send('Nenhum seguro cadastrado.'); return }
+            res.json(table.rows);
+        })
+})
+
+app.listen(PORT, HOST)
 console.log('Running on port 3001, dude...')

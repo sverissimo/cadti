@@ -1,32 +1,29 @@
-export const seguroForm = [{
-    type: 'TextField',
-    field: 'seguradora',
-    label: 'Seguradora',
-    margin: 'normal',
-    
-},
-{
-    type: 'TextField',
-    field: 'apolice',
-    label: 'Apólice',
-    margin: 'normal',
-    
-},
-{
-    type: 'TextField',
-    field: 'endosso',
-    label: 'Endosso',
-    margin: 'normal',    
-},
-{
-    type: 'TextField',
-    field: 'dataEmissão',
-    label: 'Data de Emissão',
-    margin: 'normal',    
-},
-{
-    type: 'TextField',
-    field: 'validade',
-    label: 'Validade',
-    margin: 'normal',    
-}]
+export const seguroForm = [
+    {
+        field: 'seguradoraId',
+        label: 'Seguradora',
+        margin: 'normal',
+        autoComplete: true,
+        datalist: 'seguradora',
+        collection: 'seguradoras'
+    },
+    {       
+        field: 'seguroId',
+        label: 'Apólice',
+        margin: 'normal',
+        autoComplete: true,
+        datalist: 'apolice',
+        collection: 'seguros'
+    },    
+    {
+        type: 'date',
+        field: 'dataEmissao',
+        label: 'Data de Emissão',
+        margin: 'normal',
+    },
+    {
+        type: 'date',
+        field: 'vencimento',
+        label: 'Vencimento',
+        margin: 'normal',
+    }]
