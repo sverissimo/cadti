@@ -129,13 +129,16 @@ export default function ({ handleInput, handleBlur, data, handleEquipa, handleCh
                                     error={el.pattern && data.form[el.field] ? data.form[el.field].match(el.pattern) === null : false}
                                     helperText={data.form[el.field] > el.max && 'Valor Inválido'}
                                     select={el.select || false}
-                                    InputLabelProps={{ className: classes.textField, shrink: true, style: { fontSize: '0.9rem', fontWeight: 400, color: '#000', marginBottom: '5%' } }}
+                                    value={data[el.field] || ''}
+                                    InputLabelProps={{ className: classes.textField, 
+                                        shrink: el.type === 'date' || undefined,
+                                        style: { fontSize: '0.9rem', fontWeight: 400, color: '#000', marginBottom: '5%' } }}
                                     inputProps={{
                                         style: { textAlign: 'center', color: '#000', fontWeight: '500' },
                                         value: `${data[el.field] || ''}`,
                                         list: el.datalist || '',
                                         maxLength: el.maxLength || '',
-                                        max: el.max || '',                                        
+                                        max: el.max || '',
                                     }}
                                     multiline={el.multiline || false}
                                     rows={el.rows || null}

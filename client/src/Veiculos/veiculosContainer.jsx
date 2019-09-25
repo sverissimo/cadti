@@ -75,7 +75,7 @@ export default class extends Component {
         const { name, value } = e.target
         const parsedName = humps.decamelize(name)
         if (name !== 'razaoSocial') this.setState({ [name]: value, form: { ...this.state.form, [parsedName]: value } })
-        else this.setState({ [name]: value })        
+        else this.setState({ [name]: value })
     }
 
     handleBlur = async  e => {
@@ -113,9 +113,17 @@ export default class extends Component {
         }
 
         if ((name === 'razaoSocial' || name === 'delegatarioCompartilhado') && selectedEmpresa) {
-            await this.setState({ selectedEmpresa, [name]: selectedEmpresa.razaoSocial, oldId: selectedEmpresa.oldId })
-            if (name === 'razaoSocial') axios.get(`/api/veiculos?id=${selectedEmpresa.delegatarioId}`)
-                .then(res => this.setState({ frota: humps.camelizeKeys(res.data) }))
+            await this.setState({ selectedEmpresa, [name]: selectedEmpresa.razaoSocial })
+            if (name === 'razaoSocial') {
+                this.setState({ delegatarioId: selectedEmpresa.delegatarioId })
+                axios.get(`/api/veiculos?id=${selectedEmpresa.delegatarioId}`)
+                    .then(res => this.setState({ frota: humps.camelizeKeys(res.data) }))
+            }
+        }
+
+        if (selectedEmpresa && name === 'delegatarioCompartilhado') {
+            await this.setState({ compartilhadoId: selectedEmpresa.delegatarioId })
+            console.log(this.state)
         }
 
         if (name === 'placa' && typeof this.state.frota !== 'string') {
@@ -145,7 +153,7 @@ export default class extends Component {
         const { value, name } = e.target
 
         const selectedEmpresa = empresas.filter(e => e.razaoSocial.toLowerCase().match(value.toLowerCase()))[0]
-        if (selectedEmpresa) {
+        if (selectedEmpresa && name === 'razaoSocial') {
             await this.setState({ selectedEmpresa, [name]: selectedEmpresa.razaoSocial })
             axios.get(`/api/veiculos?id=${selectedEmpresa.delegatarioId}`)
                 .then(res => this.setState({ frota: humps.camelizeKeys(res.data) }))
@@ -153,9 +161,8 @@ export default class extends Component {
     }
 
     handleCadastro = async e => {
-        const { selectedEmpresa, seguradoras, modelosChassi, carrocerias, anoCarroceria,
-            equipamentos_id, peso_dianteiro, peso_traseiro, poltronas } = this.state,
-            { delegatarioId } = selectedEmpresa,
+        const { seguradoras, modelosChassi, carrocerias, anoCarroceria,
+            equipamentos_id, peso_dianteiro, peso_traseiro, poltronas, delegatarioId, compartilhadoId, seguros } = this.state,            
             situacao = 'Ativo',
             indicadorIdade = anoCarroceria
 
@@ -178,22 +185,26 @@ export default class extends Component {
         const carroceriaModel = carrocerias.filter(el => el.modelo.toLowerCase() === review.modeloCarroceriaId.toLowerCase())
         if (carroceriaModel && carroceriaModel[0]) review.modeloCarroceriaId = carroceriaModel[0].id
 
-        let { seguradoraId, dataEmissao, vencimento, ...vReview } = review
+        let { seguradoraId, dataEmissao, vencimento, delegatarioCompartilhado, ...vReview } = review
 
         let seguro = { apolice: review.seguroId, seguradoraId, dataEmissao, vencimento }
 
         const insurer = seguradoras.filter(el => el.seguradora.toLowerCase() === review.seguradoraId.toLowerCase())
         if (insurer && insurer[0]) seguro.seguradoraId = insurer[0].id
 
-        Object.assign(vReview, { delegatarioId, situacao, indicadorIdade, pbt, equipamentos_id })
+        Object.assign(vReview, { delegatarioId, situacao, indicadorIdade, pbt, equipamentos_id, delegatarioCompartilhado: compartilhadoId })
 
         const vehicle = humps.decamelizeKeys(vReview)
         const insurance = humps.decamelizeKeys(seguro)
 
+        const insuranceExists = seguros.filter(s => s.apolice === insurance.apolice)        
+
+        if (!insuranceExists[0]) await axios.post('/api/cadSeguro', insurance)
+            .then(res => console.log(res.data))
+
         await axios.post('/api/cadastroVeiculo', vehicle)
             .then(res => console.log(res.data))
-        await axios.post('/api/cadSeguro', insurance)
-            .then(res => console.log(res.data))
+
         this.toast()
     }
 
@@ -201,6 +212,7 @@ export default class extends Component {
         this.setState({ confirmToast: !this.state.confirmToast })
     }
     setActiveStep = action => {
+
         let array = []
         const { equipamentos, seguros, activeStep } = this.state
         const prevActiveStep = this.state.activeStep
@@ -222,7 +234,7 @@ export default class extends Component {
                 }
             })
             this.setState({ equipamentos_id: array })
-        }        
+        }
     }
 
     handleFiles = async e => {

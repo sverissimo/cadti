@@ -69,15 +69,5 @@ export const vistoriaForm = [
         margin: 'normal',
         type: 'number',
         max: 150
-    },
-    {       
-        field: 'laudo',
-        label: 'Laudo',
-        margin: 'normal'        
-    },   
-    {       
-        field: 'empresaLaudo',
-        label: 'Empresa Laudo',
-        margin: 'normal'        
-    },   
+    }   
 ]
