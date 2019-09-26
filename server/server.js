@@ -110,8 +110,9 @@ app.post('/api/cadastroVeiculo', (req, res) => {
     pool.query(
         `INSERT INTO public.veiculo (${keys}) VALUES (${parsed}) RETURNING *`, (err, table) => {
             if (err) res.send(err)
-            if (table.rows && table.rows.length === 0) { res.send('Nenhum veículo cadastrado para esse delegatário.'); return }
-            res.json(table.rows)
+            if (table && table.rows && table.rows.length === 0) { res.send('Nenhum veículo cadastrado para esse delegatário.'); return }
+            if (table.rows.length > 0 ) res.json(table.rows)
+            return
         })
 })
 
@@ -188,8 +189,9 @@ app.post('/api/cadSeguro', (req, res) => {
     pool.query(
         `INSERT INTO public.seguro (${keys}) VALUES (${parsed}) RETURNING *`, (err, table) => {
             if (err) res.send(err)
-            if (table.rows && table.rows.length === 0) { res.send('Nenhum seguro cadastrado.'); return }
-            res.json(table.rows);
+            if (table && table.rows && table.rows.length === 0) { res.send('Nenhum seguro cadastrado.'); return }
+            if (table && table.rows.length > 0 ) res.json(table.rows)
+            return
         })
 })
 

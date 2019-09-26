@@ -44,6 +44,23 @@ export default function ({ handleInput, handleBlur, data, handleEquipa, handleCh
     if (tab !== 0) form = vehicleForm[tab]
     else form = cadForm[activeStep]
 
+    const errorHandler = (el) => {
+        const value = data.form[el.field]
+
+        if (el.pattern && value) return data.form[el.field].match(el.pattern) === null
+        else if (value > el.max) return true
+        else return false
+    }
+
+    const helper = (el) => {
+        const value = data.form[el.field]
+
+        if (el.pattern && value > el.max) return 'Valor inválido'
+        else if (value && value.match(el.pattern) === null) return '✘'
+        else if (el.pattern && value && value.match(el.pattern) !== null) return '✓'
+        else return undefined
+    }
+
     return (
         <Grid
             container
@@ -118,7 +135,7 @@ export default function ({ handleInput, handleBlur, data, handleEquipa, handleCh
                         {data.form && form[0] && form.map((el, i) =>
                             <Fragment key={i}>
                                 <TextField
-                                    id={el.field}
+
                                     name={el.field}
                                     label={el.label}
                                     margin={el.margin}
@@ -126,13 +143,15 @@ export default function ({ handleInput, handleBlur, data, handleEquipa, handleCh
                                     onChange={handleInput}
                                     onBlur={handleBlur}
                                     type={el.type || ''}
-                                    error={el.pattern && data.form[el.field] ? data.form[el.field].match(el.pattern) === null : false}
-                                    helperText={data.form[el.field] > el.max && 'Valor Inválido'}
+                                    error={errorHandler(el)}
+                                    helperText={helper(el)}
                                     select={el.select || false}
                                     value={data[el.field] || ''}
-                                    InputLabelProps={{ className: classes.textField, 
+                                    InputLabelProps={{
+                                        className: classes.textField,
                                         shrink: el.type === 'date' || undefined,
-                                        style: { fontSize: '0.9rem', fontWeight: 400, color: '#000', marginBottom: '5%' } }}
+                                        style: { fontSize: '0.9rem', fontWeight: 400, color: '#000', marginBottom: '5%' }
+                                    }}
                                     inputProps={{
                                         style: { textAlign: 'center', color: '#000', fontWeight: '500' },
                                         value: `${data[el.field] || ''}`,

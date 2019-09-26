@@ -1,6 +1,6 @@
 export const seguroForm = [
     {
-        field: 'seguradoraId',
+        field: 'seguradora',
         label: 'Seguradora',
         margin: 'normal',
         autoComplete: true,

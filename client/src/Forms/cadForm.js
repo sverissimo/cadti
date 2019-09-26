@@ -29,7 +29,7 @@ export const cadForm = [[{
     maxLength: 17
 },
 {
-    field: 'modeloChassiId',
+    field: 'modeloChassi',
     label: 'Modelo do Chassi',
     margin: 'normal',
     datalist: 'modeloChassi',
@@ -37,10 +37,10 @@ export const cadForm = [[{
     collection: 'modelosChassi'
 },
 {
-    type: 'number',
     field: 'anoChassi',
     label: 'Ano do Chassi',
     margin: 'normal',
+    type: 'number',
     max: 2020
 },
 {
@@ -51,7 +51,7 @@ export const cadForm = [[{
     zero: true
 },
 {
-    field: 'modeloCarroceriaId',
+    field: 'modeloCarroceria',
     label: 'Modelo da Carroceria',
     margin: 'normal',
     datalist: 'modelo',
@@ -63,7 +63,7 @@ export const cadForm = [[{
     field: 'anoCarroceria',
     label: 'Ano da Carroceria',
     margin: 'normal',
-    max: new Date().getFullYear() + 1
+    max: 2020
 },
 {
     type: 'number',

@@ -49,13 +49,13 @@ export default function Revisao({ data }) {
     cadForm.forEach(form => {
         form.forEach(obj => {
             for (let k in data) {
-                if (k.match(obj.field)) review.push({ label: obj.label, field: k, value: data[k] })
+                if (k === obj.field) review.push({ label: obj.label, field: k, value: data[k] })
             }
 
         })
     })
-    let a = data.equipamentos_id.toString().replace(/,/g, ', ')   
-    
+    let a = data.equipamentos_id.toString().replace(/,/g, ', ')
+
     return (
         <Paper className={paper}>
             <Grid container
@@ -85,10 +85,17 @@ export default function Revisao({ data }) {
                         value={a}
                         label='Acessórios'
                         disabled={true}
-                        type='text'                        
-                        InputLabelProps={{ shrink: true, style: { fontSize: '0.9rem', fontWeight: 600, color: '#000', marginBottom: '5%' } }}
+                        type='text'
+                        InputLabelProps={{
+                            shrink: true,
+                            style: { fontSize: '0.9rem', fontWeight: 600, color: '#000', marginBottom: '5%', display: a ? undefined : 'none' }
+                        }}
                         inputProps={{
-                            style: { textAlign: 'center', color: '#000', backgroundColor: '#f7f7ff', paddingBottom: '2%', height: '40px', fontSize: '0.9rem' }
+                            style: {
+                                textAlign: 'center', color: '#000', backgroundColor: '#f7f7ff', paddingBottom: '2%',
+                                height: '40px', fontSize: '0.9rem', display: a ? undefined : 'none'
+                            },
+
                         }}
                         variant='outlined'
                     />
