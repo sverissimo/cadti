@@ -15,13 +15,19 @@ const useStyles = makeStyles(theme => ({
         flexWrap: 'wrap',
         padding: theme.spacing(1)
     },
+    title: {
+        color: '#000',
+        fontWeight: 400,
+        fontSize: '0.9rem',
+        textAlign: 'center'
+    },
     textField: {
         marginLeft: theme.spacing(1),
         marginRight: theme.spacing(1),
         width: 300,
         fontSize: '0.8rem',
         fontColor: '#bbb',
-        textAlign: 'center'
+        textAlign: 'center',
     },
     input: {
         textAlign: 'center'
@@ -36,7 +42,7 @@ const useStyles = makeStyles(theme => ({
 
 export default function ({ handleInput, handleBlur, data, handleEquipa, handleCheck }) {
     const { tab, empresas, razaoSocial, activeStep, equipamentos, addEquipa, delegatarioCompartilhado } = data,
-        classes = useStyles(), { paper, container } = classes
+        classes = useStyles(), { paper, container, title } = classes
 
     const [shared, setShared] = useState(false)
 
@@ -72,7 +78,7 @@ export default function ({ handleInput, handleBlur, data, handleEquipa, handleCh
                 <Paper className={paper} style={{ padding: '0 2% 0 2%' }}>
                     <Grid container justify="center">
                         <Grid item xs={shared ? 4 : 12}>
-                            <Typography> Selecione a Viação</Typography>
+                            <Typography className={title}> Selecione a Viação</Typography>
 
                             <TextField
                                 inputProps={{
@@ -93,7 +99,7 @@ export default function ({ handleInput, handleBlur, data, handleEquipa, handleCh
                         {
                             shared && <Grid item xs={4}>
 
-                                <Typography> Empresa autorizada a compartilhar</Typography>
+                                <Typography className={title}> Empresa autorizada a compartilhar</Typography>
 
                                 <TextField
                                     inputProps={{
@@ -130,7 +136,7 @@ export default function ({ handleInput, handleBlur, data, handleEquipa, handleCh
                 </Paper>
                 <Grid item xs={12}>
                     <Paper className={paper}>
-                        <Typography> Preencha dos dados do veículo</Typography>
+                        <Typography className={title}> Preencha dos dados do veículo</Typography>
 
                         {data.form && form[0] && form.map((el, i) =>
                             <Fragment key={i}>
@@ -150,10 +156,13 @@ export default function ({ handleInput, handleBlur, data, handleEquipa, handleCh
                                     InputLabelProps={{
                                         className: classes.textField,
                                         shrink: el.type === 'date' || undefined,
-                                        style: { fontSize: '0.9rem', fontWeight: 400, color: '#000', marginBottom: '5%' }
+                                        style: {
+                                            fontSize: '0.8rem', fontWeight: 400, color: '#455a64',
+                                            marginBottom: '5%'
+                                        }
                                     }}
                                     inputProps={{
-                                        style: { textAlign: 'center', color: '#000', fontWeight: '500' },
+                                        style: {  background: '#eee', textAlign: 'center', color: '#000', fontWeight: '500' },
                                         value: `${data[el.field] || ''}`,
                                         list: el.datalist || '',
                                         maxLength: el.maxLength || '',
@@ -161,7 +170,7 @@ export default function ({ handleInput, handleBlur, data, handleEquipa, handleCh
                                     }}
                                     multiline={el.multiline || false}
                                     rows={el.rows || null}
-                                    variant={el.variant || 'standard'}
+                                    variant={el.variant || 'filled'}
                                 >
                                     {el.select === true && el.options.map((opt, i) =>
                                         <MenuItem key={i} value={opt}>
@@ -173,11 +182,9 @@ export default function ({ handleInput, handleBlur, data, handleEquipa, handleCh
                                     datalist={el.datalist}
                                     value={data[el.field] || ''}
                                 />}
-
-
                             </Fragment>
                         )}
-                        {activeStep === 0 && <Grid container justify="center"
+                        {activeStep === 0 && tab === 0 && <Grid container justify="center"
                         >
                             <Button
                                 variant="outlined"
@@ -190,7 +197,7 @@ export default function ({ handleInput, handleBlur, data, handleEquipa, handleCh
                                 Equipamentos
                             </Button>
                         </Grid>}
-                        {addEquipa && <PopUp close={handleEquipa} title='Equipa'>
+                        {addEquipa && <PopUp close={handleEquipa} title='Equipamentos'>
                             <AddEquipa
                                 equipamentos={equipamentos}
                                 close={handleEquipa}

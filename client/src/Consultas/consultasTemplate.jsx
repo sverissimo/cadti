@@ -51,6 +51,7 @@ export default function ({ tab, collection, handleEdit }) {
                         searchFieldStyle: { color: '#024' },
                         headerStyle: { backgroundColor: '#FAFAFC' }
                     }}
+                   
                     localization={{
                         body: {
                             emptyDataSourceMessage: 'Carregando...',
@@ -78,7 +79,7 @@ export default function ({ tab, collection, handleEdit }) {
                         }
                     ]}
                     editable={{
-                        onRowUpdate: (newData, oldData) =>
+                        /* onRowUpdate: (newData, oldData) =>
                             new Promise((resolve, reject) => {
                                 setTimeout(() => {
                                     {
@@ -89,7 +90,7 @@ export default function ({ tab, collection, handleEdit }) {
                                     }
                                     resolve();
                                 }, 1000);
-                            }),
+                            }), */
                         onRowDelete: oldData =>
                             new Promise((resolve, reject) => {
                                 setTimeout(() => {

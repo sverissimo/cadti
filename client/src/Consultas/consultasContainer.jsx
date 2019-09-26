@@ -9,44 +9,41 @@ export default class extends Component {
     state = {
         tab: 0,
         items: ['Veículos', 'Delegatários',
-            'Procuradores', 'Outros'],
+            'Sócios', 'Seguros'],
         selectedOption: ['veiculos', 'empresas',
-            'procuradores', 'outros'],
+            'procuradores', 'seguros'],
         empresas: [],
+        seguros: [],
         selectedEmpresa: '',
         razaoSocial: ''
     }
 
-    componentDidMount() {
-        axios.get('/api/delegatarios')
-            .then(res => {
-                const empresas = humps.camelizeKeys(res.data)
-                this.setState({ empresas })
+    async componentDidMount() {
+        const vehicles = axios.get('/api/veiculosInit'),
+            insurances = axios.get('/api/seguros'),
+            delega = axios.get('/api/empresas'),
+            proc = axios.get('/api/procuradores')
+
+        Promise.all([vehicles, insurances, delega, proc])
+            .then(res => res.map(r => humps.camelizeKeys(r.data)))
+            .then(([veiculos, seguros, empresas, procuradores]) => {
+                this.setState({ veiculos, seguros, empresas, procuradores, collection: veiculos })
             })
-        axios.get('/api/veiculosInit')
-            .then(res => {
-                const veiculos = humps.camelizeKeys(res.data)
-                this.setState({ veiculos, collection: veiculos })
-            })
-        axios.get('/api/procuradores')
-            .then(res => {
-                const procuradores = humps.camelizeKeys(res.data)
-                this.setState({ procuradores })
-            })
+    }
+    componentWillUnmount() {
+        this.setState({})
     }
 
     changeTab = async (e, value) => {
         await this.setState({ tab: value })
-        const options = ['veiculos', 'empresas', 'procuradores', 'outros']
-        let collection = this.state[options[value]]
+        const options = ['veiculos', 'empresas', 'procuradores', 'seguros'],
+            collection = this.state[options[value]]
         this.setState({ collection })
     }
 
     handleEdit = (data) => {
-
         this.setState({ data })
         console.log(this.state)
-
     }
 
     render() {

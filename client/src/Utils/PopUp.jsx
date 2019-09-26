@@ -13,12 +13,12 @@ export default function PopUp({ close, children, title }) {
                     padding: '5px 0px 7px 20px',
                     borderRadius: '15px',
                     border: '1px solid #aaa',
-                    backgroundColor: 'white'
+                    backgroundColor: 'white',
+                    zIndex:1
                 }}>
                 <div className='row'>
-                    <div className="center"><h5>{title}</h5></div>
+                    <div ><h5>{title}</h5></div>
                 </div>
-
                 {children}
                 <div style={{
                     position: 'absolute',

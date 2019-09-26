@@ -5,27 +5,25 @@ export const vehicleTable = [
         title: 'Placa',
     },
     {
-        field: 'utilizacao',
-        title: 'Utilização',
+        field: 'modeloCarroceria',
+        title: 'Modelo da Carroceria',
     },
     {
         field: 'empresa',
         title: 'Delegatário',
     },
     {
-        field: 'modeloCarroceria',
-        title: 'Modelo da Carroceria',
+        field: 'seguradora',
+        title: 'Seguradora',
     },
     {
-        field: 'poltronas',
-        title: 'Número de Poltronas',
-        filtering: false
+        field: 'seguroId',
+        title: 'Número da Apólice',
     },
     {
-        field: 'dataRegistro',
-        title: 'Data de Registro',
-        filtering: false,
-        render: rowData => formatDate(rowData.dataRegistro)
+        field: 'vencimento',
+        title: 'Vencimento Seguro',
+        render: rowData => formatDate(rowData.vencimento)
     },
     {
         field: 'indicadorIdade',
@@ -58,10 +56,20 @@ export const delegatarioTable = [
         title: 'Telefone',
     },
     {
+        field: 'frota',
+        title: 'Tamanho da frota'
+    }
+  /*   {
         field: 'procuradoresList',
         title: 'Nome do Procurador',
-        render: rowData => rowData.procuradoresList ? rowData.procuradoresList.toString().replace(/,/g, ", ") : ''
-    }
+        fSize: '0.3rem',
+        render: rowData => rowData.procuradoresList
+            ?
+            rowData.procuradoresList.map(s => s.charAt(0).toUpperCase()
+                .concat(s.slice(1).toLowerCase())).toString().replace(/,/g, ", ")
+            :
+            ''
+    } */
 ]
 
 export const procuradorTable = [
@@ -91,4 +99,29 @@ export const procuradorTable = [
     }
 ]
 
-export const tables = [vehicleTable].concat([delegatarioTable]).concat([procuradorTable])
+export const segurosTable = [
+    {
+        field: 'apolice',
+        title: 'Número da Apólice',
+    },
+    {
+        field: 'seguradora',
+        title: 'Seguradora',
+    },
+    {
+        field: 'empresa',
+        title: 'Segurado',
+    },
+    {
+        field: 'segurados',
+        title: 'Número de veículos',
+    },
+    {
+        field: 'vencimento',
+        title: 'Vencimento',
+        filtering: false,
+        render: rowData => formatDate(rowData.vencimento)
+    }
+]
+
+export const tables = [vehicleTable].concat([delegatarioTable]).concat([procuradorTable]).concat([segurosTable])

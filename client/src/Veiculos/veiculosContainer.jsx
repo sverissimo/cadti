@@ -30,6 +30,7 @@ export default class extends Component {
         fileNames: [],
         modelosChassi: [],
         seguradoras: [],
+        equipamentos: [],
         addEquipa: false
     }
 
@@ -55,6 +56,12 @@ export default class extends Component {
                 const seguradoras = humps.camelizeKeys(res.data)
                 this.setState({ seguradoras })
             })
+
+        axios.get('/api/seguros')
+            .then(res => {
+                const seguros = humps.camelizeKeys(res.data)
+                this.setState({ seguros, allInsurances: seguros })
+            })
         axios.get('/api/equipa')
             .then(res => {
                 const equipamentos = humps.camelizeKeys(res.data)
@@ -72,20 +79,13 @@ export default class extends Component {
     }
 
     setActiveStep = action => {
-       
+
         let array = []
-        const { equipamentos, seguros, activeStep } = this.state
+        const { equipamentos } = this.state
         const prevActiveStep = this.state.activeStep
         if (action === 'next') this.setState({ activeStep: prevActiveStep + 1 });
         if (action === 'back') this.setState({ activeStep: prevActiveStep - 1 });
         if (action === 'reset') this.setState({ activeStep: 0 })
-
-        if (prevActiveStep === 0 || activeStep === 1) {
-            if (!seguros) axios.get('/api/seguros').then(async res => {
-                const seguros = humps.camelizeKeys(res.data)
-                this.setState({ seguros })
-            })
-        }
 
         if (prevActiveStep === 1) {
             equipamentos.forEach(async e => {
@@ -116,15 +116,15 @@ export default class extends Component {
             await this.setState({ [name]: '', [stateId]: '' })
             alert(alertLabel + ' não cadastrado')
             document.getElementsByName(name)[0].focus()
-        }        
+        }
     }
 
     handleBlur = async  e => {
-        const { empresas, tab, frota, placa, modelosChassi, carrocerias, seguradoras, seguros,
+        const { empresas, tab, frota, placa, modelosChassi, carrocerias, seguradoras, seguros, allInsurances,
             delegatarioId } = this.state
         const { name } = e.target
         let { value } = e.target
-        
+
         switch (name) {
             case 'modeloChassi':
                 this.getId(name, value, modelosChassi, 'modeloChassiId', 'modeloChassi', 'id', 'Chassi')
@@ -132,25 +132,30 @@ export default class extends Component {
             case 'modeloCarroceria':
                 this.getId(name, value, carrocerias, 'modeloCarroceriaId', 'modelo', 'id', 'Modelo de carroceria')
                 break;
-            case 'seguradora':
-                this.getId(name, value, seguradoras, 'seguradoraId', 'seguradora', 'id', 'Seguradora')
-                break;
             case 'delegatarioCompartilhado':
                 this.getId(name, value, empresas, 'compartilhadoId', 'razaoSocial', 'delegatarioId')
+                break;
+            case 'seguradora':
+                await this.getId(name, value, seguradoras, 'seguradoraId', 'seguradora', 'id', 'Seguradora')
+                const filteredInsurances = allInsurances.filter(s => s.seguradora === this.state.seguradora)
+                if (filteredInsurances[0] && this.state.seguradora !== '') {
+                    this.setState({ seguros: filteredInsurances })
+                }
                 break;
             case 'razaoSocial':
                 await this.getId(name, value, empresas, 'delegatarioId', 'razaoSocial', 'delegatarioId')
                 if (delegatarioId) axios.get(`/api/veiculos?id=${delegatarioId}`)
-                    .then(res => { this.setState({ frota: humps.camelizeKeys(res.data) })})
+                    .then(res => { this.setState({ frota: humps.camelizeKeys(res.data) }) })
                 break;
 
             case 'seguroId':
                 const insuranceExists = seguros.filter(s => s.apolice === value)
-                if (insuranceExists[0]) {
+                if (insuranceExists[0] !== undefined && insuranceExists[0].dataEmissao && insuranceExists[0].vencimento) {
                     const dataEmissao = insuranceExists[0].dataEmissao.toString().slice(0, 10)
                     const vencimento = insuranceExists[0].vencimento.toString().slice(0, 10)
                     this.setState({ dataEmissao, vencimento })
                 }
+                else this.setState({ dataEmissao: '', vencimento: '' })
                 break;
             default:
                 void 0
@@ -197,13 +202,13 @@ export default class extends Component {
                     }
                 }
             })
-        })        
+        })
 
         let { dataEmissao, vencimento, delegatarioCompartilhado,
             modeloChassi, modeloCarroceria, seguradora, ...vReview } = review
 
         let seguro = { apolice: review.seguroId, seguradoraId, dataEmissao, vencimento }
-        
+
         Object.assign(vReview, {
             delegatarioId, situacao, indicadorIdade, pbt, equipamentos_id,
             modeloChassiId, modeloCarroceriaId
