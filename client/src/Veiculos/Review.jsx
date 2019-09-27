@@ -34,7 +34,7 @@ const useStyles = makeStyles(theme => ({
         marginLeft: theme.spacing(1),
         marginRight: theme.spacing(1),
         marginTop: '9%',
-        width: 500,
+        width: 600,
         fontSize: '0.8rem',
         fontColor: '#bbb',
         textAlign: 'center'
@@ -93,15 +93,15 @@ export default function Revisao({ data }) {
                         inputProps={{
                             style: {
                                 textAlign: 'center', color: '#000', backgroundColor: '#f7f7ff', paddingBottom: '2%',
-                                height: '40px', fontSize: '0.9rem', display: a ? undefined : 'none'
+                                height: '40px', fontSize: '0.7rem', display: a ? undefined : 'none'
                             },
 
                         }}
+                        multiline                        
                         variant='outlined'
                     />
                 </Grid>
             </Grid>
-
         </Paper>
     )
 }

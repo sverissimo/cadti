@@ -65,23 +65,6 @@ app.get('/api/procuradores', (req, res) => {
     })
 })
 
-app.get('/api/delegatarios', (req, res) => {
-
-    pool.query(
-        `SELECT delegatario.*, ARRAY_AGG(DISTINCT procurador.nome_procurador) AS procuradores_list
-         FROM delegatario
-         LEFT JOIN procurador
-         ON procurador.delegatario_id = delegatario.delegatario_id    
-	     GROUP BY delegatario.delegatario_id;`, (err, table) => {
-        if (err) res.send(err)
-        else if (table.rows && table.rows.length === 0) {
-            res.send('Nenhum delegatário cadastrado.')
-            return
-        }
-        res.json(table.rows)
-    })
-})
-
 app.get('/api/veiculos', (req, res) => {
     const { id } = req.query
 
@@ -165,7 +148,6 @@ app.get('/api/seguros', (req, res) => {
     })
 })
 
-
 app.get('/api/seguradoras', (req, res) => {
     pool.query(seguradoras, (err, table) => {
         if (err) res.send(err)
@@ -193,7 +175,7 @@ app.post('/api/cadSeguro', (req, res) => {
             if (table && table.rows.length > 0 ) res.json(table.rows)
             return
         })
-})
+});
 
 app.listen(PORT, HOST)
 console.log('Running on port 3001, dude...')

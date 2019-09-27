@@ -10,6 +10,7 @@ import { cadVehicleFiles } from '../Forms/cadVehicleFiles'
 import { cadForm } from '../Forms/cadForm'
 import StepperButtons from './StepperButtons'
 import CustomStepper from '../Utils/Stepper'
+import AltSeguro from './AltSeguro'
 
 export default class extends Component {
 
@@ -17,6 +18,8 @@ export default class extends Component {
         tab: 0,
         items: ['Cadastro de Veículo', 'Atualização de Seguro',
             'Alteração de dados', 'Baixa de Veículo'],
+        subtitle: ['Informe os dados do Veículo', 'Informe os dados do Seguro',
+            'Preencha os campos abaixo', 'Informe os dados para a baixa'],
         form: {},
         empresas: [],
         selectedEmpresa: '',
@@ -30,46 +33,32 @@ export default class extends Component {
         fileNames: [],
         modelosChassi: [],
         seguradoras: [],
+        insuranceExists: '',
         equipamentos: [],
         addEquipa: false
     }
 
-    componentDidMount() {
-        axios.get('/api/modeloChassi')
-            .then(res => {
-                const modelosChassi = humps.camelizeKeys(res.data)
-                this.setState({ modelosChassi })
-            })
-        axios.get('/api/carrocerias')
-            .then(res => {
-                const carrocerias = humps.camelizeKeys(res.data)
-                this.setState({ carrocerias })
+    async componentDidMount() {
+        const modelosChassi = axios.get('/api/modeloChassi')
+        const carrocerias = axios.get('/api/carrocerias')
+        const veiculos = axios.get('/api/veiculosInit')
+        const empresas = axios.get('/api/empresas')
+        const seguradoras = axios.get('/api/seguradoras')
+        const seguros = axios.get('/api/seguros')
+        const equipamentos = axios.get('/api/equipa')
+
+        await Promise.all([modelosChassi, carrocerias, veiculos, empresas, seguradoras, seguros, equipamentos])
+            .then(res => res.map(r => humps.camelizeKeys(r.data)))
+            .then(([modelosChassi, carrocerias, veiculos, empresas, seguradoras, seguros, equipamentos]) => {
+                this.setState({
+                    modelosChassi, carrocerias, veiculos, empresas, seguradoras, equipamentos,
+                    seguros, allInsurances: seguros
+                })
             })
 
-        axios.get('/api/empresas')
-            .then(res => {
-                const empresas = humps.camelizeKeys(res.data)
-                this.setState({ empresas })
-            })
-        axios.get('/api/seguradoras')
-            .then(res => {
-                const seguradoras = humps.camelizeKeys(res.data)
-                this.setState({ seguradoras })
-            })
-
-        axios.get('/api/seguros')
-            .then(res => {
-                const seguros = humps.camelizeKeys(res.data)
-                this.setState({ seguros, allInsurances: seguros })
-            })
-        axios.get('/api/equipa')
-            .then(res => {
-                const equipamentos = humps.camelizeKeys(res.data)
-                this.setState({ equipamentos })
-                let obj = {}
-                equipamentos.forEach(e => Object.assign(obj, { [e.item]: false }))
-                this.setState(obj)
-            })
+        let obj = {}
+        this.state.equipamentos.forEach(e => Object.assign(obj, { [e.item]: false }))
+        this.setState(obj)
     }
     componentWillUnmount() { this.setState({}) }
 
@@ -111,7 +100,10 @@ export default class extends Component {
         if (item[0]) {
             const nombre = item[0][dbName]
             const id = item[0][dbId]
-            if (value !== '') this.setState({ [name]: nombre, [stateId]: id })
+            if (value !== '') {
+                await this.setState({ [name]: nombre, [stateId]: id })
+
+            }
         } else {
             await this.setState({ [name]: '', [stateId]: '' })
             alert(alertLabel + ' não cadastrado')
@@ -121,7 +113,7 @@ export default class extends Component {
 
     handleBlur = async  e => {
         const { empresas, tab, frota, placa, modelosChassi, carrocerias, seguradoras, seguros, allInsurances,
-            delegatarioId } = this.state
+            veiculos } = this.state
         const { name } = e.target
         let { value } = e.target
 
@@ -137,15 +129,30 @@ export default class extends Component {
                 break;
             case 'seguradora':
                 await this.getId(name, value, seguradoras, 'seguradoraId', 'seguradora', 'id', 'Seguradora')
-                const filteredInsurances = allInsurances.filter(s => s.seguradora === this.state.seguradora)
-                if (filteredInsurances[0] && this.state.seguradora !== '') {
+                let filteredInsurances = []
+
+                if (this.state.delegatarioId) {
+                    filteredInsurances = allInsurances.filter(s => s.delegatarioId === this.state.delegatarioId)
+                    this.setState({ seguros: filteredInsurances })
+
+                } else if (this.state.seguradora !== '') {
+                    filteredInsurances = allInsurances.filter(s => s.seguradora === this.state.seguradora)
+                    this.setState({ seguros: filteredInsurances })
+                }
+                if (this.state.delegatarioId && this.state.seguradora !== '') {
+                    filteredInsurances = allInsurances
+                        .filter(s => s.delegatarioId === this.state.delegatarioId)
+                        .filter(s => s.seguradora === this.state.seguradora)
                     this.setState({ seguros: filteredInsurances })
                 }
                 break;
             case 'razaoSocial':
-                await this.getId(name, value, empresas, 'delegatarioId', 'razaoSocial', 'delegatarioId')
-                if (delegatarioId) axios.get(`/api/veiculos?id=${delegatarioId}`)
-                    .then(res => { this.setState({ frota: humps.camelizeKeys(res.data) }) })
+                await this.getId(name, value, empresas, 'delegatarioId', 'razaoSocial', 'delegatarioId', 'Empresa')
+                if (this.state.delegatarioId) {
+                    const f = veiculos.filter(v => v.delegatarioId === this.state.delegatarioId)
+                    const filteredInsurances = allInsurances.filter(s => s.delegatarioId === this.state.delegatarioId)
+                    this.setState({ frota: f, seguros: filteredInsurances })
+                }
                 break;
 
             case 'seguroId':
@@ -153,7 +160,7 @@ export default class extends Component {
                 if (insuranceExists[0] !== undefined && insuranceExists[0].dataEmissao && insuranceExists[0].vencimento) {
                     const dataEmissao = insuranceExists[0].dataEmissao.toString().slice(0, 10)
                     const vencimento = insuranceExists[0].vencimento.toString().slice(0, 10)
-                    this.setState({ dataEmissao, vencimento })
+                    this.setState({ dataEmissao, vencimento, insuranceExists: insuranceExists[0] })
                 }
                 else this.setState({ dataEmissao: '', vencimento: '' })
                 break;
@@ -220,14 +227,20 @@ export default class extends Component {
 
         const insuranceExists = seguros.filter(s => s.apolice === insurance.apolice)
 
-        if (!insuranceExists[0]) {
+        if (insuranceExists[0]) {
+            await axios.post('/api/cadastroVeiculo', vehicle)
+                .then(res => console.log(res.data))
+            this.toast()
+        } else if (!insuranceExists[0] && insurance.apolice !== undefined && insurance.apolice.length > 3 && insurance.seguradora_id !== undefined) {
             await axios.post('/api/cadSeguro', insurance)
                 .then(res => console.log(res.data))
+            await axios.post('/api/cadastroVeiculo', vehicle)
+                .then(res => console.log(res.data))
+            this.toast()
+        } else {
+            alert('Favor verificar os dados do seguro.')
         }
-        await axios.post('/api/cadastroVeiculo', vehicle)
-            .then(res => console.log(res.data))
 
-        this.toast()
     }
 
     toast = e => {
@@ -282,7 +295,7 @@ export default class extends Component {
     }
 
     render() {
-        const { tab, items, selectedEmpresa, confirmToast, msg, activeStep } = this.state
+        const { tab, items, selectedEmpresa, confirmToast, msg, activeStep, insuranceExists } = this.state
         return <Fragment>
             <TabMenu items={items}
                 tab={tab}
@@ -316,6 +329,13 @@ export default class extends Component {
                 handleCadastro={this.handleCadastro}
                 setActiveStep={this.setActiveStep}
             />}
+            {
+                tab === 1 && insuranceExists && <AltSeguro
+                    data={this.state}
+                    handleInput={this.handleInput}
+                    handleBlur={this.handleBlur}
+                />
+            }
             <ReactToast open={confirmToast} close={this.toast} msg={msg} />
         </Fragment>
     }

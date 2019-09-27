@@ -41,11 +41,12 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function ({ handleInput, handleBlur, data, handleEquipa, handleCheck }) {
-    const { tab, empresas, razaoSocial, activeStep, equipamentos, addEquipa, delegatarioCompartilhado } = data,
+    const { tab, empresas, razaoSocial, activeStep, equipamentos, addEquipa,
+        delegatarioCompartilhado, subtitle } = data,
         classes = useStyles(), { paper, container, title } = classes
 
     const [shared, setShared] = useState(false)
-
+    
     let form = []
     if (tab !== 0) form = vehicleForm[tab]
     else form = cadForm[activeStep]
@@ -54,14 +55,14 @@ export default function ({ handleInput, handleBlur, data, handleEquipa, handleCh
         const value = data.form[el.field]
 
         if (el.pattern && value) return data.form[el.field].match(el.pattern) === null
-        else if (value > el.max) return true
+        else if (value > el.max || value < el.min) return true
         else return false
     }
 
     const helper = (el) => {
         const value = data.form[el.field]
 
-        if (el.pattern && value > el.max) return 'Valor inválido'
+        if (value > el.max || value < el.min) return 'Valor inválido'
         else if (value && value.match(el.pattern) === null) return '✘'
         else if (el.pattern && value && value.match(el.pattern) !== null) return '✓'
         else return undefined
@@ -77,7 +78,7 @@ export default function ({ handleInput, handleBlur, data, handleEquipa, handleCh
             <Grid>
                 <Paper className={paper} style={{ padding: '0 2% 0 2%' }}>
                     <Grid container justify="center">
-                        <Grid item xs={shared ? 4 : 12}>
+                        <Grid item xs={shared ? 4 : 12} style={{ marginBottom: '15px' }}>
                             <Typography className={title}> Selecione a Viação</Typography>
 
                             <TextField
@@ -119,29 +120,34 @@ export default function ({ handleInput, handleBlur, data, handleEquipa, handleCh
                             </Grid>
                         }
                     </Grid>
-                    <Grid item xs={12}>
-                        <FormControlLabel
-                            style={{ marginTop: '10px' }}
-                            control={
-                                <Checkbox
-                                    checked={shared === true}
-                                    onChange={() => setShared(!shared)}
-                                    value={shared}
-                                />
-                            }
-                            label={<Typography style={{ color: '#2979ff', fontSize: '0.7rem', float: 'right' }}>Veículo Compartilhado? </Typography>}
-                        />
-                    </Grid>
+
+                    {
+                        tab === 0 && <Grid item xs={12}>
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        checked={shared === true}
+                                        onChange={() => setShared(!shared)}
+                                        value={shared}
+                                    />
+                                }
+                                label={
+                                    <Typography style={{ color: '#2979ff', fontSize: '0.7rem', float: 'right' }}>
+                                        Veículo Compartilhado?
+                                    </Typography>
+                                }
+                            />
+                        </Grid>
+                    }
 
                 </Paper>
                 <Grid item xs={12}>
                     <Paper className={paper}>
-                        <Typography className={title}> Preencha dos dados do veículo</Typography>
+                        <Typography className={title}> {subtitle[tab]}</Typography>
 
                         {data.form && form[0] && form.map((el, i) =>
                             <Fragment key={i}>
                                 <TextField
-
                                     name={el.field}
                                     label={el.label}
                                     margin={el.margin}
@@ -156,16 +162,14 @@ export default function ({ handleInput, handleBlur, data, handleEquipa, handleCh
                                     InputLabelProps={{
                                         className: classes.textField,
                                         shrink: el.type === 'date' || undefined,
-                                        style: {
-                                            fontSize: '0.8rem', fontWeight: 400, color: '#455a64',
-                                            marginBottom: '5%'
-                                        }
+                                        style: { fontSize: '0.8rem', fontWeight: 400, color: '#455a64', marginBottom: '5%' }
                                     }}
                                     inputProps={{
-                                        style: {  background: '#eee', textAlign: 'center', color: '#000', fontWeight: '500' },
+                                        style: { background: '#eee', textAlign: 'center', color: '#000', fontWeight: '500' },
                                         value: `${data[el.field] || ''}`,
                                         list: el.datalist || '',
                                         maxLength: el.maxLength || '',
+                                        minLength: el.minLength || '',
                                         max: el.max || '',
                                     }}
                                     multiline={el.multiline || false}
@@ -197,13 +201,16 @@ export default function ({ handleInput, handleBlur, data, handleEquipa, handleCh
                                 Equipamentos
                             </Button>
                         </Grid>}
-                        {addEquipa && <PopUp close={handleEquipa} title='Equipamentos'>
-                            <AddEquipa
-                                equipamentos={equipamentos}
-                                close={handleEquipa}
-                                handleCheck={handleCheck}
-                                data={data} />
-                        </PopUp>}
+                        {
+                            addEquipa && <PopUp close={handleEquipa} title='Equipamentos'>
+                                <AddEquipa
+                                    equipamentos={equipamentos}
+                                    close={handleEquipa}
+                                    handleCheck={handleCheck}
+                                    data={data} />
+                            </PopUp>
+                        }
+
                     </Paper>
                 </Grid>
             </Grid>
