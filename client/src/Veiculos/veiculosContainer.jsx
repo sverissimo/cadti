@@ -14,6 +14,15 @@ import AltSeguro from './AltSeguro'
 
 export default class extends Component {
 
+    constructor() {
+        super()
+        this.escFunction = (e) => {
+            if (e.keyCode === 27) {
+                if (this.state.addEquipa) this.handleEquipa()
+            }
+        }
+    }
+
     state = {
         tab: 0,
         items: ['Cadastro de Veículo', 'Atualização de Seguro',
@@ -59,6 +68,7 @@ export default class extends Component {
         let obj = {}
         this.state.equipamentos.forEach(e => Object.assign(obj, { [e.item]: false }))
         this.setState(obj)
+        document.addEventListener('keydown', this.escFunction,  false)
     }
     componentWillUnmount() { this.setState({}) }
 

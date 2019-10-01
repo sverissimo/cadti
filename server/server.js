@@ -52,7 +52,7 @@ app.get('/api/veiculosInit', (req, res) => {
     })
 })
 
-app.get('/api/procuradores', (req, res) => {
+app.get('/api/socios', (req, res) => {
     pool.query(
         `SELECT public.procurador.*, public.delegatario.razao_social
          FROM public.procurador 
@@ -94,7 +94,7 @@ app.post('/api/cadastroVeiculo', (req, res) => {
         `INSERT INTO public.veiculo (${keys}) VALUES (${parsed}) RETURNING *`, (err, table) => {
             if (err) res.send(err)
             if (table && table.rows && table.rows.length === 0) { res.send('Nenhum veículo cadastrado para esse delegatário.'); return }
-            if (table.rows.length > 0 ) res.json(table.rows)
+            if (table.rows.length > 0) res.json(table.rows)
             return
         })
 })
@@ -172,10 +172,23 @@ app.post('/api/cadSeguro', (req, res) => {
         `INSERT INTO public.seguro (${keys}) VALUES (${parsed}) RETURNING *`, (err, table) => {
             if (err) res.send(err)
             if (table && table.rows && table.rows.length === 0) { res.send('Nenhum seguro cadastrado.'); return }
-            if (table && table.rows.length > 0 ) res.json(table.rows)
+            if (table && table.rows.length > 0) res.json(table.rows)
             return
         })
 });
+
+app.delete('/api/delete', (req, res) => {
+    const { el, tablePK } = req.query
+    let { id } = req.query
+
+    if (el === 'seguro') id = '\'' + id + '\''
+    
+    pool.query(`
+    DELETE FROM public.${el} WHERE ${tablePK} = ${id}`, (err, t) => {
+        if (err) console.log(err)
+        res.send(t)
+    })
+})
 
 app.listen(PORT, HOST)
 console.log('Running on port 3001, dude...')

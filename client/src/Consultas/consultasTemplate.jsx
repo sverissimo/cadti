@@ -4,7 +4,6 @@ import { makeStyles } from '@material-ui/core/styles'
 import MaterialTable from 'material-table';
 import { tables } from './tables'
 
-
 const useStyles = makeStyles(theme => ({
     container: {
         display: 'flex',
@@ -35,9 +34,9 @@ const useStyles = makeStyles(theme => ({
 
 }));
 
-export default function ({ tab, collection, handleEdit }) {
+export default function ({ tab, collection, showDetails, handleEdit, del }) {
     const classes = useStyles(), { paper } = classes
-
+    const a = true
     return (
         <Grid item xs={12}>
             <Paper className={paper}>
@@ -47,11 +46,11 @@ export default function ({ tab, collection, handleEdit }) {
                     data={collection}
                     options={{
                         filtering: true,
-                        actionsColumnIndex: -1,                        
+                        actionsColumnIndex: -1,
                         searchFieldStyle: { color: '#024' },
                         headerStyle: { backgroundColor: '#FAFAFC' }
                     }}
-                   
+
                     localization={{
                         body: {
                             emptyDataSourceMessage: 'Carregando...',
@@ -75,7 +74,7 @@ export default function ({ tab, collection, handleEdit }) {
                             icon: 'info',
                             iconProps: { color: 'primary' },
                             tooltip: 'Mais informações',
-                            onClick: (event, rowData) => alert("You saved " + rowData.name)
+                            onClick: (event, rowData) => showDetails(event, rowData)
                         }
                     ]}
                     editable={{
@@ -91,8 +90,10 @@ export default function ({ tab, collection, handleEdit }) {
                                     resolve();
                                 }, 1000);
                             }), */
-                        onRowDelete: oldData =>
-                            new Promise((resolve, reject) => {
+                        onRowDelete: a && async function (oldData) {
+
+                            await del(oldData)
+                            return new Promise((resolve, reject) => {
                                 setTimeout(() => {
                                     {
                                         let data = collection;
@@ -100,9 +101,11 @@ export default function ({ tab, collection, handleEdit }) {
                                         data.splice(index, 1);
                                         handleEdit({ data }, () => resolve());
                                     }
-                                    resolve()
-                                }, 1000)
-                            }),
+                                    resolve();
+                                }, 200);
+                            })
+                        }
+
                     }}
                 />
                 <div>
