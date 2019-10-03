@@ -1,11 +1,16 @@
-import React from 'react'
+import React, { Fragment, useState } from 'react'
 import { Paper, Grid, Typography, TextField, Button } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
-import AddIcon from '@material-ui/icons/Add'
+import { Add, Search } from '@material-ui/icons'
 import Chip from '@material-ui/core/Chip'
+import PopUp from '../Utils/PopUp'
+import AddPlaca from './AddPlaca2'
 
 const useStyles = makeStyles(theme => ({
 
+    root: {
+
+    },
     paper: {
         padding: theme.spacing(1),
         textAlign: 'center',
@@ -29,73 +34,106 @@ const useStyles = makeStyles(theme => ({
     },
     chip: {
         margin: theme.spacing(0.5),
-    },
+    }
 }))
 
-
-
-export default function AltSeguro({ data, handleInput, handleBlur }) {
+export default function AltSeguro({ data, handleInput, handleBlur, addPlateInsurance, handleDelete }) {
     const classes = useStyles(), { paper, title, textField } = classes
-    const { insuranceExists, placa } = data
+    const { insuranceExists, placa, apolice, addedPlaca } = data
 
-    let placas = []    
+    const [open, setOpen] = useState(false),
+        [plate, setPlacaValue] = useState(''),
+        [placasArray, setPlacasArray] = useState([])
+
+    const handleClickOpen = () => {
+        setOpen(true);
+    }
+
+    const handleClose = () => {
+        setOpen(false);
+    }
+
+    const setPlate = e => {
+        const { value } = e.target
+        setPlacaValue(value)
+    }
+
+    const addPlates = e => {
+        const { value } = e.target
+    }
+    
+    let placas = []
+    
     if (insuranceExists !== '') {
         placas = insuranceExists.placas
-       if(placa !== undefined && placa.length > 2) {
-           if(typeof placa === 'string')placas = placas.filter(p=> p.toLowerCase().match(placa.toLowerCase()))
-           else placas = placas.filter(p=> p.match(placa))
-       }
-        /* let obj = placas.reduce((obj, v) => {
-            obj[placas.indexOf(v)] = v
-            return obj
-        }, {})
-        
-        for (let value of Object.values(obj)) {
-            vSegurados.push({ placa: value })
-        }        */
-    }
-
-    const handleDelete = (placa) => {
-        console.log(placa)
-    }
+        seguroId  = insuranceExists.apolice
+        if (placa !== undefined && placa.length > 2) {
+            if (typeof placa === 'string') placas = placas.filter(p => p.toLowerCase().match(placa.toLowerCase()))
+            else placas = placas.filter(p => p.match(placa))
+        }
+    }    
 
     return (
         <Paper className={paper}>
-            <Grid
-                container
-                direction="row"
-                justify="space-evenly"
-                alignItems="baseline"
-            >
-                {insuranceExists && <Grid>
-                    <Typography className={title}>Utilize as opções abaixo para pesquisar, inserir ou excluir veículos</Typography>
-                    <TextField
-                        inputProps={{                      
-                            name: 'placa',
-                        }}
-                        InputLabelProps={{
-                            style: {fontSize: '0.8rem'}
-                        }}
-                        label='Pesquisar placas'
-                        className={textField}
-                        value={placa || ''}
-                        onChange={handleInput}
-                        onBlur={handleBlur}
-                        variant = 'outlined'
-                    />                  
-                    <Grid container justify="flex-end"
-                    >
-                        <Button
-                            size="small"
-                            //color="primary"
-                            variant="contained"
-                            className={classes.button}
-                            style={{ margin: '10px 0 10px 0' }}
-                        //onClick={handleEquipa}
-                        >
-                            <AddIcon /> Adicionar Veículos
-                                </Button>
+            <div style={{ width: '100%' }}>
+                <Grid>
+                    <Typography className={title}>Utilize as opções abaixo para filtrar, adicionar ou excluir placas desta apólice</Typography>
+                    <Grid container justify="space-around" alignItems='flex-end' spacing={2}>
+                        <Grid item>
+                            <TextField
+                                inputProps={{
+                                    name: 'addedPlaca',                                    
+                                }}
+                                InputLabelProps={{
+                                    style: { fontSize: '0.8rem' }
+                                }}
+                                label='Insira a placa'
+                                className={textField}
+                                value={addedPlaca}
+                                onChange={handleInput}
+                                onBlur={handleBlur}
+                            />
+                            <Button
+                                size="small"
+                                //color="primary"
+                                variant="contained"
+                                className={classes.button}
+                                style={{ margin: '10px 0 10px 0' }}
+                                onClick={() => addPlateInsurance(addedPlaca, apolice)}
+                            //onClick={handleEquipa}
+                            >
+                                <Add /> Adicionar
+                            </Button>
+                        </Grid>
+
+                        <Grid item>
+                            <TextField
+                                inputProps={{
+                                    name: 'placa',
+                                }}
+                                InputLabelProps={{
+                                    style: { fontSize: '0.8rem' }
+                                }}
+                                label='Filtrar'
+                                className={textField}
+                                value={placa || ''}
+                                onChange={handleInput}
+                                onBlur={handleBlur}
+                            />
+                            <Search style={{ marginTop: '18px' }} />
+                        </Grid>
                     </Grid>
+
+                    <Grid container spacing={1} alignItems="center" justify='center'>
+
+
+                    </Grid>
+                    {insuranceExists.hasOwnProperty('apolice') ? <div style={{ marginTop: '30px' }}>
+                        <Typography className={title}>Placas vinculadas a apólice {insuranceExists.apolice}</Typography>
+                    </div>
+                        :
+                        <div style={{ marginTop: '30px' }}></div>
+                    }
                     {
                         placas && placas.map((placa, i) =>
                             <Chip
@@ -110,10 +148,29 @@ export default function AltSeguro({ data, handleInput, handleBlur }) {
                         )
                     }
                 </Grid>
+
+                {/* 
+                    open && <PopUp
+                    close={handleClose}
+                    title={'Inserir Placas'}
+                    format={{
+                        top: '10%',
+                        left: '10%',
+                        right: '10%'
+                    }}
+                >
+                    <AddPlaca
+                        frota={frota}
+                        plate={plate}
+                        placasArray={addPlates}
+                        setPlate={setPlate}
+                        addPlates={addPlates}
+                    />
+                </PopUp> */
                 }
 
-            </Grid>
+
+            </div>
         </Paper>
     )
 }
-

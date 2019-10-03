@@ -8,7 +8,7 @@ export const seguroForm = [
         collection: 'seguradoras'
     },
     {       
-        field: 'seguroId',
+        field: 'apolice',
         label: 'Apólice',
         margin: 'normal',
         autoComplete: true,

@@ -31,7 +31,7 @@ LEFT JOIN public.marca_carroceria
 LEFT JOIN public.delegatario
 	ON veiculo.delegatario_id = delegatario.delegatario_id
 LEFT JOIN public.seguro
-	ON veiculo.seguro_id = seguro.apolice
+	ON veiculo.apolice = seguro.apolice
 LEFT JOIN public.seguradora
 	ON public.seguradora.id = seguro.seguradora_id
 ORDER BY veiculo.veiculo_id DESC
@@ -71,7 +71,7 @@ SELECT seguro.*,
 	cardinality(array_agg(v.placa)) segurados
 FROM seguro
 LEFT JOIN veiculo v
-	ON seguro.apolice = v.seguro_id
+	ON seguro.apolice = v.apolice
 LEFT JOIN delegatario d
 	ON d.delegatario_id = v.delegatario_id
 LEFT JOIN seguradora s

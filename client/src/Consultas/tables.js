@@ -17,7 +17,7 @@ export const vehicleTable = [
         title: 'Seguradora',
     },
     {
-        field: 'seguroId',
+        field: 'apolice',
         title: 'Número da Apólice',
     },
     {

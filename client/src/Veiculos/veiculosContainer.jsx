@@ -3,7 +3,7 @@ import axios from 'axios'
 import humps from 'humps'
 import ReactToast from '../Utils/ReactToast'
 import VeiculosTemplate from './VeiculosTemplate'
-import CadVehicle from './CadVehicle'
+import VehicleDocs from './VehicleDocs'
 import Review from './Review'
 import { TabMenu } from '../Layouts'
 import { cadVehicleFiles } from '../Forms/cadVehicleFiles'
@@ -24,7 +24,7 @@ export default class extends Component {
     }
 
     state = {
-        tab: 0,
+        tab: 1,
         items: ['Cadastro de Veículo', 'Atualização de Seguro',
             'Alteração de dados', 'Baixa de Veículo'],
         subtitle: ['Informe os dados do Veículo', 'Informe os dados do Seguro',
@@ -42,9 +42,10 @@ export default class extends Component {
         fileNames: [],
         modelosChassi: [],
         seguradoras: [],
-        insuranceExists: '',
+        insuranceExists: true,
         equipamentos: [],
-        addEquipa: false
+        addEquipa: false,
+        addedPlaca: ''
     }
 
     async componentDidMount() {
@@ -68,7 +69,9 @@ export default class extends Component {
         let obj = {}
         this.state.equipamentos.forEach(e => Object.assign(obj, { [e.item]: false }))
         this.setState(obj)
-        document.addEventListener('keydown', this.escFunction,  false)
+        document.addEventListener('keydown', this.escFunction, false)
+
+        console.log(this.state.veiculos)
     }
     componentWillUnmount() { this.setState({}) }
 
@@ -165,14 +168,16 @@ export default class extends Component {
                 }
                 break;
 
-            case 'seguroId':
+            case 'apolice':
                 const insuranceExists = seguros.filter(s => s.apolice === value)
                 if (insuranceExists[0] !== undefined && insuranceExists[0].dataEmissao && insuranceExists[0].vencimento) {
-                    const dataEmissao = insuranceExists[0].dataEmissao.toString().slice(0, 10)
-                    const vencimento = insuranceExists[0].vencimento.toString().slice(0, 10)
-                    this.setState({ dataEmissao, vencimento, insuranceExists: insuranceExists[0] })
+                    const dataEmissao = insuranceExists[0].dataEmissao.toString().slice(0, 10),
+                        vencimento = insuranceExists[0].vencimento.toString().slice(0, 10),
+                        seguradora = insuranceExists[0].seguradora
+
+                    this.setState({ seguradora, dataEmissao, vencimento, insuranceExists: insuranceExists[0] })
                 }
-                else this.setState({ dataEmissao: '', vencimento: '' })
+                else this.setState({ seguradora: '', dataEmissao: '', vencimento: '', insuranceExists: false })
                 break;
             default:
                 void 0
@@ -224,7 +229,7 @@ export default class extends Component {
         let { dataEmissao, vencimento, delegatarioCompartilhado,
             modeloChassi, modeloCarroceria, seguradora, ...vReview } = review
 
-        let seguro = { apolice: review.seguroId, seguradoraId, dataEmissao, vencimento }
+        let seguro = { apolice: review.apolice, seguradoraId, dataEmissao, vencimento }
 
         Object.assign(vReview, {
             delegatarioId, situacao, indicadorIdade, pbt, equipamentos_id,
@@ -304,6 +309,40 @@ export default class extends Component {
         this.setState({ ...this.state, [item]: !this.state[item] })
     }
 
+    updateInsurance = async (placa, seguroId) => {
+        
+        const { veiculos } = this.state,
+            v = veiculos.filter(v => v.placa === placa)[0]
+          
+        let { insuranceExists } = this.state
+
+        let value = 'Seguro não cadastrado'
+        let { placas } = insuranceExists
+
+        if (seguroId) {
+            value = seguroId
+            placas.push(placa)
+        } else {
+            const i = placas.indexOf(placa)
+            placas.splice(i, 1)
+        }
+
+        insuranceExists.placas = placas
+
+        const body = {
+            table: 'veiculo',
+            column: 'apolice', value,
+            tablePK: 'veiculo_id', id: v.veiculoId
+        }
+
+        axios.put('/api/UpdateInsurance', body)
+            .then(r => this.setState({ insuranceExists }))
+            .catch(err => console.log(err))
+
+
+
+    }
+
     render() {
         const { tab, items, selectedEmpresa, confirmToast, msg, activeStep, insuranceExists } = this.state
         return <Fragment>
@@ -324,7 +363,7 @@ export default class extends Component {
                 handleCheck={this.handleCheck}
             />
                 : tab === 0 && activeStep === 3 ?
-                    <CadVehicle
+                    <VehicleDocs
                         data={this.state}
                         handleFiles={this.handleFiles}
                         handleSubmit={this.handleSubmit}
@@ -344,6 +383,8 @@ export default class extends Component {
                     data={this.state}
                     handleInput={this.handleInput}
                     handleBlur={this.handleBlur}
+                    addPlateInsurance={this.updateInsurance}
+                    handleDelete={this.updateInsurance}
                 />
             }
             <ReactToast open={confirmToast} close={this.toast} msg={msg} />

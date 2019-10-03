@@ -175,19 +175,42 @@ app.post('/api/cadSeguro', (req, res) => {
             if (table && table.rows.length > 0) res.json(table.rows)
             return
         })
-});
+})
 
 app.delete('/api/delete', (req, res) => {
-    const { el, tablePK } = req.query
+    const { table, tablePK } = req.query
     let { id } = req.query
 
-    if (el === 'seguro') id = '\'' + id + '\''
-    
+    if (table === 'seguro') id = '\'' + id + '\''
+
     pool.query(`
-    DELETE FROM public.${el} WHERE ${tablePK} = ${id}`, (err, t) => {
+    DELETE FROM public.${table} WHERE ${tablePK} = ${id}`, (err, t) => {
         if (err) console.log(err)
-        res.send(t)
+        res.send(`${id} deleted from ${table}`)
     })
+})
+
+app.put('/api/updateInsurance', (req, res) => {
+    const { table, tablePK, column  } = req.body
+    let { value, id } = req.body
+
+    id = '\'' + id + '\''
+    value = '\'' + value + '\''
+
+    console.log(`
+    UPDATE ${table}
+    SET ${column} = ${value}
+    WHERE ${tablePK} = ${id}
+    `)
+
+    pool.query(`
+    UPDATE ${table} SET ${column} = ${value} WHERE ${tablePK} = ${id}`, (err, t) => {
+        if (err) console.log(err)
+        res.send(`${column} changed to ${value}`)
+    }
+
+    )
+
 })
 
 app.listen(PORT, HOST)

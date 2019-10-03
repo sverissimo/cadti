@@ -57,7 +57,7 @@ const link = (id) => {
     document.getElementById(id).click()
 }
 
-export default function CadVehicle({ handleFiles, handleSubmit }) {
+export default function VehicleDocs({ handleFiles, handleSubmit }) {
     const { root, textField, button, input, paper, sendButton, resize, item } = useStyles()
 
     return (

@@ -77,9 +77,8 @@ export default class extends Component {
             tablePK = tablePKs[tab],
             itemId = humps.camelize(tablePK)
 
-        console.log(data[itemId])
-        axios.delete(`/api/delete?el=${table}&tablePK=${tablePK}&id=${data[itemId]}`)
-            .then(r => void 0)
+        axios.delete(`/api/delete?table=${table}&tablePK=${tablePK}&id=${data[itemId]}`)
+            .then(r => console.log(r.data))
     }
 
     render() {

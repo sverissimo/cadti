@@ -210,7 +210,6 @@ export default function ({ handleInput, handleBlur, data, handleEquipa, handleCh
                                     data={data} />
                             </PopUp>
                         }
-
                     </Paper>
                 </Grid>
             </Grid>
