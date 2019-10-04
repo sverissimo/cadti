@@ -11,6 +11,7 @@ import { cadForm } from '../Forms/cadForm'
 import StepperButtons from './StepperButtons'
 import CustomStepper from '../Utils/Stepper'
 import AltSeguro from './AltSeguro'
+import AlertDialog from '../Utils/AlertDialog'
 
 export default class extends Component {
 
@@ -35,17 +36,18 @@ export default class extends Component {
         razaoSocial: '',
         delegatarioCompartilhado: '',
         frota: [],
-        msg: 'Veículo cadastrado!',
+        toastMsg: 'Veículo cadastrado!',
         confirmToast: false,
         activeStep: 0,
         files: [],
         fileNames: [],
         modelosChassi: [],
         seguradoras: [],
-        insuranceExists: true,
+        insuranceExists: false,
         equipamentos: [],
         addEquipa: false,
-        addedPlaca: ''
+        addedPlaca: '',
+        openDialog: false
     }
 
     async componentDidMount() {
@@ -70,14 +72,12 @@ export default class extends Component {
         this.state.equipamentos.forEach(e => Object.assign(obj, { [e.item]: false }))
         this.setState(obj)
         document.addEventListener('keydown', this.escFunction, false)
-
-        console.log(this.state.veiculos)
     }
     componentWillUnmount() { this.setState({}) }
 
     changeTab = (e, value) => {
         const opt = ['Veículo cadastrado!', 'Seguro atualizado!', 'Dados Alterados!', 'Veículo Baixado.']
-        this.setState({ tab: value, msg: opt[value] })
+        this.setState({ tab: value, toastMsg: opt[value] })
     }
 
     setActiveStep = action => {
@@ -142,14 +142,17 @@ export default class extends Component {
                 break;
             case 'seguradora':
                 await this.getId(name, value, seguradoras, 'seguradoraId', 'seguradora', 'id', 'Seguradora')
+
                 let filteredInsurances = []
 
-                if (this.state.delegatarioId) {
+                if (this.state.delegatarioId && this.state.seguradora === '') {
                     filteredInsurances = allInsurances.filter(s => s.delegatarioId === this.state.delegatarioId)
                     this.setState({ seguros: filteredInsurances })
 
-                } else if (this.state.seguradora !== '') {
+                }
+                if (!this.state.delegatarioId && this.state.seguradora !== '') {
                     filteredInsurances = allInsurances.filter(s => s.seguradora === this.state.seguradora)
+                    console.log(filteredInsurances)
                     this.setState({ seguros: filteredInsurances })
                 }
                 if (this.state.delegatarioId && this.state.seguradora !== '') {
@@ -158,6 +161,7 @@ export default class extends Component {
                         .filter(s => s.seguradora === this.state.seguradora)
                     this.setState({ seguros: filteredInsurances })
                 }
+
                 break;
             case 'razaoSocial':
                 await this.getId(name, value, empresas, 'delegatarioId', 'razaoSocial', 'delegatarioId', 'Empresa')
@@ -167,7 +171,6 @@ export default class extends Component {
                     this.setState({ frota: f, seguros: filteredInsurances })
                 }
                 break;
-
             case 'apolice':
                 const insuranceExists = seguros.filter(s => s.apolice === value)
                 if (insuranceExists[0] !== undefined && insuranceExists[0].dataEmissao && insuranceExists[0].vencimento) {
@@ -177,7 +180,13 @@ export default class extends Component {
 
                     this.setState({ seguradora, dataEmissao, vencimento, insuranceExists: insuranceExists[0] })
                 }
-                else this.setState({ seguradora: '', dataEmissao: '', vencimento: '', insuranceExists: false })
+                else this.setState({ insuranceExists: false })
+                break;
+
+            case 'addedPlaca':
+                const { addedPlaca } = this.state
+                const plate = frota.filter(p => p.placa.match(addedPlaca))
+                if (plate && plate[0]) this.setState({ addedPlaca: plate[0].placa })
                 break;
             default:
                 void 0
@@ -310,10 +319,10 @@ export default class extends Component {
     }
 
     updateInsurance = async (placa, seguroId) => {
-        
-        const { veiculos } = this.state,
-            v = veiculos.filter(v => v.placa === placa)[0]
-          
+
+        const { frota, addedPlaca } = this.state,
+            v = frota.filter(v => v.placa === placa)[0]
+
         let { insuranceExists } = this.state
 
         let value = 'Seguro não cadastrado'
@@ -321,13 +330,28 @@ export default class extends Component {
 
         if (seguroId) {
             value = seguroId
+            if (!placas) placas = []
             placas.push(placa)
+            if (insuranceExists.hasOwnProperty('placas')) insuranceExists.placas = placas
         } else {
             const i = placas.indexOf(placa)
             placas.splice(i, 1)
         }
 
-        insuranceExists.placas = placas
+
+
+        const plate = frota.filter(p => p.placa.match(addedPlaca))
+
+        if (!plate && !plate[0]) {
+            this.setState({
+                openDialog: true,
+                dialogTitle: 'Placa não encontrada',
+                message: `A placa informada não corresponde a nenhum veículo cadastrado. Para cadastrar um novo veículo, selecione a opção "Cadastro de Veículo" no menu acima.`,
+            })
+        }
+
+        const enableSubmit = cadForm[1]
+            .every(k => this.state.hasOwnProperty(k.field) && this.state[k.field] !== '')
 
         const body = {
             table: 'veiculo',
@@ -335,16 +359,45 @@ export default class extends Component {
             tablePK: 'veiculo_id', id: v.veiculoId
         }
 
-        axios.put('/api/UpdateInsurance', body)
-            .then(r => this.setState({ insuranceExists }))
-            .catch(err => console.log(err))
+        if (insuranceExists.hasOwnProperty('apolice')) {
 
+            axios.put('/api/UpdateInsurance', body)
+                .then(r => this.setState({ insuranceExists }))
+                .catch(err => console.log(err))
 
+        } else if (enableSubmit) {
 
+            const { seguradoraId, apolice, dataEmissao, vencimento } = this.state,
+                cadSeguro = { seguradora_id: seguradoraId, apolice, data_emissao: dataEmissao, vencimento }
+
+            await axios.post('/api/cadSeguro', cadSeguro)
+            await axios.get('/api/seguros')
+                .then(async r => {
+                    await this.setState({ seguros: humps.camelizeKeys(r.data) })
+                    insuranceExists = this.state.seguros.filter(s => s.apolice === apolice)[0]
+                    this.setState({ insuranceExists })
+                    void 0
+                })
+                .catch(err => console.log(err))
+
+            await axios.put('/api/UpdateInsurance', body)
+            axios.get('/api/veiculosInit')
+                .then(r => this.setState({ veiculos: humps.camelizeKeys(r.data) }))
+                .catch(err => console.log(err))
+        }
+    }
+
+    toggleDialog = () => {
+        this.setState({ openDialog: !this.state.openDialog })
     }
 
     render() {
-        const { tab, items, selectedEmpresa, confirmToast, msg, activeStep, insuranceExists } = this.state
+        const { tab, items, selectedEmpresa, confirmToast, toastMsg, activeStep,
+            openDialog, dialogTitle, message } = this.state
+
+        const enableAddPlaca = cadForm[1]
+            .every(k => this.state.hasOwnProperty(k.field) && this.state[k.field] !== '')
+
         return <Fragment>
             <TabMenu items={items}
                 tab={tab}
@@ -379,7 +432,7 @@ export default class extends Component {
                 setActiveStep={this.setActiveStep}
             />}
             {
-                tab === 1 && insuranceExists && <AltSeguro
+                tab === 1 && enableAddPlaca && <AltSeguro
                     data={this.state}
                     handleInput={this.handleInput}
                     handleBlur={this.handleBlur}
@@ -387,7 +440,8 @@ export default class extends Component {
                     handleDelete={this.updateInsurance}
                 />
             }
-            <ReactToast open={confirmToast} close={this.toast} msg={msg} />
+            <ReactToast open={confirmToast} close={this.toast} msg={toastMsg} />
+            <AlertDialog open={openDialog} close={this.toggleDialog} title={dialogTitle} message={message} />
         </Fragment>
     }
 }

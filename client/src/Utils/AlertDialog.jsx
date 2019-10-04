@@ -6,30 +6,29 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 
-export default function AlertDialog({open, handleClose}) {
-  
+export default function AlertDialog({ title, message, open, close, confirm }) {
+
   return (
-    <div>      
+    <div>
       <Dialog
         open={open}
-        onClose={handleClose}
+        onClose={close}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
-        <DialogTitle id="alert-dialog-title">{"Use Google's location service?"}</DialogTitle>
+        <DialogTitle id="alert-dialog-title">{title}</DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            Let Google help apps determine location. This means sending anonymous location data to
-            Google, even when no apps are running.
+            {message}
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} color="primary">
-            Disagree
+          <Button onClick={close} color="primary">
+            {confirm ? 'Cancelar' : 'Fechar'}
           </Button>
-          <Button onClick={handleClose} color="primary" autoFocus>
-            Agree
-          </Button>
+          {confirm && <Button onClick={close} color="primary" autoFocus>
+            Confirmar
+          </Button>}
         </DialogActions>
       </Dialog>
     </div>

@@ -1,10 +1,9 @@
-import React, { Fragment, useState } from 'react'
+import React from 'react'
 import { Paper, Grid, Typography, TextField, Button } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
 import { Add, Search } from '@material-ui/icons'
 import Chip from '@material-ui/core/Chip'
-import PopUp from '../Utils/PopUp'
-import AddPlaca from './AddPlaca2'
+import AutoComplete from '../Utils/autoComplete'
 
 const useStyles = makeStyles(theme => ({
 
@@ -39,39 +38,18 @@ const useStyles = makeStyles(theme => ({
 
 export default function AltSeguro({ data, handleInput, handleBlur, addPlateInsurance, handleDelete }) {
     const classes = useStyles(), { paper, title, textField } = classes
-    const { insuranceExists, placa, apolice, addedPlaca } = data
+    const { insuranceExists, placa, apolice, addedPlaca, frota } = data
 
-    const [open, setOpen] = useState(false),
-        [plate, setPlacaValue] = useState(''),
-        [placasArray, setPlacasArray] = useState([])
-
-    const handleClickOpen = () => {
-        setOpen(true);
-    }
-
-    const handleClose = () => {
-        setOpen(false);
-    }
-
-    const setPlate = e => {
-        const { value } = e.target
-        setPlacaValue(value)
-    }
-
-    const addPlates = e => {
-        const { value } = e.target
-    }
-    
     let placas = []
-    
-    if (insuranceExists !== '') {
-        placas = insuranceExists.placas
-        seguroId  = insuranceExists.apolice
-        if (placa !== undefined && placa.length > 2) {
+
+    if (insuranceExists.hasOwnProperty('placas')) {
+        
+        if (insuranceExists.placas[0] !== null) placas = insuranceExists.placas
+        if (placa !== undefined && placa.length > 2 && placas[0]) {
             if (typeof placa === 'string') placas = placas.filter(p => p.toLowerCase().match(placa.toLowerCase()))
             else placas = placas.filter(p => p.match(placa))
         }
-    }    
+    }
 
     return (
         <Paper className={paper}>
@@ -82,7 +60,8 @@ export default function AltSeguro({ data, handleInput, handleBlur, addPlateInsur
                         <Grid item>
                             <TextField
                                 inputProps={{
-                                    name: 'addedPlaca',                                    
+                                    name: 'addedPlaca',
+                                    list: 'placa'
                                 }}
                                 InputLabelProps={{
                                     style: { fontSize: '0.8rem' }
@@ -92,6 +71,11 @@ export default function AltSeguro({ data, handleInput, handleBlur, addPlateInsur
                                 value={addedPlaca}
                                 onChange={handleInput}
                                 onBlur={handleBlur}
+                            />
+                            <AutoComplete
+                                collection={frota}
+                                datalist='placa'
+                                value={addedPlaca}
                             />
                             <Button
                                 size="small"
@@ -135,7 +119,7 @@ export default function AltSeguro({ data, handleInput, handleBlur, addPlateInsur
                         <div style={{ marginTop: '30px' }}></div>
                     }
                     {
-                        placas && placas.map((placa, i) =>
+                        placas && placas[0] && placas.map((placa, i) =>
                             <Chip
                                 key={i}
                                 //icon={icon}
