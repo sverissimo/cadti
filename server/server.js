@@ -191,7 +191,7 @@ app.delete('/api/delete', (req, res) => {
 })
 
 app.put('/api/updateInsurance', (req, res) => {
-    const { table, tablePK, column  } = req.body
+    const { table, tablePK, column } = req.body
     let { value, id } = req.body
 
     id = '\'' + id + '\''
@@ -211,6 +211,56 @@ app.put('/api/updateInsurance', (req, res) => {
 
     )
 
+})
+
+app.get('/api/getUpdatedInsurance', (req, res) => {
+    let { apolice } = req.query
+    apolice =  '\'' + apolice + '\''
+    console.log(req.query, `
+    SELECT seguro.*,
+        s.seguradora,
+        array_to_json(array_agg(v.veiculo_id)) veiculos,
+        array_to_json(array_agg(v.placa)) placas,
+        d.razao_social empresa,
+        d.delegatario_id,
+        cardinality(array_agg(v.placa)) segurados
+    FROM seguro
+    INNER JOIN veiculo v
+        ON seguro.apolice = v.apolice
+        AND seguro.apolice = ${apolice}
+    LEFT JOIN delegatario d
+        ON d.delegatario_id = v.delegatario_id
+    LEFT JOIN seguradora s
+        ON s.id = seguro.seguradora_id
+    GROUP BY seguro.apolice, d.razao_social, s.seguradora, d.delegatario_id
+    ORDER BY seguro.vencimento ASC        
+        `)
+
+    pool.query(`
+    SELECT seguro.*,
+        s.seguradora,
+        array_to_json(array_agg(v.veiculo_id)) veiculos,
+        array_to_json(array_agg(v.placa)) placas,
+        d.razao_social empresa,
+        d.delegatario_id,
+        cardinality(array_agg(v.placa)) segurados
+    FROM seguro
+    INNER JOIN veiculo v
+        ON seguro.apolice = v.apolice
+        AND seguro.apolice = ${apolice}
+    LEFT JOIN delegatario d
+        ON d.delegatario_id = v.delegatario_id
+    LEFT JOIN seguradora s
+        ON s.id = seguro.seguradora_id
+    GROUP BY seguro.apolice, d.razao_social, s.seguradora, d.delegatario_id
+    ORDER BY seguro.vencimento ASC        
+        `,
+
+        (err, table) => {
+            if (err) res.send(err)
+            else if (table.rows && table.rows.length === 0) { res.send(table); return }
+            res.json(table.rows);
+        })
 })
 
 app.listen(PORT, HOST)
