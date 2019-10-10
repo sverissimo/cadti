@@ -36,18 +36,18 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
-export default function AltSeguro({ data, handleInput, handleBlur, addPlateInsurance, handleDelete }) {
+export default function AltSeguro({ data, insuranceExists, handleInput, handleBlur, addPlateInsurance, deleteInsurance, handleDelete }) {
     const classes = useStyles(), { paper, title, textField } = classes
-    const { insuranceExists, placa, apolice, addedPlaca, frota } = data
+    const { placa, apolice, addedPlaca, frota } = data
 
     let placas = []
 
     if (insuranceExists.hasOwnProperty('placas')) {
         
-        if (insuranceExists.placas[0] !== null) placas = insuranceExists.placas
+        if (insuranceExists.placas[0] !== null) placas = insuranceExists.placas.sort()
         if (placa !== undefined && placa.length > 2 && placas[0]) {
-            if (typeof placa === 'string') placas = placas.filter(p => p.toLowerCase().match(placa.toLowerCase()))
-            else placas = placas.filter(p => p.match(placa))
+            if (typeof placa === 'string') placas = insuranceExists.placas.filter(p => p.toLowerCase().match(placa.toLowerCase())).sort()
+            else placas = insuranceExists.placas.filter(p => p.match(placa)).sort()
         }
     }
 
@@ -119,12 +119,12 @@ export default function AltSeguro({ data, handleInput, handleBlur, addPlateInsur
                         <div style={{ marginTop: '30px' }}></div>
                     }
                     {
-                        placas && placas[0] && placas.map((placa, i) =>
+                        insuranceExists && placas && placas[0] && placas.map((placa, i) =>
                             <Chip
                                 key={i}
                                 //icon={icon}
                                 label={placa}
-                                onDelete={() => handleDelete(placa)}
+                                onDelete={() => deleteInsurance(placa)}
                                 className={classes.chip}
                                 color='primary'
                                 variant="outlined"

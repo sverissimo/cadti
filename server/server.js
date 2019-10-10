@@ -261,7 +261,7 @@ app.get('/api/getUpdatedInsurance', (req, res) => {
             else if (table.rows && table.rows.length === 0) { res.send(table); return }
             res.json(table.rows);
         })
-})
+});
 
 app.listen(PORT, HOST)
 console.log('Running on port 3001, dude...')

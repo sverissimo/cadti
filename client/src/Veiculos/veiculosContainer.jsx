@@ -125,7 +125,7 @@ export default class extends Component {
     }
 
     handleBlur = async  e => {
-        const { empresas, tab, frota, placa, modelosChassi, carrocerias, seguradoras, seguros, allInsurances,
+        const { empresas, tab, frota, placa, modelosChassi, carrocerias, seguradoras, allInsurances,
             veiculos } = this.state
         const { name } = e.target
         let { value } = e.target
@@ -173,25 +173,23 @@ export default class extends Component {
             case 'apolice':
 
                 let insuranceExists = this.state.seguros.filter(s => s.apolice === this.state.apolice)
-                if (insuranceExists[0] !== false && insuranceExists[0] !== undefined && insuranceExists[0].dataEmissao && insuranceExists[0].vencimento) {
+                if (insuranceExists && insuranceExists[0] !== undefined && insuranceExists[0].dataEmissao && insuranceExists[0].vencimento) {
                     const dataEmissao = insuranceExists[0].dataEmissao.toString().slice(0, 10),
                         vencimento = insuranceExists[0].vencimento.toString().slice(0, 10),
                         seguradora = insuranceExists[0].seguradora
 
                     this.setState({ seguradora, dataEmissao, vencimento, insuranceExists: insuranceExists[0] })
-                } else if (insuranceExists[0]) {
-                    console.log(this.state.insuranceExists)
-                }
-                else {
+                } else {
                     insuranceExists = false
                     this.setState({ insuranceExists: false })
                 }
+                console.log(insuranceExists)
                 break;
 
             case 'addedPlaca':
                 const { addedPlaca } = this.state
                 const plate = frota.filter(p => p.placa.match(addedPlaca))
-                if (plate && plate[0]) this.setState({ addedPlaca: plate[0].placa })
+                if (plate && plate[0] && plate[0].length > 0) this.setState({ addedPlaca: plate[0].placa })
                 break;
             default:
                 void 0
@@ -323,16 +321,43 @@ export default class extends Component {
         this.setState({ ...this.state, [item]: !this.state[item] })
     }
 
-    updateInsurance = async (placaInput, seguroId) => {
+    deleteInsurance = async placaInput => {
 
-        const { frota } = this.state,
-            vehicleFound = frota.filter(v => v.placa === placaInput)[0]
+        await this.setState({ vehicleFound: this.state.frota.filter(v => v.placa === placaInput)[0] })
+        const { vehicleFound } = this.state
 
         let { insuranceExists } = this.state,
             { placas, veiculos } = insuranceExists
 
-        let value = 'Seguro não cadastrado'
-        let body
+        const body = {
+            table: 'veiculo',
+            column: 'apolice',
+            value: 'Seguro não cadastrado',
+            tablePK: 'veiculo_id',
+            id: vehicleFound.veiculoId
+        }
+
+        const i = placas.indexOf(placaInput)
+        placas.splice(i, 1)
+        const k = veiculos.indexOf(vehicleFound.veiculoId)
+        veiculos.splice(k, 1)
+
+        await axios.put('/api/UpdateInsurance', body)
+            .catch(err => console.log(err))
+        insuranceExists.placas = placas
+        insuranceExists.veiculos = veiculos
+        this.setState({ insuranceExists })
+
+        return null
+    }
+
+    updateInsurance = async (placaInput, seguroId) => {
+
+        await this.setState({ vehicleFound: this.state.frota.filter(v => v.placa === placaInput)[0] })
+        const { vehicleFound } = this.state
+
+        let { insuranceExists } = this.state,
+            { placas, veiculos } = insuranceExists
 
         // Validate plate
 
@@ -345,127 +370,115 @@ export default class extends Component {
             return null
         }
 
-        //Choose between edit or delete placa from insurance
+        //Check if vehicle belongs to frota before add to insurance and  if plate already belongs to apolice
 
-        if (seguroId) {
-            value = seguroId
-            if (!placas) placas = []
-            placas.push(placaInput)
-            if (!veiculos) veiculos = []
-            veiculos.push(vehicleFound.veiculoId)
-
-            if (insuranceExists.hasOwnProperty('placas')) insuranceExists.placas = placas
-            if (insuranceExists.hasOwnProperty('veiculos')) insuranceExists.veiculos = veiculos
-        } else {
-            const i = placas.indexOf(placaInput)
-            placas.splice(i, 1)
-            const k = veiculos.indexOf(vehicleFound.veiculoId)
-            veiculos.splice(k, 1)
-        }
-
-        //Check if vehicle belongs to frota before add to insurance
-
-        if (vehicleFound && vehicleFound.hasOwnProperty('veiculoId')) {
-            body = {
-                table: 'veiculo',
-                column: 'apolice', value,
-                tablePK: 'veiculo_id', id: vehicleFound.veiculoId
-            }
-        } else {
+        if (vehicleFound === undefined || vehicleFound.hasOwnProperty('veiculoId') === false) {
+            this.alertDialog('Placa não encontrada',
+            `A placa informada não corresponde a nenhum veículo da frota da viação selecionada. 
+            Para cadastrar um novo veículo, selecione a opção "Cadastro de Veículo" no menu acima.` )
             this.setState({
                 openDialog: true,
                 dialogTitle: 'Placa não encontrada',
                 message: `A placa informada não corresponde a nenhum veículo da frota da viação selecionada. Para cadastrar um novo veículo, selecione a opção "Cadastro de Veículo" no menu acima.`,
             })
-            const i = placas.indexOf(placaInput)
-            placas.splice(i, 1)
             return null
+        } else if (insuranceExists !== undefined && insuranceExists.hasOwnProperty('placas') &&  vehicleFound.hasOwnProperty('placa')) {
+            const check = insuranceExists.placas.find(p => p === vehicleFound.placa)
+            if (check !== undefined) {
+                this.setState({
+                    openDialog: true,
+                    dialogTitle: 'Placa já cadastrada',
+                    message: `A placa informada já está cadastrada na apólice. Para pesquisar as placas cadastradas, utilize o campo "filtrar" abaixo.`,
+                })
+                return null
+            }
+        }
+
+        //Define body to post
+
+        const body = {
+            table: 'veiculo',
+            column: 'apolice',
+            value: seguroId,
+            tablePK: 'veiculo_id', id: vehicleFound.veiculoId
+        }
+
+        // Add plates to rendered list
+        if (seguroId) {
+            if (!placas) placas = []
+            placas.push(placaInput)
+            if (!veiculos) veiculos = []
+            veiculos.push(vehicleFound.veiculoId)
+
+            if (insuranceExists.hasOwnProperty('placas') && insuranceExists.hasOwnProperty('veiculos')) {
+                let obj = insuranceExists
+                obj.placas = placas
+                obj.veiculos = veiculos
+                this.setState({ insuranceExists: obj })
+            }
         }
 
         // Verify if all fields are filled before add new plate/insurance
-
         const enableSubmit = cadForm[1]
             .every(k => this.state.hasOwnProperty(k.field) && this.state[k.field] !== '')
 
-        //Add plate to existing insurance
-        if (insuranceExists.hasOwnProperty('apolice')) {
+        if (!enableSubmit) {
+            alert('Favor preencher todos os campos referentes ao seguro.')
+            return null
+        }
 
-            if (vehicleFound.apolice !== 'Seguro não cadastrado') {
-
-                /*   let seguros = this.state.seguros
-                  const index = seguros.findIndex(s => s.apolice === vehicleFound.apolice)
-                  let pl = seguros[index].placas,
-                      v = seguros[index].veiculos
-                  const i = pl.indexOf(vehicleFound.placa)
-                  const k = pl.indexOf(vehicleFound.veiculoId)
-                  pl.splice(i, 1)
-                  v.splice(k, 1)
-                  seguros[index].placas = pl
-                  seguros[index].veiculos = v
-                  insuranceExists = seguros */
-
-                await axios.put('/api/UpdateInsurance', body)
-                    .then(r => console.log(r.data))
-                    .catch(err => console.log(err))
-                await axios.get('/api/seguros')
-                    .then(async r => {
-                        const seguros = humps.camelizeKeys(r.data)
-                        await this.setState({ seguros })
-                        document.getElementsByName('razaoSocial')[0].focus()
-                        document.getElementsByName('seguradora')[0].focus()
-                        document.getElementsByName('apolice')[0].focus()
-                        document.getElementsByName('addedPlaca')[0].focus()
-
-                        insuranceExists = seguros.filter(s => s.apolice === seguroId)
-                        if (insuranceExists[0] !== undefined && insuranceExists[0].dataEmissao && insuranceExists[0].vencimento) {
-                            await this.setState({ insuranceExists: insuranceExists[0] })
-                            console.log(this.state.seguros)
-                            return null
-                        }
-                    })
-                    .catch(err => console.log(err))
-
-
-                /* axios.get(`/api/getUpdatedInsurance?apolice=${vehicleFound.apolice}`)
-                    .then(r => console.log(r.data))
-
- */
-            } else {
-                await axios.put('/api/UpdateInsurance', body)
-                    .then(r => {
-                        this.setState({ insuranceExists })
-                        console.log(r.data)
-                    })
-                    .catch(err => console.log(err))
-            }
-
-
-
-            /*  if (vehicleFound.apolice !== 'Seguro não cadastrado') {
-                 axios.get('/api/getUpdatedInsurance')
-                     .then(r => this.setState({ insuranceExists: humps.camelizeKeys(r.data) }))
-             } else return null */
-
-        } else if (enableSubmit) {          //Create new insurance
-
+        //Create a new insurance
+        if (!insuranceExists.hasOwnProperty('apolice')) {
             const { seguradoraId, apolice, dataEmissao, vencimento } = this.state,
                 cadSeguro = { seguradora_id: seguradoraId, apolice, data_emissao: dataEmissao, vencimento }
 
             await axios.post('/api/cadSeguro', cadSeguro)
-            await axios.get('/api/seguros')
-                .then(async r => {
-                    await this.setState({ seguros: humps.camelizeKeys(r.data) })
-                    insuranceExists = this.state.seguros.filter(s => s.apolice === apolice)[0]
-                    this.setState({ insuranceExists })
-                    void 0
-                })
-                .catch(err => console.log(err))
-
-            await axios.put('/api/UpdateInsurance', body)
-            axios.get('/api/veiculosInit')
-                .then(r => this.setState({ veiculos: humps.camelizeKeys(r.data) }))
-                .catch(err => console.log(err))
         }
+
+        //Delete placa from old array
+        if (vehicleFound.apolice !== 'Seguro não cadastrado') {
+
+            let { seguros } = this.state
+            const index = seguros.findIndex(s => s.apolice === vehicleFound.apolice)
+            if (seguros[index]) {
+
+                let pl = seguros[index].placas,
+                    v = seguros[index].veiculos
+                const i = pl.indexOf(vehicleFound.placa),
+                    k = pl.indexOf(vehicleFound.veiculoId)
+
+                pl.splice(i, 1)
+                v.splice(k, 1)
+
+                seguros[index].placas = pl
+                seguros[index].veiculos = v
+                this.setState({ seguros })                
+            }
+        }
+
+        //Update data to/from DataBase
+        await axios.put('/api/UpdateInsurance', body)
+            .catch(err => console.log(err))
+        await axios.get('/api/seguros')
+            .then(r => humps.camelizeKeys(r.data))
+            .then(seguros => {
+                this.setState({ seguros })
+                return seguros
+            })
+            .then(res => this.setState({ insuranceExists: res.filter(s => s.apolice === seguroId)[0] }))
+            .catch(err => console.log(err))
+
+        let updateFrota = this.state.frota
+        const vIndex = this.state.frota.findIndex(v => v.veiculoId === vehicleFound.veiculoId)
+        updateFrota[vIndex].apolice = seguroId
+        await this.setState({ frota: updateFrota })
+
+        if (document.getElementsByName('razaoSocial')[0]) document.getElementsByName('razaoSocial')[0].focus()
+        if (document.getElementsByName('seguradora')[0]) document.getElementsByName('seguradora')[0].focus()
+        if (document.getElementsByName('apolice')[0]) document.getElementsByName('apolice')[0].focus()
+        if (document.getElementsByName('addedPlaca')[0]) document.getElementsByName('addedPlaca')[0].focus()
+
+        this.setState({ addedPlaca: '' })
     }
 
     toggleDialog = () => {
@@ -515,10 +528,11 @@ export default class extends Component {
             {
                 tab === 1 && enableAddPlaca && <AltSeguro
                     data={this.state}
+                    insuranceExists={this.state.insuranceExists}
                     handleInput={this.handleInput}
                     handleBlur={this.handleBlur}
                     addPlateInsurance={this.updateInsurance}
-                    handleDelete={this.updateInsurance}
+                    deleteInsurance={this.deleteInsurance}
                 />
             }
             <ReactToast open={confirmToast} close={this.toast} msg={toastMsg} />
