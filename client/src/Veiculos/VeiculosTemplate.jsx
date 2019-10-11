@@ -49,7 +49,7 @@ export default function ({ handleInput, handleBlur, data, handleEquipa, handleCh
         delegatarioCompartilhado, subtitle } = data,
         classes = useStyles(), { paper, container, title } = classes
 
-    const [shared, setShared] = useState(false)
+    const [shared, setShared] = useState(false)    
 
     let form = []
     if (tab === 0) form = cadForm[activeStep]

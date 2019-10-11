@@ -29,8 +29,7 @@ export default class extends Component {
         tablePKs: ['veiculo_id', 'delegatario_id', 'procurador_id', 'apolice'],
         dbTables: ['veiculo', 'delegatario', 'procurador', 'seguro'],
         empresas: [],
-        seguros: [],
-        selectedEmpresa: '',
+        seguros: [],        
         razaoSocial: '',
         showDetails: false,
         vehicleInfo: ''

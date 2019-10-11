@@ -4,34 +4,21 @@ import humps from 'humps'
 import { Grid, TextField } from '@material-ui/core'
 import ReactToast from '../Utils/ReactToast'
 import VeiculosTemplate from './VeiculosTemplate'
-import VehicleDocs from './VehicleDocs'
-import Review from './Review'
 import { cadVehicleFiles } from '../Forms/cadVehicleFiles'
-import StepperButtons from '../Utils/StepperButtons'
-import CustomStepper from '../Utils/Stepper'
 import { altForm } from '../Forms/altForm'
 
 export default class extends Component {
 
     state = {
-        tab: 2,
-        stepTitles: ['Informe a placa para alterar os dados abaixo ou mantenha as informações atuais e clique em avançar',
-            'Altere os dados desejados abaixo e clique em avançar', 'Anexe os documentos solicitados',
-            'Revisão das informações e deferimento'],
-        steps: ['Alterar dados do Veículo', 'Alterar dados adicionais', 'Documentos', 'Revisão'],
-
+        tab: 3,
         subtitle: ['Informe os dados do Veículo', 'Informe os dados do Seguro',
-            'Preencha os campos abaixo', 'Informe os dados para a baixa'],
-        form: {},
+            'Preencha os campos abaixo', 'Informe os dados para a baixa'],        
         empresas: [],        
         razaoSocial: '',
         delegatarioCompartilhado: '',
         frota: [],
-        toastMsg: 'Dados atualizados!',
+        toastMsg: 'Baixa realizada com sucesso!',
         confirmToast: false,
-        activeStep: 0,
-        files: [],
-        fileNames: [],
         openDialog: false
     }
 
@@ -201,21 +188,15 @@ export default class extends Component {
     }
 
     render() {
-        const { confirmToast, toastMsg, activeStep, steps, stepTitles, tab } = this.state
+        const { confirmToast, toastMsg } = this.state
 
         return <Fragment>
-            <CustomStepper
-                activeStep={activeStep}
-                steps={steps}
-                stepTitles={stepTitles}
-                setActiveStep={this.setActiveStep}               
-            />
-            {activeStep < 2 && <VeiculosTemplate
+            <VeiculosTemplate
                 data={this.state}                
                 handleInput={this.handleInput}
                 handleBlur={this.handleBlur}
-            />}
-            {activeStep === 1 && <Grid
+            />
+            <Grid
                 container
                 direction="row"
                 justify="center"
@@ -234,20 +215,7 @@ export default class extends Component {
                         variant='outlined'
                     />
                 </Grid>
-            </Grid>}
-            {activeStep === 2 && <VehicleDocs
-                tab={tab}
-                handleFiles={this.handleFiles}
-                handleSubmit={this.submitFiles}
-                handleNames={this.handleNames}
-            />}
-            {activeStep === 3 && <Review data={this.state} />}
-            <StepperButtons
-                activeStep={activeStep}
-                lastStep={steps.length - 1}
-                handleSubmit={this.handleEdit}
-                setActiveStep={this.setActiveStep}
-            />
+            </Grid>
             <ReactToast open={confirmToast} close={this.toast} msg={toastMsg} />
         </Fragment>
     }

@@ -7,8 +7,8 @@ const path = require('path')
 const dotenv = require('dotenv')
 
 const { empresas, veiculoInit, modeloChassi, carrocerias, equipamentos, seguradoras, seguros } = require('./queries')
-const { upload } = require('./upload');
-
+const { upload } = require('./upload')
+const { parseRequestBody } = require('./parseRequest')
 
 dotenv.config()
 app.use(bodyParser.json())
@@ -79,19 +79,11 @@ app.get('/api/veiculos', (req, res) => {
 
 app.post('/api/cadastroVeiculo', (req, res) => {
 
-    let parsed = []
-    console.log(req.body)
-    const keys = Object.keys(req.body).toString(),
-        values = Object.values(req.body)
+    const { keys, values } = parseRequestBody(req.body)
 
-    values.forEach(v => {
-        parsed.push(('\'' + v + '\'').toString())
-    })
-
-    parsed = parsed.toString().replace(/'\['/g, '').replace(/'\]'/g, '')
-    console.log(`INSERT INTO public.veiculo (${keys}) VALUES (${parsed}) RETURNING *`)
+    console.log(`INSERT INTO public.veiculo (${keys}) VALUES (${values}) RETURNING *`)
     pool.query(
-        `INSERT INTO public.veiculo (${keys}) VALUES (${parsed}) RETURNING *`, (err, table) => {
+        `INSERT INTO public.veiculo (${keys}) VALUES (${values}) RETURNING *`, (err, table) => {
             if (err) res.send(err)
             if (table && table.rows && table.rows.length === 0) { res.send('Nenhum veículo cadastrado para esse delegatário.'); return }
             if (table.rows.length > 0) res.json(table.rows)
@@ -209,9 +201,7 @@ app.put('/api/updateInsurance', (req, res) => {
         if (err) console.log(err)
         res.send(`${column} changed to ${value}`)
     }
-
     )
-
 })
 
 app.get('/api/getUpdatedInsurance', (req, res) => {
@@ -263,6 +253,29 @@ app.get('/api/getUpdatedInsurance', (req, res) => {
             res.json(table.rows);
         })
 });
+
+app.put('/api/updateVehicle', (req, res) => {
+
+    const { requestObject, table, tablePK, id } = req.body
+    let queryString = ''
+
+    Object.entries(requestObject).forEach(([k, v]) => {
+        queryString += `${k} = '${v}', `
+    })
+
+    queryString = `UPDATE ${table} SET ` +
+        queryString.slice(0, queryString.length - 2) +
+        ` WHERE ${tablePK} = '${id}'`
+
+    console.log(queryString)
+
+    pool.query(queryString, (err, t) => {
+        if (err) console.log(err)
+        res.send(`${table} table changed fields in ${id}`)
+    }
+    )
+})
+
 
 app.listen(PORT, HOST)
 console.log('Running on port 3001, dude...')

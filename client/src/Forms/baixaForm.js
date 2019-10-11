@@ -1,27 +1,102 @@
-export const baixaForm = [
+export const baixaForm = [    
     {
-        type: 'TextField',
-        field: 'oldId',
-        label: 'Código da Empresa',
+        field: 'placa',
+        label: 'Placa',
+        margin: 'normal',        
+        datalist: 'placa',
+        autoComplete: true,
+        collection: 'frota'
+    },
+    {
+        field: 'delegatario',
+        label: 'Delegatário',
+        margin: 'normal',    
+        datalist: 'razaoSocial',
+        autoComplete: true,
+        collection: 'empresas'
+    },
+    {
+        field: 'compartilhado',
+        label: 'Delegatário Compartilhado',
+        margin: 'normal',    
+        datalist: 'razaoSocial',
+        autoComplete: true,
+        collection: 'empresas'
+    },
+    {
+        field: 'utilizacao',
+        label: 'Utilização',
+        margin: 'normal',
+        select: true,
+        options: ['Convencional', 'Executivo', 'Leito', 'Semi-Leito', 'Urbano']
+    },
+    {
+        field: 'dominio',
+        label: 'Situação da Propriedade',
+        margin: 'normal',
+        select: true,
+        options: ['Veículo próprio', 'Leasing', 'Possuidor']
+    },
+    {
+        field: 'cores',
+        label: 'Cores',
         margin: 'normal'
     },
     {
-        type: 'TextField',
-        field: 'placa',
-        label: 'Placa',
+        field: 'renavam',
+        label: 'Renavam',
         margin: 'normal',
-        datalist: 'placa'
+        disabled: true    
     },
     {
-        type: 'TextField',
-        field: 'Regveiculo',
-        label: 'Nº de registro do veículo',
+        field: 'nChassi',
+        label: 'Número do Chassi',
         margin: 'normal',
+        maxLength: 17,
+        disabled: true  
     },
     {
-        type: 'TextField',
-        field: 'justificativa',
-        label: 'Justificativa',
+        field: 'modeloChassi',
+        label: 'Modelo do Chassi',
         margin: 'normal',
+        disabled: true    
+    },
+    {
+        field: 'anoChassi',
+        label: 'Ano do Chassi',
+        margin: 'normal',
+        type: 'number',
+        max: 2020,
+        disabled: true  
+    },
+    {
+        type: 'number',
+        field: 'valorChassi',
+        label: 'Valor do Chassi (R$)',
+        margin: 'normal',
+        zero: true,
+        disabled: true  
+    },
+    {
+        field: 'modeloCarroceria',
+        label: 'Modelo da Carroceria',
+        margin: 'normal',
+        disabled: true      
+    },
+    {
+        type: 'number',
+        field: 'anoCarroceria',
+        label: 'Ano da Carroceria',
+        margin: 'normal',
+        max: 2020,
+        disabled: true  
+    },
+    {
+        type: 'number',
+        field: 'valorCarroceria',
+        label: 'Valor da Carroceria (R$)',
+        margin: 'normal',
+        zero: true,
+        disabled: true  
     }
 ]

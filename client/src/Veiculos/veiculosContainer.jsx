@@ -37,7 +37,6 @@ export default class extends Component {
             'Preencha os campos abaixo', 'Informe os dados para a baixa'],
         form: {},
         empresas: [],
-        selectedEmpresa: '',
         razaoSocial: '',
         delegatarioCompartilhado: '',
         frota: [],
@@ -82,7 +81,12 @@ export default class extends Component {
 
     changeTab = (e, value) => {
         const opt = ['Veículo cadastrado!', 'Seguro atualizado!', 'Dados Alterados!', 'Veículo Baixado.']
-        this.setState({ tab: value, toastMsg: opt[value] })
+        this.setState({
+            tab: value, toastMsg: opt[value], razaoSocial: '', frota: [], placa: '',
+            delegatarioCompartilhado: '',
+            apolice: '', seguradora: '', dataEmissao: '', vencimento: '',
+            seguros: this.state.allInsurances
+        })
     }
 
     setActiveStep = action => {
@@ -513,7 +517,7 @@ export default class extends Component {
     }
 
     render() {
-        const { tab, items, selectedEmpresa, confirmToast, toastMsg, activeStep,
+        const { tab, items, confirmToast, toastMsg, activeStep,
             openDialog, dialogTitle, message, steps, stepTitles } = this.state
 
         const enableAddPlaca = cadForm[1]
@@ -528,11 +532,9 @@ export default class extends Component {
                 steps={steps}
                 stepTitles={stepTitles}
                 setActiveStep={this.setActiveStep}
-                selectedEmpresa={selectedEmpresa}
             />}
             {tab !== 2 && activeStep < 3 ? <VeiculosTemplate
                 data={this.state}
-                selectedEmpresa={selectedEmpresa}
                 handleInput={this.handleInput}
                 handleBlur={this.handleBlur}
                 handleEquipa={this.handleEquipa}
@@ -551,7 +553,7 @@ export default class extends Component {
             }
             {tab === 0 && <StepperButtons
                 activeStep={activeStep}
-                lastStep={steps.length -1}
+                lastStep={steps.length - 1}
                 handleSubmit={this.handleCadastro}
                 setActiveStep={this.setActiveStep}
             />}
@@ -565,6 +567,7 @@ export default class extends Component {
             />}
             {tab === 2 && <AltDados
                 data={this.state}
+                getId={this.getId}
                 createAlert={this.createAlert}
             />}
 
