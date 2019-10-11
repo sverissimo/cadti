@@ -3,12 +3,13 @@ import axios from 'axios'
 import humps from 'humps'
 import ReactToast from '../Utils/ReactToast'
 import VeiculosTemplate from './VeiculosTemplate'
+import AltDados from './AltDados'
 import VehicleDocs from './VehicleDocs'
 import Review from './Review'
 import { TabMenu } from '../Layouts'
 import { cadVehicleFiles } from '../Forms/cadVehicleFiles'
 import { cadForm } from '../Forms/cadForm'
-import StepperButtons from './StepperButtons'
+import StepperButtons from '../Utils/StepperButtons'
 import CustomStepper from '../Utils/Stepper'
 import AltSeguro from './AltSeguro'
 import AlertDialog from '../Utils/AlertDialog'
@@ -25,9 +26,13 @@ export default class extends Component {
     }
 
     state = {
-        tab: 1,
+        tab: 2,
         items: ['Cadastro de Veículo', 'Atualização de Seguro',
             'Alteração de dados', 'Baixa de Veículo'],
+        stepTitles: ['Informe os dados do veículo', 'Informe os dados do seguro',
+            'Informações sobre vistoria e laudos', 'Anexe os documentos solicitados',
+            'Revisão das informações e deferimento'],
+        steps: ['Dados do Veículo', 'Dados do seguro', 'Vistoria e laudos', 'Documentos', 'Revisão'],
         subtitle: ['Informe os dados do Veículo', 'Informe os dados do Seguro',
             'Preencha os campos abaixo', 'Informe os dados para a baixa'],
         form: {},
@@ -160,8 +165,8 @@ export default class extends Component {
                         .filter(s => s.seguradora === this.state.seguradora)
                     this.setState({ seguros: filteredInsurances })
                 }
-
                 break;
+
             case 'razaoSocial':
                 await this.getId(name, value, empresas, 'delegatarioId', 'razaoSocial', 'delegatarioId', 'Empresa')
                 if (this.state.delegatarioId) {
@@ -170,8 +175,8 @@ export default class extends Component {
                     this.setState({ frota: f, seguros: filteredInsurances })
                 }
                 break;
-            case 'apolice':
 
+            case 'apolice':
                 let insuranceExists = this.state.seguros.filter(s => s.apolice === this.state.apolice)
                 if (insuranceExists && insuranceExists[0] !== undefined && insuranceExists[0].dataEmissao && insuranceExists[0].vencimento) {
                     const dataEmissao = insuranceExists[0].dataEmissao.toString().slice(0, 10),
@@ -183,7 +188,6 @@ export default class extends Component {
                     insuranceExists = false
                     this.setState({ insuranceExists: false })
                 }
-                console.log(insuranceExists)
                 break;
 
             case 'addedPlaca':
@@ -205,14 +209,23 @@ export default class extends Component {
 
                 const matchPlaca = frota.filter(v => v.placa === placa)[0]
                 if (matchPlaca) {
-                    await this.setState({ placa: null })
+                    await this.setState({ placa: null });
                     value = ''
                     alert('Placa já cadastrada!')
                     document.getElementsByName('placa')[0].focus()
                 }
             }
-            const vehicle = this.state.frota.filter(v => v.placa === value)[0]
-            await this.setState({ ...vehicle })
+            if (tab > 1) {
+                const vehicle = this.state.frota.filter(v => v.placa === value)[0]
+                await this.setState({ ...vehicle, disable: true })
+                if (vehicle.hasOwnProperty('empresa')) this.setState({ delegatario: vehicle.empresa })
+                let reset = {}
+                Object.keys(frota[0]).forEach(k => reset[k] = '')
+                if (!vehicle) {
+                    this.createAlert('plateNotFound')
+                    this.setState({ ...reset, disable: false })
+                }
+            }
         }
     }
 
@@ -267,7 +280,6 @@ export default class extends Component {
         } else {
             alert('Favor verificar os dados do seguro.')
         }
-
     }
 
     toast = e => {
@@ -304,7 +316,7 @@ export default class extends Component {
         }
     }
 
-    handleSubmit = async e => {
+    submitFiles = async e => {
         const { form } = this.state
 
         await axios.post('/api/upload', form)
@@ -373,16 +385,13 @@ export default class extends Component {
         //Check if vehicle belongs to frota before add to insurance and  if plate already belongs to apolice
 
         if (vehicleFound === undefined || vehicleFound.hasOwnProperty('veiculoId') === false) {
-            this.alertDialog('Placa não encontrada',
-            `A placa informada não corresponde a nenhum veículo da frota da viação selecionada. 
-            Para cadastrar um novo veículo, selecione a opção "Cadastro de Veículo" no menu acima.` )
             this.setState({
                 openDialog: true,
                 dialogTitle: 'Placa não encontrada',
                 message: `A placa informada não corresponde a nenhum veículo da frota da viação selecionada. Para cadastrar um novo veículo, selecione a opção "Cadastro de Veículo" no menu acima.`,
             })
             return null
-        } else if (insuranceExists !== undefined && insuranceExists.hasOwnProperty('placas') &&  vehicleFound.hasOwnProperty('placa')) {
+        } else if (insuranceExists !== undefined && insuranceExists.hasOwnProperty('placas') && vehicleFound.hasOwnProperty('placa')) {
             const check = insuranceExists.placas.find(p => p === vehicleFound.placa)
             if (check !== undefined) {
                 this.setState({
@@ -452,7 +461,7 @@ export default class extends Component {
 
                 seguros[index].placas = pl
                 seguros[index].veiculos = v
-                this.setState({ seguros })                
+                this.setState({ seguros })
             }
         }
 
@@ -485,9 +494,27 @@ export default class extends Component {
         this.setState({ openDialog: !this.state.openDialog })
     }
 
+    createAlert = (alert) => {
+
+        if (alert === 'plateNotFound') {
+            this.setState({
+                openDialog: true,
+                dialogTitle: 'Placa não encontrada',
+                message: `A placa informada não corresponde a nenhum veículo da frota da viação selecionada. Para cadastrar um novo veículo, selecione a opção "Cadastro de Veículo" no menu acima.`,
+            })
+        }
+        if (alert === 'invalidPlate') {
+            this.setState({
+                openDialog: true,
+                dialogTitle: 'Placa inválida',
+                message: `Certifique-se de que a placa informada é uma placa válida, com três letras seguidas de 4 números (ex: AAA-0000)`,
+            })
+        }
+    }
+
     render() {
         const { tab, items, selectedEmpresa, confirmToast, toastMsg, activeStep,
-            openDialog, dialogTitle, message } = this.state
+            openDialog, dialogTitle, message, steps, stepTitles } = this.state
 
         const enableAddPlaca = cadForm[1]
             .every(k => this.state.hasOwnProperty(k.field) && this.state[k.field] !== '')
@@ -498,10 +525,12 @@ export default class extends Component {
                 changeTab={this.changeTab} />
             {tab === 0 && <CustomStepper
                 activeStep={activeStep}
+                steps={steps}
+                stepTitles={stepTitles}
                 setActiveStep={this.setActiveStep}
                 selectedEmpresa={selectedEmpresa}
             />}
-            {activeStep < 3 ? <VeiculosTemplate
+            {tab !== 2 && activeStep < 3 ? <VeiculosTemplate
                 data={this.state}
                 selectedEmpresa={selectedEmpresa}
                 handleInput={this.handleInput}
@@ -511,9 +540,9 @@ export default class extends Component {
             />
                 : tab === 0 && activeStep === 3 ?
                     <VehicleDocs
-                        data={this.state}
+                        tab={tab}
                         handleFiles={this.handleFiles}
-                        handleSubmit={this.handleSubmit}
+                        handleSubmit={this.submitFiles}
                         handleNames={this.handleNames}
                     />
                     : tab === 0 && activeStep === 4 ?
@@ -522,19 +551,23 @@ export default class extends Component {
             }
             {tab === 0 && <StepperButtons
                 activeStep={activeStep}
-                handleCadastro={this.handleCadastro}
+                lastStep={steps.length -1}
+                handleSubmit={this.handleCadastro}
                 setActiveStep={this.setActiveStep}
             />}
-            {
-                tab === 1 && enableAddPlaca && <AltSeguro
-                    data={this.state}
-                    insuranceExists={this.state.insuranceExists}
-                    handleInput={this.handleInput}
-                    handleBlur={this.handleBlur}
-                    addPlateInsurance={this.updateInsurance}
-                    deleteInsurance={this.deleteInsurance}
-                />
-            }
+            {tab === 1 && enableAddPlaca && <AltSeguro
+                data={this.state}
+                insuranceExists={this.state.insuranceExists}
+                handleInput={this.handleInput}
+                handleBlur={this.handleBlur}
+                addPlateInsurance={this.updateInsurance}
+                deleteInsurance={this.deleteInsurance}
+            />}
+            {tab === 2 && <AltDados
+                data={this.state}
+                createAlert={this.createAlert}
+            />}
+
             <ReactToast open={confirmToast} close={this.toast} msg={toastMsg} />
             <AlertDialog open={openDialog} close={this.toggleDialog} title={dialogTitle} message={message} />
         </Fragment>

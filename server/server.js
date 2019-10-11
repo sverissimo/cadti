@@ -118,17 +118,18 @@ app.get('/api/carrocerias', (req, res) => {
 app.post('/api/upload', upload)
 
 app.get('/api/download', (req, res) => {
-    const fPath = path.join(__dirname, '../files', 'a.xls')
+    const fPath = path.join(__dirname, '../files', 'a.txt')
     res.set({
-        'Content-Type': 'application/vnd.ms-excel',
+        'Content-Type': 'text',
         'Content-Disposition': 'attachment'
     });
 
     //const pathZ = path.resolve(__dirname, '../files', 'delegas.xls')
-    const stream = fs.createReadStream(fPath, { autoClose: true })
+    /* const stream = fs.createReadStream(fPath, { autoClose: true })
 
     stream.on('close', () => res.end())
-    stream.pipe(res)
+    stream.pipe(res) */
+    res.download(fPath)
 
 })
 
@@ -215,7 +216,7 @@ app.put('/api/updateInsurance', (req, res) => {
 
 app.get('/api/getUpdatedInsurance', (req, res) => {
     let { apolice } = req.query
-    apolice =  '\'' + apolice + '\''
+    apolice = '\'' + apolice + '\''
     console.log(req.query, `
     SELECT seguro.*,
         s.seguradora,

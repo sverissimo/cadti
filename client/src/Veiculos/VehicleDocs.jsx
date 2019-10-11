@@ -2,6 +2,7 @@ import React, { Fragment } from 'react'
 import { Grid, Paper, TextField, Button, } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
 import { cadVehicleFiles } from '../Forms/cadVehicleFiles'
+import { altDadosFiles } from '../Forms/altDadosFiles'
 
 const useStyles = makeStyles(theme => ({
 
@@ -20,7 +21,7 @@ const useStyles = makeStyles(theme => ({
     input: {
         display: 'none'
     },
-    paper: {        
+    paper: {
         color: theme.palette.text.secondary,
         margin: theme.spacing(2),
         width: "100%",
@@ -29,11 +30,11 @@ const useStyles = makeStyles(theme => ({
     },
     button: {
         margin: '3% 0 3% 0',
-        backgroundColor: 'DodgerBlue',
+        //backgroundColor: 'DodgerBlue',
         float: 'right bottom'
     },
     sendButton: {
-        margin: '3% 0 3% 0',        
+        margin: '3% 0 3% 0',
         backgroundColor: 'teal',
         float: 'right'
     },
@@ -57,14 +58,19 @@ const link = (id) => {
     document.getElementById(id).click()
 }
 
-export default function VehicleDocs({ handleFiles, handleSubmit }) {
+export default function VehicleDocs({ handleFiles, handleSubmit, tab }) {
     const { root, textField, button, input, paper, sendButton, resize, item } = useStyles()
+
+    let filesForm
+    if (tab === 0) filesForm = cadVehicleFiles
+    if (tab === 2) filesForm = altDadosFiles
+
 
     return (
         <div >
             <Paper className={paper}>
                 <Grid container className={root}>
-                    {cadVehicleFiles.map(({ title, name }, k) =>
+                    {filesForm.map(({ title, name }, k) =>
                         <Fragment key={k}>
                             <Grid item xs={10} md={4} className={item}>
                                 <TextField
@@ -78,13 +84,14 @@ export default function VehicleDocs({ handleFiles, handleSubmit }) {
                                     InputProps={{ classes: { input: resize } }}
                                     label={title}
                                     InputLabelProps={{
-                                        shrink: true
+                                        shrink: true,
+                                        style: { fontWeight: 500, color: '#000', marginBottom: '5%' }
                                     }}
                                 />
                             </Grid>
-                            <Grid item xs={2} md={1} style={{paddingTop: '2%'}}>
+                            <Grid item xs={2} md={1} style={{ paddingTop: '2%' }}>
                                 <Button
-                                    variant="contained"
+                                    variant="outlined"
                                     component='label'
                                     className={button}
                                     color='primary'
@@ -102,7 +109,7 @@ export default function VehicleDocs({ handleFiles, handleSubmit }) {
                             <Grid item md={1}></Grid>
                         </Fragment>
                     )}
-                    <Grid item md={12} style={{paddingRight: '2%', marginTop:'-1%'}}>
+                    <Grid item md={12} style={{ paddingRight: '2%', marginTop: '-1%' }}>
                         <Button
                             variant="contained"
                             component='label'

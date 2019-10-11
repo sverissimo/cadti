@@ -15,10 +15,11 @@ SELECT veiculo.*,
 	modelo_chassi.modelo_chassi,	
 	marca_carroceria.marca as marca_carroceria,
 	modelo_carroceria.modelo as modelo_carroceria,
-	delegatario.razao_social as empresa,
+	d.razao_social as empresa,
+	d2.razao_social as compartilhado,
 	seguradora.seguradora,
 	seguro.data_emissao,
-	seguro.vencimento	
+	seguro.vencimento
 FROM veiculo
 LEFT JOIN public.modelo_chassi
 	ON veiculo.modelo_chassi_id = public.modelo_chassi.id
@@ -28,8 +29,10 @@ LEFT JOIN public.modelo_carroceria
 	ON veiculo.modelo_carroceria_id = public.modelo_carroceria.id
 LEFT JOIN public.marca_carroceria
 	ON public.marca_carroceria.id = public.modelo_carroceria.marca_id
-LEFT JOIN public.delegatario
-	ON veiculo.delegatario_id = delegatario.delegatario_id
+LEFT JOIN public.delegatario d
+	ON veiculo.delegatario_id = d.delegatario_id
+LEFT JOIN public.delegatario d2
+	ON veiculo.delegatario_compartilhado = d2.delegatario_id
 LEFT JOIN public.seguro
 	ON veiculo.apolice = seguro.apolice
 LEFT JOIN public.seguradora

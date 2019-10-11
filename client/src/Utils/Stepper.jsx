@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Stepper from '@material-ui/core/Stepper';
 import Step from '@material-ui/core/Step';
@@ -18,39 +18,23 @@ const useStyles = makeStyles(theme => ({
         padding: '1% 0 0 3%',
         fontWeight: 500
     },
-}));
+}))
 
-function getSteps() {
-    return ['Dados do Veículo', 'Dados do seguro', 'Vistoria e laudos', 'Documentos', 'Revisão'];
-}
-
-export default function CustomStepper({ activeStep, selectedEmpresa }) {
+export default function CustomStepper({ activeStep, steps, stepTitles }) {
 
     function getStepContent(step) {
-        switch (step) {
-            case 0:
-                return 'Informe os dados do veículo';
-            case 1:
-                return <Fragment>
-                    Informe os dados do seguro
-                    </Fragment>
-            case 2:
-                return <Fragment>
-                    Informações sobre vistoria e laudos
-                </Fragment>
-            case 3:
-                return <Fragment>
-                    Anexe os documentos solicitados
-                </Fragment>
-            case 4:
-                return 'Revisão das informações e deferimento';
-            default:
-                return 'Selecione';
-        }
+
+        stepTitles.forEach((s, i) => {
+            switch (step) {
+                case i:
+                    return s;
+                default:
+                    return 'Selecione';
+            }
+        })
     }
 
-    const classes = useStyles()
-    const steps = getSteps()
+    const classes = useStyles()   
 
     return (
         <div className={classes.root}>

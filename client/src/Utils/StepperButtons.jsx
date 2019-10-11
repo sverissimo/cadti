@@ -16,8 +16,9 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
-export default function StepperButtons({activeStep, setActiveStep, handleCadastro}) {
-const classes = useStyles(), {backButton, button} = classes
+export default function StepperButtons({ activeStep, setActiveStep, lastStep, handleSubmit }) {
+    
+    const classes = useStyles(), { backButton, button } = classes
     return (
         <div>
             <Button
@@ -28,7 +29,7 @@ const classes = useStyles(), {backButton, button} = classes
             >
                 Voltar
             </Button>
-            {activeStep <= 3 ?
+            {activeStep < lastStep ?
                 <Button
                     variant="contained"
                     color="primary"
@@ -42,9 +43,9 @@ const classes = useStyles(), {backButton, button} = classes
                     variant="contained"
                     color="primary"
                     className={button}
-                    onClick={()=> handleCadastro()}
+                    onClick={() => handleSubmit()}
                 >
-                    Concluir
+                    Aprovar
             </Button>}
         </div>
     )

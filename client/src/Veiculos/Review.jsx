@@ -3,6 +3,7 @@ import { Grid, Paper } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
 import { cadForm } from '../Forms/cadForm'
+import { altForm } from '../Forms/altForm'
 
 const useStyles = makeStyles(theme => ({
     root: {
@@ -42,11 +43,15 @@ const useStyles = makeStyles(theme => ({
 }))
 
 export default function Revisao({ data }) {
-    let review = []
+    let review = [], formArray
     const classes = useStyles(),
-        { textField, paper, root, equipa } = classes
+        { textField, paper, root, equipa } = classes,
+        { tab, justificativa } = data
 
-    cadForm.forEach(form => {
+    if (tab === 0) formArray = cadForm
+    if (tab === 2) formArray = altForm
+
+    formArray.forEach(form => {
         form.forEach(obj => {
             for (let k in data) {
                 if (k === obj.field) review.push({ label: obj.label, field: k, value: data[k] })
@@ -54,7 +59,9 @@ export default function Revisao({ data }) {
 
         })
     })
-    let a = data.equipamentos_id.toString().replace(/,/g, ', ')
+
+    let eq
+    if (tab === 0) eq = data.equipamentos_id.toString().replace(/,/g, ', ')
 
     return (
         <Paper className={paper}>
@@ -78,29 +85,44 @@ export default function Revisao({ data }) {
                         />
                     </Grid>
                 )}
-                <Grid item xs={12}>
+                {tab === 2 && <Grid item xs={12} style={{ margin: '2% 0' }}>
+                    <TextField
+                        name='justificativa'
+                        value={justificativa}
+                        label='Justificativa'
+                        type='text'
+                        disabled={true}
+                        InputLabelProps={{ shrink: true, style: { fontWeight: 600 } }}
+                        inputProps={{ style: { height: '60px', width: '900px' } }}
+                        multiline
+                        rows={4}
+                        variant='outlined'
+                    />
+                </Grid>
+                }
+                {tab === 0 && <Grid item xs={12} style={{ display: eq ? undefined : 'none' }}>
                     <TextField
                         id='equipamentos'
                         className={equipa}
-                        value={a}
+                        value={eq}
                         label='Acessórios'
                         disabled={true}
                         type='text'
                         InputLabelProps={{
                             shrink: true,
-                            style: { fontSize: '0.9rem', fontWeight: 600, color: '#000', marginBottom: '5%', display: a ? undefined : 'none' }
+                            style: { fontSize: '0.9rem', fontWeight: 600, color: '#000', marginBottom: '5%'}
                         }}
                         inputProps={{
                             style: {
                                 textAlign: 'center', color: '#000', backgroundColor: '#f7f7ff', paddingBottom: '2%',
-                                height: '40px', fontSize: '0.7rem', display: a ? undefined : 'none'
-                            },
-
+                                height: '40px', fontSize: '0.7rem'
+                            }
                         }}
-                        multiline                        
+                        multiline
                         variant='outlined'
                     />
-                </Grid>
+                </Grid>}
+
             </Grid>
         </Paper>
     )

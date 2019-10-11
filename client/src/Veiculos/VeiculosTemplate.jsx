@@ -5,6 +5,7 @@ import { makeStyles } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
 import { vehicleForm } from '../Forms/vehicleForm'
 import { cadForm } from '../Forms/cadForm'
+import { altForm } from '../Forms/altForm'
 import AutoComplete from '../Utils/autoComplete'
 import AddEquipa from './AddEquipa'
 import PopUp from '../Utils/PopUp'
@@ -51,8 +52,9 @@ export default function ({ handleInput, handleBlur, data, handleEquipa, handleCh
     const [shared, setShared] = useState(false)
 
     let form = []
-    if (tab !== 0) form = vehicleForm[tab]
-    else form = cadForm[activeStep]
+    if (tab === 0) form = cadForm[activeStep]
+    else if (tab === 2) form = altForm[activeStep]
+    else form = vehicleForm[tab]
 
     const errorHandler = (el) => {
         const value = data.form[el.field]
@@ -71,13 +73,13 @@ export default function ({ handleInput, handleBlur, data, handleEquipa, handleCh
         else return undefined
     }
 
-    const showForm = () => {
-        const check = data.empresas.filter(e => e.razaoSocial === razaoSocial)
-        if (check && check[0]) {        
-            return true
-        }
-        else return false
-    }
+    /*  const showForm = () => {
+         const check = data.empresas.filter(e => e.razaoSocial === razaoSocial)
+         if (check && check[0]) {
+             return true
+         }
+         else return false
+     } */
 
     return (
         <Grid
@@ -153,7 +155,8 @@ export default function ({ handleInput, handleBlur, data, handleEquipa, handleCh
 
                 </Paper>
                 {
-                    razaoSocial && showForm()
+                    //razaoSocial && showForm()
+                    true
                         ?
                         <Grid item xs={12}>
                             <Paper className={paper}>
@@ -174,13 +177,14 @@ export default function ({ handleInput, handleBlur, data, handleEquipa, handleCh
                                             helperText={helper(el)}
                                             select={el.select || false}
                                             value={data[el.field] || ''}
+                                            disabled={el.disabled || false}
                                             InputLabelProps={{
                                                 className: classes.textField,
                                                 shrink: el.type === 'date' || undefined,
                                                 style: { fontSize: '0.8rem', fontWeight: 400, color: '#455a64', marginBottom: '5%' }
                                             }}
                                             inputProps={{
-                                                style: { background: '#eee', textAlign: 'center', color: '#000', fontWeight: '500' },
+                                                style: { background: el.disabled && data.disable ? '#fff' : '#efefef', textAlign: 'center', color: '#000', fontWeight: '500', width: el.width || '' },
                                                 value: `${data[el.field] || ''}`,
                                                 list: el.datalist || '',
                                                 maxLength: el.maxLength || '',
@@ -190,6 +194,7 @@ export default function ({ handleInput, handleBlur, data, handleEquipa, handleCh
                                             multiline={el.multiline || false}
                                             rows={el.rows || null}
                                             variant={el.variant || 'filled'}
+                                            fullWidth={el.fullWidth || false}
                                         >
                                             {el.select === true && el.options.map((opt, i) =>
                                                 <MenuItem key={i} value={opt}>
