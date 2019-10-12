@@ -2,16 +2,22 @@ import React, { Component, Fragment } from 'react'
 import axios from 'axios'
 import humps from 'humps'
 import ReactToast from '../Utils/ReactToast'
+
 import VeiculosTemplate from './VeiculosTemplate'
-import AltDados from './AltDados'
 import VehicleDocs from './VehicleDocs'
 import Review from './Review'
+import AltSeguro from './AltSeguro'
+import AltDados from './AltDados'
+import BaixaVeiculo from './BaixaVeiculo'
+
+import StepperButtons from '../Utils/StepperButtons'
+import CustomStepper from '../Utils/Stepper'
+
+
 import { TabMenu } from '../Layouts'
 import { cadVehicleFiles } from '../Forms/cadVehicleFiles'
 import { cadForm } from '../Forms/cadForm'
-import StepperButtons from '../Utils/StepperButtons'
-import CustomStepper from '../Utils/Stepper'
-import AltSeguro from './AltSeguro'
+
 import AlertDialog from '../Utils/AlertDialog'
 
 export default class extends Component {
@@ -26,7 +32,7 @@ export default class extends Component {
     }
 
     state = {
-        tab: 2,
+        tab: 3,
         items: ['Cadastro de Veículo', 'Atualização de Seguro',
             'Alteração de dados', 'Baixa de Veículo'],
         stepTitles: ['Informe os dados do veículo', 'Informe os dados do seguro',
@@ -533,7 +539,7 @@ export default class extends Component {
                 stepTitles={stepTitles}
                 setActiveStep={this.setActiveStep}
             />}
-            {tab !== 2 && activeStep < 3 ? <VeiculosTemplate
+            {tab < 2  && activeStep < 3 ? <VeiculosTemplate
                 data={this.state}
                 handleInput={this.handleInput}
                 handleBlur={this.handleBlur}
@@ -566,6 +572,11 @@ export default class extends Component {
                 deleteInsurance={this.deleteInsurance}
             />}
             {tab === 2 && <AltDados
+                data={this.state}
+                getId={this.getId}
+                createAlert={this.createAlert}
+            />}
+            {tab === 3 && <BaixaVeiculo
                 data={this.state}
                 getId={this.getId}
                 createAlert={this.createAlert}

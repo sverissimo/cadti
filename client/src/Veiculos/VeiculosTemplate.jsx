@@ -6,6 +6,7 @@ import TextField from '@material-ui/core/TextField'
 import { vehicleForm } from '../Forms/vehicleForm'
 import { cadForm } from '../Forms/cadForm'
 import { altForm } from '../Forms/altForm'
+import { baixaForm } from '../Forms/baixaForm'
 import AutoComplete from '../Utils/autoComplete'
 import AddEquipa from './AddEquipa'
 import PopUp from '../Utils/PopUp'
@@ -54,6 +55,7 @@ export default function ({ handleInput, handleBlur, data, handleEquipa, handleCh
     let form = []
     if (tab === 0) form = cadForm[activeStep]
     else if (tab === 2) form = altForm[activeStep]
+    else if (tab === 3) form = baixaForm
     else form = vehicleForm[tab]
 
     const errorHandler = (el) => {

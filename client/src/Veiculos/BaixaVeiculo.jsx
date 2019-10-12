@@ -5,18 +5,28 @@ import { Grid, TextField } from '@material-ui/core'
 import ReactToast from '../Utils/ReactToast'
 import VeiculosTemplate from './VeiculosTemplate'
 import { cadVehicleFiles } from '../Forms/cadVehicleFiles'
-import { altForm } from '../Forms/altForm'
+import { baixaForm } from '../Forms/baixaForm'
+
+import Radio from '@material-ui/core/Radio';
+import RadioGroup from '@material-ui/core/RadioGroup';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import FormControl from '@material-ui/core/FormControl';
+import FormLabel from '@material-ui/core/FormLabel';
+
+
 
 export default class extends Component {
 
     state = {
         tab: 3,
         subtitle: ['Informe os dados do Veículo', 'Informe os dados do Seguro',
-            'Preencha os campos abaixo', 'Informe os dados para a baixa'],        
-        empresas: [],        
+            'Preencha os campos abaixo', 'Informe os dados para a baixa'],
+        empresas: [],
         razaoSocial: '',
         delegatarioCompartilhado: '',
         frota: [],
+        form: {},
+        check: '',
         toastMsg: 'Baixa realizada com sucesso!',
         confirmToast: false,
         openDialog: false
@@ -115,7 +125,7 @@ export default class extends Component {
 
         let tempObj = {}
 
-        altForm.forEach(form => {
+        baixaForm.forEach(form => {
             form.forEach(obj => {
                 for (let k in this.state) {
                     if (k === obj.field && !obj.disabled) {
@@ -192,10 +202,39 @@ export default class extends Component {
 
         return <Fragment>
             <VeiculosTemplate
-                data={this.state}                
+                data={this.state}
                 handleInput={this.handleInput}
                 handleBlur={this.handleBlur}
             />
+            
+            <Grid container
+                direction="row"
+                justify="center"
+                alignItems="center">
+                <FormControl component="fieldset">
+                    <FormLabel component="legend">Motivo da baixa</FormLabel>
+                    <RadioGroup aria-label="position" name="position" value={this.state.check} onChange={this.handleInput} row>
+                        <FormControlLabel
+                            value="top"
+                            control={<Radio color="primary" />}
+                            label="Venda para outra empresa do sistema"
+                            labelPlacement="start"
+                        />
+                        <FormControlLabel
+                            value="start"
+                            control={<Radio color="primary" />}
+                            label="Venda para empresas externas"
+                            labelPlacement="start"
+                        />                        
+                        <FormControlLabel
+                            value="end"
+                            control={<Radio color="primary" />}
+                            label="Outros"
+                            labelPlacement="start"
+                        />
+                    </RadioGroup>
+                </FormControl>
+            </Grid>
             <Grid
                 container
                 direction="row"

@@ -23,7 +23,7 @@ const pool = new Pool({
     database: process.env.DB,
     password: process.env.DB_PASS,
     port: 5432
-})
+});
 
 app.get('/api/empresas', (req, res) => pool.query(empresas, (err, table) => {
     if (err) res.send(err)

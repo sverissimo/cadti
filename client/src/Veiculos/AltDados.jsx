@@ -23,7 +23,7 @@ export default class extends Component {
         subtitle: ['Informe os dados do Veículo', 'Informe os dados do Seguro',
             'Preencha os campos abaixo', 'Informe os dados para a baixa'],
         form: {},
-        empresas: [],        
+        empresas: [],
         razaoSocial: '',
         delegatarioCompartilhado: '',
         frota: [],
@@ -61,7 +61,7 @@ export default class extends Component {
         const { name, value } = e.target
         const parsedName = humps.decamelize(name)
         if (name !== 'razaoSocial') this.setState({ [name]: value, form: { ...this.state.form, [parsedName]: value } })
-        else this.setState({ [name]: value })
+        else this.setState({ [name]: value })     
     }
 
     getId = async (name, value, collection, stateId, dbName, dbId, alertLabel) => {
@@ -146,11 +146,10 @@ export default class extends Component {
 
         const { placa, delegatario, compartilhado, ...requestObject } = tempObj
 
-        console.log(this.state)
-
         const table = 'veiculo',
             tablePK = 'veiculo_id'
-        //axios.put('/api/updateVehicle', { requestObject, table, tablePK, id: this.state.veiculoId })
+
+        axios.put('/api/updateVehicle', { requestObject, table, tablePK, id: this.state.veiculoId })
     }
 
     toast = e => {
@@ -208,10 +207,10 @@ export default class extends Component {
                 activeStep={activeStep}
                 steps={steps}
                 stepTitles={stepTitles}
-                setActiveStep={this.setActiveStep}               
+                setActiveStep={this.setActiveStep}
             />
             {activeStep < 2 && <VeiculosTemplate
-                data={this.state}                
+                data={this.state}
                 handleInput={this.handleInput}
                 handleBlur={this.handleBlur}
             />}
