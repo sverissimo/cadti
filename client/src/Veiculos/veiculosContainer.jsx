@@ -32,7 +32,7 @@ export default class extends Component {
     }
 
     state = {
-        tab: 3,
+        tab: 0,
         items: ['Cadastro de Veículo', 'Atualização de Seguro',
             'Alteração de dados', 'Baixa de Veículo'],
         stepTitles: ['Informe os dados do veículo', 'Informe os dados do seguro',
@@ -95,7 +95,16 @@ export default class extends Component {
         })
     }
 
-    setActiveStep = action => {
+    setActiveStep = async action => {
+
+        if (this.state.activeStep === 0) {
+            const matchPlaca = this.state.frota.filter(v => v.placa === this.state.placa)[0]
+            if (matchPlaca) {
+                await this.setState({ placa: '' });
+                this.createAlert('plateExists')
+                return null
+            }
+        }
 
         let array = []
         const { equipamentos } = this.state
@@ -114,10 +123,18 @@ export default class extends Component {
         }
     }
 
-    handleInput = e => {
-        const { name, value } = e.target
+    handleInput = async e => {
+        const { name } = e.target
+        let { value } = e.target       
         const parsedName = humps.decamelize(name)
         if (name !== 'razaoSocial') this.setState({ [name]: value, form: { ...this.state.form, [parsedName]: value } })
+        if (name === 'placa' && this.state.tab === 0) {
+            if (typeof value === 'string') {            
+                value = value.toLocaleUpperCase()
+                await this.setState({[name]:value})
+                return null
+            }
+        }
         else this.setState({ [name]: value })
     }
 
@@ -213,7 +230,7 @@ export default class extends Component {
             if (tab === 0) {
                 if (value.length === 7) {
                     const x = value.replace(/(\w{3})/, '$1-')
-                    this.setState({ placa: x })
+                    await this.setState({ placa: x })
                     value = x
                 }
 
@@ -221,21 +238,21 @@ export default class extends Component {
                 if (matchPlaca) {
                     await this.setState({ placa: null });
                     value = ''
-                    alert('Placa já cadastrada!')
+                    this.createAlert('plateExists')
                     document.getElementsByName('placa')[0].focus()
                 }
             }
-            if (tab > 1) {
-                const vehicle = this.state.frota.filter(v => v.placa === value)[0]
-                await this.setState({ ...vehicle, disable: true })
-                if (vehicle.hasOwnProperty('empresa')) this.setState({ delegatario: vehicle.empresa })
-                let reset = {}
-                Object.keys(frota[0]).forEach(k => reset[k] = '')
-                if (!vehicle) {
-                    this.createAlert('plateNotFound')
-                    this.setState({ ...reset, disable: false })
-                }
-            }
+            /*  if (tab > 1) {
+                 const vehicle = this.state.frota.filter(v => v.placa === value)[0]
+                 await this.setState({ ...vehicle, disable: true })
+                 if (vehicle.hasOwnProperty('empresa')) this.setState({ delegatario: vehicle.empresa })
+                 let reset = {}
+                 Object.keys(frota[0]).forEach(k => reset[k] = '')
+                 if (!vehicle) {
+                     this.createAlert('plateNotFound')
+                     this.setState({ ...reset, disable: false })
+                 }
+             } */
         }
     }
 
@@ -505,22 +522,31 @@ export default class extends Component {
     }
 
     createAlert = (alert) => {
+        let dialogTitle, message
 
-        if (alert === 'plateNotFound') {
-            this.setState({
-                openDialog: true,
-                dialogTitle: 'Placa não encontrada',
-                message: `A placa informada não corresponde a nenhum veículo da frota da viação selecionada. Para cadastrar um novo veículo, selecione a opção "Cadastro de Veículo" no menu acima.`,
-            })
+        switch (alert) {
+            case 'plateNotFound':
+                dialogTitle = 'Placa não encontrada'
+                message = 'A placa informada não corresponde a nenhum veículo da frota da viação selecionada.Para cadastrar um novo veículo, selecione a opção "Cadastro de Veículo" no menu acima.'
+                break;
+            case 'invalidPlate':
+                dialogTitle = 'Placa inválida'
+                message = 'Certifique-se de que a placa informada é uma placa válida, com três letras seguidas de 4 números (ex: AAA-0000)'
+                break;
+            case 'fieldsMissing':
+                dialogTitle = 'Favor preencher todos os campos.'
+                message = 'Os campos acima são de preenchimento obrigatório. Certifique-se de ter preenchido todos eles.'
+                break;
+            case 'plateExists':
+                dialogTitle = 'Placa já cadastrada!'
+                message = 'A placa informada já está cadastrada. Para atualizar seguro, alterar dados ou solicitar baixa, utilize as opções acima. '
+                break;
+            default:
+                break;
         }
-        if (alert === 'invalidPlate') {
-            this.setState({
-                openDialog: true,
-                dialogTitle: 'Placa inválida',
-                message: `Certifique-se de que a placa informada é uma placa válida, com três letras seguidas de 4 números (ex: AAA-0000)`,
-            })
-        }
+        this.setState({ openDialog: true, dialogTitle, message })
     }
+
 
     render() {
         const { tab, items, confirmToast, toastMsg, activeStep,
@@ -539,7 +565,7 @@ export default class extends Component {
                 stepTitles={stepTitles}
                 setActiveStep={this.setActiveStep}
             />}
-            {tab < 2  && activeStep < 3 ? <VeiculosTemplate
+            {tab < 2 && activeStep < 3 ? <VeiculosTemplate
                 data={this.state}
                 handleInput={this.handleInput}
                 handleBlur={this.handleBlur}

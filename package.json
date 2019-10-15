@@ -18,6 +18,9 @@
     "downshift": "^3.2.12",
     "express": "^4.17.1",
     "formidable": "^1.2.1",
+    "mongoose": "^5.7.5",
+    "multer": "^1.4.2",
+    "multer-gridfs-storage": "^3.3.0",
     "nodemon": "^1.19.1",
     "pg": "^7.12.0"
   }

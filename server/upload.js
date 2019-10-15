@@ -4,7 +4,7 @@ const formidable = require('formidable')
 
 const { encrypt, decrypt } = require('./fileHandler')
 
-const upload = (req, res) => {
+const uploadFS = (req, res) => {
 
     const pass = encrypt('Bruno Henrique.Whsx')
     const realPass = decrypt(pass)
@@ -36,4 +36,4 @@ const upload = (req, res) => {
         return */
 }
 
-module.exports = { upload }
+module.exports = { uploadFS }

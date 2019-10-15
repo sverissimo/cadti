@@ -2,18 +2,21 @@ import React, { Component, Fragment } from 'react'
 import axios from 'axios'
 import humps from 'humps'
 import { Grid, TextField } from '@material-ui/core'
+import '../Layouts/stylez.css'
 import ReactToast from '../Utils/ReactToast'
 import VeiculosTemplate from './VeiculosTemplate'
 import { cadVehicleFiles } from '../Forms/cadVehicleFiles'
-import { baixaForm } from '../Forms/baixaForm'
+import AutoComplete from '../Utils/autoComplete'
+
+
+import Button from '@material-ui/core/Button'
+import { Send } from '@material-ui/icons'
 
 import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormControl from '@material-ui/core/FormControl';
 import FormLabel from '@material-ui/core/FormLabel';
-
-
 
 export default class extends Component {
 
@@ -25,12 +28,15 @@ export default class extends Component {
         razaoSocial: '',
         delegatarioCompartilhado: '',
         frota: [],
+        placa: '',
         form: {},
         check: '',
+        delegaTransf: '',
         toastMsg: 'Baixa realizada com sucesso!',
         confirmToast: false,
         openDialog: false
     }
+
 
     async componentDidMount() {
         const veiculos = axios.get('/api/veiculosInit')
@@ -43,7 +49,7 @@ export default class extends Component {
                     veiculos, empresas
                 })
             })
-    }
+    };
 
     componentWillUnmount() { this.setState({}) }
 
@@ -88,7 +94,7 @@ export default class extends Component {
             case 'compartilhado':
                 this.getId(name, value, empresas, 'delegatarioCompartilhado', 'razaoSocial', 'delegatarioId')
                 break;
-            case 'delegatario':
+            case 'delegaTransf':
                 await this.getId(name, value, empresas, 'delegatarioId', 'razaoSocial', 'delegatarioId', 'Empresa')
                 break;
             case 'razaoSocial':
@@ -103,51 +109,71 @@ export default class extends Component {
         }
         if (name === 'placa' && typeof this.state.frota !== 'string') {
 
-            const vehicle = this.state.frota.filter(v => {
-                if (typeof value === 'string') return v.placa.toLowerCase().match(value.toLowerCase())
-                else return v.placa.match(value)
-            })[0]
-            await this.setState({ ...vehicle, disable: true })
+            let vehicle
+            if (value.length > 2) {
 
-            if (vehicle !== undefined && vehicle.hasOwnProperty('empresa')) this.setState({ delegatario: vehicle.empresa })
-            console.log(vehicle)
-            let reset = {}
-            if (frota[0]) Object.keys(frota[0]).forEach(k => reset[k] = '')
-            if (this.state.placa !== '' && !vehicle) {
+                vehicle = this.state.frota.filter(v => {
+                    if (typeof value === 'string') return v.placa.toLowerCase().match(value.toLowerCase())
+                    else return v.placa.match(value)
+                })[0]
+
+                await this.setState({ ...vehicle, disable: true })
+
+                if (vehicle !== undefined && vehicle.hasOwnProperty('empresa')) this.setState({ delegatario: vehicle.empresa })
+
+            } else if (this.state.placa.length < 0 && !vehicle) {
+                let reset = {}
+                if (frota[0]) Object.keys(frota[0]).forEach(k => reset[k] = '')
                 this.props.createAlert('plateNotFound')
                 this.setState({ ...reset, disable: false })
             }
         }
     }
 
-    handleEdit = async e => {
-        const { poltronas, pesoDianteiro, pesoTraseiro, delegatarioId, delegatarioCompartilhado } = this.state
+    handleSubmit = async e => {
+        const { delegatarioId,
+            justificativa, checked, delegaTransf } = this.state
 
-        let tempObj = {}
+        const enableSubmit = ['placa', 'renavam', 'nChassi']
+            .every(k => this.state.hasOwnProperty(k) && this.state[k] !== '')
 
-        baixaForm.forEach(form => {
-            form.forEach(obj => {
-                for (let k in this.state) {
-                    if (k === obj.field && !obj.disabled) {
-                        Object.assign(tempObj, { [k]: this.state[k] })
-                    }
-                }
-            })
-        })
+        if (!enableSubmit) {
+            this.props.createAlert('fieldsMissing')
+            return null
+        }
+        if (checked === 'venda' && !delegaTransf) {
+            this.props.createAlert('fieldsMissing')
+            return null
+        } if (checked === 'outro' && !justificativa) {
+            this.props.createAlert('fieldsMissing')
+            return null
+        } if (checked !== 'outro' && checked !== 'venda') {
+            this.props.createAlert('fieldsMissing')
+            return null
+        } if (this.state.placa.length <= 2) {
+            this.props.createAlert('invalidPlate')
+            return null
+        } else {
+            let validPlate = []
+            validPlate = this.state.frota.filter(v => v.placa === this.state.placa)
+            if (validPlate.length < 1) {
+                this.props.createAlert('plateNotFound')
+                return null
+            }
+        }
 
-        let pbt = Number(poltronas) * 93 + (Number(pesoDianteiro) + Number(pesoTraseiro))
-        if (isNaN(pbt)) pbt = undefined
+        let tempObj
 
-        tempObj = Object.assign(tempObj, { delegatarioId, delegatarioCompartilhado, pbt })
-        tempObj = humps.decamelizeKeys(tempObj)
+        if (checked === 'venda') tempObj = { delegatarioId, situacao: 'pendente' }
+        if (checked === 'outro') tempObj = { situacao: 'excluído' }
 
-        const { placa, delegatario, compartilhado, ...requestObject } = tempObj
-
-        console.log(this.state)
+        const requestObject = humps.decamelizeKeys(tempObj)
 
         const table = 'veiculo',
             tablePK = 'veiculo_id'
-        //axios.put('/api/updateVehicle', { requestObject, table, tablePK, id: this.state.veiculoId })
+        axios.put('/api/updateVehicle', { requestObject, table, tablePK, id: this.state.veiculoId })
+            .then(() => this.toast())
+            .catch(err => console.log(err))
     }
 
     toast = e => {
@@ -184,21 +210,12 @@ export default class extends Component {
         }
     }
 
-    submitFiles = async e => {
-        const { form } = this.state
-
-        await axios.post('/api/upload', form)
-            .then(res => console.log(res.data))
-            .catch(err => console.log(err))
-        this.toast()
+    handleCheck = e => {
+        const { value } = e.target
+        this.setState({ checked: value })
     }
-
-    toggleDialog = () => {
-        this.setState({ openDialog: !this.state.openDialog })
-    }
-
     render() {
-        const { confirmToast, toastMsg } = this.state
+        const { delegaTransf, confirmToast, toastMsg, checked } = this.state
 
         return <Fragment>
             <VeiculosTemplate
@@ -206,56 +223,97 @@ export default class extends Component {
                 handleInput={this.handleInput}
                 handleBlur={this.handleBlur}
             />
-            
+
             <Grid container
                 direction="row"
-                justify="center"
-                alignItems="center">
-                <FormControl component="fieldset">
-                    <FormLabel component="legend">Motivo da baixa</FormLabel>
-                    <RadioGroup aria-label="position" name="position" value={this.state.check} onChange={this.handleInput} row>
-                        <FormControlLabel
-                            value="top"
-                            control={<Radio color="primary" />}
-                            label="Venda para outra empresa do sistema"
-                            labelPlacement="start"
+                justify="space-between"
+                alignItems="center"
+                style={{ width: checked === 'venda' || checked === 'outro' ? '1200px' : '600px' }}
+            >
+                <Grid item xs={checked ? 6 : 12}>
+                    <FormControl component="fieldset">
+                        <FormLabel component="legend">Motivo da baixa</FormLabel>
+                        <RadioGroup aria-label="position" name="position"
+                            onChange={this.handleCheck} row
+                            style={{ width: 'auto' }}
+                            className='radio'
+                        >
+                            <FormControlLabel
+                                className='radio'
+                                value="venda"
+                                control={<Radio color="primary" inputProps={{ style: { fontSize: '0.5rem' } }} />}
+                                label="Venda para outra empresa do sistema"
+                                labelPlacement="start"
+
+                            />
+                            <FormControlLabel
+                                value="outro"
+                                control={<Radio color="primary" />}
+                                label="Outro"
+                                labelPlacement="start"
+                            />
+
+                        </RadioGroup>
+                    </FormControl>
+                </Grid>
+
+                {checked === 'venda' &&
+                    <Grid item xs={6} >
+
+                        <TextField
+                            inputProps={{
+                                list: 'razaoSocial',
+                                name: 'delegaTransf',
+                            }}
+                            //className={classes.textField}
+                            value={delegaTransf}
+                            onChange={this.handleInput}
+                            onBlur={this.handleBlur}
+                            label='Informe o delegatário para o qual foi transferido o veículo.'
+                            fullWidth
                         />
-                        <FormControlLabel
-                            value="start"
-                            control={<Radio color="primary" />}
-                            label="Venda para empresas externas"
-                            labelPlacement="start"
-                        />                        
-                        <FormControlLabel
-                            value="end"
-                            control={<Radio color="primary" />}
-                            label="Outros"
-                            labelPlacement="start"
+                        <AutoComplete
+                            collection={this.props.data.empresas}
+                            datalist='razaoSocial'
+                            value={delegaTransf}
                         />
-                    </RadioGroup>
-                </FormControl>
+                    </Grid>
+
+                }
+                {
+                    checked === 'outro' &&
+                    <Grid item xs={6}>
+                        <TextField
+                            name='justificativa'
+                            value={this.state.justificativa}
+                            label='Justificativa'
+                            type='text'
+                            onChange={this.handleInput}
+                            InputLabelProps={{ shrink: true }}
+                            multiline
+                            rows={4}
+                            variant='outlined'
+                            fullWidth
+                        />
+                    </Grid>
+                }
             </Grid>
-            <Grid
-                container
-                direction="row"
-                justify="center"
-                alignItems="center">
-                <Grid>
-                    <TextField
-                        name='justificativa'
-                        value={this.state.justificativa}
-                        label='Justificativa'
-                        type='text'
-                        onChange={this.handleInput}
-                        InputLabelProps={{ shrink: true, style: { fontWeight: 600, marginBottom: '5%' } }}
-                        inputProps={{ style: { paddingBottom: '2%', width: '900px' } }}
-                        multiline
-                        rows={4}
-                        variant='outlined'
-                    />
+            <Grid container direction="row" justify='flex-end' style={{ width: '1200px' }}>
+                <Grid item xs={11} style={{ width: '1000px' }}></Grid>
+                <Grid item xs={1} style={{ align: "right" }}>
+                    <Button
+                        size="small"
+                        color="primary"
+                        variant="outlined"
+                        style={{ margin: '10px 0 10px 0' }}
+                        onClick={() => this.handleSubmit()}
+                    //onClick={handleEquipa}
+                    >
+                        Confirmar <span>&nbsp;&nbsp; </span> <Send />
+                    </Button>
                 </Grid>
             </Grid>
             <ReactToast open={confirmToast} close={this.toast} msg={toastMsg} />
-        </Fragment>
+        </Fragment >
     }
 }

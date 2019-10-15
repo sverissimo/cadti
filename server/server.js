@@ -5,9 +5,13 @@ const pg = require('pg')
 const fs = require('fs')
 const path = require('path')
 const dotenv = require('dotenv')
+const mongoose = require('mongoose')
+const multer = require('multer')
+const GridFsStorage = require('multer-gridfs-storage')
+
 
 const { empresas, veiculoInit, modeloChassi, carrocerias, equipamentos, seguradoras, seguros } = require('./queries')
-const { upload } = require('./upload')
+const { uploadFS } = require('./upload')
 const { parseRequestBody } = require('./parseRequest')
 
 dotenv.config()
@@ -24,6 +28,62 @@ const pool = new Pool({
     password: process.env.DB_PASS,
     port: 5432
 });
+
+const mongoURI = 'mongodb://localhost:27017/sismob_db'
+mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true });
+
+const db = mongoose.connection
+
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', () => {
+    console.log('were connected!');
+});
+
+const storage = new GridFsStorage({
+
+    url: mongoURI,
+    file: (req, file) => {
+        const fileInfo = {
+            filename: file.originalname,
+            metadata: {
+                'fieldName': file.fieldname,
+                'processId': req.body.processId
+            },
+            bucketName: 'uploads',
+        }
+        console.log(fileInfo)
+        return fileInfo
+    }
+});
+
+const upload = multer({ storage });
+
+app.post('/api/fileUpload', upload.any(), (req, res) => {
+    let filesArray = []
+    if (req.files) req.files.forEach(f => {
+        filesArray.push({
+            fieldName: f.fieldname,
+            id: f.id,
+            originalName: f.originalname,
+            uploadDate: f.uploadDate,
+            contentType: f.contentType,
+            fileSize: f.size
+        })
+    })
+    res.json({ file: filesArray });
+})
+/*    storage = new mongoose.mongo.GridFSBucket(connection.db);
+
+console.log(storage) */
+
+
+
+
+
+
+
+
+
 
 app.get('/api/empresas', (req, res) => pool.query(empresas, (err, table) => {
     if (err) res.send(err)
@@ -107,7 +167,7 @@ app.get('/api/carrocerias', (req, res) => {
     })
 })
 
-app.post('/api/upload', upload)
+app.post('/api/upload', uploadFS)
 
 app.get('/api/download', (req, res) => {
     const fPath = path.join(__dirname, '../files', 'a.txt')

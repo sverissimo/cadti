@@ -21,25 +21,20 @@ export const baixaForm = [
     {
         field: 'delegatario',
         label: 'Delegatário',
-        margin: 'normal',    
-        datalist: 'razaoSocial',
-        autoComplete: true,
-        collection: 'empresas'
-    },
-  
+        margin: 'normal',        
+        disabled: true
+    },  
     {
         field: 'utilizacao',
         label: 'Utilização',
-        margin: 'normal',
-        select: true,
-        options: ['Convencional', 'Executivo', 'Leito', 'Semi-Leito', 'Urbano']
+        margin: 'normal',        
+        disabled: true       
     },
     {
         field: 'dominio',
         label: 'Situação da Propriedade',
-        margin: 'normal',
-        select: true,
-        options: ['Veículo próprio', 'Leasing', 'Possuidor']
+        margin: 'normal',                
+        disabled: true  
     },
     
     {
