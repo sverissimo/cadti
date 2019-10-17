@@ -8,14 +8,33 @@ const dotenv = require('dotenv')
 const mongoose = require('mongoose')
 const multer = require('multer')
 const GridFsStorage = require('multer-gridfs-storage')
+const Grid = require('gridfs-stream');
+Grid.mongo = mongoose.mongo;
 
 
 const { empresas, veiculoInit, modeloChassi, carrocerias, equipamentos, seguradoras, seguros } = require('./queries')
+const { filesModel } = require('./models/filesModel')
 const { uploadFS } = require('./upload')
 const { parseRequestBody } = require('./parseRequest')
 
 dotenv.config()
 app.use(bodyParser.json())
+
+app.use(function (req, res, next) { //allow cross origin requests
+    res.setHeader("Access-Control-Allow-Methods", "POST, PUT, OPTIONS, DELETE, GET");
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+    res.header("Access-Control-Allow-Credentials", true);
+    next();
+})
+
+//app.use(bodyParser.json())
+
+app.use(bodyParser.json({ limit: '50mb' }));
+app.use(bodyParser.urlencoded())
+app.use(express.static('client/build'))
+
+
 
 const HOST = '127.0.0.1'
 const PORT = 3001
@@ -29,36 +48,41 @@ const pool = new Pool({
     port: 5432
 });
 
-const mongoURI = 'mongodb://localhost:27017/sismob_db'
-mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true });
+const mongoURI = (process.env.MONGODB_URI || 'mongodb://localhost:27017/sismob_db')
+mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true, debug: true });
 
-const db = mongoose.connection
+const conn = mongoose.connection
+let gfs
 
-db.on('error', console.error.bind(console, 'connection error:'));
-db.once('open', () => {
-    console.log('were connected!');
+conn.on('error', console.error.bind(console, 'connection error:'));
+conn.once('open', () => {
+    gfs = Grid(conn.db);
+    gfs.collection('vehicleDocs');
+    console.log('were connected!')
 });
 
 const storage = new GridFsStorage({
 
     url: mongoURI,
     file: (req, file) => {
+
+        const id = req.body.veiculoId
         const fileInfo = {
             filename: file.originalname,
             metadata: {
                 'fieldName': file.fieldname,
-                'processId': req.body.processId
+                'veiculoId': id
             },
-            bucketName: 'uploads',
+            bucketName: 'vehicleDocs',
         }
-        console.log(fileInfo)
         return fileInfo
     }
 });
 
 const upload = multer({ storage });
 
-app.post('/api/fileUpload', upload.any(), (req, res) => {
+app.post('/api/mongoUpload', upload.any(), (req, res) => {
+    console.log('a', JSON.parse(JSON.stringify(req.body)), 'b')
     let filesArray = []
     if (req.files) req.files.forEach(f => {
         filesArray.push({
@@ -72,18 +96,41 @@ app.post('/api/fileUpload', upload.any(), (req, res) => {
     })
     res.json({ file: filesArray });
 })
-/*    storage = new mongoose.mongo.GridFSBucket(connection.db);
 
-console.log(storage) */
+app.get('/api/mongoDownload/:id', (req, res) => {
 
+    const fileId = new mongoose.mongo.ObjectId(req.params.id)
+    gfs.files.findOne({ _id: fileId }, (err, file) => {
 
+        if (!file) {
+            return res.status(404).json({
+                responseMessage: err,
+            });
+        } else {
 
+            const readstream = gfs.createReadStream({
+                filename: file.filename,
+            });
 
+            res.set({
+                'Content-Type': file.contentType,
+                'Content-Disposition': 'attachment',
+            });
+            return readstream.pipe(res)
+        }
+    })
+})
 
+app.get('/api/vehicleFiles', (req, res) => {
 
-
-
-
+    filesModel.find().exec((err, doc) => res.send(doc))
+    /* 
+    filesModel.find().exec((err, doc) => {
+        if (err) console.log(err)
+        console.log('fuck', doc)
+        res.send(doc)
+    }) */
+})
 
 app.get('/api/empresas', (req, res) => pool.query(empresas, (err, table) => {
     if (err) res.send(err)
@@ -336,6 +383,11 @@ app.put('/api/updateVehicle', (req, res) => {
     )
 })
 
+if (process.env.NODE_ENV === 'production') {
+    app.get('/*', (req, res) => {
+        res.sendFile(path.resolve(__dirname, '../client', 'build', 'index.html'))
+    })
+}
 
 app.listen(PORT, HOST)
 console.log('Running on port 3001, dude...')

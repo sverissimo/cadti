@@ -164,6 +164,7 @@ export default class extends Component {
             document.getElementById(name).value = files[0].name
 
             let formData = new FormData()
+            formData.append('veiculoId', '4358')
 
             let fn = this.state.fileNames
 

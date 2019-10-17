@@ -19,6 +19,6 @@ const filesSchema = mongoose.Schema({
 
 });
 
-const filesModel = mongoose.model('uploads.files', filesSchema);
+const filesModel = mongoose.model('vehicleDocs.files', filesSchema, 'vehicleDocs.files');
 
 module.exports = { filesModel }

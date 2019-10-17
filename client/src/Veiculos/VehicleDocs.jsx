@@ -109,7 +109,7 @@ export default function VehicleDocs({ handleFiles, handleSubmit, tab }) {
                             <Grid item md={1}></Grid>
                         </Fragment>
                     )}
-                    <Grid item md={12} style={{ paddingRight: '2%', marginTop: '-1%' }}>
+                   {/*  <Grid item md={12} style={{ paddingRight: '2%', marginTop: '-1%' }}>
                         <Button
                             variant="contained"
                             component='label'
@@ -118,7 +118,7 @@ export default function VehicleDocs({ handleFiles, handleSubmit, tab }) {
                             onClick={handleSubmit}
                         > Enviar
                         </Button>
-                    </Grid>
+                    </Grid> */}
                 </Grid>
             </Paper>
         </div>

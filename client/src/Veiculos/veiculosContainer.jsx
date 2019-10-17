@@ -125,13 +125,13 @@ export default class extends Component {
 
     handleInput = async e => {
         const { name } = e.target
-        let { value } = e.target       
+        let { value } = e.target
         const parsedName = humps.decamelize(name)
         if (name !== 'razaoSocial') this.setState({ [name]: value, form: { ...this.state.form, [parsedName]: value } })
         if (name === 'placa' && this.state.tab === 0) {
-            if (typeof value === 'string') {            
+            if (typeof value === 'string') {
                 value = value.toLocaleUpperCase()
-                await this.setState({[name]:value})
+                await this.setState({ [name]: value })
                 return null
             }
         }
@@ -278,6 +278,10 @@ export default class extends Component {
             })
         })
 
+        let formData = this.state.form,
+            newForm = new FormData()
+        //formData.append('veiculoId', '4358')
+
         let { dataEmissao, vencimento, delegatarioCompartilhado,
             modeloChassi, modeloCarroceria, seguradora, ...vReview } = review
 
@@ -296,13 +300,33 @@ export default class extends Component {
 
         if (insuranceExists[0]) {
             await axios.post('/api/cadastroVeiculo', vehicle)
-                .then(res => console.log(res.data))
+                .then(res => {
+                    const v_Id = res.data[0].veiculo_id
+                    newForm.append('veiculoId', v_Id);
+                    for (let entry of formData.entries()) {
+                        newForm.append(entry[0], entry[1])
+                    }
+                })
+            axios.post('/api/mongoUpload', newForm).then(res => {
+                console.log(res.data)
+            })
+                .catch(err => console.log(err))
             this.toast()
         } else if (!insuranceExists[0] && insurance.apolice !== undefined && insurance.apolice.length > 3 && insurance.seguradora_id !== undefined) {
             await axios.post('/api/cadSeguro', insurance)
                 .then(res => console.log(res.data))
             await axios.post('/api/cadastroVeiculo', vehicle)
-                .then(res => console.log(res.data))
+                .then(res => {
+                    const v_Id = res.data[0].veiculo_id
+                    newForm.append('veiculoId', v_Id);
+                    for (let entry of formData.entries()) {
+                        newForm.append(entry[0], entry[1])
+                    }
+                })
+            axios.post('/api/mongoUpload', newForm).then(res => {
+                console.log(res.data)
+            })
+                .catch(err => console.log(err))
             this.toast()
         } else {
             alert('Favor verificar os dados do seguro.')
@@ -321,6 +345,8 @@ export default class extends Component {
             document.getElementById(name).value = files[0].name
 
             let formData = new FormData()
+            //formData.append('veiculoId', '4358')
+
 
             let fn = this.state.fileNames
 
@@ -332,7 +358,6 @@ export default class extends Component {
                 cadVehicleFiles.forEach(({ name }) => {
                     for (let keys in this.state) {
                         if (keys.match(name)) {
-                            formData.append('id', name)
                             formData.append(name, this.state[name])
                         }
                         else void 0
@@ -346,7 +371,7 @@ export default class extends Component {
     submitFiles = async e => {
         const { form } = this.state
 
-        await axios.post('/api/upload', form)
+        await axios.post('/api/mongoUpload', form)
             .then(res => console.log(res.data))
             .catch(err => console.log(err))
         this.toast()

@@ -1,7 +1,7 @@
 import React from 'react'
 
 export default function PopUp({ close, children, title, format }) {
-
+    
     return (
         <div>
             <div className='card z-depth-5'

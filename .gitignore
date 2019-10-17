@@ -5,3 +5,4 @@
 .env
 sismob.code-workspace
 
+ecosystem.config.js
