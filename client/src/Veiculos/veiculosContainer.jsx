@@ -228,31 +228,28 @@ export default class extends Component {
 
         if (name === 'placa' && typeof this.state.frota !== 'string') {
             if (tab === 0) {
+
                 if (value.length === 7) {
                     const x = value.replace(/(\w{3})/, '$1-')
                     await this.setState({ placa: x })
                     value = x
-                }
+                    const matchPlaca = frota.filter(v => v.placa === this.state.placa)[0]
+                    if (matchPlaca) {
+                        await this.setState({ placa: null });
+                        value = ''
+                        this.createAlert('plateExists')
+                        document.getElementsByName('placa')[0].focus()
+                    }
 
-                const matchPlaca = frota.filter(v => v.placa === placa)[0]
-                if (matchPlaca) {
+                }
+                const matchPlaca2 = frota.filter(v => v.placa === placa)[0]
+                if (matchPlaca2) {
                     await this.setState({ placa: null });
                     value = ''
                     this.createAlert('plateExists')
                     document.getElementsByName('placa')[0].focus()
                 }
             }
-            /*  if (tab > 1) {
-                 const vehicle = this.state.frota.filter(v => v.placa === value)[0]
-                 await this.setState({ ...vehicle, disable: true })
-                 if (vehicle.hasOwnProperty('empresa')) this.setState({ delegatario: vehicle.empresa })
-                 let reset = {}
-                 Object.keys(frota[0]).forEach(k => reset[k] = '')
-                 if (!vehicle) {
-                     this.createAlert('plateNotFound')
-                     this.setState({ ...reset, disable: false })
-                 }
-             } */
         }
     }
 
@@ -345,8 +342,6 @@ export default class extends Component {
             document.getElementById(name).value = files[0].name
 
             let formData = new FormData()
-            //formData.append('veiculoId', '4358')
-
 
             let fn = this.state.fileNames
 
@@ -572,6 +567,19 @@ export default class extends Component {
         this.setState({ openDialog: true, dialogTitle, message })
     }
 
+    showFiles = id => {
+
+        let selectedFiles = this.state.files.filter(f => f.metadata.veiculoId === id.toString())
+
+        if (selectedFiles[0]) {
+            this.setState({ filesCollection: selectedFiles, showFiles: true, selectedVehicle: id })
+
+        } else {
+            this.createAlert('filesNotFound')
+            this.setState({ filesCollection: [] })
+        }
+    }
+
 
     render() {
         const { tab, items, confirmToast, toastMsg, activeStep,
@@ -603,6 +611,7 @@ export default class extends Component {
                         handleFiles={this.handleFiles}
                         handleSubmit={this.submitFiles}
                         handleNames={this.handleNames}
+                        showFiles={this.showFiles}
                     />
                     : tab === 0 && activeStep === 4 ?
                         <Review data={this.state} />
@@ -632,9 +641,10 @@ export default class extends Component {
                 getId={this.getId}
                 createAlert={this.createAlert}
             />}
-
+            {/* showFiles && <ShowFiles veiculoId={selectedVehicle} filesCollection={filesCollection} close={this.closeFiles} format={format} />*/}
             <ReactToast open={confirmToast} close={this.toast} msg={toastMsg} />
             <AlertDialog open={openDialog} close={this.toggleDialog} title={dialogTitle} message={message} />
+
         </Fragment>
     }
 }

@@ -58,8 +58,8 @@ const link = (id) => {
     document.getElementById(id).click()
 }
 
-export default function VehicleDocs({ handleFiles, handleSubmit, tab }) {
-    const { root, textField, button, input, paper, sendButton, resize, item } = useStyles()
+export default function VehicleDocs({ handleFiles,  tab }) {
+    const { root, textField, button, input, paper, resize, item } = useStyles()
 
     let filesForm
     if (tab === 0) filesForm = cadVehicleFiles

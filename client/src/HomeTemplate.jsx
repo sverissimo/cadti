@@ -1,10 +1,12 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 import { makeStyles } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import {
     Typography, Grid, Container, Paper, Card, CardContent, CardActionArea,
     Hidden, CardMedia
 } from '@material-ui/core'
+
 
 const useStyles = makeStyles(theme => ({
     toolbar: {
@@ -79,22 +81,25 @@ const useStyles = makeStyles(theme => ({
 
 const featuredPosts = [
     {
-        title: 'Featured post',
-        date: 'Nov 12',
+        title: 'Veículos',
+        date: '07/Nov',
         description:
-            'This is a wider card with supporting text below as a natural lead-in to additional content.',
+            'Cadastre, altere os dados do seguro e do veículo ou solicite sua baixa no sistema',
+        link: '/veiculos',
+        imageUrl: '/images/vehicles.jpg'
     },
     {
-        title: 'Post title',
-        date: 'Nov 11',
+        title: 'Consultas',
+        date: '07/Nov',
         description:
-            'This is a wider card with supporting text below as a natural lead-in to additional content.',
+            'Consulte, edite e apague dados e arquivos referentes a veículos, seguros e mais',
+        link: '/consultas',
+        imageUrl: '/images/consultas2.jpg'
     },
-];
-
+]
 
 export default function () {
-    
+
     const classes = useStyles();
     return (
         <React.Fragment>
@@ -102,15 +107,12 @@ export default function () {
             <Container maxWidth="lg">
 
                 <main>
-                    {/* Main featured post */}
                     <Paper className={classes.mainFeaturedPost}>
-                        {/* Increase the priority of the hero background image */}
-                        {
-                            <img
-                                style={{ position: 'absolute', height: '240px', width: '100%' }}
-                                src="/images/bus_wallpaper.jpg"
-                                alt="background"
-                            />
+                        <img
+                            style={{ position: 'absolute', height: '240px', width: '100%' }}
+                            src="/images/bus_wallpaper.jpg"
+                            alt="background"
+                        />
                         }
                         <div className={classes.overlay} />
                         <Grid container>
@@ -127,33 +129,33 @@ export default function () {
                             </Grid>
                         </Grid>
                     </Paper>
-                    {/* End main featured post */}
-                    {/* Sub featured posts */}
+
                     <Grid container spacing={4} className={classes.cardGrid}>
                         {featuredPosts.map(post => (
                             <Grid item key={post.title} xs={12} md={6}>
-                                <CardActionArea component="a" href="#">
+                                <CardActionArea component="a" >
                                     <Card className={classes.card}>
                                         <div className={classes.cardDetails}>
                                             <CardContent>
                                                 <Typography component="h2" variant="h5">
                                                     {post.title}
                                                 </Typography>
-                                                <Typography variant="subtitle1" color="textSecondary">
-                                                    {post.date}
-                                                </Typography>
+                                                <br />
                                                 <Typography variant="subtitle1" paragraph>
                                                     {post.description}
                                                 </Typography>
                                                 <Typography variant="subtitle1" color="primary">
-                                                    Continue reading...
+                                                    <Link to={post.link}>
+                                                        Clique aqui para ir para {post.title}
+                                                    </Link>
                                                 </Typography>
                                             </CardContent>
                                         </div>
                                         <Hidden xsDown>
                                             <CardMedia
                                                 className={classes.cardMedia}
-                                                image="https://source.unsplash.com/random"
+                                                component="img"
+                                                src={post.imageUrl}
                                                 title="Image title"
                                             />
                                         </Hidden>

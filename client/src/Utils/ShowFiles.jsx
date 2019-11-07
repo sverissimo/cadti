@@ -20,14 +20,17 @@ const ShowFiles = ({ veiculoId, filesCollection, close, format }) => {
 
     let tempFiles = []
     let files = []
+    let fileLabels = cadVehicleFiles
+    if (fileLabels.filter(f => f.name === 'transferenciaDoc').length === 0) fileLabels.push({ title: 'Documento de Transferência', name: 'transferenciaDoc' })
+
     if (filesCollection && filesCollection[0]) {
         tempFiles = filesCollection.filter(el => el.metadata.veiculoId.match(veiculoId))
         tempFiles.forEach(obj => {
-            cadVehicleFiles.forEach(o => {
+            fileLabels.forEach(o => {
                 if (o.name === obj.metadata.fieldName) files.push({ ...obj, label: o.title })
             })
         })
-    }    
+    }
 
     if (files[0]) {
         return <PopUp title='Arquivos' close={close} format={format}>
@@ -35,8 +38,8 @@ const ShowFiles = ({ veiculoId, filesCollection, close, format }) => {
                 <div className="row">
                     <h5>
                         <img alt="" src="/images/folderIcon2.jpg" style={{ paddingLeft: '20px', marginRight: '20px' }} />
-                        
-                </h5>
+
+                    </h5>
                 </div>
                 <hr style={{ marginBottom: '5px' }} />
                 <div style={divRow}>
@@ -71,7 +74,7 @@ const ShowFiles = ({ veiculoId, filesCollection, close, format }) => {
                                 </div>
 
                                 <div className="col s3">
-                                    {formatDate(file.uploadDate)}
+                                    {formatDate(file.uploadDate, true)}
                                 </div>
                                 <div className="col s3">
                                     {formatFileSize(file.length)}

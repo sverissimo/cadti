@@ -4,6 +4,9 @@ import { makeStyles } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
 import { cadForm } from '../Forms/cadForm'
 import { altForm } from '../Forms/altForm'
+import Fab from '@material-ui/core/Fab';
+import { FileCopy } from '@material-ui/icons'
+import Tooltip from '@material-ui/core/Tooltip';
 
 const useStyles = makeStyles(theme => ({
     root: {
@@ -39,13 +42,13 @@ const useStyles = makeStyles(theme => ({
         fontSize: '0.8rem',
         fontColor: '#bbb',
         textAlign: 'center'
-    },
+    }
 }))
 
 export default function Revisao({ data }) {
     let review = [], formArray
     const classes = useStyles(),
-        { textField, paper, root, equipa } = classes,
+        { textField, paper, root, equipa, icon } = classes,
         { tab, justificativa } = data
 
     if (tab === 0) formArray = cadForm
@@ -85,6 +88,15 @@ export default function Revisao({ data }) {
                         />
                     </Grid>
                 )}
+                <Grid container justify="flex-end">
+
+                    <Tooltip title='Ver arquivos'>
+                        <Fab color="default" aria-label="files" className={icon}>
+                            <FileCopy />
+
+                        </Fab>
+                    </Tooltip>
+                </Grid>
                 {tab === 2 && <Grid item xs={12} style={{ margin: '2% 0' }}>
                     <TextField
                         name='justificativa'
@@ -110,7 +122,7 @@ export default function Revisao({ data }) {
                         type='text'
                         InputLabelProps={{
                             shrink: true,
-                            style: { fontSize: '0.9rem', fontWeight: 600, color: '#000', marginBottom: '5%'}
+                            style: { fontSize: '0.9rem', fontWeight: 600, color: '#000', marginBottom: '5%' }
                         }}
                         inputProps={{
                             style: {

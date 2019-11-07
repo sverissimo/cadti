@@ -49,15 +49,14 @@ export default class extends Component {
             proc = axios.get('/api/socios')
 
         axios.get('/api/vehicleFiles')
-            .then(res => this.setState({ files: res.data }))            
+            .then(res => this.setState({ files: res.data }))
 
         Promise.all([vehicles, insurances, delega, proc])
             .then(res => res.map(r => humps.camelizeKeys(r.data)))
             .then(([veiculos, seguros, empresas, procuradores]) => {
                 this.setState({ veiculos, seguros, empresas, procuradores, collection: veiculos })
             })
-        document.addEventListener('keydown', this.escFunction, false)
-
+        document.addEventListener('keydown', this.escFunction, false)        
 
     }
     componentWillUnmount() {
@@ -128,7 +127,7 @@ export default class extends Component {
     }
 
     render() {
-        const { tab, items, collection, showDetails, vehicleInfo, showFiles, selectedVehicle, filesCollection, 
+        const { tab, items, collection, showDetails, vehicleInfo, showFiles, selectedVehicle, filesCollection,
             openDialog, dialogTitle, message } = this.state
 
         return <Fragment>

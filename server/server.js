@@ -123,7 +123,7 @@ app.get('/api/mongoDownload/:id', (req, res) => {
 
 app.get('/api/vehicleFiles', (req, res) => {
 
-    filesModel.find().exec((err, doc) => res.send(doc))
+    filesModel.find().sort({uploadDate: -1}).exec((err, doc) => res.send(doc))
     /* 
     filesModel.find().exec((err, doc) => {
         if (err) console.log(err)

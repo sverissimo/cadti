@@ -6,7 +6,7 @@ import ReactToast from '../Utils/ReactToast'
 import VeiculosTemplate from './VeiculosTemplate'
 import VehicleDocs from './VehicleDocs'
 import Review from './Review'
-import { cadVehicleFiles } from '../Forms/cadVehicleFiles'
+import { altDadosFiles } from '../Forms/altDadosFiles'
 import StepperButtons from '../Utils/StepperButtons'
 import CustomStepper from '../Utils/Stepper'
 import { altForm } from '../Forms/altForm'
@@ -149,7 +149,9 @@ export default class extends Component {
         const table = 'veiculo',
             tablePK = 'veiculo_id'
 
-        axios.put('/api/updateVehicle', { requestObject, table, tablePK, id: this.state.veiculoId })
+        await axios.put('/api/updateVehicle', { requestObject, table, tablePK, id: this.state.veiculoId })
+        await this.submitFiles()
+        this.toast()
     }
 
     toast = e => {
@@ -164,7 +166,7 @@ export default class extends Component {
             document.getElementById(name).value = files[0].name
 
             let formData = new FormData()
-            formData.append('veiculoId', '4358')
+            formData.append('veiculoId', this.state.veiculoId)
 
             let fn = this.state.fileNames
 
@@ -173,7 +175,7 @@ export default class extends Component {
                 fn.push({ [name]: files[0].name })
                 await this.setState({ filesNames: fn, [name]: files[0] })
 
-                cadVehicleFiles.forEach(({ name }) => {
+                altDadosFiles.forEach(({ name }) => {
                     for (let keys in this.state) {
                         if (keys.match(name)) {
                             formData.append('id', name)
@@ -187,13 +189,12 @@ export default class extends Component {
         }
     }
 
-    submitFiles = async e => {
+    submitFiles = () => {
         const { form } = this.state
 
-        await axios.post('/api/upload', form)
+        axios.post('/api/mongoUpload', form)
             .then(res => console.log(res.data))
-            .catch(err => console.log(err))
-        this.toast()
+            .catch(err => console.log(err))        
     }
 
     toggleDialog = () => {
