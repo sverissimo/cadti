@@ -380,32 +380,22 @@ app.put('/api/updateVehicle', (req, res) => {
     )
 })
 
-app.get('/api/deleteFiles/:fileId', (req, res) => {
-    const { fileId } = req.params
+app.get('/api/deleteFiles/:reqId', (req, res) => {
+    const { reqId } = req.params
 
-    gfs.files.deleteOne({ _id: fileId }, (err) => {
+    filesModel.find().exec((err, doc) => {
         if (err) console.log(err)
-        console.log('fukng ' + fileId)
-
-    })
-
-    /* filesModel.find().exec((err, doc) => {
-        if (err) console.log(err)
-        const files = doc.filter(f => f.metadata.veiculoId === veiculoId)
-        files.forEach(f => {
-
-            let fileId = new mongoose.mongo.ObjectId(f._id)
-            gfs.collection('vehicleDocs')
-            gfs.remove({ _id: fileId }, (err) => {
-                if (err) console.log(err)
-                console.log('fukng ' + fileId)
-
+        const files = doc.filter(f => f.metadata.veiculoId === reqId)
+                
+        files.forEach(file => {
+            let fileId = new mongoose.mongo.ObjectId(file._id)
+            gfs.files.remove({ _id: fileId }, (err) => {
+                if (err) console.log(err)                
             })
-        }) */
-    res.send('coolZzzz!!')
-
+        })
+        res.send('File deleted!')
+    })
 })
-
 
 
 if (process.env.NODE_ENV === 'production') {
