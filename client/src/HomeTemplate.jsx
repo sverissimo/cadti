@@ -156,7 +156,7 @@ export default function () {
                                                 className={classes.cardMedia}
                                                 component="img"
                                                 src={post.imageUrl}
-                                                title="Image title"
+                                                title={post.title}
                                             />
                                         </Hidden>
                                     </Card>

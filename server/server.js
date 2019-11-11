@@ -41,12 +41,12 @@ const PORT = 3001
 
 const Pool = pg.Pool
 const pool = new Pool({
-    user: process.env.DB_USER,
-    host: process.env.DB_HOST,
-    database: process.env.DB,
-    password: process.env.DB_PASS,
+    user: process.env.DB_USER || process.env.USER ,
+    host: process.env.DB_HOST || process.env.HOST,
+    database: process.env.DB || process.env.DATABASE,
+    password: process.env.DB_PASS || process.env.PASSWORD,
     port: 5432
-});
+})
 
 const mongoURI = (process.env.MONGODB_URI || 'mongodb://localhost:27017/sismob_db')
 mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true, debug: true });
@@ -123,7 +123,7 @@ app.get('/api/mongoDownload/:id', (req, res) => {
 
 app.get('/api/vehicleFiles', (req, res) => {
 
-    filesModel.find().sort({uploadDate: -1}).exec((err, doc) => res.send(doc))
+    filesModel.find().sort({ uploadDate: -1 }).exec((err, doc) => res.send(doc))
     /* 
     filesModel.find().exec((err, doc) => {
         if (err) console.log(err)
@@ -382,6 +382,34 @@ app.put('/api/updateVehicle', (req, res) => {
     }
     )
 })
+
+app.get('/api/deleteFiles/:fileId', (req, res) => {
+    const { fileId } = req.params
+
+    gfs.files.deleteOne({ _id: fileId }, (err) => {
+        if (err) console.log(err)
+        console.log('fukng ' + fileId)
+
+    })
+
+    /* filesModel.find().exec((err, doc) => {
+        if (err) console.log(err)
+        const files = doc.filter(f => f.metadata.veiculoId === veiculoId)
+        files.forEach(f => {
+
+            let fileId = new mongoose.mongo.ObjectId(f._id)
+            gfs.collection('vehicleDocs')
+            gfs.remove({ _id: fileId }, (err) => {
+                if (err) console.log(err)
+                console.log('fukng ' + fileId)
+
+            })
+        }) */
+    res.send('coolZzzz!!')
+
+})
+
+
 
 if (process.env.NODE_ENV === 'production') {
     app.get('/*', (req, res) => {

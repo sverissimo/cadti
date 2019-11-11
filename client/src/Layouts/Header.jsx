@@ -109,7 +109,7 @@ export default function () {
                         noWrap
                         className={classes.toolbarTitle}
                     >
-                        Seinfra - Subsecretaria de Mobilidade - MG
+                        Seinfra - Subsecretaria de Transportes e Mobilidade - MG
                     </Typography>
                     <IconButton>
                         <SearchIcon />
