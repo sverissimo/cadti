@@ -35,18 +35,15 @@ app.use(bodyParser.urlencoded())
 app.use(express.static('client/build'))
 
 
-
-const HOST = '127.0.0.1'
-const PORT = 3001
-
 const Pool = pg.Pool
-const pool = new Pool({
-    user: process.env.DB_USER || process.env.USER ,
+let pool = new Pool({
+    user: process.env.DB_USER || process.env.USER,
     host: process.env.DB_HOST || process.env.HOST,
     database: process.env.DB || process.env.DATABASE,
     password: process.env.DB_PASS || process.env.PASSWORD,
     port: 5432
 })
+if (process.env.NODE_ENV === 'production') pool = new Pool({ connectionString: process.env.DATABASE_URL })
 
 const mongoURI = (process.env.MONGODB_URI || 'mongodb://localhost:27017/sismob_db')
 mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true, debug: true });
@@ -59,7 +56,7 @@ conn.once('open', () => {
     gfs = Grid(conn.db);
     gfs.collection('vehicleDocs');
     console.log('were connected!')
-});
+})
 
 const storage = new GridFsStorage({
 
@@ -77,7 +74,7 @@ const storage = new GridFsStorage({
         }
         return fileInfo
     }
-});
+})
 
 const upload = multer({ storage });
 
@@ -359,7 +356,7 @@ app.get('/api/getUpdatedInsurance', (req, res) => {
             else if (table.rows && table.rows.length === 0) { res.send(table); return }
             res.json(table.rows);
         })
-});
+})
 
 app.put('/api/updateVehicle', (req, res) => {
 
@@ -417,5 +414,6 @@ if (process.env.NODE_ENV === 'production') {
     })
 }
 
-app.listen(PORT, HOST)
-console.log('Running on port 3001, dude...')
+app.listen(process.env.PORT || 3001, () => {
+    console.log('Running...')
+})
