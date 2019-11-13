@@ -45,12 +45,12 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-export default function ({ handleInput, handleBlur, data, handleEquipa, handleCheck }) {
+export default function ({ handleInput, handleBlur, data, handleEquipa, handleCheck, altPlacaOption, showAltPlaca }) {
     const { tab, empresas, razaoSocial, activeStep, equipamentos, addEquipa,
-        delegatarioCompartilhado, subtitle } = data,
+        delegatarioCompartilhado, subtitle, placa } = data,
         classes = useStyles(), { paper, container, title } = classes
 
-    const [shared, setShared] = useState(false)    
+    const [shared, setShared] = useState(false)
 
     let form = []
     if (tab === 0) form = cadForm[activeStep]
@@ -75,13 +75,13 @@ export default function ({ handleInput, handleBlur, data, handleEquipa, handleCh
         else return undefined
     }
 
-    /*  const showForm = () => {
-         const check = data.empresas.filter(e => e.razaoSocial === razaoSocial)
-         if (check && check[0]) {
-             return true
-         }
-         else return false
-     } */
+    const showForm = () => {
+        const check = data.empresas.filter(e => e.razaoSocial === razaoSocial)
+        if (check && check[0]) {
+            return true
+        }
+        else return false
+    }
 
     return (
         <Grid
@@ -157,8 +157,7 @@ export default function ({ handleInput, handleBlur, data, handleEquipa, handleCh
 
                 </Paper>
                 {
-                    //razaoSocial && showForm()
-                    true
+                    razaoSocial && showForm()
                         ?
                         <Grid item xs={12}>
                             <Paper className={paper}>
@@ -233,6 +232,15 @@ export default function ({ handleInput, handleBlur, data, handleEquipa, handleCh
                                             data={data} />
                                     </PopUp>
                                 }
+                                {altPlacaOption && placa.match('[a-zA-Z]{3}[-]?\\d{4}') && <Grid item xs={12}>
+                                    <Typography
+                                        style={{ color: '#2979ff', fontWeight:500, fontSize: '0.75rem', padding: '2% 0 1% 70%', cursor: 'pointer' }}
+                                        onClick={() => showAltPlaca()}
+                                    >
+                                        → Clique aqui para alterar a placa para o formato Mercosul.
+                                    </Typography>
+
+                                </Grid>}
                             </Paper>
                         </Grid>
                         :

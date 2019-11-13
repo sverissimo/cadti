@@ -22,7 +22,8 @@ const ShowFiles = ({ veiculoId, filesCollection, close, format }) => {
     let files = []
     let fileLabels = cadVehicleFiles
     if (fileLabels.filter(f => f.name === 'transferenciaDoc').length === 0) fileLabels.push({ title: 'Documento de Transferência', name: 'transferenciaDoc' })
-
+    if (fileLabels.filter(f => f.name === 'newPlateDoc').length === 0) fileLabels.push({ title: 'CRLV com nova placa', name: 'newPlateDoc' })
+    
     if (filesCollection && filesCollection[0]) {
         tempFiles = filesCollection.filter(el => el.metadata.veiculoId.match(veiculoId))
         tempFiles.forEach(obj => {

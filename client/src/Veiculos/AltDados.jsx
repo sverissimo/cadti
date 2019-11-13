@@ -3,13 +3,15 @@ import axios from 'axios'
 import humps from 'humps'
 import { Grid, TextField } from '@material-ui/core'
 import ReactToast from '../Utils/ReactToast'
+import { altDadosFiles } from '../Forms/altDadosFiles'
+import { altForm } from '../Forms/altForm'
+
 import VeiculosTemplate from './VeiculosTemplate'
 import VehicleDocs from './VehicleDocs'
 import Review from './Review'
-import { altDadosFiles } from '../Forms/altDadosFiles'
 import StepperButtons from '../Utils/StepperButtons'
 import CustomStepper from '../Utils/Stepper'
-import { altForm } from '../Forms/altForm'
+import FormDialog from '../Utils/FormDialog'
 
 export default class extends Component {
 
@@ -32,7 +34,10 @@ export default class extends Component {
         activeStep: 0,
         files: [],
         fileNames: [],
-        openDialog: false
+        openDialog: false,
+        altPlaca: false,
+        newPlate: '',
+        placa: ''
     }
 
     async componentDidMount() {
@@ -45,7 +50,7 @@ export default class extends Component {
                 this.setState({
                     veiculos, empresas
                 })
-            })
+            })        
     }
 
     componentWillUnmount() { this.setState({}) }
@@ -59,9 +64,15 @@ export default class extends Component {
 
     handleInput = e => {
         const { name, value } = e.target
-        const parsedName = humps.decamelize(name)
-        if (name !== 'razaoSocial') this.setState({ [name]: value, form: { ...this.state.form, [parsedName]: value } })
-        else this.setState({ [name]: value })     
+        if (name === 'newPlate') {
+            let newPlate = value
+            if (typeof newPlate === 'string') {
+                newPlate = newPlate.replace(/[a-z]/g, l => l.toUpperCase())
+                if (newPlate.match('[A-Z]{3}[0-9]{1}[A-Z]{1}[0-9]{2}')) newPlate = newPlate.replace(/(\w{3})/, '$1-')
+                this.setState({ ...this.state, newPlate})
+            }
+        } else this.setState({ [name]: value })
+
     }
 
     getId = async (name, value, collection, stateId, dbName, dbId, alertLabel) => {
@@ -113,7 +124,7 @@ export default class extends Component {
             await this.setState({ ...vehicle, disable: true })
 
             if (vehicle !== undefined && vehicle.hasOwnProperty('empresa')) this.setState({ delegatario: vehicle.empresa })
-            console.log(vehicle)
+
             let reset = {}
             if (frota[0]) Object.keys(frota[0]).forEach(k => reset[k] = '')
             if (this.state.placa !== '' && !vehicle) {
@@ -194,15 +205,33 @@ export default class extends Component {
 
         axios.post('/api/mongoUpload', form)
             .then(res => console.log(res.data))
-            .catch(err => console.log(err))        
+            .catch(err => console.log(err))
     }
 
     toggleDialog = () => {
-        this.setState({ openDialog: !this.state.openDialog })
+        this.setState({ altPlaca: !this.state.altPlaca })
+    }
+
+    showAltPlaca = () => {
+        const title = 'Alteração de placa',
+            message = 'Para alterar a placa para o novo padrão Mercosul, informe a nova placa no campo abaixo.'
+        this.setState({ altPlaca: true, title, message })
+    }
+
+    updatePlate = async () => {
+
+        const table = 'veiculo',
+            tablePK = 'veiculo_id',
+            requestObject = { placa: this.state.newPlate }
+
+        await axios.put('/api/updateVehicle', { requestObject, table, tablePK, id: this.state.veiculoId })
+        await this.submitFiles()
+        this.toggleDialog()
+        this.toast()
     }
 
     render() {
-        const { confirmToast, toastMsg, activeStep, steps, stepTitles, tab } = this.state
+        const { confirmToast, toastMsg, activeStep, steps, stepTitles, tab, altPlaca } = this.state
 
         return <Fragment>
             <CustomStepper
@@ -213,8 +242,10 @@ export default class extends Component {
             />
             {activeStep < 2 && <VeiculosTemplate
                 data={this.state}
+                altPlacaOption={activeStep === 0}
                 handleInput={this.handleInput}
                 handleBlur={this.handleBlur}
+                showAltPlaca={this.showAltPlaca}
             />}
             {activeStep === 1 && <Grid
                 container
@@ -250,6 +281,14 @@ export default class extends Component {
                 setActiveStep={this.setActiveStep}
             />
             <ReactToast open={confirmToast} close={this.toast} msg={toastMsg} />
+            <FormDialog
+                open={altPlaca}
+                close={this.toggleDialog}
+                newPlate={this.state.newPlate}
+                handleInput={this.handleInput}
+                handleFiles={this.handleFiles}
+                updatePlate={this.updatePlate}
+            />
         </Fragment>
     }
 }

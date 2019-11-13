@@ -370,9 +370,7 @@ app.put('/api/updateVehicle', (req, res) => {
     queryString = `UPDATE ${table} SET ` +
         queryString.slice(0, queryString.length - 2) +
         ` WHERE ${tablePK} = '${id}'`
-
-    console.log(queryString)
-
+    
     pool.query(queryString, (err, t) => {
         if (err) console.log(err)
         res.send(`${table} table changed fields in ${id}`)
