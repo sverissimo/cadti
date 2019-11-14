@@ -84,8 +84,8 @@ const sections = [
     { title: 'Página Inicial', link: '/' },
     { title: 'Certidões', link: '/certidoes' },
     { title: 'Consultas', link: '/consultas' },
-    { title: 'Veículos', link: '/veiculos' },
-    { title: 'Delegatários', link: '/delegatarios' },
+    { title: 'Veículos', link: '/veiculos' },    
+    { title: 'Empresas', link: '/empresas' },
     { title: 'Fale Conosco', link: '/faleConosco' },
 ];
 
