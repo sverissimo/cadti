@@ -5,7 +5,7 @@ import { makeStyles } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
 import { empresasForm } from '../Forms/empresasForm'
 import AutoComplete from '../Utils/autoComplete'
-import PopUp from '../Utils/PopUp'
+//import PopUp from '../Utils/PopUp'
 
 const useStyles = makeStyles(theme => ({
     container: {
@@ -15,8 +15,7 @@ const useStyles = makeStyles(theme => ({
     },
     title: {
         color: '#000',
-        fontWeight: 400,
-        fontSize: '0.9rem',
+        fontWeight: 500,        
         textAlign: 'center'
     },
     textField: {
@@ -41,7 +40,7 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-export default function ({ handleInput, handleBlur, data, handleEquipa, handleCheck, altPlacaOption, showAltPlaca }) {
+export default function ({ handleInput, handleBlur, data, handleEquipa }) {
     const { tab, razaoSocial, activeStep,stepTitles } = data,
         classes = useStyles(), { paper, container, title } = classes
 
@@ -82,13 +81,6 @@ export default function ({ handleInput, handleBlur, data, handleEquipa, handleCh
         >
             <Grid>
                 <Paper className={paper} style={{ padding: '0 2% 0 2%' }}>
-                    <Grid container justify="center">
-                        <Grid item xs={shared ? 4 : 12} style={{ marginBottom: '15px' }}>
-                            <Typography className={title}> Preencha os campos abaixo para cadastrar uma empresa</Typography>                       
-                        </Grid>
-                       
-                    </Grid>
-
                     {
                         tab === 0 && <Grid item xs={12}>
                             <FormControlLabel

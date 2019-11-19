@@ -46,15 +46,15 @@ export default class extends Component {
         const vehicles = axios.get('/api/veiculosInit'),
             insurances = axios.get('/api/seguros'),
             delega = axios.get('/api/empresas'),
-            proc = axios.get('/api/socios')
+            soc = axios.get('/api/socios')
 
         axios.get('/api/vehicleFiles')
             .then(res => this.setState({ files: res.data }))
 
-        Promise.all([vehicles, insurances, delega, proc])
+        Promise.all([vehicles, insurances, delega, soc])
             .then(res => res.map(r => humps.camelizeKeys(r.data)))
-            .then(([veiculos, seguros, empresas, procuradores]) => {
-                this.setState({ veiculos, seguros, empresas, procuradores, collection: veiculos })
+            .then(([veiculos, seguros, empresas, socios]) => {
+                this.setState({ veiculos, seguros, empresas, socios, collection: veiculos })
             })
         document.addEventListener('keydown', this.escFunction, false)        
 
@@ -65,7 +65,7 @@ export default class extends Component {
 
     changeTab = async (e, value) => {
         await this.setState({ tab: value })
-        const options = ['veiculos', 'empresas', 'procuradores', 'seguros'],
+        const options = ['veiculos', 'empresas', 'socios', 'seguros'],
             collection = this.state[options[value]]
         this.setState({ collection })
     }

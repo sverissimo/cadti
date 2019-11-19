@@ -72,9 +72,9 @@ export const delegatarioTable = [
     } */
 ]
 
-export const procuradorTable = [
+export const sociosTable = [
     {
-        field: 'nomeProcurador',
+        field: 'nomeSocio',
         title: 'Nome',
     },
     {
@@ -124,4 +124,4 @@ export const segurosTable = [
     }
 ]
 
-export const tables = [vehicleTable].concat([delegatarioTable]).concat([procuradorTable]).concat([segurosTable])
+export const tables = [vehicleTable].concat([delegatarioTable]).concat([sociosTable]).concat([segurosTable])

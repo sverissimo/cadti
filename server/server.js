@@ -158,13 +158,13 @@ app.get('/api/veiculosInit', (req, res) => {
 
 app.get('/api/socios', (req, res) => {
     pool.query(
-        `SELECT public.procurador.*, public.delegatario.razao_social
-         FROM public.procurador 
+        `SELECT public.socios.*, public.delegatario.razao_social
+         FROM public.socios 
          LEFT JOIN public.delegatario 
-         ON delegatario.delegatario_id = procurador.delegatario_id
-         ORDER BY nome_procurador ASC`, (err, table) => {
+         ON delegatario.delegatario_id = socios.delegatario_id
+         ORDER BY nome_socio ASC`, (err, table) => {
         if (err) res.send(err)
-        else if (table.rows.length === 0) { res.send('Nenhum procurador cadastrado para esse delegatário.'); return }
+        else if (table.rows.length === 0) { res.send('Nenhum socios cadastrado para esse delegatário.'); return }
         res.json(table.rows)
     })
 })

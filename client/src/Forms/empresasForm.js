@@ -17,7 +17,7 @@ export const empresasForm = [{
     field: 'telefone',
     label: 'Telefone',
     margin: 'normal',
-    pattern: '?[(]\d{2-3}?[)]?[ ]\d{4}?[-]\d{4}'    
+    pattern: '?[(]/d{2-3}?[)]?[ ]/d{4}?[-]/d{4}'    
 },
 {
     field: 'email',

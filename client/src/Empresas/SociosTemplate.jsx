@@ -1,11 +1,12 @@
-import React, { Fragment, useState } from 'react'
-import { Grid, Paper, Typography, MenuItem, Checkbox, FormControlLabel, Button } from '@material-ui/core'
-import AddIcon from '@material-ui/icons/Add'
+import React, { Fragment } from 'react'
+import { Grid, Paper, Typography, MenuItem, Button } from '@material-ui/core'
+import AddIcon from '@material-ui/icons/Add';
+import DeleteIcon from '@material-ui/icons/Delete';
 import { makeStyles } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
 import { sociosForm } from '../Forms/sociosForm'
-import AutoComplete from '../Utils/autoComplete'
-import PopUp from '../Utils/PopUp'
+import { procuradorForm } from '../Forms/procuradorForm'
+//import PopUp from '../Utils/PopUp'
 
 const useStyles = makeStyles(theme => ({
     container: {
@@ -15,14 +16,13 @@ const useStyles = makeStyles(theme => ({
     },
     title: {
         color: '#000',
-        fontWeight: 400,
-        fontSize: '0.9rem',
+        fontWeight: 500,
         textAlign: 'center'
     },
     textField: {
         marginLeft: theme.spacing(1),
         marginRight: theme.spacing(1),
-        width: 300,
+        width: 200,
         fontSize: '0.8rem',
         fontColor: '#bbb',
         textAlign: 'center',
@@ -38,14 +38,22 @@ const useStyles = makeStyles(theme => ({
         textAlign: 'center',
         color: theme.palette.text.secondary,
         margin: theme.spacing(1)
+    },
+    list: {
+        margin: theme.spacing(1),
+        width: 200,
+        fontSize: '0.7rem',
+        fontColor: '#bbb',
+        textAlign: 'center',
+    },
+    deleteButton: {
+        marginTop: theme.spacing(1)
     }
 }));
 
-export default function ({ handleInput, handleBlur, data, handleEquipa, }) {
+export default function ({ handleInput, handleBlur, data, addSocio, removeSocio }) {
     const { razaoSocial, activeStep, stepTitles } = data,
-        classes = useStyles(), { paper, container, title } = classes
-
-    const [shared, setShared] = useState(false)
+        classes = useStyles(), { paper, container, title, deleteButton } = classes
 
     const errorHandler = (el) => {
         const value = data.form[el.field]
@@ -72,6 +80,11 @@ export default function ({ handleInput, handleBlur, data, handleEquipa, }) {
         else return false
     }
 
+    let form = [],
+        socios = data.socios
+    if (activeStep === 1) form = sociosForm
+    if (activeStep === 2) { form = procuradorForm; socios = data.procuradores }
+
     return (
         <Grid
             container
@@ -80,89 +93,86 @@ export default function ({ handleInput, handleBlur, data, handleEquipa, }) {
             justify="center"
         >
             <Grid>
-                <Paper className={paper} style={{ padding: '0 2% 0 2%' }}>
-                    <Grid container justify="center">
-                        <Grid item xs={shared ? 4 : 12} style={{ marginBottom: '15px' }}>
-                            <Typography className={title}> Preencha os campos abaixo para cadastrar uma empresa</Typography>
-                        </Grid>
+                <Grid item xs={12}>
+                    <Paper className={paper}>
+                        <Typography className={title}> {stepTitles[activeStep]}</Typography>
 
-                    </Grid>
-
-                    <Grid item xs={12}>
-                        <FormControlLabel
-                            control={
-                                <Checkbox
-                                    checked={shared === true}
-                                    onChange={() => setShared(!shared)}
-                                    value={shared}
-                                />
-                            }
-                            label={
-                                <Typography style={{ color: '#2979ff', fontSize: '0.7rem', float: 'right' }}>
-                                    Veículo Compartilhado?
-                                    </Typography>
-                            }
-                        />
-                    </Grid>
-                </Paper>
+                        {
+                            form.map((el, i) =>
+                                <Fragment key={i}>
+                                    <TextField
+                                        name={el.field}
+                                        label={el.label}
+                                        margin={el.margin}
+                                        className={classes.textField}
+                                        onChange={handleInput}
+                                        onBlur={handleBlur}
+                                        type={el.type || ''}
+                                        error={errorHandler(el)}
+                                        helperText={helper(el)}
+                                        select={el.select || false}
+                                        value={data[el.field] || ''}
+                                        disabled={el.disabled || false}
+                                        InputLabelProps={{
+                                            className: classes.textField,
+                                            shrink: el.type === 'date' || undefined,
+                                            style: { fontSize: '0.8rem', fontWeight: 400, color: '#455a64', marginBottom: '5%' }
+                                        }}
+                                        inputProps={{
+                                            style: { background: el.disabled && data.disable ? '#fff' : '#efefef', textAlign: 'center', color: '#000', fontWeight: '500', width: el.width || '' },
+                                            value: `${data[el.field] || ''}`,
+                                            list: el.datalist || '',
+                                            maxLength: el.maxLength || '',
+                                            minLength: el.minLength || '',
+                                            max: el.max || '',
+                                        }}
+                                        multiline={el.multiline || false}
+                                        rows={el.rows || null}
+                                        variant={el.variant || 'filled'}
+                                        fullWidth={el.fullWidth || false}
+                                    >
+                                        {el.select === true && el.options.map((opt, i) =>
+                                            <MenuItem key={i} value={opt}>
+                                                {opt}
+                                            </MenuItem>)}
+                                    </TextField>
+                                </Fragment>
+                            )}
+                        {activeStep !== 3 && <Button color='primary' className={deleteButton} onClick={addSocio}>
+                            <AddIcon /> Adicionar {activeStep === 1 ? 'sócio' : 'procurador'}
+                        </Button>}
+                    </Paper>
+                </Grid>
                 {
-                    true
-                        ?
+                    socios.length > 0 && <Grid container
+                        direction="row"
+                        className={container}
+                        justify="center"
+                        alignItems="center">
                         <Grid item xs={12}>
                             <Paper className={paper}>
-                                <Typography className={title}> {stepTitles}}</Typography>
-
-                                {sociosForm.map((el, i) =>
-                                    <Fragment key={i}>
-                                        <TextField
-                                            name={el.field}
-                                            label={el.label}
-                                            margin={el.margin}
-                                            className={classes.textField}
-                                            onChange={handleInput}
-                                            onBlur={handleBlur}
-                                            type={el.type || ''}
-                                            error={errorHandler(el)}
-                                            helperText={helper(el)}
-                                            select={el.select || false}
-                                            value={data[el.field] || ''}
-                                            disabled={el.disabled || false}
-                                            InputLabelProps={{
-                                                className: classes.textField,
-                                                shrink: el.type === 'date' || undefined,
-                                                style: { fontSize: '0.8rem', fontWeight: 400, color: '#455a64', marginBottom: '5%' }
-                                            }}
-                                            inputProps={{
-                                                style: { background: el.disabled && data.disable ? '#fff' : '#efefef', textAlign: 'center', color: '#000', fontWeight: '500', width: el.width || '' },
-                                                value: `${data[el.field] || ''}`,
-                                                list: el.datalist || '',
-                                                maxLength: el.maxLength || '',
-                                                minLength: el.minLength || '',
-                                                max: el.max || '',
-                                            }}
-                                            multiline={el.multiline || false}
-                                            rows={el.rows || null}
-                                            variant={el.variant || 'filled'}
-                                            fullWidth={el.fullWidth || false}
-                                        >
-                                            {el.select === true && el.options.map((opt, i) =>
-                                                <MenuItem key={i} value={opt}>
-                                                    {opt}
-                                                </MenuItem>)}
-                                        </TextField>
-                                        {el.autoComplete === true && <AutoComplete
-                                            collection={data[el.collection]}
-                                            datalist={el.datalist}
-                                            value={data[el.field] || ''}
-                                        />
-                                        }
-                                    </Fragment>)}                                
+                                <p className={title}>{activeStep === 1 ? 'Sócios' : 'Procuradores'} cadastrados</p>
+                                {socios.map((s, i) =>
+                                    <Grid key={i}>
+                                        {form.map((e, i) =>
+                                            <Fragment key={i + 1000}>
+                                                <TextField
+                                                    value={s[e.field]}
+                                                    label={e.label}
+                                                    className={classes.list}
+                                                    variant='outlined'
+                                                    disabled
+                                                />
+                                            </Fragment>
+                                        )}
+                                        <Button className={deleteButton} color='secondary' title='Remover' onClick={() => removeSocio(i)}>
+                                            <DeleteIcon />
+                                        </Button>
+                                    </Grid>
+                                )}
                             </Paper>
                         </Grid>
-                        :
-                        <Grid container justify="center">
-                            <div className={classes.formHolder}></div>
-                        </Grid>
+                    </Grid>
                 }
             </Grid>
         </Grid>

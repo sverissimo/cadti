@@ -3,7 +3,6 @@ import { makeStyles } from '@material-ui/core/styles';
 import Stepper from '@material-ui/core/Stepper';
 import Step from '@material-ui/core/Step';
 import StepLabel from '@material-ui/core/StepLabel';
-import Typography from '@material-ui/core/Typography';
 
 const useStyles = makeStyles(theme => ({
     root: {
@@ -22,19 +21,7 @@ const useStyles = makeStyles(theme => ({
 
 export default function CustomStepper({ activeStep, steps, stepTitles }) {
 
-    function getStepContent(step) {
-
-        stepTitles.forEach((s, i) => {
-            switch (step) {
-                case i:
-                    return s;
-                default:
-                    return 'Selecione';
-            }
-        })
-    }
-
-    const classes = useStyles()   
+    const classes = useStyles()
 
     return (
         <div className={classes.root}>
@@ -49,20 +36,6 @@ export default function CustomStepper({ activeStep, steps, stepTitles }) {
                     )
                 })}
             </Stepper>
-            <div>
-                {activeStep === steps.length ? (
-                    <div>
-                        <Typography className={classes.instructions}>
-                            All steps completed - you&apos;re finished
-                        </Typography>
-
-                    </div>
-                ) : (
-                        <div>
-                            <Typography className={classes.instructions}>{getStepContent(activeStep)}</Typography>
-                        </div>
-                    )}
-            </div>
         </div>
     )
 }

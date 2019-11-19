@@ -4,13 +4,16 @@ import humps from 'humps'
 import ReactToast from '../Utils/ReactToast'
 
 import EmpresasTemplate from './EmpresasTemplate'
+import SociosTemplate from './SociosTemplate'
+import EmpresaReview from './EmpresaReview'
+
+import { sociosForm } from '../Forms/sociosForm'
+import { procuradorForm } from '../Forms/procuradorForm'
+import { cadVehicleFiles } from '../Forms/cadVehicleFiles'
 
 import StepperButtons from '../Utils/StepperButtons'
 import CustomStepper from '../Utils/Stepper'
-
-import { cadVehicleFiles } from '../Forms/cadVehicleFiles'
 import AlertDialog from '../Utils/AlertDialog'
-import SociosTemplate from './SociosTemplate'
 
 export default class extends Component {
 
@@ -24,9 +27,9 @@ export default class extends Component {
     }
 
     state = {
-        activeStep: 0,
+        activeStep: 1,
         stepTitles: ['Preencha os dados da empresa', 'Informações sobre os sócios',
-            'Informações sobre os procuradores'],
+            'Informações sobre os procuradores', 'Revisão'],
         steps: ['Dados da Empresa', 'Sócios', 'Procuradores', 'Revisão'],
         form: {},
         empresas: [],
@@ -36,8 +39,11 @@ export default class extends Component {
         confirmToast: false,
         files: [],
         fileNames: [],
-        activeStep: 0,
-        openDialog: false
+        openDialog: false,
+        addedSocios: [0],
+        totalShare: 0,
+        socios: [],
+        procuradores: []
     }
 
     async componentDidMount() {
@@ -61,7 +67,7 @@ export default class extends Component {
         if (action === 'back') this.setState({ activeStep: prevActiveStep - 1 });
         if (action === 'reset') this.setState({ activeStep: 0 })
 
-        console.log(this.state.activeStep)
+        if (prevActiveStep === 1 && action === 'next' && this.state.totalShare < 100) this.createAlert('subShared')
     }
 
     handleInput = async e => {
@@ -70,6 +76,71 @@ export default class extends Component {
         this.setState({ [name]: value })
     }
 
+    addSocio = async () => {        
+        let socios = this.state.socios,
+            form = sociosForm,
+            sObject = {},
+            invalid = 0,
+            totalShare = 0
+
+        if (this.state.activeStep === 2) {
+            socios = this.state.procuradores
+            form = procuradorForm
+        }
+
+        form.forEach(obj => {
+            if (this.state[obj.field] === '' || this.state[obj.field] === undefined) {
+                invalid += 1
+            }
+        })
+
+        if (invalid > 0) {
+            alert('Favor preencher todos os campos')
+            return null
+        } else {
+            form.forEach(obj => {
+                Object.assign(sObject, { [obj.field]: this.state[obj.field] })
+            })
+            socios.push(sObject)
+
+            if (this.state.activeStep === 1) {
+                socios.forEach(s => {
+                    totalShare += Number(s.share)
+                })
+                if (totalShare > 100) {
+                    socios.pop()
+                    this.createAlert('overShared')
+                }
+                else {
+                    await this.setState({ socios, totalShare })
+                    sociosForm.forEach(obj => {
+                        this.setState({ [obj.field]: '' })
+                    })
+                    document.getElementsByName('nomeSocio')[0].focus()
+                }
+            }
+
+            if (this.state.activeStep === 2) {
+                await this.setState({ procuradores: socios })
+                procuradorForm.forEach(obj => {
+                    this.setState({ [obj.field]: '' })
+                })
+                document.getElementsByName('nomeProcurador')[0].focus()
+            }
+        }
+    }
+
+    removeSocio = index => {
+        if (this.state.activeStep === 1) {
+            let socios = this.state.socios
+            socios.splice(index, 1)
+            this.setState({ socios })
+        } else {
+            let procuradores = this.state.procuradores
+            procuradores.splice(index, 1)
+            this.setState({ procuradores })
+        }
+    }
 
     getId = async (name, value, collection, stateId, dbName, dbId, alertLabel) => {
 
@@ -100,6 +171,17 @@ export default class extends Component {
                     this.setState({ cnpj: '' })
                     this.createAlert(alreadyExists[0])
                 }
+                break;
+            case 'share':
+                if (value > 100) {
+                    this.createAlert('overShared')
+                }
+                else {
+                    const totalShare = Number(this.state.totalShare) + Number(value)
+                    this.setState({ [name]: value, totalShare })
+                }
+                break;
+            default:
                 break;
         }
 
@@ -155,7 +237,6 @@ export default class extends Component {
         this.setState({ ...this.state, [item]: !this.state[item] })
     }
 
-
     toggleDialog = () => {
         this.setState({ openDialog: !this.state.openDialog })
     }
@@ -167,9 +248,13 @@ export default class extends Component {
             message = `A empresa ${alert.razaoSocial} já está cadastrada no sistema com o CNPJ ${alert.cnpj}.`
         }
         else switch (alert) {
-            case 'whatever':
-                dialogTitle = 'Empresa já cadastrada'
-                message = 'O CNPJ informado já está cadastrado.'
+            case 'overShared':
+                dialogTitle = 'Participação societária inválida'
+                message = 'A participação societária informada excede a 100%'
+                break;
+            case 'subShared':
+                dialogTitle = 'Participação societária inválida'
+                message = 'A participação societária informada não soma 100%. Favor informar todos os sócios com suas respectivas participações.'
                 break;
             default:
                 break;
@@ -191,7 +276,7 @@ export default class extends Component {
     }
 
     render() {
-        const {stepTitles, activeStep, confirmToast, toastMsg, steps, openDialog, dialogTitle, message } = this.state
+        const { stepTitles, activeStep, confirmToast, toastMsg, steps, openDialog, dialogTitle, message } = this.state
 
         return <Fragment>
             <CustomStepper
@@ -208,13 +293,19 @@ export default class extends Component {
                         handleBlur={this.handleBlur}
                         handleCheck={this.handleCheck}
                     />
-                    :
-                    <SociosTemplate
-                        data={this.state}
-                        handleInput={this.handleInput}
-                        handleBlur={this.handleBlur}
-                        handleCheck={this.handleCheck}
-                    />
+                    : activeStep < 3 ?
+                        <SociosTemplate
+                            data={this.state}
+                            handleInput={this.handleInput}
+                            handleBlur={this.handleBlur}
+                            handleCheck={this.handleCheck}
+                            addSocio={this.addSocio}
+                            removeSocio={this.removeSocio}
+                        />
+                        :
+                        <EmpresaReview
+                            data={this.state}
+                        />
             }
             <StepperButtons
                 activeStep={activeStep}
