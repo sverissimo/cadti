@@ -1,66 +1,65 @@
 export const empresasForm = [{
     field: 'razaoSocial',
     label: 'Razão Social',
-    margin: 'normal'    
+    maxLength: 90
 },
 {
     field: 'cnpj',
     label: 'CNPJ',
-    margin: 'normal',    
+    maxLength: 14,
+    pattern: '\\d{14}'
 },
 {
     field: 'inscricaoEstadual',
     label: 'Inscrição Estadual',
-    margin: 'normal',    
+    maxLength: 13,
+    pattern: '\\d{13}'
 },
 {
     field: 'telefone',
     label: 'Telefone',
-    margin: 'normal',
-    pattern: '?[(]/d{2-3}?[)]?[ ]/d{4}?[-]/d{4}'    
+    maxLength: 12,
+    pattern: '?[(]/d{2-3}?[)]?[ ]/d{4}?[-]/d{4}',    
 },
 {
     field: 'email',
     label: 'E-mail',
-    margin: 'normal',    
+    type: 'email',
+    maxLength: 60,
 },
 {
     field: 'cep',
-    label: 'CEP',
-    margin: 'normal',
-    type: 'number',    
-    maxLength: 10
+    label: 'CEP',       
+    maxLength: 10    
 },
 {    
     field: 'numero',
     label: 'Número',
     type: 'number',
-    margin: 'normal',    
 },
 {
     field: 'complemento',
     label: 'Complemento',
-    margin: 'normal',    
+    maxLength: 20,
 },
 {    
     field: 'rua',
     label: 'Rua',
-    margin: 'normal',    
+    maxLength: 100,        
 },
 {    
     field: 'bairro',
     label: 'Bairro',
-    margin: 'normal',    
+    maxLength: 40,
 },
 {
     field: 'cidade',
     label: 'Cidade',
-    margin: 'normal',    
+    maxLength: 60,        
 },
 {
     field: 'uf',
     label: 'Estado',
-    margin: 'normal',
     maxLength: 2
 }
 ]

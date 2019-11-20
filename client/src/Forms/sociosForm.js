@@ -1,29 +1,29 @@
 export const sociosForm = [{
     field: 'nomeSocio',
     label: 'Nome do Sócio',
-    margin: 'normal'    
+    maxLength: 90
 },
 {
     field: 'cpfSocio',
-    label: 'CPF',
-    type: 'number',
-    margin: 'normal',    
+    label: 'CPF',    
+    maxLength: 11,
+    pattern: '\\d{11}' 
 },
 {
     field: 'telSocio',
-    label: 'Telefone',
-    margin: 'normal',
-    type: 'number',
-    pattern: '?[(]/d{2-3}?[)]?[ ]/d{4}?[-]/d{4}'    
+    label: 'Telefone',    
+    maxLength: 20,
+    pattern: '[0-9]{20}'
+    //pattern: '?[(]/d{2-3}?[)]?[ ]/d{4}?[-]/d{4}'    
 },
 {
     field: 'emailSocio',
     label: 'E-mail',
-    margin: 'normal',    
+    maxLength: 60
 },
 {
     field: 'share',
     label: 'Participação Societária (%)',
-    type: 'number',
-    margin: 'normal'    
+    maxLength: 3,    
+    pattern: '[0-9]{3}'
 }]

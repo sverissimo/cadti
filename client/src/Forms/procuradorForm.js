@@ -1,21 +1,26 @@
 export const procuradorForm = [{
     field: 'nomeProcurador',
-    label: 'Nome do Procurador'    
+    label: 'Nome do Procurador',
+    maxLength: 90,
 },
 {
     field: 'cpfProcurador',
     label: 'CPF',
-    type: 'number',    
+    maxLength: 11,
+    pattern: '\\d{11}'  
 },
 {
     field: 'telProcurador',
     label: 'Telefone',    
-    type: 'number',
-    pattern: '?[(]/d{2-3}?[)]?[ ]/d{4}?[-]/d{4}'
+    type: 'tel',    
+    maxLength: 20
+    //pattern: '?[(]/d{2-3}?[)]?[ ]/d{4}?[-]/d{4}'
 },
 {
     field: 'emailProcurador',
-    label: 'E-mail',    
+    label: 'E-mail',
+    type: 'e-mail',
+    maxLength: 60
 },
 {
     field: 'dataFim',

@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Fragment } from 'react'
 import { Grid, Paper, Typography } from '@material-ui/core'
 import { makeStyles } from '@material-ui/core/styles'
 import { empresasForm } from '../Forms/empresasForm'
@@ -17,14 +17,14 @@ import TableRow from '@material-ui/core/TableRow';
 const useStyles = makeStyles(theme => ({
     root: {
         flexGrow: '1',
-        margin: '1%',
         padding: '1%',
         textAlign: 'center'
     },
     title: {
-        margin: theme.spacing(1),                      
+        margin: theme.spacing(1),
         fontColor: '#000',
-        fontWeight: 500        
+        fontWeight: 500,
+        backgroundColor: '#B2DCEA'
     },
     input: {
         textAlign: 'center'
@@ -33,73 +33,71 @@ const useStyles = makeStyles(theme => ({
         color: theme.palette.text.secondary,
         margin: theme.spacing(2),
         width: "100%",
-        padding: '2% 0 4% 0',
-        height: '500px'
+        padding: '2% 0 1% 0',
+        height: 'auto'
     },
     table: {
-        marginBottom: theme.spacing(2)
+        marginBottom: theme.spacing(2),        
+        overflowX: 'auto'
     }
 }))
 
 export default function Revisao({ data }) {
-    
+
     const classes = useStyles(),
         { title, paper, root, table } = classes,
         { socios, procuradores } = data
+    let empresaDetails = {}
+    empresasForm.forEach(e => {
+        if (data.hasOwnProperty([e.field])) {
+            Object.assign(empresaDetails, { [e.field]: data[e.field] })
+        }
+    })
+    empresaDetails = [empresaDetails]
 
+    const ultimateData = [
+        { subtitle: 'Detalhes da Empresa', form: empresasForm, data: empresaDetails },
+        { subtitle: 'Sócios', form: sociosForm, data: socios },
+        { subtitle: 'Procuradores', form: procuradorForm, data: procuradores }
+    ]    
     return (
         <>
             <Paper className={paper}>
                 <Grid container
                     direction="row"
                     className={root}>
-                    <Typography className={title}> Sócios </Typography>
-                    <br />
-                    <Table className={table}>
-                        <TableHead>
-                            <TableRow>
-                                {sociosForm.map(s => <TableCell>{s.label}</TableCell>)}
-                            </TableRow>
-                        </TableHead>
-                        {
-                            socios.map((s, i) =>
-                                <TableBody>
-                                    <TableRow>
-                                        {
-                                            sociosForm.map((r, k) =>
-                                                <TableCell>
-                                                    {s[r.field]}
-                                                </TableCell>
-                                            )
-                                        }
-                                    </TableRow>
-                                </TableBody>
-                            )
-                        }
-                    </Table>
-                    <Typography className={title}> Procuradores </Typography>
-                    <Table className={table}>
-                        <TableHead>
-                            <TableRow>
-                                {procuradorForm.map(s => <TableCell>{s.label}</TableCell>)}
-                            </TableRow>
-                        </TableHead>
-                        {
-                            procuradores.map((s, i) =>
-                                <TableBody>
-                                    <TableRow>
-                                        {
-                                            procuradorForm.map((r, k) =>
-                                                <TableCell>
-                                                    {s[r.field]}
-                                                </TableCell>
-                                            )
-                                        }
-                                    </TableRow>
-                                </TableBody>
-                            )
-                        }
-                    </Table>
+                    {
+                        ultimateData.map(({ subtitle, form, data }, y) =>
+                            <Fragment key={y}>
+                                <div style={{ width: '100%', align:'left' }}>
+                                    <Typography className={title}> {subtitle} </Typography>
+                                </div>
+                                <br />
+                                <Table className={table}>
+                                    <TableHead>
+                                        <TableRow>
+                                            {form.map((s, i) => <TableCell key={i}>{s.label}</TableCell>)}
+                                        </TableRow>
+                                    </TableHead>
+                                    {
+                                        data.map((d, j) =>
+                                            <TableBody key={j}>
+                                                <TableRow>
+                                                    {
+                                                        form.map((obj, l) =>
+                                                            <TableCell key={l}>
+                                                                {d[obj.field]}
+                                                            </TableCell>
+                                                        )
+                                                    }
+                                                </TableRow>
+                                            </TableBody>
+                                        )
+                                    }
+                                </Table>
+                            </Fragment>
+                        )
+                    }
                     <Grid container justify="flex-end">
                         <Tooltip title='Ver arquivos'>
                             <Fab color="default" aria-label="files">

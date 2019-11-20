@@ -11,6 +11,9 @@ const GridFsStorage = require('multer-gridfs-storage')
 const Grid = require('gridfs-stream');
 Grid.mongo = mongoose.mongo;
 
+const { cadEmpresa } = require('./cadEmpresa')
+const { cadSocios } = require('./cadSocios')
+const { cadProcuradores } = require('./cadProcuradores')
 
 const { empresas, veiculoInit, modeloChassi, carrocerias, equipamentos, seguradoras, seguros } = require('./queries')
 const { filesModel } = require('./models/filesModel')
@@ -25,7 +28,7 @@ app.use(function (req, res, next) { //allow cross origin requests
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
     res.header("Access-Control-Allow-Credentials", true);
-    next();
+    next()
 })
 
 //app.use(bodyParser.json())
@@ -55,7 +58,7 @@ conn.on('error', console.error.bind(console, 'connection error:'));
 conn.once('open', () => {
     gfs = Grid(conn.db);
     gfs.collection('vehicleDocs');
-    console.log('were connected!')
+    console.log('Mongo connected!')
 })
 
 const storage = new GridFsStorage({
@@ -195,11 +198,17 @@ app.post('/api/cadastroVeiculo', (req, res) => {
         })
 })
 
+app.post('/api/cadEmpresa', cadEmpresa)
+
+app.post('/api/cadSocios', cadSocios)
+
+app.post('/api/empresaFullCad', cadEmpresa, cadSocios, cadProcuradores);
+
 app.get('/api/modeloChassi', (req, res) => {
     pool.query(modeloChassi, (err, table) => {
         if (err) res.send(err)
         else if (table.rows && table.rows.length === 0) { res.send('Nenhum veículo cadastrado para esse delegatário.'); return }
-        res.json(table.rows);
+        res.json(table.rows)
     })
 })
 
@@ -370,7 +379,7 @@ app.put('/api/updateVehicle', (req, res) => {
     queryString = `UPDATE ${table} SET ` +
         queryString.slice(0, queryString.length - 2) +
         ` WHERE ${tablePK} = '${id}'`
-    
+
     pool.query(queryString, (err, t) => {
         if (err) console.log(err)
         res.send(`${table} table changed fields in ${id}`)
@@ -384,11 +393,11 @@ app.get('/api/deleteFiles/:reqId', (req, res) => {
     filesModel.find().exec((err, doc) => {
         if (err) console.log(err)
         const files = doc.filter(f => f.metadata.veiculoId === reqId)
-                
+
         files.forEach(file => {
             let fileId = new mongoose.mongo.ObjectId(file._id)
             gfs.files.remove({ _id: fileId }, (err) => {
-                if (err) console.log(err)                
+                if (err) console.log(err)
             })
         })
         res.send('File deleted!')

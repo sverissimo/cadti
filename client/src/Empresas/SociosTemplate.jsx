@@ -6,7 +6,6 @@ import { makeStyles } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
 import { sociosForm } from '../Forms/sociosForm'
 import { procuradorForm } from '../Forms/procuradorForm'
-//import PopUp from '../Utils/PopUp'
 
 const useStyles = makeStyles(theme => ({
     container: {
@@ -52,7 +51,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function ({ handleInput, handleBlur, data, addSocio, removeSocio }) {
-    const { razaoSocial, activeStep, stepTitles } = data,
+    const { activeStep, stepTitles } = data,
         classes = useStyles(), { paper, container, title, deleteButton } = classes
 
     const errorHandler = (el) => {
@@ -70,14 +69,6 @@ export default function ({ handleInput, handleBlur, data, addSocio, removeSocio 
         else if (value && value.match(el.pattern) === null) return '✘'
         else if (el.pattern && value && value.match(el.pattern) !== null) return '✓'
         else return undefined
-    }
-
-    const showForm = () => {
-        const check = data.empresas.filter(e => e.razaoSocial === razaoSocial)
-        if (check && check[0]) {
-            return true
-        }
-        else return false
     }
 
     let form = [],
@@ -103,7 +94,7 @@ export default function ({ handleInput, handleBlur, data, addSocio, removeSocio 
                                     <TextField
                                         name={el.field}
                                         label={el.label}
-                                        margin={el.margin}
+                                        margin='normal'
                                         className={classes.textField}
                                         onChange={handleInput}
                                         onBlur={handleBlur}

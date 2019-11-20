@@ -1,6 +1,7 @@
 import React, { Fragment, useState } from 'react'
-import { Grid, Paper, Typography, MenuItem, Checkbox, FormControlLabel, Button } from '@material-ui/core'
-import AddIcon from '@material-ui/icons/Add'
+import Dropzone from 'react-dropzone'
+import { Grid, Paper, Typography, MenuItem, Checkbox, FormControlLabel } from '@material-ui/core'
+import DescriptionOutlinedIcon from '@material-ui/icons/DescriptionOutlined';
 import { makeStyles } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
 import { empresasForm } from '../Forms/empresasForm'
@@ -15,7 +16,7 @@ const useStyles = makeStyles(theme => ({
     },
     title: {
         color: '#000',
-        fontWeight: 500,        
+        fontWeight: 500,
         textAlign: 'center'
     },
     textField: {
@@ -37,12 +38,40 @@ const useStyles = makeStyles(theme => ({
         textAlign: 'center',
         color: theme.palette.text.secondary,
         margin: theme.spacing(1)
+    },
+    dropBox: {
+        margin: '2% 0',        
+    },
+    dropBoxItem: {
+        margin: '2% 0',
+        border: '1px solid #ccc',
+        borderRadius: '3%',
+        height: '60px',
+        padding: '2% 1% 0 1%',
+        cursor: 'pointer',
+        zIndex: '1',
+        boxShadow: 'inset 3px -3px -3px 0px black',
+        fontWeight: 500,
+        color: '#4169E1'
+
+    },
+    dropBoxItem2: {
+        margin: '2% 0',
+        border: '1px solid #ccc',
+        borderRadius: '3%',
+        height: '60px',
+        padding: '0 1% 0 1%',
+        cursor: 'pointer',
+        zIndex: '1',
+        boxShadow: 'inset 3px -3px -3px 0px black',
+        color: 'black',
+        fontWeight: 400,      
     }
 }));
 
-export default function ({ handleInput, handleBlur, data, handleEquipa }) {
-    const { tab, razaoSocial, activeStep,stepTitles } = data,
-        classes = useStyles(), { paper, container, title } = classes
+export default function ({ handleInput, handleBlur, data, handleFiles }) {
+    const { tab, activeStep, stepTitles, dropDisplay } = data,
+        classes = useStyles(), { paper, container, title, dropBox, dropBoxItem, dropBoxItem2 } = classes
 
     const [shared, setShared] = useState(false)
 
@@ -63,15 +92,7 @@ export default function ({ handleInput, handleBlur, data, handleEquipa }) {
         else if (el.pattern && value && value.match(el.pattern) !== null) return '✓'
         else return undefined
     }
-
-    const showForm = () => {
-        const check = data.empresas.filter(e => e.razaoSocial === razaoSocial)
-        if (check && check[0]) {
-            return true
-        }
-        else return false
-    }
-
+    
     return (
         <Grid
             container
@@ -107,13 +128,12 @@ export default function ({ handleInput, handleBlur, data, handleEquipa }) {
                         <Grid item xs={12}>
                             <Paper className={paper}>
                                 <Typography className={title}> {stepTitles[activeStep]}</Typography>
-
                                 {empresasForm.map((el, i) =>
                                     <Fragment key={i}>
                                         <TextField
                                             name={el.field}
                                             label={el.label}
-                                            margin={el.margin}
+                                            margin='normal'
                                             className={classes.textField}
                                             onChange={handleInput}
                                             onBlur={handleBlur}
@@ -154,27 +174,27 @@ export default function ({ handleInput, handleBlur, data, handleEquipa }) {
                                         }
                                     </Fragment>)}
 
-                                {activeStep === 0 && tab === 0 && <Grid container justify="center"
-                                >
-                                    <Button
-                                        variant="outlined"
-                                        size="small"
-                                        color="primary"
-                                        className={classes.button}
-                                        onClick={handleEquipa}
-                                    >
-                                        <AddIcon />
-                                        Equipamentos
-                            </Button>
-                                </Grid>}                               
+                                <Dropzone onDrop={handleFiles}>
+                                    {({ getRootProps, getInputProps }) => (
+                                        <Grid container justify="center" alignItems='center' className={dropBox} direction='row' {...getRootProps()}>
+                                            <input {...getInputProps()} />
+                                            {
+                                                dropDisplay.match('Clique ou') ?
+                                                    <Grid item xs={6} className={dropBoxItem}> {dropDisplay} </Grid>
+                                                    :
+                                                    <Grid item xs={6} className={dropBoxItem2}> <DescriptionOutlinedIcon />  {dropDisplay} <br /> (clique ou arraste outro arquivo para alterar)</Grid>
+                                            }
+                                        </Grid>
+                                    )}
+                                </Dropzone>
                             </Paper>
-                        </Grid>
+                        </Grid >
                         :
                         <Grid container justify="center">
                             <div className={classes.formHolder}></div>
                         </Grid>
                 }
             </Grid>
-        </Grid>
+        </Grid >
     )
 }

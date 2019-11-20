@@ -7,9 +7,9 @@ import EmpresasTemplate from './EmpresasTemplate'
 import SociosTemplate from './SociosTemplate'
 import EmpresaReview from './EmpresaReview'
 
+import { empresasForm } from '../Forms/empresasForm'
 import { sociosForm } from '../Forms/sociosForm'
 import { procuradorForm } from '../Forms/procuradorForm'
-import { cadVehicleFiles } from '../Forms/cadVehicleFiles'
 
 import StepperButtons from '../Utils/StepperButtons'
 import CustomStepper from '../Utils/Stepper'
@@ -27,7 +27,7 @@ export default class extends Component {
     }
 
     state = {
-        activeStep: 1,
+        activeStep: 0,
         stepTitles: ['Preencha os dados da empresa', 'Informações sobre os sócios',
             'Informações sobre os procuradores', 'Revisão'],
         steps: ['Dados da Empresa', 'Sócios', 'Procuradores', 'Revisão'],
@@ -43,7 +43,8 @@ export default class extends Component {
         addedSocios: [0],
         totalShare: 0,
         socios: [],
-        procuradores: []
+        procuradores: [],
+        dropDisplay: 'Clique ou arraste para anexar o Estatuto atualizado da empresa'
     }
 
     async componentDidMount() {
@@ -76,7 +77,7 @@ export default class extends Component {
         this.setState({ [name]: value })
     }
 
-    addSocio = async () => {        
+    addSocio = async () => {
         let socios = this.state.socios,
             form = sociosForm,
             sObject = {},
@@ -95,7 +96,7 @@ export default class extends Component {
         })
 
         if (invalid > 0) {
-            alert('Favor preencher todos os campos')
+            this.createAlert('missingRequiredFields')
             return null
         } else {
             form.forEach(obj => {
@@ -187,7 +188,29 @@ export default class extends Component {
 
     }
 
-    handleCadastro = async e => {
+    handleSubmit = event => {
+        let { socios, procuradores } = this.state,
+            empresa = {}
+        empresasForm.forEach(e => {
+            if (this.state.hasOwnProperty([e.field])) {
+                Object.assign(empresa, { [e.field]: this.state[e.field] })
+            }
+        })
+        empresa.delegatarioStatus = 'Ativo'
+        empresa = humps.decamelizeKeys(empresa)
+        socios = humps.decamelizeKeys(socios)[0]
+        procuradores = humps.decamelizeKeys(procuradores)[0]
+
+        /* axios.post('/api/cadEmpresa', { empresa })
+            .then(empresaId => {
+                socios.delegatario_id = empresaId.data
+                axios.post('/api/cadSocios', { socios })
+                    .then(r => console.log(r))
+            })
+ */
+        axios.post('/api/empresaFullCad', { empresa, socios, procuradores })
+            .then(r => console.log(r.data))
+
 
     }
 
@@ -195,33 +218,10 @@ export default class extends Component {
         this.setState({ confirmToast: !this.state.confirmToast })
     }
 
-    handleFiles = async e => {
-        const { name, files } = e.target
-
-        if (files && files[0]) {
-
-            document.getElementById(name).value = files[0].name
-
-            let formData = new FormData()
-
-            let fn = this.state.fileNames
-
-            if (files && files.length > 0) {
-
-                fn.push({ [name]: files[0].name })
-                await this.setState({ filesNames: fn, [name]: files[0] })
-
-                cadVehicleFiles.forEach(({ name }) => {
-                    for (let keys in this.state) {
-                        if (keys.match(name)) {
-                            formData.append(name, this.state[name])
-                        }
-                        else void 0
-                    }
-                })
-                this.setState({ form: formData })
-            }
-        }
+    handleFiles = file => {
+        let formData = new FormData()
+        formData.append('estatuto', file)
+        this.setState({ dropDisplay: file[0].name, form: formData })
     }
 
     submitFiles = async e => {
@@ -249,12 +249,16 @@ export default class extends Component {
         }
         else switch (alert) {
             case 'overShared':
-                dialogTitle = 'Participação societária inválida'
-                message = 'A participação societária informada excede a 100%'
+                dialogTitle = 'Participação societária inválida.'
+                message = 'A participação societária informada excede a 100%.'
                 break;
             case 'subShared':
-                dialogTitle = 'Participação societária inválida'
+                dialogTitle = 'Participação societária inválida.'
                 message = 'A participação societária informada não soma 100%. Favor informar todos os sócios com suas respectivas participações.'
+                break;
+            case 'missingRequiredFields':
+                dialogTitle = 'Campos de preenchimento obrigatório.'
+                message = 'Favor preencher todos os campos do formulário.'
                 break;
             default:
                 break;
@@ -292,6 +296,7 @@ export default class extends Component {
                         handleInput={this.handleInput}
                         handleBlur={this.handleBlur}
                         handleCheck={this.handleCheck}
+                        handleFiles={this.handleFiles}
                     />
                     : activeStep < 3 ?
                         <SociosTemplate
@@ -310,7 +315,7 @@ export default class extends Component {
             <StepperButtons
                 activeStep={activeStep}
                 lastStep={steps.length - 1}
-                handleSubmit={this.handleCadastro}
+                handleSubmit={this.handleSubmit}
                 setActiveStep={this.setActiveStep}
             />
             <ReactToast open={confirmToast} close={this.toast} msg={toastMsg} />
