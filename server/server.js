@@ -2,7 +2,7 @@ const express = require('express')
 const app = express()
 const bodyParser = require('body-parser')
 const pg = require('pg')
-const fs = require('fs')
+//const fs = require('fs')
 const path = require('path')
 const dotenv = require('dotenv')
 const mongoose = require('mongoose')
@@ -79,9 +79,29 @@ const storage = new GridFsStorage({
     }
 })
 
-const upload = multer({ storage });
+const empresaStorage = new GridFsStorage({
 
-app.post('/api/mongoUpload', upload.any(), (req, res) => {
+    url: mongoURI,
+    file: (req, file) => {
+
+        const id = req.body.veiculoId
+        const fileInfo = {
+            filename: file.originalname,
+            metadata: {
+                'fieldName': file.fieldname,
+                'delegatarioId': id,
+                'procuradorId': req.body.procuradorId || undefined
+            },
+            bucketName: 'empresaDocs',
+        }
+        return fileInfo
+    }
+})
+
+const upload = multer({ storage })
+const uploadEmpresas = multer({ empresaStorage })
+
+app.post('/api/mongoUpload', upload.any(), (req, res) => {;
     console.log('a', JSON.parse(JSON.stringify(req.body)), 'b')
     let filesArray = []
     if (req.files) req.files.forEach(f => {

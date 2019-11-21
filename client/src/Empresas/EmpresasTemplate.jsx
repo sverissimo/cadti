@@ -1,11 +1,10 @@
 import React, { Fragment, useState } from 'react'
 import Dropzone from 'react-dropzone'
-import { Grid, Paper, Typography, MenuItem, Checkbox, FormControlLabel } from '@material-ui/core'
+import { Grid, Paper, Typography, Checkbox, FormControlLabel } from '@material-ui/core'
 import DescriptionOutlinedIcon from '@material-ui/icons/DescriptionOutlined';
 import { makeStyles } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
 import { empresasForm } from '../Forms/empresasForm'
-import AutoComplete from '../Utils/autoComplete'
 //import PopUp from '../Utils/PopUp'
 
 const useStyles = makeStyles(theme => ({
@@ -120,7 +119,6 @@ export default function ({ handleInput, handleBlur, data, handleFiles }) {
                             />
                         </Grid>
                     }
-
                 </Paper>
                 {
                     true
@@ -160,20 +158,9 @@ export default function ({ handleInput, handleBlur, data, handleFiles }) {
                                             rows={el.rows || null}
                                             variant={el.variant || 'filled'}
                                             fullWidth={el.fullWidth || false}
-                                        >
-                                            {el.select === true && el.options.map((opt, i) =>
-                                                <MenuItem key={i} value={opt}>
-                                                    {opt}
-                                                </MenuItem>)}
-                                        </TextField>
-                                        {el.autoComplete === true && <AutoComplete
-                                            collection={data[el.collection]}
-                                            datalist={el.datalist}
-                                            value={data[el.field] || ''}
-                                        />
-                                        }
+                                        >                                          
+                                        </TextField>                                       
                                     </Fragment>)}
-
                                 <Dropzone onDrop={handleFiles}>
                                     {({ getRootProps, getInputProps }) => (
                                         <Grid container justify="center" alignItems='center' className={dropBox} direction='row' {...getRootProps()}>

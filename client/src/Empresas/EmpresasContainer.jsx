@@ -35,7 +35,7 @@ export default class extends Component {
         empresas: [],
         razaoSocial: '',
         frota: [],
-        toastMsg: 'Delegatário cadastrado!',
+        toastMsg: 'Empresa cadastrada!',
         confirmToast: false,
         files: [],
         fileNames: [],
@@ -68,7 +68,7 @@ export default class extends Component {
         if (action === 'back') this.setState({ activeStep: prevActiveStep - 1 });
         if (action === 'reset') this.setState({ activeStep: 0 })
 
-        if (prevActiveStep === 1 && action === 'next' && this.state.totalShare < 100) this.createAlert('subShared')
+        //if (prevActiveStep === 1 && action === 'next' && this.state.totalShare < 100) this.createAlert('subShared')
     }
 
     handleInput = async e => {
@@ -188,9 +188,10 @@ export default class extends Component {
 
     }
 
-    handleSubmit = event => {
-        let { socios, procuradores } = this.state,
+    handleSubmit = async () => {
+        let { socios, procuradores, form } = this.state,
             empresa = {}
+
         empresasForm.forEach(e => {
             if (this.state.hasOwnProperty([e.field])) {
                 Object.assign(empresa, { [e.field]: this.state[e.field] })
@@ -198,20 +199,16 @@ export default class extends Component {
         })
         empresa.delegatarioStatus = 'Ativo'
         empresa = humps.decamelizeKeys(empresa)
-        socios = humps.decamelizeKeys(socios)[0]
-        procuradores = humps.decamelizeKeys(procuradores)[0]
+        socios = humps.decamelizeKeys(socios)
+        procuradores = humps.decamelizeKeys(procuradores)
 
-        /* axios.post('/api/cadEmpresa', { empresa })
-            .then(empresaId => {
-                socios.delegatario_id = empresaId.data
-                axios.post('/api/cadSocios', { socios })
-                    .then(r => console.log(r))
-            })
- */
-        axios.post('/api/empresaFullCad', { empresa, socios, procuradores })
+        await axios.post('/api/empresaFullCad', { empresa, socios, procuradores })
             .then(r => console.log(r.data))
 
-
+        /*  await axios.post('/api/mongoUpload', form)
+             .then(res => console.log(res.data))
+             .catch(err => console.log(err)) */
+        this.toast()
     }
 
     toast = e => {
@@ -220,17 +217,14 @@ export default class extends Component {
 
     handleFiles = file => {
         let formData = new FormData()
-        formData.append('estatuto', file)
-        this.setState({ dropDisplay: file[0].name, form: formData })
-    }
+        if (activeStep === 0) {
+            formData.append('contratoSocial', file)
+            this.setState({ dropDisplay: file[0].name, form: formData })
+        }
+        if (activeStep === 2) {
+            console.log(file)
+        }
 
-    submitFiles = async e => {
-        const { form } = this.state
-
-        await axios.post('/api/mongoUpload', form)
-            .then(res => console.log(res.data))
-            .catch(err => console.log(err))
-        this.toast()
     }
 
     handleCheck = item => {
@@ -306,6 +300,7 @@ export default class extends Component {
                             handleCheck={this.handleCheck}
                             addSocio={this.addSocio}
                             removeSocio={this.removeSocio}
+                            handleFiles={this.handleFiles}
                         />
                         :
                         <EmpresaReview

@@ -1,9 +1,11 @@
 import React, { Fragment } from 'react'
+import Dropzone from 'react-dropzone'
 import { Grid, Paper, Typography, MenuItem, Button } from '@material-ui/core'
-import AddIcon from '@material-ui/icons/Add';
-import DeleteIcon from '@material-ui/icons/Delete';
 import { makeStyles } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
+import AddIcon from '@material-ui/icons/Add';
+import DeleteIcon from '@material-ui/icons/Delete';
+import DescriptionOutlinedIcon from '@material-ui/icons/DescriptionOutlined';
 import { sociosForm } from '../Forms/sociosForm'
 import { procuradorForm } from '../Forms/procuradorForm'
 
@@ -47,12 +49,40 @@ const useStyles = makeStyles(theme => ({
     },
     deleteButton: {
         marginTop: theme.spacing(1)
+    },
+    dropBox: {
+        margin: '2% 0',        
+    },
+    dropBoxItem: {
+        margin: '2% 0',
+        border: '1px solid #ccc',
+        borderRadius: '3%',
+        height: '60px',
+        padding: '2% 1% 0 1%',
+        cursor: 'pointer',
+        zIndex: '1',
+        boxShadow: 'inset 3px -3px -3px 0px black',
+        fontWeight: 500,
+        color: '#4169E1'
+
+    },
+    dropBoxItem2: {
+        margin: '2% 0',
+        border: '1px solid #ccc',
+        borderRadius: '3%',
+        height: '60px',
+        padding: '0 1% 0 1%',
+        cursor: 'pointer',
+        zIndex: '1',
+        boxShadow: 'inset 3px -3px -3px 0px black',
+        color: 'black',
+        fontWeight: 400,      
     }
 }));
 
-export default function ({ handleInput, handleBlur, data, addSocio, removeSocio }) {
-    const { activeStep, stepTitles } = data,
-        classes = useStyles(), { paper, container, title, deleteButton } = classes
+export default function ({ handleInput, handleBlur, data, addSocio, removeSocio, handleFiles }) {
+    const { activeStep, stepTitles, dropDisplay } = data,
+        classes = useStyles(), { paper, container, title, deleteButton, dropBox, dropBoxItem, dropBoxItem2 } = classes
 
     const errorHandler = (el) => {
         const value = data.form[el.field]
@@ -132,6 +162,21 @@ export default function ({ handleInput, handleBlur, data, addSocio, removeSocio 
                         {activeStep !== 3 && <Button color='primary' className={deleteButton} onClick={addSocio}>
                             <AddIcon /> Adicionar {activeStep === 1 ? 'sócio' : 'procurador'}
                         </Button>}
+                        {
+                            activeStep === 2 && <Dropzone onDrop={handleFiles}>
+                                {({ getRootProps, getInputProps }) => (
+                                    <Grid container justify="center" alignItems='center' className={dropBox} direction='row' {...getRootProps()}>
+                                        <input {...getInputProps()} />
+                                        {
+                                            dropDisplay.match('Clique ou') ?
+                                                <Grid item xs={6} className={dropBoxItem}> {dropDisplay} </Grid>
+                                                :
+                                                <Grid item xs={6} className={dropBoxItem2}> <DescriptionOutlinedIcon />  {dropDisplay} <br /> (clique ou arraste outro arquivo para alterar)</Grid>
+                                        }
+                                    </Grid>
+                                )}
+                            </Dropzone>
+                        }
                     </Paper>
                 </Grid>
                 {
