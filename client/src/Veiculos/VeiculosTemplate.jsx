@@ -59,8 +59,7 @@ export default function ({ handleInput, handleBlur, data, handleEquipa, handleCh
     else form = vehicleForm[tab]
 
     const errorHandler = (el) => {
-        const value = data.form[el.field]
-
+        const value = data.form[el.field]        
         if (el.pattern && value) return data.form[el.field].match(el.pattern) === null
         else if (value > el.max || value < el.min) return true
         else return false
@@ -234,7 +233,7 @@ export default function ({ handleInput, handleBlur, data, handleEquipa, handleCh
                                 }
                                 {altPlacaOption && placa.match('[a-zA-Z]{3}[-]?\\d{4}') && <Grid item xs={12}>
                                     <Typography
-                                        style={{ color: '#2979ff', fontWeight:500, fontSize: '0.75rem', padding: '2% 0 1% 70%', cursor: 'pointer' }}
+                                        style={{ color: '#2979ff', fontWeight: 500, fontSize: '0.75rem', padding: '2% 0 1% 70%', cursor: 'pointer' }}
                                         onClick={() => showAltPlaca()}
                                     >
                                         → Clique aqui para alterar a placa para o formato Mercosul.

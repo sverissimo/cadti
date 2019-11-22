@@ -83,14 +83,14 @@ const empresaStorage = new GridFsStorage({
 
     url: mongoURI,
     file: (req, file) => {
-
-        const id = req.body.veiculoId
+        const { empresa } = req.body
+        console.log(file)
         const fileInfo = {
             filename: file.originalname,
             metadata: {
-                'fieldName': file.fieldname,
-                'delegatarioId': id,
-                'procuradorId': req.body.procuradorId || undefined
+                'fieldName': req.body.fieldName,
+                'empresa': empresa,
+                'cpfProcurador': file.fieldname,
             },
             bucketName: 'empresaDocs',
         }
@@ -99,9 +99,29 @@ const empresaStorage = new GridFsStorage({
 })
 
 const upload = multer({ storage })
-const uploadEmpresas = multer({ empresaStorage })
+const empresaUpload = multer({ empresaStorage })
 
-app.post('/api/mongoUpload', upload.any(), (req, res) => {;
+app.post('/api/tst', empresaUpload.any(), (req, res) => {
+    
+    console.log(req.file)
+    let filesArray = []
+    if (req.files) req.files.forEach(f => {
+        filesArray.push({
+            fieldName: f.fieldname,
+            id: f.id,
+            originalName: f.originalname,
+            uploadDate: f.uploadDate,
+            contentType: f.contentType,
+            fileSize: f.size
+        })
+    })
+    res.json({ file: filesArray });
+
+})
+
+
+app.post('/api/mongoUpload', upload.any(), (req, res) => {
+    ;
     console.log('a', JSON.parse(JSON.stringify(req.body)), 'b')
     let filesArray = []
     if (req.files) req.files.forEach(f => {

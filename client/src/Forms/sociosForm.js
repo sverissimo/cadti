@@ -11,10 +11,9 @@ export const sociosForm = [{
 },
 {
     field: 'telSocio',
-    label: 'Telefone',    
-    maxLength: 20,
-    pattern: '[0-9]{20}'
-    //pattern: '?[(]/d{2-3}?[)]?[ ]/d{4}?[-]/d{4}'    
+    label: 'Telefone',
+    maxLength: 16,    
+    pattern: '((([+][0-9]{1,3})?[ ]?[-]?[(]?[0-9]{2,3}[)]?[ ]?[-]?[0-9]{4,5}[ ]?[-]?[0-9]{4}))'
 },
 {
     field: 'emailSocio',
@@ -24,6 +23,6 @@ export const sociosForm = [{
 {
     field: 'share',
     label: 'Participação Societária (%)',
-    maxLength: 3,    
-    pattern: '[0-9]{3}'
+    maxLength: 5,    
+    max: 100,    
 }]

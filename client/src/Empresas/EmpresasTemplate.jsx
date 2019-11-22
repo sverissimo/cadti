@@ -77,7 +77,6 @@ export default function ({ handleInput, handleBlur, data, handleFiles }) {
 
     const errorHandler = (el) => {
         const value = data.form[el.field]
-
         if (el.pattern && value) return data.form[el.field].match(el.pattern) === null
         else if (value > el.max || value < el.min) return true
         else return false

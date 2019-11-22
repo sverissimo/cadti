@@ -51,7 +51,7 @@ const useStyles = makeStyles(theme => ({
         marginTop: theme.spacing(1)
     },
     dropBox: {
-        margin: '2% 0',        
+        margin: '2% 0',
     },
     dropBoxItem: {
         margin: '2% 0',
@@ -76,7 +76,7 @@ const useStyles = makeStyles(theme => ({
         zIndex: '1',
         boxShadow: 'inset 3px -3px -3px 0px black',
         color: 'black',
-        fontWeight: 400,      
+        fontWeight: 400,
     }
 }));
 
@@ -85,15 +85,19 @@ export default function ({ handleInput, handleBlur, data, addSocio, removeSocio,
         classes = useStyles(), { paper, container, title, deleteButton, dropBox, dropBoxItem, dropBoxItem2 } = classes
 
     const errorHandler = (el) => {
-        const value = data.form[el.field]
 
-        if (el.pattern && value) return data.form[el.field].match(el.pattern) === null
-        else if (value > el.max || value < el.min) return true
+        const value = data[el.field]
+
+        if (el.pattern && value) {
+            console.log(value.match(el.pattern) === null);
+            return value.match(el.pattern) === null
+        }
+        if (value > el.max || value < el.min) return true
         else return false
     }
 
     const helper = (el) => {
-        const value = data.form[el.field]
+        const value = data[el.field]
 
         if (value > el.max || value < el.min) return 'Valor inválido'
         else if (value && value.match(el.pattern) === null) return '✘'
@@ -105,7 +109,7 @@ export default function ({ handleInput, handleBlur, data, addSocio, removeSocio,
         socios = data.socios
     if (activeStep === 1) form = sociosForm
     if (activeStep === 2) { form = procuradorForm; socios = data.procuradores }
-
+    
     return (
         <Grid
             container

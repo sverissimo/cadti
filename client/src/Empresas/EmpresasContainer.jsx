@@ -27,7 +27,7 @@ export default class extends Component {
     }
 
     state = {
-        activeStep: 0,
+        activeStep: 2,
         stepTitles: ['Preencha os dados da empresa', 'Informações sobre os sócios',
             'Informações sobre os procuradores', 'Revisão'],
         steps: ['Dados da Empresa', 'Sócios', 'Procuradores', 'Revisão'],
@@ -44,7 +44,8 @@ export default class extends Component {
         totalShare: 0,
         socios: [],
         procuradores: [],
-        dropDisplay: 'Clique ou arraste para anexar o Estatuto atualizado da empresa'
+        dropDisplay: 'Clique ou arraste para anexar o Estatuto atualizado da empresa',
+        procFiles: new FormData()
     }
 
     async componentDidMount() {
@@ -188,9 +189,36 @@ export default class extends Component {
 
     }
 
+
+    toast = e => {
+        this.setState({ confirmToast: !this.state.confirmToast })
+    }
+
+    handleFiles = file => {
+        const { activeStep } = this.state
+        let formData = new FormData()
+        if (activeStep === 0) {
+            formData.append('contratoSocial', file)
+
+            this.setState({ dropDisplay: file[0].name, form: formData })
+        }
+        if (activeStep === 2) {
+            let procFiles = this.state.procFiles
+            procFiles.append(this.state.cpfProcurador, file)
+            this.setState({ procFiles })
+
+            for (let pair of this.state.procFiles.entries()) {
+                console.log(pair[0] + ', ' + pair[1]);
+            }
+        }
+
+    }
+
     handleSubmit = async () => {
-        let { socios, procuradores, form } = this.state,
-            empresa = {}
+
+        let { socios, procuradores, procFiles } = this.state,
+            empresa = {},
+            tempFiles = new FormData()
 
         empresasForm.forEach(e => {
             if (this.state.hasOwnProperty([e.field])) {
@@ -201,9 +229,16 @@ export default class extends Component {
         empresa = humps.decamelizeKeys(empresa)
         socios = humps.decamelizeKeys(socios)
         procuradores = humps.decamelizeKeys(procuradores)
+        tempFiles.append('empresa', this.state.razaoSocial)
+        tempFiles.append('fieldName', 'procFile')
+        for(let pair of procFiles.entries()) {
+            tempFiles.append(pair[0], pair[1])
+        }
 
-        await axios.post('/api/empresaFullCad', { empresa, socios, procuradores })
-            .then(r => console.log(r.data))
+        axios.post('/api/tst', tempFiles)
+            .then(r => console.log(r))
+        /* await axios.post('/api/empresaFullCad', { empresa, socios, procuradores })
+            .then(r => console.log(r.data)) */
 
         /*  await axios.post('/api/mongoUpload', form)
              .then(res => console.log(res.data))
@@ -211,21 +246,6 @@ export default class extends Component {
         this.toast()
     }
 
-    toast = e => {
-        this.setState({ confirmToast: !this.state.confirmToast })
-    }
-
-    handleFiles = file => {
-        let formData = new FormData()
-        if (activeStep === 0) {
-            formData.append('contratoSocial', file)
-            this.setState({ dropDisplay: file[0].name, form: formData })
-        }
-        if (activeStep === 2) {
-            console.log(file)
-        }
-
-    }
 
     handleCheck = item => {
         this.setState({ ...this.state, [item]: !this.state[item] })
