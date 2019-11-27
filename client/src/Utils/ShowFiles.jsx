@@ -5,6 +5,7 @@ import formatFileSize from './formatFileSize'
 import download from './downloadFile'
 import PopUp from './PopUp'
 import { cadVehicleFiles } from '../Forms/cadVehicleFiles'
+import { empresaFiles } from '../Forms/Files/empresaFiles'
 
 const divRow = {
     marginBottom: 0,
@@ -16,23 +17,38 @@ const divRow = {
     justifyItems: 'auto'
 }
 
-const ShowFiles = ({ veiculoId, filesCollection, close, format }) => {
+const ShowFiles = ({ tab, elementId, filesCollection, procuradores, close, format }) => {
 
     let tempFiles = []
     let files = []
-    let fileLabels = cadVehicleFiles
-    if (fileLabels.filter(f => f.name === 'transferenciaDoc').length === 0) fileLabels.push({ title: 'Documento de Transferência', name: 'transferenciaDoc' })
-    if (fileLabels.filter(f => f.name === 'newPlateDoc').length === 0) fileLabels.push({ title: 'CRLV com nova placa', name: 'newPlateDoc' })
-    
+    let fileLabels
+    let typeId
+
+    if (tab === 0) {
+        fileLabels = cadVehicleFiles
+        typeId = 'veiculoId'
+        if (fileLabels.filter(f => f.name === 'transferenciaDoc').length === 0) fileLabels.push({ title: 'Documento de Transferência', name: 'transferenciaDoc' })
+        if (fileLabels.filter(f => f.name === 'newPlateDoc').length === 0) fileLabels.push({ title: 'CRLV com nova placa', name: 'newPlateDoc' })
+    }
+
+    if (tab === 1) {
+        fileLabels = empresaFiles
+        typeId = 'empresaId'
+    }
+
     if (filesCollection && filesCollection[0]) {
-        tempFiles = filesCollection.filter(el => el.metadata.veiculoId.match(veiculoId))
+        tempFiles = filesCollection.filter(el => el.metadata[typeId].match(elementId))
         tempFiles.forEach(obj => {
             fileLabels.forEach(o => {
                 if (o.name === obj.metadata.fieldName) files.push({ ...obj, label: o.title })
             })
         })
     }
-
+    const nomeProc = (el) => {
+        const name = procuradores.filter(p => p.cpfProcurador === el)[0]
+        if (name !== undefined && name.hasOwnProperty('nomeProcurador')) return name.nomeProcurador
+        else return ''
+    }
     if (files[0]) {
         return <PopUp title='Arquivos' close={close} format={format}>
             <div className="row">
@@ -69,8 +85,8 @@ const ShowFiles = ({ veiculoId, filesCollection, close, format }) => {
                                 <div className="col s11">
                                     <span
                                         style={{ textDecoration: 'underline', cursor: 'pointer', color: 'blue' }}
-                                        onClick={() => download(file._id, file.filename)}>
-                                        {file.label}
+                                        onClick={() => download(file._id, file.filename, typeId)}>
+                                        {file.label} {file.metadata.cpfProcurador && ' - ' + nomeProc(file.metadata.cpfProcurador)}
                                     </span>
                                 </div>
 

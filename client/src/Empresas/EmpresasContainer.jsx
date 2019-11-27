@@ -45,7 +45,7 @@ export default class extends Component {
         totalShare: 0,
         socios: [],
         procuradores: [],
-        dropDisplay: 'Clique ou arraste para anexar o Estatuto atualizado da empresa',
+        dropDisplay: 'Clique ou arraste para anexar o Contrato Social atualizado da empresa',
         procFiles: new FormData()
     }
 
@@ -217,9 +217,11 @@ export default class extends Component {
 
     handleSubmit = async () => {
 
-        let { socios, procuradores, procFiles } = this.state,
+        let { socios, procuradores, procFiles, form } = this.state,
             empresa = {},
-            tempFiles = new FormData()
+            procData = new FormData(),
+            contratoFile = new FormData(),
+            empresaId
 
         empresasForm.forEach(e => {
             if (this.state.hasOwnProperty([e.field])) {
@@ -231,54 +233,28 @@ export default class extends Component {
         socios = humps.decamelizeKeys(socios)
         procuradores = humps.decamelizeKeys(procuradores)
 
-        tempFiles.append('empresa', this.state.razaoSocial)
-        tempFiles.append('fieldName', 'procFile')
-
-        /* axios.post('/api/empresaUpload', tempFiles)
-            .then(r => console.log(r)) */
-        for (let pair of procFiles.entries()) {
-            console.log(pair[0], ', ', pair[1])
-        }
-
-
-        let cpfId = []
         await axios.post('/api/empresaFullCad', { empresa, socios, procuradores })
-            .then(rows => rows.data.forEach(r => {
-                cpfId.push(r.row.replace('(', '').replace(')', '').split(','))
-            }))
+            .then(async delegatarioId => empresaId = delegatarioId.data)
 
-        console.log(cpfId)
-
+        procData.append('fieldName', 'procFile')
+        procData.append('empresaId', empresaId)
         for (let pair of procFiles.entries()) {
-            cpfId.forEach(async ([id, cpf]) => {
-                if (pair[0] === cpf) {                    
-                    await procFiles.set(id, pair[1])
-                    await procFiles.delete(cpf)
-                }
-            })
+            procData.append(pair[0], pair[1])
         }
 
-        for (let pair of procFiles.entries()) {
-            console.log(pair[0], ', ', pair[1])
+        await axios.post('/api/empresaUpload', procData)
+            .then(r => console.log(r.data))
+
+        contratoFile.append('empresaId', empresaId)
+        for (let pair of form.entries()) {
+            contratoFile.append(pair[0], pair[1])
         }
+        await axios.post('/api/empresaUpload', contratoFile)
+            .then(r => console.log(r.data))
 
 
-        for (let pair of procFiles.entries()) {
-            tempFiles.append(pair[0], pair[1])
-        }
-
-        /* for (let pair of procFiles.entries()) {
-            tempFiles.append(pair[0], pair[1])
-        }
- */
-
-
-        /*  await axios.post('/api/mongoUpload', form)
-             .then(res => console.log(res.data))
-             .catch(err => console.log(err)) */
         this.toast()
     }
-
 
     handleCheck = item => {
         this.setState({ ...this.state, [item]: !this.state[item] })

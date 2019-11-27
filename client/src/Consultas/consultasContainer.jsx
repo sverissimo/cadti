@@ -39,24 +39,29 @@ export default class extends Component {
         showFiles: false,
         openDialog: false,
         filesCollection: [],
-        vehicleInfo: ''
+        elementDetails: '',
+        vehicleFiles: []
     }
 
     async componentDidMount() {
         const vehicles = axios.get('/api/veiculosInit'),
             insurances = axios.get('/api/seguros'),
             delega = axios.get('/api/empresas'),
-            soc = axios.get('/api/socios')
+            soc = axios.get('/api/socios'),
+            proc = axios.get('/api/procuradores')
 
-        axios.get('/api/vehicleFiles')
-            .then(res => this.setState({ files: res.data }))
+        axios.get('/api/getFiles/vehicle')
+            .then(res => this.setState({ vehicleFiles: res.data }))
 
-        Promise.all([vehicles, insurances, delega, soc])
+        axios.get('/api/getFiles/empresa')
+            .then(res => this.setState({ empresaFiles: res.data }))
+
+        Promise.all([vehicles, insurances, delega, soc, proc])
             .then(res => res.map(r => humps.camelizeKeys(r.data)))
-            .then(([veiculos, seguros, empresas, socios]) => {
-                this.setState({ veiculos, seguros, empresas, socios, collection: veiculos })
+            .then(([veiculos, seguros, empresas, socios, procuradores]) => {
+                this.setState({ veiculos, seguros, empresas, socios, procuradores, collection: veiculos })
             })
-        document.addEventListener('keydown', this.escFunction, false)        
+        document.addEventListener('keydown', this.escFunction, false)
 
     }
     componentWillUnmount() {
@@ -74,10 +79,10 @@ export default class extends Component {
         this.setState({ data })
     }
 
-    showDetails = (e, vehicleInfo) => {
+    showDetails = (e, elementDetails) => {
 
-        if (vehicleInfo !== undefined) this.setState({ showDetails: !this.state.showDetails, vehicleInfo })
-        else this.setState({ showDetails: !this.state.showDetails, vehicleInfo: undefined })
+        if (elementDetails !== undefined) this.setState({ showDetails: !this.state.showDetails, elementDetails })
+        else this.setState({ showDetails: !this.state.showDetails, elementDetails: undefined })
     }
 
     closeFiles = () => {
@@ -86,10 +91,13 @@ export default class extends Component {
 
     showFiles = id => {
 
-        let selectedFiles = this.state.files.filter(f => f.metadata.veiculoId === id.toString())
+        let selectedFiles
+
+        if (this.state.tab === 0) selectedFiles = this.state.vehicleFiles.filter(f => f.metadata.veiculoId === id.toString())
+        if (this.state.tab === 1) selectedFiles = this.state.empresaFiles.filter(f => f.metadata.empresaId === id.toString())
 
         if (selectedFiles[0]) {
-            this.setState({ filesCollection: selectedFiles, showFiles: true, selectedVehicle: id })
+            this.setState({ filesCollection: selectedFiles, showFiles: true, selectedElement: id })
 
         } else {
             this.createAlert('filesNotFound')
@@ -108,13 +116,14 @@ export default class extends Component {
     }
 
     createAlert = (alert) => {
-        let dialogTitle, message
+        let dialogTitle, message, subject
 
         switch (alert) {
             case 'filesNotFound':
+                subject = [['o', 'veículo'], ['a', 'empresa']][this.state.tab]
                 dialogTitle = 'Arquivos não encontrados'
-                message = `Não há nenhum arquivo anexado no sistema para este veículo. 
-                Ao cadastrar ou atualizar os dados de um veículo, certifique-se de anexar os documentos solicitados.`
+                message = `Não há nenhum arquivo anexado no sistema para ${subject[0]} ${subject[1]} selecionad${subject[0]}. 
+                Ao cadastrar ou atualizar os dados d${subject[0]} ${subject[1]}, certifique-se de anexar os documentos solicitados.`
                 break;
             default:
                 break;
@@ -127,8 +136,8 @@ export default class extends Component {
     }
 
     render() {
-        const { tab, items, collection, showDetails, vehicleInfo, showFiles, selectedVehicle, filesCollection,
-            openDialog, dialogTitle, message } = this.state
+        const { tab, items, collection, showDetails, elementDetails, showFiles, selectedElement, filesCollection,
+            openDialog, dialogTitle, message, procuradores } = this.state
 
         return <Fragment>
             <TabMenu items={items}
@@ -149,11 +158,11 @@ export default class extends Component {
                 format={format}
             >
                 <VehicleDetails
-                    data={vehicleInfo}
+                    data={elementDetails}
                     tab={tab}
                 />
             </PopUp>}
-            {showFiles && <ShowFiles veiculoId={selectedVehicle} filesCollection={filesCollection} close={this.closeFiles} format={format} />}
+            {showFiles && <ShowFiles tab={tab} elementId={selectedElement} filesCollection={filesCollection} close={this.closeFiles} format={format} procuradores={procuradores}/>}
             <AlertDialog open={openDialog} close={this.toggleDialog} title={dialogTitle} message={message} />
         </Fragment>
     }

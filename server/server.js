@@ -17,6 +17,7 @@ const { cadProcuradores } = require('./cadProcuradores')
 
 const { empresas, veiculoInit, modeloChassi, carrocerias, equipamentos, seguradoras, seguros } = require('./queries')
 const { filesModel } = require('./models/filesModel')
+const { empresaModel } = require('./models/empresaModel')
 
 const { uploadFS } = require('./upload')
 const { parseRequestBody } = require('./parseRequest')
@@ -85,15 +86,23 @@ const empresaStorage = new GridFsStorage({
     url: mongoURI,
     file: (req, file) => {
         gfs.collection('empresaDocs');
-        const { empresa, fieldName } = req.body
-        const fileInfo = {
+        const { empresaId, fieldName } = req.body
+
+        let fileInfo = {
             filename: file.originalname,
             metadata: {
                 'fieldName': fieldName,
                 'cpfProcurador': file.fieldname,
-                'empresa': empresa
+                'empresaId': empresaId
             },
             bucketName: 'empresaDocs',
+        }
+
+        if (file.fieldname === 'contratoSocial') {
+            fileInfo.metadata = {
+                'fieldName': file.fieldname,
+                'empresaId': empresaId
+            }
         }
         return fileInfo
     }
@@ -104,7 +113,7 @@ const empresaUpload = multer({ storage: empresaStorage })
 
 app.post('/api/empresaUpload', empresaUpload.any(), (req, res) => {
 
-      let filesArray = []
+    let filesArray = []
     if (req.files) req.files.forEach(f => {
         filesArray.push({
             fieldName: f.fieldname,
@@ -134,9 +143,16 @@ app.post('/api/mongoUpload', upload.any(), (req, res) => {
     res.json({ file: filesArray });
 })
 
-app.get('/api/mongoDownload/:id', (req, res) => {
+app.get('/api/mongoDownload/', (req, res) => {
 
-    const fileId = new mongoose.mongo.ObjectId(req.params.id)
+    const fileId = new mongoose.mongo.ObjectId(req.query.id)
+
+    let collection
+
+    if (req.query.type === 'veiculoId') collection = 'vehicleDocs'
+    if (req.query.type === 'empresaId') collection = 'empresaDocs'
+
+    gfs.collection(collection)
     gfs.files.findOne({ _id: fileId }, (err, file) => {
 
         if (!file) {
@@ -158,10 +174,15 @@ app.get('/api/mongoDownload/:id', (req, res) => {
     })
 })
 
-app.get('/api/vehicleFiles', (req, res) => {
+app.get('/api/getFiles/:collection', (req, res) => {
 
-    filesModel.find().sort({ uploadDate: -1 }).exec((err, doc) => res.send(doc))
-   
+    let filesCollection
+
+    if (req.params.collection === 'vehicle') filesCollection = filesModel
+    if (req.params.collection === 'empresa') filesCollection = empresaModel
+
+    filesCollection.find().sort({ uploadDate: -1 }).exec((err, doc) => res.send(doc))
+
 })
 
 app.get('/api/empresas', (req, res) => pool.query(empresas, (err, table) => {
@@ -288,6 +309,14 @@ app.get('/api/seguros', (req, res) => {
 
 app.get('/api/seguradoras', (req, res) => {
     pool.query(seguradoras, (err, table) => {
+        if (err) res.send(err)
+        else if (table.rows && table.rows.length === 0) { res.send('Nenhum equipamento encontrado.'); return }
+        res.json(table.rows);
+    })
+})
+
+app.get('/api/procuradores', (req, res) => {
+    pool.query(`SELECT * FROM procurador`, (err, table) => {
         if (err) res.send(err)
         else if (table.rows && table.rows.length === 0) { res.send('Nenhum equipamento encontrado.'); return }
         res.json(table.rows);
