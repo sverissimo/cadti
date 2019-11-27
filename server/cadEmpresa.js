@@ -17,11 +17,8 @@ const cadEmpresa = (req, res, next) => {
 
                 req.body.procuradores.forEach(obj => {
                     Object.assign(obj, { delegatario_id: table.rows[0].delegatario_id })
-                });
-            }
-
-            //req.body.socios.delegatario_id = table.rows[0].delegatario_id
-            //req.body.procuradores.delegatario_id = table.rows[0].delegatario_id
+                })
+            }            
         }
         next()
     })

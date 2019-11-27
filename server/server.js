@@ -17,6 +17,7 @@ const { cadProcuradores } = require('./cadProcuradores')
 
 const { empresas, veiculoInit, modeloChassi, carrocerias, equipamentos, seguradoras, seguros } = require('./queries')
 const { filesModel } = require('./models/filesModel')
+
 const { uploadFS } = require('./upload')
 const { parseRequestBody } = require('./parseRequest')
 
@@ -65,8 +66,8 @@ const storage = new GridFsStorage({
 
     url: mongoURI,
     file: (req, file) => {
-
-        const id = req.body.veiculoId
+        gfs.collection('vehicleDocs');
+        const id = req.body.veiculoId || req.body.empresa
         const fileInfo = {
             filename: file.originalname,
             metadata: {
@@ -83,14 +84,14 @@ const empresaStorage = new GridFsStorage({
 
     url: mongoURI,
     file: (req, file) => {
-        const { empresa } = req.body
-        console.log(file)
+        gfs.collection('empresaDocs');
+        const { empresa, fieldName } = req.body
         const fileInfo = {
             filename: file.originalname,
             metadata: {
-                'fieldName': req.body.fieldName,
-                'empresa': empresa,
+                'fieldName': fieldName,
                 'cpfProcurador': file.fieldname,
+                'empresa': empresa
             },
             bucketName: 'empresaDocs',
         }
@@ -99,12 +100,11 @@ const empresaStorage = new GridFsStorage({
 })
 
 const upload = multer({ storage })
-const empresaUpload = multer({ empresaStorage })
+const empresaUpload = multer({ storage: empresaStorage })
 
-app.post('/api/tst', empresaUpload.any(), (req, res) => {
-    
-    console.log(req.file)
-    let filesArray = []
+app.post('/api/empresaUpload', empresaUpload.any(), (req, res) => {
+
+      let filesArray = []
     if (req.files) req.files.forEach(f => {
         filesArray.push({
             fieldName: f.fieldname,
@@ -116,13 +116,10 @@ app.post('/api/tst', empresaUpload.any(), (req, res) => {
         })
     })
     res.json({ file: filesArray });
-
 })
 
-
 app.post('/api/mongoUpload', upload.any(), (req, res) => {
-    ;
-    console.log('a', JSON.parse(JSON.stringify(req.body)), 'b')
+
     let filesArray = []
     if (req.files) req.files.forEach(f => {
         filesArray.push({
@@ -164,12 +161,7 @@ app.get('/api/mongoDownload/:id', (req, res) => {
 app.get('/api/vehicleFiles', (req, res) => {
 
     filesModel.find().sort({ uploadDate: -1 }).exec((err, doc) => res.send(doc))
-    /* 
-    filesModel.find().exec((err, doc) => {
-        if (err) console.log(err)
-        console.log('fuck', doc)
-        res.send(doc)
-    }) */
+   
 })
 
 app.get('/api/empresas', (req, res) => pool.query(empresas, (err, table) => {

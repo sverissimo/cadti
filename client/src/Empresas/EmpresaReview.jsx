@@ -1,11 +1,15 @@
 import React, { Fragment } from 'react'
-import { Grid, Paper, Typography } from '@material-ui/core'
-import { makeStyles } from '@material-ui/core/styles'
+
 import { empresasForm } from '../Forms/empresasForm'
 import { procuradorForm } from '../Forms/procuradorForm'
 import { sociosForm } from '../Forms/sociosForm'
+
+import Grid from '@material-ui/core/Grid'
+import Paper from '@material-ui/core/Paper'
+import Typography from '@material-ui/core/Typography'
+import { makeStyles } from '@material-ui/core/styles'
 import Fab from '@material-ui/core/Fab';
-import { FileCopy } from '@material-ui/icons'
+import FileCopyIcon from '@material-ui/icons/FileCopy'
 import Tooltip from '@material-ui/core/Tooltip';
 
 import Table from '@material-ui/core/Table';
@@ -101,7 +105,7 @@ export default function Revisao({ data }) {
                     <Grid container justify="flex-end">
                         <Tooltip title='Ver arquivos'>
                             <Fab color="default" aria-label="files">
-                                <FileCopy />
+                                <FileCopyIcon />
                             </Fab>
                         </Tooltip>
                     </Grid>

@@ -88,8 +88,7 @@ export default function ({ handleInput, handleBlur, data, addSocio, removeSocio,
 
         const value = data[el.field]
 
-        if (el.pattern && value) {
-            console.log(value.match(el.pattern) === null);
+        if (el.pattern && value) {            
             return value.match(el.pattern) === null
         }
         if (value > el.max || value < el.min) return true

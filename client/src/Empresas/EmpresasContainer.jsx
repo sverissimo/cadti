@@ -14,6 +14,7 @@ import { procuradorForm } from '../Forms/procuradorForm'
 import StepperButtons from '../Utils/StepperButtons'
 import CustomStepper from '../Utils/Stepper'
 import AlertDialog from '../Utils/AlertDialog'
+import { ContactSupportOutlined } from '@material-ui/icons'
 
 export default class extends Component {
 
@@ -194,17 +195,17 @@ export default class extends Component {
         this.setState({ confirmToast: !this.state.confirmToast })
     }
 
-    handleFiles = file => {
+    handleFiles = (file) => {
         const { activeStep } = this.state
         let formData = new FormData()
         if (activeStep === 0) {
-            formData.append('contratoSocial', file)
+            formData.append('contratoSocial', file[0])
 
             this.setState({ dropDisplay: file[0].name, form: formData })
         }
         if (activeStep === 2) {
             let procFiles = this.state.procFiles
-            procFiles.append(this.state.cpfProcurador, file)
+            procFiles.append(this.state.cpfProcurador, file[0])
             this.setState({ procFiles })
 
             for (let pair of this.state.procFiles.entries()) {
@@ -229,17 +230,26 @@ export default class extends Component {
         empresa = humps.decamelizeKeys(empresa)
         socios = humps.decamelizeKeys(socios)
         procuradores = humps.decamelizeKeys(procuradores)
+
         tempFiles.append('empresa', this.state.razaoSocial)
         tempFiles.append('fieldName', 'procFile')
-        for(let pair of procFiles.entries()) {
+
+        for (let pair of procFiles.entries()) {
             tempFiles.append(pair[0], pair[1])
         }
 
-        axios.post('/api/tst', tempFiles)
-            .then(r => console.log(r))
-        /* await axios.post('/api/empresaFullCad', { empresa, socios, procuradores })
-            .then(r => console.log(r.data)) */
 
+        /* axios.post('/api/empresaUpload', tempFiles)
+            .then(r => console.log(r)) */
+
+        let cpfId, obj = []
+        await axios.post('/api/empresaFullCad', { empresa, socios, procuradores })
+            .then(rows => cpfId = rows.data)
+        cpfId.forEach(r => {            
+            obj.push(r.row.replace('(', '').replace(')', '').split(','))
+        })
+        console.log(obj)
+        
         /*  await axios.post('/api/mongoUpload', form)
              .then(res => console.log(res.data))
              .catch(err => console.log(err)) */

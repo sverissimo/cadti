@@ -1,5 +1,11 @@
 import React, { Fragment, useState } from 'react'
-import { Grid, Paper, Typography, MenuItem, Checkbox, FormControlLabel, Button } from '@material-ui/core'
+import Grid from '@material-ui/core/Grid'
+import Paper from '@material-ui/core/Paper'
+import Typography from '@material-ui/core/Typography'
+import Checkbox from '@material-ui/core/Checkbox'
+import FormControlLabel from '@material-ui/core/FormControlLabel'
+import MenuItem from '@material-ui/core/MenuItem'
+import Button from '@material-ui/core/Button'
 import AddIcon from '@material-ui/icons/Add'
 import { makeStyles } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
@@ -59,7 +65,7 @@ export default function ({ handleInput, handleBlur, data, handleEquipa, handleCh
     else form = vehicleForm[tab]
 
     const errorHandler = (el) => {
-        const value = data.form[el.field]        
+        const value = data.form[el.field]
         if (el.pattern && value) return data.form[el.field].match(el.pattern) === null
         else if (value > el.max || value < el.min) return true
         else return false

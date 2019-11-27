@@ -1,6 +1,10 @@
 import React, { Fragment, useState } from 'react'
 import Dropzone from 'react-dropzone'
-import { Grid, Paper, Typography, Checkbox, FormControlLabel } from '@material-ui/core'
+import Grid from '@material-ui/core/Grid'
+import Paper from '@material-ui/core/Paper'
+import Typography from '@material-ui/core/Typography'
+import Checkbox from '@material-ui/core/Checkbox'
+import FormControlLabel from '@material-ui/core/FormControlLabel'
 import DescriptionOutlinedIcon from '@material-ui/icons/DescriptionOutlined';
 import { makeStyles } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
@@ -39,7 +43,7 @@ const useStyles = makeStyles(theme => ({
         margin: theme.spacing(1)
     },
     dropBox: {
-        margin: '2% 0',        
+        margin: '2% 0',
     },
     dropBoxItem: {
         margin: '2% 0',
@@ -64,7 +68,7 @@ const useStyles = makeStyles(theme => ({
         zIndex: '1',
         boxShadow: 'inset 3px -3px -3px 0px black',
         color: 'black',
-        fontWeight: 400,      
+        fontWeight: 400,
     }
 }));
 
@@ -90,7 +94,7 @@ export default function ({ handleInput, handleBlur, data, handleFiles }) {
         else if (el.pattern && value && value.match(el.pattern) !== null) return '✓'
         else return undefined
     }
-    
+
     return (
         <Grid
             container
@@ -157,8 +161,8 @@ export default function ({ handleInput, handleBlur, data, handleFiles }) {
                                             rows={el.rows || null}
                                             variant={el.variant || 'filled'}
                                             fullWidth={el.fullWidth || false}
-                                        >                                          
-                                        </TextField>                                       
+                                        >
+                                        </TextField>
                                     </Fragment>)}
                                 <Dropzone onDrop={handleFiles}>
                                     {({ getRootProps, getInputProps }) => (
