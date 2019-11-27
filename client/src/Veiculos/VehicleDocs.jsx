@@ -1,5 +1,9 @@
 import React, { Fragment } from 'react'
-import { Grid, Paper, TextField, Button, } from '@material-ui/core'
+
+import Grid from '@material-ui/core/Grid'
+import Paper from '@material-ui/core/Paper'
+import TextField from '@material-ui/core/TextField'
+import Button from '@material-ui/core/Button'
 import { makeStyles } from '@material-ui/core/styles'
 import { cadVehicleFiles } from '../Forms/cadVehicleFiles'
 import { altDadosFiles } from '../Forms/altDadosFiles'

@@ -5,14 +5,13 @@ const cadProcuradores = (req, res) => {
 
     const procuradores = parseRequestBody(req.body.procuradores)
 
-    procuradores.forEach(p => {
+    procuradores.forEach(async p => {
         const { keys, values } = p
-        pool.query(`INSERT INTO public.procurador (${keys}) VALUES (${values})`, (err, table) => {
+        await pool.query(`INSERT INTO public.procurador (${keys}) VALUES (${values})`, (err, table) => {
             if (err) res.send(err)
         })
+        console.log('ok')
     })
-
-
 
     let procArray = [],
         values = []
@@ -27,8 +26,11 @@ const cadProcuradores = (req, res) => {
         SELECT (procurador_id, cpf_procurador) FROM public.procurador
         WHERE procurador.cpf_procurador in (${values})        
     `, (err, table) => {
-        if (err) console.log(procArray.toString(), 'EEeeerrrrr', err)
-        if (table.hasOwnProperty('rows')) res.json(table.rows)
+        if (err) console.log('EEeeerrrrr', err)
+        if (table.hasOwnProperty('rows')) {
+            console.log(table.rows)
+            res.send(table.rows)
+        }
     })
 }
 

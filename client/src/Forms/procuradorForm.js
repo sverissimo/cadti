@@ -21,7 +21,7 @@ export const procuradorForm = [{
     label: 'E-mail',
     type: 'email',
     maxLength: 60,
-    pattern: '[a-zA-Z0-9]@[a-zA-Z0-9]\.[a-zA-Z0-9]'
+    pattern: '[a-zA-Z0-9]@([a-zA-Z0-9])?[.]([a-zA-Z0-9])'
 },
 {
     field: 'dataFim',

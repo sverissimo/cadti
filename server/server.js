@@ -8,7 +8,7 @@ const dotenv = require('dotenv')
 const mongoose = require('mongoose')
 const multer = require('multer')
 const GridFsStorage = require('multer-gridfs-storage')
-const Grid = require('gridfs-stream');
+const Grid = require('gridfs-stream')
 Grid.mongo = mongoose.mongo;
 
 const { cadEmpresa } = require('./cadEmpresa')

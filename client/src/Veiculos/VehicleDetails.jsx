@@ -1,5 +1,6 @@
 import React from 'react'
-import { TextField, Grid } from '@material-ui/core'
+import Grid from '@material-ui/core/Grid'
+import TextField from '@material-ui/core/TextField'
 import { makeStyles } from '@material-ui/core/styles'
 import formatDate from '../Utils/formatDate'
 import {cadForm} from '../Forms/cadForm'

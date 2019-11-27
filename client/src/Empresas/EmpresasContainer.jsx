@@ -14,7 +14,7 @@ import { procuradorForm } from '../Forms/procuradorForm'
 import StepperButtons from '../Utils/StepperButtons'
 import CustomStepper from '../Utils/Stepper'
 import AlertDialog from '../Utils/AlertDialog'
-import { ContactSupportOutlined } from '@material-ui/icons'
+
 
 export default class extends Component {
 
@@ -234,22 +234,45 @@ export default class extends Component {
         tempFiles.append('empresa', this.state.razaoSocial)
         tempFiles.append('fieldName', 'procFile')
 
+        /* axios.post('/api/empresaUpload', tempFiles)
+            .then(r => console.log(r)) */
+        for (let pair of procFiles.entries()) {
+            console.log(pair[0], ', ', pair[1])
+        }
+
+
+        let cpfId = []
+        await axios.post('/api/empresaFullCad', { empresa, socios, procuradores })
+            .then(rows => rows.data.forEach(r => {
+                cpfId.push(r.row.replace('(', '').replace(')', '').split(','))
+            }))
+
+        console.log(cpfId)
+
+        for (let pair of procFiles.entries()) {
+            cpfId.forEach(async ([id, cpf]) => {
+                if (pair[0] === cpf) {                    
+                    await procFiles.set(id, pair[1])
+                    await procFiles.delete(cpf)
+                }
+            })
+        }
+
+        for (let pair of procFiles.entries()) {
+            console.log(pair[0], ', ', pair[1])
+        }
+
+
         for (let pair of procFiles.entries()) {
             tempFiles.append(pair[0], pair[1])
         }
 
+        /* for (let pair of procFiles.entries()) {
+            tempFiles.append(pair[0], pair[1])
+        }
+ */
 
-        /* axios.post('/api/empresaUpload', tempFiles)
-            .then(r => console.log(r)) */
 
-        let cpfId, obj = []
-        await axios.post('/api/empresaFullCad', { empresa, socios, procuradores })
-            .then(rows => cpfId = rows.data)
-        cpfId.forEach(r => {            
-            obj.push(r.row.replace('(', '').replace(')', '').split(','))
-        })
-        console.log(obj)
-        
         /*  await axios.post('/api/mongoUpload', form)
              .then(res => console.log(res.data))
              .catch(err => console.log(err)) */

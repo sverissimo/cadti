@@ -1,5 +1,9 @@
 import React from 'react'
-import { FormControlLabel, Checkbox, Grid, Typography } from '@material-ui/core'
+import Grid from '@material-ui/core/Grid'
+import Typography from '@material-ui/core/Typography'
+import Checkbox from '@material-ui/core/Checkbox'
+import FormControlLabel from '@material-ui/core/FormControlLabel'
+
 import { makeStyles } from '@material-ui/core/styles'
 
 const useStyles = makeStyles(theme => ({
