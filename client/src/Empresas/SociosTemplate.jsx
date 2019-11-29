@@ -1,6 +1,11 @@
 import React, { Fragment } from 'react'
 import Dropzone from 'react-dropzone'
-import { Grid, Paper, Typography, MenuItem, Button } from '@material-ui/core'
+import Grid from '@material-ui/core/Grid'
+import Paper from '@material-ui/core/Paper'
+import Typography from '@material-ui/core/Typography'
+import MenuItem from '@material-ui/core/MenuItem'
+import Button from '@material-ui/core/Button'
+import AttachFileIcon from '@material-ui/icons/AttachFile';
 import { makeStyles } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
 import AddIcon from '@material-ui/icons/Add';
@@ -42,13 +47,14 @@ const useStyles = makeStyles(theme => ({
     },
     list: {
         margin: theme.spacing(1),
-        width: 200,
+        width: 180,
         fontSize: '0.7rem',
         fontColor: '#bbb',
         textAlign: 'center',
     },
-    deleteButton: {
-        marginTop: theme.spacing(1)
+    iconButton: {
+        marginTop: '17px',
+        padding: '6px 0px'
     },
     dropBox: {
         margin: '2% 0',
@@ -80,15 +86,15 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-export default function ({ handleInput, handleBlur, data, addSocio, removeSocio, handleFiles }) {
-    const { activeStep, stepTitles, dropDisplay } = data,
-        classes = useStyles(), { paper, container, title, deleteButton, dropBox, dropBoxItem, dropBoxItem2 } = classes
+export default function ({ handleInput, handleBlur, data, addSocio, removeSocio, changeFile, handleFiles }) {
+    const { activeStep, stepTitles, procDisplay } = data,
+        classes = useStyles(), { paper, container, title, iconButton, dropBox, dropBoxItem, dropBoxItem2 } = classes
 
     const errorHandler = (el) => {
 
         const value = data[el.field]
 
-        if (el.pattern && value) {            
+        if (el.pattern && value) {
             return value.match(el.pattern) === null
         }
         if (value > el.max || value < el.min) return true
@@ -108,7 +114,7 @@ export default function ({ handleInput, handleBlur, data, addSocio, removeSocio,
         socios = data.socios
     if (activeStep === 1) form = sociosForm
     if (activeStep === 2) { form = procuradorForm; socios = data.procuradores }
-    
+
     return (
         <Grid
             container
@@ -162,7 +168,7 @@ export default function ({ handleInput, handleBlur, data, addSocio, removeSocio,
                                     </TextField>
                                 </Fragment>
                             )}
-                        {activeStep !== 3 && <Button color='primary' className={deleteButton} onClick={addSocio}>
+                        {activeStep !== 3 && <Button color='primary' className={iconButton} onClick={addSocio}>
                             <AddIcon /> Adicionar {activeStep === 1 ? 'sócio' : 'procurador'}
                         </Button>}
                         {
@@ -171,10 +177,10 @@ export default function ({ handleInput, handleBlur, data, addSocio, removeSocio,
                                     <Grid container justify="center" alignItems='center' className={dropBox} direction='row' {...getRootProps()}>
                                         <input {...getInputProps()} />
                                         {
-                                            dropDisplay.match('Clique ou') ?
-                                                <Grid item xs={6} className={dropBoxItem}> {dropDisplay} </Grid>
+                                            procDisplay.match('Clique ou') ?
+                                                <Grid item xs={6} className={dropBoxItem}> {procDisplay} </Grid>
                                                 :
-                                                <Grid item xs={6} className={dropBoxItem2}> <DescriptionOutlinedIcon />  {dropDisplay} <br /> (clique ou arraste outro arquivo para alterar)</Grid>
+                                                <Grid item xs={6} className={dropBoxItem2}> <DescriptionOutlinedIcon />  {procDisplay} <br /> (clique ou arraste outro arquivo para alterar)</Grid>
                                         }
                                     </Grid>
                                 )}
@@ -193,18 +199,31 @@ export default function ({ handleInput, handleBlur, data, addSocio, removeSocio,
                                 <p className={title}>{activeStep === 1 ? 'Sócios' : 'Procuradores'} cadastrados</p>
                                 {socios.map((s, i) =>
                                     <Grid key={i}>
-                                        {form.map((e, i) =>
-                                            <Fragment key={i + 1000}>
+                                        {form.map((e, k) =>
+                                            <Fragment key={k + 1000}>
                                                 <TextField
                                                     value={s[e.field]}
                                                     label={e.label}
                                                     className={classes.list}
                                                     variant='outlined'
                                                     disabled
+                                                    InputLabelProps={{ shrink: true, style: { fontWeight: 600 } }}
                                                 />
                                             </Fragment>
                                         )}
-                                        <Button className={deleteButton} color='secondary' title='Remover' onClick={() => removeSocio(i)}>
+                                        <input
+                                            id={i+200}
+                                            type="file"
+                                            style={{ display: 'none' }}                                            
+                                            onChange={changeFile}
+                                            name={i}
+                                        />
+                                        <label htmlFor={i+200}>
+                                            <Button component='span' className={iconButton} title={socios[i].fileLabel} >
+                                                <AttachFileIcon />
+                                            </Button>
+                                        </label>
+                                        <Button className={iconButton} color='secondary' title='Remover' onClick={() => removeSocio(i)}>
                                             <DeleteIcon />
                                         </Button>
                                     </Grid>

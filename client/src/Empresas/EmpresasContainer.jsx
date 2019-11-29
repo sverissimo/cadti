@@ -6,6 +6,7 @@ import ReactToast from '../Utils/ReactToast'
 import EmpresasTemplate from './EmpresasTemplate'
 import SociosTemplate from './SociosTemplate'
 import EmpresaReview from './EmpresaReview'
+import ShowLocalFiles from '../Utils/ShowLocalFiles'
 
 import { empresasForm } from '../Forms/empresasForm'
 import { sociosForm } from '../Forms/sociosForm'
@@ -14,7 +15,6 @@ import { procuradorForm } from '../Forms/procuradorForm'
 import StepperButtons from '../Utils/StepperButtons'
 import CustomStepper from '../Utils/Stepper'
 import AlertDialog from '../Utils/AlertDialog'
-
 
 export default class extends Component {
 
@@ -45,8 +45,10 @@ export default class extends Component {
         totalShare: 0,
         socios: [],
         procuradores: [],
-        dropDisplay: 'Clique ou arraste para anexar o Contrato Social atualizado da empresa',
-        procFiles: new FormData()
+        dropDisplay: 'Clique ou arraste para anexar o contrato social atualizado da empresa',
+        procDisplay: 'Clique ou arraste para anexar a procuração referente a este procurador',
+        procFiles: new FormData(),        
+        showFiles: false
     }
 
     async componentDidMount() {
@@ -61,6 +63,7 @@ export default class extends Component {
 
         document.addEventListener('keydown', this.escFunction, false)
     }
+
     componentWillUnmount() { this.setState({}) }
 
     setActiveStep = async action => {
@@ -97,7 +100,7 @@ export default class extends Component {
             }
         })
 
-        if (invalid > 0) {
+        if (invalid === 100) {
             this.createAlert('missingRequiredFields')
             return null
         } else {
@@ -124,7 +127,13 @@ export default class extends Component {
             }
 
             if (this.state.activeStep === 2) {
-                await this.setState({ procuradores: socios })
+                const lastOne = socios[socios.length - 1]
+                for (let pair of this.state.procFiles.entries()) {
+                    if (pair[0] === lastOne.cpfProcurador) {
+                        socios[socios.length - 1].fileLabel = pair[1].name
+                    }
+                }
+                await this.setState({ procuradores: socios, procDisplay: 'Clique ou arraste para anexar a procuração referente a este procurador' })
                 procuradorForm.forEach(obj => {
                     this.setState({ [obj.field]: '' })
                 })
@@ -134,14 +143,23 @@ export default class extends Component {
     }
 
     removeSocio = index => {
+
         if (this.state.activeStep === 1) {
             let socios = this.state.socios
             socios.splice(index, 1)
             this.setState({ socios })
+
         } else {
-            let procuradores = this.state.procuradores
+
+            let form = this.state.procFiles,
+                procuradores = this.state.procuradores,
+                procurador = procuradores[index]
+            if (form.has(procurador.cpfProcurador)) {
+                console.log(form.get(procurador.cpfProcurador), 'ssssssssssddsdfmas', index)
+                form.delete(procurador.cpfProcurador)
+            }
             procuradores.splice(index, 1)
-            this.setState({ procuradores })
+            this.setState({ procuradores, procFiles: form })
         }
     }
 
@@ -201,23 +219,38 @@ export default class extends Component {
         if (activeStep === 0) {
             formData.append('contratoSocial', file[0])
 
-            this.setState({ dropDisplay: file[0].name, form: formData })
+            this.setState({ dropDisplay: file[0].name, contratoSocial: formData })
         }
         if (activeStep === 2) {
             let procFiles = this.state.procFiles
             procFiles.append(this.state.cpfProcurador, file[0])
-            this.setState({ procFiles })
-
-            for (let pair of this.state.procFiles.entries()) {
-                console.log(pair[0] + ', ' + pair[1]);
-            }
+            this.setState({ procFiles, procDisplay: file[0].name })
         }
 
     }
+    changeFile = async (e) => {
 
+        e.persist()
+        const i = e.target.name,
+            file = e.target.files[0]
+
+        let form = this.state.procFiles,
+            { procuradores } = this.state,
+            procurador = procuradores[i]
+
+        if (file && form.has(procurador.cpfProcurador)) {
+            form.set(procurador.cpfProcurador, file)
+            procuradores[i].fileLabel = file.name
+        }
+        await this.setState({ procFiles: form, procuradores })
+
+        for (let pair of this.state.procFiles.entries()) {
+            console.log(pair[0], ' ', pair[1])
+        }
+    }
     handleSubmit = async () => {
 
-        let { socios, procuradores, procFiles, form } = this.state,
+        let { socios, procuradores, procFiles, contratoSocial } = this.state,
             empresa = {},
             procData = new FormData(),
             contratoFile = new FormData(),
@@ -228,6 +261,9 @@ export default class extends Component {
                 Object.assign(empresa, { [e.field]: this.state[e.field] })
             }
         })
+
+        procuradores.forEach(proc => delete proc.fileLabel)
+
         empresa.delegatarioStatus = 'Ativo'
         empresa = humps.decamelizeKeys(empresa)
         socios = humps.decamelizeKeys(socios)
@@ -246,7 +282,7 @@ export default class extends Component {
             .then(r => console.log(r.data))
 
         contratoFile.append('empresaId', empresaId)
-        for (let pair of form.entries()) {
+        for (let pair of contratoSocial.entries()) {
             contratoFile.append(pair[0], pair[1])
         }
         await axios.post('/api/empresaUpload', contratoFile)
@@ -291,7 +327,9 @@ export default class extends Component {
 
     showFiles = id => {
 
-        let selectedFiles = this.state.files.filter(f => f.metadata.veiculoId === id.toString())
+        this.setState({ showFiles: true })
+
+        /* let selectedFiles = this.state.files.filter(f => f.metadata.veiculoId === id.toString())
 
         if (selectedFiles[0]) {
             this.setState({ filesCollection: selectedFiles, showFiles: true, selectedVehicle: id })
@@ -299,7 +337,11 @@ export default class extends Component {
         } else {
             this.createAlert('filesNotFound')
             this.setState({ filesCollection: [] })
-        }
+        } */
+    }
+
+    closeFiles = () => {
+        this.setState({ showFiles: !this.state.showFiles })
     }
 
     render() {
@@ -330,10 +372,12 @@ export default class extends Component {
                             addSocio={this.addSocio}
                             removeSocio={this.removeSocio}
                             handleFiles={this.handleFiles}
+                            changeFile={this.changeFile}
                         />
                         :
                         <EmpresaReview
                             data={this.state}
+                            showFiles={this.showFiles}
                         />
             }
             <StepperButtons
@@ -342,6 +386,7 @@ export default class extends Component {
                 handleSubmit={this.handleSubmit}
                 setActiveStep={this.setActiveStep}
             />
+            {this.state.showFiles && <ShowLocalFiles close={this.closeFiles} data={this.state} />}
             <ReactToast open={confirmToast} close={this.toast} msg={toastMsg} />
             <AlertDialog open={openDialog} close={this.toggleDialog} title={dialogTitle} message={message} />
         </Fragment>

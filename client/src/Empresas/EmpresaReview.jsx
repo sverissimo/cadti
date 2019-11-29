@@ -41,12 +41,12 @@ const useStyles = makeStyles(theme => ({
         height: 'auto'
     },
     table: {
-        marginBottom: theme.spacing(2),        
+        marginBottom: theme.spacing(2),
         overflowX: 'auto'
     }
 }))
 
-export default function Revisao({ data }) {
+export default function Revisao({ data, showFiles }) {
 
     const classes = useStyles(),
         { title, paper, root, table } = classes,
@@ -63,7 +63,7 @@ export default function Revisao({ data }) {
         { subtitle: 'Detalhes da Empresa', form: empresasForm, data: empresaDetails },
         { subtitle: 'Sócios', form: sociosForm, data: socios },
         { subtitle: 'Procuradores', form: procuradorForm, data: procuradores }
-    ]    
+    ]
     return (
         <>
             <Paper className={paper}>
@@ -73,7 +73,7 @@ export default function Revisao({ data }) {
                     {
                         ultimateData.map(({ subtitle, form, data }, y) =>
                             <Fragment key={y}>
-                                <div style={{ width: '100%', align:'left' }}>
+                                <div style={{ width: '100%', align: 'left' }}>
                                     <Typography className={title}> {subtitle} </Typography>
                                 </div>
                                 <br />
@@ -105,7 +105,7 @@ export default function Revisao({ data }) {
                     <Grid container justify="flex-end">
                         <Tooltip title='Ver arquivos'>
                             <Fab color="default" aria-label="files">
-                                <FileCopyIcon />
+                                <FileCopyIcon onClick={showFiles} />
                             </Fab>
                         </Tooltip>
                     </Grid>

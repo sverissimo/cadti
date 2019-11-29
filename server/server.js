@@ -2,14 +2,13 @@ const express = require('express')
 const app = express()
 const bodyParser = require('body-parser')
 const pg = require('pg')
-//const fs = require('fs')
 const path = require('path')
 const dotenv = require('dotenv')
 const mongoose = require('mongoose')
 const multer = require('multer')
 const GridFsStorage = require('multer-gridfs-storage')
 const Grid = require('gridfs-stream')
-Grid.mongo = mongoose.mongo;
+Grid.mongo = mongoose.mongo
 
 const { cadEmpresa } = require('./cadEmpresa')
 const { cadSocios } = require('./cadSocios')
@@ -68,7 +67,7 @@ const storage = new GridFsStorage({
     url: mongoURI,
     file: (req, file) => {
         gfs.collection('vehicleDocs');
-        const id = req.body.veiculoId || req.body.empresa
+        const id = req.body.veiculoId
         const fileInfo = {
             filename: file.originalname,
             metadata: {
