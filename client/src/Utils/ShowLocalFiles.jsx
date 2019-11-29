@@ -1,6 +1,41 @@
 import React from 'react'
+import GetAppIcon from '@material-ui/icons/GetApp';
+import InsertDriveFileOutlinedIcon from '@material-ui/icons/InsertDriveFileOutlined';
 
-export default function ShowLocalFiles({ close, data }) {
+const divContainer = {
+    display: 'flex',
+    justifyContent: 'center',
+    width: '100%',
+    alignContent: 'center',
+    flexWrap: 'wrap'
+}
+
+const divFiles = {
+    textAlign: 'center',
+    alignItems: 'flex-start',
+    lineHeight: '40px',
+    border: '1px #ccc solid',
+    padding: '0 1%',
+    margin: '1% 1% 0.5% 1%',
+    fontSize: '0.8rem',
+    backgroundColor: '#f6f6f6',
+    borderRadius: '6px',
+
+}
+
+const icon = {
+    verticalAlign: 'middle',
+    cursor: 'pointer',
+    paddingLeft: '2%'
+}
+
+const fileIcon = {
+    verticalAlign: 'middle',
+    padding: '0 0% 0 2%',
+
+}
+
+export default function ShowLocalFiles({ data }) {
 
     const { procFiles, contratoSocial, procuradores } = data
 
@@ -10,8 +45,9 @@ export default function ShowLocalFiles({ close, data }) {
             filesForm.set(k, v)
         }
      */
-    const contrato = contratoSocial.get('contratoSocial')
-    
+    let contrato
+    if (contratoSocial) contrato = contratoSocial.get('contratoSocial') || new FormData()
+
     const createLink = (key, fileName) => {
         let file
 
@@ -37,20 +73,28 @@ export default function ShowLocalFiles({ close, data }) {
     }
 
     return <React.Fragment>
-        <p>
-            And click here to download the fking
-            <span style={{ color: 'blue', cursor: 'pointer' }} onClick={() => createLink('contratoSocial', contrato.name)}> >
-                Contrato Social
-            </span>
-        </p>
+        <div style={divContainer}>
+            {/* 
+            <div style={divFiles}>
+                Arquivos
+            </div> */}
 
+            {contratoSocial && <div style={divFiles}>
+                <InsertDriveFileOutlinedIcon style={fileIcon} />
+                {' ' + 'Contrato Social'}
+                <GetAppIcon style={icon} onClick={() => createLink('contratoSocial', contrato.name)} />
+            </div>}
 
-        {fileArray.map(f => (
-            <span>
-                {'Procuração - ' + f.nome + ', ' + f.fileName}
-                <span style={{ color: 'blue', cursor: 'pointer' }} onClick={() => createLink(f.cpf, f.fileName)}> Clique aqui para baixar</span>
-            </span>
-        )
-        )}
-    </React.Fragment>
+            {fileArray.map((f, i) =>
+                <div style={divFiles} key={i}>
+                    <InsertDriveFileOutlinedIcon style={fileIcon} />
+                    <span style={{ verticalAlign: 'middle', }}>
+
+                        {' ' + 'Procuração - ' + f.nome}
+                    </span>
+                    <GetAppIcon style={icon} onClick={() => createLink(f.cpf, f.fileName)} />
+                </div>
+            )}
+        </div>
+    </React.Fragment >
 }

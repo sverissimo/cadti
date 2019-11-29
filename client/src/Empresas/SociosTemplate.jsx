@@ -56,11 +56,15 @@ const useStyles = makeStyles(theme => ({
         marginTop: '17px',
         padding: '6px 0px'
     },
+    addButton: {
+        marginBottom: '1%',
+        padding: '1% 0'
+    },
     dropBox: {
         margin: '2% 0',
     },
     dropBoxItem: {
-        margin: '2% 0',
+        margin: '1% 0',
         border: '1px solid #ccc',
         borderRadius: '3%',
         height: '60px',
@@ -73,7 +77,7 @@ const useStyles = makeStyles(theme => ({
 
     },
     dropBoxItem2: {
-        margin: '2% 0',
+        margin: '1% 0',
         border: '1px solid #ccc',
         borderRadius: '3%',
         height: '60px',
@@ -88,7 +92,8 @@ const useStyles = makeStyles(theme => ({
 
 export default function ({ handleInput, handleBlur, data, addSocio, removeSocio, changeFile, handleFiles }) {
     const { activeStep, stepTitles, procDisplay } = data,
-        classes = useStyles(), { paper, container, title, iconButton, dropBox, dropBoxItem, dropBoxItem2 } = classes
+        classes = useStyles(), { paper, container, title, iconButton, dropBox, 
+            dropBoxItem, dropBoxItem2, list, addButton } = classes
 
     const errorHandler = (el) => {
 
@@ -168,9 +173,6 @@ export default function ({ handleInput, handleBlur, data, addSocio, removeSocio,
                                     </TextField>
                                 </Fragment>
                             )}
-                        {activeStep !== 3 && <Button color='primary' className={iconButton} onClick={addSocio}>
-                            <AddIcon /> Adicionar {activeStep === 1 ? 'sócio' : 'procurador'}
-                        </Button>}
                         {
                             activeStep === 2 && <Dropzone onDrop={handleFiles}>
                                 {({ getRootProps, getInputProps }) => (
@@ -185,6 +187,11 @@ export default function ({ handleInput, handleBlur, data, addSocio, removeSocio,
                                     </Grid>
                                 )}
                             </Dropzone>
+                        }
+                        {
+                            activeStep !== 3 && <Button color='primary' className={addButton} onClick={addSocio}>
+                                <AddIcon /> Adicionar {activeStep === 1 ? 'sócio' : 'procurador'}
+                            </Button>
                         }
                     </Paper>
                 </Grid>
@@ -204,7 +211,7 @@ export default function ({ handleInput, handleBlur, data, addSocio, removeSocio,
                                                 <TextField
                                                     value={s[e.field]}
                                                     label={e.label}
-                                                    className={classes.list}
+                                                    className={list}
                                                     variant='outlined'
                                                     disabled
                                                     InputLabelProps={{ shrink: true, style: { fontWeight: 600 } }}
@@ -212,13 +219,13 @@ export default function ({ handleInput, handleBlur, data, addSocio, removeSocio,
                                             </Fragment>
                                         )}
                                         <input
-                                            id={i+200}
+                                            id={i + 200}
                                             type="file"
-                                            style={{ display: 'none' }}                                            
+                                            style={{ display: 'none' }}
                                             onChange={changeFile}
                                             name={i}
                                         />
-                                        <label htmlFor={i+200}>
+                                        <label htmlFor={i + 200}>
                                             <Button component='span' className={iconButton} title={socios[i].fileLabel} >
                                                 <AttachFileIcon />
                                             </Button>

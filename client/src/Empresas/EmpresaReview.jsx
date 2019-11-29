@@ -1,5 +1,6 @@
 import React, { Fragment } from 'react'
 
+import ShowLocalFiles from '../Utils/ShowLocalFiles'
 import { empresasForm } from '../Forms/empresasForm'
 import { procuradorForm } from '../Forms/procuradorForm'
 import { sociosForm } from '../Forms/sociosForm'
@@ -7,16 +8,45 @@ import { sociosForm } from '../Forms/sociosForm'
 import Grid from '@material-ui/core/Grid'
 import Paper from '@material-ui/core/Paper'
 import Typography from '@material-ui/core/Typography'
-import { makeStyles } from '@material-ui/core/styles'
-import Fab from '@material-ui/core/Fab';
-import FileCopyIcon from '@material-ui/icons/FileCopy'
-import Tooltip from '@material-ui/core/Tooltip';
+import FileCopyOutlinedIcon from '@material-ui/icons/FileCopyOutlined';
+import { withStyles, makeStyles } from '@material-ui/core/styles';
 
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
+
+const StyledTableCell = withStyles(theme => ({
+    head: {
+        backgroundColor: '#e1f5fe',
+        color: '#00000',
+        fontWeight: 600,
+    },
+    body: {
+        fontSize: 14,
+
+    },
+}))(TableCell);
+
+const StyledCell = withStyles(theme => ({
+    head: {
+        backgroundColor: '#e1f5fe',
+        color: '#00000',        
+    },
+    body: {
+        fontSize: 12,
+
+    },
+}))(TableCell);
+
+const StyledTableRow = withStyles(theme => ({
+    root: {
+        '&:nth-of-type(odd)': {
+            backgroundColor: theme.palette.background.default,
+        },
+    },
+}))(TableRow);
 
 const useStyles = makeStyles(theme => ({
     root: {
@@ -25,7 +55,7 @@ const useStyles = makeStyles(theme => ({
         textAlign: 'center'
     },
     title: {
-        margin: theme.spacing(1),
+        marginTop: '2%',
         fontColor: '#000',
         fontWeight: 500,
         backgroundColor: '#B2DCEA'
@@ -46,7 +76,7 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
-export default function Revisao({ data, showFiles }) {
+export default function Revisao({ data }) {
 
     const classes = useStyles(),
         { title, paper, root, table } = classes,
@@ -79,9 +109,9 @@ export default function Revisao({ data, showFiles }) {
                                 <br />
                                 <Table className={table}>
                                     <TableHead>
-                                        <TableRow>
-                                            {form.map((s, i) => <TableCell key={i}>{s.label}</TableCell>)}
-                                        </TableRow>
+                                        <StyledTableRow>
+                                            {form.map((s, i) => <StyledTableCell key={i}>{s.label}</StyledTableCell>)}
+                                        </StyledTableRow>
                                     </TableHead>
                                     {
                                         data.map((d, j) =>
@@ -89,9 +119,9 @@ export default function Revisao({ data, showFiles }) {
                                                 <TableRow>
                                                     {
                                                         form.map((obj, l) =>
-                                                            <TableCell key={l}>
+                                                            <StyledCell key={l}>
                                                                 {d[obj.field]}
-                                                            </TableCell>
+                                                            </StyledCell>
                                                         )
                                                     }
                                                 </TableRow>
@@ -102,13 +132,8 @@ export default function Revisao({ data, showFiles }) {
                             </Fragment>
                         )
                     }
-                    <Grid container justify="flex-end">
-                        <Tooltip title='Ver arquivos'>
-                            <Fab color="default" aria-label="files">
-                                <FileCopyIcon onClick={showFiles} />
-                            </Fab>
-                        </Tooltip>
-                    </Grid>
+                    <h3> <FileCopyOutlinedIcon style={{verticalAlign: 'middle',padding: '0 0 0 4%'}}/> Documentos </h3>
+                    <ShowLocalFiles data={data} />
                 </Grid>
             </Paper >
         </>

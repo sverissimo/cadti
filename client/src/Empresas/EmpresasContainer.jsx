@@ -6,7 +6,6 @@ import ReactToast from '../Utils/ReactToast'
 import EmpresasTemplate from './EmpresasTemplate'
 import SociosTemplate from './SociosTemplate'
 import EmpresaReview from './EmpresaReview'
-import ShowLocalFiles from '../Utils/ShowLocalFiles'
 
 import { empresasForm } from '../Forms/empresasForm'
 import { sociosForm } from '../Forms/sociosForm'
@@ -28,7 +27,7 @@ export default class extends Component {
     }
 
     state = {
-        activeStep: 2,
+        activeStep: 3,
         stepTitles: ['Preencha os dados da empresa', 'Informações sobre os sócios',
             'Informações sobre os procuradores', 'Revisão'],
         steps: ['Dados da Empresa', 'Sócios', 'Procuradores', 'Revisão'],
@@ -47,7 +46,7 @@ export default class extends Component {
         procuradores: [],
         dropDisplay: 'Clique ou arraste para anexar o contrato social atualizado da empresa',
         procDisplay: 'Clique ou arraste para anexar a procuração referente a este procurador',
-        procFiles: new FormData(),        
+        procFiles: new FormData(),
         showFiles: false
     }
 
@@ -385,8 +384,7 @@ export default class extends Component {
                 lastStep={steps.length - 1}
                 handleSubmit={this.handleSubmit}
                 setActiveStep={this.setActiveStep}
-            />
-            {this.state.showFiles && <ShowLocalFiles close={this.closeFiles} data={this.state} />}
+            />            
             <ReactToast open={confirmToast} close={this.toast} msg={toastMsg} />
             <AlertDialog open={openDialog} close={this.toggleDialog} title={dialogTitle} message={message} />
         </Fragment>
