@@ -81,7 +81,7 @@ export default function ShowLocalFiles({ data }) {
 
             {contratoSocial && <div style={divFiles}>
                 <InsertDriveFileOutlinedIcon style={fileIcon} />
-                {' ' + 'Contrato Social'}
+                {' '} Contrato Social
                 <GetAppIcon style={icon} onClick={() => createLink('contratoSocial', contrato.name)} />
             </div>}
 
@@ -89,8 +89,7 @@ export default function ShowLocalFiles({ data }) {
                 <div style={divFiles} key={i}>
                     <InsertDriveFileOutlinedIcon style={fileIcon} />
                     <span style={{ verticalAlign: 'middle', }}>
-
-                        {' ' + 'Procuração - ' + f.nome}
+                    {' '} Procuração - {f.nome}
                     </span>
                     <GetAppIcon style={icon} onClick={() => createLink(f.cpf, f.fileName)} />
                 </div>

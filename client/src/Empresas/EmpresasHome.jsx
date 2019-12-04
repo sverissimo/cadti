@@ -29,10 +29,10 @@ const useStyles = makeStyles(theme => ({
     },
     mainFeaturedPost: {
         position: 'relative',
-        backgroundColor: theme.palette.grey[800],
+        backgroundColor: theme.palette.grey[100],
         color: theme.palette.common.white,
         marginBottom: theme.spacing(4),
-        backgroundImage: '/images/bus_wallpaper.jpg',
+        backgroundImage: '/images/empresaBg2.jpg',
         backgroundSize: 'cover',
         backgroundRepeat: 'no-repeat',
         backgroundPosition: 'center',
@@ -43,7 +43,7 @@ const useStyles = makeStyles(theme => ({
         bottom: 0,
         right: 0,
         left: 0,
-        backgroundColor: 'rgba(0,0,0,.3)',
+        backgroundColor: 'rgba(0,0,0,.1)',
     },
     mainFeaturedPostContent: {
         position: 'relative',
@@ -58,11 +58,9 @@ const useStyles = makeStyles(theme => ({
     },
     card: {
         display: 'flex',
-        fontSize: '0.5rem'
     },
     cardDetails: {
         flex: 1,
-        fontSize: '0.5rem'
     },
     cardMedia: {
         width: '120px',
@@ -88,28 +86,31 @@ const useStyles = makeStyles(theme => ({
 
 const featuredPosts = [
     {
-        title: 'Veículos',
+        title: 'Cadastrar',
         date: '07/Nov',
         description:
-            'Cadastre e altere os dados do veículo ou solicite sua baixa',
-        link: '/veiculos',
-        imageUrl: '/images/vehicles.jpg'
+            'Cadastrar uma nova empresa no sistema.',
+        imageUrl: '/images/addCompany21.png',
+        link: '/empresas',
+        tab: 0
     },
     {
-        title: 'Empresas',
+        title: 'Sócios',
         date: '07/Nov',
         description:
-            'Cadastre e gerencie dados de empresas, sócios e procuradores',
-        link: '/empresasHome',
-        imageUrl: '/images/empresas12.jpg'
+            'Gerenciar sócios e alterações de contrato social',
+        link: '/empresas',
+        imageUrl: '/images/socios3.png',
+        tab: 2
     },
     {
-        title: 'Consultas',
-        date: '03/Dez',
+        title: 'Procuradores',
+        date: '07/Nov',
         description:
-            'Consulte e gerencie dados de veículos, seguros e empresas',
-        link: '/consultas',
-        imageUrl: '/images/consultas2.jpg'
+            'Alterar relação de procuradores e procurações',
+        link: '/empresas',
+        imageUrl: '/images/procuradores31.png',
+        tab: 3
     },
 ]
 
@@ -120,48 +121,45 @@ export default function () {
         <React.Fragment>
             <CssBaseline />
             <Container maxWidth="lg">
-
                 <main>
                     <Paper className={classes.mainFeaturedPost}>
                         <img
-                            style={{ position: 'absolute', height: '260px', width: '100%' }}
-                            src="/images/bus_wallpaper.jpg"
+                            style={{ position: 'absolute', height: '100%', width: '100%' }}
+                            src="/images/empresasBg2.jpg"
                             alt="background"
                         />
-                        }
                         <div className={classes.overlay} />
                         <Grid container>
-                            <Grid item md={6}>
+                            <Grid item md={4}>
                                 <div className={classes.mainFeaturedPostContent}>
-                                    <Typography component="h1" variant="h3" color="inherit" gutterBottom>
-                                        SisMob - MG
+                                    <Typography component="h1" variant="h4" gutterBottom>
+                                        Empresas
                                     </Typography>
-                                    <Typography variant="h5" color="inherit" paragraph>
-                                        Sistema de Gestão da Mobilidade do Estado de Minas Gerais
+                                    <Typography variant="body1" paragraph>
+                                        Selecione uma das opções abaixo.
                                     </Typography>
                                 </div>
                             </Grid>
                         </Grid>
                     </Paper>
-
                     <Grid container spacing={4} className={classes.cardGrid}>
                         {featuredPosts.map(post => (
                             <Grid item key={post.title} xs={12} md={4}>
-                                <CardActionArea component="span" >
-                                    <Link to={post.link} style={{ textDecoration: 'none' }}>
+                                <Link to={{ pathname: post.link, tab: post.tab }} style={{ textDecoration: 'none' }}>
+                                    <CardActionArea component="span" >
                                         <Card className={classes.card}>
                                             <div className={classes.cardDetails}>
                                                 <CardContent>
-                                                    <Typography component="h3" variant="h6">
+                                                    <Typography component="h2" variant="h6">
                                                         {post.title}
                                                     </Typography>
                                                     <br />
-                                                    <Typography variant='body2' paragraph>
+                                                    <Typography variant="body2" paragraph>
                                                         {post.description}
                                                     </Typography>
-                                                    <Typography variant='body2' color="primary">
+                                                    <Typography variant="body2" color="primary">
 
-                                                        Clique aqui para {post.title}
+                                                        {post.title}
 
                                                     </Typography>
                                                 </CardContent>
@@ -175,8 +173,8 @@ export default function () {
                                                 />
                                             </Hidden>
                                         </Card>
-                                    </Link>
-                                </CardActionArea>
+                                    </CardActionArea>
+                                </Link>
                             </Grid>
                         ))}
                     </Grid>

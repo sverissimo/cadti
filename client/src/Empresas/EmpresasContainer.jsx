@@ -27,7 +27,7 @@ export default class extends Component {
     }
 
     state = {
-        activeStep: 3,
+        activeStep: 0,
         stepTitles: ['Preencha os dados da empresa', 'Informações sobre os sócios',
             'Informações sobre os procuradores', 'Revisão'],
         steps: ['Dados da Empresa', 'Sócios', 'Procuradores', 'Revisão'],
@@ -50,10 +50,12 @@ export default class extends Component {
         showFiles: false
     }
 
-    async componentDidMount() {
+    async componentDidMount() {        
         const veiculos = axios.get('/api/veiculosInit')
         const empresas = axios.get('/api/empresas')
 
+        this.setState({activeStep: this.props.location.tab || 0})
+        
         await Promise.all([veiculos, empresas])
             .then(res => res.map(r => humps.camelizeKeys(r.data)))
             .then(([veiculos, empresas]) => {
@@ -61,6 +63,8 @@ export default class extends Component {
             })
 
         document.addEventListener('keydown', this.escFunction, false)
+
+        
     }
 
     componentWillUnmount() { this.setState({}) }
