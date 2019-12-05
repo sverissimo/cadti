@@ -91,17 +91,15 @@ const featuredPosts = [
         description:
             'Cadastrar uma nova empresa no sistema.',
         imageUrl: '/images/addCompany21.png',
-        link: '/empresas',
-        tab: 0
+        link: '/empresas'      
     },
     {
         title: 'Sócios',
         date: '07/Nov',
         description:
             'Gerenciar sócios e alterações de contrato social',
-        link: '/empresas',
-        imageUrl: '/images/socios3.png',
-        tab: 2
+        link: '/socios',
+        imageUrl: '/images/socios3.png'      
     },
     {
         title: 'Procuradores',
@@ -109,8 +107,7 @@ const featuredPosts = [
         description:
             'Alterar relação de procuradores e procurações',
         link: '/empresas',
-        imageUrl: '/images/procuradores31.png',
-        tab: 3
+        imageUrl: '/images/procuradores31.png'        
     },
 ]
 
@@ -145,7 +142,7 @@ export default function () {
                     <Grid container spacing={4} className={classes.cardGrid}>
                         {featuredPosts.map(post => (
                             <Grid item key={post.title} xs={12} md={4}>
-                                <Link to={{ pathname: post.link, tab: post.tab }} style={{ textDecoration: 'none' }}>
+                                <Link to={post.link} style={{ textDecoration: 'none' }}>
                                     <CardActionArea component="span" >
                                         <Card className={classes.card}>
                                             <div className={classes.cardDetails}>

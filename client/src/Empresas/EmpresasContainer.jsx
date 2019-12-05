@@ -50,21 +50,13 @@ export default class extends Component {
         showFiles: false
     }
 
-    async componentDidMount() {        
-        const veiculos = axios.get('/api/veiculosInit')
-        const empresas = axios.get('/api/empresas')
+    componentDidMount() {
+        axios.get('/api/empresas')
+            .then(res => humps.camelizeKeys(res.data))
+            .then(empresas => this.setState({ empresas }))
 
-        this.setState({activeStep: this.props.location.tab || 0})
-        
-        await Promise.all([veiculos, empresas])
-            .then(res => res.map(r => humps.camelizeKeys(r.data)))
-            .then(([veiculos, empresas]) => {
-                this.setState({ veiculos, empresas })
-            })
-
+        this.setState({ activeStep: this.props.location.tab || 0 })
         document.addEventListener('keydown', this.escFunction, false)
-
-        
     }
 
     componentWillUnmount() { this.setState({}) }
@@ -83,6 +75,7 @@ export default class extends Component {
         const { name } = e.target
         let { value } = e.target
         this.setState({ [name]: value })
+        console.log(this.state)
     }
 
     addSocio = async () => {
@@ -229,8 +222,8 @@ export default class extends Component {
             procFiles.append(this.state.cpfProcurador, file[0])
             this.setState({ procFiles, procDisplay: file[0].name })
         }
-
     }
+    
     changeFile = async (e) => {
 
         e.persist()
@@ -388,7 +381,7 @@ export default class extends Component {
                 lastStep={steps.length - 1}
                 handleSubmit={this.handleSubmit}
                 setActiveStep={this.setActiveStep}
-            />            
+            />
             <ReactToast open={confirmToast} close={this.toast} msg={toastMsg} />
             <AlertDialog open={openDialog} close={this.toggleDialog} title={dialogTitle} message={message} />
         </Fragment>

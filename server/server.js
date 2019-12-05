@@ -184,6 +184,28 @@ app.get('/api/getFiles/:collection', (req, res) => {
 
 })
 
+app.post('/api/upload', uploadFS)
+
+app.get('/api/download', (req, res) => {
+    const fPath = path.join(__dirname, '../files', 'a.txt')
+    res.set({
+        'Content-Type': 'text',
+        'Content-Disposition': 'attachment'
+    });
+
+    //const pathZ = path.resolve(__dirname, '../files', 'delegas.xls')
+    /* const stream = fs.createReadStream(fPath, { autoClose: true })
+
+    stream.on('close', () => res.end())
+    stream.pipe(res) */
+    res.download(fPath)
+
+})
+
+
+//************************************ No Binary Data ************************** */
+
+
 app.get('/api/empresas', (req, res) => pool.query(empresas, (err, table) => {
     if (err) res.send(err)
     if (table.rows.length === 0) { res.send('Nenhum delegatário cadastrado.'); return }
@@ -236,26 +258,6 @@ app.get('/api/veiculos', (req, res) => {
         })
 })
 
-app.post('/api/cadastroVeiculo', (req, res) => {
-
-    const { keys, values } = parseRequestBody(req.body)
-
-    console.log(`INSERT INTO public.veiculo (${keys}) VALUES (${values}) RETURNING *`)
-    pool.query(
-        `INSERT INTO public.veiculo (${keys}) VALUES (${values}) RETURNING *`, (err, table) => {
-            if (err) res.send(err)
-            if (table && table.rows && table.rows.length === 0) { res.send('Nenhum veículo cadastrado para esse delegatário.'); return }
-            if (table.rows.length > 0) res.json(table.rows)
-            return
-        })
-})
-
-app.post('/api/cadEmpresa', cadEmpresa)
-
-app.post('/api/cadSocios', cadSocios)
-
-app.post('/api/empresaFullCad', cadEmpresa, cadSocios, cadProcuradores);
-
 app.get('/api/modeloChassi', (req, res) => {
     pool.query(modeloChassi, (err, table) => {
         if (err) res.send(err)
@@ -270,24 +272,6 @@ app.get('/api/carrocerias', (req, res) => {
         else if (table.rows && table.rows.length === 0) { res.send('Nenhum veículo cadastrado para esse delegatário.'); return }
         res.json(table.rows)
     })
-})
-
-app.post('/api/upload', uploadFS)
-
-app.get('/api/download', (req, res) => {
-    const fPath = path.join(__dirname, '../files', 'a.txt')
-    res.set({
-        'Content-Type': 'text',
-        'Content-Disposition': 'attachment'
-    });
-
-    //const pathZ = path.resolve(__dirname, '../files', 'delegas.xls')
-    /* const stream = fs.createReadStream(fPath, { autoClose: true })
-
-    stream.on('close', () => res.end())
-    stream.pipe(res) */
-    res.download(fPath)
-
 })
 
 app.get('/api/equipa', (req, res) => {
@@ -322,6 +306,29 @@ app.get('/api/procuradores', (req, res) => {
     })
 })
 
+
+
+
+app.post('/api/cadastroVeiculo', (req, res) => {
+
+    const { keys, values } = parseRequestBody(req.body)
+
+    console.log(`INSERT INTO public.veiculo (${keys}) VALUES (${values}) RETURNING *`)
+    pool.query(
+        `INSERT INTO public.veiculo (${keys}) VALUES (${values}) RETURNING *`, (err, table) => {
+            if (err) res.send(err)
+            if (table && table.rows && table.rows.length === 0) { res.send('Nenhum veículo cadastrado para esse delegatário.'); return }
+            if (table.rows.length > 0) res.json(table.rows)
+            return
+        })
+})
+
+app.post('/api/cadEmpresa', cadEmpresa)
+
+app.post('/api/cadSocios', cadSocios)
+
+app.post('/api/empresaFullCad', cadEmpresa, cadSocios, cadProcuradores);
+
 app.post('/api/cadSeguro', (req, res) => {
     let parsed = []
     console.log(req.body)
@@ -341,19 +348,6 @@ app.post('/api/cadSeguro', (req, res) => {
             if (table && table.rows.length > 0) res.json(table.rows)
             return
         })
-})
-
-app.delete('/api/delete', (req, res) => {
-    const { table, tablePK } = req.query
-    let { id } = req.query
-
-    if (table === 'seguro') id = '\'' + id + '\''
-
-    pool.query(`
-    DELETE FROM public.${table} WHERE ${tablePK} = ${id}`, (err, t) => {
-        if (err) console.log(err)
-        res.send(`${id} deleted from ${table}`)
-    })
 })
 
 app.put('/api/updateInsurance', (req, res) => {
@@ -427,6 +421,44 @@ app.get('/api/getUpdatedInsurance', (req, res) => {
         })
 })
 
+
+app.post('/api/editSocios', (req, res) => {
+
+    const { requestArray, table, tablePK } = req.body
+    let queryString = '',
+        ids = ''
+
+    Object.keys(requestArray[0]).forEach(key => {
+        if (key !== 'socio_id') {
+            queryString += `
+            UPDATE ${table} 
+            SET ${key} = CASE ${tablePK} 
+            `
+            requestArray.forEach(obj => {
+                let value = obj[key]
+                if (key !== 'delegatario_id' && key !== 'share') value = '\''+ value + '\''
+                queryString += `WHEN ${obj.socio_id} THEN ${value} `
+
+                if (ids.split(' ').length <= requestArray.length) ids += obj.socio_id + ', '
+                
+            })
+            ids = ids.slice(0, ids.length - 2)
+            queryString += `
+            END
+            WHERE ${tablePK} IN (${ids});
+            `
+            ids = ids + ', '
+        }
+    })
+
+     pool.query(queryString, (err, t) => {
+         if (err) console.log(err)
+         if (t) console.log (t)
+         res.send(queryString)
+     })
+})
+
+
 app.put('/api/updateVehicle', (req, res) => {
 
     const { requestObject, table, tablePK, id } = req.body
@@ -461,6 +493,19 @@ app.get('/api/deleteFiles/:reqId', (req, res) => {
             })
         })
         res.send('File deleted!')
+    })
+})
+
+app.delete('/api/delete', (req, res) => {
+    const { table, tablePK } = req.query
+    let { id } = req.query
+
+    if (table === 'seguro') id = '\'' + id + '\''
+
+    pool.query(`
+    DELETE FROM public.${table} WHERE ${tablePK} = ${id}`, (err, t) => {
+        if (err) console.log(err)
+        res.send(`${id} deleted from ${table}`)
     })
 })
 
