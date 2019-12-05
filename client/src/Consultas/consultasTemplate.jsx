@@ -37,6 +37,7 @@ const useStyles = makeStyles(theme => ({
 
 export default function ({ tab, collection, showDetails, showFiles, handleEdit, del }) {
     const classes = useStyles(), { paper } = classes
+    console.log(collection)
     const id = ['veiculoId', 'delegatarioId'][tab]
     return (
         <Grid item xs={12}>

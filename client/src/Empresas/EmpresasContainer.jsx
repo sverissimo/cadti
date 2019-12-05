@@ -204,11 +204,6 @@ export default class extends Component {
 
     }
 
-
-    toast = e => {
-        this.setState({ confirmToast: !this.state.confirmToast })
-    }
-
     handleFiles = (file) => {
         const { activeStep } = this.state
         let formData = new FormData()
@@ -223,7 +218,7 @@ export default class extends Component {
             this.setState({ procFiles, procDisplay: file[0].name })
         }
     }
-    
+
     changeFile = async (e) => {
 
         e.persist()
@@ -244,6 +239,7 @@ export default class extends Component {
             console.log(pair[0], ' ', pair[1])
         }
     }
+
     handleSubmit = async () => {
 
         let { socios, procuradores, procFiles, contratoSocial } = this.state,
@@ -284,17 +280,8 @@ export default class extends Component {
         await axios.post('/api/empresaUpload', contratoFile)
             .then(r => console.log(r.data))
 
-
         this.toast()
-    }
-
-    handleCheck = item => {
-        this.setState({ ...this.state, [item]: !this.state[item] })
-    }
-
-    toggleDialog = () => {
-        this.setState({ openDialog: !this.state.openDialog })
-    }
+    }   
 
     createAlert = (alert) => {
         let dialogTitle, message
@@ -321,24 +308,11 @@ export default class extends Component {
         this.setState({ openDialog: true, dialogTitle, message })
     }
 
-    showFiles = id => {
-
-        this.setState({ showFiles: true })
-
-        /* let selectedFiles = this.state.files.filter(f => f.metadata.veiculoId === id.toString())
-
-        if (selectedFiles[0]) {
-            this.setState({ filesCollection: selectedFiles, showFiles: true, selectedVehicle: id })
-
-        } else {
-            this.createAlert('filesNotFound')
-            this.setState({ filesCollection: [] })
-        } */
-    }
-
-    closeFiles = () => {
-        this.setState({ showFiles: !this.state.showFiles })
-    }
+    handleCheck = item => this.setState({ ...this.state, [item]: !this.state[item] })
+    toast = () => this.setState({ confirmToast: !this.state.confirmToast })    
+    toggleDialog = () => this.setState({ openDialog: !this.state.openDialog })
+    showFiles = () => this.setState({ showFiles: true })
+    closeFiles = () => this.setState({ showFiles: !this.state.showFiles })
 
     render() {
         const { stepTitles, activeStep, confirmToast, toastMsg, steps, openDialog, dialogTitle, message } = this.state

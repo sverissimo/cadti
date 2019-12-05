@@ -421,8 +421,7 @@ app.get('/api/getUpdatedInsurance', (req, res) => {
         })
 })
 
-
-app.post('/api/editSocios', (req, res) => {
+app.put('/api/editSocios', (req, res) => {
 
     const { requestArray, table, tablePK } = req.body
     let queryString = '',
@@ -436,11 +435,11 @@ app.post('/api/editSocios', (req, res) => {
             `
             requestArray.forEach(obj => {
                 let value = obj[key]
-                if (key !== 'delegatario_id' && key !== 'share') value = '\''+ value + '\''
-                queryString += `WHEN ${obj.socio_id} THEN ${value} `
+                if (key !== 'delegatario_id' && key !== 'share') value = '\'' + value + '\''
+                if (value !== 'undefined') queryString += `WHEN ${obj.socio_id} THEN ${value} `
 
                 if (ids.split(' ').length <= requestArray.length) ids += obj.socio_id + ', '
-                
+
             })
             ids = ids.slice(0, ids.length - 2)
             queryString += `
@@ -451,13 +450,12 @@ app.post('/api/editSocios', (req, res) => {
         }
     })
 
-     pool.query(queryString, (err, t) => {
-         if (err) console.log(err)
-         if (t) console.log (t)
-         res.send(queryString)
-     })
+    pool.query(queryString, (err, t) => {
+        if (err) console.log(err)
+        if (t) console.log(t)
+        res.send(queryString)
+    })
 })
-
 
 app.put('/api/updateVehicle', (req, res) => {
 

@@ -48,7 +48,7 @@ export const delegatarioTable = [
         render: rowData => formatDate(rowData.vencimentoContrato)
     },
     {
-        field: 'municipioDelegatario',
+        field: 'cidade',
         title: 'Município',
     },
     {

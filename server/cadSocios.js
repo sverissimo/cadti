@@ -12,7 +12,8 @@ const cadSocios = (req, res, next) => {
             if (table && table.rows && table.rows.length === 0) { console.log('Nenhum sócio cadastrado.') }
         })
     })
-    next()
+    if(req.body.procuradores) next()
+    else res.send('Sócio(s) cadastrado(s).')
 }
 
 module.exports = { cadSocios }

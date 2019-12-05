@@ -93,7 +93,7 @@ const useStyles = makeStyles(theme => ({
 
 
 
-export default function AltSociosTemplate({ data, removeSocio, handleBlur, handleInput, 
+export default function AltSociosTemplate({ data, removeSocio, handleBlur, handleInput,
     addSocio, handleFiles, enableEdit, handleEdit, handleSubmit }) {
 
     const { dropDisplay, razaoSocial, empresas, filteredSocios, form } = data,
@@ -120,7 +120,13 @@ export default function AltSociosTemplate({ data, removeSocio, handleBlur, handl
         else return undefined
     }
 
-    //  let sociosList = socios.filter(s => s.razaoSocial === razaoSocial)
+    const showForm = () => {
+        const check = empresas.filter(e => e.razaoSocial === razaoSocial)
+        if (check && check[0]) {            
+            return true
+        }
+        else return false
+    }
 
     return (
         <Grid
@@ -131,9 +137,8 @@ export default function AltSociosTemplate({ data, removeSocio, handleBlur, handl
         >
             <Grid item xs={12}>
                 <Paper className={paper}>
-                    <Typography className={title}> Alteração de quadro societário </Typography>
                     <Grid item xs={12} style={{ marginBottom: '15px' }}>
-                        <Typography className={title}> Selecione a Viação</Typography>
+                        <Typography className={title}>  Alteração de quadro societário - Selecione a Viação</Typography>
                         <TextField
                             inputProps={{
                                 list: 'razaoSocial',
@@ -155,54 +160,55 @@ export default function AltSociosTemplate({ data, removeSocio, handleBlur, handl
 
 
 
-            <Grid item xs={12}>
-                <Paper className={paper}>
-                    {
-                        sociosForm.map((el, i) =>
-                            <Fragment key={i}>
-                                <TextField
-                                    name={el.field}
-                                    label={el.label}
-                                    margin='normal'
-                                    className={classes.textField}
-                                    onChange={handleInput}
-                                    onBlur={handleBlur}
-                                    type={el.type || ''}
-                                    error={errorHandler(el)}
-                                    helperText={helper(el)}
-                                    select={el.select || false}
-                                    value={data[el.field] || ''}
-                                    disabled={el.disabled}
-                                    InputLabelProps={{
-                                        className: classes.textField,
-                                        shrink: el.type === 'date' || undefined,
-                                        style: { fontSize: '0.8rem', fontWeight: 400, color: '#455a64', marginBottom: '5%' }
-                                    }}
-                                    inputProps={{
-                                        style: { background: el.disabled && data.disable ? '#fff' : '#efefef', textAlign: 'center', color: '#000', fontWeight: '500', width: el.width || '' },
-                                        value: `${data[el.field] || ''}`,
-                                        list: el.datalist || '',
-                                        maxLength: el.maxLength || '',
-                                        minLength: el.minLength || '',
-                                        max: el.max || '',
-                                    }}
-                                    multiline={el.multiline || false}
-                                    rows={el.rows || null}
-                                    variant={el.variant || 'filled'}
-                                    fullWidth={el.fullWidth || false}
-                                >
-                                </TextField>
-                            </Fragment>
-                        )}
-
-                    <Button color='primary' className={addButton} onClick={addSocio}>
-                        <AddIcon /> Adicionar sócio
-                        </Button>
-                </Paper>
-            </Grid>
-
             {
-                filteredSocios.length > 0 && <Grid container
+                filteredSocios.length > 0 && showForm() && <Grid item xs={12}>
+                    <Paper className={paper}>
+                        {
+                            sociosForm.map((el, i) =>
+                                <Fragment key={i}>
+                                    <TextField
+                                        name={el.field}
+                                        label={el.label}
+                                        margin='normal'
+                                        className={classes.textField}
+                                        onChange={handleInput}
+                                        onBlur={handleBlur}
+                                        type={el.type || ''}
+                                        error={errorHandler(el)}
+                                        helperText={helper(el)}
+                                        select={el.select || false}
+                                        value={data[el.field] || ''}
+                                        disabled={el.disabled}
+                                        InputLabelProps={{
+                                            className: classes.textField,
+                                            shrink: el.type === 'date' || undefined,
+                                            style: { fontSize: '0.8rem', fontWeight: 400, color: '#455a64', marginBottom: '5%' }
+                                        }}
+                                        inputProps={{
+                                            style: { background: el.disabled && data.disable ? '#fff' : '#efefef', textAlign: 'center', color: '#000', fontWeight: '500', width: el.width || '' },
+                                            value: `${data[el.field] || ''}`,
+                                            list: el.datalist || '',
+                                            maxLength: el.maxLength || '',
+                                            minLength: el.minLength || '',
+                                            max: el.max || '',
+                                        }}
+                                        multiline={el.multiline || false}
+                                        rows={el.rows || null}
+                                        variant={el.variant || 'filled'}
+                                        fullWidth={el.fullWidth || false}
+                                    >
+                                    </TextField>
+                                </Fragment>
+                            )}
+
+                        <Button color='primary' className={addButton} onClick={addSocio}>
+                            <AddIcon /> Adicionar sócio
+                        </Button>
+                    </Paper>
+                </Grid>
+            }
+            {
+                filteredSocios.length > 0 && showForm() &&  <Grid container
                     direction="row"
                     className={container}
                     justify="center"
@@ -219,7 +225,7 @@ export default function AltSociosTemplate({ data, removeSocio, handleBlur, handl
                                                 name={e.field}
                                                 label={e.label}
                                                 className={list}
-                                                disabled={s.edit ? false : true}
+                                                disabled={e.field === 'cpfSocio' ? true : s.edit ? false : true}
                                                 onChange={handleEdit}
                                                 InputLabelProps={{ shrink: true, style: { fontWeight: 600 } }}
                                             />
@@ -256,7 +262,6 @@ export default function AltSociosTemplate({ data, removeSocio, handleBlur, handl
                                     variant="contained"
                                     style={{ margin: '10px 0 10px 0' }}
                                     onClick={() => handleSubmit()}
-                                //onClick={handleEquipa}
                                 >
                                     Salvar <span>&nbsp;&nbsp; </span> <SaveIcon />
                                 </Button>
