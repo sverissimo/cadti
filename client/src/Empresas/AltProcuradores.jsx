@@ -4,12 +4,12 @@ import humps from 'humps'
 import ReactToast from '../Utils/ReactToast'
 
 import Crumbs from '../Utils/Crumbs'
-import AltSociosTemplate from './AltSociosTemplate'
+import AltProcuradoresTemplate from './AltProcuradoresTemplate'
 import { sociosForm } from '../Forms/sociosForm'
 
 //import AlertDialog from '../Utils/AlertDialog'
 
-export default class AltSocios extends Component {
+export default class AltProcuradores extends Component {
 
     state = {
         empresas: [],
@@ -239,7 +239,7 @@ export default class AltSocios extends Component {
         return (
             <React.Fragment>
                 <Crumbs links={['Empresas', '/empresasHome']} text='Alteração do quadro societário' />
-                <AltSociosTemplate
+                <AltProcuradoresTemplate
                     data={this.state}
                     handleInput={this.handleInput}
                     removeSocio={this.removeSocio}

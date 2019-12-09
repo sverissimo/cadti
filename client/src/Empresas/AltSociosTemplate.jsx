@@ -122,7 +122,7 @@ export default function AltSociosTemplate({ data, removeSocio, handleBlur, handl
 
     const showForm = () => {
         const check = empresas.filter(e => e.razaoSocial === razaoSocial)
-        if (check && check[0]) {            
+        if (check && check[0]) {
             return true
         }
         else return false
@@ -134,7 +134,7 @@ export default function AltSociosTemplate({ data, removeSocio, handleBlur, handl
             direction="row"
             className={container}
             justify="center"
-        >
+        >            
             <Grid item xs={12}>
                 <Paper className={paper}>
                     <Grid item xs={12} style={{ marginBottom: '15px' }}>
@@ -208,7 +208,7 @@ export default function AltSociosTemplate({ data, removeSocio, handleBlur, handl
                 </Grid>
             }
             {
-                filteredSocios.length > 0 && showForm() &&  <Grid container
+                filteredSocios.length > 0 && showForm() && <Grid container
                     direction="row"
                     className={container}
                     justify="center"

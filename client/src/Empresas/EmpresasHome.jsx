@@ -106,7 +106,7 @@ const featuredPosts = [
         date: '07/Nov',
         description:
             'Alterar relação de procuradores e procurações',
-        link: '/empresas',
+        link: '/procuradores',
         imageUrl: '/images/procuradores31.png'        
     },
 ]

@@ -423,32 +423,44 @@ app.get('/api/getUpdatedInsurance', (req, res) => {
 
 app.put('/api/editSocios', (req, res) => {
 
-    const { requestArray, table, tablePK } = req.body
+    const { requestArray, table, tablePK, keys } = req.body
     let queryString = '',
-        ids = ''
+        ids = '',
+        i = 0
 
-    Object.keys(requestArray[0]).forEach(key => {
-        if (key !== 'socio_id') {
-            queryString += `
-            UPDATE ${table} 
-            SET ${key} = CASE ${tablePK} 
-            `
-            requestArray.forEach(obj => {
-                let value = obj[key]
-                if (key !== 'delegatario_id' && key !== 'share') value = '\'' + value + '\''
-                if (value !== 'undefined') queryString += `WHEN ${obj.socio_id} THEN ${value} `
+    keys.forEach(key => {        
+        requestArray.forEach(o => {
+            if (o.hasOwnProperty(key)) {
+                i++
+                if (key !== 'socio_id' && i < 2) {              
+                    ids = ''
+                    queryString += `
+                    UPDATE ${table} 
+                    SET ${key} = CASE ${tablePK} 
+                    `
+                    requestArray.forEach(obj => {
+                        let value = obj[key]
+                        if (value) {
+                            if (key !== 'delegatario_id' && key !== 'share') value = '\'' + value + '\''
+                            queryString += `WHEN ${obj.socio_id} THEN ${value} `
 
-                if (ids.split(' ').length <= requestArray.length) ids += obj.socio_id + ', '
+                            if (ids.split(' ').length <= requestArray.length) ids += obj.socio_id + ', '
+                        }
 
-            })
-            ids = ids.slice(0, ids.length - 2)
-            queryString += `
-            END
-            WHERE ${tablePK} IN (${ids});
-            `
-            ids = ids + ', '
-        }
+                    })
+                    ids = ids.slice(0, ids.length - 2)
+                    queryString += `
+                    END
+                    WHERE ${tablePK} IN (${ids});
+                    `
+                    ids = ids + ', '
+                }
+            }
+        })
+        i = 0
     })
+
+    console.log(queryString)
 
     pool.query(queryString, (err, t) => {
         if (err) console.log(err)

@@ -1,15 +1,12 @@
-import React, { Fragment, useState } from 'react'
+import React, { Fragment } from 'react'
 import Dropzone from 'react-dropzone'
 import Grid from '@material-ui/core/Grid'
 import Paper from '@material-ui/core/Paper'
 import Typography from '@material-ui/core/Typography'
-import Checkbox from '@material-ui/core/Checkbox'
-import FormControlLabel from '@material-ui/core/FormControlLabel'
 import DescriptionOutlinedIcon from '@material-ui/icons/DescriptionOutlined';
 import { makeStyles } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
 import { empresasForm } from '../Forms/empresasForm'
-//import PopUp from '../Utils/PopUp'
 
 const useStyles = makeStyles(theme => ({
     container: {
@@ -73,11 +70,8 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function ({ handleInput, handleBlur, data, handleFiles }) {
-    const { tab, activeStep, stepTitles, dropDisplay } = data,
+    const { activeStep, stepTitles, dropDisplay } = data,
         classes = useStyles(), { paper, container, title, dropBox, dropBoxItem, dropBoxItem2 } = classes
-
-    const [shared, setShared] = useState(false)
-
 
     const errorHandler = (el) => {
         const value = data.form[el.field]
@@ -103,26 +97,6 @@ export default function ({ handleInput, handleBlur, data, handleFiles }) {
             justify="center"
         >
             <Grid>
-                <Paper className={paper} style={{ padding: '0 2% 0 2%' }}>
-                    {
-                        tab === 0 && <Grid item xs={12}>
-                            <FormControlLabel
-                                control={
-                                    <Checkbox
-                                        checked={shared === true}
-                                        onChange={() => setShared(!shared)}
-                                        value={shared}
-                                    />
-                                }
-                                label={
-                                    <Typography style={{ color: '#2979ff', fontSize: '0.7rem', float: 'right' }}>
-                                        Veículo Compartilhado?
-                                    </Typography>
-                                }
-                            />
-                        </Grid>
-                    }
-                </Paper>
                 {
                     true
                         ?
