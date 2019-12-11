@@ -175,12 +175,13 @@ app.get('/api/mongoDownload/', (req, res) => {
 
 app.get('/api/getFiles/:collection', (req, res) => {
 
-    let filesCollection
+    let filesCollection, fieldName
 
     if (req.params.collection === 'vehicle') filesCollection = filesModel
     if (req.params.collection === 'empresa') filesCollection = empresaModel
+    if (req.query.fieldName) fieldName = {'metadata.fieldName' : req.query.fieldName}
 
-    filesCollection.find().sort({ uploadDate: -1 }).exec((err, doc) => res.send(doc))
+    filesCollection.find(fieldName).sort({ uploadDate: -1 }).exec((err, doc) => res.send(doc))
 
 })
 
@@ -299,9 +300,13 @@ app.get('/api/seguradoras', (req, res) => {
 })
 
 app.get('/api/procuradores', (req, res) => {
-    pool.query(`SELECT * FROM procurador`, (err, table) => {
+    pool.query(`
+        SELECT public.procurador.*, public.delegatario.razao_social
+        from public.procurador
+        left join public.delegatario
+        on procurador.delegatario_id = delegatario.delegatario_id`, (err, table) => {
         if (err) res.send(err)
-        else if (table.rows && table.rows.length === 0) { res.send('Nenhum equipamento encontrado.'); return }
+        else if (table.rows && table.rows.length === 0) { res.send('Nenhum procurador encontrado.'); return }
         res.json(table.rows);
     })
 })
@@ -428,11 +433,11 @@ app.put('/api/editSocios', (req, res) => {
         ids = '',
         i = 0
 
-    keys.forEach(key => {        
+    keys.forEach(key => {
         requestArray.forEach(o => {
             if (o.hasOwnProperty(key)) {
                 i++
-                if (key !== 'socio_id' && i < 2) {              
+                if (key !== 'socio_id' && i < 2) {
                     ids = ''
                     queryString += `
                     UPDATE ${table} 
@@ -465,9 +470,61 @@ app.put('/api/editSocios', (req, res) => {
     pool.query(queryString, (err, t) => {
         if (err) console.log(err)
         if (t) console.log(t)
-        res.send(queryString)
+        //res.send(queryString)
+        res.send('Dados atualizados.')
     })
 })
+
+
+app.put('/api/editProc', (req, res) => {
+
+    const { requestArray, table, tablePK, keys } = req.body
+    let queryString = '',
+        ids = '',
+        i = 0
+
+    keys.forEach(key => {
+        requestArray.forEach(o => {
+            if (o.hasOwnProperty(key)) {
+                i++
+                if (key !== 'procurador_id' && i < 2) {
+                    ids = ''
+                    queryString += `
+                    UPDATE ${table} 
+                    SET ${key} = CASE ${tablePK} 
+                    `
+                    requestArray.forEach(obj => {
+                        let value = obj[key]
+                        if (value) {
+                            if (key !== 'delegatario_id') value = '\'' + value + '\''
+                            queryString += `WHEN ${obj.procurador_id} THEN ${value} `
+
+                            if (ids.split(' ').length <= requestArray.length) ids += obj.procurador_id + ', '
+                        }
+
+                    })
+                    ids = ids.slice(0, ids.length - 2)
+                    queryString += `
+                    END
+                    WHERE ${tablePK} IN (${ids});
+                    `
+                    ids = ids + ', '
+                }
+            }
+        })
+        i = 0
+    })
+
+    console.log(queryString)
+
+    pool.query(queryString, (err, t) => {
+        if (err) console.log(err)
+        if (t) console.log(t)
+        //res.send(queryString)
+        res.send('Dados atualizados.')
+    })
+})
+
 
 app.put('/api/updateVehicle', (req, res) => {
 

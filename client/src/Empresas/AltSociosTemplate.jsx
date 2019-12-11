@@ -89,14 +89,13 @@ const useStyles = makeStyles(theme => ({
         color: 'black',
         fontWeight: 400,
     }
-}));
-
+}))
 
 
 export default function AltSociosTemplate({ data, removeSocio, handleBlur, handleInput,
     addSocio, handleFiles, enableEdit, handleEdit, handleSubmit }) {
 
-    const { dropDisplay, razaoSocial, empresas, filteredSocios, form } = data,
+    const { dropDisplay, razaoSocial, empresas, filteredSocios, form, selectedEmpresa } = data,
         classes = useStyles(), { paper, container, title, iconButton, dropBox,
             dropBoxItem, dropBoxItem2, list, addButton } = classes
 
@@ -120,21 +119,13 @@ export default function AltSociosTemplate({ data, removeSocio, handleBlur, handl
         else return undefined
     }
 
-    const showForm = () => {
-        const check = empresas.filter(e => e.razaoSocial === razaoSocial)
-        if (check && check[0]) {
-            return true
-        }
-        else return false
-    }
-
     return (
         <Grid
             container
             direction="row"
             className={container}
             justify="center"
-        >            
+        >
             <Grid item xs={12}>
                 <Paper className={paper}>
                     <Grid item xs={12} style={{ marginBottom: '15px' }}>
@@ -158,10 +149,8 @@ export default function AltSociosTemplate({ data, removeSocio, handleBlur, handl
                 </Paper>
             </Grid>
 
-
-
             {
-                filteredSocios.length > 0 && showForm() && <Grid item xs={12}>
+                selectedEmpresa[0] && <Grid item xs={12}>
                     <Paper className={paper}>
                         {
                             sociosForm.map((el, i) =>
@@ -208,7 +197,16 @@ export default function AltSociosTemplate({ data, removeSocio, handleBlur, handl
                 </Grid>
             }
             {
-                filteredSocios.length > 0 && showForm() && <Grid container
+                selectedEmpresa[0] && filteredSocios.length === 0 &&
+                <Grid item xs={12}>
+                    <Paper className={paper}>
+                        Nenhum sócio cadastrado para {selectedEmpresa[0].razaoSocial}
+                        </Paper>
+
+                </Grid>
+            }
+            {
+                filteredSocios.length > 0 && selectedEmpresa && <Grid container
                     direction="row"
                     className={container}
                     justify="center"

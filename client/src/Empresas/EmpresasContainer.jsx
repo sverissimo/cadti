@@ -210,9 +210,9 @@ export default class extends Component {
         let formData = new FormData()
         if (activeStep === 0) {
             formData.append('contratoSocial', file[0])
-
             this.setState({ dropDisplay: file[0].name, contratoSocial: formData })
         }
+        
         if (activeStep === 2) {
             let procFiles = this.state.procFiles
             procFiles.append(this.state.cpfProcurador, file[0])

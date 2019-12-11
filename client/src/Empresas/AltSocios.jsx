@@ -24,6 +24,7 @@ export default class AltSocios extends Component {
         filteredSocios: [],
         dropDisplay: 'Clique ou arraste para anexar o contrato social atualizado da empresa',
         showFiles: false,
+        selectedEmpresa: []
     }
 
     componentDidMount() {
@@ -53,23 +54,20 @@ export default class AltSocios extends Component {
             const filteredSocios = socios.filter(s => s.razaoSocial === value),
                 selectedEmpresa = this.state.empresas.filter(e => e.razaoSocial === value)
             if (filteredSocios.length > 0) {
-                this.setState({ ...this.state, filteredSocios, selectedEmpresa })
-            }
+                this.setState({ filteredSocios, selectedEmpresa })
+            } else this.setState({ filteredSocios: [] })
             if (selectedEmpresa.length > 0) {
-                this.setState({ razaoSocial: selectedEmpresa[0].razaoSocial })
-            }
+                await this.setState({ razaoSocial: selectedEmpresa[0].razaoSocial, selectedEmpresa })
+                if (value !== selectedEmpresa[0].razaoSocial) this.setState({ selectedEmpresa: [] })
+            } else this.setState({ selectedEmpresa: [] })
         }
-
     }
 
     handleBlur = async  e => {
-        const { selectedEmpresa, razaoSocial } = this.state
+        /* const { selectedEmpresa } = this.state
         const { name } = e.target
-        let { value } = e.target
+        let { value } = e.target */
 
-        if (name === 'razaoSocial') {
-            if (razaoSocial !== selectedEmpresa.razaoSocial) this.setState({ razaoSocial: value, selectedEmpresa: [] })
-        }
         /* switch (name) {
             case 'cnpj':
                 const alreadyExists = empresas.filter(e => e.cnpj === value)
@@ -197,11 +195,11 @@ export default class AltSocios extends Component {
 
         oldMembers = humps.decamelizeKeys(realChanges)
         newMembers = humps.decamelizeKeys(newMembers)
-        
+
         try {
             if (oldMembers.length > 0) {
                 await axios.put('/api/editSocios', { requestArray: oldMembers, table, tablePK, keys })
-                 //   .then(r => console.log(r.data))
+                //   .then(r => console.log(r.data))
             }
 
             if (newMembers.length > 0) {
@@ -220,7 +218,7 @@ export default class AltSocios extends Component {
         } catch (err) {
             console.log(err)
             alert(err)
-        }        
+        }
 
         this.toast()
     }

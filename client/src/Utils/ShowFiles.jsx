@@ -17,12 +17,11 @@ const divRow = {
     justifyItems: 'auto'
 }
 
-const ShowFiles = ({ tab, elementId, filesCollection, procuradores, close, format }) => {
+const ShowFiles = ({ tab, elementId, filesCollection, procuradores, close, format, typeId = '' }) => {
 
     let tempFiles = []
     let files = []
-    let fileLabels
-    let typeId
+    let fileLabels = empresaFiles
 
     if (tab === 0) {
         fileLabels = cadVehicleFiles
@@ -35,7 +34,7 @@ const ShowFiles = ({ tab, elementId, filesCollection, procuradores, close, forma
         fileLabels = empresaFiles
         typeId = 'empresaId'
     }
-
+    
     if (filesCollection && filesCollection[0]) {
         tempFiles = filesCollection.filter(el => el.metadata[typeId].match(elementId))
         tempFiles.forEach(obj => {
