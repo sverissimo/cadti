@@ -179,7 +179,7 @@ app.get('/api/getFiles/:collection', (req, res) => {
 
     if (req.params.collection === 'vehicle') filesCollection = filesModel
     if (req.params.collection === 'empresa') filesCollection = empresaModel
-    if (req.query.fieldName) fieldName = {'metadata.fieldName' : req.query.fieldName}
+    if (req.query.fieldName) fieldName = { 'metadata.fieldName': req.query.fieldName }
 
     filesCollection.find(fieldName).sort({ uploadDate: -1 }).exec((err, doc) => res.send(doc))
 
@@ -331,6 +331,8 @@ app.post('/api/cadastroVeiculo', (req, res) => {
 app.post('/api/cadEmpresa', cadEmpresa)
 
 app.post('/api/cadSocios', cadSocios)
+
+app.post('/api/cadProcuradores', cadProcuradores)
 
 app.post('/api/empresaFullCad', cadEmpresa, cadSocios, cadProcuradores);
 
@@ -497,6 +499,7 @@ app.put('/api/editProc', (req, res) => {
                         let value = obj[key]
                         if (value) {
                             if (key !== 'delegatario_id') value = '\'' + value + '\''
+                            if (key === 'data_fim') value += '::date'
                             queryString += `WHEN ${obj.procurador_id} THEN ${value} `
 
                             if (ids.split(' ').length <= requestArray.length) ids += obj.procurador_id + ', '
@@ -574,6 +577,19 @@ app.delete('/api/delete', (req, res) => {
         if (err) console.log(err)
         res.send(`${id} deleted from ${table}`)
     })
+})
+
+app.delete('/api/removeProc', (req, res) => {
+
+    const { delegatario_id, procurador_id } = req.body
+
+    pool.query(`
+    DELETE FROM public.procuracao    
+    WHERE delegatario_id = ${delegatario_id}
+    AND WHERE procurador_id = ${procurador_id}
+`
+    )
+
 })
 
 

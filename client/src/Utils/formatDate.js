@@ -11,7 +11,7 @@ const formatDate = (date, min) => {
     if (/\d/.test(date)) {
         let data = new Date(date).getDate() + '/' + (new Date(date).getMonth() + 1) + '/' + new Date(date).getFullYear()// + ', ' + new Date(date).getHours() + ':' + minutes() + 'h'
         if (min) data += ', ' + new Date(date).getHours() + ':' + minutes() + 'h'
-        return data
+        return data.toString()
     } else {
         return date
     }

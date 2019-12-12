@@ -43,6 +43,7 @@ const ShowFiles = ({ tab, elementId, filesCollection, procuradores, close, forma
             })
         })
     }
+    
     const nomeProc = (el) => {
         const name = procuradores.filter(p => p.cpfProcurador === el)[0]
         if (name !== undefined && name.hasOwnProperty('nomeProcurador')) return name.nomeProcurador
@@ -54,7 +55,6 @@ const ShowFiles = ({ tab, elementId, filesCollection, procuradores, close, forma
                 <div className="row">
                     <h5>
                         <img alt="" src="/images/folderIcon2.jpg" style={{ paddingLeft: '20px', marginRight: '20px' }} />
-
                     </h5>
                 </div>
                 <hr style={{ marginBottom: '5px' }} />
@@ -77,7 +77,6 @@ const ShowFiles = ({ tab, elementId, filesCollection, procuradores, close, forma
                     files.map((file, index) =>
                         <div key={index}>
                             <div style={divRow}>
-
                                 <div className="col s1">
                                     <img alt="" src="/images/genericFile.png" />
                                 </div>

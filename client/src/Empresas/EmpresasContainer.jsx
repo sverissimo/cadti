@@ -75,8 +75,7 @@ export default class extends Component {
     handleInput = async e => {
         const { name } = e.target
         let { value } = e.target
-        this.setState({ [name]: value })
-        console.log(this.state)
+        this.setState({ [name]: value })        
     }
 
     addSocio = async () => {

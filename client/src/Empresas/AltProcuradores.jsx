@@ -60,7 +60,7 @@ export default class AltProcuradores extends Component {
         const { procuradores } = this.state
 
         this.setState({ ...this.state, [name]: value })
-        
+
         if (name === 'razaoSocial' && Array.isArray(procuradores)) {
             const filteredProc = procuradores.filter(s => s.razaoSocial === value),
                 selectedEmpresa = this.state.empresas.filter(e => e.razaoSocial === value)
@@ -73,7 +73,6 @@ export default class AltProcuradores extends Component {
                 if (value !== selectedEmpresa[0].razaoSocial) this.setState({ selectedEmpresa: [] })
             } else this.setState({ selectedEmpresa: [] })
         }
-
     }
 
     handleBlur = async  e => {
@@ -104,7 +103,7 @@ export default class AltProcuradores extends Component {
         } */
     }
 
-    addSocio = async () => {
+    addProc = async () => {
         let procuradores = this.state.filteredProc,
             sObject = {}
 
@@ -127,7 +126,7 @@ export default class AltProcuradores extends Component {
         //document.getElementsByName('nomeProcurador')[0].focus()
     }
 
-    removeSocio = async index => {
+    removeProc = async index => {
 
         let procuradores = this.state.filteredProc
         const id = procuradores[index].procuradorId
@@ -142,11 +141,16 @@ export default class AltProcuradores extends Component {
     enableEdit = index => {
 
         let editProc = this.state.filteredProc
-        if (editProc[index].edit === true) editProc[index].edit = false
-        else {
-            editProc.forEach(s => s.edit = false)
+
+        if (editProc[index].edit === true) {
+            editProc[index].edit = false
+        } else {
+            editProc.forEach(s => {
+                s.edit = false
+            })
             editProc[index].edit = true
         }
+
         this.setState({ filteredProc: editProc })
     }
 
@@ -158,9 +162,18 @@ export default class AltProcuradores extends Component {
 
         editProc[name] = value
 
-        let fs = this.state.filteredProc
-        fs[index] = editProc        
-        this.setState({ filteredProc: fs })
+        let fp = this.state.filteredProc
+        fp[index] = editProc
+        this.setState({ filteredProc: fp })
+    }
+
+    handleFiles = (file) => {
+        let procFiles = this.state.procFiles
+        procFiles.append(this.state.cpfProcurador, file[0])
+        this.setState({ procFiles, procDisplay: file[0].name })
+        /* for (let [k, v] of this.state.procFiles.entries()) {
+            console.log(k, ', ', v )
+        } */
     }
 
     handleSubmit = async () => {
@@ -172,24 +185,25 @@ export default class AltProcuradores extends Component {
             contratoFile = new FormData(),
             keys = procuradorForm.map(el => humps.decamelize(el.field))
         keys.splice(1, 1)
-
-        submitProc.forEach(fs => {
-            let { razaoSocial, dataInicio, dataFim, createdAt, edit, ...rest } = fs
-            fs = rest
-            fs.delegatarioId = selectedEmpresa[0].delegatarioId
-            if (!fs.hasOwnProperty('procuradorId')) {
-                gotId = procuradores.filter(p => p.cpfProcurador === fs.cpfProcurador)
-                if (gotId.length > 0) {
-                    fs.procuradorId = gotId[0].procuradorId
-                    oldMembers.push(fs)
+        
+        submitProc.forEach(fp => {
+            let { razaoSocial, dataInicio, createdAt, edit, ...rest } = fp
+            fp = rest
+            fp.delegatarioId = selectedEmpresa[0].delegatarioId
+            if (!fp.hasOwnProperty('procuradorId')) {
+                gotId = procuradores.filter(p => p.cpfProcurador === fp.cpfProcurador)
+                console.log(gotId)
+                if (gotId.length > 0 && gotId[0].hasOwnProperty('procuradorId')) {
+                    fp.procuradorId = gotId[0].procuradorId
+                    oldMembers.push(fp)
                 } else {
-                    newMembers.push(fs)
+                    newMembers.push(fp)
                 }
             } else {
-                oldMembers.push(fs)
-                delete oldMembers.procuradorId
+                oldMembers.push(fp)
             }
         })
+        console.log(newMembers, oldMembers)
         const table = 'procurador', tablePK = 'procurador_id'
         let realChanges = [], altObj = {}
 
@@ -219,7 +233,7 @@ export default class AltProcuradores extends Component {
             }
 
             if (newMembers.length > 0) {
-                await axios.post('/api/cadSocios', { procuradores: newMembers, table, tablePK })
+                await axios.post('/api/cadProcuradores', { procuradores: newMembers, table, tablePK })
                     .then(r => console.log(r.data))
             }
 
@@ -239,20 +253,8 @@ export default class AltProcuradores extends Component {
         this.toast()
     }
 
-    handleFiles = (file) => {
-
-        let procFiles = this.state.procFiles
-        procFiles.append(this.state.cpfProcurador, file[0])
-        this.setState({ procFiles, procDisplay: file[0].name })
-    }
-
-
-    closeFiles = () => {
-        this.setState({ showFiles: !this.state.showFiles })
-    }
 
     showFiles = cpf => {
-
         let selectedFiles = this.state.files.filter(f => f.metadata.cpfProcurador === cpf.toString())
 
         if (selectedFiles[0]) {
@@ -263,19 +265,22 @@ export default class AltProcuradores extends Component {
             this.setState({ filesCollection: [] })
         }
     }
+
+    closeFiles = () => this.setState({ showFiles: !this.state.showFiles })
     toast = () => this.setState({ confirmToast: !this.state.confirmToast })
 
     render() {
         const { showFiles, selectedElement, filesCollection, procuradores } = this.state
+
         return (
             <React.Fragment>
                 <Crumbs links={['Empresas', '/empresasHome']} text='Alteração de procuradores' />
                 <AltProcuradoresTemplate
                     data={this.state}
                     handleInput={this.handleInput}
-                    removeSocio={this.removeSocio}
+                    removeProc={this.removeProc}
                     handleFiles={this.handleFiles}
-                    addSocio={this.addSocio}
+                    addProc={this.addProc}
                     enableEdit={this.enableEdit}
                     handleEdit={this.handleEdit}
                     handleSubmit={this.handleSubmit}

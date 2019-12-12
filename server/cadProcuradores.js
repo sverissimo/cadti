@@ -8,7 +8,8 @@ const cadProcuradores = (req, res) => {
 
     procuradores.forEach(p => {
         const { keys, values } = p
-        
+        console.log(`INSERT INTO public.procurador (${keys}) VALUES (${values})`)
+
         pool.query(`INSERT INTO public.procurador (${keys}) VALUES (${values})`, (err, table) => {
             if (err) console.log(err)
             if (table.hasOwnProperty('rows')) {
@@ -19,7 +20,7 @@ const cadProcuradores = (req, res) => {
         })
     })
 
-    res.send(req.delegatario_id.toString())
+    res.send('ok')
 }
 
 module.exports = { cadProcuradores }

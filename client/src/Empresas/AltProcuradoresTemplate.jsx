@@ -1,5 +1,6 @@
 import React, { Fragment } from 'react'
 import Dropzone from 'react-dropzone'
+import moment from 'moment'
 
 import Grid from '@material-ui/core/Grid'
 import Paper from '@material-ui/core/Paper'
@@ -14,7 +15,6 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import DescriptionOutlinedIcon from '@material-ui/icons/DescriptionOutlined';
 import SaveIcon from '@material-ui/icons/Save';
 
-import formatDate from '../Utils/formatDate'
 import AutoComplete from '../Utils/autoComplete'
 import { procuradorForm } from '../Forms/procuradorForm'
 
@@ -96,7 +96,7 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-export default function ({ handleInput, handleBlur, data, addSocio, removeSocio,
+export default function ({ handleInput, handleBlur, data, addProc, removeProc,
     showFiles, handleFiles, enableEdit, handleEdit, handleSubmit }) {
     const { procDisplay, razaoSocial, empresas, selectedEmpresa, filteredProc } = data,
         classes = useStyles(), { paper, container, title, iconButton, dropBox,
@@ -120,6 +120,12 @@ export default function ({ handleInput, handleBlur, data, addSocio, removeSocio,
         else if (value && value.match(el.pattern) === null) return '✘'
         else if (el.pattern && value && value.match(el.pattern) !== null) return '✓'
         else return undefined
+    }
+
+    const handleDates = (date) => {
+
+        if (date) return moment(date).format('YYYY-MM-DD')
+        else return ''
     }
 
     return (
@@ -209,7 +215,7 @@ export default function ({ handleInput, handleBlur, data, addSocio, removeSocio,
                                     </Dropzone>
                                 </Grid>
                                 {data.cpfProcurador && <Grid item xs={6}>
-                                    <Button color='primary' className={addButton} onClick={addSocio}>
+                                    <Button color='primary' className={addButton} onClick={addProc}>
                                         <AddIcon /> Adicionar procurador
                                 </Button>
                                 </Grid>}
@@ -241,11 +247,12 @@ export default function ({ handleInput, handleBlur, data, addSocio, removeSocio,
                                             <Fragment key={k + 1000}>
                                                 <TextField
                                                     name={e.field}
-                                                    value={e.field === 'dataFim' ? formatDate(p[e.field]) : p[e.field] || ''}
+                                                    defaultValue={e.field === 'dataFim'? handleDates(p[e.field]) : p[e.field]}
                                                     label={e.label}
+                                                    type={e.type || 'text'}
                                                     className={list}
                                                     onChange={handleEdit}
-                                                    disabled={e.field === 'cpfProcurador' || e.field === 'dataFim' ? true : p.edit ? false : true}
+                                                    disabled={e.field === 'cpfProcurador' ? true : p.edit ? false : true}
                                                     InputLabelProps={{ shrink: true, style: { fontWeight: 600 } }}
                                                 />
                                             </Fragment>
@@ -258,7 +265,7 @@ export default function ({ handleInput, handleBlur, data, addSocio, removeSocio,
                                             <EditIcon />
                                         </Button>
 
-                                        <Button className={iconButton} color='secondary' title='Remover' onClick={() => removeSocio(i)}>
+                                        <Button className={iconButton} color='secondary' title='Remover' onClick={() => removeProc(i)}>
                                             <DeleteIcon />
                                         </Button>
                                     </Grid>
