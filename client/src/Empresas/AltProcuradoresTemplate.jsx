@@ -9,6 +9,7 @@ import Button from '@material-ui/core/Button'
 import { makeStyles } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
 
+import AddCircleOutlineSharpIcon from '@material-ui/icons/AddCircleOutlineSharp';
 import EditIcon from '@material-ui/icons/Edit';
 import AddIcon from '@material-ui/icons/Add';
 import DeleteIcon from '@material-ui/icons/Delete';
@@ -47,8 +48,16 @@ const useStyles = makeStyles(theme => ({
         padding: theme.spacing(1),
         textAlign: 'center',
         color: theme.palette.text.secondary,
-        margin: theme.spacing(1)
+        margin: theme.spacing(1),        
     },
+    paper2: {
+        padding: theme.spacing(1),
+        textAlign: 'center',
+        color: theme.palette.text.secondary,
+        margin: theme.spacing(1),
+        position: 'relative'
+    },
+
     list: {
         margin: theme.spacing(1),
         width: 180,
@@ -97,10 +106,10 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function ({ handleInput, handleBlur, data, addProc, removeProc,
-    showFiles, handleFiles, enableEdit, handleEdit, handleSubmit }) {
-    const { procDisplay, razaoSocial, empresas, selectedEmpresa, filteredProc } = data,
+    showFiles, handleFiles, enableEdit, handleEdit, handleSubmit, plusOne }) {
+    const { procDisplay, razaoSocial, empresas, selectedEmpresa, filteredProc, procsToAdd } = data,
         classes = useStyles(), { paper, container, title, iconButton, dropBox,
-            dropBoxItem, dropBoxItem2, list, addButton } = classes
+            dropBoxItem, dropBoxItem2, list, addButton, paper2 } = classes
 
     const errorHandler = (el) => {
 
@@ -126,8 +135,7 @@ export default function ({ handleInput, handleBlur, data, addProc, removeProc,
 
         if (date) return moment(date).format('YYYY-MM-DD')
         else return ''
-    }
-
+    }    
     return (
         <Grid
             container
@@ -158,71 +166,88 @@ export default function ({ handleInput, handleBlur, data, addProc, removeProc,
                         </Grid>
                     </Paper>
                 </Grid>
-                {
-                    selectedEmpresa && <Grid item xs={12}>
-                        <Paper className={paper}>
-                            {
-                                procuradorForm.map((el, i) =>
-                                    <Fragment key={i}>
-                                        <TextField
-                                            name={el.field}
-                                            label={el.label}
-                                            margin='normal'
-                                            className={classes.textField}
-                                            onChange={handleInput}
-                                            onBlur={handleBlur}
-                                            type={el.type || ''}
-                                            error={errorHandler(el)}
-                                            helperText={helper(el)}
-                                            select={el.select || false}
-                                            value={data[el.field] || ''}
-                                            disabled={el.disabled || false}
-                                            InputLabelProps={{
-                                                className: classes.textField,
-                                                shrink: el.type === 'date' || undefined,
-                                                style: { fontSize: '0.8rem', fontWeight: 400, color: '#455a64', marginBottom: '5%' }
+                {true && <Paper className={paper2}>
+                    {procsToAdd.map((p, j) =>
+                        <Grid item xs={12} key={j}>
+                            {procuradorForm.map((el, i) =>
+                                <Fragment key={i}>
+                                    <TextField
+                                        name={el.field + j}
+                                        label={el.label}
+                                        margin='normal'
+                                        className={classes.textField}
+                                        onChange={e => handleInput(e)}
+                                        onBlur={handleBlur}
+                                        type={el.type || ''}
+                                        error={errorHandler(el)}
+                                        helperText={helper(el)}
+                                        select={el.select || false}
+                                        value={data[el.field + j] || ''}
+                                        disabled={el.disabled || false}
+                                        InputLabelProps={{
+                                            className: classes.textField,
+                                            shrink: el.type === 'date' || undefined,
+                                            style: { fontSize: '0.8rem', fontWeight: 400, color: '#455a64', marginBottom: '5%' }
+                                        }}
+                                        inputProps={{
+                                            style: { background: el.disabled && data.disable ? '#fff' : '#efefef', textAlign: 'center', color: '#000', fontWeight: '500', width: el.width || '' },
+                                            value: `${data[el.field + j] || ''}`,
+                                            list: el.datalist || '',
+                                            maxLength: el.maxLength || '',
+                                            minLength: el.minLength || '',
+                                            max: el.max || '',
+                                        }}
+                                        multiline={el.multiline || false}
+                                        rows={el.rows || null}
+                                        variant={el.variant || 'filled'}
+                                        fullWidth={el.fullWidth || false}
+                                    >
+                                    </TextField>
+                                    {j === procsToAdd.length - 1 && i === 4 &&
+                                        <AddCircleOutlineSharpIcon
+                                            onClick={() => plusOne()}
+                                            title='whaaaa'
+                                            style={{
+                                                verticalAlign: 'middle',
+                                                position: 'absolute',
+                                                bottom: '27px',
+                                                right: '25px',
+                                                color: '#00CED1',
+                                                fontSize: 30,
+                                                cursor: 'pointer'
                                             }}
-                                            inputProps={{
-                                                style: { background: el.disabled && data.disable ? '#fff' : '#efefef', textAlign: 'center', color: '#000', fontWeight: '500', width: el.width || '' },
-                                                value: `${data[el.field] || ''}`,
-                                                list: el.datalist || '',
-                                                maxLength: el.maxLength || '',
-                                                minLength: el.minLength || '',
-                                                max: el.max || '',
-                                            }}
-                                            multiline={el.multiline || false}
-                                            rows={el.rows || null}
-                                            variant={el.variant || 'filled'}
-                                            fullWidth={el.fullWidth || false}
-                                        >
-                                        </TextField>
-                                    </Fragment>
-                                )}
-                            <Grid container style={{ position: 'relative' }}>
-                                <Grid item xs={data.cpfProcurador ? 6 : 12}>
-                                    <Dropzone onDrop={handleFiles}>
-                                        {({ getRootProps, getInputProps }) => (
-                                            <Grid container justify="center" alignItems='center' className={dropBox} direction='row' {...getRootProps()}>
-                                                <input {...getInputProps()} />
-                                                {
-                                                    procDisplay.match('Clique ou') ?
-                                                        <Grid item xs={6} className={dropBoxItem}> {procDisplay} </Grid>
-                                                        :
-                                                        <Grid item xs={6} className={dropBoxItem2}> <DescriptionOutlinedIcon />  {procDisplay} <br /> (clique ou arraste outro arquivo para alterar)</Grid>
-                                                }
-                                            </Grid>
-                                        )}
-                                    </Dropzone>
+
+                                        />
+                                        }
+                                </Fragment>
+                            )}
+                        </Grid>
+                    )}
+
+                </Paper>}
+                <Grid container style={{ position: 'relative' }}>
+                    <Grid item xs={data.cpfProcurador ? 6 : 12}>
+                        <Dropzone onDrop={handleFiles}>
+                            {({ getRootProps, getInputProps }) => (
+                                <Grid container justify="center" alignItems='center' className={dropBox} direction='row' {...getRootProps()}>
+                                    <input {...getInputProps()} />
+                                    {
+                                        procDisplay.match('Clique ou') ?
+                                            <Grid item xs={6} className={dropBoxItem}> {procDisplay} </Grid>
+                                            :
+                                            <Grid item xs={6} className={dropBoxItem2}> <DescriptionOutlinedIcon />  {procDisplay} <br /> (clique ou arraste outro arquivo para alterar)</Grid>
+                                    }
                                 </Grid>
-                                {data.cpfProcurador && <Grid item xs={6}>
-                                    <Button color='primary' className={addButton} onClick={addProc}>
-                                        <AddIcon /> Adicionar procurador
-                                </Button>
-                                </Grid>}
-                            </Grid>
-                        </Paper>
+                            )}
+                        </Dropzone>
                     </Grid>
-                }
+                    {//data.cpfProcurador && <Grid item xs={6}>
+                        <Grid item xs={6}>
+                            <Button color='primary' className={addButton} onClick={addProc}>
+                                <AddIcon /> Adicionar procurador
+                                </Button>
+                        </Grid>}
+                </Grid>
                 {
                     selectedEmpresa && filteredProc.length === 0 &&
                     <Grid item xs={12}>
@@ -239,7 +264,7 @@ export default function ({ handleInput, handleBlur, data, addProc, removeProc,
                         justify="center"
                         alignItems="center">
                         <Grid item xs={12}>
-                            <Paper style={{ padding: '3px' }}>
+                            <Paper style={{ padding: '2px' }}>
                                 <p className={title}>Procuradores cadastrados</p>
                                 {filteredProc.map((p, i) =>
                                     <Grid key={i}>
@@ -247,7 +272,7 @@ export default function ({ handleInput, handleBlur, data, addProc, removeProc,
                                             <Fragment key={k + 1000}>
                                                 <TextField
                                                     name={e.field}
-                                                    defaultValue={e.field === 'vencimento'? handleDates(p[e.field]) : p[e.field]}
+                                                    defaultValue={e.field === 'vencimento' ? handleDates(p[e.field]) : p[e.field]}
                                                     label={e.label}
                                                     type={e.type || 'text'}
                                                     className={list}

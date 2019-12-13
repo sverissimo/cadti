@@ -98,11 +98,12 @@ export default class extends Component {
             case 2:
                 typeId = 'cpfProcurador'
                 selectedFiles = this.state.empresaFiles.filter(f => f.metadata.cpfProcurador === id.toString())
+                break;
             case 3:
                 typeId = 'veiculoId'
                 selectedFiles = this.state.vehicleFiles.filter(f => f.metadata.veiculoId === id.toString())
-            default: void 0
                 break;
+            default: void 0                
         }
 
         if (selectedFiles[0]) {

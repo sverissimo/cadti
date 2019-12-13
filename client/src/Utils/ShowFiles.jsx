@@ -26,6 +26,8 @@ const ShowFiles = ({ elementId, filesCollection, procuradores, close, format, ty
             fileLabels = cadVehicleFiles
             if (fileLabels.filter(f => f.name === 'transferenciaDoc').length === 0) fileLabels.push({ title: 'Documento de Transferência', name: 'transferenciaDoc' })
             if (fileLabels.filter(f => f.name === 'newPlateDoc').length === 0) fileLabels.push({ title: 'CRLV com nova placa', name: 'newPlateDoc' })
+            break;
+        default: void 0
 
     }
     console.log(typeId, elementId)

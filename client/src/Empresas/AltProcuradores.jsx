@@ -34,6 +34,7 @@ export default class AltProcuradores extends Component {
         showFiles: false,
         procuradores: [],
         procFiles: new FormData(),
+        procsToAdd: [1]
     }
 
     componentDidMount() {
@@ -49,8 +50,6 @@ export default class AltProcuradores extends Component {
 
         axios.get('/api/getFiles/empresa?fieldName=procFile')
             .then(r => this.setState({ files: r.data }))
-
-
     }
 
     componentWillUnmount() { this.setState({}) }
@@ -88,7 +87,6 @@ export default class AltProcuradores extends Component {
                     }
                 })
             }
-
         }
     }
 
@@ -120,27 +118,46 @@ export default class AltProcuradores extends Component {
         } */
     }
 
-    addProc = async () => {
+    addProc = () => {
+        const nProc = [...this.state.procsToAdd]
         let procuradores = [...this.state.filteredProc],
             sObject = {}
 
-        procuradorForm.forEach(obj => {
-            Object.assign(sObject, { [obj.field]: this.state[obj.field] })
-        })
-        procuradores.push(sObject)
+        nProc.forEach((n, i) => {
+            procuradorForm.forEach(obj => {
+                Object.assign(sObject, { [obj.field]: this.state[obj.field + i] })
+            })
+            let j = 0
+            Object.values(sObject).forEach(v => {                
+                if (v) j += 1
+            })
+            if (j >0) procuradores.push(sObject)
 
-        const lastOne = procuradores[procuradores.length - 1]
-        for (let pair of this.state.procFiles.entries()) {
-            if (pair[0] === lastOne.cpfProcurador) {
-                procuradores[procuradores.length - 1].fileLabel = pair[1].name
-            }
-        }
-        await this.setState({ filteredProc: procuradores, procDisplay: 'Clique ou arraste para anexar a procuração referente a este procurador' })
-        procuradorForm.forEach(obj => {
-            this.setState({ [obj.field]: '' })
+            j = 0
+            sObject = {}
+            
+
+            procuradorForm.forEach(obj => {
+                this.setState({ [obj.field + i]: '' })
+            })
         })
-        //document.getElementsByName('nomeProcurador')[0].focus()
-        console.log(this.state.filteredProc)
+
+        /* const lastOne = procuradores[procuradores.length - 1]
+                    for (let pair of this.state.procFiles.entries()) {
+                        if (pair[0] === lastOne.cpfProcurador) {
+                            procuradores[procuradores.length - 1].fileLabel = pair[1].name
+                        }
+                    } */
+
+        this.setState({
+            filteredProc: procuradores,
+            procDisplay: 'Clique ou arraste para anexar a procuração referente a este procurador',
+            procsToAdd: [1]
+        })
+
+
+
+        //document.getElementsByName('nomeProcurador')[0].focus()        
     }
 
     removeProc = async index => {
@@ -167,7 +184,6 @@ export default class AltProcuradores extends Component {
             })
             editProc[index].edit = true
         }
-
         this.setState({ filteredProc: editProc })
     }
 
@@ -182,7 +198,6 @@ export default class AltProcuradores extends Component {
         let fp = [...this.state.filteredProc]
         fp[index] = editProc
         this.setState({ filteredProc: fp })
-        console.log(this.state, this.state.filteredProc)  
     }
 
     handleFiles = (file) => {
@@ -241,7 +256,7 @@ export default class AltProcuradores extends Component {
             })
         })
 
-        
+
 
         oldMembers = humps.decamelizeKeys(realChanges)
         newMembers = humps.decamelizeKeys(newMembers)
@@ -285,7 +300,11 @@ export default class AltProcuradores extends Component {
             this.setState({ filesCollection: [] })
         }
     }
-
+    plusOne = () => {
+        let i = [...this.state.procsToAdd]
+        i.push(1)
+        this.setState({ procsToAdd: i })
+    }
     closeFiles = () => this.setState({ showFiles: !this.state.showFiles })
     toast = () => this.setState({ confirmToast: !this.state.confirmToast })
 
@@ -305,6 +324,7 @@ export default class AltProcuradores extends Component {
                     handleEdit={this.handleEdit}
                     handleSubmit={this.handleSubmit}
                     showFiles={this.showFiles}
+                    plusOne={this.plusOne}
                 />
                 {showFiles && <ShowFiles elementId={selectedElement} typeId='cpfProcurador' filesCollection={filesCollection} format={format} close={this.closeFiles} procuradores={procuradores} />}
                 <ReactToast open={this.state.confirmToast} close={this.toast} msg={this.state.toastMsg} />
