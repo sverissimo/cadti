@@ -33,21 +33,24 @@ export default class AltProcuradores extends Component {
         procDisplay: 'Clique ou arraste para anexar a procuração referente a este procurador.',
         showFiles: false,
         procuradores: [],
-        selectedEmpresa: [],
         procFiles: new FormData(),
     }
 
-    async componentDidMount() {
+    componentDidMount() {
         const empresas = axios.get('/api/empresas'),
-            procuradores = axios.get('/api/procuradores')
+            procuradores = axios.get('/api/proc'),
+            procuracoes = axios.get('/api/procuracoes')
 
-        Promise.all([empresas, procuradores])
+        Promise.all([empresas, procuradores, procuracoes])
             .then(res => res.map(r => humps.camelizeKeys(r.data)))
-            .then(([empresas, procuradores]) => {
-                this.setState({ empresas, procuradores, originalProc: humps.decamelizeKeys(procuradores) });
+            .then(([empresas, procuradores, procuracoes]) => {
+                this.setState({ empresas, procuradores, procuracoes, originalProc: humps.decamelizeKeys(procuradores) });
             })
-        await axios.get('/api/getFiles/empresa?fieldName=procFile')
+
+        axios.get('/api/getFiles/empresa?fieldName=procFile')
             .then(r => this.setState({ files: r.data }))
+
+
     }
 
     componentWillUnmount() { this.setState({}) }
@@ -55,23 +58,37 @@ export default class AltProcuradores extends Component {
     handleInput = async e => {
 
         const { name } = e.target
-        let { value } = e.target
+        let { value } = e.target, procuracoes = []
 
-        const { procuradores } = this.state
+        const procuradores = [...this.state.procuradores]
 
         this.setState({ ...this.state, [name]: value })
 
         if (name === 'razaoSocial' && Array.isArray(procuradores)) {
-            const filteredProc = procuradores.filter(s => s.razaoSocial === value),
-                selectedEmpresa = this.state.empresas.filter(e => e.razaoSocial === value)
+            let filteredProc = procuradores.filter(p => p.procuracoes.find(pr => pr.razaoSocial === value))
+            const selectedEmpresa = this.state.empresas.find(e => e.razaoSocial === value)
+
             if (filteredProc.length > 0) {
                 this.setState({ ...this.state, filteredProc, selectedEmpresa })
             } else this.setState({ filteredProc: [] })
+            if (selectedEmpresa) {
+                await this.setState({ razaoSocial: selectedEmpresa.razaoSocial, selectedEmpresa })
+                if (value !== selectedEmpresa.razaoSocial) this.setState({ selectedEmpresa: undefined })
+            } else this.setState({ selectedEmpresa: undefined })
 
-            if (selectedEmpresa.length > 0) {
-                await this.setState({ razaoSocial: selectedEmpresa[0].razaoSocial, selectedEmpresa })
-                if (value !== selectedEmpresa[0].razaoSocial) this.setState({ selectedEmpresa: [] })
-            } else this.setState({ selectedEmpresa: [] })
+            if (filteredProc[0] && selectedEmpresa) {
+                filteredProc.forEach(pr => {
+                    let procObj = {}
+                    const proc = pr.procuracoes.find(p => p.delegatarioId === selectedEmpresa.delegatarioId)
+                    if (proc) {
+                        Object.assign(procObj, proc, { procuradorId: pr.procuradorId })
+                        delete procObj.razaoSocial
+                        procuracoes.push(procObj)
+                        this.setState({ procuracoes })
+                    }
+                })
+            }
+
         }
     }
 
@@ -104,7 +121,7 @@ export default class AltProcuradores extends Component {
     }
 
     addProc = async () => {
-        let procuradores = this.state.filteredProc,
+        let procuradores = [...this.state.filteredProc],
             sObject = {}
 
         procuradorForm.forEach(obj => {
@@ -118,12 +135,12 @@ export default class AltProcuradores extends Component {
                 procuradores[procuradores.length - 1].fileLabel = pair[1].name
             }
         }
-        await this.setState({ procuradores, procDisplay: 'Clique ou arraste para anexar a procuração referente a este procurador' })
+        await this.setState({ filteredProc: procuradores, procDisplay: 'Clique ou arraste para anexar a procuração referente a este procurador' })
         procuradorForm.forEach(obj => {
             this.setState({ [obj.field]: '' })
         })
-        // console.log (document.getElementsByName('nomeProcurador'))
         //document.getElementsByName('nomeProcurador')[0].focus()
+        console.log(this.state.filteredProc)
     }
 
     removeProc = async index => {
@@ -140,7 +157,7 @@ export default class AltProcuradores extends Component {
 
     enableEdit = index => {
 
-        let editProc = this.state.filteredProc
+        let editProc = [...this.state.filteredProc]
 
         if (editProc[index].edit === true) {
             editProc[index].edit = false
@@ -162,9 +179,10 @@ export default class AltProcuradores extends Component {
 
         editProc[name] = value
 
-        let fp = this.state.filteredProc
+        let fp = [...this.state.filteredProc]
         fp[index] = editProc
         this.setState({ filteredProc: fp })
+        console.log(this.state, this.state.filteredProc)  
     }
 
     handleFiles = (file) => {
@@ -185,14 +203,13 @@ export default class AltProcuradores extends Component {
             contratoFile = new FormData(),
             keys = procuradorForm.map(el => humps.decamelize(el.field))
         keys.splice(1, 1)
-        
+
         submitProc.forEach(fp => {
             let { razaoSocial, dataInicio, createdAt, edit, ...rest } = fp
             fp = rest
-            fp.delegatarioId = selectedEmpresa[0].delegatarioId
+            fp.delegatarioId = selectedEmpresa.delegatarioId
             if (!fp.hasOwnProperty('procuradorId')) {
                 gotId = procuradores.filter(p => p.cpfProcurador === fp.cpfProcurador)
-                console.log(gotId)
                 if (gotId.length > 0 && gotId[0].hasOwnProperty('procuradorId')) {
                     fp.procuradorId = gotId[0].procuradorId
                     oldMembers.push(fp)
@@ -203,13 +220,14 @@ export default class AltProcuradores extends Component {
                 oldMembers.push(fp)
             }
         })
-        console.log(newMembers, oldMembers)
+        //console.log(newMembers, oldMembers)
         const table = 'procurador', tablePK = 'procurador_id'
-        let realChanges = [], altObj = {}
+        let realChanges = [], altObj = {}, oldProcs = []
 
         const originals = humps.camelizeKeys(this.state.originalProc)
 
         oldMembers.forEach(m => {
+            oldProcs.push({ delegatarioId: selectedEmpresa.delegatarioId, procuradorId: m.procuradorId, vencimento: m.vencimento })
             originals.forEach(p => {
                 if (m.procuradorId === p.procuradorId) {
                     Object.keys(m).forEach(key => {
@@ -223,10 +241,12 @@ export default class AltProcuradores extends Component {
             })
         })
 
+        
+
         oldMembers = humps.decamelizeKeys(realChanges)
         newMembers = humps.decamelizeKeys(newMembers)
 
-        try {
+        /* try {
             if (oldMembers.length > 0) {
                 await axios.put('/api/editProc', { requestArray: oldMembers, table, tablePK, keys })
                 //   .then(r => console.log(r.data))
@@ -238,7 +258,7 @@ export default class AltProcuradores extends Component {
             }
 
             if (contratoSocial) {
-                contratoFile.append('empresaId', selectedEmpresa[0].delegatarioId)
+                contratoFile.append('empresaId', selectedEmpresa.delegatarioId)
                 for (let pair of contratoSocial.entries()) {
                     contratoFile.append(pair[0], pair[1])
                 }
@@ -248,7 +268,7 @@ export default class AltProcuradores extends Component {
         } catch (err) {
             console.log(err)
             alert(err)
-        }
+        } */
 
         this.toast()
     }

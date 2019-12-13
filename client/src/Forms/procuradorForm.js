@@ -24,7 +24,7 @@ export const procuradorForm = [{
     pattern: '[a-zA-Z0-9]@([a-zA-Z0-9])?[.]([a-zA-Z0-9])'
 },
 {
-    field: 'dataFim',
+    field: 'vencimento',
     label: 'Vigência da procuração',
     type: 'date'    
 }

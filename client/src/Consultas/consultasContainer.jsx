@@ -29,9 +29,9 @@ export default class extends Component {
 
     state = {
         tab: 0,
-        items: ['Veículos', 'Delegatários', 'Sócios', 'Seguros'],
-        tablePKs: ['veiculo_id', 'delegatario_id', 'procurador_id', 'apolice'],
-        dbTables: ['veiculo', 'delegatario', 'procurador', 'seguro'],
+        items: ['Empresas', 'Sócios', 'Procuradores', 'Veículos', 'Seguros'],
+        tablePKs: ['delegatario_id', 'socios', 'procurador_id', 'veiculo_id', 'apolice'],
+        dbTables: ['delegatario', 'socios', 'procurador', 'veiculo', 'seguro'],
         empresas: [],
         seguros: [],
         razaoSocial: '',
@@ -48,7 +48,7 @@ export default class extends Component {
             insurances = axios.get('/api/seguros'),
             delega = axios.get('/api/empresas'),
             soc = axios.get('/api/socios'),
-            proc = axios.get('/api/procuradores')
+            proc = axios.get('/api/proc')
 
         axios.get('/api/getFiles/vehicle')
             .then(res => this.setState({ vehicleFiles: res.data }))
@@ -59,7 +59,7 @@ export default class extends Component {
         Promise.all([vehicles, insurances, delega, soc, proc])
             .then(res => res.map(r => humps.camelizeKeys(r.data)))
             .then(([veiculos, seguros, empresas, socios, procuradores]) => {
-                this.setState({ veiculos, seguros, empresas, socios, procuradores, collection: veiculos })
+                this.setState({ veiculos, seguros, empresas, socios, procuradores, collection: empresas })
             })
         document.addEventListener('keydown', this.escFunction, false)
 
@@ -70,7 +70,7 @@ export default class extends Component {
 
     changeTab = async (e, value) => {
         await this.setState({ tab: value })
-        const options = ['veiculos', 'empresas', 'socios', 'seguros'],
+        const options = ['empresas', 'socios', 'procuradores', 'veiculos', 'seguros'],
             collection = this.state[options[value]]
         this.setState({ collection })
     }
@@ -90,14 +90,23 @@ export default class extends Component {
     }
 
     showFiles = id => {
+        const { tab } = this.state
+        let selectedFiles = this.state.empresaFiles.filter(f => f.metadata.empresaId === id.toString())
+        let typeId = 'empresaId'
 
-        let selectedFiles
-
-        if (this.state.tab === 0) selectedFiles = this.state.vehicleFiles.filter(f => f.metadata.veiculoId === id.toString())
-        if (this.state.tab === 1) selectedFiles = this.state.empresaFiles.filter(f => f.metadata.empresaId === id.toString())
+        switch (tab) {
+            case 2:
+                typeId = 'cpfProcurador'
+                selectedFiles = this.state.empresaFiles.filter(f => f.metadata.cpfProcurador === id.toString())
+            case 3:
+                typeId = 'veiculoId'
+                selectedFiles = this.state.vehicleFiles.filter(f => f.metadata.veiculoId === id.toString())
+            default: void 0
+                break;
+        }
 
         if (selectedFiles[0]) {
-            this.setState({ filesCollection: selectedFiles, showFiles: true, selectedElement: id })
+            this.setState({ filesCollection: selectedFiles, showFiles: true, typeId, selectedElement: id })
 
         } else {
             this.createAlert('filesNotFound')
@@ -120,10 +129,10 @@ export default class extends Component {
 
         switch (alert) {
             case 'filesNotFound':
-                subject = [['o', 'veículo'], ['a', 'empresa']][this.state.tab]
+                subject = this.state.dbTables[this.state.tab]
                 dialogTitle = 'Arquivos não encontrados'
-                message = `Não há nenhum arquivo anexado no sistema para ${subject[0]} ${subject[1]} selecionad${subject[0]}. 
-                Ao cadastrar ou atualizar os dados d${subject[0]} ${subject[1]}, certifique-se de anexar os documentos solicitados.`
+                message = `Não há nenhum arquivo anexado no sistema para o ${subject} selecionado. 
+                Ao cadastrar ou atualizar os dados do ${subject}, certifique-se de anexar os documentos solicitados.`
                 break;
             default:
                 break;
@@ -137,7 +146,7 @@ export default class extends Component {
 
     render() {
         const { tab, items, collection, showDetails, elementDetails, showFiles, selectedElement, filesCollection,
-            openDialog, dialogTitle, message, procuradores } = this.state
+            openDialog, dialogTitle, message, procuradores, typeId } = this.state
 
         return <Fragment>
             <TabMenu items={items}
@@ -162,7 +171,7 @@ export default class extends Component {
                     tab={tab}
                 />
             </PopUp>}
-            {showFiles && <ShowFiles tab={tab} elementId={selectedElement} filesCollection={filesCollection} close={this.closeFiles} format={format} procuradores={procuradores}/>}
+            {showFiles && <ShowFiles tab={tab} elementId={selectedElement} filesCollection={filesCollection} close={this.closeFiles} format={format} typeId={typeId} procuradores={procuradores} />}
             <AlertDialog open={openDialog} close={this.toggleDialog} title={dialogTitle} message={message} />
         </Fragment>
     }

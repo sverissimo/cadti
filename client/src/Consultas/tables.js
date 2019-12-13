@@ -1,36 +1,4 @@
 import formatDate from '../Utils/formatDate'
-export const vehicleTable = [
-    {
-        field: 'placa',
-        title: 'Placa',
-    },
-    {
-        field: 'modeloCarroceria',
-        title: 'Modelo da Carroceria',
-    },
-    {
-        field: 'empresa',
-        title: 'Delegatário',
-    },
-    {
-        field: 'seguradora',
-        title: 'Seguradora',
-    },
-    {
-        field: 'apolice',
-        title: 'Número da Apólice',
-    },
-    {
-        field: 'vencimento',
-        title: 'Vencimento Seguro',
-        render: rowData => formatDate(rowData.vencimento)
-    },
-    {
-        field: 'indicadorIdade',
-        title: 'Ano de Fabricação',
-        filtering: false
-    }
-]
 
 export const delegatarioTable = [
     {
@@ -99,6 +67,59 @@ export const sociosTable = [
     }
 ]
 
+
+export const procuradorTable = [
+    {
+        field: 'nomeProcurador',
+        title: 'Nome',
+    },
+    {
+        field: 'cpfProcurador',
+        title: 'CPF',
+    },
+    {
+        field: 'emailProcurador',
+        title: 'Delegatário(s)',
+    },
+    {
+        field: 'telProcurador',
+        title: 'Telefone'        
+    }    
+]
+
+export const vehicleTable = [
+    {
+        field: 'placa',
+        title: 'Placa',
+    },
+    {
+        field: 'modeloCarroceria',
+        title: 'Modelo da Carroceria',
+    },
+    {
+        field: 'empresa',
+        title: 'Delegatário',
+    },
+    {
+        field: 'seguradora',
+        title: 'Seguradora',
+    },
+    {
+        field: 'apolice',
+        title: 'Número da Apólice',
+    },
+    {
+        field: 'vencimento',
+        title: 'Vencimento Seguro',
+        render: rowData => formatDate(rowData.vencimento)
+    },
+    {
+        field: 'indicadorIdade',
+        title: 'Ano de Fabricação',
+        filtering: false
+    }
+]
+
 export const segurosTable = [
     {
         field: 'apolice',
@@ -124,4 +145,4 @@ export const segurosTable = [
     }
 ]
 
-export const tables = [vehicleTable].concat([delegatarioTable]).concat([sociosTable]).concat([segurosTable])
+export const tables = [delegatarioTable].concat([sociosTable]).concat([procuradorTable]).concat([vehicleTable]).concat([segurosTable])

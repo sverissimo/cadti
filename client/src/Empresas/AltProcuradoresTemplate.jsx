@@ -159,7 +159,7 @@ export default function ({ handleInput, handleBlur, data, addProc, removeProc,
                     </Paper>
                 </Grid>
                 {
-                    selectedEmpresa[0] && <Grid item xs={12}>
+                    selectedEmpresa && <Grid item xs={12}>
                         <Paper className={paper}>
                             {
                                 procuradorForm.map((el, i) =>
@@ -224,10 +224,10 @@ export default function ({ handleInput, handleBlur, data, addProc, removeProc,
                     </Grid>
                 }
                 {
-                    selectedEmpresa[0] && filteredProc.length === 0 &&
+                    selectedEmpresa && filteredProc.length === 0 &&
                     <Grid item xs={12}>
                         <Paper className={paper}>
-                            Nenhum procurador cadastrado para {selectedEmpresa[0].razaoSocial}
+                            Nenhum procurador cadastrado para {selectedEmpresa.razaoSocial}
                         </Paper>
 
                     </Grid>
@@ -247,7 +247,7 @@ export default function ({ handleInput, handleBlur, data, addProc, removeProc,
                                             <Fragment key={k + 1000}>
                                                 <TextField
                                                     name={e.field}
-                                                    defaultValue={e.field === 'dataFim'? handleDates(p[e.field]) : p[e.field]}
+                                                    defaultValue={e.field === 'vencimento'? handleDates(p[e.field]) : p[e.field]}
                                                     label={e.label}
                                                     type={e.type || 'text'}
                                                     className={list}

@@ -38,7 +38,7 @@ const useStyles = makeStyles(theme => ({
 export default function ({ tab, collection, showDetails, showFiles, handleEdit, del }) {
     const classes = useStyles(), { paper } = classes
 
-    const id = ['veiculoId', 'delegatarioId'][tab]
+    const id = ['delegatarioId', 'socioId', 'procuradorId', 'veiculoId'][tab]
     return (
         <Grid item xs={12}>
             <Paper className={paper}>
@@ -79,7 +79,7 @@ export default function ({ tab, collection, showDetails, showFiles, handleEdit, 
                             onClick: (event, rowData) => showDetails(event, rowData)
                         },
                         {
-                            hidden: tab < 2 ? false : true,
+                            hidden: tab < 4 ? false : true,
                             icon: 'file_copy_outline',
                             iconProps: { color: 'secondary' },
                             tooltip: 'Ver arquivos',

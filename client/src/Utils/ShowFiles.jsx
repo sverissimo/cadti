@@ -17,24 +17,18 @@ const divRow = {
     justifyItems: 'auto'
 }
 
-const ShowFiles = ({ tab, elementId, filesCollection, procuradores, close, format, typeId = '' }) => {
+const ShowFiles = ({ elementId, filesCollection, procuradores, close, format, typeId }) => {
 
-    let tempFiles = []
-    let files = []
-    let fileLabels = empresaFiles
+    let tempFiles = [], files = [], fileLabels = empresaFiles
 
-    if (tab === 0) {
-        fileLabels = cadVehicleFiles
-        typeId = 'veiculoId'
-        if (fileLabels.filter(f => f.name === 'transferenciaDoc').length === 0) fileLabels.push({ title: 'Documento de Transferência', name: 'transferenciaDoc' })
-        if (fileLabels.filter(f => f.name === 'newPlateDoc').length === 0) fileLabels.push({ title: 'CRLV com nova placa', name: 'newPlateDoc' })
+    switch (typeId) {
+        case 'veiculoId':
+            fileLabels = cadVehicleFiles
+            if (fileLabels.filter(f => f.name === 'transferenciaDoc').length === 0) fileLabels.push({ title: 'Documento de Transferência', name: 'transferenciaDoc' })
+            if (fileLabels.filter(f => f.name === 'newPlateDoc').length === 0) fileLabels.push({ title: 'CRLV com nova placa', name: 'newPlateDoc' })
+
     }
-
-    if (tab === 1) {
-        fileLabels = empresaFiles
-        typeId = 'empresaId'
-    }
-    
+    console.log(typeId, elementId)
     if (filesCollection && filesCollection[0]) {
         tempFiles = filesCollection.filter(el => el.metadata[typeId].match(elementId))
         tempFiles.forEach(obj => {
@@ -43,12 +37,14 @@ const ShowFiles = ({ tab, elementId, filesCollection, procuradores, close, forma
             })
         })
     }
-    
+
     const nomeProc = (el) => {
+        console.log(procuradores)
         const name = procuradores.filter(p => p.cpfProcurador === el)[0]
         if (name !== undefined && name.hasOwnProperty('nomeProcurador')) return name.nomeProcurador
         else return ''
     }
+
     if (files[0]) {
         return <PopUp title='Arquivos' close={close} format={format}>
             <div className="row">

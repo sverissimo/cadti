@@ -299,17 +299,32 @@ app.get('/api/seguradoras', (req, res) => {
     })
 })
 
-app.get('/api/procuradores', (req, res) => {
+app.get('/api/procuracoes', (req, res) => {
+    pool.query(`SELECT * FROM public.procuracao`, (err, table) => {
+        if (err) res.send(err)
+        else if (table.rows && table.rows.length === 0) { res.send('Nenhuma procuração encontrada.'); return }
+        res.json(table.rows);
+    })
+})
+
+app.get('/api/proc', (req, res) => {
     pool.query(`
-        SELECT public.procurador.*, public.delegatario.razao_social
+        SELECT public.procurador.*,
+        pr.vencimento,
+        json_agg(json_build_object('vencimento', pr.vencimento, 'delegatario_id', pr.delegatario_id, 'razaoSocial', delegatario.razao_social)) AS procuracoes
         from public.procurador
+        left join procuracao pr
+            on procurador.procurador_id = pr.procurador_id
         left join public.delegatario
-        on procurador.delegatario_id = delegatario.delegatario_id`, (err, table) => {
+            on pr.delegatario_id = delegatario.delegatario_id
+        group by procurador.procurador_id, pr.vencimento `, (err, table) => {
         if (err) res.send(err)
         else if (table.rows && table.rows.length === 0) { res.send('Nenhum procurador encontrado.'); return }
         res.json(table.rows);
     })
 })
+
+
 
 
 
