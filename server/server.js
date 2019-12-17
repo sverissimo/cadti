@@ -486,7 +486,7 @@ app.put('/api/editSocios', (req, res) => {
 
     pool.query(queryString, (err, t) => {
         if (err) console.log(err)
-        if (t) console.log(t)
+        if (t) console.log('edit ok')
         //res.send(queryString)
         res.send('Dados atualizados.')
     })
@@ -564,21 +564,27 @@ app.put('/api/updateVehicle', (req, res) => {
     )
 })
 
-app.get('/api/deleteFiles/:reqId', (req, res) => {
+app.get('/api/deleteFile/:reqId', async (req, res) => {
     const { reqId } = req.params
 
-    filesModel.find().exec((err, doc) => {
-        if (err) console.log(err)
-        const files = doc.filter(f => f.metadata.veiculoId === reqId)
+    const fileId = new mongoose.mongo.ObjectId(reqId)
+    
+    const Any = new mongoose.Schema({ any: mongoose.Schema.Types.Mixed })
+    const Chunks = mongoose.model('empresaDocs.chunk', Any, 'empresaDocs.chunks')
 
-        files.forEach(file => {
-            let fileId = new mongoose.mongo.ObjectId(file._id)
-            gfs.files.remove({ _id: fileId }, (err) => {
-                if (err) console.log(err)
-            })
-        })
-        res.send('File deleted!')
+    gfs.collection('empresaDocs')
+    gfs.files.deleteOne({ _id: fileId }, (err, result) => {
+        if (err) console.log(err)
+        if (result) console.log(result)
     })
+
+    Chunks.deleteMany({ files_id: fileId }, (err, result) => {
+        if (err) console.log(err)
+        if (result) {
+            console.log(result)
+            res.json(result)
+        }
+    })    
 })
 
 app.delete('/api/delete', (req, res) => {

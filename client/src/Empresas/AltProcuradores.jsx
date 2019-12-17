@@ -30,7 +30,7 @@ export default class AltProcuradores extends Component {
         addedSocios: [0],
         totalShare: 0,
         filteredProc: [],
-        procDisplay: 'Clique ou arraste para anexar a procuração referente a este procurador.',
+        procDisplay: 'Clique ou arraste para anexar a procuração referente a este(s) procurador(es).',
         showFiles: false,
         procuradores: [],
         procFiles: new FormData(),
@@ -128,14 +128,14 @@ export default class AltProcuradores extends Component {
                 Object.assign(sObject, { [obj.field]: this.state[obj.field + i] })
             })
             let j = 0
-            Object.values(sObject).forEach(v => {                
+            Object.values(sObject).forEach(v => {
                 if (v) j += 1
             })
-            if (j >0) procuradores.push(sObject)
+            if (j > 0) procuradores.push(sObject)
 
             j = 0
             sObject = {}
-            
+
 
             procuradorForm.forEach(obj => {
                 this.setState({ [obj.field + i]: '' })
@@ -151,7 +151,7 @@ export default class AltProcuradores extends Component {
 
         this.setState({
             filteredProc: procuradores,
-            procDisplay: 'Clique ou arraste para anexar a procuração referente a este procurador',
+            procDisplay: 'Clique ou arraste para anexar a procuração referente a este(s) procurador(es).',
             procsToAdd: [1]
         })
 
@@ -162,14 +162,18 @@ export default class AltProcuradores extends Component {
 
     removeProc = async index => {
 
-        let procuradores = this.state.filteredProc
-        const id = procuradores[index].procuradorId
+        let procuradores = [...this.state.filteredProc]
 
-        await axios.delete(`/api/delete?table=procurador&tablePK=procurador_id&id=${id}`)
-            .catch(err => console.log(err))
-
-        procuradores.splice(index, 1)
-        this.setState({ filteredProc: procuradores })
+        if (procuradores[index].hasOwnProperty('procuradorId')) {
+            const id = procuradores[index].procuradorId
+            await axios.delete(`/api/delete?table=procurador&tablePK=procurador_id&id=${id}`)
+                .catch(err => console.log(err))
+            procuradores.splice(index, 1)
+            this.setState({ filteredProc: procuradores })
+        } else {
+            procuradores.splice(index, 1)
+            await this.setState({ filteredProc: procuradores })
+        }
     }
 
     enableEdit = index => {
@@ -210,7 +214,7 @@ export default class AltProcuradores extends Component {
     }
 
     handleSubmit = async () => {
-        const { selectedEmpresa, procuradores, contratoSocial } = this.state
+        const { selectedEmpresa, procuradores, procFiles } = this.state
 
         let submitProc = this.state.filteredProc,
             gotId,
@@ -220,9 +224,9 @@ export default class AltProcuradores extends Component {
         keys.splice(1, 1)
 
         submitProc.forEach(fp => {
-            let { razaoSocial, dataInicio, createdAt, edit, ...rest } = fp
+            let { createdAt, edit, procuracoes, vencimento, ...rest } = fp
             fp = rest
-            fp.delegatarioId = selectedEmpresa.delegatarioId
+            //fp.delegatarioId = selectedEmpresa.delegatarioId
             if (!fp.hasOwnProperty('procuradorId')) {
                 gotId = procuradores.filter(p => p.cpfProcurador === fp.cpfProcurador)
                 if (gotId.length > 0 && gotId[0].hasOwnProperty('procuradorId')) {
@@ -237,7 +241,7 @@ export default class AltProcuradores extends Component {
         })
         //console.log(newMembers, oldMembers)
         const table = 'procurador', tablePK = 'procurador_id'
-        let realChanges = [], altObj = {}, oldProcs = []
+        let realChanges = [], altObj = {}, oldProcs = [], procIdArray = []
 
         const originals = humps.camelizeKeys(this.state.originalProc)
 
@@ -246,8 +250,9 @@ export default class AltProcuradores extends Component {
             originals.forEach(p => {
                 if (m.procuradorId === p.procuradorId) {
                     Object.keys(m).forEach(key => {
-                        if (m[key] !== p[key] || key === 'procuradorId') {
+                        if (m[key] !== p[key]) {
                             Object.assign(altObj, { [key]: m[key] })
+                            Object.assign(altObj, { procuradorId: m.procuradorId })
                         }
                     })
                     if (Object.keys(altObj).length > 1) realChanges.push(altObj)
@@ -257,33 +262,41 @@ export default class AltProcuradores extends Component {
         })
 
 
-
         oldMembers = humps.decamelizeKeys(realChanges)
         newMembers = humps.decamelizeKeys(newMembers)
 
-        /* try {
+        try {
             if (oldMembers.length > 0) {
+                oldMembers.forEach(o => {
+                    if (o.hasOwnProperty('procurador_id')) procIdArray.push(o.procurador_id)
+                })
                 await axios.put('/api/editProc', { requestArray: oldMembers, table, tablePK, keys })
                 //   .then(r => console.log(r.data))
             }
 
             if (newMembers.length > 0) {
+                
                 await axios.post('/api/cadProcuradores', { procuradores: newMembers, table, tablePK })
                     .then(r => console.log(r.data))
             }
 
-            if (contratoSocial) {
+            if (procFiles) {
                 contratoFile.append('empresaId', selectedEmpresa.delegatarioId)
-                for (let pair of contratoSocial.entries()) {
+                for (let pair of procFiles.entries()) {
                     contratoFile.append(pair[0], pair[1])
                 }
-                await axios.post('/api/empresaUpload', contratoFile)
-                    .then(r => console.log(r.data))
+
+
+                console.log(procIdArray)
+
+                //   await axios.post('/api/empresaUpload', contratoFile)
+                //     .then(r => console.log(r.data))
             }
+
         } catch (err) {
             console.log(err)
             alert(err)
-        } */
+        }
 
         this.toast()
     }
@@ -303,6 +316,11 @@ export default class AltProcuradores extends Component {
     plusOne = () => {
         let i = [...this.state.procsToAdd]
         i.push(1)
+        this.setState({ procsToAdd: i })
+    }
+    minusOne = () => {
+        let i = [...this.state.procsToAdd]
+        i.pop()
         this.setState({ procsToAdd: i })
     }
     closeFiles = () => this.setState({ showFiles: !this.state.showFiles })
@@ -325,6 +343,7 @@ export default class AltProcuradores extends Component {
                     handleSubmit={this.handleSubmit}
                     showFiles={this.showFiles}
                     plusOne={this.plusOne}
+                    minusOne={this.minusOne}
                 />
                 {showFiles && <ShowFiles elementId={selectedElement} typeId='cpfProcurador' filesCollection={filesCollection} format={format} close={this.closeFiles} procuradores={procuradores} />}
                 <ReactToast open={this.state.confirmToast} close={this.toast} msg={this.state.toastMsg} />

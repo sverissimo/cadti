@@ -10,6 +10,7 @@ import { makeStyles } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
 
 import AddCircleOutlineSharpIcon from '@material-ui/icons/AddCircleOutlineSharp';
+import RemoveCircleOutlineIcon from '@material-ui/icons/RemoveCircleOutline';
 import EditIcon from '@material-ui/icons/Edit';
 import AddIcon from '@material-ui/icons/Add';
 import DeleteIcon from '@material-ui/icons/Delete';
@@ -48,7 +49,7 @@ const useStyles = makeStyles(theme => ({
         padding: theme.spacing(1),
         textAlign: 'center',
         color: theme.palette.text.secondary,
-        margin: theme.spacing(1),        
+        margin: theme.spacing(1),
     },
     paper2: {
         padding: theme.spacing(1),
@@ -83,7 +84,7 @@ const useStyles = makeStyles(theme => ({
         border: '1px solid #ccc',
         borderRadius: '3%',
         height: '60px',
-        padding: '2% 1% 0 1%',
+        padding: '20px 15px 0 15px',
         cursor: 'pointer',
         zIndex: '1',
         boxShadow: 'inset 3px -3px -3px 0px black',
@@ -106,7 +107,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function ({ handleInput, handleBlur, data, addProc, removeProc,
-    showFiles, handleFiles, enableEdit, handleEdit, handleSubmit, plusOne }) {
+    showFiles, handleFiles, enableEdit, handleEdit, handleSubmit, plusOne, minusOne }) {
     const { procDisplay, razaoSocial, empresas, selectedEmpresa, filteredProc, procsToAdd } = data,
         classes = useStyles(), { paper, container, title, iconButton, dropBox,
             dropBoxItem, dropBoxItem2, list, addButton, paper2 } = classes
@@ -135,7 +136,8 @@ export default function ({ handleInput, handleBlur, data, addProc, removeProc,
 
         if (date) return moment(date).format('YYYY-MM-DD')
         else return ''
-    }    
+    }   
+    
     return (
         <Grid
             container
@@ -167,6 +169,7 @@ export default function ({ handleInput, handleBlur, data, addProc, removeProc,
                     </Paper>
                 </Grid>
                 {true && <Paper className={paper2}>
+                <Typography className={title}>  Se a procuração abranger mais de um procurador, clique em "+" para adicionar e anexe apenas 1 vez.</Typography>
                     {procsToAdd.map((p, j) =>
                         <Grid item xs={12} key={j}>
                             {procuradorForm.map((el, i) =>
@@ -204,21 +207,33 @@ export default function ({ handleInput, handleBlur, data, addProc, removeProc,
                                     >
                                     </TextField>
                                     {j === procsToAdd.length - 1 && i === 4 &&
-                                        <AddCircleOutlineSharpIcon
-                                            onClick={() => plusOne()}
-                                            title='whaaaa'
-                                            style={{
-                                                verticalAlign: 'middle',
-                                                position: 'absolute',
-                                                bottom: '27px',
-                                                right: '25px',
-                                                color: '#00CED1',
-                                                fontSize: 30,
-                                                cursor: 'pointer'
-                                            }}
-
-                                        />
-                                        }
+                                        <>
+                                            <AddCircleOutlineSharpIcon
+                                                onClick={() => plusOne()}
+                                                style={{
+                                                    verticalAlign: 'middle',
+                                                    position: 'absolute',
+                                                    bottom: '27px',
+                                                    right: j > 0 ? '0px' : '15px',
+                                                    color: '#009688',
+                                                    fontSize: 30,
+                                                    cursor: 'pointer'
+                                                }}
+                                            />
+                                            {j > 0 && <RemoveCircleOutlineIcon
+                                                onClick={() => minusOne()}
+                                                style={{
+                                                    verticalAlign: 'middle',
+                                                    position: 'absolute',
+                                                    bottom: '27px',
+                                                    right: '28px',
+                                                    color: 'red',
+                                                    fontSize: 30,
+                                                    cursor: 'pointer'
+                                                }}
+                                            />}
+                                        </>
+                                    }
                                 </Fragment>
                             )}
                         </Grid>
@@ -232,6 +247,7 @@ export default function ({ handleInput, handleBlur, data, addProc, removeProc,
                                 <Grid container justify="center" alignItems='center' className={dropBox} direction='row' {...getRootProps()}>
                                     <input {...getInputProps()} />
                                     {
+                                        
                                         procDisplay.match('Clique ou') ?
                                             <Grid item xs={6} className={dropBoxItem}> {procDisplay} </Grid>
                                             :
@@ -272,7 +288,7 @@ export default function ({ handleInput, handleBlur, data, addProc, removeProc,
                                             <Fragment key={k + 1000}>
                                                 <TextField
                                                     name={e.field}
-                                                    defaultValue={e.field === 'vencimento' ? handleDates(p[e.field]) : p[e.field]}
+                                                    value={e.field === 'vencimento' ? handleDates(p[e.field]) : p[e.field]}
                                                     label={e.label}
                                                     type={e.type || 'text'}
                                                     className={list}
