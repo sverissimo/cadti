@@ -22,10 +22,4 @@ export const procuradorForm = [{
     type: 'email',
     maxLength: 60,
     pattern: '[a-zA-Z0-9]@([a-zA-Z0-9])?[.]([a-zA-Z0-9])'
-},
-{
-    field: 'vencimento',
-    label: 'Vigência da procuração',
-    type: 'date'    
-}
-]
+}]

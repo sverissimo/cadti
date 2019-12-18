@@ -47,7 +47,7 @@ export default class AltProcuradores extends Component {
         Promise.all([empresas, procuradores, procuracoes])
             .then(res => res.map(r => humps.camelizeKeys(r.data)))
             .then(([empresas, procuradores, procuracoes]) => {
-                this.setState({ empresas, procuradores, procuracoes, originalProc: humps.decamelizeKeys(procuradores) });                
+                this.setState({ empresas, procuradores, procuracoes, originalProc: humps.decamelizeKeys(procuradores) });
             })
 
         axios.get('/api/getFiles/empresa?fieldName=procFile')
@@ -69,6 +69,7 @@ export default class AltProcuradores extends Component {
         this.setState({ ...this.state, [name]: value })
 
         if (name === 'razaoSocial' && Array.isArray(procuradores)) {
+            //let filteredProc = procuradores.filter(p => p.procuracoes.find(pr => pr.razaoSocial === value))
             procuracoes = procuracoes.filter(pr => pr.razaoSocial === value)
             procuracoes.forEach(pr => {
                 pr.procuradores.forEach(id => {
@@ -120,11 +121,9 @@ export default class AltProcuradores extends Component {
         } */
     }
 
-    addProc = async () => {
-        const { selectedEmpresa, procuradores, procFiles, vencimento } = this.state
+    addProc = () => {
         const nProc = [...this.state.procsToAdd]
-        let selectedDocs = [...this.state.selectedDocs],
-            addedProcs = [],
+        let procuradores = [...this.state.filteredProc],
             sObject = {}
 
         nProc.forEach((n, i) => {
@@ -135,7 +134,7 @@ export default class AltProcuradores extends Component {
             Object.values(sObject).forEach(v => {
                 if (v) j += 1
             })
-            if (j > 0) addedProcs.push(sObject)
+            if (j > 0) procuradores.push(sObject)
 
             j = 0
             sObject = {}
@@ -145,64 +144,22 @@ export default class AltProcuradores extends Component {
             })
         })
 
-        let gotId,
-            newMembers = [], procIdArray = [],
-            contratoFile = new FormData(),
-            keys = procuradorForm.map(el => humps.decamelize(el.field))
-        keys.splice(1, 1)
-
-        addedProcs.forEach(fp => {
-            gotId = procuradores.filter(p => p.cpfProcurador === fp.cpfProcurador)
-            if (gotId.length > 0 && gotId[0].hasOwnProperty('procuradorId')) {
-                procIdArray.push(gotId[0].procuradorId)
-            } else {
-                newMembers.push(fp)
-            }
-        })
-
-        if (newMembers.length > 0) {
-            newMembers = humps.decamelizeKeys(newMembers)
-            await axios.post('/api/cadProcuradores', { procuradores: newMembers, table: 'procurador', tablePK: 'procurador_id' })
-                .then(procs => {
-                    procs.data.forEach(p => procIdArray.push(p.procurador_id))
-                })
-            await axios.get('/api/proc')
-                .then(res => {
-                    const procuradores = humps.camelizeKeys(res.data)
-                    this.setState({ procuradores })
-                })
-        }
-
-        if (procFiles) {
-            contratoFile.append('empresaId', selectedEmpresa.delegatarioId)
-            for (let pair of procFiles.entries()) {
-                contratoFile.append(pair[0], pair[1])
-            }
-        }
-
-        let indeterminada = true
-        if (vencimento) indeterminada = false
-
-        const novaProcuracao = {
-            delegatario_id: selectedEmpresa.delegatarioId,
-            vencimento,
-            indeterminada,
-            status: 'vigente',
-            procuradores: procIdArray
-        }
-
-        axios.post('/api/cadProcuracao', novaProcuracao)
-
-        selectedDocs.reverse()
-        selectedDocs.push(novaProcuracao)
-        selectedDocs.reverse()
+        /* const lastOne = procuradores[procuradores.length - 1]
+                    for (let pair of this.state.procFiles.entries()) {
+                        if (pair[0] === lastOne.cpfProcurador) {
+                            procuradores[procuradores.length - 1].fileLabel = pair[1].name
+                        }
+                    } */
 
         this.setState({
-            selectedDocs,
             filteredProc: procuradores,
             procDisplay: 'Clique ou arraste para anexar a procuração referente a este(s) procurador(es).',
             procsToAdd: [1]
         })
+
+
+
+        //document.getElementsByName('nomeProcurador')[0].focus()        
     }
 
     removeProc = async index => {
@@ -259,27 +216,104 @@ export default class AltProcuradores extends Component {
     }
 
     handleSubmit = async () => {
-        /* const { selectedEmpresa, procuradores, procFiles, vencimento } = this.state
+        const { selectedEmpresa, procuradores, procFiles, vencimento } = this.state
+
+        let submitProc = this.state.filteredProc,
+            gotId,
+            oldMembers = [], newMembers = [],
+            contratoFile = new FormData(),
+            keys = procuradorForm.map(el => humps.decamelize(el.field))
+        keys.splice(1, 1)
+
+        submitProc.forEach(fp => {
+            let { createdAt, edit, procuracoes, ...rest } = fp
+            fp = rest
+            //fp.delegatarioId = selectedEmpresa.delegatarioId
+            if (!fp.hasOwnProperty('procuradorId')) {
+                gotId = procuradores.filter(p => p.cpfProcurador === fp.cpfProcurador)
+                if (gotId.length > 0 && gotId[0].hasOwnProperty('procuradorId')) {
+                    fp.procuradorId = gotId[0].procuradorId
+                    oldMembers.push(fp)
+                } else {
+                    newMembers.push(fp)
+                }
+            } else {
+                oldMembers.push(fp)
+            }
+        })
+        //console.log(newMembers, oldMembers)
+        const table = 'procurador', tablePK = 'procurador_id'
+        let realChanges = [], altObj = {}, oldProcs = [], procIdArray = []
+
+        const originals = humps.camelizeKeys(this.state.originalProc)
+
+        oldMembers.forEach(m => {
+            oldProcs.push({ delegatarioId: selectedEmpresa.delegatarioId, procuradorId: m.procuradorId, vencimento: m.vencimento })
+            originals.forEach(p => {
+                if (m.procuradorId === p.procuradorId) {
+                    Object.keys(m).forEach(key => {
+                        if (m[key] !== p[key]) {
+                            Object.assign(altObj, { [key]: m[key] })
+                            Object.assign(altObj, { procuradorId: m.procuradorId })
+                        }
+                    })
+                    if (Object.keys(altObj).length > 1) realChanges.push(altObj)
+                    altObj = {}
+                }
+            })
+        })
 
 
-        if (procFiles) {
-            contratoFile.append('empresaId', selectedEmpresa.delegatarioId)
-            for (let pair of procFiles.entries()) {
-                contratoFile.append(pair[0], pair[1])
+        oldMembers = humps.decamelizeKeys(realChanges)
+        newMembers = humps.decamelizeKeys(newMembers)
+
+        try {
+            if (oldMembers.length > 0) {
+                oldMembers.forEach(o => {
+                    if (o.hasOwnProperty('procurador_id')) procIdArray.push(o.procurador_id)
+                })
+                //await axios.put('/api/editProc', { requestArray: oldMembers, table, tablePK, keys })
+                //   .then(r => console.log(r.data))
             }
 
-            console.log(procIdArray)
+            if (newMembers.length > 0) {
+                await axios.post('/api/cadProcuradores', { procuradores: newMembers, table, tablePK })
+                    .then(procs => {
+                        procs.data.forEach(p => procIdArray.push(p.procurador_id))
+                    })
+            }
 
+            if (procFiles) {
+                contratoFile.append('empresaId', selectedEmpresa.delegatarioId)
+                for (let pair of procFiles.entries()) {
+                    contratoFile.append(pair[0], pair[1])
+                }
 
-            axios.post('/api/procuracao', novaProcuracao)
-                .then(res => console.log(res.data))
-            //   await axios.post('/api/empresaUpload', contratoFile)
-            //     .then(r => console.log(r.data))
+                console.log(procIdArray)
+
+                let indeterminada = false
+                if (vencimento) indeterminada = true
+                const novaProcuracao = {
+                    delegatario_id: selectedEmpresa.delegatarioId,
+                    vencimento,
+                    indeterminada,
+                    status: 'vigente',
+                    procuradores: procIdArray
+                }
+
+                axios.post('/api/procuracao', novaProcuracao)
+                    .then(res => console.log(res.data))
+                //   await axios.post('/api/empresaUpload', contratoFile)
+                //     .then(r => console.log(r.data))
+            }
+
+        } catch (err) {
+            console.log(err)
+            alert(err)
         }
- */
-
         this.toast()
     }
+
 
     showFiles = cpf => {
         let selectedFiles = this.state.files.filter(f => f.metadata.cpfProcurador === cpf.toString())

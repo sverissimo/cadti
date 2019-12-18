@@ -79,12 +79,12 @@ export const procuradorTable = [
     },
     {
         field: 'emailProcurador',
-        title: 'Delegatário(s)',
+        title: 'E-mail',
     },
     {
         field: 'telProcurador',
         title: 'Telefone'        
-    }    
+    }
 ]
 
 export const vehicleTable = [

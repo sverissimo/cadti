@@ -300,7 +300,14 @@ app.get('/api/seguradoras', (req, res) => {
 })
 
 app.get('/api/procuracoes', (req, res) => {
-    pool.query(`SELECT * FROM public.procuracao`, (err, table) => {
+    pool.query(`
+            SELECT public.procuracao.*,
+            d.razao_social
+            FROM procuracao
+            LEFT JOIN delegatario d
+            ON d.delegatario_id = procuracao.delegatario_id
+            ORDER BY vencimento DESC      
+        `, (err, table) => {
         if (err) res.send(err)
         else if (table.rows && table.rows.length === 0) { res.send('Nenhuma procuração encontrada.'); return }
         res.json(table.rows);
@@ -309,24 +316,35 @@ app.get('/api/procuracoes', (req, res) => {
 
 app.get('/api/proc', (req, res) => {
     pool.query(`
-        SELECT public.procurador.*,
-        pr.vencimento,
-        json_agg(json_build_object('vencimento', pr.vencimento, 'delegatario_id', pr.delegatario_id, 'razaoSocial', delegatario.razao_social)) AS procuracoes
-        from public.procurador
-        left join procuracao pr
-            on procurador.procurador_id = pr.procurador_id
-        left join public.delegatario
-            on pr.delegatario_id = delegatario.delegatario_id
-        group by procurador.procurador_id, pr.vencimento `, (err, table) => {
+        SELECT * FROM public.procurador
+        order by procurador.procurador_id desc`, (err, table) => {
         if (err) res.send(err)
         else if (table.rows && table.rows.length === 0) { res.send('Nenhum procurador encontrado.'); return }
-        res.json(table.rows);
-    })
+        res.json(table.rows)
+    });
 })
 
 
 
+app.get('/api/tst', (req, res) => {
 
+    const proc = req.body.procId || 131
+    pool.query(`
+    SELECT * FROM procuracao
+    where pj @> '${proc}'
+    `, (err, t) => res.send(t.rows))
+
+    /* pool.query(`
+    select * from procuracao
+    `, (err, table) => {
+        const procs = table.rows,
+            a = procs.filter(p => p.pj.some(p => p > 130))
+        res.send(a)
+    }) */
+    //console.log(filter)
+
+
+})
 
 
 app.post('/api/cadastroVeiculo', (req, res) => {
@@ -348,6 +366,21 @@ app.post('/api/cadEmpresa', cadEmpresa)
 app.post('/api/cadSocios', cadSocios)
 
 app.post('/api/cadProcuradores', cadProcuradores)
+
+app.post('/api/cadProcuracao', (req, res) => {
+
+    const { keys, values } = parseRequestBody(req.body)
+
+    console.log(`INSERT INTO public.procuracao (${keys}) VALUES (${values}) RETURNING *`)
+    pool.query(
+        `INSERT INTO public.procuracao (${keys}) VALUES (${values}) RETURNING *`, (err, table) => {
+            if (err) res.send(err)
+            if (table && table.rows && table.rows.length === 0) { res.send('Nenhuma procuração cadastrada.'); return }
+            if (table.rows.length > 0) res.json(table.rows)
+            return
+        });
+})
+
 
 app.post('/api/empresaFullCad', cadEmpresa, cadSocios, cadProcuradores);
 
@@ -568,7 +601,7 @@ app.get('/api/deleteFile/:reqId', async (req, res) => {
     const { reqId } = req.params
 
     const fileId = new mongoose.mongo.ObjectId(reqId)
-    
+
     const Any = new mongoose.Schema({ any: mongoose.Schema.Types.Mixed })
     const Chunks = mongoose.model('empresaDocs.chunk', Any, 'empresaDocs.chunks')
 
@@ -584,7 +617,7 @@ app.get('/api/deleteFile/:reqId', async (req, res) => {
             console.log(result)
             res.json(result)
         }
-    })    
+    })
 })
 
 app.delete('/api/delete', (req, res) => {

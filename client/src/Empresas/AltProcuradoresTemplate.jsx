@@ -11,12 +11,11 @@ import TextField from '@material-ui/core/TextField'
 
 import AddCircleOutlineSharpIcon from '@material-ui/icons/AddCircleOutlineSharp';
 import RemoveCircleOutlineIcon from '@material-ui/icons/RemoveCircleOutline';
-import EditIcon from '@material-ui/icons/Edit';
 import AddIcon from '@material-ui/icons/Add';
-import DeleteIcon from '@material-ui/icons/Delete';
 import DescriptionOutlinedIcon from '@material-ui/icons/DescriptionOutlined';
 import SaveIcon from '@material-ui/icons/Save';
 
+import Procurador from './Procurador'
 import AutoComplete from '../Utils/autoComplete'
 import { procuradorForm } from '../Forms/procuradorForm'
 
@@ -24,11 +23,20 @@ const useStyles = makeStyles(theme => ({
     container: {
         display: 'flex',
         flexWrap: 'wrap',
-        padding: theme.spacing(1)
+        padding: theme.spacing(1),
+        minHeight:'80vh',
+        height: 'auto'
+    },
+    containerList: {
+        display: 'flex',
+        flexWrap: 'wrap',
+        padding: theme.spacing(1),
+        height: 'auto'
     },
     title: {
         color: '#000',
-        fontWeight: 500,
+        fontWeight: 400,
+        fontSize: '1.2rem',
         textAlign: 'center'
     },
     textField: {
@@ -108,9 +116,11 @@ const useStyles = makeStyles(theme => ({
 
 export default function ({ handleInput, handleBlur, data, addProc, removeProc,
     showFiles, handleFiles, enableEdit, handleEdit, handleSubmit, plusOne, minusOne }) {
-    const { procDisplay, razaoSocial, empresas, selectedEmpresa, filteredProc, procsToAdd } = data,
-        classes = useStyles(), { paper, container, title, iconButton, dropBox,
-            dropBoxItem, dropBoxItem2, list, addButton, paper2 } = classes
+    const { procDisplay, razaoSocial, empresas, selectedEmpresa, procsToAdd, selectedDocs,
+        procuracoesArray, procuradores } = data,
+
+        classes = useStyles(), { paper, container, title,  dropBox,
+            dropBoxItem, dropBoxItem2, addButton, paper2, containerList } = classes
 
     const errorHandler = (el) => {
 
@@ -134,9 +144,9 @@ export default function ({ handleInput, handleBlur, data, addProc, removeProc,
 
     const handleDates = (date) => {
 
-        if (date) return moment(date).format('YYYY-MM-DD')
+        if (date) return moment(date).format('DD-MM-YYYY')
         else return ''
-    }   
+    }
     
     return (
         <Grid
@@ -149,7 +159,7 @@ export default function ({ handleInput, handleBlur, data, addProc, removeProc,
                 <Grid item xs={12}>
                     <Paper className={paper}>
                         <Grid item xs={12} style={{ marginBottom: '15px' }}>
-                            <Typography className={title}>  Alteração de procuradores e procurações  - Selecione a Viação</Typography>
+                            <Typography className={title}>  Gerenciar procurações - Selecione a Empresa</Typography>
                             <TextField
                                 inputProps={{
                                     list: 'razaoSocial',
@@ -169,7 +179,8 @@ export default function ({ handleInput, handleBlur, data, addProc, removeProc,
                     </Paper>
                 </Grid>
                 {true && <Paper className={paper2}>
-                <Typography className={title}>  Se a procuração abranger mais de um procurador, clique em "+" para adicionar e anexe apenas 1 vez.</Typography>
+                    <Typography className={title}> Cadastrar nova procuração </Typography>
+                    <h6> Se a procuração abranger mais de um procurador, clique em "+" para adicionar e anexe apenas 1 vez.</h6>
                     {procsToAdd.map((p, j) =>
                         <Grid item xs={12} key={j}>
                             {procuradorForm.map((el, i) =>
@@ -206,7 +217,7 @@ export default function ({ handleInput, handleBlur, data, addProc, removeProc,
                                         fullWidth={el.fullWidth || false}
                                     >
                                     </TextField>
-                                    {j === procsToAdd.length - 1 && i === 4 &&
+                                    {j === procsToAdd.length - 1 && i === 3 &&
                                         <>
                                             <AddCircleOutlineSharpIcon
                                                 onClick={() => plusOne()}
@@ -238,16 +249,14 @@ export default function ({ handleInput, handleBlur, data, addProc, removeProc,
                             )}
                         </Grid>
                     )}
-
                 </Paper>}
                 <Grid container style={{ position: 'relative' }}>
-                    <Grid item xs={data.cpfProcurador ? 6 : 12}>
+                    <Grid item xs={6}>
                         <Dropzone onDrop={handleFiles}>
                             {({ getRootProps, getInputProps }) => (
                                 <Grid container justify="center" alignItems='center' className={dropBox} direction='row' {...getRootProps()}>
                                     <input {...getInputProps()} />
                                     {
-                                        
                                         procDisplay.match('Clique ou') ?
                                             <Grid item xs={6} className={dropBoxItem}> {procDisplay} </Grid>
                                             :
@@ -257,15 +266,37 @@ export default function ({ handleInput, handleBlur, data, addProc, removeProc,
                             )}
                         </Dropzone>
                     </Grid>
+                    <Grid item xs={6}>
+                        <TextField
+                            name='vencimento'
+                            label='Vencimento'
+                            margin='normal'
+                            className={classes.textField}
+                            onChange={e => handleInput(e)}
+                            type='date'
+                            helper='se indeterminado, deixar em branco'
+                            value={data.vencimento}
+                            InputLabelProps={{
+                                className: classes.textField,
+                                shrink: true,
+                                style: { fontSize: '0.8rem', fontWeight: 400, color: '#455a64', marginBottom: '5%' }
+                            }}
+                            inputProps={{
+                                style: { background: '#efefef', textAlign: 'center', color: '#000', fontWeight: '500' },
+                                value: data.vencimento
+                            }}
+                            variant={'filled'}
+                        />
+                    </Grid>
                     {//data.cpfProcurador && <Grid item xs={6}>
-                        <Grid item xs={6}>
-                            <Button color='primary' className={addButton} onClick={addProc}>
+                        <Grid item xs={12}>
+                            <Button color='primary' className={addButton} onClick={addProc} style={{ position: 'absolute', right: 0 }}>
                                 <AddIcon /> Adicionar procurador
-                                </Button>
+                        </Button>
                         </Grid>}
                 </Grid>
                 {
-                    selectedEmpresa && filteredProc.length === 0 &&
+                    selectedEmpresa && procuracoesArray.length === 0 &&
                     <Grid item xs={12}>
                         <Paper className={paper}>
                             Nenhum procurador cadastrado para {selectedEmpresa.razaoSocial}
@@ -274,48 +305,28 @@ export default function ({ handleInput, handleBlur, data, addProc, removeProc,
                     </Grid>
                 }
                 {
-                    filteredProc.length > 0 && <Grid container
+                    selectedDocs.length > 0 && selectedDocs.map((procuracao, z) => <Grid container
+                        key={z * 0.01}
                         direction="row"
-                        className={container}
+                        className={containerList}
                         justify="center"
-                        alignItems="center">
+                        alignItems="flex-start">
                         <Grid item xs={12}>
                             <Paper style={{ padding: '2px' }}>
-                                <p className={title}>Procuradores cadastrados</p>
-                                {filteredProc.map((p, i) =>
-                                    <Grid key={i}>
-                                        {procuradorForm.map((e, k) =>
-                                            <Fragment key={k + 1000}>
-                                                <TextField
-                                                    name={e.field}
-                                                    value={e.field === 'vencimento' ? handleDates(p[e.field]) : p[e.field]}
-                                                    label={e.label}
-                                                    type={e.type || 'text'}
-                                                    className={list}
-                                                    onChange={handleEdit}
-                                                    disabled={e.field === 'cpfProcurador' ? true : p.edit ? false : true}
-                                                    InputLabelProps={{ shrink: true, style: { fontWeight: 600 } }}
-                                                />
-                                            </Fragment>
-                                        )}
-                                        <Button component='span' className={iconButton} title='Ver procuração' onClick={() => showFiles(p.cpfProcurador)}>
-                                            <DescriptionOutlinedIcon />
-                                        </Button>
-
-                                        <Button component='span' className={iconButton} title='editar' onClick={() => enableEdit(i)}>
-                                            <EditIcon />
-                                        </Button>
-
-                                        <Button className={iconButton} color='secondary' title='Remover' onClick={() => removeProc(i)}>
-                                            <DeleteIcon />
-                                        </Button>
-                                    </Grid>
-                                )}
+                                <p className={title}>Procuração {
+                                    procuracao.indeterminada ?
+                                        'por prazo indeterminado'
+                                        :
+                                        'com vencimento em ' + handleDates(procuracao.vencimento)
+                                }</p>
+                                <Procurador
+                                    procuradores={procuradores}
+                                    procuracao={procuracao} />
                             </Paper>
                         </Grid>
                     </Grid>
-                }
-                <Grid container direction="row" justify='flex-end' style={{ width: '1200px' }}>
+                    )}
+                <Grid container direction="row" justify='flex-start' style={{ width: '1200px' }}>
                     <Grid item xs={10} style={{ width: '1000px' }}></Grid>
                     <Grid item xs={1} style={{ align: "right" }}>
                         <Button
