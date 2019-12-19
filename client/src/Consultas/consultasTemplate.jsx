@@ -50,7 +50,9 @@ export default function ({ tab, collection, showDetails, showFiles, handleEdit, 
                         filtering: true,
                         actionsColumnIndex: -1,
                         searchFieldStyle: { color: '#024' },
-                        headerStyle: { backgroundColor: '#FAFAFC' }
+                        headerStyle: { backgroundColor: '#FAFAFC' },
+                        emptyRowsWhenPaging: false,
+                        pageSize: 10
                     }}
 
                     localization={{
@@ -63,6 +65,7 @@ export default function ({ tab, collection, showDetails, showFiles, handleEdit, 
                             searchPlaceholder: 'Procurar'
                         },
                         pagination: {
+                            rowsPerPageOptions: [5, 10, 25, 50, 100],
                             labelRowsSelect: 'Resultados por página',
                             labelDisplayedRows: ' {from}-{to} a {count}',
                             firstTooltip: 'Primeira página',

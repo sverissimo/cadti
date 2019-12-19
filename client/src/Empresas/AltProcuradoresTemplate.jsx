@@ -13,36 +13,72 @@ import AddCircleOutlineSharpIcon from '@material-ui/icons/AddCircleOutlineSharp'
 import RemoveCircleOutlineIcon from '@material-ui/icons/RemoveCircleOutline';
 import AddIcon from '@material-ui/icons/Add';
 import DescriptionOutlinedIcon from '@material-ui/icons/DescriptionOutlined';
-import SaveIcon from '@material-ui/icons/Save';
+import DeleteOutlinedIcon from '@material-ui/icons/DeleteOutlined';
 
 import Procurador from './Procurador'
 import AutoComplete from '../Utils/autoComplete'
 import { procuradorForm } from '../Forms/procuradorForm'
+
+import GetAppIcon from '@material-ui/icons/GetApp';
+import InsertDriveFileOutlinedIcon from '@material-ui/icons/InsertDriveFileOutlined';
+
+const divContainer = {
+    display: 'flex',
+    justifyContent: 'center',
+    width: '100%',
+    alignContent: 'center',
+    flexWrap: 'wrap',
+    position: 'relative'
+}
+
+const divFiles = {    
+    textAlign: 'center',
+    alignItems: 'flex-start',
+    justify: 'space-between',
+    lineHeight: '40px',
+    border: '1px #ccc solid',
+    padding: '0 1%',
+    margin: '1% 1% 0.5% 1%',
+    fontSize: '0.8rem',
+    backgroundColor: '#f6f6f6',
+    borderRadius: '6px',
+    width: 180
+}
+
+const icon = {
+    verticalAlign: 'middle',
+    cursor: 'pointer',
+    paddingLeft: '2%'
+}
+
+const fileIcon = {
+    verticalAlign: 'middle',
+    padding: '0 0% 0 2%',
+}
 
 const useStyles = makeStyles(theme => ({
     container: {
         display: 'flex',
         flexWrap: 'wrap',
         padding: theme.spacing(1),
-        minHeight:'80vh',
+        minHeight: '80vh',
         height: 'auto'
     },
     containerList: {
         display: 'flex',
         flexWrap: 'wrap',
-        padding: theme.spacing(1),
-        height: 'auto'
+        padding: theme.spacing(3),
+        height: 'auto',        
     },
     title: {
         color: '#000',
         fontWeight: 400,
-        fontSize: '1.2rem',
+        fontSize: '1.1rem',
         textAlign: 'center'
     },
     textField: {
         marginLeft: theme.spacing(1),
         marginRight: theme.spacing(1),
-        width: 200,
         fontSize: '0.8rem',
         fontColor: '#bbb',
         textAlign: 'center',
@@ -79,24 +115,23 @@ const useStyles = makeStyles(theme => ({
         padding: '6px 0px'
     },
     addButton: {
-        marginBottom: '1%',
-        padding: '1% 0',
-        position: 'absolute',
-        bottom: 0
+        padding: '15px',
+        height: '50px',
+        margin: '10px 5px 5px 0',
+        float: 'right'
     },
     dropBox: {
         margin: '2% 0',
     },
     dropBoxItem: {
-        margin: '1% 0',
         border: '1px solid #ccc',
         borderRadius: '3%',
         height: '60px',
-        padding: '20px 15px 0 15px',
+        padding: '10px 15px 0 15px',
         cursor: 'pointer',
         zIndex: '1',
         boxShadow: 'inset 3px -3px -3px 0px black',
-        fontWeight: 500,
+        fontSize: '0.8rem',
         color: '#4169E1'
 
     },
@@ -117,9 +152,9 @@ const useStyles = makeStyles(theme => ({
 export default function ({ handleInput, handleBlur, data, addProc, removeProc,
     showFiles, handleFiles, enableEdit, handleEdit, handleSubmit, plusOne, minusOne }) {
     const { procDisplay, razaoSocial, empresas, selectedEmpresa, procsToAdd, selectedDocs,
-        procuracoesArray, procuradores } = data,
+        procuradores } = data,
 
-        classes = useStyles(), { paper, container, title,  dropBox,
+        classes = useStyles(), { paper, container, title, dropBox,
             dropBoxItem, dropBoxItem2, addButton, paper2, containerList } = classes
 
     const errorHandler = (el) => {
@@ -147,13 +182,12 @@ export default function ({ handleInput, handleBlur, data, addProc, removeProc,
         if (date) return moment(date).format('DD-MM-YYYY')
         else return ''
     }
-    
     return (
         <Grid
             container
             direction="row"
             className={container}
-            justify="center"
+            justify="flex-start"
         >
             <Grid>
                 <Grid item xs={12}>
@@ -180,9 +214,9 @@ export default function ({ handleInput, handleBlur, data, addProc, removeProc,
                 </Grid>
                 {true && <Paper className={paper2}>
                     <Typography className={title}> Cadastrar nova procuração </Typography>
-                    <h6> Se a procuração abranger mais de um procurador, clique em "+" para adicionar e anexe apenas 1 vez.</h6>
+                    <h4 style={{fontWeight: 400, fontSize: '0.9em'}}> Se a procuração abranger mais de um procurador, clique em "+" para adicionar e anexe apenas 1 vez.</h4>
                     {procsToAdd.map((p, j) =>
-                        <Grid item xs={12} key={j}>
+                        <Grid item xs={12} key={j} style={{ float: 'left' }}>
                             {procuradorForm.map((el, i) =>
                                 <Fragment key={i}>
                                     <TextField
@@ -201,10 +235,13 @@ export default function ({ handleInput, handleBlur, data, addProc, removeProc,
                                         InputLabelProps={{
                                             className: classes.textField,
                                             shrink: el.type === 'date' || undefined,
-                                            style: { fontSize: '0.8rem', fontWeight: 400, color: '#455a64', marginBottom: '5%' }
+                                            style: { fontSize: '0.8rem', fontWeight: 400, color: '#000040', marginBottom: '5%' }
                                         }}
                                         inputProps={{
-                                            style: { background: el.disabled && data.disable ? '#fff' : '#efefef', textAlign: 'center', color: '#000', fontWeight: '500', width: el.width || '' },
+                                            style: {
+                                                background: el.disabled && data.disable ? '#fff' : '#f4f4f4',
+                                                textAlign: 'center', color: '#000', width: el.width || 150
+                                            },
                                             value: `${data[el.field + j] || ''}`,
                                             list: el.datalist || '',
                                             maxLength: el.maxLength || '',
@@ -224,11 +261,12 @@ export default function ({ handleInput, handleBlur, data, addProc, removeProc,
                                                 style={{
                                                     verticalAlign: 'middle',
                                                     position: 'absolute',
-                                                    bottom: '27px',
-                                                    right: j > 0 ? '0px' : '15px',
+                                                    bottom: '110px',
+                                                    right: j > 0 ? '15px' : '35px',
                                                     color: '#009688',
                                                     fontSize: 30,
-                                                    cursor: 'pointer'
+                                                    cursor: 'pointer',
+                                                    zIndex: 1
                                                 }}
                                             />
                                             {j > 0 && <RemoveCircleOutlineIcon
@@ -236,11 +274,12 @@ export default function ({ handleInput, handleBlur, data, addProc, removeProc,
                                                 style={{
                                                     verticalAlign: 'middle',
                                                     position: 'absolute',
-                                                    bottom: '27px',
-                                                    right: '28px',
+                                                    bottom: '110px',
+                                                    right: '45px',
                                                     color: 'red',
                                                     fontSize: 30,
-                                                    cursor: 'pointer'
+                                                    cursor: 'pointer',
+                                                    zIndex: 1
                                                 }}
                                             />}
                                         </>
@@ -249,54 +288,62 @@ export default function ({ handleInput, handleBlur, data, addProc, removeProc,
                             )}
                         </Grid>
                     )}
-                </Paper>}
-                <Grid container style={{ position: 'relative' }}>
-                    <Grid item xs={6}>
-                        <Dropzone onDrop={handleFiles}>
-                            {({ getRootProps, getInputProps }) => (
-                                <Grid container justify="center" alignItems='center' className={dropBox} direction='row' {...getRootProps()}>
-                                    <input {...getInputProps()} />
-                                    {
-                                        procDisplay.match('Clique ou') ?
-                                            <Grid item xs={6} className={dropBoxItem}> {procDisplay} </Grid>
-                                            :
-                                            <Grid item xs={6} className={dropBoxItem2}> <DescriptionOutlinedIcon />  {procDisplay} <br /> (clique ou arraste outro arquivo para alterar)</Grid>
-                                    }
-                                </Grid>
-                            )}
-                        </Dropzone>
+                    <Grid container style={{ position: 'relative' }}>
+                        <Grid item xs={6}>
+                            <Dropzone onDrop={handleFiles}>
+                                {({ getRootProps, getInputProps }) => (
+                                    <Grid container justify="center" alignItems='center' className={dropBox} direction='row' {...getRootProps()}>
+                                        <input {...getInputProps()} />
+                                        {
+                                            procDisplay.match('Clique ou') ?
+                                                <Grid item xs={6} className={dropBoxItem}> {procDisplay} </Grid>
+                                                :
+                                                <Grid item xs={6} className={dropBoxItem2}> <DescriptionOutlinedIcon />  {procDisplay} <br /> (clique ou arraste outro arquivo para alterar)</Grid>
+                                        }
+                                    </Grid>
+                                )}
+                            </Dropzone>
+                        </Grid>
+                        <Grid item xs={6}>
+                            <TextField
+                                name='vencimento'
+                                label='Vencimento'
+                                margin='normal'
+                                className={classes.textField}
+                                onChange={e => handleInput(e)}
+                                type='date'
+                                helper='se indeterminado, deixar em branco'
+                                value={data.vencimento}
+                                InputLabelProps={{
+                                    className: classes.textField,
+                                    shrink: true,
+                                    style: { fontSize: '0.8rem', fontWeight: 400, color: '#455a64', marginBottom: '5%' }
+                                }}
+                                inputProps={{
+                                    style: { background: '#efefef', textAlign: 'center', color: '#000', fontWeight: '500' },
+                                    value: data.vencimento
+                                }}
+                                variant={'filled'}
+                            />
+                        </Grid>
                     </Grid>
-                    <Grid item xs={6}>
-                        <TextField
-                            name='vencimento'
-                            label='Vencimento'
-                            margin='normal'
-                            className={classes.textField}
-                            onChange={e => handleInput(e)}
-                            type='date'
-                            helper='se indeterminado, deixar em branco'
-                            value={data.vencimento}
-                            InputLabelProps={{
-                                className: classes.textField,
-                                shrink: true,
-                                style: { fontSize: '0.8rem', fontWeight: 400, color: '#455a64', marginBottom: '5%' }
-                            }}
-                            inputProps={{
-                                style: { background: '#efefef', textAlign: 'center', color: '#000', fontWeight: '500' },
-                                value: data.vencimento
-                            }}
-                            variant={'filled'}
-                        />
-                    </Grid>
-                    {//data.cpfProcurador && <Grid item xs={6}>
-                        <Grid item xs={12}>
-                            <Button color='primary' className={addButton} onClick={addProc} style={{ position: 'absolute', right: 0 }}>
-                                <AddIcon /> Adicionar procurador
+                </Paper>}                
+                <Grid container direction="row" justify='flex-start' style={{ width: '1200px' }}>
+                    <Grid item xs={9} style={{ width: '1000px' }}></Grid>
+                    <Grid item xs={3} style={{ align: "right" }}>
+                        <Button
+                            className={addButton}
+                            color="secondary"
+                            variant="contained"
+                            onClick={addProc}
+                        >
+                            <AddIcon />Cadastrar procuração
                         </Button>
-                        </Grid>}
+                    </Grid>
                 </Grid>
+                {selectedEmpresa && selectedDocs[0] && <h2>Procurações cadastradas</h2>}
                 {
-                    selectedEmpresa && procuracoesArray.length === 0 &&
+                    selectedEmpresa && !selectedDocs[0] &&
                     <Grid item xs={12}>
                         <Paper className={paper}>
                             Nenhum procurador cadastrado para {selectedEmpresa.razaoSocial}
@@ -312,9 +359,9 @@ export default function ({ handleInput, handleBlur, data, addProc, removeProc,
                         justify="center"
                         alignItems="flex-start">
                         <Grid item xs={12}>
-                            <Paper style={{ padding: '2px' }}>
+                            <Paper style={{ padding: '10px 15px 20px 15px' }}>
                                 <p className={title}>Procuração {
-                                    procuracao.indeterminada ?
+                                    !procuracao.vencimento ?
                                         'por prazo indeterminado'
                                         :
                                         'com vencimento em ' + handleDates(procuracao.vencimento)
@@ -322,25 +369,23 @@ export default function ({ handleInput, handleBlur, data, addProc, removeProc,
                                 <Procurador
                                     procuradores={procuradores}
                                     procuracao={procuracao} />
+                                <div style={divContainer}>
+                                    <span style={divFiles}>
+                                        <InsertDriveFileOutlinedIcon style={fileIcon} />
+                                        <span style={{ verticalAlign: 'middle', }}>
+                                            {' '} Baixar arquivo
+                                    </span>
+                                        <GetAppIcon style={icon} onClick={() => console.log('f.cpf', 'f.fileName')} />
+                                    </span>
+                                    <span style={{ ...divFiles, width: 90, backgroundColor: 'white', border: 0, position: 'absolute', right: 0 }}> 
+                                    <DeleteOutlinedIcon color='secondary' style={icon} onClick={() => removeProc(procuracao)}/>
+                                    Apagar
+                                    </span>
+                                </div>
                             </Paper>
                         </Grid>
                     </Grid>
                     )}
-                <Grid container direction="row" justify='flex-start' style={{ width: '1200px' }}>
-                    <Grid item xs={10} style={{ width: '1000px' }}></Grid>
-                    <Grid item xs={1} style={{ align: "right" }}>
-                        <Button
-                            size="small"
-                            color="primary"
-                            variant="contained"
-                            style={{ margin: '10px 0 10px 0' }}
-                            onClick={() => handleSubmit()}
-                        >
-                            Salvar <span>&nbsp;&nbsp; </span> <SaveIcon />
-                        </Button>
-                    </Grid>
-                </Grid>
-
             </Grid>
         </Grid>
     )

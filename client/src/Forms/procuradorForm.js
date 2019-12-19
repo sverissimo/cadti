@@ -1,7 +1,8 @@
 export const procuradorForm = [{
     field: 'nomeProcurador',
     label: 'Nome do Procurador',
-    maxLength: 90,    
+    maxLength: 90,
+    width: 320
 },
 {
     field: 'cpfProcurador',
@@ -21,5 +22,6 @@ export const procuradorForm = [{
     label: 'E-mail',
     type: 'email',
     maxLength: 60,
-    pattern: '[a-zA-Z0-9]@([a-zA-Z0-9])?[.]([a-zA-Z0-9])'
+    pattern: '[a-zA-Z0-9]@([a-zA-Z0-9])?[.]([a-zA-Z0-9])',
+    width: 320
 }]

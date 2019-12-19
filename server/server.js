@@ -85,14 +85,17 @@ const empresaStorage = new GridFsStorage({
     url: mongoURI,
     file: (req, file) => {
         gfs.collection('empresaDocs');
-        const { empresaId, fieldName } = req.body
+        const { fieldName, empresaId, procuracaoId } = req.body
+        let { procuradores } = req.body
+        procuradores = procuradores.split(',')
 
         let fileInfo = {
             filename: file.originalname,
             metadata: {
                 'fieldName': fieldName,
-                'cpfProcurador': file.fieldname,
-                'empresaId': empresaId
+                'empresaId': empresaId,
+                'procuracaoId': procuracaoId,
+                'procuradores': procuradores
             },
             bucketName: 'empresaDocs',
         }
@@ -287,7 +290,7 @@ app.get('/api/seguros', (req, res) => {
     pool.query(seguros, (err, table) => {
         if (err) res.send(err)
         else if (table.rows && table.rows.length === 0) { res.send('Nenhum equipamento encontrado.'); return }
-        res.json(table.rows);
+        res.json(table.rows)
     })
 })
 
@@ -321,7 +324,7 @@ app.get('/api/proc', (req, res) => {
         if (err) res.send(err)
         else if (table.rows && table.rows.length === 0) { res.send('Nenhum procurador encontrado.'); return }
         res.json(table.rows)
-    });
+    })
 })
 
 
@@ -369,11 +372,15 @@ app.post('/api/cadProcuradores', cadProcuradores)
 
 app.post('/api/cadProcuracao', (req, res) => {
 
+    let parseProc = req.body.procuradores.toString()
+    parseProc = '[' + parseProc + ']'
+    req.body.procuradores = parseProc
+
     const { keys, values } = parseRequestBody(req.body)
 
-    console.log(`INSERT INTO public.procuracao (${keys}) VALUES (${values}) RETURNING *`)
+    console.log(`INSERT INTO public.procuracao (${keys}) VALUES (${values}) RETURNING procuracao_id`)
     pool.query(
-        `INSERT INTO public.procuracao (${keys}) VALUES (${values}) RETURNING *`, (err, table) => {
+        `INSERT INTO public.procuracao (${keys}) VALUES (${values}) RETURNING procuracao_id`, (err, table) => {
             if (err) res.send(err)
             if (table && table.rows && table.rows.length === 0) { res.send('Nenhuma procuração cadastrada.'); return }
             if (table.rows.length > 0) res.json(table.rows)
@@ -623,7 +630,6 @@ app.get('/api/deleteFile/:reqId', async (req, res) => {
 app.delete('/api/delete', (req, res) => {
     const { table, tablePK } = req.query
     let { id } = req.query
-
     if (table === 'seguro') id = '\'' + id + '\''
 
     pool.query(`
