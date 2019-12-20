@@ -81,7 +81,9 @@ export default class AltProcuradores extends Component {
         this.setState({ ...this.state, [name]: value })
 
         if (name === 'razaoSocial' && Array.isArray(procuradores)) {
+            
             procuracoes = procuracoes.filter(pr => pr.razaoSocial === value)
+            
             if (procuracoes[0]) procuracoes.forEach(pr => {
                 pr.procuradores.forEach(id => {
                     const pro = procuradores.find(p => p.procuradorId === id)
@@ -94,13 +96,10 @@ export default class AltProcuradores extends Component {
 
             const selectedEmpresa = this.state.empresas.find(e => e.razaoSocial === value)
 
-
             if (selectedEmpresa) {
                 await this.setState({ razaoSocial: selectedEmpresa.razaoSocial, selectedEmpresa })
                 if (value !== selectedEmpresa.razaoSocial) this.setState({ selectedEmpresa: undefined })
             } else this.setState({ selectedEmpresa: undefined })
-
-
         }
     }
 
@@ -206,9 +205,9 @@ export default class AltProcuradores extends Component {
             contratoFile.append('procuradores', procIdArray.toString())
             for (let pair of procFiles.entries()) {
                 contratoFile.append(pair[0], pair[1])
-
             }
         }
+
         await axios.post('/api/empresaUpload', contratoFile)
             .then(r => console.log('uploaded'))
 
@@ -348,7 +347,7 @@ export default class AltProcuradores extends Component {
     toast = () => this.setState({ confirmToast: !this.state.confirmToast })
 
     render() {
-        const { showFiles, selectedElement, filesCollection, procuradores, openDialog, dialogTitle, message } = this.state
+        const { showFiles, selectedElement, filesCollection, openDialog, dialogTitle, message } = this.state
 
         return (
             <React.Fragment>
@@ -367,7 +366,7 @@ export default class AltProcuradores extends Component {
                     minusOne={this.minusOne}
                     getFile={this.getFile}
                 />
-                {showFiles && <ShowFiles elementId={selectedElement} typeId='cpfProcurador' filesCollection={filesCollection} format={format} close={this.closeFiles} procuradores={procuradores} />}
+                {showFiles && <ShowFiles elementId={selectedElement} typeId='procuracao' filesCollection={filesCollection} format={format} close={this.closeFiles} />}
                 <ReactToast open={this.state.confirmToast} close={this.toast} msg={this.state.toastMsg} />
                 <AlertDialog open={openDialog} close={this.toggleDialog} title={dialogTitle} message={message} />
             </React.Fragment>

@@ -31,7 +31,7 @@ const divContainer = {
     position: 'relative'
 }
 
-const divFiles = {    
+const divFiles = {
     textAlign: 'center',
     alignItems: 'flex-start',
     justify: 'space-between',
@@ -62,26 +62,26 @@ const useStyles = makeStyles(theme => ({
         flexWrap: 'wrap',
         padding: theme.spacing(1),
         minHeight: '80vh',
-        height: 'auto'
+        height: 'auto',
+        backgroundColor: '#fafafa',
     },
     containerList: {
         display: 'flex',
         flexWrap: 'wrap',
-        padding: theme.spacing(3),
-        height: 'auto',        
+        padding: theme.spacing(2),
+        height: 'auto',
     },
     title: {
         color: '#000',
-        fontWeight: 400,
-        fontSize: '1.1rem',
-        textAlign: 'center'
+        textAlign: 'center',
+        fontSize: '1.1rem'
     },
     textField: {
         marginLeft: theme.spacing(1),
         marginRight: theme.spacing(1),
         fontSize: '0.8rem',
         fontColor: '#bbb',
-        textAlign: 'center',
+        textAlign: 'center'
     },
     formHolder: {
         width: 900,
@@ -115,13 +115,14 @@ const useStyles = makeStyles(theme => ({
         padding: '6px 0px'
     },
     addButton: {
-        padding: '15px',
-        height: '50px',
-        margin: '10px 5px 5px 0',
-        float: 'right'
+        padding: '5px 10px 5px 8px',
+        height: '40px',
+        margin: '5px',
+        float: 'right',
+        fontSize: '0.8rem'
     },
     dropBox: {
-        margin: '2% 0',
+        margin: '30px 0 15px 0',
     },
     dropBoxItem: {
         border: '1px solid #ccc',
@@ -131,8 +132,9 @@ const useStyles = makeStyles(theme => ({
         cursor: 'pointer',
         zIndex: '1',
         boxShadow: 'inset 3px -3px -3px 0px black',
-        fontSize: '0.8rem',
-        color: '#4169E1'
+        fontSize: '0.75rem',
+        color: '#4169E1',
+        backgroundColor: '#fafafa'
 
     },
     dropBoxItem2: {
@@ -145,7 +147,6 @@ const useStyles = makeStyles(theme => ({
         zIndex: '1',
         boxShadow: 'inset 3px -3px -3px 0px black',
         color: 'black',
-        fontWeight: 400,
     }
 }));
 
@@ -214,7 +215,7 @@ export default function ({ handleInput, handleBlur, data, addProc, removeProc,
                 </Grid>
                 {true && <Paper className={paper2}>
                     <Typography className={title}> Cadastrar nova procuração </Typography>
-                    <h4 style={{fontWeight: 400, fontSize: '0.9em'}}> Se a procuração abranger mais de um procurador, clique em "+" para adicionar e anexe apenas 1 vez.</h4>
+                    <h4 style={{ fontWeight: 400, fontSize: '0.9em' }}> Se a procuração abranger mais de um procurador, clique em "+" para adicionar e anexe apenas 1 vez.</h4>
                     {procsToAdd.map((p, j) =>
                         <Grid item xs={12} key={j} style={{ float: 'left' }}>
                             {procuradorForm.map((el, i) =>
@@ -235,12 +236,12 @@ export default function ({ handleInput, handleBlur, data, addProc, removeProc,
                                         InputLabelProps={{
                                             className: classes.textField,
                                             shrink: el.type === 'date' || undefined,
-                                            style: { fontSize: '0.8rem', fontWeight: 400, color: '#000040', marginBottom: '5%' }
+                                            style: { fontSize: '0.7rem', fontWeight: 400, color: '#888' }
                                         }}
                                         inputProps={{
                                             style: {
-                                                background: el.disabled && data.disable ? '#fff' : '#f4f4f4',
-                                                textAlign: 'center', color: '#000', width: el.width || 150
+                                                background: el.disabled && data.disable ? '#fff' : '#fafafa',
+                                                fontSize: '0.9rem', textAlign: 'center', color: '#000', width: el.width || 150, height: '7px'
                                             },
                                             value: `${data[el.field + j] || ''}`,
                                             list: el.datalist || '',
@@ -261,7 +262,7 @@ export default function ({ handleInput, handleBlur, data, addProc, removeProc,
                                                 style={{
                                                     verticalAlign: 'middle',
                                                     position: 'absolute',
-                                                    bottom: '110px',
+                                                    bottom: '136px',
                                                     right: j > 0 ? '15px' : '35px',
                                                     color: '#009688',
                                                     fontSize: 30,
@@ -274,7 +275,7 @@ export default function ({ handleInput, handleBlur, data, addProc, removeProc,
                                                 style={{
                                                     verticalAlign: 'middle',
                                                     position: 'absolute',
-                                                    bottom: '110px',
+                                                    bottom: '136px',
                                                     right: '45px',
                                                     color: 'red',
                                                     fontSize: 30,
@@ -292,7 +293,8 @@ export default function ({ handleInput, handleBlur, data, addProc, removeProc,
                         <Grid item xs={6}>
                             <Dropzone onDrop={handleFiles}>
                                 {({ getRootProps, getInputProps }) => (
-                                    <Grid container justify="center" alignItems='center' className={dropBox} direction='row' {...getRootProps()}>
+                                    <Grid container justify="center"
+                                        alignItems='center' className={dropBox} direction='row' {...getRootProps()}>
                                         <input {...getInputProps()} />
                                         {
                                             procDisplay.match('Clique ou') ?
@@ -304,7 +306,7 @@ export default function ({ handleInput, handleBlur, data, addProc, removeProc,
                                 )}
                             </Dropzone>
                         </Grid>
-                        <Grid item xs={6}>
+                        <Grid item xs={6} className={dropBox}>
                             <TextField
                                 name='vencimento'
                                 label='Vencimento'
@@ -313,26 +315,26 @@ export default function ({ handleInput, handleBlur, data, addProc, removeProc,
                                 onChange={e => handleInput(e)}
                                 type='date'
                                 helper='se indeterminado, deixar em branco'
-                                value={data.vencimento}
+                                value={data.vencimento || ''}
                                 InputLabelProps={{
                                     className: classes.textField,
                                     shrink: true,
-                                    style: { fontSize: '0.8rem', fontWeight: 400, color: '#455a64', marginBottom: '5%' }
+                                    style: { fontSize: '0.8rem', color: '#455a64', marginBottom: '5%' }
                                 }}
                                 inputProps={{
-                                    style: { background: '#efefef', textAlign: 'center', color: '#000', fontWeight: '500' },
-                                    value: data.vencimento
+                                    style: { background: '#fafafa', fontSize: '0.8rem', textAlign: 'center', color: '#000', height: '9px' },                                    
                                 }}
                                 variant={'filled'}
                             />
                         </Grid>
                     </Grid>
-                </Paper>}                
+                </Paper>}
                 <Grid container direction="row" justify='flex-start' style={{ width: '1200px' }}>
                     <Grid item xs={9} style={{ width: '1000px' }}></Grid>
                     <Grid item xs={3} style={{ align: "right" }}>
                         <Button
                             className={addButton}
+                            size='small'
                             color="secondary"
                             variant="contained"
                             onClick={addProc}
@@ -341,14 +343,13 @@ export default function ({ handleInput, handleBlur, data, addProc, removeProc,
                         </Button>
                     </Grid>
                 </Grid>
-                {selectedEmpresa && selectedDocs[0] && <h2>Procurações cadastradas</h2>}
+                {selectedEmpresa && selectedDocs[0] && <h2 style={{ margin: '45px 0 0 15px' }}>Procurações cadastradas</h2>}
                 {
                     selectedEmpresa && !selectedDocs[0] &&
                     <Grid item xs={12}>
                         <Paper className={paper}>
                             Nenhum procurador cadastrado para {selectedEmpresa.razaoSocial}
                         </Paper>
-
                     </Grid>
                 }
                 {
@@ -377,9 +378,9 @@ export default function ({ handleInput, handleBlur, data, addProc, removeProc,
                                     </span>
                                         <GetAppIcon style={icon} onClick={() => getFile(procuracao.procuracaoId)} />
                                     </span>
-                                    <span style={{ ...divFiles, width: 90, backgroundColor: 'white', border: 0, position: 'absolute', right: 0 }}> 
-                                    <DeleteOutlinedIcon color='secondary' style={icon} onClick={() => removeProc(procuracao)}/>
-                                    Apagar
+                                    <span style={{ ...divFiles, width: 90, backgroundColor: 'white', border: 0, position: 'absolute', right: 0 }}>
+                                        <DeleteOutlinedIcon color='secondary' style={icon} onClick={() => removeProc(procuracao)} />
+                                        Apagar
                                     </span>
                                 </div>
                             </Paper>

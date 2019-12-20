@@ -50,9 +50,9 @@ export default function ({ tab, collection, showDetails, showFiles, handleEdit, 
                         filtering: true,
                         actionsColumnIndex: -1,
                         searchFieldStyle: { color: '#024' },
-                        headerStyle: { backgroundColor: '#FAFAFC' },
+                        headerStyle: { backgroundColor: '#FAFAFC', height: '5px', maxHeight: '8px' },
                         emptyRowsWhenPaging: false,
-                        pageSize: 10
+                        pageSize: 10,                        
                     }}
 
                     localization={{

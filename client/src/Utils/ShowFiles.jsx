@@ -17,9 +17,9 @@ const divRow = {
     justifyItems: 'auto'
 }
 
-const ShowFiles = ({ elementId, filesCollection, close, format, typeId }) => {
+const ShowFiles = ({ filesCollection, close, format, typeId, empresas }) => {
 
-    let tempFiles = [], files = [],
+    let files = [],
         collection = 'empresaDocs', fileLabels = empresaFiles
 
     switch (typeId) {
@@ -30,15 +30,22 @@ const ShowFiles = ({ elementId, filesCollection, close, format, typeId }) => {
             if (fileLabels.filter(f => f.name === 'newPlateDoc').length === 0) fileLabels.push({ title: 'CRLV com nova placa', name: 'newPlateDoc' })
             break;
         default: void 0
-
     }
+
     if (filesCollection && filesCollection[0]) {
-        tempFiles = filesCollection.filter(el => el.metadata[typeId].match(elementId))
-        tempFiles.forEach(obj => {
+        filesCollection.forEach(obj => {
             fileLabels.forEach(o => {
                 if (o.name === obj.metadata.fieldName) files.push({ ...obj, label: o.title })
             })
         })
+    }
+
+    const getCompanyName = file => {
+        const { metadata } = file
+        if (metadata.fieldName === 'procuracao') {
+            const emp = empresas.find(e => e.delegatarioId === Number(metadata.empresaId))            
+            return ' - ' + emp.razaoSocial
+        } else return ''
     }
 
     if (files[0]) {
@@ -76,7 +83,7 @@ const ShowFiles = ({ elementId, filesCollection, close, format, typeId }) => {
                                     <span
                                         style={{ textDecoration: 'underline', cursor: 'pointer', color: 'blue' }}
                                         onClick={() => download(file._id, file.filename, collection)}>
-                                        {file.label}
+                                        {file.label + getCompanyName(file)}
                                     </span>
                                 </div>
 

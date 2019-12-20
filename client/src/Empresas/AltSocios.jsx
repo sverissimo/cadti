@@ -152,19 +152,19 @@ export default class AltSocios extends Component {
         const { selectedEmpresa, socios, contratoSocial } = this.state
 
         let submitSocios = this.state.filteredSocios,
-            gotId, oldMembers = [], newMembers = [],
+            oldMembers = [], newMembers = [],
             contratoFile = new FormData(),
             keys = sociosForm.map(el => humps.decamelize(el.field))
         keys.splice(1, 1)
 
         submitSocios.forEach(fs => {
-            let { razaoSocial, dataInicio, dataFim, createdAt, edit, ...rest } = fs
+            let { razaoSocial, createdAt, edit, ...rest } = fs
             fs = rest
             fs.delegatarioId = selectedEmpresa[0].delegatarioId
             if (!fs.hasOwnProperty('socioId')) {
-                gotId = socios.filter(s => s.cpfSocio === fs.cpfSocio)
-                if (gotId.length > 0) {
-                    fs.socioId = gotId[0].socioId
+                const gotId = socios.find(s => s.cpfSocio === fs.cpfSocio)
+                if (gotId) {
+                    fs.socioId = gotId.socioId
                     oldMembers.push(fs)
                 } else {
                     newMembers.push(fs)

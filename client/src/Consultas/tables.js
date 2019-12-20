@@ -46,7 +46,7 @@ export const sociosTable = [
         title: 'Nome',
     },
     {
-        field: 'cpf',
+        field: 'cpfSocio',
         title: 'CPF',
     },
     {
@@ -54,16 +54,14 @@ export const sociosTable = [
         title: 'Delegatário(s)',
     },
     {
-        field: 'dataInicio',
-        title: 'Início da Procuração',
-        filtering: false,
-        render: rowData => formatDate(rowData.dataInicio)
+        field: 'emailSocio',
+        title: 'E-mail',        
+        
     },
     {
-        field: 'dataFim',
-        title: 'Vigência da Procuração',
-        filtering: false,
-        render: rowData => formatDate(rowData.dataFim)
+        field: 'share',
+        title: 'Participação Societária (%)',
+        filtering: false,        
     }
 ]
 

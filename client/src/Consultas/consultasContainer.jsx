@@ -97,13 +97,22 @@ export default class extends Component {
         switch (tab) {
             case 2:
                 typeId = 'procuracaoId'
-                selectedFiles = this.state.empresaFiles.filter(f => f.metadata.procuracaoId === id.toString())
+                let filesToReturn = []
+
+                this.state.empresaFiles.forEach(f => {
+                    if (f.metadata.fieldName === 'procuracao') {
+                        f.metadata.procuradores.forEach(procId => {
+                            if (procId === id) filesToReturn.push(f)
+                        })
+                    }
+                })                
+                selectedFiles = filesToReturn
                 break;
             case 3:
                 typeId = 'veiculoId'
                 selectedFiles = this.state.vehicleFiles.filter(f => f.metadata.veiculoId === id.toString())
                 break;
-            default: void 0                
+            default: void 0
         }
 
         if (selectedFiles[0]) {
@@ -147,7 +156,7 @@ export default class extends Component {
 
     render() {
         const { tab, items, collection, showDetails, elementDetails, showFiles, selectedElement, filesCollection,
-            openDialog, dialogTitle, message, typeId } = this.state
+            openDialog, dialogTitle, message, typeId, empresas } = this.state
 
         return <Fragment>
             <TabMenu items={items}
@@ -172,8 +181,8 @@ export default class extends Component {
                     tab={tab}
                 />
             </PopUp>}
-            {showFiles && <ShowFiles tab={tab} elementId={selectedElement} filesCollection={filesCollection} 
-            close={this.closeFiles} format={format} typeId={typeId} />}
+            {showFiles && <ShowFiles tab={tab} elementId={selectedElement} filesCollection={filesCollection}
+                close={this.closeFiles} format={format} typeId={typeId} empresas={empresas}/>}
             <AlertDialog open={openDialog} close={this.toggleDialog} title={dialogTitle} message={message} />
         </Fragment>
     }

@@ -88,7 +88,11 @@ const empresaStorage = new GridFsStorage({
         gfs.collection('empresaDocs');
         const { fieldName, empresaId, procuracaoId } = req.body
         let { procuradores } = req.body
-        procuradores = procuradores.split(',')
+
+        if (procuradores) {
+            procuradores = procuradores.split(',')
+            procuradores = procuradores.map(id => Number(id))
+        }
 
         let fileInfo = {
             filename: file.originalname,
@@ -616,7 +620,7 @@ app.put('/api/updateVehicle', (req, res) => {
 app.get('/api/deleteFile/:reqId', async (req, res) => {
     const { reqId } = req.params
 
-    const fileId = new mongoose.mongo.ObjectId(reqId)   
+    const fileId = new mongoose.mongo.ObjectId(reqId)
 
     gfs.collection('empresaDocs')
     gfs.files.deleteOne({ _id: fileId }, (err, result) => {

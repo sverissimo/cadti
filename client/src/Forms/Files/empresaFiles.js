@@ -1,4 +1,4 @@
 export const empresaFiles = [
     { title: 'Contrato Social', name: 'contratoSocial' },
-    { title: 'Procuração', name: 'procFile' }    
+    { title: 'Procuração', name: 'procuracao' }    
 ]
