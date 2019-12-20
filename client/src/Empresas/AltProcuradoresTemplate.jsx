@@ -150,7 +150,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function ({ handleInput, handleBlur, data, addProc, removeProc,
-    showFiles, handleFiles, enableEdit, handleEdit, handleSubmit, plusOne, minusOne }) {
+    showFiles, handleFiles, enableEdit, handleEdit, getFile, plusOne, minusOne }) {
     const { procDisplay, razaoSocial, empresas, selectedEmpresa, procsToAdd, selectedDocs,
         procuradores } = data,
 
@@ -375,7 +375,7 @@ export default function ({ handleInput, handleBlur, data, addProc, removeProc,
                                         <span style={{ verticalAlign: 'middle', }}>
                                             {' '} Baixar arquivo
                                     </span>
-                                        <GetAppIcon style={icon} onClick={() => console.log('f.cpf', 'f.fileName')} />
+                                        <GetAppIcon style={icon} onClick={() => getFile(procuracao.procuracaoId)} />
                                     </span>
                                     <span style={{ ...divFiles, width: 90, backgroundColor: 'white', border: 0, position: 'absolute', right: 0 }}> 
                                     <DeleteOutlinedIcon color='secondary' style={icon} onClick={() => removeProc(procuracao)}/>

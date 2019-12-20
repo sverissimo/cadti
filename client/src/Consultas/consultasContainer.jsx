@@ -96,8 +96,8 @@ export default class extends Component {
 
         switch (tab) {
             case 2:
-                typeId = 'cpfProcurador'
-                selectedFiles = this.state.empresaFiles.filter(f => f.metadata.cpfProcurador === id.toString())
+                typeId = 'procuracaoId'
+                selectedFiles = this.state.empresaFiles.filter(f => f.metadata.procuracaoId === id.toString())
                 break;
             case 3:
                 typeId = 'veiculoId'
@@ -147,7 +147,7 @@ export default class extends Component {
 
     render() {
         const { tab, items, collection, showDetails, elementDetails, showFiles, selectedElement, filesCollection,
-            openDialog, dialogTitle, message, procuradores, typeId } = this.state
+            openDialog, dialogTitle, message, typeId } = this.state
 
         return <Fragment>
             <TabMenu items={items}
@@ -172,7 +172,8 @@ export default class extends Component {
                     tab={tab}
                 />
             </PopUp>}
-            {showFiles && <ShowFiles tab={tab} elementId={selectedElement} filesCollection={filesCollection} close={this.closeFiles} format={format} typeId={typeId} procuradores={procuradores} />}
+            {showFiles && <ShowFiles tab={tab} elementId={selectedElement} filesCollection={filesCollection} 
+            close={this.closeFiles} format={format} typeId={typeId} />}
             <AlertDialog open={openDialog} close={this.toggleDialog} title={dialogTitle} message={message} />
         </Fragment>
     }

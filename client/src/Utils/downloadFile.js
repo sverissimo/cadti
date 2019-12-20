@@ -1,10 +1,10 @@
 import axios from 'axios'
 //import { logout } from '../auth/logout';
 
-const downloadFile = (id, originalName, type) => {
+const downloadFile = (id, originalName, collection) => {
     
     axios({
-        url: `/api/mongoDownload/?type=${type}&id=${id}`,
+        url: `/api/mongoDownload/?collection=${collection}&id=${id}`,
         method: 'GET',
         responseType: 'blob', // important
     }).then((response) => {

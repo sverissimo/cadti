@@ -17,6 +17,7 @@ const { cadProcuradores } = require('./cadProcuradores')
 const { empresas, veiculoInit, modeloChassi, carrocerias, equipamentos, seguradoras, seguros } = require('./queries')
 const { filesModel } = require('./models/filesModel')
 const { empresaModel } = require('./models/empresaModel')
+const { empresaChunks } = require('./models/chunksModel')
 
 const { uploadFS } = require('./upload')
 const { parseRequestBody } = require('./parseRequest')
@@ -149,10 +150,7 @@ app.get('/api/mongoDownload/', (req, res) => {
 
     const fileId = new mongoose.mongo.ObjectId(req.query.id)
 
-    let collection
-
-    if (req.query.type === 'veiculoId') collection = 'vehicleDocs'
-    if (req.query.type === 'empresaId') collection = 'empresaDocs'
+    const collection = req.query.collection
 
     gfs.collection(collection)
     gfs.files.findOne({ _id: fileId }, (err, file) => {
@@ -160,7 +158,7 @@ app.get('/api/mongoDownload/', (req, res) => {
         if (!file) {
             return res.status(404).json({
                 responseMessage: err,
-            });
+            })
         } else {
 
             const readstream = gfs.createReadStream({
@@ -185,6 +183,17 @@ app.get('/api/getFiles/:collection', (req, res) => {
     if (req.query.fieldName) fieldName = { 'metadata.fieldName': req.query.fieldName }
 
     filesCollection.find(fieldName).sort({ uploadDate: -1 }).exec((err, doc) => res.send(doc))
+
+})
+
+app.get('/api/getOneFile/', (req, res) => {
+
+    const { collection, id } = req.query
+
+    let filesCollection = empresaModel
+    if (collection === 'vehicleDocs') filesCollection = filesModel
+
+    filesCollection.find({ 'metadata.procuracaoId': id.toString() }).exec((err, doc) => res.send(doc))
 
 })
 
@@ -607,10 +616,7 @@ app.put('/api/updateVehicle', (req, res) => {
 app.get('/api/deleteFile/:reqId', async (req, res) => {
     const { reqId } = req.params
 
-    const fileId = new mongoose.mongo.ObjectId(reqId)
-
-    const Any = new mongoose.Schema({ any: mongoose.Schema.Types.Mixed })
-    const Chunks = mongoose.model('empresaDocs.chunk', Any, 'empresaDocs.chunks')
+    const fileId = new mongoose.mongo.ObjectId(reqId)   
 
     gfs.collection('empresaDocs')
     gfs.files.deleteOne({ _id: fileId }, (err, result) => {
@@ -618,7 +624,7 @@ app.get('/api/deleteFile/:reqId', async (req, res) => {
         if (result) console.log(result)
     })
 
-    Chunks.deleteMany({ files_id: fileId }, (err, result) => {
+    empresaChunks.deleteMany({ files_id: fileId }, (err, result) => {
         if (err) console.log(err)
         if (result) {
             console.log(result)

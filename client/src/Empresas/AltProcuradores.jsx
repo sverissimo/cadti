@@ -5,10 +5,11 @@ import ReactToast from '../Utils/ReactToast'
 
 import Crumbs from '../Utils/Crumbs'
 import AltProcuradoresTemplate from './AltProcuradoresTemplate'
+import download from '../Utils/downloadFile'
 import ShowFiles from '../Utils/ShowFiles'
 import { procuradorForm } from '../Forms/procuradorForm'
 
-//import AlertDialog from '../Utils/AlertDialog'
+import AlertDialog from '../Utils/AlertDialog'
 
 const format = {
     top: '15%',
@@ -18,6 +19,15 @@ const format = {
 }
 
 export default class AltProcuradores extends Component {
+
+    constructor() {
+        super()
+        this.escFunction = (e) => {
+            if (e.keyCode === 27) {
+                if (this.state.openDialog) this.toggleDialog()
+            }
+        }
+    }
 
     state = {
         empresas: [],
@@ -50,8 +60,10 @@ export default class AltProcuradores extends Component {
                 this.setState({ empresas, procuradores, procuracoes, originalProc: humps.decamelizeKeys(procuradores) });
             })
 
-        axios.get('/api/getFiles/empresa?fieldName=procFile')
+        axios.get('/api/getFiles/empresa?fieldName=procuracao')
             .then(r => this.setState({ files: r.data }))
+
+        document.addEventListener('keydown', this.escFunction, false)
     }
 
     componentWillUnmount() { this.setState({}) }
@@ -124,6 +136,7 @@ export default class AltProcuradores extends Component {
         const { selectedEmpresa, procuradores, procFiles, vencimento } = this.state
         const nProc = [...this.state.procsToAdd]
         let selectedDocs = [...this.state.selectedDocs],
+            files = [...this.state.files],
             addedProcs = [],
             sObject = {}
 
@@ -178,11 +191,13 @@ export default class AltProcuradores extends Component {
         }
 
         let procuracaoId
-        
+
         await axios.post('/api/cadProcuracao', novaProcuracao)
-            .then(r => {                
-                procuracaoId = r.data[0].procuracao_id        
+            .then(r => {
+                procuracaoId = r.data[0].procuracao_id
             })
+
+        novaProcuracao.procuracaoId = procuracaoId
 
         if (procFiles) {
             contratoFile.append('fieldName', 'procuracao')
@@ -194,8 +209,11 @@ export default class AltProcuradores extends Component {
 
             }
         }
-        axios.post('/api/empresaUpload', contratoFile)
-            .then(r => console.log(r.data))
+        await axios.post('/api/empresaUpload', contratoFile)
+            .then(r => console.log('uploaded'))
+
+        await axios.get(`/api/getOneFile?collection=empresaDocs&id=${procuracaoId}`)
+            .then(r => { if (r.data[0]) files.push(r.data[0]) })
 
         selectedDocs.reverse()
         selectedDocs.push(novaProcuracao)
@@ -203,6 +221,7 @@ export default class AltProcuradores extends Component {
 
         this.setState({
             selectedDocs,
+            files,
             procDisplay: 'Clique ou arraste para anexar a procuração referente a este(s) procurador(es).',
             procsToAdd: [1]
         })
@@ -212,11 +231,17 @@ export default class AltProcuradores extends Component {
 
     removeProc = async proc => {
 
-        const id = proc.procuracaoId
+        const { files } = this.state,
+            id = proc.procuracaoId,
+            selectedFile = files.find(f => Number(f.metadata.procuracaoId) === id)
+
+
         let procs = [...this.state.selectedDocs]
 
         await axios.delete(`/api/delete?table=procuracao&tablePK=procuracao_id&id=${id}`)
             .then(r => { console.log(r.data) })
+
+        if (selectedFile && selectedFile.hasOwnProperty('_id')) axios.get(`/api/deleteFile/${selectedFile._id}`)
 
         const i = procs.indexOf(proc)
         procs.splice(i, 1)
@@ -256,31 +281,19 @@ export default class AltProcuradores extends Component {
         let procFiles = this.state.procFiles
         procFiles.append(this.state.cpfProcurador, file[0])
         this.setState({ procFiles, procDisplay: file[0].name })
-        /* for (let [k, v] of this.state.procFiles.entries()) {
-            console.log(k, ', ', v )
-        } */
     }
 
-    handleSubmit = async () => {        /* const { selectedEmpresa, procuradores, procFiles, vencimento } = this.state
+    getFile = id => {
+        const { files } = this.state
 
+        const selectedFile = files.find(f => Number(f.metadata.procuracaoId) === id)
 
-        if (procFiles) {
-            contratoFile.append('empresaId', selectedEmpresa.delegatarioId)
-            for (let pair of procFiles.entries()) {
-                contratoFile.append(pair[0], pair[1])
-            }
-
-            console.log(procIdArray)
-
-
-            axios.post('/api/procuracao', novaProcuracao)
-                .then(res => console.log(res.data))
-            //   await axios.post('/api/empresaUpload', contratoFile)
-            //     .then(r => console.log(r.data))
+        if (selectedFile) {
+            const { _id, filename } = selectedFile
+            download(_id, filename, 'empresaDocs')
+        } else {
+            this.createAlert('filesNotFound')
         }
- */
-
-
     }
 
     showFiles = cpf => {
@@ -300,16 +313,42 @@ export default class AltProcuradores extends Component {
         i.push(1)
         this.setState({ procsToAdd: i })
     }
+
     minusOne = () => {
         let i = [...this.state.procsToAdd]
         i.pop()
         this.setState({ procsToAdd: i })
     }
-    closeFiles = () => this.setState({ showFiles: !this.state.showFiles })
+
+    createAlert = (alert) => {
+        let dialogTitle, message
+
+        switch (alert) {
+            case 'filesNotFound':
+                const subject = 'Procuração'
+                dialogTitle = 'Arquivos não encontrados'
+                message = `Não há nenhum arquivo anexado no sistema para a ${subject} selecionada. 
+                Ao cadastrar ou atualizar a ${subject}, certifique-se de anexar o arquivo correspondente.`
+                break;
+            case 'fieldsMissing':
+                dialogTitle = 'Favor preencher todos os campos.'
+                message = 'Os campos acima são de preenchimento obrigatório. Certifique-se de ter preenchido todos eles.'
+                break;
+            case 'plateExists':
+                dialogTitle = 'Placa já cadastrada!'
+                message = 'A placa informada já está cadastrada. Para atualizar seguro, alterar dados ou solicitar baixa, utilize as opções acima. '
+                break;
+            default:
+                break;
+        }
+        this.setState({ openDialog: true, dialogTitle, message })
+    }
+
+    toggleDialog = () => this.setState({ openDialog: !this.state.openDialog })        
     toast = () => this.setState({ confirmToast: !this.state.confirmToast })
 
     render() {
-        const { showFiles, selectedElement, filesCollection, procuradores } = this.state
+        const { showFiles, selectedElement, filesCollection, procuradores, openDialog, dialogTitle, message } = this.state
 
         return (
             <React.Fragment>
@@ -326,9 +365,11 @@ export default class AltProcuradores extends Component {
                     showFiles={this.showFiles}
                     plusOne={this.plusOne}
                     minusOne={this.minusOne}
+                    getFile={this.getFile}
                 />
                 {showFiles && <ShowFiles elementId={selectedElement} typeId='cpfProcurador' filesCollection={filesCollection} format={format} close={this.closeFiles} procuradores={procuradores} />}
                 <ReactToast open={this.state.confirmToast} close={this.toast} msg={this.state.toastMsg} />
+                <AlertDialog open={openDialog} close={this.toggleDialog} title={dialogTitle} message={message} />
             </React.Fragment>
         )
     }
