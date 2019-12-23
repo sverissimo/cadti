@@ -15,7 +15,7 @@ const cadEmpresa = (req, res, next) => {
                     Object.assign(obj, { delegatario_id: table.rows[0].delegatario_id })
                 })
 
-                req.body.procuradores.forEach(obj => {
+                if (req.body.procuradores) req.body.procuradores.forEach(obj => {
                     Object.assign(obj, { delegatario_id: table.rows[0].delegatario_id })
                 })
 

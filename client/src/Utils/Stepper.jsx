@@ -19,7 +19,7 @@ const useStyles = makeStyles(theme => ({
     },
 }))
 
-export default function CustomStepper({ activeStep, steps, stepTitles }) {
+export default function CustomStepper({ activeStep, steps }) {
 
     const classes = useStyles()
 

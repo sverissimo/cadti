@@ -5,7 +5,6 @@ import Paper from '@material-ui/core/Paper'
 import Typography from '@material-ui/core/Typography'
 import Button from '@material-ui/core/Button'
 import SaveIcon from '@material-ui/icons/Save';
-//import AttachFileIcon from '@material-ui/icons/AttachFile';
 import EditIcon from '@material-ui/icons/Edit';
 import { makeStyles } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
@@ -271,4 +270,3 @@ export default function AltSociosTemplate({ data, removeSocio, handleBlur, handl
         </Grid>
     )
 }
-

@@ -9,7 +9,6 @@ import EmpresaReview from './EmpresaReview'
 
 import { empresasForm } from '../Forms/empresasForm'
 import { sociosForm } from '../Forms/sociosForm'
-import { procuradorForm } from '../Forms/procuradorForm'
 import Crumbs from '../Utils/Crumbs'
 
 import StepperButtons from '../Utils/StepperButtons'
@@ -28,10 +27,10 @@ export default class extends Component {
     }
 
     state = {
-        activeStep: 0,
+        activeStep: 1,
         stepTitles: ['Preencha os dados da empresa', 'Informações sobre os sócios',
-            'Informações sobre os procuradores', 'Revisão'],
-        steps: ['Dados da Empresa', 'Sócios', 'Procuradores', 'Revisão'],
+            'Revisão'],
+        steps: ['Dados da Empresa', 'Sócios', 'Revisão'],
         form: {},
         empresas: [],
         razaoSocial: '',
@@ -44,10 +43,7 @@ export default class extends Component {
         addedSocios: [0],
         totalShare: 0,
         socios: [],
-        procuradores: [],
         dropDisplay: 'Clique ou arraste para anexar o contrato social atualizado da empresa',
-        procDisplay: 'Clique ou arraste para anexar a procuração referente a este procurador',
-        procFiles: new FormData(),
         showFiles: false
     }
 
@@ -56,7 +52,6 @@ export default class extends Component {
             .then(res => humps.camelizeKeys(res.data))
             .then(empresas => this.setState({ empresas }))
 
-        this.setState({ activeStep: this.props.location.tab || 0 })
         document.addEventListener('keydown', this.escFunction, false)
     }
 
@@ -73,9 +68,8 @@ export default class extends Component {
     }
 
     handleInput = async e => {
-        const { name } = e.target
-        let { value } = e.target
-        this.setState({ [name]: value })        
+        const { name, value } = e.target
+        this.setState({ [name]: value })
     }
 
     addSocio = async () => {
@@ -84,11 +78,6 @@ export default class extends Component {
             sObject = {},
             invalid = 0,
             totalShare = 0
-
-        if (this.state.activeStep === 2) {
-            socios = this.state.procuradores
-            form = procuradorForm
-        }
 
         form.forEach(obj => {
             if (this.state[obj.field] === '' || this.state[obj.field] === undefined) {
@@ -105,59 +94,57 @@ export default class extends Component {
             })
             socios.push(sObject)
 
-            if (this.state.activeStep === 1) {
-                socios.forEach(s => {
-                    totalShare += Number(s.share)
-                })
-                if (totalShare > 100) {
-                    socios.pop()
-                    this.createAlert('overShared')
-                }
-                else {
-                    await this.setState({ socios, totalShare })
-                    sociosForm.forEach(obj => {
-                        this.setState({ [obj.field]: '' })
-                    })
-                    document.getElementsByName('nomeSocio')[0].focus()
-                }
+            socios.forEach(s => {
+                totalShare += Number(s.share)
+            })
+            if (totalShare > 100) {
+                socios.pop()
+                this.createAlert('overShared')
             }
-
-            if (this.state.activeStep === 2) {
-                const lastOne = socios[socios.length - 1]
-                for (let pair of this.state.procFiles.entries()) {
-                    if (pair[0] === lastOne.cpfProcurador) {
-                        socios[socios.length - 1].fileLabel = pair[1].name
-                    }
-                }
-                await this.setState({ procuradores: socios, procDisplay: 'Clique ou arraste para anexar a procuração referente a este procurador' })
-                procuradorForm.forEach(obj => {
+            else {
+                await this.setState({ socios, totalShare })
+                sociosForm.forEach(obj => {
                     this.setState({ [obj.field]: '' })
                 })
-                document.getElementsByName('nomeProcurador')[0].focus()
+                document.getElementsByName('nomeSocio')[0].focus()
             }
         }
+    }
+
+
+    enableEdit = index => {
+
+        let editSocio = this.state.socios
+        if (editSocio[index].edit === true) editSocio[index].edit = false
+        else {
+            editSocio.forEach(s => s.edit = false)
+            editSocio[index].edit = true
+        }
+        this.setState({ socios: editSocio })
+
+    }
+
+    handleEdit = e => {
+        const { name, value } = e.target,
+            { socios } = this.state        
+        let editSocio = socios.filter(s => s.edit === true)[0]
+        const index = socios.indexOf(editSocio)
+
+        editSocio[name] = value
+
+        let fs = socios
+        fs[index] = editSocio
+
+        this.setState({ filteredSocios: fs })
+
     }
 
     removeSocio = index => {
-
-        if (this.state.activeStep === 1) {
-            let socios = this.state.socios
-            socios.splice(index, 1)
-            this.setState({ socios })
-
-        } else {
-
-            let form = this.state.procFiles,
-                procuradores = this.state.procuradores,
-                procurador = procuradores[index]
-            if (form.has(procurador.cpfProcurador)) {
-                console.log(form.get(procurador.cpfProcurador), 'ssssssssssddsdfmas', index)
-                form.delete(procurador.cpfProcurador)
-            }
-            procuradores.splice(index, 1)
-            this.setState({ procuradores, procFiles: form })
-        }
+        let socios = this.state.socios
+        socios.splice(index, 1)
+        this.setState({ socios })
     }
+
 
     getId = async (name, value, collection, stateId, dbName, dbId, alertLabel) => {
 
@@ -205,46 +192,15 @@ export default class extends Component {
     }
 
     handleFiles = (file) => {
-        const { activeStep } = this.state
         let formData = new FormData()
-        if (activeStep === 0) {
-            formData.append('contratoSocial', file[0])
-            this.setState({ dropDisplay: file[0].name, contratoSocial: formData })
-        }
-        
-        if (activeStep === 2) {
-            let procFiles = this.state.procFiles
-            procFiles.append(this.state.cpfProcurador, file[0])
-            this.setState({ procFiles, procDisplay: file[0].name })
-        }
-    }
-
-    changeFile = async (e) => {
-
-        e.persist()
-        const i = e.target.name,
-            file = e.target.files[0]
-
-        let form = this.state.procFiles,
-            { procuradores } = this.state,
-            procurador = procuradores[i]
-
-        if (file && form.has(procurador.cpfProcurador)) {
-            form.set(procurador.cpfProcurador, file)
-            procuradores[i].fileLabel = file.name
-        }
-        await this.setState({ procFiles: form, procuradores })
-
-        for (let pair of this.state.procFiles.entries()) {
-            console.log(pair[0], ' ', pair[1])
-        }
+        formData.append('contratoSocial', file[0])
+        this.setState({ dropDisplay: file[0].name, contratoSocial: formData })
     }
 
     handleSubmit = async () => {
 
-        let { socios, procuradores, procFiles, contratoSocial } = this.state,
+        let { socios, contratoSocial } = this.state,
             empresa = {},
-            procData = new FormData(),
             contratoFile = new FormData(),
             empresaId
 
@@ -254,25 +210,19 @@ export default class extends Component {
             }
         })
 
-        procuradores.forEach(proc => delete proc.fileLabel)
-
         empresa.delegatarioStatus = 'Ativo'
+
+        Object.entries(socios).forEach(([k, v]) => {
+            if (!socios[k]) socios[k] = null
+        })
+
         empresa = humps.decamelizeKeys(empresa)
         socios = humps.decamelizeKeys(socios)
-        procuradores = humps.decamelizeKeys(procuradores)
 
-        await axios.post('/api/empresaFullCad', { empresa, socios, procuradores })
+        await axios.post('/api/empresaFullCad', { empresa, socios })
             .then(async delegatarioId => empresaId = delegatarioId.data)
 
-        procData.append('fieldName', 'procFile')
-        procData.append('empresaId', empresaId)
-        for (let pair of procFiles.entries()) {
-            procData.append(pair[0], pair[1])
-        }
-
-        await axios.post('/api/empresaUpload', procData)
-            .then(r => console.log(r.data))
-
+        contratoFile.append('fieldName', 'contratoSocial')
         contratoFile.append('empresaId', empresaId)
         for (let pair of contratoSocial.entries()) {
             contratoFile.append(pair[0], pair[1])
@@ -308,23 +258,22 @@ export default class extends Component {
         this.setState({ openDialog: true, dialogTitle, message })
     }
 
-    handleCheck = item => this.setState({ ...this.state, [item]: !this.state[item] })
     toast = () => this.setState({ confirmToast: !this.state.confirmToast })
     toggleDialog = () => this.setState({ openDialog: !this.state.openDialog })
     showFiles = () => this.setState({ showFiles: true })
     closeFiles = () => this.setState({ showFiles: !this.state.showFiles })
 
     render() {
-        const { stepTitles, activeStep, confirmToast, toastMsg, steps, openDialog, dialogTitle, message } = this.state
+
+        const { activeStep, confirmToast, toastMsg, steps, openDialog, dialogTitle, message } = this.state
 
         return <Fragment>
 
-            <Crumbs links={['Empresas', '/empresasHome']} text='Cadastro de empresas'/>
+            <Crumbs links={['Empresas', '/empresasHome']} text='Cadastro de empresas' />
 
             <CustomStepper
                 activeStep={activeStep}
                 steps={steps}
-                stepTitles={stepTitles}
                 setActiveStep={this.setActiveStep}
             />
             {
@@ -333,19 +282,18 @@ export default class extends Component {
                         data={this.state}
                         handleInput={this.handleInput}
                         handleBlur={this.handleBlur}
-                        handleCheck={this.handleCheck}
                         handleFiles={this.handleFiles}
                     />
-                    : activeStep < 3 ?
+                    : activeStep === 1 ?
                         <SociosTemplate
                             data={this.state}
                             handleInput={this.handleInput}
                             handleBlur={this.handleBlur}
-                            handleCheck={this.handleCheck}
                             addSocio={this.addSocio}
                             removeSocio={this.removeSocio}
                             handleFiles={this.handleFiles}
-                            changeFile={this.changeFile}
+                            enableEdit={this.enableEdit}
+                            handleEdit={this.handleEdit}
                         />
                         :
                         <EmpresaReview

@@ -2,7 +2,6 @@ import React, { Fragment } from 'react'
 
 import ShowLocalFiles from '../Utils/ShowLocalFiles'
 import { empresasForm } from '../Forms/empresasForm'
-import { procuradorForm } from '../Forms/procuradorForm'
 import { sociosForm } from '../Forms/sociosForm'
 
 import Grid from '@material-ui/core/Grid'
@@ -80,7 +79,7 @@ export default function Revisao({ data }) {
 
     const classes = useStyles(),
         { title, paper, root, table } = classes,
-        { socios, procuradores } = data
+        { socios } = data
     let empresaDetails = {}
     empresasForm.forEach(e => {
         if (data.hasOwnProperty([e.field])) {
@@ -91,9 +90,9 @@ export default function Revisao({ data }) {
 
     const ultimateData = [
         { subtitle: 'Detalhes da Empresa', form: empresasForm, data: empresaDetails },
-        { subtitle: 'Sócios', form: sociosForm, data: socios },
-        { subtitle: 'Procuradores', form: procuradorForm, data: procuradores }
+        { subtitle: 'Sócios', form: sociosForm, data: socios }        
     ]
+    
     return (
         <>
             <Paper className={paper}>

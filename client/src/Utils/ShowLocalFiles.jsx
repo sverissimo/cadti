@@ -37,14 +37,8 @@ const fileIcon = {
 
 export default function ShowLocalFiles({ data }) {
 
-    const { procFiles, contratoSocial, procuradores } = data
+    const { contratoSocial } = data
 
-    // const filesForm = contratoSocial || new FormData()
-
-    /*     for (let [k, v] of procFiles) {
-            filesForm.set(k, v)
-        }
-     */
     let contrato
     if (contratoSocial) contrato = contratoSocial.get('contratoSocial') || new FormData()
 
@@ -52,7 +46,7 @@ export default function ShowLocalFiles({ data }) {
         let file
 
         if (key === 'contratoSocial') file = contrato
-        else file = procFiles.get(key)
+        //else file = procFiles.get(key)
 
         const url = window.URL.createObjectURL(file);
         const link = document.createElement('a');
@@ -62,7 +56,7 @@ export default function ShowLocalFiles({ data }) {
         link.click();
     }
 
-    let fileArray = []
+    /* let fileArray = []
 
     for (let pair of procFiles.entries()) {
         procuradores.forEach(p => {
@@ -70,22 +64,17 @@ export default function ShowLocalFiles({ data }) {
                 fileArray.push({ nome: p.nomeProcurador, cpf: p.cpfProcurador, fileName: pair[1].name })
             }
         })
-    }
+    } */
 
     return <React.Fragment>
         <div style={divContainer}>
-            {/* 
-            <div style={divFiles}>
-                Arquivos
-            </div> */}
-
             {contratoSocial && <div style={divFiles}>
                 <InsertDriveFileOutlinedIcon style={fileIcon} />
                 {' '} Contrato Social
                 <GetAppIcon style={icon} onClick={() => createLink('contratoSocial', contrato.name)} />
             </div>}
 
-            {fileArray.map((f, i) =>
+           {/*  {fileArray.map((f, i) =>
                 <div style={divFiles} key={i}>
                     <InsertDriveFileOutlinedIcon style={fileIcon} />
                     <span style={{ verticalAlign: 'middle', }}>
@@ -93,7 +82,7 @@ export default function ShowLocalFiles({ data }) {
                     </span>
                     <GetAppIcon style={icon} onClick={() => createLink(f.cpf, f.fileName)} />
                 </div>
-            )}
+            )} */}
         </div>
     </React.Fragment >
 }

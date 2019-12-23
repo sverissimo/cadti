@@ -322,7 +322,7 @@ export default function ({ handleInput, handleBlur, data, addProc, removeProc,
                                     style: { fontSize: '0.8rem', color: '#455a64', marginBottom: '5%' }
                                 }}
                                 inputProps={{
-                                    style: { background: '#fafafa', fontSize: '0.8rem', textAlign: 'center', color: '#000', height: '9px' },                                    
+                                    style: { background: '#fafafa', fontSize: '0.8rem', textAlign: 'center', color: '#000', height: '9px' },
                                 }}
                                 variant={'filled'}
                             />
@@ -343,7 +343,7 @@ export default function ({ handleInput, handleBlur, data, addProc, removeProc,
                         </Button>
                     </Grid>
                 </Grid>
-                {selectedEmpresa && selectedDocs[0] && <h2 style={{ margin: '45px 0 0 15px' }}>Procurações cadastradas</h2>}
+                {selectedEmpresa && selectedDocs[0] && <h2 style={{ margin: '25px 0 0 15px' }}>Procurações cadastradas</h2>}
                 {
                     selectedEmpresa && !selectedDocs[0] &&
                     <Grid item xs={12}>
@@ -367,9 +367,9 @@ export default function ({ handleInput, handleBlur, data, addProc, removeProc,
                                         :
                                         'com vencimento em ' + handleDates(procuracao.vencimento)
                                 }</p>
-                                <Procurador
-                                    procuradores={procuradores}
-                                    procuracao={procuracao} />
+                                
+                                <Procurador procuradores={procuradores} procuracao={procuracao} />
+
                                 <div style={divContainer}>
                                     <span style={divFiles}>
                                         <InsertDriveFileOutlinedIcon style={fileIcon} />

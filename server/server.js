@@ -59,7 +59,7 @@ let gfs
 conn.on('error', console.error.bind(console, 'connection error:'));
 conn.once('open', () => {
     gfs = Grid(conn.db);
-    gfs.collection('vehicleDocs');
+    gfs.collection('vehicleDocs')
     console.log('Mongo connected!')
 })
 
@@ -85,7 +85,7 @@ const empresaStorage = new GridFsStorage({
 
     url: mongoURI,
     file: (req, file) => {
-        gfs.collection('empresaDocs');
+        gfs.collection('empresaDocs')
         const { fieldName, empresaId, procuracaoId } = req.body
         let { procuradores } = req.body
 

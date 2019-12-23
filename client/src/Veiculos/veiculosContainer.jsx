@@ -34,10 +34,7 @@ export default class extends Component {
     state = {
         tab: 0,
         items: ['Cadastro de Veículo', 'Atualização de Seguro',
-            'Alteração de dados', 'Baixa de Veículo'],
-        stepTitles: ['Informe os dados do veículo', 'Informe os dados do seguro',
-            'Informações sobre vistoria e laudos', 'Anexe os documentos solicitados',
-            'Revisão das informações e deferimento'],
+            'Alteração de dados', 'Baixa de Veículo'],        
         steps: ['Dados do Veículo', 'Dados do seguro', 'Vistoria e laudos', 'Documentos', 'Revisão'],
         subtitle: ['Informe os dados do Veículo', 'Informe os dados do Seguro',
             'Preencha os campos abaixo', 'Informe os dados para a baixa'],
@@ -583,7 +580,7 @@ export default class extends Component {
 
     render() {
         const { tab, items, confirmToast, toastMsg, activeStep,
-            openDialog, dialogTitle, message, steps, stepTitles } = this.state
+            openDialog, dialogTitle, message, steps } = this.state
 
         const enableAddPlaca = cadForm[1]
             .every(k => this.state.hasOwnProperty(k.field) && this.state[k.field] !== '')
@@ -594,8 +591,7 @@ export default class extends Component {
                 changeTab={this.changeTab} />
             {tab === 0 && <CustomStepper
                 activeStep={activeStep}
-                steps={steps}
-                stepTitles={stepTitles}
+                steps={steps}                
                 setActiveStep={this.setActiveStep}
             />}
             {tab < 2 && activeStep < 3 ? <VeiculosTemplate

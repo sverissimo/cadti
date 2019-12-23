@@ -4,19 +4,22 @@ const parseRequestBody = (body) => {
         let parsedArray = []
 
 
-        body.forEach(obj => {
-            const keys = Object.keys(obj).toString(),
-                initValues = Object.values(obj)
-            let values = []
+        body.forEach((obj) => {
 
-            initValues.forEach(v => {
-                console.log(v, '*************', values, Array.isArray(values))
-                values.push(('\'' + v + '\'').toString())                
+            let values = [], keys = []
+
+            Object.entries(obj).forEach(([k, v]) => {
+                if (v) {
+                    values.push(('\'' + v + '\'').toString())                    
+                    keys.push(k.toString())
+                }
             })
+            
             values = values.toString().replace(/'\['/g, '').replace(/'\]'/g, '')
-            parsedArray.push({ keys, values })
+
+            if (keys[0] && values[0]) parsedArray.push({ keys, values })
         })
-        console.log('*************', parsedArray)
+        console.log('******funk*******', parsedArray)
         return parsedArray
 
 
@@ -25,7 +28,7 @@ const parseRequestBody = (body) => {
         const keys = Object.keys(body).toString(),
             initValues = Object.values(body)
         initValues.forEach(v => {
-            values.push(('\'' + v + '\'').toString())
+            if (v) values.push(('\'' + v + '\'').toString())
         })
         values = values.toString().replace(/'\['/g, '').replace(/'\]'/g, '')
         return { keys, values }
