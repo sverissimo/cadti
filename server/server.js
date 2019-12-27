@@ -645,7 +645,8 @@ app.delete('/api/delete', (req, res) => {
     pool.query(`
     DELETE FROM public.${table} WHERE ${tablePK} = ${id}`, (err, t) => {
         if (err) console.log(err)
-        res.send(`${id} deleted from ${table}`)
+        if (id) res.send(`${id} deleted from ${table}`)
+        else res.send('no id found.')
     })
 })
 

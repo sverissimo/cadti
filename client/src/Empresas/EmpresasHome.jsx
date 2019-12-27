@@ -91,7 +91,7 @@ const featuredPosts = [
         description:
             'Cadastrar uma nova empresa no sistema.',
         imageUrl: '/images/addCompany21.png',
-        link: '/empresas'      
+        link: '/empresas'
     },
     {
         title: 'Sócios',
@@ -99,7 +99,7 @@ const featuredPosts = [
         description:
             'Gerenciar sócios e alterações de contrato social',
         link: '/socios',
-        imageUrl: '/images/socios3.png'      
+        imageUrl: '/images/socios3.png'
     },
     {
         title: 'Procuradores',
@@ -107,7 +107,7 @@ const featuredPosts = [
         description:
             'Alterar relação de procuradores e procurações',
         link: '/procuradores',
-        imageUrl: '/images/procuradores31.png'        
+        imageUrl: '/images/procuradores31.png'
     },
 ]
 
@@ -117,7 +117,11 @@ export default function () {
     return (
         <React.Fragment>
             <CssBaseline />
-            <Container maxWidth="lg">
+            <Container maxWidth="lg" style={{
+                minHeight: '83vh',
+                height: 'auto',
+                backgroundColor: '#fafafa',
+            }}>
                 <main>
                     <Paper className={classes.mainFeaturedPost}>
                         <img

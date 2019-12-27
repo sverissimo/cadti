@@ -6,6 +6,7 @@ import ReactToast from '../Utils/ReactToast'
 import Crumbs from '../Utils/Crumbs'
 import AltSociosTemplate from './AltSociosTemplate'
 import { sociosForm } from '../Forms/sociosForm'
+import AlertDialog from '../Utils/AlertDialog'
 
 //import AlertDialog from '../Utils/AlertDialog'
 
@@ -13,12 +14,13 @@ export default class AltSocios extends Component {
 
     state = {
         empresas: [],
-        razaoSocial: 'Sv',
+        razaoSocial: '',
         toastMsg: 'Dados atualizados!',
         confirmToast: false,
         files: [],
         fileNames: [],
         openDialog: false,
+        dialogTitle: '',
         addedSocios: [0],
         totalShare: 0,
         filteredSocios: [],
@@ -63,22 +65,21 @@ export default class AltSocios extends Component {
         }
     }
 
-    handleBlur = async  e => {
-        /* const { selectedEmpresa } = this.state
+    handleBlur = e => {
+        const { filteredSocios } = this.state
         const { name } = e.target
-        let { value } = e.target */
-
-        /* switch (name) {
-            case 'cnpj':
-                const alreadyExists = empresas.filter(e => e.cnpj === value)
-                if (alreadyExists[0]) {
-                    this.setState({ cnpj: '' })
-                    this.createAlert(alreadyExists[0])
+        let { value } = e.target
+        switch (name) {
+            case 'cpfSocio':
+                const alreadyExists = filteredSocios.find(e => e.cpfSocio === value)
+                if (alreadyExists) {
+                    this.createAlert('alreadyExists')
+                    this.setState({ cpfSocio: '' })
                 }
                 break;
             case 'share':
                 if (value > 100) {
-                   console.log('overShared')
+                    console.log('overShared')
                 }
                 else {
                     const totalShare = Number(this.state.totalShare) + Number(value)
@@ -87,7 +88,7 @@ export default class AltSocios extends Component {
                 break;
             default:
                 break;
-        } */
+        }
     }
 
     addSocio = async () => {
@@ -110,14 +111,15 @@ export default class AltSocios extends Component {
 
     removeSocio = async index => {
 
-        let socios = this.state.filteredSocios
+        let socios = [...this.state.filteredSocios],
+            allSocios = [...this.state.socios]
         const id = socios[index].socioId
 
         await axios.delete(`/api/delete?table=socios&tablePK=socio_id&id=${id}`)
             .catch(err => console.log(err))
-
+        allSocios = allSocios.filter(s => s !== socios[index])
         socios.splice(index, 1)
-        this.setState({ filteredSocios: socios })
+        this.setState({ filteredSocios: socios, socios: allSocios })
     }
 
     enableEdit = index => {
@@ -199,12 +201,20 @@ export default class AltSocios extends Component {
         try {
             if (oldMembers.length > 0) {
                 await axios.put('/api/editSocios', { requestArray: oldMembers, table, tablePK, keys })
-                //   .then(r => console.log(r.data))
+                    .then(r => console.log(r.data))
             }
 
             if (newMembers.length > 0) {
                 await axios.post('/api/cadSocios', { socios: newMembers, table, tablePK })
-                    .then(r => console.log(r.data))
+                    .then(r => {
+                        axios.get('/api/socios')
+                            .then(s => humps.camelizeKeys(s.data))
+                            .then(socios => {
+                                const filteredSocios = socios.filter(s => s.razaoSocial === selectedEmpresa[0].razaoSocial)
+                                if (filteredSocios.length > 0) this.setState({ filteredSocios, socios })
+                            })
+                        console.log(r.data)
+                    })
             }
 
             if (contratoSocial) {
@@ -217,7 +227,6 @@ export default class AltSocios extends Component {
             }
         } catch (err) {
             console.log(err)
-            alert(err)
         }
 
         this.toast()
@@ -230,16 +239,47 @@ export default class AltSocios extends Component {
         this.setState({ dropDisplay: file[0].name, contratoSocial: formData })
     }
 
+    createAlert = (alert) => {
+        let dialogTitle, message
+
+        switch (alert) {
+            case 'alreadyExists':
+
+                dialogTitle = 'CPF já cadastrado.'
+                message = `O CPF informado corresponde a um sócio já cadastrado. 
+                Para remover ou editar as informações dos sócios, utilize a respectiva opção abaixo.`
+                break;
+            /*        case 'overShared':
+                       dialogTitle = 'Participação societária inválida.'
+                       message = 'A participação societária informada excede a 100%.'
+                       break;
+                   case 'subShared':
+                       dialogTitle = 'Participação societária inválida.'
+                       message = 'A participação societária informada não soma 100%. Favor informar todos os sócios com suas respectivas participações.'
+                       break;
+                   case 'missingRequiredFields':
+                       dialogTitle = 'Campos de preenchimento obrigatório.'
+                       message = 'Favor preencher todos os campos do formulário.'
+                       break; */
+            default:
+                break;
+        }
+
+        this.setState({ openDialog: true, dialogTitle, message })
+    }
+
+    toggleDialog = () => this.setState({ openDialog: !this.state.openDialog })
     toast = () => this.setState({ confirmToast: !this.state.confirmToast })
 
     render() {
-
+        const { openDialog, dialogTitle, message } = this.state
         return (
             <React.Fragment>
                 <Crumbs links={['Empresas', '/empresasHome']} text='Alteração do quadro societário' />
                 <AltSociosTemplate
                     data={this.state}
                     handleInput={this.handleInput}
+                    handleBlur={this.handleBlur}
                     removeSocio={this.removeSocio}
                     handleFiles={this.handleFiles}
                     addSocio={this.addSocio}
@@ -248,6 +288,7 @@ export default class AltSocios extends Component {
                     handleSubmit={this.handleSubmit}
                 />
                 <ReactToast open={this.state.confirmToast} close={this.toast} msg={this.state.toastMsg} />
+                <AlertDialog open={openDialog} close={this.toggleDialog} title={dialogTitle} message={message} />
             </React.Fragment>
         )
     }

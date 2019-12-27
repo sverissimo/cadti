@@ -151,7 +151,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function ({ handleInput, handleBlur, data, addProc, removeProc,
-    showFiles, handleFiles, enableEdit, handleEdit, getFile, plusOne, minusOne }) {
+    handleFiles, getFile, plusOne, minusOne }) {
     const { procDisplay, razaoSocial, empresas, selectedEmpresa, procsToAdd, selectedDocs,
         procuradores } = data,
 

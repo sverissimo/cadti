@@ -119,7 +119,12 @@ export default function () {
     return (
         <React.Fragment>
             <CssBaseline />
-            <Container maxWidth="lg">
+            <Container maxWidth="lg"
+                style={{
+                    minHeight: '83vh',
+                    height: 'auto',
+                    backgroundColor: '#fafafa',
+                }}>
 
                 <main>
                     <Paper className={classes.mainFeaturedPost}>

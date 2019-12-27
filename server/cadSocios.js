@@ -26,7 +26,10 @@ const cadSocios = (req, res, next) => {
     if (req.body.procuradores) next()
     else {
         Promise.all(promisseArray)
-            .then(()=> res.send(req.delegatario_id.toString()))
+            .then(()=> {
+                if(req.delegatario_id) res.send(req.delegatario_id.toString())
+                else res.send('no empresa_id found.')
+            })
     }
 
 

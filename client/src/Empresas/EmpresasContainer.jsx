@@ -27,7 +27,7 @@ export default class extends Component {
     }
 
     state = {
-        activeStep: 1,
+        activeStep: 0,
         stepTitles: ['Preencha os dados da empresa', 'Informações sobre os sócios',
             'Revisão'],
         steps: ['Dados da Empresa', 'Sócios', 'Revisão'],
@@ -220,7 +220,7 @@ export default class extends Component {
         socios = humps.decamelizeKeys(socios)
 
         await axios.post('/api/empresaFullCad', { empresa, socios })
-            .then(async delegatarioId => empresaId = delegatarioId.data)
+            .then(delegatarioId => empresaId = delegatarioId.data)
 
         contratoFile.append('fieldName', 'contratoSocial')
         contratoFile.append('empresaId', empresaId)

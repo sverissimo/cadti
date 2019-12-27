@@ -52,7 +52,7 @@ export default function ({ tab, collection, showDetails, showFiles, handleEdit, 
                         searchFieldStyle: { color: '#024' },
                         headerStyle: { backgroundColor: '#FAFAFC', height: '5px', maxHeight: '8px' },
                         emptyRowsWhenPaging: false,
-                        pageSize: 10,                        
+                        pageSize: 10,
                     }}
 
                     localization={{
@@ -82,7 +82,7 @@ export default function ({ tab, collection, showDetails, showFiles, handleEdit, 
                             onClick: (event, rowData) => showDetails(event, rowData)
                         },
                         {
-                            hidden: tab < 4 ? false : true,
+                            hidden: tab !== 1 && tab !== 4 ? false : true,
                             icon: 'file_copy_outline',
                             iconProps: { color: 'secondary' },
                             tooltip: 'Ver arquivos',

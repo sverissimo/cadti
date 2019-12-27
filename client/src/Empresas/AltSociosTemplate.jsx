@@ -61,32 +61,33 @@ const useStyles = makeStyles(theme => ({
         padding: '1% 0'
     },
     dropBox: {
-        margin: '2% 0',
+        margin: '1% 0',
     },
     dropBoxItem: {
-        margin: '1% 0',
+        margin: '12px 0',
         border: '1px solid #ccc',
         borderRadius: '3%',
-        height: '60px',
-        padding: '2% 1% 0 1%',
+        height: '50px',
+        padding: '17px',
         cursor: 'pointer',
         zIndex: '1',
         boxShadow: 'inset 3px -3px -3px 0px black',
-        fontWeight: 500,
-        color: '#4169E1'
-
+        fontSize: '0.75rem',
+        color: '#4169E1',
+        backgroundColor: '#fafafa'
     },
     dropBoxItem2: {
-        margin: '1% 0',
+        margin: '12px 0',
         border: '1px solid #ccc',
         borderRadius: '3%',
-        height: '60px',
+        height: '50px',
         padding: '0 1% 0 1%',
         cursor: 'pointer',
         zIndex: '1',
         boxShadow: 'inset 3px -3px -3px 0px black',
-        color: 'black',
-        fontWeight: 400,
+        fontSize: '0.75rem',
+        color: '#00000',
+        backgroundColor: '#fafafa'
     }
 }))
 
@@ -170,10 +171,10 @@ export default function AltSociosTemplate({ data, removeSocio, handleBlur, handl
                                         InputLabelProps={{
                                             className: classes.textField,
                                             shrink: el.type === 'date' || undefined,
-                                            style: { fontSize: '0.8rem', fontWeight: 400, color: '#455a64', marginBottom: '5%' }
+                                            style: { fontSize: '0.7rem', color: '#455a64', marginBottom: '5%' }
                                         }}
                                         inputProps={{
-                                            style: { background: el.disabled && data.disable ? '#fff' : '#efefef', textAlign: 'center', color: '#000', fontWeight: '500', width: el.width || '' },
+                                            style: { background: el.disabled && data.disable ? '#fff' : '#fafafa',  height: '7px' },
                                             value: `${data[el.field] || ''}`,
                                             list: el.datalist || '',
                                             maxLength: el.maxLength || '',
@@ -225,6 +226,7 @@ export default function AltSociosTemplate({ data, removeSocio, handleBlur, handl
                                                 disabled={e.field === 'cpfSocio' ? true : s.edit ? false : true}
                                                 onChange={handleEdit}
                                                 InputLabelProps={{ shrink: true, style: { fontWeight: 600 } }}
+                                                inputProps={{style: {fontSize : '0.8rem'}}}
                                             />
                                         </Fragment>
                                     )}
@@ -257,7 +259,7 @@ export default function AltSociosTemplate({ data, removeSocio, handleBlur, handl
                                     size="small"
                                     color="primary"
                                     variant="contained"
-                                    style={{ margin: '10px 0 10px 0' }}
+                                    style={{ margin: '0px 0 10px 0' }}
                                     onClick={() => handleSubmit()}
                                 >
                                     Salvar <span>&nbsp;&nbsp; </span> <SaveIcon />

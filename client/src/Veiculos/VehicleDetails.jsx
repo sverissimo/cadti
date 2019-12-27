@@ -22,7 +22,7 @@ export default function VehicleDetails({ data, tab }) {
     
     let { veiculoId, laudoId, tableData, modeloChassiId, modeloCarroceriaId, delegatarioId, ...vData } = data
         
-    if (tab === 0) {
+    if (tab === 3) {
         vData.dataRegistro = formatDate(data.dataRegistro)
         vData.dataEmissao = formatDate(data.dataEmissao)
         vData.vencimento = formatDate(data.vencimento) 

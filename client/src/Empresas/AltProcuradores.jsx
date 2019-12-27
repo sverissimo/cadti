@@ -31,7 +31,7 @@ export default class AltProcuradores extends Component {
 
     state = {
         empresas: [],
-        razaoSocial: 'Sv',
+        razaoSocial: '',
         toastMsg: 'Dados atualizados!',
         confirmToast: false,
         files: [],

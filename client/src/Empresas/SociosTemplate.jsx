@@ -115,10 +115,10 @@ export default function ({ handleInput, handleBlur, data, addSocio, removeSocio,
                                         InputLabelProps={{
                                             className: classes.textField,
                                             shrink: el.type === 'date' || undefined,
-                                            style: { fontSize: '0.8rem', fontWeight: 400, color: '#455a64', marginBottom: '5%' }
+                                            style: { fontSize: '0.75rem', fontWeight: 400, color: '#455a64', marginBottom: '5%' }
                                         }}
                                         inputProps={{
-                                            style: { background: el.disabled && data.disable ? '#fff' : '#efefef', textAlign: 'center', color: '#000', fontWeight: '500', width: el.width || '' },
+                                            style: { background: el.disabled && data.disable ? '#fff' : '#fafafa',  height: '7px' },
                                             value: `${data[el.field] || ''}`,
                                             list: el.datalist || '',
                                             maxLength: el.maxLength || '',
