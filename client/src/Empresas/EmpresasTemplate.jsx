@@ -12,7 +12,7 @@ const useStyles = makeStyles(theme => ({
     container: {
         display: 'flex',
         flexWrap: 'wrap',
-        padding: theme.spacing(1),        
+        padding: theme.spacing(1),
         height: 'auto',
     },
     title: {
@@ -24,9 +24,8 @@ const useStyles = makeStyles(theme => ({
         marginLeft: theme.spacing(1),
         marginRight: theme.spacing(1),
         width: 300,
-        fontSize: '0.8rem',
         fontColor: '#bbb',
-        textAlign: 'center'        
+        textAlign: 'center'
     },
     formHolder: {
         width: 900,
@@ -123,10 +122,13 @@ export default function ({ handleInput, handleBlur, data, handleFiles }) {
                                             InputLabelProps={{
                                                 className: classes.textField,
                                                 shrink: el.type === 'date' || undefined,
-                                                style: { fontSize: '0.7rem', color: '#455a64', marginBottom: '5%' }
+                                                style: { fontSize: '0.7rem', color: '#444' }
                                             }}
                                             inputProps={{
-                                                style: { background: el.disabled && data.disable ? '#fff' : '#fafafa', width: el.width || '', height: '7px' },
+                                                style: {
+                                                    background: el.disabled && data.disable ? '#fff' : '#fafafa', fontSize: '0.85rem',
+                                                    color: '#000', textAlign: 'center', width: el.width || '', height: '8px'
+                                                },
                                                 value: `${data[el.field] || ''}`,
                                                 list: el.datalist || '',
                                                 maxLength: el.maxLength || '',

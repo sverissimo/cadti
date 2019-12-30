@@ -125,8 +125,11 @@ export default class extends Component {
     }
 
     handleEdit = e => {
-        const { name, value } = e.target,
-            { socios } = this.state        
+        const { name } = e.target, { socios } = this.state
+
+        let { value } = e.target
+        if (name === 'share') value = value.replace(',', '.')
+
         let editSocio = socios.filter(s => s.edit === true)[0]
         const index = socios.indexOf(editSocio)
 
@@ -177,12 +180,19 @@ export default class extends Component {
                 }
                 break;
             case 'share':
+                value = value.replace(',', '.')
                 if (value > 100) {
                     this.createAlert('overShared')
                 }
                 else {
                     const totalShare = Number(this.state.totalShare) + Number(value)
                     this.setState({ [name]: value, totalShare })
+                }
+                break;
+            case 'numero':
+                if (value && !value.match(/^\d+$/)) {
+                    await this.setState({ numero: '' })
+                    this.createAlert('numberNotValid')
                 }
                 break;
             default:
@@ -211,24 +221,35 @@ export default class extends Component {
         })
 
         empresa.delegatarioStatus = 'Ativo'
+        console.log(socios, empresa)
 
-        Object.entries(socios).forEach(([k, v]) => {
-            if (!socios[k]) socios[k] = null
+        Object.entries(empresa).forEach(([k, v]) => {
+            if (!v) empresa[k] = null
+        })
+
+        socios.forEach(s => {
+            delete s.edit
+            Object.entries(s).forEach(([k, v]) => {
+                if (!v) socios[k] = null
+            })
         })
 
         empresa = humps.decamelizeKeys(empresa)
         socios = humps.decamelizeKeys(socios)
-
+        
         await axios.post('/api/empresaFullCad', { empresa, socios })
             .then(delegatarioId => empresaId = delegatarioId.data)
 
-        contratoFile.append('fieldName', 'contratoSocial')
-        contratoFile.append('empresaId', empresaId)
-        for (let pair of contratoSocial.entries()) {
-            contratoFile.append(pair[0], pair[1])
+        if (contratoSocial) {
+
+            contratoFile.append('fieldName', 'contratoSocial')
+            contratoFile.append('empresaId', empresaId)
+            for (let pair of contratoSocial.entries()) {
+                contratoFile.append(pair[0], pair[1])
+            }
+            await axios.post('/api/empresaUpload', contratoFile)
+                .then(r => console.log('file ok.'))
         }
-        await axios.post('/api/empresaUpload', contratoFile)
-            .then(r => console.log(r.data))
 
         this.toast()
     }
@@ -251,6 +272,10 @@ export default class extends Component {
             case 'missingRequiredFields':
                 dialogTitle = 'Campos de preenchimento obrigatório.'
                 message = 'Favor preencher todos os campos do formulário.'
+                break;
+            case 'numberNotValid':
+                dialogTitle = 'Número inválido.'
+                message = 'O número não pode conter pontos, virgulas ou caracteres especiais.'
                 break;
             default:
                 break;

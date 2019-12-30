@@ -65,7 +65,7 @@ export default class AltSocios extends Component {
         }
     }
 
-    handleBlur = e => {
+    handleBlur = async e => {
         const { filteredSocios } = this.state
         const { name } = e.target
         let { value } = e.target
@@ -78,12 +78,22 @@ export default class AltSocios extends Component {
                 }
                 break;
             case 'share':
-                if (value > 100) {
-                    console.log('overShared')
-                }
-                else {
-                    const totalShare = Number(this.state.totalShare) + Number(value)
-                    console.log(totalShare)
+                if (value) {
+                    value = value.replace(',', '.')
+
+                    if (value !== '0' && value !== '00' && !Number(value)) {
+
+                        await this.setState({ share: '' })
+                        console.log(value)
+                        this.createAlert('numberNotValid')
+
+                    } else {
+                        let totalShare = filteredSocios.map(s => Number(s.share))
+                            .reduce((a, b) => a + b)
+
+                        totalShare += Number(value)
+                        this.setState({ totalShare, share: value })
+                    }
                 }
                 break;
             default:
@@ -113,10 +123,16 @@ export default class AltSocios extends Component {
 
         let socios = [...this.state.filteredSocios],
             allSocios = [...this.state.socios]
-        const id = socios[index].socioId
 
-        await axios.delete(`/api/delete?table=socios&tablePK=socio_id&id=${id}`)
-            .catch(err => console.log(err))
+        const id = socios[index].socioId,
+            originalSocios = humps.camelizeKeys(this.state.originalSocios),
+            registered = originalSocios.find(s => s.socioId === id)
+
+        if (registered) {
+            await axios.delete(`/api/delete?table=socios&tablePK=socio_id&id=${id}`)
+                .catch(err => console.log(err))
+        }
+
         allSocios = allSocios.filter(s => s !== socios[index])
         socios.splice(index, 1)
         this.setState({ filteredSocios: socios, socios: allSocios })
@@ -135,9 +151,11 @@ export default class AltSocios extends Component {
     }
 
     handleEdit = e => {
-        const { name, value } = e.target,
+        const { name } = e.target,
             { socios } = this.state
+        let { value } = e.target
 
+        if (name === 'share') value = value.replace(',', '.')
         let editSocio = this.state.filteredSocios.filter(s => s.edit === true)[0]
         const index = this.state.filteredSocios.indexOf(editSocio)
 
@@ -249,18 +267,22 @@ export default class AltSocios extends Component {
                 message = `O CPF informado corresponde a um sócio já cadastrado. 
                 Para remover ou editar as informações dos sócios, utilize a respectiva opção abaixo.`
                 break;
-            /*        case 'overShared':
-                       dialogTitle = 'Participação societária inválida.'
-                       message = 'A participação societária informada excede a 100%.'
-                       break;
-                   case 'subShared':
-                       dialogTitle = 'Participação societária inválida.'
-                       message = 'A participação societária informada não soma 100%. Favor informar todos os sócios com suas respectivas participações.'
-                       break;
-                   case 'missingRequiredFields':
-                       dialogTitle = 'Campos de preenchimento obrigatório.'
-                       message = 'Favor preencher todos os campos do formulário.'
-                       break; */
+            case 'numberNotValid':
+                dialogTitle = 'Número inválido.'
+                message = 'O número digitado não é válido.'
+                break;
+            case 'overShared':
+                dialogTitle = 'Participação societária inválida.'
+                message = 'A participação societária informada excede a 100%.'
+                break;
+            case 'subShared':
+                dialogTitle = 'Participação societária inválida.'
+                message = 'A participação societária informada não soma 100%. Favor informar todos os sócios com suas respectivas participações.'
+                break;
+            /*    case 'missingRequiredFields':
+                  dialogTitle = 'Campos de preenchimento obrigatório.'
+                  message = 'Favor preencher todos os campos do formulário.'
+                  break; */
             default:
                 break;
         }

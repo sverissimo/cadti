@@ -27,15 +27,15 @@ app.use(bodyParser.json())
 
 app.use(function (req, res, next) { //allow cross origin requests
     res.setHeader("Access-Control-Allow-Methods", "POST, PUT, OPTIONS, DELETE, GET");
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
-    res.header("Access-Control-Allow-Credentials", true);
+    res.header("Access-Control-Allow-Origin", "*")
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization")
+    res.header("Access-Control-Allow-Credentials", true)
     next()
 })
 
 //app.use(bodyParser.json())
 
-app.use(bodyParser.json({ limit: '50mb' }));
+app.use(bodyParser.json({ limit: '50mb' }))
 app.use(bodyParser.urlencoded())
 app.use(express.static('client/build'))
 
@@ -51,12 +51,12 @@ let pool = new Pool({
 if (process.env.NODE_ENV === 'production') pool = new Pool({ connectionString: process.env.DATABASE_URL })
 
 const mongoURI = (process.env.MONGODB_URI || 'mongodb://localhost:27017/sismob_db')
-mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true, debug: true });
+mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true, debug: true })
 
 const conn = mongoose.connection
 let gfs
 
-conn.on('error', console.error.bind(console, 'connection error:'));
+conn.on('error', console.error.bind(console, 'connection error:'))
 conn.once('open', () => {
     gfs = Grid(conn.db);
     gfs.collection('vehicleDocs')

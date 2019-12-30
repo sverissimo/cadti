@@ -38,12 +38,13 @@ const useStyles = makeStyles(theme => ({
 export default function ({ tab, collection, showDetails, showFiles, handleEdit, del }) {
     const classes = useStyles(), { paper } = classes
 
-    const id = ['delegatarioId', 'socioId', 'procuradorId', 'veiculoId'][tab]
+    const id = ['delegatarioId', 'socioId', 'procuradorId', 'veiculoId'][tab],
+        subject = ['empresas', 'sócios', 'procuradores', 'veículos', 'seguros']
     return (
         <Grid item xs={12}>
             <Paper className={paper}>
                 <MaterialTable
-                    title=" Pesquisar dados de veículos"
+                    title={`Pesquisar dados de ${subject[tab]}`}
                     columns={tables[tab]}
                     data={collection}
                     options={{

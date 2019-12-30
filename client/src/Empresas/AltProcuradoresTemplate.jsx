@@ -76,6 +76,13 @@ const useStyles = makeStyles(theme => ({
         textAlign: 'center',
         fontSize: '1.1rem'
     },
+    selector: {
+        width: '380px',
+        fontSize: '0.8rem',
+        margin: '10px 0',
+        textAlign: 'center'
+
+    },
     textField: {
         marginLeft: theme.spacing(1),
         marginRight: theme.spacing(1),
@@ -156,7 +163,7 @@ export default function ({ handleInput, handleBlur, data, addProc, removeProc,
         procuradores } = data,
 
         classes = useStyles(), { paper, container, title, dropBox,
-            dropBoxItem, dropBoxItem2, addButton, paper2, containerList } = classes
+            dropBoxItem, dropBoxItem2, addButton, paper2, containerList, selector } = classes
 
     const errorHandler = (el) => {
 
@@ -194,16 +201,17 @@ export default function ({ handleInput, handleBlur, data, addProc, removeProc,
                 <Grid item xs={12}>
                     <Paper className={paper}>
                         <Grid item xs={12} style={{ marginBottom: '15px' }}>
-                            <Typography className={title}>  Gerenciar procurações - Selecione a Empresa</Typography>
+                            <Typography className={title}>  Gerenciar procurações</Typography>
                             <TextField
                                 inputProps={{
                                     list: 'razaoSocial',
                                     name: 'razaoSocial',
+                                    style: {fontSize: 15, textAlign: 'center'} 
                                 }}
-                                className={classes.textField}
+                                className={selector}
                                 value={razaoSocial}
-                                onChange={handleInput}
-                                onBlur={handleBlur}
+                                onChange={handleInput}                                
+                                placeholder= 'Selecione a empresa'
                             />
                             <AutoComplete
                                 collection={empresas}
@@ -213,7 +221,7 @@ export default function ({ handleInput, handleBlur, data, addProc, removeProc,
                         </Grid>
                     </Paper>
                 </Grid>
-                {true && <Paper className={paper2}>
+                {selectedEmpresa && <Paper className={paper2}>
                     <Typography className={title}> Cadastrar nova procuração </Typography>
                     <h4 style={{ fontWeight: 400, fontSize: '0.9em' }}> Se a procuração abranger mais de um procurador, clique em "+" para adicionar e anexe apenas 1 vez.</h4>
                     {procsToAdd.map((p, j) =>
@@ -332,7 +340,7 @@ export default function ({ handleInput, handleBlur, data, addProc, removeProc,
                 <Grid container direction="row" justify='flex-start' style={{ width: '1200px' }}>
                     <Grid item xs={9} style={{ width: '1000px' }}></Grid>
                     <Grid item xs={3} style={{ align: "right" }}>
-                        <Button
+                        {selectedEmpresa && <Button
                             className={addButton}
                             size='small'
                             color="secondary"
@@ -340,7 +348,7 @@ export default function ({ handleInput, handleBlur, data, addProc, removeProc,
                             onClick={addProc}
                         >
                             <AddIcon />Cadastrar procuração
-                        </Button>
+                        </Button>}
                     </Grid>
                 </Grid>
                 {selectedEmpresa && selectedDocs[0] && <h2 style={{ margin: '25px 0 0 15px' }}>Procurações cadastradas</h2>}
@@ -367,7 +375,7 @@ export default function ({ handleInput, handleBlur, data, addProc, removeProc,
                                         :
                                         'com vencimento em ' + handleDates(procuracao.vencimento)
                                 }</p>
-                                
+
                                 <Procurador procuradores={procuradores} procuracao={procuracao} />
 
                                 <div style={divContainer}>

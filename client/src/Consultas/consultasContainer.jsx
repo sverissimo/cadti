@@ -64,9 +64,8 @@ export default class extends Component {
         document.addEventListener('keydown', this.escFunction, false)
 
     }
-    componentWillUnmount() {
-        this.setState({})
-    }
+    
+    componentWillUnmount() { this.setState({}) }
 
     changeTab = async (e, value) => {
         await this.setState({ tab: value })
@@ -105,7 +104,7 @@ export default class extends Component {
                             if (procId === id) filesToReturn.push(f)
                         })
                     }
-                })                
+                })
                 selectedFiles = filesToReturn
                 break;
             case 3:
@@ -182,7 +181,7 @@ export default class extends Component {
                 />
             </PopUp>}
             {showFiles && <ShowFiles tab={tab} elementId={selectedElement} filesCollection={filesCollection}
-                close={this.closeFiles} format={format} typeId={typeId} empresas={empresas}/>}
+                close={this.closeFiles} format={format} typeId={typeId} empresas={empresas} />}
             <AlertDialog open={openDialog} close={this.toggleDialog} title={dialogTitle} message={message} />
         </Fragment>
     }

@@ -19,9 +19,8 @@ const parseRequestBody = (body) => {
 
             if (keys[0] && values[0]) parsedArray.push({ keys, values })
         })
-        console.log('******funk*******', parsedArray)
+        console.log('parsed keys and values:', parsedArray)
         return parsedArray
-
 
     } else {
         let values = []

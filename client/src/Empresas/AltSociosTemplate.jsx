@@ -25,6 +25,13 @@ const useStyles = makeStyles(theme => ({
         fontWeight: 500,
         textAlign: 'center'
     },
+    selector: {
+        width: '380px',
+        fontSize: '0.8rem',
+        margin: '10px 0',
+        textAlign: 'center'
+
+    },
     textField: {
         marginLeft: theme.spacing(1),
         marginRight: theme.spacing(1),
@@ -97,7 +104,7 @@ export default function AltSociosTemplate({ data, removeSocio, handleBlur, handl
 
     const { dropDisplay, razaoSocial, empresas, filteredSocios, form, selectedEmpresa } = data,
         classes = useStyles(), { paper, container, title, iconButton, dropBox,
-            dropBoxItem, dropBoxItem2, list, addButton } = classes
+            dropBoxItem, dropBoxItem2, list, addButton, selector } = classes
 
     const errorHandler = (el) => {
 
@@ -134,11 +141,12 @@ export default function AltSociosTemplate({ data, removeSocio, handleBlur, handl
                             inputProps={{
                                 list: 'razaoSocial',
                                 name: 'razaoSocial',
+                                style: { fontSize: 15, textAlign: 'center' }
                             }}
-                            className={classes.textField}
+                            className={selector}
                             value={razaoSocial}
                             onChange={handleInput}
-                            onBlur={handleBlur}
+                            placeholder='Selecione a empresa'
                         />
                         <AutoComplete
                             collection={empresas}
@@ -174,7 +182,7 @@ export default function AltSociosTemplate({ data, removeSocio, handleBlur, handl
                                             style: { fontSize: '0.7rem', color: '#455a64', marginBottom: '5%' }
                                         }}
                                         inputProps={{
-                                            style: { background: el.disabled && data.disable ? '#fff' : '#fafafa',  height: '7px' },
+                                            style: { background: el.disabled && data.disable ? '#fff' : '#fafafa', height: '7px' },
                                             value: `${data[el.field] || ''}`,
                                             list: el.datalist || '',
                                             maxLength: el.maxLength || '',
@@ -201,7 +209,7 @@ export default function AltSociosTemplate({ data, removeSocio, handleBlur, handl
                 <Grid item xs={12}>
                     <Paper className={paper}>
                         Nenhum sócio cadastrado para {selectedEmpresa[0].razaoSocial}
-                        </Paper>
+                    </Paper>
 
                 </Grid>
             }
@@ -226,7 +234,7 @@ export default function AltSociosTemplate({ data, removeSocio, handleBlur, handl
                                                 disabled={e.field === 'cpfSocio' ? true : s.edit ? false : true}
                                                 onChange={handleEdit}
                                                 InputLabelProps={{ shrink: true, style: { fontWeight: 600 } }}
-                                                inputProps={{style: {fontSize : '0.8rem'}}}
+                                                inputProps={{ style: { fontSize: '0.8rem' } }}
                                             />
                                         </Fragment>
                                     )}

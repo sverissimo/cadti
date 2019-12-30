@@ -43,7 +43,6 @@ export default class AltProcuradores extends Component {
         procDisplay: 'Clique ou arraste para anexar a procuração referente a este(s) procurador(es).',
         showFiles: false,
         procuradores: [],
-        procFiles: new FormData(),
         procsToAdd: [1],
         procuracoesArray: [],
         selectedDocs: []
@@ -81,9 +80,9 @@ export default class AltProcuradores extends Component {
         this.setState({ ...this.state, [name]: value })
 
         if (name === 'razaoSocial' && Array.isArray(procuradores)) {
-            
+
             procuracoes = procuracoes.filter(pr => pr.razaoSocial === value)
-            
+
             if (procuracoes[0]) procuracoes.forEach(pr => {
                 pr.procuradores.forEach(id => {
                     const pro = procuradores.find(p => p.procuradorId === id)
@@ -164,7 +163,7 @@ export default class AltProcuradores extends Component {
             gotId = procuradores.filter(p => p.cpfProcurador === fp.cpfProcurador)
             if (gotId.length > 0 && gotId[0].hasOwnProperty('procuradorId')) {
                 procIdArray.push(gotId[0].procuradorId)
-            } else {
+            } else {                
                 newMembers.push(fp)
             }
         })
@@ -206,13 +205,13 @@ export default class AltProcuradores extends Component {
             for (let pair of procFiles.entries()) {
                 contratoFile.append(pair[0], pair[1])
             }
+            await axios.post('/api/empresaUpload', contratoFile)
+                .then(r => console.log('uploaded'))
+
+            await axios.get(`/api/getOneFile?collection=empresaDocs&id=${procuracaoId}`)
+                .then(r => { if (r.data[0]) files.push(r.data[0]) })
         }
 
-        await axios.post('/api/empresaUpload', contratoFile)
-            .then(r => console.log('uploaded'))
-
-        await axios.get(`/api/getOneFile?collection=empresaDocs&id=${procuracaoId}`)
-            .then(r => { if (r.data[0]) files.push(r.data[0]) })
 
         selectedDocs.reverse()
         selectedDocs.push(novaProcuracao)
@@ -277,8 +276,8 @@ export default class AltProcuradores extends Component {
     }
 
     handleFiles = (file) => {
-        let procFiles = this.state.procFiles
-        procFiles.append(this.state.cpfProcurador, file[0])
+        let procFiles = new FormData()
+        procFiles.append('procFile', file[0])
         this.setState({ procFiles, procDisplay: file[0].name })
     }
 
@@ -343,7 +342,7 @@ export default class AltProcuradores extends Component {
         this.setState({ openDialog: true, dialogTitle, message })
     }
 
-    toggleDialog = () => this.setState({ openDialog: !this.state.openDialog })        
+    toggleDialog = () => this.setState({ openDialog: !this.state.openDialog })
     toast = () => this.setState({ confirmToast: !this.state.confirmToast })
 
     render() {

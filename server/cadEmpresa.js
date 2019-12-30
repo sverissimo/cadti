@@ -5,11 +5,13 @@ const cadEmpresa = (req, res, next) => {
     const { empresa } = req.body,
         { keys, values } = parseRequestBody(empresa)
 
+    console.log(`INSERT INTO public.delegatario(${keys}) VALUES(${values}) RETURNING delegatario_id`)
+
     pool.query(`INSERT INTO public.delegatario(${keys}) VALUES(${values}) RETURNING delegatario_id `, (err, table) => {
         if (err) res.send(err)
         if (table && table.rows && table.rows.length === 0) { res.send('Nenhuma empresa cadastrada.'); return }
-        if (table.rows.length > 0) {
-            if (table.rows[0].hasOwnProperty('delegatario_id')) {
+        if (table.hasOwnProperty('rows') && table.rows.length > 0) {
+            if (table && table.rows[0].hasOwnProperty('delegatario_id')) {
 
                 req.body.socios.forEach(obj => {
                     Object.assign(obj, { delegatario_id: table.rows[0].delegatario_id })
