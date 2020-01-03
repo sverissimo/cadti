@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import axios from 'axios'
+
 import humps from 'humps'
 import ReactToast from '../Utils/ReactToast'
 
@@ -9,6 +10,10 @@ import { sociosForm } from '../Forms/sociosForm'
 import AlertDialog from '../Utils/AlertDialog'
 
 //import AlertDialog from '../Utils/AlertDialog'
+
+const socketIO = require('socket.io-client')
+let socket
+
 
 export default class AltSocios extends Component {
 
@@ -26,7 +31,7 @@ export default class AltSocios extends Component {
         filteredSocios: [],
         dropDisplay: 'Clique ou arraste para anexar o contrato social atualizado da empresa',
         showFiles: false,
-        selectedEmpresa: []
+        selectedEmpresa: [], socios: []
     }
 
     componentDidMount() {
@@ -38,13 +43,26 @@ export default class AltSocios extends Component {
             .then(([empresas, socios]) => {
                 this.setState({ empresas, socios, form: sociosForm, originalSocios: humps.decamelizeKeys(socios) });
             })
+
+        if (!socket) {
+            socket = socketIO(':3001')
+        }
+
+        socket.on('addSocio', async newSocio => {
+            let socios = [...this.state.socios],
+                filteredSocios = [...this.state.filteredSocios]
+            socios.push(newSocio)
+            filteredSocios.push(newSocio)
+            
+            await this.setState({ socios, filteredSocios })            
+        })
     }
 
 
     componentWillUnmount() { this.setState({}) }
 
     handleInput = async e => {
-
+        socket.emit(('incoming data', 'yeah'))
         const { name } = e.target
         let { value } = e.target
 
@@ -101,18 +119,16 @@ export default class AltSocios extends Component {
         }
     }
 
-    addSocio = async () => {
-        let socios = this.state.filteredSocios,
-            form = sociosForm,
+    addSocio = async () => {        
+            let form = sociosForm,
             sObject = {}
 
         form.forEach(obj => {
             Object.assign(sObject, { [obj.field]: this.state[obj.field] })
         })
-        socios.push(sObject)
-
-        await this.setState({ filteredSocios: socios })
-
+        
+        axios.post('/api/io', sObject)
+        
         sociosForm.forEach(obj => {
             this.setState({ [obj.field]: '' })
         })

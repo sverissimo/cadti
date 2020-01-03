@@ -1,5 +1,8 @@
 const express = require('express')
 const app = express()
+const server = require('http').createServer(app)
+//http.listen(3002); // not 'app.listen'!
+const io = require('socket.io').listen(server);
 const bodyParser = require('body-parser')
 const pg = require('pg')
 const path = require('path')
@@ -250,7 +253,15 @@ app.get('/api/veiculosInit', (req, res) => {
     })
 })
 
+
+app.post('/api/io', (req, res) => {
+    io.sockets.emit('addSocio', req.body)
+    console.log(req.body)    
+    res.status(200).send('updated')
+})
+
 app.get('/api/socios', (req, res) => {
+
     pool.query(
         `SELECT public.socios.*, public.delegatario.razao_social
          FROM public.socios 
@@ -670,6 +681,6 @@ if (process.env.NODE_ENV === 'production') {
     })
 }
 
-app.listen(process.env.PORT || 3001, () => {
+server.listen(process.env.PORT || 3001, () => {
     console.log('Running...')
 })

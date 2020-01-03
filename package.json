@@ -13,16 +13,16 @@
   "author": "Sandro Veríssimo",
   "license": "ISC",
   "dependencies": {
-    "concurrently": "^4.1.2",
-    "dotenv": "^8.0.0",
-    "downshift": "^3.2.12",
+    "concurrently": "^5.0.2",
+    "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "formidable": "^1.2.1",
     "gridfs-stream": "^1.1.1",
-    "mongoose": "^5.7.5",
+    "mongoose": "^5.8.3",
     "multer": "^1.4.2",
-    "multer-gridfs-storage": "^3.3.0",
-    "nodemon": "^1.19.1",
-    "pg": "^7.12.0"
+    "multer-gridfs-storage": "^4.0.1",
+    "nodemon": "^2.0.2",
+    "pg": "^7.17.0",
+    "socket.io": "^2.3.0"
   }
 }
