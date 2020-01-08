@@ -1,6 +1,11 @@
 import React, { Component, Fragment } from 'react'
 import axios from 'axios'
 import humps from 'humps'
+
+import { bindActionCreators } from 'redux'
+import { connect } from 'react-redux'
+import { veiculosInit } from '../Redux/getDataActions'
+
 import ConsultasTemplate from './consultasTemplate'
 import { TabMenu } from '../Layouts'
 
@@ -15,7 +20,7 @@ const format = {
     right: '10%'
 }
 
-export default class extends Component {
+class ConsultasContainer extends Component {
 
     constructor() {
         super()
@@ -44,11 +49,17 @@ export default class extends Component {
     }
 
     async componentDidMount() {
-        const vehicles = axios.get('/api/veiculosInit'),
-            insurances = axios.get('/api/seguros'),
-            delega = axios.get('/api/empresas'),
-            soc = axios.get('/api/socios'),
-            proc = axios.get('/api/proc')
+        const collections = ['veiculos', 'empresas', 'socios', 'procuradores', 'seguros'],
+            { redux } = this.props
+
+        let request = []
+
+        collections.forEach(c => {
+            if (!redux[c] || !redux[c][0]) request.push(c)
+        })
+
+        await this.props.veiculosInit(request)
+        await this.setState({ ...this.props.redux, collection: this.props.redux['empresas'] })
 
         axios.get('/api/getFiles/vehicle')
             .then(res => this.setState({ vehicleFiles: res.data }))
@@ -56,15 +67,22 @@ export default class extends Component {
         axios.get('/api/getFiles/empresa')
             .then(res => this.setState({ empresaFiles: res.data }))
 
+        /* const vehicles = axios.get('/api/veiculos'),
+            insurances = axios.get('/api/seguros'),
+            delega = axios.get('/api/empresas'),
+            soc = axios.get('/api/socios'),
+            proc = axios.get('/api/proc')
+
+     
         Promise.all([vehicles, insurances, delega, soc, proc])
             .then(res => res.map(r => humps.camelizeKeys(r.data)))
             .then(([veiculos, seguros, empresas, socios, procuradores]) => {
                 this.setState({ veiculos, seguros, empresas, socios, procuradores, collection: empresas })
-            })
-        document.addEventListener('keydown', this.escFunction, false)
+            }) */
 
+        document.addEventListener('keydown', this.escFunction, false)
     }
-    
+
     componentWillUnmount() { this.setState({}) }
 
     changeTab = async (e, value) => {
@@ -186,3 +204,15 @@ export default class extends Component {
         </Fragment>
     }
 }
+
+function mapStateToProps(state) {
+    return {
+        redux: state.data
+    }
+}
+
+function mapDispatchToProps(dispatch) {
+    return bindActionCreators({ veiculosInit }, dispatch)
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(ConsultasContainer)

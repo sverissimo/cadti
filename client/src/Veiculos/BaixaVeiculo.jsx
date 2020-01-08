@@ -1,6 +1,11 @@
 import React, { Component, Fragment } from 'react'
 import axios from 'axios'
 import humps from 'humps'
+
+import { bindActionCreators } from 'redux'
+import { connect } from 'react-redux'
+import { veiculosInit } from '../Redux/getDataActions'
+
 import Grid from '@material-ui/core/Grid'
 import TextField from '@material-ui/core/TextField'
 import '../Layouts/stylez.css'
@@ -18,7 +23,7 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormControl from '@material-ui/core/FormControl';
 import FormLabel from '@material-ui/core/FormLabel';
 
-export default class extends Component {
+class BaixaVeiculo extends Component {
 
     state = {
         tab: 3,
@@ -39,16 +44,18 @@ export default class extends Component {
 
 
     async componentDidMount() {
-        const veiculos = axios.get('/api/veiculosInit')
-        const empresas = axios.get('/api/empresas')
+        const collections = ['veiculos', 'empresas'],
+            { redux } = this.props
+        let request = []
 
-        await Promise.all([veiculos, empresas])
-            .then(res => res.map(r => humps.camelizeKeys(r.data)))
-            .then(([veiculos, empresas]) => {
-                this.setState({
-                    veiculos, empresas
-                })
-            })
+        collections.forEach(c => {
+
+            if (!redux[c] || !redux[c][0]) {
+                request.push(c)
+            }
+        })
+        await this.props.veiculosInit(request)
+        this.setState({ ...this.props.redux })
     };
 
     componentWillUnmount() { this.setState({}) }
@@ -317,3 +324,16 @@ export default class extends Component {
         </Fragment >
     }
 }
+
+
+function mapStateToProps(state) {
+    return {
+        redux: state.data
+    }
+}
+
+function mapDispatchToProps(dispatch) {
+    return bindActionCreators({ veiculosInit }, dispatch)
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(BaixaVeiculo)

@@ -1,5 +1,14 @@
 import React from 'react';
 import { BrowserRouter } from 'react-router-dom'
+
+import { createStore, applyMiddleware } from 'redux';
+import { Provider } from 'react-redux';
+import promise from 'redux-promise';
+import multi from 'redux-multi';
+import thunk from 'redux-thunk';
+import rootReducer from './rootReducer'
+
+
 import { makeStyles } from '@material-ui/core'
 import { Header, Footer } from './Layouts'
 import { Container } from '@material-ui/core';
@@ -19,17 +28,19 @@ function App() {
   }))
 
   const { root } = useStyles()
+  const store = applyMiddleware(promise, multi, thunk)(createStore)
   return (
-    <div className={root}>
-
-      <Container maxWidth="lg">
-        <BrowserRouter>
-          <Header />
-          <Routes />
-        </BrowserRouter>
-        <Footer />
-      </Container>
-    </div>
+    <Provider store={store(rootReducer)}>
+      <div className={root}>
+        <Container maxWidth="lg">
+          <BrowserRouter>
+            <Header />
+            <Routes />
+          </BrowserRouter>
+          <Footer />
+        </Container>
+      </div>
+    </Provider>
   )
 }
 

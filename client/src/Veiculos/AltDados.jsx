@@ -1,6 +1,11 @@
 import React, { Component, Fragment } from 'react'
 import axios from 'axios'
 import humps from 'humps'
+
+import { bindActionCreators } from 'redux'
+import { connect } from 'react-redux'
+import { veiculosInit } from '../Redux/getDataActions'
+
 import Grid from '@material-ui/core/Grid'
 import TextField from '@material-ui/core/TextField'
 import ReactToast from '../Utils/ReactToast'
@@ -14,7 +19,9 @@ import StepperButtons from '../Utils/StepperButtons'
 import CustomStepper from '../Utils/Stepper'
 import FormDialog from '../Utils/FormDialog'
 
-export default class extends Component {
+
+
+class AltDados extends Component {
 
     state = {
         tab: 2,
@@ -42,7 +49,23 @@ export default class extends Component {
     }
 
     async componentDidMount() {
-        const veiculos = axios.get('/api/veiculosInit')
+
+        const collections = ['veiculos', 'empresas'],
+            { redux } = this.props
+        let request = []
+
+        collections.forEach(c => {
+
+            if (!redux[c] || !redux[c][0]) {
+                request.push(c)
+            }
+        })
+        await this.props.veiculosInit(request)
+        this.setState({ ...this.props.redux })
+
+
+        /* 
+        const veiculos = axios.get('/api/veiculos')
         const empresas = axios.get('/api/empresas')
 
         await Promise.all([veiculos, empresas])
@@ -51,7 +74,8 @@ export default class extends Component {
                 this.setState({
                     veiculos, empresas
                 })
-            })        
+            })
+ */
     }
 
     componentWillUnmount() { this.setState({}) }
@@ -70,7 +94,7 @@ export default class extends Component {
             if (typeof newPlate === 'string') {
                 newPlate = newPlate.replace(/[a-z]/g, l => l.toUpperCase())
                 if (newPlate.match('[A-Z]{3}[0-9]{1}[A-Z]{1}[0-9]{2}')) newPlate = newPlate.replace(/(\w{3})/, '$1-')
-                this.setState({ ...this.state, newPlate})
+                this.setState({ ...this.state, newPlate })
             }
         } else this.setState({ [name]: value })
 
@@ -293,3 +317,15 @@ export default class extends Component {
         </Fragment>
     }
 }
+
+function mapStateToProps(state) {
+    return {
+        redux: state.data
+    }
+}
+
+function mapDispatchToProps(dispatch) {
+    return bindActionCreators({ veiculosInit }, dispatch)
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(AltDados)

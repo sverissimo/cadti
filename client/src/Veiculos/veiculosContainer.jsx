@@ -3,6 +3,10 @@ import axios from 'axios'
 import humps from 'humps'
 import ReactToast from '../Utils/ReactToast'
 
+import { bindActionCreators } from 'redux'
+import { connect } from 'react-redux'
+import { veiculosInit } from '../Redux/getDataActions'
+
 import VeiculosTemplate from './VeiculosTemplate'
 import VehicleDocs from './VehicleDocs'
 import Review from './Review'
@@ -20,7 +24,7 @@ import { cadForm } from '../Forms/cadForm'
 
 import AlertDialog from '../Utils/AlertDialog'
 
-export default class extends Component {
+class veiculosContainer extends Component {
 
     constructor() {
         super()
@@ -32,9 +36,9 @@ export default class extends Component {
     }
 
     state = {
-        tab: 0,
+        tab: 2,
         items: ['Cadastro de Veículo', 'Atualização de Seguro',
-            'Alteração de dados', 'Baixa de Veículo'],        
+            'Alteração de dados', 'Baixa de Veículo'],
         steps: ['Dados do Veículo', 'Dados do seguro', 'Vistoria e laudos', 'Documentos', 'Revisão'],
         subtitle: ['Informe os dados do Veículo', 'Informe os dados do Seguro',
             'Preencha os campos abaixo', 'Informe os dados para a baixa'],
@@ -58,9 +62,27 @@ export default class extends Component {
     }
 
     async componentDidMount() {
-        const modelosChassi = axios.get('/api/modeloChassi')
+
+
+        const collections = ['veiculos', 'empresas', 'modelosChassi', 'carrocerias',
+            'seguradoras', 'seguros', 'equipamentos'],
+            { redux } = this.props
+
+        let request = []
+
+        collections.forEach(c => {
+
+            if (!redux[c] || !redux[c][0]) {
+                request.push(c)
+            }
+        })
+        await this.props.veiculosInit(request)
+        this.setState({ ...this.props.redux, allInsurances: this.props.redux['seguros'] })
+
+/* 
+        const modelosChassi = axios.get('/api/modelosChassi')
         const carrocerias = axios.get('/api/carrocerias')
-        const veiculos = axios.get('/api/veiculosInit')
+        const veiculos = axios.get('/api/veiculos')
         const empresas = axios.get('/api/empresas')
         const seguradoras = axios.get('/api/seguradoras')
         const seguros = axios.get('/api/seguros')
@@ -74,11 +96,12 @@ export default class extends Component {
                     seguros, allInsurances: seguros
                 })
             })
-
+ */
         let obj = {}
         this.state.equipamentos.forEach(e => Object.assign(obj, { [e.item]: false }))
         this.setState(obj)
         document.addEventListener('keydown', this.escFunction, false)
+
     }
     componentWillUnmount() { this.setState({}) }
 
@@ -196,7 +219,7 @@ export default class extends Component {
                 if (this.state.delegatarioId) {
                     const f = veiculos.filter(v => v.delegatarioId === this.state.delegatarioId)
                     const filteredInsurances = allInsurances.filter(s => s.delegatarioId === this.state.delegatarioId)
-                    this.setState({ frota: f, seguros: filteredInsurances })
+                    this.setState({ frota: f, seguros: filteredInsurances })                    
                 }
                 break;
 
@@ -274,7 +297,6 @@ export default class extends Component {
 
         let formData = this.state.form,
             newForm = new FormData()
-        //formData.append('veiculoId', '4358')
 
         let { dataEmissao, vencimento, delegatarioCompartilhado,
             modeloChassi, modeloCarroceria, seguradora, ...vReview } = review
@@ -591,7 +613,7 @@ export default class extends Component {
                 changeTab={this.changeTab} />
             {tab === 0 && <CustomStepper
                 activeStep={activeStep}
-                steps={steps}                
+                steps={steps}
                 setActiveStep={this.setActiveStep}
             />}
             {tab < 2 && activeStep < 3 ? <VeiculosTemplate
@@ -643,4 +665,17 @@ export default class extends Component {
 
         </Fragment>
     }
+
 }
+
+function mapStateToProps(state) {
+    return {
+        redux: state.data
+    }
+}
+
+function mapDispatchToProps(dispatch) {
+    return bindActionCreators({ veiculosInit }, dispatch)
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(veiculosContainer)
