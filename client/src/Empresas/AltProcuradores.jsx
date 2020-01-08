@@ -50,7 +50,7 @@ export default class AltProcuradores extends Component {
 
     componentDidMount() {
         const empresas = axios.get('/api/empresas'),
-            procuradores = axios.get('/api/proc'),
+            procuradores = axios.get('/api/procuradores'),
             procuracoes = axios.get('/api/procuracoes')
 
         Promise.all([empresas, procuradores, procuracoes])
@@ -59,7 +59,7 @@ export default class AltProcuradores extends Component {
                 this.setState({ empresas, procuradores, procuracoes, originalProc: humps.decamelizeKeys(procuradores) });
             })
 
-        axios.get('/api/getFiles/empresa?fieldName=procuracao')
+        axios.get('/api/getFiles/empresaDocs?fieldName=procuracao')
             .then(r => this.setState({ files: r.data }))
 
         document.addEventListener('keydown', this.escFunction, false)
@@ -174,7 +174,7 @@ export default class AltProcuradores extends Component {
                 .then(procs => {
                     procs.data.forEach(p => procIdArray.push(p.procurador_id))
                 })
-            await axios.get('/api/proc')
+            await axios.get('/api/procuradores')
                 .then(res => {
                     const procuradores = humps.camelizeKeys(res.data)
                     this.setState({ procuradores })

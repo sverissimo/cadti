@@ -1,11 +1,11 @@
 const initState = {
     veiculos: [],
     modelosChassi: [],
-    carrocerias: [],    
+    carrocerias: [],
     empresas: [],
     seguradoras: [],
     seguros: [],
-    equipamentos: [],    
+    equipamentos: [],
     search: '',
     setColor: '',
     loading: false
@@ -14,27 +14,29 @@ const initState = {
 const getDataReducer = (state = initState, action) => {
     const { payload } = action
     switch (action.type) {
-        case 'VEHICLE_FULL_DATA':
+
+        case 'GET_DATA':
             return { ...state, ...payload }
 
-        case 'VEICULOS_INIT':
-            return { ...state, ...payload }
+        case 'UPDATE_VEHICLE':
 
+            let veiculos = [...state.veiculos]
+            const updatedFields = action.payload
+
+            let vehicleToUpdate = veiculos.find(v => v.veiculoId === action.payload.id)
+            const index = veiculos.indexOf(vehicleToUpdate)
+
+            Object.keys(updatedFields).forEach(k => {
+                vehicleToUpdate[k] = updatedFields[k]
+            })
+            const updatedVehicle = vehicleToUpdate
+            console.log(index, updatedVehicle)
+            veiculos[index] = updatedVehicle
+
+            return { ...state, veiculos }
 
         case 'LOAD_EMP_DATA':
             return { ...state, empCollection: action.payload }
-
-        case 'LOAD_RT_DATA':
-            return { ...state, rtCollection: action.payload }
-
-        case 'LOAD_PROCESS_DATA':
-            return { ...state, processCollection: action.payload }
-
-        case 'LOAD_FILES_DATA':
-            return { ...state, filesCollection: action.payload }
-
-        case 'LOAD_TECNICOS':
-            return { ...state, tecCollection: action.payload }
 
         case 'SET_COLOR':
             return { ...state, setColor: action.payload }

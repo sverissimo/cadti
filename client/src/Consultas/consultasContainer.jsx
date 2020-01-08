@@ -4,7 +4,8 @@ import humps from 'humps'
 
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { veiculosInit } from '../Redux/getDataActions'
+import { getData } from '../Redux/getDataActions'
+import { updateData } from '../Redux/updateDataActions'
 
 import ConsultasTemplate from './consultasTemplate'
 import { TabMenu } from '../Layouts'
@@ -13,6 +14,11 @@ import PopUp from '../Utils/PopUp'
 import VehicleDetails from '../Veiculos/VehicleDetails'
 import ShowFiles from '../Utils/ShowFiles'
 import AlertDialog from '../Utils/AlertDialog'
+
+const socketIO = require('socket.io-client')
+let socket
+
+
 
 const format = {
     top: '5%',
@@ -45,42 +51,33 @@ class ConsultasContainer extends Component {
         openDialog: false,
         filesCollection: [],
         elementDetails: '',
-        vehicleFiles: []
+        vehicleDocs: []
     }
 
     async componentDidMount() {
-        const collections = ['veiculos', 'empresas', 'socios', 'procuradores', 'seguros'],
+        const collections = ['veiculos', 'empresas', 'socios', 'procuradores', 'seguros', 'getFiles/vehicleDocs', 'getFiles/empresaDocs'],
             { redux } = this.props
 
         let request = []
 
-        collections.forEach(c => {
-            if (!redux[c] || !redux[c][0]) request.push(c)
+        collections.forEach(req => {
+            const colName = req.replace('getFiles/', '')
+            if (!redux[colName] || !redux[colName][0]) request.push(req)
         })
 
-        await this.props.veiculosInit(request)
+        await this.props.getData(request)
         await this.setState({ ...this.props.redux, collection: this.props.redux['empresas'] })
 
-        axios.get('/api/getFiles/vehicle')
-            .then(res => this.setState({ vehicleFiles: res.data }))
-
-        axios.get('/api/getFiles/empresa')
-            .then(res => this.setState({ empresaFiles: res.data }))
-
-        /* const vehicles = axios.get('/api/veiculos'),
-            insurances = axios.get('/api/seguros'),
-            delega = axios.get('/api/empresas'),
-            soc = axios.get('/api/socios'),
-            proc = axios.get('/api/proc')
-
-     
-        Promise.all([vehicles, insurances, delega, soc, proc])
-            .then(res => res.map(r => humps.camelizeKeys(r.data)))
-            .then(([veiculos, seguros, empresas, socios, procuradores]) => {
-                this.setState({ veiculos, seguros, empresas, socios, procuradores, collection: empresas })
-            }) */
-
         document.addEventListener('keydown', this.escFunction, false)
+
+        if (!socket) {
+            socket = socketIO(':3001')
+        }
+
+        socket.on('updateVehicle', async updatedVehicle => {            
+            await this.props.updateData(humps.camelizeKeys(updatedVehicle))            
+            this.setState({veiculos: this.props.redux.veiculos})
+        })
     }
 
     componentWillUnmount() { this.setState({}) }
@@ -108,7 +105,7 @@ class ConsultasContainer extends Component {
 
     showFiles = id => {
         const { tab } = this.state
-        let selectedFiles = this.state.empresaFiles.filter(f => f.metadata.empresaId === id.toString())
+        let selectedFiles = this.state.empresaDocs.filter(f => f.metadata.empresaId === id.toString())
         let typeId = 'empresaId'
 
         switch (tab) {
@@ -116,7 +113,7 @@ class ConsultasContainer extends Component {
                 typeId = 'procuracaoId'
                 let filesToReturn = []
 
-                this.state.empresaFiles.forEach(f => {
+                this.state.empresaDocs.forEach(f => {
                     if (f.metadata.fieldName === 'procuracao') {
                         f.metadata.procuradores.forEach(procId => {
                             if (procId === id) filesToReturn.push(f)
@@ -127,7 +124,7 @@ class ConsultasContainer extends Component {
                 break;
             case 3:
                 typeId = 'veiculoId'
-                selectedFiles = this.state.vehicleFiles.filter(f => f.metadata.veiculoId === id.toString())
+                selectedFiles = this.state.vehicleDocs.filter(f => f.metadata.veiculoId === id.toString())
                 break;
             default: void 0
         }
@@ -212,7 +209,7 @@ function mapStateToProps(state) {
 }
 
 function mapDispatchToProps(dispatch) {
-    return bindActionCreators({ veiculosInit }, dispatch)
+    return bindActionCreators({ getData, updateData }, dispatch)
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(ConsultasContainer)

@@ -5,7 +5,7 @@ import ReactToast from '../Utils/ReactToast'
 
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { veiculosInit } from '../Redux/getDataActions'
+import { getData } from '../Redux/getDataActions'
 
 import VeiculosTemplate from './VeiculosTemplate'
 import VehicleDocs from './VehicleDocs'
@@ -63,7 +63,6 @@ class veiculosContainer extends Component {
 
     async componentDidMount() {
 
-
         const collections = ['veiculos', 'empresas', 'modelosChassi', 'carrocerias',
             'seguradoras', 'seguros', 'equipamentos'],
             { redux } = this.props
@@ -71,32 +70,13 @@ class veiculosContainer extends Component {
         let request = []
 
         collections.forEach(c => {
-
             if (!redux[c] || !redux[c][0]) {
                 request.push(c)
             }
         })
-        await this.props.veiculosInit(request)
+        await this.props.getData(request)
         this.setState({ ...this.props.redux, allInsurances: this.props.redux['seguros'] })
 
-/* 
-        const modelosChassi = axios.get('/api/modelosChassi')
-        const carrocerias = axios.get('/api/carrocerias')
-        const veiculos = axios.get('/api/veiculos')
-        const empresas = axios.get('/api/empresas')
-        const seguradoras = axios.get('/api/seguradoras')
-        const seguros = axios.get('/api/seguros')
-        const equipamentos = axios.get('/api/equipa')
-
-        await Promise.all([modelosChassi, carrocerias, veiculos, empresas, seguradoras, seguros, equipamentos])
-            .then(res => res.map(r => humps.camelizeKeys(r.data)))
-            .then(([modelosChassi, carrocerias, veiculos, empresas, seguradoras, seguros, equipamentos]) => {
-                this.setState({
-                    modelosChassi, carrocerias, veiculos, empresas, seguradoras, equipamentos,
-                    seguros, allInsurances: seguros
-                })
-            })
- */
         let obj = {}
         this.state.equipamentos.forEach(e => Object.assign(obj, { [e.item]: false }))
         this.setState(obj)
@@ -675,7 +655,7 @@ function mapStateToProps(state) {
 }
 
 function mapDispatchToProps(dispatch) {
-    return bindActionCreators({ veiculosInit }, dispatch)
+    return bindActionCreators({ getData }, dispatch)
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(veiculosContainer)

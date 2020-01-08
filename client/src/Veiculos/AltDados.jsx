@@ -4,7 +4,8 @@ import humps from 'humps'
 
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { veiculosInit } from '../Redux/getDataActions'
+import { getData } from '../Redux/getDataActions'
+import { updateData } from '../Redux/updateDataActions'
 
 import Grid from '@material-ui/core/Grid'
 import TextField from '@material-ui/core/TextField'
@@ -19,6 +20,8 @@ import StepperButtons from '../Utils/StepperButtons'
 import CustomStepper from '../Utils/Stepper'
 import FormDialog from '../Utils/FormDialog'
 
+const socketIO = require('socket.io-client')
+let socket
 
 
 class AltDados extends Component {
@@ -60,22 +63,16 @@ class AltDados extends Component {
                 request.push(c)
             }
         })
-        await this.props.veiculosInit(request)
+        await this.props.getData(request)
         this.setState({ ...this.props.redux })
 
+        if (!socket) {
+            socket = socketIO(':3001')
+        }
 
-        /* 
-        const veiculos = axios.get('/api/veiculos')
-        const empresas = axios.get('/api/empresas')
-
-        await Promise.all([veiculos, empresas])
-            .then(res => res.map(r => humps.camelizeKeys(r.data)))
-            .then(([veiculos, empresas]) => {
-                this.setState({
-                    veiculos, empresas
-                })
-            })
- */
+        socket.on('updateVehicle', async updatedVehicle => {            
+            await this.props.updateData(humps.camelizeKeys(updatedVehicle))
+        })
     }
 
     componentWillUnmount() { this.setState({}) }
@@ -159,6 +156,24 @@ class AltDados extends Component {
         }
     }
 
+    showAltPlaca = () => {
+        const title = 'Alteração de placa',
+            message = 'Para alterar a placa para o novo padrão Mercosul, informe a nova placa no campo abaixo.'
+        this.setState({ altPlaca: true, title, message })
+    }
+
+    updatePlate = async () => {
+
+        const table = 'veiculo',
+            tablePK = 'veiculo_id',
+            requestObject = { placa: this.state.newPlate }
+
+        await axios.put('/api/updateVehicle', { requestObject, table, tablePK, id: this.state.veiculoId })
+        await this.submitFiles()
+        this.toggleDialog()
+        this.toast()
+    }
+
     handleEdit = async e => {
         const { poltronas, pesoDianteiro, pesoTraseiro, delegatarioId, delegatarioCompartilhado } = this.state
 
@@ -168,7 +183,7 @@ class AltDados extends Component {
             form.forEach(obj => {
                 for (let k in this.state) {
                     if (k === obj.field && !obj.disabled) {
-                        Object.assign(tempObj, { [k]: this.state[k] })
+                        if(this.state[k]) Object.assign(tempObj, { [k]: this.state[k] })
                     }
                 }
             })
@@ -190,9 +205,8 @@ class AltDados extends Component {
         this.toast()
     }
 
-    toast = e => {
-        this.setState({ confirmToast: !this.state.confirmToast })
-    }
+
+
 
     handleFiles = async e => {
         const { name, files } = e.target
@@ -233,27 +247,9 @@ class AltDados extends Component {
             .catch(err => console.log(err))
     }
 
-    toggleDialog = () => {
-        this.setState({ altPlaca: !this.state.altPlaca })
-    }
 
-    showAltPlaca = () => {
-        const title = 'Alteração de placa',
-            message = 'Para alterar a placa para o novo padrão Mercosul, informe a nova placa no campo abaixo.'
-        this.setState({ altPlaca: true, title, message })
-    }
-
-    updatePlate = async () => {
-
-        const table = 'veiculo',
-            tablePK = 'veiculo_id',
-            requestObject = { placa: this.state.newPlate }
-
-        await axios.put('/api/updateVehicle', { requestObject, table, tablePK, id: this.state.veiculoId })
-        await this.submitFiles()
-        this.toggleDialog()
-        this.toast()
-    }
+    toggleDialog = () => this.setState({ altPlaca: !this.state.altPlaca })
+    toast = e => this.setState({ confirmToast: !this.state.confirmToast })
 
     render() {
         const { confirmToast, toastMsg, activeStep, steps, stepTitles, tab, altPlaca } = this.state
@@ -325,7 +321,7 @@ function mapStateToProps(state) {
 }
 
 function mapDispatchToProps(dispatch) {
-    return bindActionCreators({ veiculosInit }, dispatch)
+    return bindActionCreators({ getData, updateData }, dispatch)
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(AltDados)

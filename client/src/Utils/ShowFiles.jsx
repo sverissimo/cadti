@@ -82,7 +82,7 @@ const ShowFiles = ({ filesCollection, close, format, typeId, empresas }) => {
                                 <div className="col s11">
                                     <span
                                         style={{ textDecoration: 'underline', cursor: 'pointer', color: 'blue' }}
-                                        onClick={() => download(file._id, file.filename, collection)}>
+                                        onClick={() => download(file.id, file.filename, collection)}>
                                         {file.label + getCompanyName(file)}
                                     </span>
                                 </div>

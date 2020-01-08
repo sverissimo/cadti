@@ -1,7 +1,6 @@
 const express = require('express')
 const app = express()
 const server = require('http').createServer(app)
-//http.listen(3002); // not 'app.listen'!
 const io = require('socket.io').listen(server);
 const bodyParser = require('body-parser')
 const pg = require('pg')
@@ -40,7 +39,12 @@ app.use(function (req, res, next) { //allow cross origin requests
 
 app.use(bodyParser.json({ limit: '50mb' }))
 app.use(bodyParser.urlencoded())
-app.use(express.static('client/build'))
+app.use(express.static('client/build'));
+
+const emitSocket = (func, body, id)=> {
+    const obj = {...body, id}    
+    io.sockets.emit(func, obj)
+}
 
 
 const Pool = pg.Pool
@@ -155,8 +159,9 @@ app.post('/api/mongoUpload', upload.any(), (req, res) => {
 
 app.get('/api/mongoDownload/', (req, res) => {
 
+    console.log(typeof req.query.id, req.query.id)
     const fileId = new mongoose.mongo.ObjectId(req.query.id)
-
+    
     const collection = req.query.collection
 
     gfs.collection(collection)
@@ -185,8 +190,8 @@ app.get('/api/getFiles/:collection', (req, res) => {
 
     let filesCollection, fieldName
 
-    if (req.params.collection === 'vehicle') filesCollection = filesModel
-    if (req.params.collection === 'empresa') filesCollection = empresaModel
+    if (req.params.collection === 'vehicleDocs') filesCollection = filesModel
+    if (req.params.collection === 'empresaDocs') filesCollection = empresaModel
     if (req.query.fieldName) fieldName = { 'metadata.fieldName': req.query.fieldName }
 
     filesCollection.find(fieldName).sort({ uploadDate: -1 }).exec((err, doc) => res.send(doc))
@@ -256,7 +261,7 @@ app.get('/api/veiculos', (req, res) => {
 
 app.post('/api/io', (req, res) => {
     io.sockets.emit('addSocio', req.body)
-    console.log(req.body)    
+    console.log(req.body)
     res.status(200).send('updated')
 })
 
@@ -611,6 +616,7 @@ app.put('/api/updateVehicle', (req, res) => {
 
     pool.query(queryString, (err, t) => {
         if (err) console.log(err)
+        else emitSocket('updateVehicle', requestObject, id )
         res.send(`${table} table changed fields in ${id}`)
     }
     )

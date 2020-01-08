@@ -4,7 +4,7 @@ import humps from 'humps'
 
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { veiculosInit } from '../Redux/getDataActions'
+import { getData } from '../Redux/getDataActions'
 
 import Grid from '@material-ui/core/Grid'
 import TextField from '@material-ui/core/TextField'
@@ -54,7 +54,7 @@ class BaixaVeiculo extends Component {
                 request.push(c)
             }
         })
-        await this.props.veiculosInit(request)
+        await this.props.getData(request)
         this.setState({ ...this.props.redux })
     };
 
@@ -333,7 +333,7 @@ function mapStateToProps(state) {
 }
 
 function mapDispatchToProps(dispatch) {
-    return bindActionCreators({ veiculosInit }, dispatch)
+    return bindActionCreators({ getData }, dispatch)
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(BaixaVeiculo)
