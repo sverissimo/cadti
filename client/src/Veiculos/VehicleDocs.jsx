@@ -73,7 +73,8 @@ export default function VehicleDocs({ handleFiles,  tab }) {
     return (
         <div >
             <Paper className={paper}>
-                <Grid container className={root}>
+            <div className="formSubtitle"> Anexe os documentos solicitados nos campos abaixo </div>
+                <Grid container className={root}>                   
                     {filesForm.map(({ title, name }, k) =>
                         <Fragment key={k}>
                             <Grid item xs={10} md={4} className={item}>

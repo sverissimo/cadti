@@ -1,22 +1,32 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { Switch, Link, Route } from 'react-router-dom'
 import './styleZ.css'
+
+import VeiculosContainer from './veiculosContainer'
+
+const getComponent = categoryName => {
+    console.log(categoryName)
+    switch (categoryName) {
+        case 'cadastro':
+            return VeiculosContainer
+    }
+}
 
 const menuCards = [
     {
-        title: 'Cadastrar',
+        title: 'Cadastro de Veículos',
         date: '07/Nov',
         description:
-            'Cadastrar uma nova empresa no sistema.',
+            'Cadastrar um novo veículo no sistema.',
         imageUrl: '/images/addCompany21.png',
-        link: '/veiculos/cadastro'
+        link: '/cadastro'
     },
     {
         title: 'Alteração de dados',
         date: '07/Nov',
         description:
             'Gerenciar sócios e alterações de contrato social',
-        link: '/socios',
+        link: '/altDados',
         imageUrl: '/images/socios3.png'
     },
     {
@@ -24,7 +34,7 @@ const menuCards = [
         date: '07/Nov',
         description:
             'Alterar relação de procuradores e procurações',
-        link: '/procuradores',
+        link: '/altSeguro',
         imageUrl: '/images/procuradores31.png'
     },
     {
@@ -32,7 +42,7 @@ const menuCards = [
         date: '07/Nov',
         description:
             'Alterar relação de procuradores e procurações',
-        link: '/procuradores',
+        link: '/baixaVeiculo',
         imageUrl: '/images/procuradores31.png'
     },
     {
@@ -61,7 +71,9 @@ const menuCards = [
     },
 ]
 
-export default function VeiculosHome() {
+export default function VeiculosHome(props) {
+    const { match } = props
+    console.log(props)
     return (
         <div>
             <div className="jumbotron">
@@ -72,12 +84,11 @@ export default function VeiculosHome() {
             <div className="cardHolder">
                 {
                     menuCards.map(({ title, link }, i) =>
-                        <Link to={link} key={i} className="card">
+                        <Link to={match.url + link} key={i} className="card">
                             {title}
                         </Link>
                     )}
-            </div>
-
+            </div>            
         </div >
     )
 }

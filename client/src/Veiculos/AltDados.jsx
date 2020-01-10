@@ -53,16 +53,15 @@ class AltDados extends Component {
         placa: ''
     }
 
-    async componentDidMount() {
+    componentDidMount() {
 
-        await this.setState({ ...this.props.redux })
-        console.log(this.state)
+        this.setState({ ...this.props.redux })
+
         if (!socket) {
             socket = socketIO(':3001')
         }
-
         socket.on('updateVehicle', async updatedVehicle => {
-            await this.props.updateData(humps.camelizeKeys(updatedVehicle))
+            this.props.updateData(humps.camelizeKeys(updatedVehicle))
         })
     }
 
@@ -304,4 +303,4 @@ class AltDados extends Component {
 
 const collections = ['veiculos', 'empresas']
 
-export default connect(null, {updateData})(VehicleHOC(collections, AltDados))
+export default connect(null, { updateData })(VehicleHOC(collections, AltDados))

@@ -9,13 +9,13 @@ import Button from '@material-ui/core/Button'
 import AddIcon from '@material-ui/icons/Add'
 import { makeStyles } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
-import { vehicleForm } from '../Forms/vehicleForm'
 import { cadForm } from '../Forms/cadForm'
-import { altForm } from '../Forms/altForm'
 import { baixaForm } from '../Forms/baixaForm'
 import AutoComplete from '../Utils/autoComplete'
 import AddEquipa from './AddEquipa'
 import PopUp from '../Utils/PopUp'
+
+import './styleZ.css'
 
 const useStyles = makeStyles(theme => ({
     container: {
@@ -51,18 +51,16 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-export default function ({ handleInput, handleBlur, data, handleEquipa, handleCheck, altPlacaOption, showAltPlaca }) {
+export default function ({ handleInput, handleBlur, data, handleEquipa, handleCheck,
+    altPlacaOption, showAltPlaca }) {
     const { tab, empresas, razaoSocial, activeStep, equipamentos, addEquipa,
         delegatarioCompartilhado, subtitle, placa } = data,
         classes = useStyles(), { paper, container, title } = classes
 
     const [shared, setShared] = useState(false)
 
-    let form = []
-    if (tab === 0) form = cadForm[activeStep]
-    else if (tab === 2) form = altForm[activeStep]
-    else if (tab === 3) form = baixaForm
-    else form = vehicleForm[tab]
+    let form = cadForm[activeStep]
+    if (tab === 3) form = baixaForm
 
     const errorHandler = (el) => {
         const value = data.form[el.field]
@@ -98,7 +96,7 @@ export default function ({ handleInput, handleBlur, data, handleEquipa, handleCh
             <Grid>
                 <Paper className={paper} style={{ padding: '0 2% 0 2%' }}>
                     <Grid container justify="center">
-                        <Grid item xs={shared ? 4 : 12} style={{ marginBottom: '15px' }}>
+                        {activeStep === 0 ? <Grid item xs={shared ? 4 : 12} style={{ marginBottom: '15px' }}>
                             <Typography className={title}> Selecione a Viação</Typography>
 
                             <TextField
@@ -117,6 +115,9 @@ export default function ({ handleInput, handleBlur, data, handleEquipa, handleCh
                                 value={razaoSocial}
                             />
                         </Grid>
+                            :
+                            <div className='formTitle'>Cadastro de Veículo - {razaoSocial}</div>
+                        }
                         {
                             shared && <Grid item xs={4}>
 
@@ -142,7 +143,7 @@ export default function ({ handleInput, handleBlur, data, handleEquipa, handleCh
                     </Grid>
 
                     {
-                        tab === 0 && <Grid item xs={12}>
+                        activeStep === 0 && <Grid item xs={12}>
                             <FormControlLabel
                                 control={
                                     <Checkbox
@@ -165,8 +166,8 @@ export default function ({ handleInput, handleBlur, data, handleEquipa, handleCh
                     razaoSocial && showForm()
                         ?
                         <Grid item xs={12}>
-                            <Paper className={paper}>
-                                <Typography className={title}> {subtitle[tab]}</Typography>
+                            {activeStep < 3 && <Paper className={paper}>
+                                 <Typography className='formSubtitle'> {subtitle[activeStep]}</Typography>
 
 
                                 {data.form && form[0] && form.map((el, i) =>
@@ -246,7 +247,7 @@ export default function ({ handleInput, handleBlur, data, handleEquipa, handleCh
                                     </Typography>
 
                                 </Grid>}
-                            </Paper>
+                            </Paper>}
                         </Grid>
                         :
                         <Grid container justify="center">

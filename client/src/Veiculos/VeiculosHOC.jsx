@@ -24,7 +24,7 @@ export default function (collections = [], WrappedComponent) {
         render() {
             const { redux } = this.props
             if (!redux.veiculos[0]) return <p>Loading...</p>
-            else return <WrappedComponent redux={this.props.redux} />
+            else return <WrappedComponent {...this.props} />
         }
     }
 

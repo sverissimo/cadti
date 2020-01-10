@@ -8,14 +8,12 @@ import VehicleHOC from './VeiculosHOC'
 import VeiculosTemplate from './VeiculosTemplate'
 import VehicleDocs from './VehicleDocs'
 import Review from './Review'
-import AltSeguro from './AltSeguro'
-import AltDados from './AltDados'
 import BaixaVeiculo from './BaixaVeiculo'
 
+import Crumbs from '../Utils/Crumbs'
 import StepperButtons from '../Utils/StepperButtons'
 import CustomStepper from '../Utils/Stepper'
 
-import { TabMenu } from '../Layouts'
 import { cadVehicleFiles } from '../Forms/cadVehicleFiles'
 import { cadForm } from '../Forms/cadForm'
 
@@ -33,12 +31,10 @@ class VeiculosContainer extends PureComponent {
     }
 
     state = {
-        tab: 2,
-        items: ['Cadastro de Veículo', 'Atualização de Seguro',
-            'Alteração de dados', 'Baixa de Veículo'],
+        tab: 0,        
         steps: ['Dados do Veículo', 'Dados do seguro', 'Vistoria e laudos', 'Documentos', 'Revisão'],
         subtitle: ['Informe os dados do Veículo', 'Informe os dados do Seguro',
-            'Preencha os campos abaixo', 'Informe os dados para a baixa'],
+            'Preencha os campos abaixo conforme a vistoria realizada'],
         form: {},
         empresas: [],
         razaoSocial: '',
@@ -71,16 +67,6 @@ class VeiculosContainer extends PureComponent {
     }
 
     componentWillUnmount() { this.setState({}) }
-
-    changeTab = (e, value) => {
-        const opt = ['Veículo cadastrado!', 'Seguro atualizado!', 'Dados Alterados!', 'Veículo Baixado.']
-        this.setState({
-            tab: value, toastMsg: opt[value], razaoSocial: '', frota: [], placa: '',
-            delegatarioCompartilhado: '',
-            apolice: '', seguradora: '', dataEmissao: '', vencimento: '',
-            seguros: this.state.allInsurances
-        })
-    }
 
     setActiveStep = async action => {
 
@@ -358,175 +344,6 @@ class VeiculosContainer extends PureComponent {
         this.toast()
     }
 
-    handleEquipa = e => {
-        this.setState({ addEquipa: !this.state.addEquipa })
-    }
-
-    handleCheck = item => {
-        this.setState({ ...this.state, [item]: !this.state[item] })
-    }
-
-    deleteInsurance = async placaInput => {
-
-        await this.setState({ vehicleFound: this.state.frota.filter(v => v.placa === placaInput)[0] })
-        const { vehicleFound } = this.state
-
-        let { insuranceExists } = this.state,
-            { placas, veiculos } = insuranceExists
-
-        const body = {
-            table: 'veiculo',
-            column: 'apolice',
-            value: 'Seguro não cadastrado',
-            tablePK: 'veiculo_id',
-            id: vehicleFound.veiculoId
-        }
-
-        const i = placas.indexOf(placaInput)
-        placas.splice(i, 1)
-        const k = veiculos.indexOf(vehicleFound.veiculoId)
-        veiculos.splice(k, 1)
-
-        await axios.put('/api/UpdateInsurance', body)
-            .catch(err => console.log(err))
-        insuranceExists.placas = placas
-        insuranceExists.veiculos = veiculos
-        this.setState({ insuranceExists })
-
-        return null
-    }
-
-    updateInsurance = async (placaInput, seguroId) => {
-
-        await this.setState({ vehicleFound: this.state.frota.filter(v => v.placa === placaInput)[0] })
-        const { vehicleFound } = this.state
-
-        let { insuranceExists } = this.state,
-            { placas, veiculos } = insuranceExists
-
-        // Validate plate
-
-        if (!placaInput.match('[a-zA-Z]{3}[-]?\\d{4}')) {
-            this.setState({
-                openDialog: true,
-                dialogTitle: 'Placa inválida',
-                message: `Certifique-se de que a placa informada é uma placa válida, com três letras seguidas de 4 números (ex: AAA-0000)`,
-            })
-            return null
-        }
-
-        //Check if vehicle belongs to frota before add to insurance and  if plate already belongs to apolice
-
-        if (vehicleFound === undefined || vehicleFound.hasOwnProperty('veiculoId') === false) {
-            this.setState({
-                openDialog: true,
-                dialogTitle: 'Placa não encontrada',
-                message: `A placa informada não corresponde a nenhum veículo da frota da viação selecionada. Para cadastrar um novo veículo, selecione a opção "Cadastro de Veículo" no menu acima.`,
-            })
-            return null
-        } else if (insuranceExists !== undefined && insuranceExists.hasOwnProperty('placas') && vehicleFound.hasOwnProperty('placa')) {
-            const check = insuranceExists.placas.find(p => p === vehicleFound.placa)
-            if (check !== undefined) {
-                this.setState({
-                    openDialog: true,
-                    dialogTitle: 'Placa já cadastrada',
-                    message: `A placa informada já está cadastrada na apólice. Para pesquisar as placas cadastradas, utilize o campo "filtrar" abaixo.`,
-                })
-                return null
-            }
-        }
-
-        //Define body to post
-
-        const body = {
-            table: 'veiculo',
-            column: 'apolice',
-            value: seguroId,
-            tablePK: 'veiculo_id', id: vehicleFound.veiculoId
-        }
-
-        // Add plates to rendered list
-        if (seguroId) {
-            if (!placas) placas = []
-            placas.push(placaInput)
-            if (!veiculos) veiculos = []
-            veiculos.push(vehicleFound.veiculoId)
-
-            if (insuranceExists.hasOwnProperty('placas') && insuranceExists.hasOwnProperty('veiculos')) {
-                let obj = insuranceExists
-                obj.placas = placas
-                obj.veiculos = veiculos
-                this.setState({ insuranceExists: obj })
-            }
-        }
-
-        // Verify if all fields are filled before add new plate/insurance
-        const enableSubmit = cadForm[1]
-            .every(k => this.state.hasOwnProperty(k.field) && this.state[k.field] !== '')
-
-        if (!enableSubmit) {
-            alert('Favor preencher todos os campos referentes ao seguro.')
-            return null
-        }
-
-        //Create a new insurance
-        if (!insuranceExists.hasOwnProperty('apolice')) {
-            const { seguradoraId, apolice, dataEmissao, vencimento } = this.state,
-                cadSeguro = { seguradora_id: seguradoraId, apolice, data_emissao: dataEmissao, vencimento }
-
-            await axios.post('/api/cadSeguro', cadSeguro)
-        }
-
-        //Delete placa from old array
-        if (vehicleFound.apolice !== 'Seguro não cadastrado') {
-
-            let { seguros } = this.state
-            const index = seguros.findIndex(s => s.apolice === vehicleFound.apolice)
-            if (seguros[index]) {
-
-                let pl = seguros[index].placas,
-                    v = seguros[index].veiculos
-                const i = pl.indexOf(vehicleFound.placa),
-                    k = pl.indexOf(vehicleFound.veiculoId)
-
-                pl.splice(i, 1)
-                v.splice(k, 1)
-
-                seguros[index].placas = pl
-                seguros[index].veiculos = v
-                this.setState({ seguros })
-            }
-        }
-
-        //Update data to/from DataBase
-        await axios.put('/api/UpdateInsurance', body)
-            .catch(err => console.log(err))
-        await axios.get('/api/seguros')
-            .then(r => humps.camelizeKeys(r.data))
-            .then(seguros => {
-                this.setState({ seguros })
-                return seguros
-            })
-            .then(res => this.setState({ insuranceExists: res.filter(s => s.apolice === seguroId)[0] }))
-            .catch(err => console.log(err))
-
-        let updateFrota = this.state.frota
-        const vIndex = this.state.frota.findIndex(v => v.veiculoId === vehicleFound.veiculoId)
-        updateFrota[vIndex].apolice = seguroId
-        await this.setState({ frota: updateFrota })
-
-        if (document.getElementsByName('razaoSocial')[0]) document.getElementsByName('razaoSocial')[0].focus()
-        if (document.getElementsByName('seguradora')[0]) document.getElementsByName('seguradora')[0].focus()
-        if (document.getElementsByName('apolice')[0]) document.getElementsByName('apolice')[0].focus()
-        if (document.getElementsByName('addedPlaca')[0]) document.getElementsByName('addedPlaca')[0].focus()
-
-        this.setState({ addedPlaca: '' })
-    }
-
-    toggleDialog = () => {
-        this.setState({ openDialog: !this.state.openDialog })
-    }
-
     createAlert = (alert) => {
         let dialogTitle, message
 
@@ -566,61 +383,51 @@ class VeiculosContainer extends PureComponent {
         }
     }
 
+    handleCheck = item => this.setState({ ...this.state, [item]: !this.state[item] })
+    handleEquipa = () => this.setState({ addEquipa: !this.state.addEquipa })
+    toggleDialog = () => this.setState({ openDialog: !this.state.openDialog })
 
     render() {
-        const { tab, items, confirmToast, toastMsg, activeStep,
+        const { tab, confirmToast, toastMsg, activeStep,
             openDialog, dialogTitle, message, steps } = this.state
 
         const enableAddPlaca = cadForm[1]
             .every(k => this.state.hasOwnProperty(k.field) && this.state[k.field] !== '')
 
         return <Fragment>
-            <TabMenu items={items}
-                tab={tab}
-                changeTab={this.changeTab} />
-            {tab === 0 && <CustomStepper
+            <Crumbs links={['Veículos', '/veiculos']} text='Cadastro de veículo' />
+
+            <CustomStepper
                 activeStep={activeStep}
                 steps={steps}
                 setActiveStep={this.setActiveStep}
-            />}
-            {tab < 2 && activeStep < 3 ? <VeiculosTemplate
+            />
+            <VeiculosTemplate
                 data={this.state}
                 handleInput={this.handleInput}
                 handleBlur={this.handleBlur}
                 handleEquipa={this.handleEquipa}
                 handleCheck={this.handleCheck}
+                match = {this.props.match}
             />
-                : tab === 0 && activeStep === 3 ?
-                    <VehicleDocs
-                        tab={tab}
-                        handleFiles={this.handleFiles}
-                        handleSubmit={this.submitFiles}
-                        handleNames={this.handleNames}
-                        showFiles={this.showFiles}
-                    />
-                    : tab === 0 && activeStep === 4 ?
-                        <Review data={this.state} />
-                        : <Fragment></Fragment>
+            {activeStep === 3 ?
+                <VehicleDocs
+                    tab={tab}
+                    handleFiles={this.handleFiles}
+                    handleSubmit={this.submitFiles}
+                    handleNames={this.handleNames}
+                    showFiles={this.showFiles}
+                />
+                : activeStep === 4 ?
+                    <Review data={this.state} />
+                    : <Fragment></Fragment>
             }
-            {tab === 0 && <StepperButtons
+             <StepperButtons
                 activeStep={activeStep}
                 lastStep={steps.length - 1}
                 handleSubmit={this.handleCadastro}
                 setActiveStep={this.setActiveStep}
-            />}
-            {tab === 1 && enableAddPlaca && <AltSeguro
-                data={this.state}
-                insuranceExists={this.state.insuranceExists}
-                handleInput={this.handleInput}
-                handleBlur={this.handleBlur}
-                addPlateInsurance={this.updateInsurance}
-                deleteInsurance={this.deleteInsurance}
-            />}
-            {tab === 2 && <AltDados
-                data={this.state}
-                getId={this.getId}
-                createAlert={this.createAlert}
-            />}
+            />            
             {tab === 3 && <BaixaVeiculo
                 data={this.state}
                 getId={this.getId}

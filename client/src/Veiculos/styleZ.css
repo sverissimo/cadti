@@ -30,3 +30,21 @@ body {
     color: azure;
     background-color: darkblue;     
 }
+
+.formTitle {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 18px;
+    color: black;
+    margin: 5px;
+    padding: 10px;
+    min-width: 1200px;
+}
+
+.formSubtitle {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 17px;
+    font-weight: 400;  
+    text-align: center;
+    color: black;    
+    padding: 2px 0 5px 0
+}
