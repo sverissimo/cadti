@@ -35,7 +35,7 @@ class ConsultasContainer extends Component {
                 if (this.state.showDetails) this.showDetails()
                 if (this.state.showFiles) this.closeFiles()
             }
-        }
+        }        
     }
 
     state = {
@@ -74,9 +74,9 @@ class ConsultasContainer extends Component {
             socket = socketIO(':3001')
         }
 
-        socket.on('updateVehicle', async updatedVehicle => {            
-            await this.props.updateData(humps.camelizeKeys(updatedVehicle))            
-            this.setState({veiculos: this.props.redux.veiculos})
+        socket.on('updateVehicle', async updatedVehicle => {
+            await this.props.updateData(humps.camelizeKeys(updatedVehicle))
+            this.setState({ veiculos: this.props.redux.veiculos })
         })
     }
 
@@ -171,7 +171,7 @@ class ConsultasContainer extends Component {
     render() {
         const { tab, items, collection, showDetails, elementDetails, showFiles, selectedElement, filesCollection,
             openDialog, dialogTitle, message, typeId, empresas } = this.state
-
+        console.log(this.props)
         return <Fragment>
             <TabMenu items={items}
                 tab={tab}
@@ -204,7 +204,10 @@ class ConsultasContainer extends Component {
 
 function mapStateToProps(state) {
     return {
-        redux: state.data
+        redux: {
+            ...state.vehicleData,
+            ...state.otherData
+        }
     }
 }
 

@@ -1,11 +1,9 @@
-import React, { Component, Fragment } from 'react'
+import React, { PureComponent, Fragment } from 'react'
 import axios from 'axios'
 import humps from 'humps'
 import ReactToast from '../Utils/ReactToast'
 
-import { bindActionCreators } from 'redux'
-import { connect } from 'react-redux'
-import { getData } from '../Redux/getDataActions'
+import VehicleHOC from './VeiculosHOC'
 
 import VeiculosTemplate from './VeiculosTemplate'
 import VehicleDocs from './VehicleDocs'
@@ -17,14 +15,13 @@ import BaixaVeiculo from './BaixaVeiculo'
 import StepperButtons from '../Utils/StepperButtons'
 import CustomStepper from '../Utils/Stepper'
 
-
 import { TabMenu } from '../Layouts'
 import { cadVehicleFiles } from '../Forms/cadVehicleFiles'
 import { cadForm } from '../Forms/cadForm'
 
 import AlertDialog from '../Utils/AlertDialog'
 
-class veiculosContainer extends Component {
+class VeiculosContainer extends PureComponent {
 
     constructor() {
         super()
@@ -63,26 +60,16 @@ class veiculosContainer extends Component {
 
     async componentDidMount() {
 
-        const collections = ['veiculos', 'empresas', 'modelosChassi', 'carrocerias',
-            'seguradoras', 'seguros', 'equipamentos'],
-            { redux } = this.props
+        const { redux } = this.props
+        let equipamentos = {}
 
-        let request = []
-
-        collections.forEach(c => {
-            if (!redux[c] || !redux[c][0]) {
-                request.push(c)
-            }
-        })
-        await this.props.getData(request)
-        this.setState({ ...this.props.redux, allInsurances: this.props.redux['seguros'] })
-
-        let obj = {}
-        this.state.equipamentos.forEach(e => Object.assign(obj, { [e.item]: false }))
-        this.setState(obj)
+        if (redux) {
+            redux.equipamentos.forEach(e => Object.assign(equipamentos, { [e.item]: false }))
+            await this.setState({ ...this.props.redux, ...equipamentos, allInsurances: this.props.redux['seguros'] })
+        }
         document.addEventListener('keydown', this.escFunction, false)
-
     }
+
     componentWillUnmount() { this.setState({}) }
 
     changeTab = (e, value) => {
@@ -199,7 +186,7 @@ class veiculosContainer extends Component {
                 if (this.state.delegatarioId) {
                     const f = veiculos.filter(v => v.delegatarioId === this.state.delegatarioId)
                     const filteredInsurances = allInsurances.filter(s => s.delegatarioId === this.state.delegatarioId)
-                    this.setState({ frota: f, seguros: filteredInsurances })                    
+                    this.setState({ frota: f, seguros: filteredInsurances })
                 }
                 break;
 
@@ -639,23 +626,12 @@ class veiculosContainer extends Component {
                 getId={this.getId}
                 createAlert={this.createAlert}
             />}
-            {/* showFiles && <ShowFiles veiculoId={selectedVehicle} filesCollection={filesCollection} close={this.closeFiles} format={format} />*/}
             <ReactToast open={confirmToast} close={this.toast} msg={toastMsg} />
             <AlertDialog open={openDialog} close={this.toggleDialog} title={dialogTitle} message={message} />
-
         </Fragment>
     }
-
 }
+const collections = ['veiculos', 'empresas', 'modelosChassi', 'carrocerias',
+    'seguradoras', 'seguros', 'equipamentos']
 
-function mapStateToProps(state) {
-    return {
-        redux: state.data
-    }
-}
-
-function mapDispatchToProps(dispatch) {
-    return bindActionCreators({ getData }, dispatch)
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(veiculosContainer)
+export default VehicleHOC(collections, VeiculosContainer)

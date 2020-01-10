@@ -1,10 +1,7 @@
 const initState = {
     veiculos: [],
     modelosChassi: [],
-    carrocerias: [],
-    empresas: [],
-    seguradoras: [],
-    seguros: [],
+    carrocerias: [],    
     equipamentos: [],
     search: '',
     setColor: '',
@@ -15,8 +12,8 @@ const getDataReducer = (state = initState, action) => {
     const { payload } = action
     switch (action.type) {
 
-        case 'GET_DATA':
-            return { ...state, ...payload }
+        /* case 'GET_DATA':
+            return { ...state, ...payload } */
 
         case 'UPDATE_VEHICLE':
 
@@ -35,8 +32,8 @@ const getDataReducer = (state = initState, action) => {
 
             return { ...state, veiculos }
 
-        case 'LOAD_EMP_DATA':
-            return { ...state, empCollection: action.payload }
+        case 'VEHICLE_DATA':
+            return { ...state, ...payload }
 
         case 'SET_COLOR':
             return { ...state, setColor: action.payload }

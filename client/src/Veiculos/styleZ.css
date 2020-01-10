@@ -1,0 +1,32 @@
+body {
+    margin: 0    
+}
+
+.jumbotron {
+    width: 100%;
+    padding: 5%;
+    border: 1px solid #bbb;
+    text-align: center;
+}
+
+
+.cardHolder {
+    border: 3px solid #000;
+    display: flex;    
+    align-content: flex-start;
+    flex-wrap: wrap;      
+}
+
+.card {    
+    /* flex-basis: 14.28% ; */
+    flex: auto;
+    text-align: center;
+    border: 1px solid #bbb;
+    padding: 1rem;    
+    background-color: azure;     
+}
+
+.card:hover {
+    color: azure;
+    background-color: darkblue;     
+}

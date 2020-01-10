@@ -7,6 +7,8 @@ import { connect } from 'react-redux'
 import { getData } from '../Redux/getDataActions'
 import { updateData } from '../Redux/updateDataActions'
 
+import VehicleHOC from './VeiculosHOC'
+
 import Grid from '@material-ui/core/Grid'
 import TextField from '@material-ui/core/TextField'
 import ReactToast from '../Utils/ReactToast'
@@ -53,24 +55,13 @@ class AltDados extends Component {
 
     async componentDidMount() {
 
-        const collections = ['veiculos', 'empresas'],
-            { redux } = this.props
-        let request = []
-
-        collections.forEach(c => {
-
-            if (!redux[c] || !redux[c][0]) {
-                request.push(c)
-            }
-        })
-        await this.props.getData(request)
-        this.setState({ ...this.props.redux })
-
+        await this.setState({ ...this.props.redux })
+        console.log(this.state)
         if (!socket) {
             socket = socketIO(':3001')
         }
 
-        socket.on('updateVehicle', async updatedVehicle => {            
+        socket.on('updateVehicle', async updatedVehicle => {
             await this.props.updateData(humps.camelizeKeys(updatedVehicle))
         })
     }
@@ -174,7 +165,7 @@ class AltDados extends Component {
         this.toast()
     }
 
-    handleEdit = async e => {
+    handleEdit = async () => {
         const { poltronas, pesoDianteiro, pesoTraseiro, delegatarioId, delegatarioCompartilhado } = this.state
 
         let tempObj = {}
@@ -183,7 +174,7 @@ class AltDados extends Component {
             form.forEach(obj => {
                 for (let k in this.state) {
                     if (k === obj.field && !obj.disabled) {
-                        if(this.state[k]) Object.assign(tempObj, { [k]: this.state[k] })
+                        if (this.state[k]) Object.assign(tempObj, { [k]: this.state[k] })
                     }
                 }
             })
@@ -204,9 +195,6 @@ class AltDados extends Component {
         await this.submitFiles()
         this.toast()
     }
-
-
-
 
     handleFiles = async e => {
         const { name, files } = e.target
@@ -249,7 +237,7 @@ class AltDados extends Component {
 
 
     toggleDialog = () => this.setState({ altPlaca: !this.state.altPlaca })
-    toast = e => this.setState({ confirmToast: !this.state.confirmToast })
+    toast = () => this.setState({ confirmToast: !this.state.confirmToast })
 
     render() {
         const { confirmToast, toastMsg, activeStep, steps, stepTitles, tab, altPlaca } = this.state
@@ -314,14 +302,6 @@ class AltDados extends Component {
     }
 }
 
-function mapStateToProps(state) {
-    return {
-        redux: state.data
-    }
-}
+const collections = ['veiculos', 'empresas']
 
-function mapDispatchToProps(dispatch) {
-    return bindActionCreators({ getData, updateData }, dispatch)
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(AltDados)
+export default connect(null, {updateData})(VehicleHOC(collections, AltDados))
