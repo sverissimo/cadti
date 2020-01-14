@@ -1,16 +1,6 @@
 import React from 'react'
-import { Switch, Link, Route } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import './styleZ.css'
-
-import VeiculosContainer from './veiculosContainer'
-
-const getComponent = categoryName => {
-    console.log(categoryName)
-    switch (categoryName) {
-        case 'cadastro':
-            return VeiculosContainer
-    }
-}
 
 const menuCards = [
     {
@@ -72,13 +62,12 @@ const menuCards = [
 ]
 
 export default function VeiculosHome(props) {
-    const { match } = props
-    console.log(props)
+    const { match } = props    
     return (
         <div>
             <div className="jumbotron">
                 <h1>
-                    HEEEyy!
+                    Veículos
                 </h1>
             </div>
             <div className="cardHolder">

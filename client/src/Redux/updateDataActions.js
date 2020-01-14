@@ -1,5 +1,5 @@
-import axios from 'axios';
-import humps from 'humps'
+/* import axios from 'axios';
+import humps from 'humps' */
 
 export const updateData = async  updatedElement => {
 

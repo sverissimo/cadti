@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from 'react'
 import axios from 'axios'
 import humps from 'humps'
+import moment from 'moment'
 
 import { seguroForm } from '../Forms/seguroForm'
 
@@ -17,12 +18,11 @@ class AltSeguro extends Component {
     }
 
     componentDidMount() {
-        if (this.props.redux) {
-            this.setState({
-                ...this.props.redux,
-                allInsurances: this.props.redux['seguros']
-            })
-        }
+
+        this.setState({
+            ...this.props.redux,
+            allInsurances: this.props.redux['seguros']
+        })
     }
 
     handleInput = async e => {
@@ -59,15 +59,35 @@ class AltSeguro extends Component {
     }
 
     handleBlur = e => {
-        const { name } = e.target, { seguradora, allInsurances, seguros, insuranceExists } = this.state
-
-        console.log(seguros)
+        const { name } = e.target, { seguradora, allInsurances } = this.state
 
         switch (name) {
+
+            case 'seguradora':
+
+                let filteredInsurances = []
+                const empresa = this.state.selectedEmpresa
+
+                if (empresa && !seguradora) {
+                    filteredInsurances = allInsurances.filter(seguro => seguro.empresa === empresa.razaoSocial)
+                    this.setState({ seguros: filteredInsurances })
+                }
+                else if (!empresa && seguradora !== '') {
+                    filteredInsurances = allInsurances.filter(s => s.seguradora === seguradora)
+                    this.setState({ seguros: filteredInsurances })
+                }
+                else if (empresa && seguradora !== '') {
+                    filteredInsurances = allInsurances
+                        .filter(seg => seg.empresa === empresa.razaoSocial)
+                        .filter(seg => seg.seguradora === seguradora)
+                    this.setState({ seguros: filteredInsurances })
+                }
+                break
+
             case 'apolice':
                 let insuranceExists = this.state.seguros.find(s => s.apolice === this.state.apolice)
                 if (insuranceExists && insuranceExists.dataEmissao && insuranceExists.vencimento) {
-                    const dataEmissao = insuranceExists.dataEmissao.toString().slice(0, 10),
+                    const dataEmissao = moment(insuranceExists.dataEmissao).format('YYYY-MM-DD'),
                         vencimento = insuranceExists.vencimento.toString().slice(0, 10),
                         seguradora = insuranceExists.seguradora
 
@@ -77,27 +97,7 @@ class AltSeguro extends Component {
                     this.setState({ insuranceExists: false })
                 }
                 break
-
-            case 'seguradora':
-
-                let filteredInsurances = []
-                const empresa = this.state.selectedEmpresa
-
-                if (empresa && seguradora === '') {
-                    filteredInsurances = allInsurances.filter(seguro => seguro.razaoSocial === empresa.delegatarioId)
-                    this.setState({ seguros: filteredInsurances })
-                }
-                if (!empresa && seguradora !== '') {
-                    filteredInsurances = allInsurances.filter(s => s.seguradora === seguradora)
-                    this.setState({ seguros: filteredInsurances })
-                }
-                if (empresa && seguradora !== '') {
-                    filteredInsurances = allInsurances
-                        .filter(seg => seg.empresa === empresa.razaoSocial)
-                        .filter(seg => seg.seguradora === seguradora)
-                    this.setState({ seguros: filteredInsurances })
-                }
-                break
+            default: return null
         }
     }
 

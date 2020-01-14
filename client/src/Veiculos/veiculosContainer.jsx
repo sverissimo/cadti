@@ -8,7 +8,6 @@ import VehicleHOC from './VeiculosHOC'
 import VeiculosTemplate from './VeiculosTemplate'
 import VehicleDocs from './VehicleDocs'
 import Review from './Review'
-import BaixaVeiculo from './BaixaVeiculo'
 
 import Crumbs from '../Utils/Crumbs'
 import StepperButtons from '../Utils/StepperButtons'
@@ -31,7 +30,7 @@ class VeiculosContainer extends PureComponent {
     }
 
     state = {
-        tab: 0,        
+        tab: 0,
         steps: ['Dados do Veículo', 'Dados do seguro', 'Vistoria e laudos', 'Documentos', 'Revisão'],
         subtitle: ['Informe os dados do Veículo', 'Informe os dados do Seguro',
             'Preencha os campos abaixo conforme a vistoria realizada'],
@@ -56,7 +55,7 @@ class VeiculosContainer extends PureComponent {
 
     async componentDidMount() {
 
-        const { redux } = this.props
+        const redux = { ...this.props.redux }
         let equipamentos = {}
 
         if (redux) {
@@ -100,6 +99,23 @@ class VeiculosContainer extends PureComponent {
         const { name } = e.target
         let { value } = e.target
         const parsedName = humps.decamelize(name)
+        const { veiculos, allInsurances } = this.state
+
+        if (name === 'razaoSocial') {
+            let selectedEmpresa = this.state.empresas.find(e => e.razaoSocial === value)
+
+            if (selectedEmpresa) {
+                await this.setState({ razaoSocial: selectedEmpresa.razaoSocial, selectedEmpresa })
+                if (value !== selectedEmpresa.razaoSocial) this.setState({ selectedEmpresa: undefined })
+
+                const frota = veiculos.filter(v => v.empresa === this.state.razaoSocial)
+                const filteredInsurances = allInsurances.filter(seguro => seguro.empresa === this.state.razaoSocial)
+
+                this.setState({ frota, seguros: filteredInsurances })
+
+            } else this.setState({ selectedEmpresa: undefined, frota: [] })
+        }
+
         if (name !== 'razaoSocial') this.setState({ [name]: value, form: { ...this.state.form, [parsedName]: value } })
         if (name === 'placa' && this.state.tab === 0) {
             if (typeof value === 'string') {
@@ -131,7 +147,7 @@ class VeiculosContainer extends PureComponent {
 
     handleBlur = async  e => {
         const { empresas, tab, frota, placa, modelosChassi, carrocerias, seguradoras, allInsurances,
-            veiculos } = this.state
+        } = this.state
         const { name } = e.target
         let { value } = e.target
 
@@ -164,15 +180,6 @@ class VeiculosContainer extends PureComponent {
                         .filter(s => s.delegatarioId === this.state.delegatarioId)
                         .filter(s => s.seguradora === this.state.seguradora)
                     this.setState({ seguros: filteredInsurances })
-                }
-                break;
-
-            case 'razaoSocial':
-                await this.getId(name, value, empresas, 'delegatarioId', 'razaoSocial', 'delegatarioId', 'Empresa')
-                if (this.state.delegatarioId) {
-                    const f = veiculos.filter(v => v.delegatarioId === this.state.delegatarioId)
-                    const filteredInsurances = allInsurances.filter(s => s.delegatarioId === this.state.delegatarioId)
-                    this.setState({ frota: f, seguros: filteredInsurances })
                 }
                 break;
 
@@ -408,31 +415,24 @@ class VeiculosContainer extends PureComponent {
                 handleBlur={this.handleBlur}
                 handleEquipa={this.handleEquipa}
                 handleCheck={this.handleCheck}
-                match = {this.props.match}
+                match={this.props.match}
             />
-            {activeStep === 3 ?
-                <VehicleDocs
-                    tab={tab}
-                    handleFiles={this.handleFiles}
-                    handleSubmit={this.submitFiles}
-                    handleNames={this.handleNames}
-                    showFiles={this.showFiles}
-                />
-                : activeStep === 4 ?
-                    <Review data={this.state} />
-                    : <Fragment></Fragment>
-            }
-             <StepperButtons
+            {activeStep === 3 && <VehicleDocs
+                tab={tab}
+                handleFiles={this.handleFiles}
+                handleSubmit={this.submitFiles}
+                handleNames={this.handleNames}
+                showFiles={this.showFiles}
+            />}
+
+            {activeStep === 4 && <Review data={this.state} />}
+
+            <StepperButtons
                 activeStep={activeStep}
                 lastStep={steps.length - 1}
                 handleSubmit={this.handleCadastro}
                 setActiveStep={this.setActiveStep}
-            />            
-            {tab === 3 && <BaixaVeiculo
-                data={this.state}
-                getId={this.getId}
-                createAlert={this.createAlert}
-            />}
+            />
             <ReactToast open={confirmToast} close={this.toast} msg={toastMsg} />
             <AlertDialog open={openDialog} close={this.toggleDialog} title={dialogTitle} message={message} />
         </Fragment>

@@ -13,27 +13,24 @@ export const getData = async (collectionsArray = []) => {
 
             await Promise.all(promiseArray)
                 .then(res => res.map(r => humps.camelizeKeys(r.data)))
-                .then(responseArray => {
+                .then(responseArray => {                    
                     responseArray.forEach((el, i) => {
                         let key = collectionsArray[i]
                         if (key.includes('getFiles')) key = collectionsArray[i].replace('getFiles/', '')
                         Object.assign(returnObj, { [key]: el })
                     })
                 })
-        }
-
-        const { empresas, seguros, seguradoras, ...veic } = returnObj,
-            otherData = { empresas, seguros, seguradoras }        
-
+        }        
+        
         batch(() => {
             dispatch({
                 type: 'GET_DATA',
-                payload: otherData
+                payload: returnObj
             })
-            dispatch({
+           /*  dispatch({
                 type: 'VEHICLE_DATA',
                 payload: veic
-            })
+            }) */
         })
     }
 

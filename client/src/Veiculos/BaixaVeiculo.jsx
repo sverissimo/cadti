@@ -2,33 +2,28 @@ import React, { Component, Fragment } from 'react'
 import axios from 'axios'
 import humps from 'humps'
 
-import { bindActionCreators } from 'redux'
-import { connect } from 'react-redux'
-import { getData } from '../Redux/getDataActions'
+import VehicleHOC from './VeiculosHOC'
+
+import Crumbs from '../Utils/Crumbs'
+import BaixaTemplate from './BaixaTemplate'
+import AutoComplete from '../Utils/autoComplete'
+import ReactToast from '../Utils/ReactToast'
 
 import Grid from '@material-ui/core/Grid'
 import TextField from '@material-ui/core/TextField'
-import '../Layouts/stylez.css'
-import ReactToast from '../Utils/ReactToast'
-import VeiculosTemplate from './VeiculosTemplate'
-import { cadVehicleFiles } from '../Forms/cadVehicleFiles'
-import AutoComplete from '../Utils/autoComplete'
-
 import Button from '@material-ui/core/Button'
 import { Send } from '@material-ui/icons'
-
 import Radio from '@material-ui/core/Radio';
 import RadioGroup from '@material-ui/core/RadioGroup';
 import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormControl from '@material-ui/core/FormControl';
 import FormLabel from '@material-ui/core/FormLabel';
 
+import '../Layouts/stylez.css'
+
 class BaixaVeiculo extends Component {
 
     state = {
-        tab: 3,
-        subtitle: ['Informe os dados do Veículo', 'Informe os dados do Seguro',
-            'Preencha os campos abaixo', 'Informe os dados para a baixa'],
         empresas: [],
         razaoSocial: '',
         delegatarioCompartilhado: '',
@@ -42,36 +37,32 @@ class BaixaVeiculo extends Component {
         openDialog: false
     }
 
-
-    async componentDidMount() {
-        const collections = ['veiculos', 'empresas'],
-            { redux } = this.props
-        let request = []
-
-        collections.forEach(c => {
-
-            if (!redux[c] || !redux[c][0]) {
-                request.push(c)
-            }
-        })
-        await this.props.getData(request)
+    componentDidMount() {
         this.setState({ ...this.props.redux })
-    };
+    }
 
     componentWillUnmount() { this.setState({}) }
 
-    setActiveStep = action => {
-        const prevActiveStep = this.state.activeStep
-        if (action === 'next') this.setState({ activeStep: prevActiveStep + 1 });
-        if (action === 'back') this.setState({ activeStep: prevActiveStep - 1 });
-        if (action === 'reset') this.setState({ activeStep: 0 })
-    }
+    handleInput = async e => {
+        const { name, value } = e.target,
+            { veiculos } = this.state
 
-    handleInput = e => {
-        const { name, value } = e.target
-        const parsedName = humps.decamelize(name)
-        if (name !== 'razaoSocial') this.setState({ [name]: value, form: { ...this.state.form, [parsedName]: value } })
-        else this.setState({ [name]: value })
+        this.setState({ [name]: value })
+
+        if (name === 'razaoSocial') {
+            let selectedEmpresa = this.state.empresas.find(e => e.razaoSocial === value)
+
+            if (selectedEmpresa) {
+                await this.setState({ razaoSocial: selectedEmpresa.razaoSocial, selectedEmpresa })
+                if (value !== selectedEmpresa.razaoSocial) this.setState({ selectedEmpresa: undefined })
+
+                const frota = veiculos.filter(v => v.empresa === this.state.razaoSocial)
+
+                this.setState({ frota })
+
+            } else this.setState({ selectedEmpresa: undefined, frota: [] })
+
+        }
     }
 
     getId = async (name, value, collection, stateId, dbName, dbId, alertLabel) => {
@@ -93,23 +84,13 @@ class BaixaVeiculo extends Component {
     }
 
     handleBlur = async  e => {
-        const { empresas, frota, veiculos } = this.state
+        const { empresas, frota } = this.state
         const { name } = e.target
         let { value } = e.target
 
         switch (name) {
-            case 'compartilhado':
-                this.getId(name, value, empresas, 'delegatarioCompartilhado', 'razaoSocial', 'delegatarioId')
-                break;
             case 'delegaTransf':
                 await this.getId(name, value, empresas, 'delegatarioId', 'razaoSocial', 'delegatarioId', 'Empresa')
-                break;
-            case 'razaoSocial':
-                await this.getId(name, value, empresas, 'donoDaFrotaId', 'razaoSocial', 'delegatarioId', 'Empresa')
-                if (this.state.donoDaFrotaId) {
-                    const f = veiculos.filter(v => v.delegatarioId === this.state.donoDaFrotaId)
-                    this.setState({ frota: f })
-                }
                 break;
             default:
                 void 0
@@ -187,36 +168,6 @@ class BaixaVeiculo extends Component {
         this.setState({ confirmToast: !this.state.confirmToast })
     }
 
-    handleFiles = async e => {
-        const { name, files } = e.target
-
-        if (files && files[0]) {
-
-            document.getElementById(name).value = files[0].name
-
-            let formData = new FormData()
-
-            let fn = this.state.fileNames
-
-            if (files && files.length > 0) {
-
-                fn.push({ [name]: files[0].name })
-                await this.setState({ filesNames: fn, [name]: files[0] })
-
-                cadVehicleFiles.forEach(({ name }) => {
-                    for (let keys in this.state) {
-                        if (keys.match(name)) {
-                            formData.append('id', name)
-                            formData.append(name, this.state[name])
-                        }
-                        else void 0
-                    }
-                })
-                this.setState({ form: formData })
-            }
-        }
-    }
-
     handleCheck = e => {
         const { value } = e.target
         this.setState({ checked: value })
@@ -225,7 +176,8 @@ class BaixaVeiculo extends Component {
         const { delegaTransf, confirmToast, toastMsg, checked } = this.state
 
         return <Fragment>
-            <VeiculosTemplate
+            <Crumbs links={['Veículos', '/veiculos']} text='Baixa de veículo' />
+            <BaixaTemplate
                 data={this.state}
                 handleInput={this.handleInput}
                 handleBlur={this.handleBlur}
@@ -280,7 +232,7 @@ class BaixaVeiculo extends Component {
                             fullWidth
                         />
                         <AutoComplete
-                            collection={this.props.data.empresas}
+                            collection={this.props.redux.empresas}
                             datalist='razaoSocial'
                             value={delegaTransf}
                         />
@@ -314,7 +266,6 @@ class BaixaVeiculo extends Component {
                         variant="outlined"
                         style={{ margin: '10px 0 10px 0' }}
                         onClick={() => this.handleSubmit()}
-                    //onClick={handleEquipa}
                     >
                         Confirmar <span>&nbsp;&nbsp; </span> <Send />
                     </Button>
@@ -325,15 +276,6 @@ class BaixaVeiculo extends Component {
     }
 }
 
+const collections = ['veiculos', 'empresas']
 
-function mapStateToProps(state) {
-    return {
-        redux: state.data
-    }
-}
-
-function mapDispatchToProps(dispatch) {
-    return bindActionCreators({ getData }, dispatch)
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(BaixaVeiculo)
+export default VehicleHOC(collections, BaixaVeiculo)

@@ -54,7 +54,7 @@ const useStyles = makeStyles(theme => ({
 export default function ({ handleInput, handleBlur, data, handleEquipa, handleCheck,
     altPlacaOption, showAltPlaca }) {
     const { tab, empresas, razaoSocial, activeStep, equipamentos, addEquipa,
-        delegatarioCompartilhado, subtitle, placa } = data,
+        delegatarioCompartilhado, subtitle, placa, frota } = data,
         classes = useStyles(), { paper, container, title } = classes
 
     const [shared, setShared] = useState(false)
@@ -76,14 +76,6 @@ export default function ({ handleInput, handleBlur, data, handleEquipa, handleCh
         else if (value && value.match(el.pattern) === null) return '✘'
         else if (el.pattern && value && value.match(el.pattern) !== null) return '✓'
         else return undefined
-    }
-
-    const showForm = () => {
-        const check = data.empresas.filter(e => e.razaoSocial === razaoSocial)
-        if (check && check[0]) {
-            return true
-        }
-        else return false
     }
 
     return (
@@ -163,12 +155,11 @@ export default function ({ handleInput, handleBlur, data, handleEquipa, handleCh
 
                 </Paper>
                 {
-                    razaoSocial && showForm()
+                    razaoSocial && frota[0]
                         ?
                         <Grid item xs={12}>
                             {activeStep < 3 && <Paper className={paper}>
-                                 <Typography className='formSubtitle'> {subtitle[activeStep]}</Typography>
-
+                                <Typography className='formSubtitle'> {subtitle[activeStep]}</Typography>
 
                                 {data.form && form[0] && form.map((el, i) =>
                                     <Fragment key={i}>
@@ -216,7 +207,7 @@ export default function ({ handleInput, handleBlur, data, handleEquipa, handleCh
                                         }
                                     </Fragment>)}
 
-                                {activeStep === 0 && tab === 0 && <Grid container justify="center"
+                                {activeStep === 0 && <Grid container justify="center"
                                 >
                                     <Button
                                         variant="outlined"

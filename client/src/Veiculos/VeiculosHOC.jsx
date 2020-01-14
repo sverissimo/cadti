@@ -4,6 +4,7 @@ import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { getData } from '../Redux/getDataActions'
 
+
 export default function (collections = [], WrappedComponent) {
 
     class With extends React.Component {
@@ -11,19 +12,20 @@ export default function (collections = [], WrappedComponent) {
         async componentDidMount() {
             const { redux } = this.props
 
-            let request = []            
+            let request = []
             collections.forEach(c => {
-                if (!redux[c] || !redux[c][0]) {
+                if (!redux[c] || !redux[c][0]) {                    
                     request.push(c)
                 }
-            })            
-
-            if (collections[0]) await this.props.getData(request)            
+            })
+            if (request[0]) {
+                await this.props.getData(request)
+            }
+            console.log(request, this.props.redux)
         }
 
         render() {
-            const { redux } = this.props
-            if (!redux.veiculos[0]) return <p>Loading...</p>
+            if (!collections.every(col => this.props.redux.hasOwnProperty(col))) return <p>Loading...</p>
             else return <WrappedComponent {...this.props} />
         }
     }

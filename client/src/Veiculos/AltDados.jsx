@@ -2,9 +2,7 @@ import React, { Component, Fragment } from 'react'
 import axios from 'axios'
 import humps from 'humps'
 
-import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { getData } from '../Redux/getDataActions'
 import { updateData } from '../Redux/updateDataActions'
 
 import VehicleHOC from './VeiculosHOC'
@@ -15,15 +13,16 @@ import ReactToast from '../Utils/ReactToast'
 import { altDadosFiles } from '../Forms/altDadosFiles'
 import { altForm } from '../Forms/altForm'
 
-import VeiculosTemplate from './VeiculosTemplate'
+import Crumbs from '../Utils/Crumbs'
+import AltDadosTemplate from './AltDadosTemplate'
 import VehicleDocs from './VehicleDocs'
 import Review from './Review'
 import StepperButtons from '../Utils/StepperButtons'
 import CustomStepper from '../Utils/Stepper'
 import FormDialog from '../Utils/FormDialog'
 
-const socketIO = require('socket.io-client')
-let socket
+/* const socketIO = require('socket.io-client')
+let socket */
 
 
 class AltDados extends Component {
@@ -57,12 +56,12 @@ class AltDados extends Component {
 
         this.setState({ ...this.props.redux })
 
-        if (!socket) {
-            socket = socketIO(':3001')
-        }
-        socket.on('updateVehicle', async updatedVehicle => {
-            this.props.updateData(humps.camelizeKeys(updatedVehicle))
-        })
+        /*    if (!socket) {
+               socket = socketIO(':3001')
+           }
+           socket.on('updateVehicle', async updatedVehicle => {
+               this.props.updateData(humps.camelizeKeys(updatedVehicle))
+           }) */
     }
 
     componentWillUnmount() { this.setState({}) }
@@ -242,13 +241,14 @@ class AltDados extends Component {
         const { confirmToast, toastMsg, activeStep, steps, stepTitles, tab, altPlaca } = this.state
 
         return <Fragment>
+            <Crumbs links={['Veículos', '/veiculos']} text='Cadastro de veículo' />
             <CustomStepper
                 activeStep={activeStep}
                 steps={steps}
                 stepTitles={stepTitles}
                 setActiveStep={this.setActiveStep}
             />
-            {activeStep < 2 && <VeiculosTemplate
+            {activeStep < 2 && <AltDadosTemplate
                 data={this.state}
                 altPlacaOption={activeStep === 0}
                 handleInput={this.handleInput}

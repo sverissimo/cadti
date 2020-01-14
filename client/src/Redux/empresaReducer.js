@@ -1,7 +1,5 @@
 const initState = {  
-    empresas: [],
-    seguradoras: [],
-    seguros: []    
+  
 }
 
 const empresaReducer = (state = initState, action) => {
