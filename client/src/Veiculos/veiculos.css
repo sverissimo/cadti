@@ -1,0 +1,114 @@
+body {
+    margin: 0;
+}
+
+.jumbotron {
+    width: 100%;
+    padding: 80px 0 80px 0;
+    border: 1px solid #ddd;
+    color: white;
+    background-image: url('/images/busFleet4.jpg');
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    filter: brightness('95%')
+}
+
+.jumbotron h1 {
+    padding-left: 25px;
+    font-size: 2.125rem;
+    font-family: "Roboto", "Helvetica", "Arial", sans-serif;
+    font-weight: 400;
+    line-height: 1.235;
+    letter-spacing: 0.00735em;
+}
+
+.jumbotron p {
+    padding-left: 25px;
+}
+
+.cardSection {
+    margin-top: 30px;
+    display: flex;
+    align-content: flex-start;
+    flex-wrap: wrap;
+}
+
+.card {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    margin-bottom: 30px;
+    background-color: white;
+    border-radius: 50%;
+    text-decoration: none;
+    box-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, 0.12);
+}
+
+.card:not(:last-of-type) {
+    margin-right: 50px;
+}
+
+.card:hover {
+    background-color: #fafaff;
+}
+
+.cardImage {
+    text-align: center;
+    padding: 1rem;
+    min-height: 80px;
+}
+
+.cardImage img {
+    width: 65px;
+    height: 65px;
+}
+
+.cardImage:after {
+    width: 75%;
+    border-top: 1px solid #bbb;
+    content: '';
+    display: block;
+    margin: 5% 0 0 10%;
+}
+
+.cardText {
+    /* flex-basis: 14.28% ; */
+    flex: 1;
+    text-align: center;
+    padding: 0 1rem 0.5rem 1rem;    
+    color: black
+}
+
+.cardText h3 {
+    margin-top: 0;
+    font-weight: 500;
+}
+
+.cardText p {
+    margin-top: 0;
+    padding: 0 15px;
+    font-size: 0.75rem;
+}
+
+.formTitle {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 18px;
+    color: black;
+    margin: 5px;
+    padding: 10px;
+    min-width: 1200px;
+}
+
+.formSubtitle {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 17px;
+    font-weight: 400;
+    text-align: center;
+    color: black;
+    padding: 2px 0 5px 0
+}
+
+.radio {
+    display: inline-block;
+    font-size: 0.7rem
+}

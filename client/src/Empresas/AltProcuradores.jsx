@@ -163,7 +163,7 @@ export default class AltProcuradores extends Component {
             gotId = procuradores.filter(p => p.cpfProcurador === fp.cpfProcurador)
             if (gotId.length > 0 && gotId[0].hasOwnProperty('procuradorId')) {
                 procIdArray.push(gotId[0].procuradorId)
-            } else {                
+            } else {
                 newMembers.push(fp)
             }
         })
@@ -290,7 +290,7 @@ export default class AltProcuradores extends Component {
             const { _id, filename } = selectedFile
             download(_id, filename, 'empresaDocs')
         } else {
-            this.createAlert('filesNotFound')
+            this.setState({ alertType: 'filesNotFound', openAlertDialog: true })
         }
     }
 
@@ -316,37 +316,14 @@ export default class AltProcuradores extends Component {
         let i = [...this.state.procsToAdd]
         i.pop()
         this.setState({ procsToAdd: i })
-    }
-
-    createAlert = (alert) => {
-        let dialogTitle, message
-
-        switch (alert) {
-            case 'filesNotFound':
-                const subject = 'Procuração'
-                dialogTitle = 'Arquivos não encontrados'
-                message = `Não há nenhum arquivo anexado no sistema para a ${subject} selecionada. 
-                Ao cadastrar ou atualizar a ${subject}, certifique-se de anexar o arquivo correspondente.`
-                break;
-            case 'fieldsMissing':
-                dialogTitle = 'Favor preencher todos os campos.'
-                message = 'Os campos acima são de preenchimento obrigatório. Certifique-se de ter preenchido todos eles.'
-                break;
-            case 'plateExists':
-                dialogTitle = 'Placa já cadastrada!'
-                message = 'A placa informada já está cadastrada. Para atualizar seguro, alterar dados ou solicitar baixa, utilize as opções acima. '
-                break;
-            default:
-                break;
-        }
-        this.setState({ openDialog: true, dialogTitle, message })
-    }
+    }   
 
     toggleDialog = () => this.setState({ openDialog: !this.state.openDialog })
+    closeAlert = () => this.setState({ openAlertDialog: !this.state.openAlertDialog })
     toast = () => this.setState({ confirmToast: !this.state.confirmToast })
 
     render() {
-        const { showFiles, selectedElement, filesCollection, openDialog, dialogTitle, message } = this.state
+        const { showFiles, selectedElement, filesCollection, openAlertDialog, alertType } = this.state
 
         return (
             <React.Fragment>
@@ -367,7 +344,7 @@ export default class AltProcuradores extends Component {
                 />
                 {showFiles && <ShowFiles elementId={selectedElement} typeId='procuracao' filesCollection={filesCollection} format={format} close={this.closeFiles} />}
                 <ReactToast open={this.state.confirmToast} close={this.toast} msg={this.state.toastMsg} />
-                <AlertDialog open={openDialog} close={this.toggleDialog} title={dialogTitle} message={message} />
+                {openAlertDialog && <AlertDialog open={openAlertDialog} close={this.closeAlert} alertType={alertType} />}
             </React.Fragment>
         )
     }

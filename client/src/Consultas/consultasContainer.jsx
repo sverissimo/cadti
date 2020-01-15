@@ -2,10 +2,10 @@ import React, { Component, Fragment } from 'react'
 import axios from 'axios'
 import humps from 'humps'
 
-import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { getData } from '../Redux/getDataActions'
 import { updateData } from '../Redux/updateDataActions'
+
+import ConsultasHOC from './ConsultasHOC'
 
 import ConsultasTemplate from './consultasTemplate'
 import { TabMenu } from '../Layouts'
@@ -35,7 +35,7 @@ class ConsultasContainer extends Component {
                 if (this.state.showDetails) this.showDetails()
                 if (this.state.showFiles) this.closeFiles()
             }
-        }        
+        }
     }
 
     state = {
@@ -55,29 +55,18 @@ class ConsultasContainer extends Component {
     }
 
     async componentDidMount() {
-        const collections = ['veiculos', 'empresas', 'socios', 'procuradores', 'seguros', 'getFiles/vehicleDocs', 'getFiles/empresaDocs'],
-            { redux } = this.props
 
-        let request = []
-
-        collections.forEach(req => {
-            const colName = req.replace('getFiles/', '')
-            if (!redux[colName] || !redux[colName][0]) request.push(req)
-        })
-
-        await this.props.getData(request)
-        await this.setState({ ...this.props.redux, collection: this.props.redux['empresas'] })
+        await this.setState({ ...this.props.redux, collection: this.props.redux.empresas })
 
         document.addEventListener('keydown', this.escFunction, false)
-
-        if (!socket) {
-            socket = socketIO(':3001')
-        }
-
-        socket.on('updateVehicle', async updatedVehicle => {
-            await this.props.updateData(humps.camelizeKeys(updatedVehicle))
-            this.setState({ veiculos: this.props.redux.veiculos })
-        })
+        /* 
+                if (!socket) {
+                    socket = socketIO(':3001')
+                }
+                socket.on('updateVehicle', async updatedVehicle => {
+                    await this.props.updateData(humps.camelizeKeys(updatedVehicle))
+                    this.setState({ veiculos: this.props.redux.veiculos })
+                }) */
     }
 
     componentWillUnmount() { this.setState({}) }
@@ -133,7 +122,7 @@ class ConsultasContainer extends Component {
             this.setState({ filesCollection: selectedFiles, showFiles: true, typeId, selectedElement: id })
 
         } else {
-            this.createAlert('filesNotFound')
+            this.setState({ alertType: 'filesNotFound', openAlertDialog: true })
             this.setState({ filesCollection: [] })
         }
     }
@@ -164,14 +153,13 @@ class ConsultasContainer extends Component {
         this.setState({ openDialog: true, dialogTitle, message })
     }
 
-    toggleDialog = () => {
-        this.setState({ openDialog: !this.state.openDialog })
-    }
+    toggleDialog = () => this.setState({ openDialog: !this.state.openDialog })
+    closeAlert = () => this.setState({ openAlertDialog: !this.state.openAlertDialog })
 
     render() {
         const { tab, items, collection, showDetails, elementDetails, showFiles, selectedElement, filesCollection,
-            openDialog, dialogTitle, message, typeId, empresas } = this.state
-        console.log(this.props)
+            openAlertDialog, alertType, typeId, empresas } = this.state
+
         return <Fragment>
             <TabMenu items={items}
                 tab={tab}
@@ -197,22 +185,11 @@ class ConsultasContainer extends Component {
             </PopUp>}
             {showFiles && <ShowFiles tab={tab} elementId={selectedElement} filesCollection={filesCollection}
                 close={this.closeFiles} format={format} typeId={typeId} empresas={empresas} />}
-            <AlertDialog open={openDialog} close={this.toggleDialog} title={dialogTitle} message={message} />
+            {openAlertDialog && <AlertDialog open={openAlertDialog} close={this.closeAlert} alertType={alertType} />}
         </Fragment>
     }
 }
 
-function mapStateToProps(state) {
-    return {
-        redux: {
-            ...state.vehicleData,
-            ...state.otherData
-        }
-    }
-}
+const collections = ['veiculos', 'empresas', 'socios', 'procuradores', 'seguros', 'getFiles/vehicleDocs', 'getFiles/empresaDocs']
 
-function mapDispatchToProps(dispatch) {
-    return bindActionCreators({ getData, updateData }, dispatch)
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(ConsultasContainer)
+export default connect(null, { updateData })(ConsultasHOC(collections, ConsultasContainer))

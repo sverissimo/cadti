@@ -259,8 +259,8 @@ class AltSeguro extends Component {
     }
 
     render() {
-        const enableAddPlaca = seguroForm
-            .every(k => this.state.hasOwnProperty(k.field) && this.state[k.field] !== '')
+       /*  const enableAddPlaca = seguroForm
+            .every(k => this.state.hasOwnProperty(k.field) && this.state[k.field] !== '') */
 
         return (
             <Fragment>

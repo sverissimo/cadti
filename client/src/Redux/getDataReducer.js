@@ -1,8 +1,4 @@
-const initState = {
-    search: '',
-    setColor: '',
-    loading: false
-}
+const initState = { }
 
 const getDataReducer = (state = initState, action) => {
     const { payload } = action

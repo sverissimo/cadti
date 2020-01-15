@@ -62,12 +62,12 @@ const link = (id) => {
     document.getElementById(id).click()
 }
 
-export default function VehicleDocs({ handleFiles,  tab }) {
+export default function VehicleDocs({ handleFiles, parentComponent }) {
     const { root, textField, button, input, paper, resize, item } = useStyles()
 
     let filesForm
-    if (tab === 0) filesForm = cadVehicleFiles
-    if (tab === 2) filesForm = altDadosFiles
+    if (parentComponent === 'cadastro') filesForm = cadVehicleFiles
+    if (parentComponent === 'altDados') filesForm = altDadosFiles
 
 
     return (

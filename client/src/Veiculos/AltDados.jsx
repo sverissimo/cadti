@@ -20,6 +20,7 @@ import Review from './Review'
 import StepperButtons from '../Utils/StepperButtons'
 import CustomStepper from '../Utils/Stepper'
 import FormDialog from '../Utils/FormDialog'
+import AlertDialog from '../Utils/AlertDialog'
 
 /* const socketIO = require('socket.io-client')
 let socket */
@@ -27,8 +28,7 @@ let socket */
 
 class AltDados extends Component {
 
-    state = {
-        tab: 2,
+    state = {        
         stepTitles: ['Informe a placa para alterar os dados abaixo ou mantenha as informações atuais e clique em avançar',
             'Altere os dados desejados abaixo e clique em avançar', 'Anexe os documentos solicitados',
             'Revisão das informações e deferimento'],
@@ -46,7 +46,7 @@ class AltDados extends Component {
         activeStep: 0,
         files: [],
         fileNames: [],
-        openDialog: false,
+        openAlertDialog: false,
         altPlaca: false,
         newPlate: '',
         placa: ''
@@ -73,8 +73,25 @@ class AltDados extends Component {
         if (action === 'reset') this.setState({ activeStep: 0 })
     }
 
-    handleInput = e => {
-        const { name, value } = e.target
+    handleInput = async e => {
+        const { veiculos } = this.state,
+            { name, value } = e.target
+
+
+        if (name === 'razaoSocial') {
+            let selectedEmpresa = this.state.empresas.find(e => e.razaoSocial === value)
+
+            if (selectedEmpresa) {
+                await this.setState({ razaoSocial: selectedEmpresa.razaoSocial, selectedEmpresa })
+                if (value !== selectedEmpresa.razaoSocial) this.setState({ selectedEmpresa: undefined })
+
+                const frota = veiculos.filter(v => v.empresa === this.state.razaoSocial)                
+
+                this.setState({ frota })
+
+            } else this.setState({ selectedEmpresa: undefined, frota: [] })
+        }
+
         if (name === 'newPlate') {
             let newPlate = value
             if (typeof newPlate === 'string') {
@@ -105,7 +122,7 @@ class AltDados extends Component {
     }
 
     handleBlur = async  e => {
-        const { empresas, frota, veiculos } = this.state
+        const { empresas, frota } = this.state
         const { name } = e.target
         let { value } = e.target
 
@@ -116,17 +133,10 @@ class AltDados extends Component {
             case 'delegatario':
                 await this.getId(name, value, empresas, 'delegatarioId', 'razaoSocial', 'delegatarioId', 'Empresa')
                 break;
-            case 'razaoSocial':
-                await this.getId(name, value, empresas, 'donoDaFrotaId', 'razaoSocial', 'delegatarioId', 'Empresa')
-                if (this.state.donoDaFrotaId) {
-                    const f = veiculos.filter(v => v.delegatarioId === this.state.donoDaFrotaId)
-                    this.setState({ frota: f })
-                }
-                break;
             default:
                 void 0
         }
-        if (name === 'placa' && typeof this.state.frota !== 'string') {
+        if (name === 'placa' && value.length > 2 && Array.isArray(this.state.frota)) {
 
             const vehicle = this.state.frota.filter(v => {
                 if (typeof value === 'string') return v.placa.toLowerCase().match(value.toLowerCase())
@@ -139,7 +149,7 @@ class AltDados extends Component {
             let reset = {}
             if (frota[0]) Object.keys(frota[0]).forEach(k => reset[k] = '')
             if (this.state.placa !== '' && !vehicle) {
-                this.props.createAlert('plateNotFound')
+                this.setState({ alertType: 'plateNotFound', openAlertDialog: true })
                 this.setState({ ...reset, disable: false })
             }
         }
@@ -235,13 +245,15 @@ class AltDados extends Component {
 
 
     toggleDialog = () => this.setState({ altPlaca: !this.state.altPlaca })
+    closeAlert = () => this.setState({ openAlertDialog: !this.state.openAlertDialog })
     toast = () => this.setState({ confirmToast: !this.state.confirmToast })
 
     render() {
-        const { confirmToast, toastMsg, activeStep, steps, stepTitles, tab, altPlaca } = this.state
+        const { confirmToast, toastMsg, activeStep, steps, stepTitles, altPlaca,
+            selectedEmpresa, openAlertDialog, alertType } = this.state
 
         return <Fragment>
-            <Crumbs links={['Veículos', '/veiculos']} text='Cadastro de veículo' />
+            <Crumbs links={['Veículos', '/veiculos']} text='Alteração de dados' />
             <CustomStepper
                 activeStep={activeStep}
                 steps={steps}
@@ -276,18 +288,19 @@ class AltDados extends Component {
                 </Grid>
             </Grid>}
             {activeStep === 2 && <VehicleDocs
-                tab={tab}
+                parentComponent='altDados'
                 handleFiles={this.handleFiles}
                 handleSubmit={this.submitFiles}
                 handleNames={this.handleNames}
             />}
-            {activeStep === 3 && <Review data={this.state} />}
-            <StepperButtons
+            {activeStep === 3 && <Review parentComponent='cadastro' data={this.state} />}
+            
+            {selectedEmpresa && <StepperButtons
                 activeStep={activeStep}
                 lastStep={steps.length - 1}
                 handleSubmit={this.handleEdit}
                 setActiveStep={this.setActiveStep}
-            />
+            />}
             <ReactToast open={confirmToast} close={this.toast} msg={toastMsg} />
             <FormDialog
                 open={altPlaca}
@@ -297,6 +310,7 @@ class AltDados extends Component {
                 handleFiles={this.handleFiles}
                 updatePlate={this.updatePlate}
             />
+            {openAlertDialog && <AlertDialog open={openAlertDialog} close={this.closeAlert} alertType={alertType} />}
         </Fragment>
     }
 }

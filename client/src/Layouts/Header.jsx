@@ -4,6 +4,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import { Toolbar, Typography, Button, IconButton, Link } from '@material-ui/core'
 import SearchIcon from '@material-ui/icons/Search';
+import './stylez.css'
 
 const useStyles = makeStyles(theme => ({
     toolbar: {

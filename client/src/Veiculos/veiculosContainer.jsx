@@ -29,8 +29,7 @@ class VeiculosContainer extends PureComponent {
         }
     }
 
-    state = {
-        tab: 0,
+    state = {        
         steps: ['Dados do Veículo', 'Dados do seguro', 'Vistoria e laudos', 'Documentos', 'Revisão'],
         subtitle: ['Informe os dados do Veículo', 'Informe os dados do Seguro',
             'Preencha os campos abaixo conforme a vistoria realizada'],
@@ -55,7 +54,7 @@ class VeiculosContainer extends PureComponent {
 
     async componentDidMount() {
 
-        const redux = { ...this.props.redux }
+        const { redux } = this.props
         let equipamentos = {}
 
         if (redux) {
@@ -73,7 +72,7 @@ class VeiculosContainer extends PureComponent {
             const matchPlaca = this.state.frota.filter(v => v.placa === this.state.placa)[0]
             if (matchPlaca) {
                 await this.setState({ placa: '' });
-                this.createAlert('plateExists')
+                this.setState({ alertType: 'plateExists', openDialog: true })
                 return null
             }
         }
@@ -117,7 +116,7 @@ class VeiculosContainer extends PureComponent {
         }
 
         if (name !== 'razaoSocial') this.setState({ [name]: value, form: { ...this.state.form, [parsedName]: value } })
-        if (name === 'placa' && this.state.tab === 0) {
+        if (name === 'placa') {
             if (typeof value === 'string') {
                 value = value.toLocaleUpperCase()
                 await this.setState({ [name]: value })
@@ -146,7 +145,7 @@ class VeiculosContainer extends PureComponent {
     }
 
     handleBlur = async  e => {
-        const { empresas, tab, frota, placa, modelosChassi, carrocerias, seguradoras, allInsurances,
+        const { empresas, frota, placa, modelosChassi, carrocerias, seguradoras, allInsurances,
         } = this.state
         const { name } = e.target
         let { value } = e.target
@@ -207,29 +206,28 @@ class VeiculosContainer extends PureComponent {
         }
 
         if (name === 'placa' && typeof this.state.frota !== 'string') {
-            if (tab === 0) {
 
-                if (value.length === 7) {
-                    const x = value.replace(/(\w{3})/, '$1-')
-                    await this.setState({ placa: x })
-                    value = x
-                    const matchPlaca = frota.filter(v => v.placa === this.state.placa)[0]
-                    if (matchPlaca) {
-                        await this.setState({ placa: null });
-                        value = ''
-                        this.createAlert('plateExists')
-                        document.getElementsByName('placa')[0].focus()
-                    }
-
-                }
-                const matchPlaca2 = frota.filter(v => v.placa === placa)[0]
-                if (matchPlaca2) {
+            if (value.length === 7) {
+                const x = value.replace(/(\w{3})/, '$1-')
+                await this.setState({ placa: x })
+                value = x
+                const matchPlaca = frota.filter(v => v.placa === this.state.placa)[0]
+                if (matchPlaca) {
                     await this.setState({ placa: null });
                     value = ''
-                    this.createAlert('plateExists')
+                    this.setState({ alertType: 'plateExists', openDialog: true })
                     document.getElementsByName('placa')[0].focus()
                 }
+
             }
+            const matchPlaca2 = frota.filter(v => v.placa === placa)[0]
+            if (matchPlaca2) {
+                await this.setState({ placa: null });
+                value = ''
+                this.setState({ alertType: 'plateExists', openDialog: true })
+                document.getElementsByName('placa')[0].focus()
+            }
+
         }
     }
 
@@ -351,32 +349,6 @@ class VeiculosContainer extends PureComponent {
         this.toast()
     }
 
-    createAlert = (alert) => {
-        let dialogTitle, message
-
-        switch (alert) {
-            case 'plateNotFound':
-                dialogTitle = 'Placa não encontrada'
-                message = 'A placa informada não corresponde a nenhum veículo da frota da viação selecionada.Para cadastrar um novo veículo, selecione a opção "Cadastro de Veículo" no menu acima.'
-                break;
-            case 'invalidPlate':
-                dialogTitle = 'Placa inválida'
-                message = 'Certifique-se de que a placa informada é uma placa válida, com três letras seguidas de 4 números (ex: AAA-0000)'
-                break;
-            case 'fieldsMissing':
-                dialogTitle = 'Favor preencher todos os campos.'
-                message = 'Os campos acima são de preenchimento obrigatório. Certifique-se de ter preenchido todos eles.'
-                break;
-            case 'plateExists':
-                dialogTitle = 'Placa já cadastrada!'
-                message = 'A placa informada já está cadastrada. Para atualizar seguro, alterar dados ou solicitar baixa, utilize as opções acima. '
-                break;
-            default:
-                break;
-        }
-        this.setState({ openDialog: true, dialogTitle, message })
-    }
-
     showFiles = id => {
 
         let selectedFiles = this.state.files.filter(f => f.metadata.veiculoId === id.toString())
@@ -385,7 +357,7 @@ class VeiculosContainer extends PureComponent {
             this.setState({ filesCollection: selectedFiles, showFiles: true, selectedVehicle: id })
 
         } else {
-            this.createAlert('filesNotFound')
+            this.setState({ alertType: 'filesNotFound', openDialog: true })
             this.setState({ filesCollection: [] })
         }
     }
@@ -395,11 +367,11 @@ class VeiculosContainer extends PureComponent {
     toggleDialog = () => this.setState({ openDialog: !this.state.openDialog })
 
     render() {
-        const { tab, confirmToast, toastMsg, activeStep,
-            openDialog, dialogTitle, message, steps } = this.state
+        const { confirmToast, toastMsg, activeStep,
+            openDialog, alertType, steps, selectedEmpresa } = this.state
 
-        const enableAddPlaca = cadForm[1]
-            .every(k => this.state.hasOwnProperty(k.field) && this.state[k.field] !== '')
+        /*   const enableAddPlaca = cadForm[1]
+              .every(k => this.state.hasOwnProperty(k.field) && this.state[k.field] !== '') */
 
         return <Fragment>
             <Crumbs links={['Veículos', '/veiculos']} text='Cadastro de veículo' />
@@ -418,23 +390,23 @@ class VeiculosContainer extends PureComponent {
                 match={this.props.match}
             />
             {activeStep === 3 && <VehicleDocs
-                tab={tab}
+                parentComponent='cadastro'
                 handleFiles={this.handleFiles}
                 handleSubmit={this.submitFiles}
                 handleNames={this.handleNames}
                 showFiles={this.showFiles}
             />}
 
-            {activeStep === 4 && <Review data={this.state} />}
+            {activeStep === 4 && <Review parentComponent='cadastro' data={this.state} />}
 
-            <StepperButtons
+            {selectedEmpresa && <StepperButtons
                 activeStep={activeStep}
                 lastStep={steps.length - 1}
                 handleSubmit={this.handleCadastro}
                 setActiveStep={this.setActiveStep}
-            />
+            />}
             <ReactToast open={confirmToast} close={this.toast} msg={toastMsg} />
-            <AlertDialog open={openDialog} close={this.toggleDialog} title={dialogTitle} message={message} />
+            {openDialog && <AlertDialog open={openDialog} close={this.toggleDialog} alertType={alertType} />}
         </Fragment>
     }
 }

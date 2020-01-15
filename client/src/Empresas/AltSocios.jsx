@@ -91,7 +91,7 @@ export default class AltSocios extends Component {
             case 'cpfSocio':
                 const alreadyExists = filteredSocios.find(e => e.cpfSocio === value)
                 if (alreadyExists) {
-                    this.createAlert('alreadyExists')
+                    this.setState({alertType: 'alreadyExists', openAlertDialog: true})
                     this.setState({ cpfSocio: '' })
                 }
                 break;
@@ -101,9 +101,8 @@ export default class AltSocios extends Component {
 
                     if (value !== '0' && value !== '00' && !Number(value)) {
 
-                        await this.setState({ share: '' })
-                        console.log(value)
-                        this.createAlert('numberNotValid')
+                        await this.setState({ share: '' })                        
+                        this.setState({alertType: 'numberNotValid', openAlertDialog: true})
 
                     } else {
                         let totalShare = filteredSocios.map(s => Number(s.share))
@@ -272,45 +271,13 @@ export default class AltSocios extends Component {
         formData.append('contratoSocial', file[0])
         this.setState({ dropDisplay: file[0].name, contratoSocial: formData })
     }
-
-    createAlert = (alert) => {
-        let dialogTitle, message
-
-        switch (alert) {
-            case 'alreadyExists':
-
-                dialogTitle = 'CPF já cadastrado.'
-                message = `O CPF informado corresponde a um sócio já cadastrado. 
-                Para remover ou editar as informações dos sócios, utilize a respectiva opção abaixo.`
-                break;
-            case 'numberNotValid':
-                dialogTitle = 'Número inválido.'
-                message = 'O número digitado não é válido.'
-                break;
-            case 'overShared':
-                dialogTitle = 'Participação societária inválida.'
-                message = 'A participação societária informada excede a 100%.'
-                break;
-            case 'subShared':
-                dialogTitle = 'Participação societária inválida.'
-                message = 'A participação societária informada não soma 100%. Favor informar todos os sócios com suas respectivas participações.'
-                break;
-            /*    case 'missingRequiredFields':
-                  dialogTitle = 'Campos de preenchimento obrigatório.'
-                  message = 'Favor preencher todos os campos do formulário.'
-                  break; */
-            default:
-                break;
-        }
-
-        this.setState({ openDialog: true, dialogTitle, message })
-    }
-
+    
     toggleDialog = () => this.setState({ openDialog: !this.state.openDialog })
+    closeAlert = () => this.setState({ openAlertDialog: !this.state.openAlertDialog })
     toast = () => this.setState({ confirmToast: !this.state.confirmToast })
 
     render() {
-        const { openDialog, dialogTitle, message } = this.state
+        const { openAlertDialog, alertType } = this.state
         return (
             <React.Fragment>
                 <Crumbs links={['Empresas', '/empresasHome']} text='Alteração do quadro societário' />
@@ -326,7 +293,7 @@ export default class AltSocios extends Component {
                     handleSubmit={this.handleSubmit}
                 />
                 <ReactToast open={this.state.confirmToast} close={this.toast} msg={this.state.toastMsg} />
-                <AlertDialog open={openDialog} close={this.toggleDialog} title={dialogTitle} message={message} />
+                {openAlertDialog && <AlertDialog open={openAlertDialog} close={this.closeAlert} alertType={alertType} />}
             </React.Fragment>
         )
     }

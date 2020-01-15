@@ -17,14 +17,7 @@ import Routes from './Routes'
 function App() {
 
   const useStyles = makeStyles(theme => ({
-    root: {
-      flexGrow: 1,
-    },
-    paper: {
-      padding: theme.spacing(2),
-      textAlign: 'center',
-      color: theme.palette.text.secondary,
-    },
+    root: { flexGrow: 1, backgroundColor:'#fbfbfb' }
   }))
 
   const { root } = useStyles()
@@ -32,7 +25,7 @@ function App() {
   return (
     <Provider store={store(rootReducer)}>
       <div className={root}>
-        <Container maxWidth="lg">
+        <Container maxWidth="lg" style={{ minHeight: '100vh' }}>
           <BrowserRouter>
             <Header />
             <Routes />

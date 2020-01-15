@@ -48,14 +48,15 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
-export default function Revisao({ data }) {
+export default function Revisao({ data, parentComponent }) {
     let review = [], formArray
     const classes = useStyles(),
         { textField, paper, root, equipa, icon } = classes,
-        { tab, justificativa } = data
+        { justificativa } = data
 
-    if (tab === 0) formArray = cadForm
-    if (tab === 2) formArray = altForm
+    if (parentComponent === 'cadastro') formArray = cadForm
+    if (parentComponent === 'altDados') formArray = altForm
+    
 
     formArray.forEach(form => {
         form.forEach(obj => {
@@ -67,7 +68,7 @@ export default function Revisao({ data }) {
     })
 
     let eq
-    if (tab === 0) eq = data.equipamentos_id.toString().replace(/,/g, ', ')
+    if (parentComponent === 'cadastro' && data.hasOwnProperty('equipamentos_id')) eq = data.equipamentos_id.toString().replace(/,/g, ', ')
 
     return (
         <Paper className={paper}>
@@ -100,7 +101,7 @@ export default function Revisao({ data }) {
                         </Fab>
                     </Tooltip>
                 </Grid>
-                {tab === 2 && <Grid item xs={12} style={{ margin: '2% 0' }}>
+                {parentComponent === 'altDados' && <Grid item xs={12} style={{ margin: '2% 0' }}>
                     <TextField
                         name='justificativa'
                         value={justificativa}
@@ -115,7 +116,7 @@ export default function Revisao({ data }) {
                     />
                 </Grid>
                 }
-                {tab === 0 && <Grid item xs={12} style={{ display: eq ? undefined : 'none' }}>
+                {parentComponent === 'cadastro' && <Grid item xs={12} style={{ display: eq ? undefined : 'none' }}>
                     <TextField
                         id='equipamentos'
                         className={equipa}

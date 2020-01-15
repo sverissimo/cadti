@@ -12,7 +12,8 @@ import { altForm } from '../Forms/altForm'
 
 import AutoComplete from '../Utils/autoComplete'
 
-import './styleZ.css'
+import './veiculos.css'
+
 
 const useStyles = makeStyles(theme => ({
     container: {

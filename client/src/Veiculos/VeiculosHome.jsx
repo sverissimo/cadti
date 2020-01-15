@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import './styleZ.css'
+import './veiculos.css'
 
 const menuCards = [
     {
@@ -8,76 +8,59 @@ const menuCards = [
         date: '07/Nov',
         description:
             'Cadastrar um novo veículo no sistema.',
-        imageUrl: '/images/addCompany21.png',
+        imageUrl: '/images/add_new.jpg',
         link: '/cadastro'
     },
     {
         title: 'Alteração de dados',
         date: '07/Nov',
         description:
-            'Gerenciar sócios e alterações de contrato social',
+            'Alterar dados de um veículo',
         link: '/altDados',
-        imageUrl: '/images/socios3.png'
+        imageUrl: '/images/pen.png'
     },
     {
         title: 'Seguros',
         date: '07/Nov',
         description:
-            'Alterar relação de procuradores e procurações',
+            'Atualizar seguros e apólices',
         link: '/altSeguro',
-        imageUrl: '/images/procuradores31.png'
+        imageUrl: "/images/car_insurance2.png"
     },
     {
         title: 'Baixa',
         date: '07/Nov',
         description:
-            'Alterar relação de procuradores e procurações',
+            'Baixa de veículos',
         link: '/baixaVeiculo',
-        imageUrl: '/images/procuradores31.png'
-    },
-    {
-        title: 'Baixa',
-        date: '07/Nov',
-        description:
-            'Alterar relação de procuradores e procurações',
-        link: '/procuradores',
-        imageUrl: '/images/procuradores31.png'
-    },
-    {
-        title: 'Baixa',
-        date: '07/Nov',
-        description:
-            'Alterar relação de procuradores e procurações',
-        link: '/procuradores',
-        imageUrl: '/images/procuradores31.png'
-    },
-    {
-        title: 'Baixa',
-        date: '07/Nov',
-        description:
-            'Alterar relação de procuradores e procurações',
-        link: '/procuradores',
-        imageUrl: '/images/procuradores31.png'
-    },
+        imageUrl: "/images/remove_doc.png"
+    }
 ]
 
 export default function VeiculosHome(props) {
-    const { match } = props    
+    const { match } = props
     return (
         <div>
             <div className="jumbotron">
                 <h1>
                     Veículos
                 </h1>
+                <p>
+                    Selecione uma das opções abaixo.
+                </p>
             </div>
-            <div className="cardHolder">
+            <section className="cardSection">
                 {
-                    menuCards.map(({ title, link }, i) =>
-                        <Link to={match.url + link} key={i} className="card">
-                            {title}
+                    menuCards.map(({ title, link, imageUrl, description }, i) =>
+                        <Link to={match.url + link} key={i} className="card">                            
+                                <span className="cardImage"> <img src={imageUrl} alt="tst" /> </span>
+                                <div className="cardText">
+                                    <h3 >{title}</h3>
+                                    <p > {description}</p>
+                                </div>                            
                         </Link>
                     )}
-            </div>            
+            </section>
         </div >
     )
 }

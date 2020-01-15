@@ -10,7 +10,6 @@ import CardContent from '@material-ui/core/CardContent'
 import CardActionArea from '@material-ui/core/CardActionArea'
 import CardMedia from '@material-ui/core/CardMedia'
 import Hidden from '@material-ui/core/Hidden'
-import Container from '@material-ui/core/Container'
 
 const useStyles = makeStyles(theme => ({
     toolbar: {
@@ -117,18 +116,15 @@ export default function () {
     return (
         <React.Fragment>
             <CssBaseline />
-            <Container maxWidth="lg" style={{
+            <div style={{
                 minHeight: '83vh',
-                height: 'auto',
-                backgroundColor: '#fafafa',
+                height: 'auto'
             }}>
                 <main>
                     <Paper className={classes.mainFeaturedPost}>
-                        <img
-                            style={{ position: 'absolute', height: '100%', width: '100%' }}
-                            src="/images/empresasBg2.jpg"
-                            alt="background"
-                        />
+                        <div style={{  height: '90px', width: '100%' }}>
+                            <img src="/images/empresasBg2.jpg" alt="Empresas" width='100%' height= '280px'/>
+                        </div>
                         <div className={classes.overlay} />
                         <Grid container>
                             <Grid item md={4}>
@@ -180,7 +176,7 @@ export default function () {
                         ))}
                     </Grid>
                 </main>
-            </Container>
+            </div>
         </React.Fragment>
     )
 }

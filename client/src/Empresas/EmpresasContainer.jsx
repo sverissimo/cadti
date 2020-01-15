@@ -86,7 +86,7 @@ export default class extends Component {
         })
 
         if (invalid === 100) {
-            this.createAlert('missingRequiredFields')
+            this.setState({ alertType: 'fieldsMissing', openAlertDialog: true})
             return null
         } else {
             form.forEach(obj => {
@@ -99,7 +99,7 @@ export default class extends Component {
             })
             if (totalShare > 100) {
                 socios.pop()
-                this.createAlert('overShared')
+                this.setState({ alertType: 'overShared', openAlertDialog: true})
             }
             else {
                 await this.setState({ socios, totalShare })
@@ -148,7 +148,6 @@ export default class extends Component {
         this.setState({ socios })
     }
 
-
     getId = async (name, value, collection, stateId, dbName, dbId, alertLabel) => {
 
         const item = collection.filter(el => el[dbName].toLowerCase().match(value.toLowerCase()))
@@ -176,13 +175,13 @@ export default class extends Component {
                 const alreadyExists = empresas.filter(e => e.cnpj === value)
                 if (alreadyExists[0]) {
                     this.setState({ cnpj: '' })
-                    this.createAlert(alreadyExists[0])
+                    this.setState({ alertType: alreadyExists[0], openAlertDialog: true})
                 }
                 break;
             case 'share':
                 value = value.replace(',', '.')
                 if (value > 100) {
-                    this.createAlert('overShared')
+                    this.setState({ alertType: 'overShared', openAlertDialog: true})
                 }
                 else {
                     const totalShare = Number(this.state.totalShare) + Number(value)
@@ -192,7 +191,7 @@ export default class extends Component {
             case 'numero':
                 if (value && !value.match(/^\d+$/)) {
                     await this.setState({ numero: '' })
-                    this.createAlert('numberNotValid')
+                    this.setState({ alertType: 'numberNotValid', openAlertDialog: true})
                 }
                 break;
             default:
@@ -252,45 +251,17 @@ export default class extends Component {
         }
 
         this.toast()
-    }
-
-    createAlert = (alert) => {
-        let dialogTitle, message
-        if (typeof alert === 'object') {
-            dialogTitle = 'Empresa já cadastrada'
-            message = `A empresa ${alert.razaoSocial} já está cadastrada no sistema com o CNPJ ${alert.cnpj}.`
-        }
-        else switch (alert) {
-            case 'overShared':
-                dialogTitle = 'Participação societária inválida.'
-                message = 'A participação societária informada excede a 100%.'
-                break;
-            case 'subShared':
-                dialogTitle = 'Participação societária inválida.'
-                message = 'A participação societária informada não soma 100%. Favor informar todos os sócios com suas respectivas participações.'
-                break;
-            case 'missingRequiredFields':
-                dialogTitle = 'Campos de preenchimento obrigatório.'
-                message = 'Favor preencher todos os campos do formulário.'
-                break;
-            case 'numberNotValid':
-                dialogTitle = 'Número inválido.'
-                message = 'O número não pode conter pontos, virgulas ou caracteres especiais.'
-                break;
-            default:
-                break;
-        }
-        this.setState({ openDialog: true, dialogTitle, message })
-    }
+    }   
 
     toast = () => this.setState({ confirmToast: !this.state.confirmToast })
     toggleDialog = () => this.setState({ openDialog: !this.state.openDialog })
+    closeAlert = () => this.setState({ openAlertDialog: !this.state.openAlertDialog })
     showFiles = () => this.setState({ showFiles: true })
     closeFiles = () => this.setState({ showFiles: !this.state.showFiles })
 
     render() {
 
-        const { activeStep, confirmToast, toastMsg, steps, openDialog, dialogTitle, message } = this.state
+        const { activeStep, confirmToast, toastMsg, steps, openAlertDialog, alertType } = this.state
 
         return <Fragment>
 
@@ -333,7 +304,7 @@ export default class extends Component {
                 setActiveStep={this.setActiveStep}
             />
             <ReactToast open={confirmToast} close={this.toast} msg={toastMsg} />
-            <AlertDialog open={openDialog} close={this.toggleDialog} title={dialogTitle} message={message} />
+            {openAlertDialog && <AlertDialog open={openAlertDialog} close={this.closeAlert} alertType={alertType} />}
         </Fragment>
     }
 }

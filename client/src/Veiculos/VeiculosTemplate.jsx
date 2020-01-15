@@ -15,7 +15,7 @@ import AutoComplete from '../Utils/autoComplete'
 import AddEquipa from './AddEquipa'
 import PopUp from '../Utils/PopUp'
 
-import './styleZ.css'
+import './veiculos.css'
 
 const useStyles = makeStyles(theme => ({
     container: {
@@ -111,7 +111,7 @@ export default function ({ handleInput, handleBlur, data, handleEquipa, handleCh
                             <div className='formTitle'>Cadastro de Veículo - {razaoSocial}</div>
                         }
                         {
-                            shared && <Grid item xs={4}>
+                            shared && <Grid item xs={4} style={{ marginLeft: '30px' }}>
 
                                 <Typography className={title}> Empresa autorizada a compartilhar</Typography>
 
