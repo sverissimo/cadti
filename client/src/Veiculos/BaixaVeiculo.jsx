@@ -6,18 +6,9 @@ import VehicleHOC from './VeiculosHOC'
 
 import Crumbs from '../Utils/Crumbs'
 import BaixaTemplate from './BaixaTemplate'
-import AutoComplete from '../Utils/autoComplete'
+import AlertDialog from '../Utils/AlertDialog'
 import ReactToast from '../Utils/ReactToast'
 
-import Grid from '@material-ui/core/Grid'
-import TextField from '@material-ui/core/TextField'
-import Button from '@material-ui/core/Button'
-import { Send } from '@material-ui/icons'
-import Radio from '@material-ui/core/Radio';
-import RadioGroup from '@material-ui/core/RadioGroup';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import FormControl from '@material-ui/core/FormControl';
-import FormLabel from '@material-ui/core/FormLabel';
 
 import './veiculos.css'
 
@@ -112,7 +103,7 @@ class BaixaVeiculo extends Component {
             } else if (this.state.placa.length < 0 && !vehicle) {
                 let reset = {}
                 if (frota[0]) Object.keys(frota[0]).forEach(k => reset[k] = '')
-                this.props.createAlert('plateNotFound')
+                this.setState({ alertType: 'plateNotFound', openAlertDialog: true })
                 this.setState({ ...reset, disable: false })
             }
         }
@@ -126,26 +117,26 @@ class BaixaVeiculo extends Component {
             .every(k => this.state.hasOwnProperty(k) && this.state[k] !== '')
 
         if (!enableSubmit) {
-            this.props.createAlert('fieldsMissing')
+            this.setState({ alertType: 'fieldsMissing', openAlertDialog: true })
             return null
         }
         if (checked === 'venda' && !delegaTransf) {
-            this.props.createAlert('fieldsMissing')
+            this.setState({ alertType: 'fieldsMissing', openAlertDialog: true })
             return null
         } if (checked === 'outro' && !justificativa) {
-            this.props.createAlert('fieldsMissing')
+            this.setState({ alertType: 'fieldsMissing', openAlertDialog: true })
             return null
         } if (checked !== 'outro' && checked !== 'venda') {
-            this.props.createAlert('fieldsMissing')
+            this.setState({ alertType: 'fieldsMissing', openAlertDialog: true })
             return null
         } if (this.state.placa.length <= 2) {
-            this.props.createAlert('invalidPlate')
+            this.setState({ alertType: 'invalidPlate', openAlertDialog: true })
             return null
         } else {
             let validPlate = []
             validPlate = this.state.frota.filter(v => v.placa === this.state.placa)
             if (validPlate.length < 1) {
-                this.props.createAlert('plateNotFound')
+                this.setState({ alertType: 'plateNotFound', openAlertDialog: true })
                 return null
             }
         }
@@ -164,113 +155,26 @@ class BaixaVeiculo extends Component {
             .catch(err => console.log(err))
     }
 
-    toast = e => {
-        this.setState({ confirmToast: !this.state.confirmToast })
-    }
+    handleCheck = e => this.setState({ checked: e.target.value })
+    closeAlert = () => this.setState({ openAlertDialog: !this.state.openAlertDialog })
+    toast = () => this.setState({ confirmToast: !this.state.confirmToast })
 
-    handleCheck = e => {
-        const { value } = e.target
-        this.setState({ checked: value })
-    }
     render() {
-        const { delegaTransf, confirmToast, toastMsg, checked } = this.state
+        const { delegaTransf, confirmToast, toastMsg, checked, openAlertDialog,
+            alertType } = this.state
 
         return <Fragment>
             <Crumbs links={['Veículos', '/veiculos']} text='Baixa de veículo' />
             <BaixaTemplate
                 data={this.state}
+                checked={checked}
+                delegaTransf={delegaTransf}
                 handleInput={this.handleInput}
                 handleBlur={this.handleBlur}
+                handleCheck={this.handleCheck}
+                handleSubmit={this.handleSubmit}
             />
-
-            <Grid container
-                direction="row"
-                justify="space-between"
-                alignItems="center"
-                style={{ width: checked === 'venda' || checked === 'outro' ? '1200px' : '600px' }}
-            >
-                <Grid item xs={checked ? 6 : 12}>
-                    <FormControl component="fieldset">
-                        <FormLabel component="legend">Motivo da baixa</FormLabel>
-                        <RadioGroup aria-label="position" name="position"
-                            onChange={this.handleCheck} row
-                            style={{ width: 'auto' }}
-                            className='radio'
-                        >
-                            <FormControlLabel
-                                className='radio'
-                                value="venda"
-                                control={<Radio color="primary" inputProps={{ style: { fontSize: '0.5rem' } }} />}
-                                label="Venda para outra empresa do sistema"
-                                labelPlacement="start"
-
-                            />
-                            <FormControlLabel
-                                value="outro"
-                                control={<Radio color="primary" />}
-                                label="Outro"
-                                labelPlacement="start"
-                            />
-
-                        </RadioGroup>
-                    </FormControl>
-                </Grid>
-
-                {checked === 'venda' &&
-                    <Grid item xs={6} >
-
-                        <TextField
-                            inputProps={{
-                                list: 'razaoSocial',
-                                name: 'delegaTransf',
-                            }}
-                            //className={classes.textField}
-                            value={delegaTransf}
-                            onChange={this.handleInput}
-                            onBlur={this.handleBlur}
-                            label='Informe o delegatário para o qual foi transferido o veículo.'
-                            fullWidth
-                        />
-                        <AutoComplete
-                            collection={this.props.redux.empresas}
-                            datalist='razaoSocial'
-                            value={delegaTransf}
-                        />
-                    </Grid>
-
-                }
-                {
-                    checked === 'outro' &&
-                    <Grid item xs={6}>
-                        <TextField
-                            name='justificativa'
-                            value={this.state.justificativa}
-                            label='Justificativa'
-                            type='text'
-                            onChange={this.handleInput}
-                            InputLabelProps={{ shrink: true }}
-                            multiline
-                            rows={4}
-                            variant='outlined'
-                            fullWidth
-                        />
-                    </Grid>
-                }
-            </Grid>
-            <Grid container direction="row" justify='flex-end' style={{ width: '1200px' }}>
-                <Grid item xs={11} style={{ width: '1000px' }}></Grid>
-                <Grid item xs={1} style={{ align: "right" }}>
-                    <Button
-                        size="small"
-                        color="primary"
-                        variant="outlined"
-                        style={{ margin: '10px 0 10px 0' }}
-                        onClick={() => this.handleSubmit()}
-                    >
-                        Confirmar <span>&nbsp;&nbsp; </span> <Send />
-                    </Button>
-                </Grid>
-            </Grid>
+            {openAlertDialog && <AlertDialog open={openAlertDialog} close={this.closeAlert} alertType={alertType} />}
             <ReactToast open={confirmToast} close={this.toast} msg={toastMsg} />
         </Fragment >
     }

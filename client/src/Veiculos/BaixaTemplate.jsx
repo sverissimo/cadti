@@ -1,13 +1,22 @@
-import React, { Fragment } from 'react'
+import React from 'react'
+
+import SelectEmpresa from '../Reusable Components/SelectEmpresa'
+import MaterialInput from '../Reusable Components/MaterialInput'
+import AutoComplete from '../Utils/autoComplete'
+import { baixaForm } from '../Forms/baixaForm'
 
 import Grid from '@material-ui/core/Grid'
 import Paper from '@material-ui/core/Paper'
 import Typography from '@material-ui/core/Typography'
-import MenuItem from '@material-ui/core/MenuItem'
 import { makeStyles } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
-import { baixaForm } from '../Forms/baixaForm'
-import AutoComplete from '../Utils/autoComplete'
+import Button from '@material-ui/core/Button'
+import { Send } from '@material-ui/icons'
+import Radio from '@material-ui/core/Radio';
+import RadioGroup from '@material-ui/core/RadioGroup';
+import FormControlLabel from '@material-ui/core/FormControlLabel';
+import FormControl from '@material-ui/core/FormControl';
+import FormLabel from '@material-ui/core/FormLabel';
 
 import './veiculos.css'
 
@@ -17,25 +26,8 @@ const useStyles = makeStyles(theme => ({
         flexWrap: 'wrap',
         padding: theme.spacing(1)
     },
-    title: {
-        color: '#000',
-        fontWeight: 400,
-        fontSize: '0.9rem',
-        textAlign: 'center'
-    },
-    textField: {
-        marginLeft: theme.spacing(1),
-        marginRight: theme.spacing(1),
-        width: 300,
-        fontSize: '0.8rem',
-        fontColor: '#bbb',
-        textAlign: 'center',
-    },
     formHolder: {
         width: 900,
-    },
-    input: {
-        textAlign: 'center'
     },
     paper: {
         padding: theme.spacing(1),
@@ -45,28 +37,12 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-export default function ({ handleInput, handleBlur, data }) {
-    const { empresas, razaoSocial, frota } = data,
-        classes = useStyles(), { paper, container, title } = classes
+export default function ({ handleInput, handleBlur, handleCheck, handleSubmit, data }) {
+    const { empresas, razaoSocial, frota, checked, delegaTransf, justificativa } = data,
+        classes = useStyles(), { paper, container, formHolder } = classes
 
     let form = baixaForm
 
-    const errorHandler = (el) => {
-        const value = data.form[el.field]
-        if (el.pattern && value) return data.form[el.field].match(el.pattern) === null
-        else if (value > el.max || value < el.min) return true
-        else return false
-    }
-
-    const helper = (el) => {
-        const value = data.form[el.field]
-
-        if (value > el.max || value < el.min) return 'Valor inválido'
-        else if (value && value.match(el.pattern) === null) return '✘'
-        else if (el.pattern && value && value.match(el.pattern) !== null) return '✓'
-        else return undefined
-    }
-    
     return (
         <Grid
             container
@@ -74,91 +50,112 @@ export default function ({ handleInput, handleBlur, data }) {
             className={container}
             justify="center"
         >
-            <Grid>
-                <Paper className={paper} style={{ padding: '0 2% 0 2%' }}>
-                    <Grid container justify="center">
-                        <Grid item xs={12} style={{ marginBottom: '15px' }}>
-                            <Typography className={title}> Selecione a Viação</Typography>
+            <SelectEmpresa
+                data={data}
+                handleInput={handleInput}
+                handleBlur={handleBlur}
+            />
+            {//razaoSocial && frota[0] &&
+                <Grid item xs={12}>
+                    <Paper className={paper}>
+                        <Typography className='formSubtitle'>Informe os dados para a baixa</Typography>
+                            <MaterialInput
+                                form={form}
+                                data={data}
+                                handleBlur={handleBlur}
+                                handleInput={handleInput}
+                            />                        
+                    </Paper>
+                    <Grid container
+                        direction="row"
+                        justify="space-between"
+                        alignItems="center"
+                        style={{ width: checked === 'venda' || checked === 'outro' ? '1200px' : '600px', marginTop: '25px' }}
+                    >
+                        <Grid item xs={checked ? 6 : 12}>
+                            <FormControl component="fieldset">
+                                <FormLabel component="legend">Motivo da baixa</FormLabel>
+                                <RadioGroup aria-label="position" name="position"
+                                    onChange={handleCheck} row
+                                    style={{ width: 'auto' }}
+                                    className='radio'
+                                >
+                                    <FormControlLabel
+                                        className='radio'
+                                        value="venda"
+                                        control={<Radio color="primary" />}
+                                        label={<span style={{ fontSize: '0.8rem' }}>{"Venda para outra empresa do sistema"}</span>}
+                                        labelPlacement="start"
 
-                            <TextField
-                                inputProps={{
-                                    list: 'razaoSocial',
-                                    name: 'razaoSocial',
-                                }}
-                                className={classes.textField}
-                                value={razaoSocial}
-                                onChange={handleInput}
-                                onBlur={handleBlur}
-                            />
-                            <AutoComplete
-                                collection={empresas}
-                                datalist='razaoSocial'
-                                value={razaoSocial}
-                            />
+                                    />
+                                    <FormControlLabel
+                                        value="outro"
+                                        control={<Radio color="primary" />}
+                                        label={<span style={{ fontSize: '0.8rem' }}>{"Outro"}</span>}                                        
+                                        labelPlacement="start"
+                                    />
+
+                                </RadioGroup>
+                            </FormControl>
+                        </Grid>
+
+                        {checked === 'venda' ?
+                            <Grid item xs={6} >
+                                <TextField
+                                    inputProps={{
+                                        list: 'razaoSocial',
+                                        name: 'delegaTransf',
+                                    }}
+                                    value={delegaTransf}
+                                    onChange={handleInput}
+                                    onBlur={handleBlur}
+                                    label='Informe o delegatário para o qual foi transferido o veículo.'
+                                    fullWidth
+                                />
+                                <AutoComplete
+                                    collection={empresas}
+                                    datalist='razaoSocial'
+                                    value={delegaTransf}
+                                />
+                            </Grid>
+                            :
+                            checked === 'outro' &&
+                            <Grid item xs={6}>
+                                <TextField
+                                    name='justificativa'
+                                    value={justificativa}
+                                    label='Justificativa'
+                                    type='text'
+                                    onChange={handleInput}
+                                    InputLabelProps={{ shrink: true }}
+                                    multiline
+                                    rows={3}
+                                    variant='outlined'
+                                    fullWidth
+                                />
+                            </Grid>
+                        }
+                    </Grid>
+                    <Grid container direction="row" justify='flex-end' style={{ width: '1200px' }}>
+                        <Grid item xs={11} style={{ width: '1000px' }}></Grid>
+                        <Grid item xs={1} style={{ align: "right" }}>
+                            <Button
+                                size="small"
+                                color="primary"
+                                variant="outlined"
+                                style={{ margin: '10px 0 10px 0' }}
+                                onClick={() => handleSubmit()}
+                            >
+                                Confirmar <span>&nbsp;&nbsp; </span> <Send />
+                            </Button>
                         </Grid>
                     </Grid>
-                </Paper>
-                {
-                    razaoSocial && frota[0]
-                        ?
-                        <Grid item xs={12}>
-                            <Paper className={paper}>
-                                <Typography className='formSubtitle'>Informe os dados para a baixa</Typography>
-                                {
-                                    form.map((el, i) =>
-                                        <Fragment key={i}>
-                                            <TextField
-                                                name={el.field}
-                                                label={el.label}
-                                                margin={el.margin}
-                                                className={classes.textField}
-                                                onChange={handleInput}
-                                                onBlur={handleBlur}
-                                                type={el.type || ''}
-                                                error={errorHandler(el)}
-                                                helperText={helper(el)}
-                                                select={el.select || false}
-                                                value={data[el.field] || ''}
-                                                disabled={el.disabled || false}
-                                                InputLabelProps={{
-                                                    className: classes.textField,
-                                                    shrink: el.type === 'date' || undefined,
-                                                    style: { fontSize: '0.8rem', fontWeight: 400, color: '#455a64', marginBottom: '5%' }
-                                                }}
-                                                inputProps={{
-                                                    style: { background: el.disabled && data.disable ? '#fff' : '#efefef', textAlign: 'center', color: '#000', fontWeight: '500', width: el.width || '' },
-                                                    value: `${data[el.field] || ''}`,
-                                                    list: el.datalist || '',
-                                                    maxLength: el.maxLength || '',
-                                                    minLength: el.minLength || '',
-                                                    max: el.max || '',
-                                                }}
-                                                multiline={el.multiline || false}
-                                                rows={el.rows || null}
-                                                variant={el.variant || 'filled'}
-                                                fullWidth={el.fullWidth || false}
-                                            >
-                                                {el.select === true && el.options.map((opt, i) =>
-                                                    <MenuItem key={i} value={opt}>
-                                                        {opt}
-                                                    </MenuItem>)}
-                                            </TextField>
-                                            {el.autoComplete === true && <AutoComplete
-                                                collection={data[el.collection]}
-                                                datalist={el.datalist}
-                                                value={data[el.field] || ''}
-                                            />
-                                            }
-                                        </Fragment>)
-                                }
-                            </Paper>
-                        </Grid>
-                        :
-                        <Grid container justify="center">
-                            <div className={classes.formHolder}></div>
-                        </Grid>
-                }
-            </Grid>
+                </Grid>
+            }
+            {!razaoSocial && !frota[0] &&
+                <Grid container justify="center">
+                    <div className={formHolder}></div>
+                </Grid>}
         </Grid>
     )
 }

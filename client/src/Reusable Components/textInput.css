@@ -1,0 +1,8 @@
+.fuk {
+    color: red !important;
+    background-color: lavender !important;
+}
+
+.fuk:focus::after {
+    border-bottom: 2px solid lawngreen !important;
+}
