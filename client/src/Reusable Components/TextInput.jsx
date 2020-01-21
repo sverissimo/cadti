@@ -11,27 +11,28 @@ const useStyles = makeStyles(theme => ({
     textField: {
         marginLeft: theme.spacing(1),
         marginRight: theme.spacing(1),
-        width: 300,        
+        width: 300,
         fontSize: '0.8rem',
         fontColor: '#bbb',
         textAlign: 'center',
     }
 }))
 
-export default function MaterialInput({ handleInput, handleBlur, handleCheck, handleSubmit, form, data }) {
+export default function TextInput({ handleInput, handleBlur, form, data }) {
 
     const classes = useStyles()
 
     const errorHandler = (el) => {
-        const value = data.form[el.field]
-        if (el.pattern && value) return data.form[el.field].match(el.pattern) === null
+        let value = data[el.field]
+        if (value && typeof value !== 'string') value = value.toString()
+        if (el.pattern && value) return data[el.field].match(el.pattern) === null
         else if (value > el.max || value < el.min) return true
         else return false
     }
 
     const helper = (el) => {
-        const value = data.form[el.field]
-
+        let value = data[el.field]
+        if (value && typeof value !== 'string') value = value.toString()
         if (value > el.max || value < el.min) return 'Valor inválido'
         else if (value && value.match(el.pattern) === null) return '✘'
         else if (el.pattern && value && value.match(el.pattern) !== null) return '✓'

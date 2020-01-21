@@ -14,11 +14,13 @@ import { altDadosFiles } from '../Forms/altDadosFiles'
 import { altForm } from '../Forms/altForm'
 
 import Crumbs from '../Utils/Crumbs'
+import CustomStepper from '../Utils/Stepper'
+
 import AltDadosTemplate from './AltDadosTemplate'
 import VehicleDocs from './VehicleDocs'
 import Review from './Review'
 import StepperButtons from '../Utils/StepperButtons'
-import CustomStepper from '../Utils/Stepper'
+
 import FormDialog from '../Utils/FormDialog'
 import AlertDialog from '../Utils/AlertDialog'
 
@@ -34,8 +36,8 @@ class AltDados extends Component {
             'Revisão das informações e deferimento'],
         steps: ['Alterar dados do Veículo', 'Alterar dados adicionais', 'Documentos', 'Revisão'],
 
-        subtitle: ['Informe os dados do Veículo', 'Informe os dados do Seguro',
-            'Preencha os campos abaixo', 'Informe os dados para a baixa'],
+        subtitle: ['Dados do Veículo', 'Informações adicionais',
+            'Anexe os arquivos solicitados', 'Revisão'],
         form: {},
         empresas: [],
         razaoSocial: '',
@@ -249,10 +251,10 @@ class AltDados extends Component {
     toast = () => this.setState({ confirmToast: !this.state.confirmToast })
 
     render() {
-        const { confirmToast, toastMsg, activeStep, steps, stepTitles, altPlaca,
+        const { confirmToast, toastMsg, stepTitles, activeStep, steps, altPlaca,
             selectedEmpresa, openAlertDialog, alertType } = this.state
 
-        return <Fragment>
+        return <Fragment>            
             <Crumbs links={['Veículos', '/veiculos']} text='Alteração de dados' />
             <CustomStepper
                 activeStep={activeStep}
@@ -262,6 +264,7 @@ class AltDados extends Component {
             />
             {activeStep < 2 && <AltDadosTemplate
                 data={this.state}
+                setActiveStep={this.setActiveStep}
                 altPlacaOption={activeStep === 0}
                 handleInput={this.handleInput}
                 handleBlur={this.handleBlur}

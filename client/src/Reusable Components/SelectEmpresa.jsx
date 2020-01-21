@@ -6,21 +6,13 @@ import AutoComplete from '../Utils/autoComplete'
 import './commonStyles.css'
 
 const useStyles = makeStyles(theme => ({
-    container: {
-        display: 'flex',
-        flexWrap: 'wrap',
-        padding: theme.spacing(1)
-    },
-
-    formHolder: {
-        width: 900,
-    },
 
     paper: {
         padding: theme.spacing(1),
         textAlign: 'center',
         color: theme.palette.text.secondary,
-        margin: theme.spacing(1)
+        margin: theme.spacing(1),
+        minWidth: '700px'
     }
 }));
 
@@ -39,7 +31,7 @@ export default function SelectEmpresa(props) {
                     <h3>  Selecione a Viação </h3>
                     <input
                         list='razaoSocial'
-                        name='razaoSocial'                        
+                        name='razaoSocial'
                         className='selectEmpresa'
                         value={razaoSocial}
                         onChange={handleInput}

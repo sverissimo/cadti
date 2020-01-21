@@ -3,9 +3,10 @@ body {
 }
 
 div.selectEmpresa {
-  flex: 0.6;
-  justify-content: flex-end;
   width: 100%;
+  display: flex;  
+  justify-content: center;
+  min-width: 600px;
 }
 
 div.item {

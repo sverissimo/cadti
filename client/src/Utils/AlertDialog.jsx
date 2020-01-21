@@ -42,6 +42,11 @@ export default function AlertDialog({ open, alertType, close, confirm }) {
           Ao cadastrar ou atualizar a ${subject}, certifique-se de anexar o arquivo correspondente.`
         return { title, message }
 
+      case 'empresaNotFound':        
+        title = 'Empresa não encontrada.'
+        message = `A empresa informada não está registrada no sistema. Para cadastrar uma nova empresa, utilize a opção Empresas -> Cadastrar.`
+        return { title, message }
+
       case 'alreadyExists':
         title = 'CPF já cadastrado.'
         message = `O CPF informado corresponde a um sócio já cadastrado. 

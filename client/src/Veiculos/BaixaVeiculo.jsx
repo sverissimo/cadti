@@ -4,11 +4,11 @@ import humps from 'humps'
 
 import VehicleHOC from './VeiculosHOC'
 
-import Crumbs from '../Utils/Crumbs'
 import BaixaTemplate from './BaixaTemplate'
 import AlertDialog from '../Utils/AlertDialog'
 import ReactToast from '../Utils/ReactToast'
 
+import { baixaForm } from '../Forms/baixaForm'
 
 import './veiculos.css'
 
@@ -25,7 +25,7 @@ class BaixaVeiculo extends Component {
         delegaTransf: '',
         toastMsg: 'Baixa realizada com sucesso!',
         confirmToast: false,
-        openDialog: false
+        openDialog: false,
     }
 
     componentDidMount() {
@@ -51,26 +51,10 @@ class BaixaVeiculo extends Component {
 
                 this.setState({ frota })
 
-            } else this.setState({ selectedEmpresa: undefined, frota: [] })
-
-        }
-    }
-
-    getId = async (name, value, collection, stateId, dbName, dbId, alertLabel) => {
-
-        const item = collection.filter(el => el[dbName].toLowerCase().match(value.toLowerCase()))
-        if (value === '') this.setState({ [name]: '', [stateId]: '' })
-        if (item[0]) {
-            const nombre = item[0][dbName]
-            const id = item[0][dbId]
-            if (value !== '') {
-                await this.setState({ [name]: nombre, [stateId]: id })
-
+            } else {
+                await this.setState({ selectedEmpresa: undefined, frota: [] })
+                this.reset()
             }
-        } else {
-            await this.setState({ [name]: '', [stateId]: '' })
-            alert(alertLabel + ' não cadastrado')
-            document.getElementsByName(name)[0].focus()
         }
     }
 
@@ -79,72 +63,59 @@ class BaixaVeiculo extends Component {
         const { name } = e.target
         let { value } = e.target
 
-        switch (name) {
-            case 'delegaTransf':
-                await this.getId(name, value, empresas, 'delegatarioId', 'razaoSocial', 'delegatarioId', 'Empresa')
-                break;
-            default:
-                void 0
+        if (name === 'delegaTransf') {
+            if (value.length > 0) {
+                const newDelega = empresas.find(e => e.razaoSocial === value)
+                if (newDelega) {
+                    await this.setState({ delegatarioId: newDelega.delegatarioId, delegaTransf: newDelega.razaoSocial, disableSubmit: true })
+                    void 0
+                } else this.setState({ openAlertDialog: true, alertType: 'empresaNotFound', delegaTransf: '' })
+            }
         }
+
         if (name === 'placa' && typeof this.state.frota !== 'string') {
-
-            let vehicle
-            if (value.length > 2) {
-
-                vehicle = this.state.frota.filter(v => {
+            if (value === '') this.setState({ disableSubmit: true })
+            if (value.length > 0) {
+                let vehicle
+                if (value.length > 2) vehicle = this.state.frota.find(v => {
                     if (typeof value === 'string') return v.placa.toLowerCase().match(value.toLowerCase())
                     else return v.placa.match(value)
-                })[0]
+                })
 
-                await this.setState({ ...vehicle, disable: true })
+                await this.setState({ ...vehicle })
 
-                if (vehicle !== undefined && vehicle.hasOwnProperty('empresa')) this.setState({ delegatario: vehicle.empresa })
-
-            } else if (this.state.placa.length < 0 && !vehicle) {
-                let reset = {}
-                if (frota[0]) Object.keys(frota[0]).forEach(k => reset[k] = '')
-                this.setState({ alertType: 'plateNotFound', openAlertDialog: true })
-                this.setState({ ...reset, disable: false })
+                if (!vehicle) {
+                    let reset = {}
+                    if (frota[0]) Object.keys(frota[0]).forEach(k => reset[k] = '')
+                    this.setState({ alertType: 'plateNotFound', openAlertDialog: true, disableSubmit: true })
+                    this.setState({ ...reset })
+                }
             }
         }
     }
 
-    handleSubmit = async e => {
-        const { delegatarioId,
-            justificativa, checked, delegaTransf } = this.state
+    handleSubmit = async () => {
 
-        const enableSubmit = ['placa', 'renavam', 'nChassi']
-            .every(k => this.state.hasOwnProperty(k) && this.state[k] !== '')
+        const { checked, delegatarioId } = this.state
 
+        let checkArray = ['selectedEmpresa', 'placa', 'delegatarioId']
+
+        let tempObj, enableSubmit
+
+        if (checked === 'venda') {
+            checkArray.push('delegaTransf')
+            enableSubmit = checkArray.every(k => this.state.hasOwnProperty(k) && this.state[k] !== '')
+            tempObj = { delegatarioId, situacao: 'pendente' }
+        }
+        if (checked === 'outro') {
+            checkArray.push('justificativa')
+            enableSubmit = checkArray.every(k => this.state.hasOwnProperty(k) && this.state[k] !== '')
+            tempObj = { situacao: 'excluído' }
+        }
         if (!enableSubmit) {
-            this.setState({ alertType: 'fieldsMissing', openAlertDialog: true })
+            await this.setState({ openAlertDialog: true, alertType: 'fieldsMissing' })
             return null
         }
-        if (checked === 'venda' && !delegaTransf) {
-            this.setState({ alertType: 'fieldsMissing', openAlertDialog: true })
-            return null
-        } if (checked === 'outro' && !justificativa) {
-            this.setState({ alertType: 'fieldsMissing', openAlertDialog: true })
-            return null
-        } if (checked !== 'outro' && checked !== 'venda') {
-            this.setState({ alertType: 'fieldsMissing', openAlertDialog: true })
-            return null
-        } if (this.state.placa.length <= 2) {
-            this.setState({ alertType: 'invalidPlate', openAlertDialog: true })
-            return null
-        } else {
-            let validPlate = []
-            validPlate = this.state.frota.filter(v => v.placa === this.state.placa)
-            if (validPlate.length < 1) {
-                this.setState({ alertType: 'plateNotFound', openAlertDialog: true })
-                return null
-            }
-        }
-
-        let tempObj
-
-        if (checked === 'venda') tempObj = { delegatarioId, situacao: 'pendente' }
-        if (checked === 'outro') tempObj = { situacao: 'excluído' }
 
         const requestObject = humps.decamelizeKeys(tempObj)
 
@@ -156,6 +127,7 @@ class BaixaVeiculo extends Component {
     }
 
     handleCheck = e => this.setState({ checked: e.target.value })
+    reset = () => baixaForm.forEach(el => this.setState({ [el.field]: '' }))
     closeAlert = () => this.setState({ openAlertDialog: !this.state.openAlertDialog })
     toast = () => this.setState({ confirmToast: !this.state.confirmToast })
 
@@ -163,8 +135,7 @@ class BaixaVeiculo extends Component {
         const { delegaTransf, confirmToast, toastMsg, checked, openAlertDialog,
             alertType } = this.state
 
-        return <Fragment>
-            <Crumbs links={['Veículos', '/veiculos']} text='Baixa de veículo' />
+        return <Fragment>            
             <BaixaTemplate
                 data={this.state}
                 checked={checked}
