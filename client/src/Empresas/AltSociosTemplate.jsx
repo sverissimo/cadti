@@ -1,18 +1,20 @@
 import React, { Fragment } from 'react'
 import Dropzone from 'react-dropzone'
+import AutoComplete from '../Utils/autoComplete'
+import { sociosForm } from '../Forms/sociosForm'
+
 import Grid from '@material-ui/core/Grid'
 import Paper from '@material-ui/core/Paper'
 import Typography from '@material-ui/core/Typography'
+import { makeStyles } from '@material-ui/core/styles'
+import TextField from '@material-ui/core/TextField'
+
 import Button from '@material-ui/core/Button'
 import SaveIcon from '@material-ui/icons/Save';
 import EditIcon from '@material-ui/icons/Edit';
-import { makeStyles } from '@material-ui/core/styles'
-import TextField from '@material-ui/core/TextField'
 import AddIcon from '@material-ui/icons/Add';
 import DeleteIcon from '@material-ui/icons/Delete';
 import DescriptionOutlinedIcon from '@material-ui/icons/DescriptionOutlined';
-import AutoComplete from '../Utils/autoComplete'
-import { sociosForm } from '../Forms/sociosForm'
 
 const useStyles = makeStyles(theme => ({
     container: {
@@ -263,15 +265,15 @@ export default function AltSociosTemplate({ data, removeSocio, handleBlur, handl
                         <Grid container direction="row" justify='flex-end' style={{ width: '1200px' }}>
                             <Grid item xs={10} style={{ width: '1000px' }}></Grid>
                             <Grid item xs={1} style={{ align: "right" }}>
-                                <Button
-                                    size="small"
-                                    color="primary"
-                                    variant="contained"
-                                    style={{ margin: '0px 0 10px 0' }}
-                                    onClick={() => handleSubmit()}
-                                >
-                                    Salvar <span>&nbsp;&nbsp; </span> <SaveIcon />
-                                </Button>
+                                    <Button
+                                        size="small"
+                                        color="primary"
+                                        variant="contained"
+                                        style={{ margin: '0px 0 10px 0' }}
+                                        onClick={() => handleSubmit()}
+                                    >
+                                        Salvar <span>&nbsp;&nbsp; </span> <SaveIcon />
+                                    </Button>
                             </Grid>
                         </Grid>
                     </Grid>

@@ -75,7 +75,7 @@ body {
     /* flex-basis: 14.28% ; */
     flex: 1;
     text-align: center;
-    padding: 0 1rem 0.5rem 1rem;    
+    padding: 0 1rem 0.5rem 1rem;
     color: black
 }
 
@@ -112,3 +112,41 @@ body {
     display: inline-block;
     font-size: 0.7rem
 }
+
+/* ************** AltSeguroTemplate elements ******************* */
+
+.addSeguro {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    padding-right: 3px;
+}
+
+.dropBox {
+    font-size: 12px;
+    color: grey;
+    padding: 6px 30px; 
+    margin-right: 5px;
+    background-color: #eee;
+    border-radius: 5px;
+    cursor: pointer;
+    align-items: center;
+}
+
+.fileAttached {
+    border: 1px solid #ddd;
+    background-color: #78B4E6;
+    color: white
+}
+
+.icon {
+    padding-top: 6px;
+}
+
+.saveButton {
+    color: #ffffff !important;
+    margin: 20px 4px !important;
+    float: right !important;
+    background-color: #5050CB !important;
+}
+

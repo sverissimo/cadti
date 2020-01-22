@@ -41,8 +41,8 @@ app.use(bodyParser.json({ limit: '50mb' }))
 app.use(bodyParser.urlencoded())
 app.use(express.static('client/build'));
 
-const emitSocket = (func, body, id)=> {
-    const obj = {...body, id}    
+const emitSocket = (func, body, id) => {
+    const obj = { ...body, id }
     io.sockets.emit(func, obj)
 }
 
@@ -76,7 +76,7 @@ const storage = new GridFsStorage({
     file: (req, file) => {
         gfs.collection('vehicleDocs');
         const id = req.body.veiculoId
-        const fileInfo = {
+        let fileInfo = {
             filename: file.originalname,
             metadata: {
                 'fieldName': file.fieldname,
@@ -84,6 +84,8 @@ const storage = new GridFsStorage({
             },
             bucketName: 'vehicleDocs',
         }
+        let { ...metadata } = req.body
+        fileInfo.metadata = metadata
         return fileInfo
     }
 })
@@ -117,6 +119,9 @@ const empresaStorage = new GridFsStorage({
                 'fieldName': file.fieldname,
                 'empresaId': empresaId
             }
+        } else {
+            let { ...metadata } = req.body
+            fileInfo.metadata = metadata
         }
         return fileInfo
     }
@@ -161,7 +166,7 @@ app.get('/api/mongoDownload/', (req, res) => {
 
     console.log(typeof req.query.id, req.query.id)
     const fileId = new mongoose.mongo.ObjectId(req.query.id)
-    
+
     const collection = req.query.collection
 
     gfs.collection(collection)
@@ -616,7 +621,7 @@ app.put('/api/updateVehicle', (req, res) => {
 
     pool.query(queryString, (err, t) => {
         if (err) console.log(err)
-        else emitSocket('updateVehicle', requestObject, id )
+        else emitSocket('updateVehicle', requestObject, id)
         res.send(`${table} table changed fields in ${id}`)
     }
     )

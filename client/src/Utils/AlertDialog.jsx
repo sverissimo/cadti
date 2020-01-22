@@ -21,7 +21,7 @@ export default function AlertDialog({ open, alertType, close, confirm }) {
     switch (type) {
       case 'plateNotFound':
         title = 'Placa não encontrada'
-        message = 'A placa informada não corresponde a nenhum veículo da frota da viação selecionada.Para cadastrar um novo veículo, selecione a opção "Cadastro de Veículo" no menu acima.'
+        message = 'A placa informada não corresponde a nenhum veículo da frota da viação selecionada. Para cadastrar um novo veículo, selecione a opção Veículos => "Cadastro de Veículo" no menu acima.'
         return { title, message }
       case 'invalidPlate':
         title = 'Placa inválida'
