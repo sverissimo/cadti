@@ -1,6 +1,7 @@
 import React, { Fragment } from 'react'
 
 import SelectEmpresa from '../Reusable Components/SelectEmpresa'
+import TextInput from '../Reusable Components/TextInput'
 import AutoComplete from '../Utils/autoComplete'
 
 import Grid from '@material-ui/core/Grid'
@@ -44,26 +45,10 @@ const useStyles = makeStyles(theme => ({
 
 export default function ({ handleInput, handleBlur, data, handleEquipa, setActiveStep,
     altPlacaOption, showAltPlaca }) {
-    const { tab, razaoSocial, activeStep, subtitle, placa } = data,
+    const { tab, razaoSocial, activeStep, subtitle, placa, justificativa } = data,
         classes = useStyles(), { paper, container } = classes
 
-    let form = altForm[activeStep]
-
-    const errorHandler = (el) => {
-        const value = data.form[el.field]
-        if (el.pattern && value) return data.form[el.field].match(el.pattern) === null
-        else if (value > el.max || value < el.min) return true
-        else return false
-    }
-
-    const helper = (el) => {
-        const value = data.form[el.field]
-
-        if (value > el.max || value < el.min) return 'Valor inválido'
-        else if (value && value.match(el.pattern) === null) return '✘'
-        else if (el.pattern && value && value.match(el.pattern) !== null) return '✓'
-        else return undefined
-    }
+    let form = altForm[activeStep]    
 
     const showForm = () => {
         const check = data.empresas.filter(e => e.razaoSocial === razaoSocial)
@@ -74,7 +59,7 @@ export default function ({ handleInput, handleBlur, data, handleEquipa, setActiv
     }
 
     return (
-        <Fragment>            
+        <Fragment>
             <Grid
                 container
                 direction="row"
@@ -89,82 +74,46 @@ export default function ({ handleInput, handleBlur, data, handleEquipa, setActiv
                     />
                 }
                 {
-                    razaoSocial && showForm()
-                        ?
+                   // razaoSocial && showForm()
+                     true   ?
                         <Grid item xs={12}>
-                            {activeStep < 3 && <Paper className={paper}>
-                                <h3 className='formSubtitle'> {subtitle[activeStep] + (placa && activeStep !== 0 ? ' - placa ' + placa : '')}</h3>
+                            {activeStep < 3 &&
+                                <Paper className={paper}>
+                                    <h3 className='formSubtitle'> {subtitle[activeStep] + (placa && activeStep !== 0 ? ' - placa ' + placa : '')}</h3>
 
-                                {data.form && form[0] && form.map((el, i) =>
-                                    <Fragment key={i}>
-                                        <TextField
-                                            name={el.field}
-                                            label={el.label}
-                                            margin={el.margin}
-                                            className={classes.textField}
-                                            onChange={handleInput}
-                                            onBlur={handleBlur}
-                                            type={el.type || ''}
-                                            error={errorHandler(el)}
-                                            helperText={helper(el)}
-                                            select={el.select || false}
-                                            value={data[el.field] || ''}
-                                            disabled={el.disabled || false}
-                                            InputLabelProps={{
-                                                className: classes.textField,
-                                                shrink: el.type === 'date' || undefined,
-                                                style: { fontSize: '0.8rem', fontWeight: 400, color: '#455a64', marginBottom: '5%' }
-                                            }}
-                                            inputProps={{
-                                                style: { background: el.disabled && data.disable ? '#fff' : '#efefef', textAlign: 'center', color: '#000', fontWeight: '500', width: el.width || '' },
-                                                value: `${data[el.field] || ''}`,
-                                                list: el.datalist || '',
-                                                maxLength: el.maxLength || '',
-                                                minLength: el.minLength || '',
-                                                max: el.max || '',
-                                            }}
-                                            multiline={el.multiline || false}
-                                            rows={el.rows || null}
-                                            variant={el.variant || 'filled'}
-                                            fullWidth={el.fullWidth || false}
+                                    <TextInput
+                                        form={form}
+                                        data={data}
+                                        handleBlur={handleBlur}
+                                        handleInput={handleInput}
+                                    />
+                                </Paper>}
+
+                            {activeStep === 0 && tab === 0 &&
+                                <Paper>
+                                    <Grid container justify="center">
+                                        <Button
+                                            variant="outlined"
+                                            size="small"
+                                            color="primary"
+                                            className={classes.button}
+                                            onClick={handleEquipa}
                                         >
-                                            {el.select === true && el.options.map((opt, i) =>
-                                                <MenuItem key={i} value={opt}>
-                                                    {opt}
-                                                </MenuItem>)}
-                                        </TextField>
-                                        {el.autoComplete === true && <AutoComplete
-                                            collection={data[el.collection]}
-                                            datalist={el.datalist}
-                                            value={data[el.field] || ''}
-                                        />
-                                        }
-                                    </Fragment>)}
+                                            <AddIcon />
+                                            Equipamentos
+                                        </Button>
+                                    </Grid>}
 
-                                {activeStep === 0 && tab === 0 && <Grid container justify="center"
-                                >
-                                    <Button
-                                        variant="outlined"
-                                        size="small"
-                                        color="primary"
-                                        className={classes.button}
-                                        onClick={handleEquipa}
-                                    >
-                                        <AddIcon />
-                                        Equipamentos
-                            </Button>
-                                </Grid>}
-
-                                {altPlacaOption && placa.match('[a-zA-Z]{3}[-]?\\d{4}') && <Grid item xs={12}>
-                                    <Typography
-                                        style={{ color: '#2979ff', fontWeight: 500, fontSize: '0.75rem', padding: '2% 0 1% 70%', cursor: 'pointer' }}
-                                        onClick={() => showAltPlaca()}
-                                    >
-                                        → Clique aqui para alterar a placa para o formato Mercosul.
+                                    {altPlacaOption && placa.match('[a-zA-Z]{3}[-]?\\d{4}') && <Grid item xs={12}>
+                                        <Typography
+                                            style={{ color: '#2979ff', fontWeight: 500, fontSize: '0.75rem', padding: '2% 0 1% 70%', cursor: 'pointer' }}
+                                            onClick={() => showAltPlaca()}
+                                        >
+                                            → Clique aqui para alterar a placa para o formato Mercosul.
                                     </Typography>
 
-                                </Grid>}
-                            </Paper>}
+                                    </Grid>}
+                                </Paper>}
                         </Grid>
                         :
                         <Grid container justify="center">
@@ -172,6 +121,26 @@ export default function ({ handleInput, handleBlur, data, handleEquipa, setActiv
                         </Grid>
                 }
             </Grid>
+            {activeStep === 1 && <Grid
+                container
+                direction="row"
+                justify="center"
+                alignItems="center">
+                <Grid>
+                    <TextField
+                        name='justificativa'
+                        value={justificativa}
+                        label='Justificativa'
+                        type='text'
+                        onChange={handleInput}
+                        InputLabelProps={{ shrink: true, style: { fontWeight: 600, marginBottom: '5%' } }}
+                        inputProps={{ style: { paddingBottom: '2%', width: '900px' } }}
+                        multiline
+                        rows={4}
+                        variant='outlined'
+                    />
+                </Grid>
+            </Grid>}
         </Fragment>
     )
 }   

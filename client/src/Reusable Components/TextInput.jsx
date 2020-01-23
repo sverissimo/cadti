@@ -8,9 +8,22 @@ import AutoComplete from '../Utils/autoComplete'
 
 const useStyles = makeStyles(theme => ({
 
+    root: {
+        width: "400px",
+        backgroundColor: 'blue'
+    },
     textField: {
         marginLeft: theme.spacing(1),
         marginRight: theme.spacing(1),
+        width: 300,
+        fontSize: '0.8rem',
+        fontColor: '#bbb',
+        textAlign: 'center',
+    },
+    select: {
+        marginLeft: theme.spacing(1),
+        marginRight: theme.spacing(1),
+        background: '#fafafa',
         width: 300,
         fontSize: '0.8rem',
         fontColor: '#bbb',
@@ -70,15 +83,27 @@ export default function TextInput({ handleInput, handleBlur, form, data }) {
                     minLength: el.minLength || '',
                     max: el.max || '',
                 }}
+
                 multiline={el.multiline || false}
                 rows={el.rows || null}
                 variant={el.variant || 'filled'}
                 fullWidth={el.fullWidth || false}
+                SelectProps={{
+                    style: {
+                        background: el.disabled && data.disable ? '#fff' : '#fafafa',
+                        fontSize: '0.9rem', textAlign: 'center', color: '#555', fontWeight: 400,
+                        width: el.width || 300, height: '44px'
+                    }
+                }}
             >
+
                 {el.select === true && el.options.map((opt, i) =>
-                    <MenuItem key={i} value={opt}>
+                    <MenuItem key={i} value={opt} >
                         {opt}
-                    </MenuItem>)}
+                    </MenuItem>
+                )}
+
+
             </TextField>
             {el.autoComplete === true && <AutoComplete
                 collection={data[el.collection]}

@@ -1,14 +1,35 @@
-const initState = { }
+import humps from 'humps'
+
+const initState = {}
 
 const getDataReducer = (state = initState, action) => {
     const { payload } = action
     switch (action.type) {
 
         case 'GET_DATA':
-            
+
             return { ...state, ...payload }
 
-        /*  case 'UPDATE_VEHICLE':
+        case 'UPDATE_SOCIO':
+            console.log(payload)
+            return { ...state, payload }
+
+
+        case 'UPDATE_VEHICLE':
+            /* 
+                        let veiculos = [...state.veiculos]
+                        const updatedVehicle = humps.camelizeKeys(payload)
+            
+                        const oldVehicle = veiculos.find(v => v.veiculoId === updatedVehicle.veiculoId)
+                        const index = veiculos.indexOf(oldVehicle)
+            
+                        console.log(updatedVehicle)
+                        veiculos[index] = updatedVehicle */
+            console.log(payload)
+            return { ...state }
+
+
+        /*  case 'UPDATE_FIELDS':
  
              let veiculos = [...state.veiculos]
              const updatedFields = action.payload
@@ -24,6 +45,7 @@ const getDataReducer = (state = initState, action) => {
              veiculos[index] = updatedVehicle
  
              return { ...state, veiculos } */
+
 
         case 'VEHICLE_DATA':
             return { ...state, ...payload }

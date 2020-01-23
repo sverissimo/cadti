@@ -48,14 +48,18 @@ export default class AltSocios extends Component {
             socket = socketIO(':3001')
         }
 
-        socket.on('addSocio', async newSocio => {
+        socket.on('tst', arg => {
+            console.log(arg)            
+        }) 
+
+      /*   socket.on('addSocio', async newSocio => {
             let socios = [...this.state.socios],
                 filteredSocios = [...this.state.filteredSocios]
             socios.push(newSocio)
             filteredSocios.push(newSocio)
-            
-            await this.setState({ socios, filteredSocios })            
-        })
+
+            await this.setState({ socios, filteredSocios })
+        }) */
     }
 
 
@@ -91,7 +95,7 @@ export default class AltSocios extends Component {
             case 'cpfSocio':
                 const alreadyExists = filteredSocios.find(e => e.cpfSocio === value)
                 if (alreadyExists) {
-                    this.setState({alertType: 'alreadyExists', openAlertDialog: true})
+                    this.setState({ alertType: 'alreadyExists', openAlertDialog: true })
                     this.setState({ cpfSocio: '' })
                 }
                 break;
@@ -101,8 +105,8 @@ export default class AltSocios extends Component {
 
                     if (value !== '0' && value !== '00' && !Number(value)) {
 
-                        await this.setState({ share: '' })                        
-                        this.setState({alertType: 'numberNotValid', openAlertDialog: true})
+                        await this.setState({ share: '' })
+                        this.setState({ alertType: 'numberNotValid', openAlertDialog: true })
 
                     } else {
                         let totalShare = filteredSocios.map(s => Number(s.share))
@@ -118,16 +122,16 @@ export default class AltSocios extends Component {
         }
     }
 
-    addSocio = async () => {        
-            let form = sociosForm,
+    addSocio = async () => {
+        let form = sociosForm,
             sObject = {}
 
         form.forEach(obj => {
             Object.assign(sObject, { [obj.field]: this.state[obj.field] })
         })
-        
+
         axios.post('/api/io', sObject)
-        
+
         sociosForm.forEach(obj => {
             this.setState({ [obj.field]: '' })
         })
@@ -271,7 +275,7 @@ export default class AltSocios extends Component {
         formData.append('contratoSocial', file[0])
         this.setState({ dropDisplay: file[0].name, contratoSocial: formData })
     }
-    
+
     toggleDialog = () => this.setState({ openDialog: !this.state.openDialog })
     closeAlert = () => this.setState({ openAlertDialog: !this.state.openAlertDialog })
     toast = () => this.setState({ confirmToast: !this.state.confirmToast })

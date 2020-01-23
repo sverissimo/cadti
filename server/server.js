@@ -47,6 +47,7 @@ const emitSocket = (func, body, id) => {
 }
 
 
+
 const Pool = pg.Pool
 let pool = new Pool({
     user: process.env.DB_USER || process.env.USER,
@@ -75,17 +76,15 @@ const storage = new GridFsStorage({
     url: mongoURI,
     file: (req, file) => {
         gfs.collection('vehicleDocs');
-        const id = req.body.veiculoId
-        let fileInfo = {
+        
+        let metadata = { ...req.body }
+        metadata.fieldName = file.fieldname
+
+        const fileInfo = {
             filename: file.originalname,
-            metadata: {
-                'fieldName': file.fieldname,
-                'veiculoId': id
-            },
+            metadata,
             bucketName: 'vehicleDocs',
         }
-        let { ...metadata } = req.body
-        fileInfo.metadata = metadata
         return fileInfo
     }
 })
@@ -238,7 +237,7 @@ app.get('/api/download', (req, res) => {
 
 app.get('/api/empresas', (req, res) => pool.query(empresas, (err, table) => {
     if (err) res.send(err)
-    if (table.rows.length === 0) { res.send('Nenhum delegatário cadastrado.'); return }
+    if (table.rows.length === 0) { res.send('Nenhum delegatário cadastrado.'); return }    
     res.json(table.rows)
 })
 )
@@ -448,61 +447,12 @@ app.put('/api/updateInsurance', (req, res) => {
     `)
 
     pool.query(`
-    UPDATE ${table} SET ${column} = ${value} WHERE ${tablePK} = ${id}`, (err, t) => {
+    UPDATE ${table} SET ${column} = ${value} WHERE ${tablePK} = ${id} RETURNING *`, (err, t) => {
         if (err) console.log(err)
+        io.sockets.emit('updateInsurance', t.rows)
         res.send(`${column} changed to ${value}`)
     }
     )
-})
-
-app.get('/api/getUpdatedInsurance', (req, res) => {
-    let { apolice } = req.query
-    apolice = '\'' + apolice + '\''
-    console.log(req.query, `
-    SELECT seguro.*,
-        s.seguradora,
-        array_to_json(array_agg(v.veiculo_id)) veiculos,
-        array_to_json(array_agg(v.placa)) placas,
-        d.razao_social empresa,
-        d.delegatario_id,
-        cardinality(array_agg(v.placa)) segurados
-    FROM seguro
-    INNER JOIN veiculo v
-        ON seguro.apolice = v.apolice
-        AND seguro.apolice = ${apolice}
-    LEFT JOIN delegatario d
-        ON d.delegatario_id = v.delegatario_id
-    LEFT JOIN seguradora s
-        ON s.id = seguro.seguradora_id
-    GROUP BY seguro.apolice, d.razao_social, s.seguradora, d.delegatario_id
-    ORDER BY seguro.vencimento ASC        
-        `)
-
-    pool.query(`
-    SELECT seguro.*,
-        s.seguradora,
-        array_to_json(array_agg(v.veiculo_id)) veiculos,
-        array_to_json(array_agg(v.placa)) placas,
-        d.razao_social empresa,
-        d.delegatario_id,
-        cardinality(array_agg(v.placa)) segurados
-    FROM seguro
-    INNER JOIN veiculo v
-        ON seguro.apolice = v.apolice
-        AND seguro.apolice = ${apolice}
-    LEFT JOIN delegatario d
-        ON d.delegatario_id = v.delegatario_id
-    LEFT JOIN seguradora s
-        ON s.id = seguro.seguradora_id
-    GROUP BY seguro.apolice, d.razao_social, s.seguradora, d.delegatario_id
-    ORDER BY seguro.vencimento ASC        
-        `,
-
-        (err, table) => {
-            if (err) res.send(err)
-            else if (table.rows && table.rows.length === 0) { res.send(table); return }
-            res.json(table.rows);
-        })
 })
 
 app.put('/api/editSocios', (req, res) => {
@@ -549,6 +499,7 @@ app.put('/api/editSocios', (req, res) => {
     pool.query(queryString, (err, t) => {
         if (err) console.log(err)
         if (t) console.log('edit ok')
+        io.sockets.emit('tst', 'fuck')
         //res.send(queryString)
         res.send('Dados atualizados.')
     })
@@ -617,11 +568,11 @@ app.put('/api/updateVehicle', (req, res) => {
 
     queryString = `UPDATE ${table} SET ` +
         queryString.slice(0, queryString.length - 2) +
-        ` WHERE ${tablePK} = '${id}'`
+        ` WHERE ${tablePK} = '${id}' RETURNING *`
 
     pool.query(queryString, (err, t) => {
         if (err) console.log(err)
-        else emitSocket('updateVehicle', requestObject, id)
+        else emitSocket('updateVehicle', t.rows)
         res.send(`${table} table changed fields in ${id}`)
     }
     )

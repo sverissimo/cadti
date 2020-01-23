@@ -50,13 +50,13 @@ const useStyles = makeStyles(theme => ({
 }))
 
 export default function AltSeguro({ data, enableAddPlaca, handleInput, handleBlur,
-    addPlateInsurance, deleteInsurance, handleDelete, handleFiles, handleSubmit }) {
+    addPlateInsurance, deleteInsurance, handleFiles, handleSubmit }) {
 
     const { selectedEmpresa, placa, apolice, addedPlaca, frota, insuranceExists,
         dropDisplay, seguroFile } = data
 
     const classes = useStyles(), { paper, textField, chip } = classes
-    
+
     let placas = []
 
     if (insuranceExists.hasOwnProperty('placas')) {
@@ -77,7 +77,7 @@ export default function AltSeguro({ data, enableAddPlaca, handleInput, handleBlu
                 handleInput={handleInput}
                 handleBlur={handleBlur}
             />
-            {//selectedEmpresa &&
+            {selectedEmpresa &&
                 <Paper className={paper}>
                     <h3 className='formSubtitle'>Informe os dados do seguro.</h3>
                     <TextInput
@@ -88,7 +88,7 @@ export default function AltSeguro({ data, enableAddPlaca, handleInput, handleBlu
                     />
                 </Paper>
             }
-            { //selectedEmpresa && (insuranceExists || enableAddPlaca ) &&
+            {selectedEmpresa && (insuranceExists || enableAddPlaca) &&
                 <Paper className={paper}>
                     <p>Utilize as opções abaixo para filtrar, adicionar ou excluir placas desta apólice</p>
                     <div className='addSeguro'>
@@ -163,13 +163,13 @@ export default function AltSeguro({ data, enableAddPlaca, handleInput, handleBlu
                         </Button>
                     </div>
                     }
-                    {//insuranceExists.hasOwnProperty('apolice') || placas[0] 
-                        true ?
-                            <div style={{ margin: '15px' }}>
-                                Placas vinculadas a apólice {insuranceExists.apolice}
-                            </div>
-                            :
-                            <div style={{ marginTop: '30px' }}></div>
+                    {insuranceExists.hasOwnProperty('apolice') || placas[0]
+                        ?
+                        <div style={{ margin: '15px' }}>
+                            Placas vinculadas a apólice {insuranceExists.apolice}
+                        </div>
+                        :
+                        <div style={{ marginTop: '30px' }}></div>
                     }
                     {insuranceExists && placas[0] && placas.map((placa, i) =>
                         <Chip

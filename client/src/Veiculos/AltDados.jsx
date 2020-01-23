@@ -7,8 +7,6 @@ import { updateData } from '../Redux/updateDataActions'
 
 import VehicleHOC from './VeiculosHOC'
 
-import Grid from '@material-ui/core/Grid'
-import TextField from '@material-ui/core/TextField'
 import ReactToast from '../Utils/ReactToast'
 import { altDadosFiles } from '../Forms/altDadosFiles'
 import { altForm } from '../Forms/altForm'
@@ -24,13 +22,9 @@ import StepperButtons from '../Utils/StepperButtons'
 import FormDialog from '../Utils/FormDialog'
 import AlertDialog from '../Utils/AlertDialog'
 
-/* const socketIO = require('socket.io-client')
-let socket */
-
-
 class AltDados extends Component {
 
-    state = {        
+    state = {
         stepTitles: ['Informe a placa para alterar os dados abaixo ou mantenha as informações atuais e clique em avançar',
             'Altere os dados desejados abaixo e clique em avançar', 'Anexe os documentos solicitados',
             'Revisão das informações e deferimento'],
@@ -55,15 +49,7 @@ class AltDados extends Component {
     }
 
     componentDidMount() {
-
-        this.setState({ ...this.props.redux })
-
-        /*    if (!socket) {
-               socket = socketIO(':3001')
-           }
-           socket.on('updateVehicle', async updatedVehicle => {
-               this.props.updateData(humps.camelizeKeys(updatedVehicle))
-           }) */
+        this.setState({ ...this.props.redux })       
     }
 
     componentWillUnmount() { this.setState({}) }
@@ -87,7 +73,7 @@ class AltDados extends Component {
                 await this.setState({ razaoSocial: selectedEmpresa.razaoSocial, selectedEmpresa })
                 if (value !== selectedEmpresa.razaoSocial) this.setState({ selectedEmpresa: undefined })
 
-                const frota = veiculos.filter(v => v.empresa === this.state.razaoSocial)                
+                const frota = veiculos.filter(v => v.empresa === this.state.razaoSocial)
 
                 this.setState({ frota })
 
@@ -175,7 +161,7 @@ class AltDados extends Component {
         this.toast()
     }
 
-    handleEdit = async () => {
+    handleSubmit = async () => {
         const { poltronas, pesoDianteiro, pesoTraseiro, delegatarioId, delegatarioCompartilhado } = this.state
 
         let tempObj = {}
@@ -214,7 +200,7 @@ class AltDados extends Component {
             document.getElementById(name).value = files[0].name
 
             let formData = new FormData()
-            formData.append('veiculoId', this.state.veiculoId)
+            formData.append('veiculoId', this.state.veiculoId)            
 
             let fn = this.state.fileNames
 
@@ -226,7 +212,6 @@ class AltDados extends Component {
                 altDadosFiles.forEach(({ name }) => {
                     for (let keys in this.state) {
                         if (keys.match(name)) {
-                            formData.append('id', name)
                             formData.append(name, this.state[name])
                         }
                         else void 0
@@ -254,7 +239,7 @@ class AltDados extends Component {
         const { confirmToast, toastMsg, stepTitles, activeStep, steps, altPlaca,
             selectedEmpresa, openAlertDialog, alertType } = this.state
 
-        return <Fragment>            
+        return <Fragment>
             <Crumbs links={['Veículos', '/veiculos']} text='Alteração de dados' />
             <CustomStepper
                 activeStep={activeStep}
@@ -270,26 +255,6 @@ class AltDados extends Component {
                 handleBlur={this.handleBlur}
                 showAltPlaca={this.showAltPlaca}
             />}
-            {activeStep === 1 && <Grid
-                container
-                direction="row"
-                justify="center"
-                alignItems="center">
-                <Grid>
-                    <TextField
-                        name='justificativa'
-                        value={this.state.justificativa}
-                        label='Justificativa'
-                        type='text'
-                        onChange={this.handleInput}
-                        InputLabelProps={{ shrink: true, style: { fontWeight: 600, marginBottom: '5%' } }}
-                        inputProps={{ style: { paddingBottom: '2%', width: '900px' } }}
-                        multiline
-                        rows={4}
-                        variant='outlined'
-                    />
-                </Grid>
-            </Grid>}
             {activeStep === 2 && <VehicleDocs
                 parentComponent='altDados'
                 handleFiles={this.handleFiles}
@@ -297,11 +262,11 @@ class AltDados extends Component {
                 handleNames={this.handleNames}
             />}
             {activeStep === 3 && <Review parentComponent='cadastro' data={this.state} />}
-            
+
             {selectedEmpresa && <StepperButtons
                 activeStep={activeStep}
                 lastStep={steps.length - 1}
-                handleSubmit={this.handleEdit}
+                handleSubmit={this.handleSubmit}
                 setActiveStep={this.setActiveStep}
             />}
             <ReactToast open={confirmToast} close={this.toast} msg={toastMsg} />

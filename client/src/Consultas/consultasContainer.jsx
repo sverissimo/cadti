@@ -15,11 +15,6 @@ import VehicleDetails from '../Veiculos/VehicleDetails'
 import ShowFiles from '../Utils/ShowFiles'
 import AlertDialog from '../Utils/AlertDialog'
 
-const socketIO = require('socket.io-client')
-let socket
-
-
-
 const format = {
     top: '5%',
     left: '10%',
@@ -55,18 +50,27 @@ class ConsultasContainer extends Component {
     }
 
     async componentDidMount() {
-
         await this.setState({ ...this.props.redux, collection: this.props.redux.empresas })
-
         document.addEventListener('keydown', this.escFunction, false)
-        /* 
-                if (!socket) {
-                    socket = socketIO(':3001')
-                }
-                socket.on('updateVehicle', async updatedVehicle => {
-                    await this.props.updateData(humps.camelizeKeys(updatedVehicle))
-                    this.setState({ veiculos: this.props.redux.veiculos })
-                }) */
+    }
+
+    static getDerivedStateFromProps(nextProps, prevState) {
+
+        if (nextProps && nextProps.redux && prevState) {
+            const socios = nextProps.redux.socios
+            if (socios !== prevState.socios) {
+                console.log(socios)
+                return { collection: socios, socios }
+            } else return null
+
+
+
+            /* let veiculos
+            veiculos = nextProps.redux.veiculos            
+            if (veiculos !== prevState.veiculos) {                
+                return { collection: veiculos, veiculos }
+            } else return null */
+        } else return null
     }
 
     componentWillUnmount() { this.setState({}) }

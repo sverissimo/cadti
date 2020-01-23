@@ -274,9 +274,10 @@ class AltSeguro extends Component {
     })
 
     render() {
+        const { openAlertDialog, alertType } = this.state
         const enableAddPlaca = seguroForm
             .every(k => this.state.hasOwnProperty(k.field) && this.state[k.field] !== '')
-        const { openAlertDialog, alertType } = this.state
+        
         return (
             <Fragment>
                 <AltSeguroTemplate
