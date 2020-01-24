@@ -3,9 +3,9 @@ import axios from 'axios'
 import humps from 'humps'
 import ReactToast from '../Utils/ReactToast'
 
-import VehicleHOC from './VeiculosHOC'
+import StoreHOC from '../Store/StoreHOC'
 
-import VeiculosTemplate from './VeiculosTemplate'
+import CadVeiculoTemplate from './CadVeiculoTemplate'
 import VehicleDocs from './VehicleDocs'
 import Review from './Review'
 
@@ -57,7 +57,7 @@ class VeiculosContainer extends PureComponent {
         const { redux } = this.props
         let equipamentos = {}
 
-        if (redux) {
+        if (redux && redux.equipamentos) {
             redux.equipamentos.forEach(e => Object.assign(equipamentos, { [e.item]: false }))
             await this.setState({ ...this.props.redux, ...equipamentos, allInsurances: this.props.redux['seguros'] })
         }
@@ -381,7 +381,7 @@ class VeiculosContainer extends PureComponent {
                 steps={steps}
                 setActiveStep={this.setActiveStep}
             />
-            <VeiculosTemplate
+            <CadVeiculoTemplate
                 data={this.state}
                 handleInput={this.handleInput}
                 handleBlur={this.handleBlur}
@@ -413,4 +413,4 @@ class VeiculosContainer extends PureComponent {
 const collections = ['veiculos', 'empresas', 'modelosChassi', 'carrocerias',
     'seguradoras', 'seguros', 'equipamentos']
 
-export default VehicleHOC(collections, VeiculosContainer)
+export default StoreHOC(collections, VeiculosContainer)

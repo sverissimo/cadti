@@ -2,10 +2,7 @@ import React, { Component, Fragment } from 'react'
 import axios from 'axios'
 import humps from 'humps'
 
-import { connect } from 'react-redux'
-import { updateData } from '../Redux/updateDataActions'
-
-import ConsultasHOC from './ConsultasHOC'
+import StoreHOC from '../Store/StoreHOC'
 
 import ConsultasTemplate from './consultasTemplate'
 import { TabMenu } from '../Layouts'
@@ -31,7 +28,7 @@ class ConsultasContainer extends Component {
                 if (this.state.showFiles) this.closeFiles()
             }
         }
-    }
+    };
 
     state = {
         tab: 0,
@@ -50,28 +47,31 @@ class ConsultasContainer extends Component {
     }
 
     async componentDidMount() {
-        await this.setState({ ...this.props.redux, collection: this.props.redux.empresas })
+        await this.setState({ ...this.props.redux, collection: this.props.redux.empresas })               
+        console.log(this.state)
         document.addEventListener('keydown', this.escFunction, false)
     }
 
-    static getDerivedStateFromProps(nextProps, prevState) {
+   /*  static getDerivedStateFromProps(nextProps, prevState) {
 
         if (nextProps && nextProps.redux && prevState) {
-            const socios = nextProps.redux.socios
-            if (socios !== prevState.socios) {
-                console.log(socios)
-                return { collection: socios, socios }
+            if (nextProps && nextProps.redux && prevState) {
+                const veiculos = [...nextProps.redux.veiculos]
+                if (veiculos !== prevState.veiculos) {
+
+                    return { veiculos }
+                } else return null
             } else return null
-
-
-
-            /* let veiculos
-            veiculos = nextProps.redux.veiculos            
-            if (veiculos !== prevState.veiculos) {                
-                return { collection: veiculos, veiculos }
-            } else return null */
         } else return null
-    }
+    } */
+      /*       const socios = nextProps.redux.socios
+                 if (socios !== prevState.socios) {
+                     console.log(socios)
+                     return { collection: socios, socios }
+                 } else return null     
+       */
+
+       
 
     componentWillUnmount() { this.setState({}) }
 
@@ -150,9 +150,9 @@ class ConsultasContainer extends Component {
                 dialogTitle = 'Arquivos não encontrados'
                 message = `Não há nenhum arquivo anexado no sistema para o ${subject} selecionado. 
                 Ao cadastrar ou atualizar os dados do ${subject}, certifique-se de anexar os documentos solicitados.`
-                break;
+                break
             default:
-                break;
+                break
         }
         this.setState({ openDialog: true, dialogTitle, message })
     }
@@ -196,4 +196,4 @@ class ConsultasContainer extends Component {
 
 const collections = ['veiculos', 'empresas', 'socios', 'procuradores', 'seguros', 'getFiles/vehicleDocs', 'getFiles/empresaDocs']
 
-export default connect(null, { updateData })(ConsultasHOC(collections, ConsultasContainer))
+export default StoreHOC(collections, ConsultasContainer)

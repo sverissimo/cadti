@@ -2,10 +2,7 @@ import React, { Component, Fragment } from 'react'
 import axios from 'axios'
 import humps from 'humps'
 
-import { connect } from 'react-redux'
-import { updateData } from '../Redux/updateDataActions'
-
-import VehicleHOC from './VeiculosHOC'
+import StoreHOC from '../Store/StoreHOC'
 
 import ReactToast from '../Utils/ReactToast'
 import { altDadosFiles } from '../Forms/altDadosFiles'
@@ -49,8 +46,8 @@ class AltDados extends Component {
     }
 
     componentDidMount() {
-        this.setState({ ...this.props.redux })       
-    }
+        this.setState({ ...this.props.redux })
+    }    
 
     componentWillUnmount() { this.setState({}) }
 
@@ -200,7 +197,7 @@ class AltDados extends Component {
             document.getElementById(name).value = files[0].name
 
             let formData = new FormData()
-            formData.append('veiculoId', this.state.veiculoId)            
+            formData.append('veiculoId', this.state.veiculoId)
 
             let fn = this.state.fileNames
 
@@ -283,6 +280,6 @@ class AltDados extends Component {
     }
 }
 
-const collections = ['veiculos', 'empresas']
+const collections = ['veiculos', 'empresas'];
 
-export default connect(null, { updateData })(VehicleHOC(collections, AltDados))
+export default StoreHOC(collections, AltDados)

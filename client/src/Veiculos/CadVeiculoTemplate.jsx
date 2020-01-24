@@ -111,7 +111,7 @@ export default function ({ handleInput, handleBlur, data, handleEquipa, handleCh
                             <div className='formTitle'>Cadastro de Veículo - {razaoSocial}</div>
                         }
                         {
-                            shared && <Grid item xs={4} style={{ marginLeft: '30px' }}>
+                            activeStep === 0 && shared && <Grid item xs={4} style={{ marginLeft: '30px' }}>
 
                                 <Typography className={title}> Empresa autorizada a compartilhar</Typography>
 

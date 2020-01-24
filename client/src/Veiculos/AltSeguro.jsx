@@ -4,7 +4,7 @@ import humps from 'humps'
 import moment from 'moment'
 import ReactToast from '../Utils/ReactToast'
 
-import VehicleHOC from './VeiculosHOC'
+import StoreHOC from '../Store/StoreHOC'
 
 import AltSeguroTemplate from './AltSeguroTemplate'
 import AlertDialog from '../Utils/AlertDialog'
@@ -299,4 +299,4 @@ class AltSeguro extends Component {
 
 const collections = ['veiculos', 'empresas', 'seguradoras', 'seguros']
 
-export default VehicleHOC(collections, AltSeguro)
+export default StoreHOC(collections, AltSeguro)

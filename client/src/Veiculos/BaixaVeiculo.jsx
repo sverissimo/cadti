@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react'
 import axios from 'axios'
 import humps from 'humps'
 
-import VehicleHOC from './VeiculosHOC'
+import StoreHOC from '../Store/StoreHOC'
 
 import BaixaTemplate from './BaixaTemplate'
 import AlertDialog from '../Utils/AlertDialog'
@@ -31,7 +31,7 @@ class BaixaVeiculo extends Component {
     componentDidMount() {
         this.setState({ ...this.props.redux })
     }
-
+    
     componentWillUnmount() { this.setState({}) }
 
     handleInput = async e => {
@@ -48,7 +48,6 @@ class BaixaVeiculo extends Component {
                 if (value !== selectedEmpresa.razaoSocial) this.setState({ selectedEmpresa: undefined })
 
                 const frota = veiculos.filter(v => v.empresa === this.state.razaoSocial)
-
                 this.setState({ frota })
 
             } else {
@@ -99,7 +98,6 @@ class BaixaVeiculo extends Component {
         const { checked, delegatarioId } = this.state
 
         let checkArray = ['selectedEmpresa', 'placa', 'delegatarioId']
-
         let tempObj, enableSubmit
 
         if (checked === 'venda') {
@@ -134,8 +132,8 @@ class BaixaVeiculo extends Component {
     render() {
         const { delegaTransf, confirmToast, toastMsg, checked, openAlertDialog,
             alertType } = this.state
-
-        return <Fragment>            
+        console.log(this.props)
+        return <Fragment>
             <BaixaTemplate
                 data={this.state}
                 checked={checked}
@@ -153,4 +151,4 @@ class BaixaVeiculo extends Component {
 
 const collections = ['veiculos', 'empresas']
 
-export default VehicleHOC(collections, BaixaVeiculo)
+export default StoreHOC(collections, BaixaVeiculo)

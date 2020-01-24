@@ -569,10 +569,10 @@ app.put('/api/updateVehicle', (req, res) => {
     queryString = `UPDATE ${table} SET ` +
         queryString.slice(0, queryString.length - 2) +
         ` WHERE ${tablePK} = '${id}' RETURNING *`
-
+console.log('***************fffffff')
     pool.query(queryString, (err, t) => {
         if (err) console.log(err)
-        else emitSocket('updateVehicle', t.rows)
+        io.sockets.emit('updateVehicle', 'veiculos')
         res.send(`${table} table changed fields in ${id}`)
     }
     )

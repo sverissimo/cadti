@@ -1,35 +1,23 @@
-import humps from 'humps'
-
 const initState = {}
 
-const getDataReducer = (state = initState, action) => {
+const dataReducer = (state = initState, action) => {
     const { payload } = action
     switch (action.type) {
 
-        case 'GET_DATA':
-
+        case 'GET_DATA':            
             return { ...state, ...payload }
 
-        case 'UPDATE_SOCIO':
-            console.log(payload)
+        case 'UPDATE_VEHICLE':
+            return { ...state, veiculos: payload }
+
+
+        /*  
+        
+        case 'UPDATE_SOCIO':            
             return { ...state, payload }
 
-
-        case 'UPDATE_VEHICLE':
-            /* 
-                        let veiculos = [...state.veiculos]
-                        const updatedVehicle = humps.camelizeKeys(payload)
-            
-                        const oldVehicle = veiculos.find(v => v.veiculoId === updatedVehicle.veiculoId)
-                        const index = veiculos.indexOf(oldVehicle)
-            
-                        console.log(updatedVehicle)
-                        veiculos[index] = updatedVehicle */
-            console.log(payload)
-            return { ...state }
-
-
-        /*  case 'UPDATE_FIELDS':
+        
+        case 'UPDATE_FIELDS':
  
              let veiculos = [...state.veiculos]
              const updatedFields = action.payload
@@ -47,8 +35,6 @@ const getDataReducer = (state = initState, action) => {
              return { ...state, veiculos } */
 
 
-        case 'VEHICLE_DATA':
-            return { ...state, ...payload }
 
         case 'SET_COLOR':
             return { ...state, setColor: action.payload }
@@ -61,4 +47,4 @@ const getDataReducer = (state = initState, action) => {
     }
 }
 
-export default getDataReducer;
+export default dataReducer;

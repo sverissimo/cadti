@@ -1,10 +1,11 @@
-import getDataReducer from './Redux/getDataReducer'
-import empresaReducer from './Redux/empresaReducer'
+import dataReducer from './Store/dataReducer'
 import { combineReducers } from 'redux';
 
 const rootReducer = combineReducers({
-    vehicleData: getDataReducer,
-    otherData: empresaReducer
-}) 
+    
+    data: dataReducer,
+    vehicleData: dataReducer
+
+})
 
 export default rootReducer

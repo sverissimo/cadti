@@ -2,7 +2,7 @@ import React from 'react'
 import HomeTemplate from './HomeTemplate'
 
 import VeiculosHome from './Veiculos/VeiculosHome'
-import CadVeiculos from './Veiculos/veiculosContainer'
+import CadVeiculos from './Veiculos/CadVeiculo'
 import AltVeiculos from './Veiculos/AltDados'
 import AltSeguro from './Veiculos/AltSeguro'
 import BaixaVeiculo from './Veiculos/BaixaVeiculo'

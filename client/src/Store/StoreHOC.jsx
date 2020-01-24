@@ -2,23 +2,23 @@ import React from 'react'
 
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { getData } from '../Redux/getDataActions'
-import { updateData } from '../Redux/updateDataActions'
+import { getData, updateData } from './dataActions'
+
 
 import Loading from '../Utils/Loading'
 
 const socketIO = require('socket.io-client')
 let socket
 
-export default function (requestArray = [], WrappedComponent) {
+export default function (requestArray, WrappedComponent) {
 
     let collections = []
 
     class With extends React.Component {
-
+        
         async componentDidMount() {
-            const { redux } = this.props
-
+            const { redux, match } = this.props
+        
             let request = []
             requestArray.forEach(req => {
                 const colName = req.replace('getFiles/', '')
@@ -29,20 +29,18 @@ export default function (requestArray = [], WrappedComponent) {
             })
 
             if (request[0]) await this.props.getData(request)
-
-            if (!socket) socket = socketIO(':3001')
-           
-            socket.on('tst', arg => {
-                console.log(arg)
-                this.props.updateData(arg)
-            }) 
-            /* socket.on('updateVehicle', updatedVehicle => {
-                this.props.updateData(updatedVehicle)
-            }) */
+            
+            if (match.path === '/consultas') {
+                if (!socket) socket = socketIO(':3001')
+                console.log('this path should be updated')
+                socket.on('updateVehicle', collectionName => {
+                    this.props.updateData(collectionName)
+                })
+            } else console.log('this path should not')
         }
 
         render() {
-            if (collections.length === 0 || !collections.every(col => this.props.redux.hasOwnProperty(col))) return <Loading />
+            if (!collections.every(col => this.props.redux.hasOwnProperty(col))) return <Loading />
             else {
                 return <WrappedComponent {...this.props} />
             }
@@ -52,7 +50,7 @@ export default function (requestArray = [], WrappedComponent) {
     function mapStateToProps(state) {
         return {
             redux: {
-                ...state.vehicleData,
+                ...state.data,
             }
         }
     }
@@ -63,4 +61,3 @@ export default function (requestArray = [], WrappedComponent) {
 
     return connect(mapStateToProps, mapDispatchToProps)(With)
 }
-
