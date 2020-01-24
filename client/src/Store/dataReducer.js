@@ -1,14 +1,22 @@
 const initState = {}
 
 const dataReducer = (state = initState, action) => {
-    const { payload } = action
-    switch (action.type) {
+    const { type, payload } = action
+    switch (type) {
 
-        case 'GET_DATA':            
+        case 'GET_DATA':
             return { ...state, ...payload }
 
         case 'UPDATE_VEHICLE':
-            return { ...state, veiculos: payload }
+            const veiculos = state.veiculos.map(v => v.veiculoId === payload.veiculoId ? payload : v)
+            return {
+                ...state, veiculos
+            }
+        case 'UPDATE_STATE_DATA':
+            const { data, collection } = payload
+            return {
+                ...state, [collection]: data
+            }
 
 
         /*  

@@ -1,6 +1,8 @@
 import React, { Component } from 'react'
 import axios from 'axios'
 
+import StoreHOC from '../Store/StoreHOC'
+
 import humps from 'humps'
 import ReactToast from '../Utils/ReactToast'
 
@@ -11,11 +13,7 @@ import AlertDialog from '../Utils/AlertDialog'
 
 //import AlertDialog from '../Utils/AlertDialog'
 
-const socketIO = require('socket.io-client')
-let socket
-
-
-export default class AltSocios extends Component {
+class AltSocios extends Component {
 
     state = {
         empresas: [],
@@ -35,38 +33,16 @@ export default class AltSocios extends Component {
     }
 
     componentDidMount() {
-        const empresas = axios.get('/api/empresas'),
-            socios = axios.get('/api/socios')
+        const { redux } = this.props,
+            { empresas, socios } = redux
 
-        Promise.all([empresas, socios])
-            .then(res => res.map(r => humps.camelizeKeys(r.data)))
-            .then(([empresas, socios]) => {
-                this.setState({ empresas, socios, form: sociosForm, originalSocios: humps.decamelizeKeys(socios) });
-            })
-
-        if (!socket) {
-            socket = socketIO(':3001')
-        }
-
-        socket.on('tst', arg => {
-            console.log(arg)            
-        }) 
-
-      /*   socket.on('addSocio', async newSocio => {
-            let socios = [...this.state.socios],
-                filteredSocios = [...this.state.filteredSocios]
-            socios.push(newSocio)
-            filteredSocios.push(newSocio)
-
-            await this.setState({ socios, filteredSocios })
-        }) */
+        this.setState({ empresas, socios, form: sociosForm, originalSocios: humps.decamelizeKeys(socios) })
     }
-
 
     componentWillUnmount() { this.setState({}) }
 
     handleInput = async e => {
-        socket.emit(('incoming data', 'yeah'))
+        
         const { name } = e.target
         let { value } = e.target
 
@@ -123,14 +99,16 @@ export default class AltSocios extends Component {
     }
 
     addSocio = async () => {
-        let form = sociosForm,
+        let socios = this.state.filteredSocios,
+            form = sociosForm,
             sObject = {}
 
         form.forEach(obj => {
             Object.assign(sObject, { [obj.field]: this.state[obj.field] })
         })
+        socios.push(sObject)
 
-        axios.post('/api/io', sObject)
+        await this.setState({ filteredSocios: socios })
 
         sociosForm.forEach(obj => {
             this.setState({ [obj.field]: '' })
@@ -302,3 +280,7 @@ export default class AltSocios extends Component {
         )
     }
 }
+
+const collections = ['empresas', 'socios']
+
+export default StoreHOC(collections, AltSocios)

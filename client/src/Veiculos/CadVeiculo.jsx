@@ -29,11 +29,12 @@ class VeiculosContainer extends PureComponent {
         }
     }
 
-    state = {        
+    state = {
         steps: ['Dados do Veículo', 'Dados do seguro', 'Vistoria e laudos', 'Documentos', 'Revisão'],
         subtitle: ['Informe os dados do Veículo', 'Informe os dados do Seguro',
             'Preencha os campos abaixo conforme a vistoria realizada'],
         form: {},
+        stateFormData: new FormData(),
         empresas: [],
         razaoSocial: '',
         delegatarioCompartilhado: '',
@@ -104,7 +105,8 @@ class VeiculosContainer extends PureComponent {
             let selectedEmpresa = this.state.empresas.find(e => e.razaoSocial === value)
 
             if (selectedEmpresa) {
-                await this.setState({ razaoSocial: selectedEmpresa.razaoSocial, selectedEmpresa })
+                const { razaoSocial, delegatarioId } = selectedEmpresa
+                await this.setState({ selectedEmpresa, razaoSocial, delegatarioId })
                 if (value !== selectedEmpresa.razaoSocial) this.setState({ selectedEmpresa: undefined })
 
                 const frota = veiculos.filter(v => v.empresa === this.state.razaoSocial)
@@ -145,11 +147,11 @@ class VeiculosContainer extends PureComponent {
     }
 
     handleBlur = async  e => {
-        const { empresas, frota, placa, modelosChassi, carrocerias, seguradoras, allInsurances,
-        } = this.state
+        const { empresas, frota, placa, modelosChassi, carrocerias, seguradoras,
+            allInsurances, delegatarioId } = this.state
         const { name } = e.target
         let { value } = e.target
-
+        console.log(delegatarioId)
         switch (name) {
             case 'modeloChassi':
                 this.getId(name, value, modelosChassi, 'modeloChassiId', 'modeloChassi', 'id', 'Chassi')
@@ -253,7 +255,7 @@ class VeiculosContainer extends PureComponent {
             })
         })
 
-        let formData = this.state.form,
+        let formData = this.state.stateFormData,
             newForm = new FormData()
 
         let { dataEmissao, vencimento, delegatarioCompartilhado,

@@ -27,14 +27,18 @@ export const getData = (collectionsArray = []) => {
     }
 }
 
-export const updateData = collectionName => async (dispatch, getState) => {
-    console.log(collectionName)
-    axios.get(`/api/${collectionName}`)
-        .then(res => humps.camelizeKeys(res.data))
-        .then(response => {
-            dispatch({
-                type: 'UPDATE_VEHICLE',
-                payload: response
-            })
-        })
+export const updateData = updatedObject => async (dispatch, getState) => {
+    const payload = humps.camelizeKeys(updatedObject[0])
+    dispatch({
+        type: 'UPDATE_VEHICLE',
+        payload
+    })
+}
+
+export const updateStateData = updatedCollection => dispatch => {
+    const payload = updatedCollection    
+    dispatch({
+        type: 'UPDATE_STATE_DATA',
+        payload
+    })
 }

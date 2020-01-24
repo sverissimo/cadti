@@ -3,6 +3,8 @@ import axios from 'axios'
 import humps from 'humps'
 
 import StoreHOC from '../Store/StoreHOC'
+import { connect } from 'react-redux'
+import { updateStateData } from '../Store/dataActions'
 
 import ConsultasTemplate from './consultasTemplate'
 import { TabMenu } from '../Layouts'
@@ -33,8 +35,9 @@ class ConsultasContainer extends Component {
     state = {
         tab: 0,
         items: ['Empresas', 'Sócios', 'Procuradores', 'Veículos', 'Seguros'],
-        tablePKs: ['delegatario_id', 'socios', 'procurador_id', 'veiculo_id', 'apolice'],
+        tablePKs: ['delegatario_id', 'socio_id', 'procurador_id', 'veiculo_id', 'apolice'],
         dbTables: ['delegatario', 'socios', 'procurador', 'veiculo', 'seguro'],
+        options: ['empresas', 'socios', 'procuradores', 'veiculos', 'seguros'],
         empresas: [],
         seguros: [],
         razaoSocial: '',
@@ -47,43 +50,49 @@ class ConsultasContainer extends Component {
     }
 
     async componentDidMount() {
-        await this.setState({ ...this.props.redux, collection: this.props.redux.empresas })               
-        console.log(this.state)
+        const { redux } = this.props
+        await this.setState({ ...redux, collection: redux.empresas })
+
         document.addEventListener('keydown', this.escFunction, false)
     }
-
-   /*  static getDerivedStateFromProps(nextProps, prevState) {
-
-        if (nextProps && nextProps.redux && prevState) {
+    /* 
+        static getDerivedStateFromProps(nextProps, prevState) {
+    
             if (nextProps && nextProps.redux && prevState) {
-                const veiculos = [...nextProps.redux.veiculos]
-                if (veiculos !== prevState.veiculos) {
-
-                    return { veiculos }
+                if (nextProps && nextProps.redux && prevState) {
+                    const veiculos = [...nextProps.redux.veiculos]
+                    if (veiculos !== prevState.veiculos) {
+                        console.log(veiculos)
+                        return { veiculos, collection: veiculos }
+                    } else return null
                 } else return null
             } else return null
-        } else return null
-    } */
-      /*       const socios = nextProps.redux.socios
-                 if (socios !== prevState.socios) {
-                     console.log(socios)
-                     return { collection: socios, socios }
-                 } else return null     
-       */
+        } */
+    /*       const socios = nextProps.redux.socios
+               if (socios !== prevState.socios) {
+                   console.log(socios)
+                   return { collection: socios, socios }
+               } else return null     
+     */
 
-       
+
 
     componentWillUnmount() { this.setState({}) }
 
     changeTab = async (e, value) => {
         await this.setState({ tab: value })
         const options = ['empresas', 'socios', 'procuradores', 'veiculos', 'seguros'],
-            collection = this.state[options[value]]
+            collection = this.props.redux[options[value]]
         this.setState({ collection })
     }
 
-    handleEdit = (data) => {
-        this.setState({ data })
+    handleEdit = async data => {
+        let n = Number(this.state.tab), x = 2
+        if (n === 2) x = 1
+
+        await this.props.updateStateData(data)
+        this.changeTab(null, x)
+        this.changeTab(null, n)        
     }
 
     showDetails = (e, elementDetails) => {
@@ -136,8 +145,8 @@ class ConsultasContainer extends Component {
             table = dbTables[tab],
             tablePK = tablePKs[tab],
             itemId = humps.camelize(tablePK)
-
-        axios.delete(`/api/delete?table=${table}&tablePK=${tablePK}&id=${data[itemId]}`)
+       
+            axios.delete(`/api/delete?table=${table}&tablePK=${tablePK}&id=${data[itemId]}`)
             .then(r => console.log(r.data))
     }
 
@@ -161,9 +170,9 @@ class ConsultasContainer extends Component {
     closeAlert = () => this.setState({ openAlertDialog: !this.state.openAlertDialog })
 
     render() {
-        const { tab, items, collection, showDetails, elementDetails, showFiles, selectedElement, filesCollection,
+        const { tab, options, items, showDetails, elementDetails, showFiles, selectedElement, filesCollection,
             openAlertDialog, alertType, typeId, empresas } = this.state
-
+        //console.log(this.state, this.props)
         return <Fragment>
             <TabMenu items={items}
                 tab={tab}
@@ -171,7 +180,7 @@ class ConsultasContainer extends Component {
             <ConsultasTemplate
                 tab={tab}
                 items={items}
-                collection={collection}
+                collection={this.props.redux[options[tab]]}
                 showDetails={this.showDetails}
                 showFiles={this.showFiles}
                 handleEdit={this.handleEdit}
@@ -196,4 +205,4 @@ class ConsultasContainer extends Component {
 
 const collections = ['veiculos', 'empresas', 'socios', 'procuradores', 'seguros', 'getFiles/vehicleDocs', 'getFiles/empresaDocs']
 
-export default StoreHOC(collections, ConsultasContainer)
+export default connect(null, { updateStateData })(StoreHOC(collections, ConsultasContainer))

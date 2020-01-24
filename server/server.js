@@ -17,6 +17,7 @@ const { cadSocios } = require('./cadSocios')
 const { cadProcuradores } = require('./cadProcuradores')
 
 const { empresas, veiculoInit, modeloChassi, carrocerias, equipamentos, seguradoras, seguros } = require('./queries')
+const { getUpdatedData } = require('./getUpdatedData')
 const { filesModel } = require('./models/filesModel')
 const { empresaModel } = require('./models/empresaModel')
 const { empresaChunks } = require('./models/chunksModel')
@@ -76,7 +77,7 @@ const storage = new GridFsStorage({
     url: mongoURI,
     file: (req, file) => {
         gfs.collection('vehicleDocs');
-        
+
         let metadata = { ...req.body }
         metadata.fieldName = file.fieldname
 
@@ -237,7 +238,7 @@ app.get('/api/download', (req, res) => {
 
 app.get('/api/empresas', (req, res) => pool.query(empresas, (err, table) => {
     if (err) res.send(err)
-    if (table.rows.length === 0) { res.send('Nenhum delegatário cadastrado.'); return }    
+    if (table.rows.length === 0) { res.send('Nenhum delegatário cadastrado.'); return }
     res.json(table.rows)
 })
 )
@@ -568,14 +569,17 @@ app.put('/api/updateVehicle', (req, res) => {
 
     queryString = `UPDATE ${table} SET ` +
         queryString.slice(0, queryString.length - 2) +
-        ` WHERE ${tablePK} = '${id}' RETURNING *`
-console.log('***************fffffff')
+        ` WHERE ${tablePK} = '${id}' RETURNING veiculo_id`
+
     pool.query(queryString, (err, t) => {
         if (err) console.log(err)
-        io.sockets.emit('updateVehicle', 'veiculos')
+        if (t && t.rows) {
+            const id = t.rows[0].veiculo_id
+            const data = getUpdatedData('veiculo', id)
+            data.then(res => io.sockets.emit('updateVehicle', res))
+        }
         res.send(`${table} table changed fields in ${id}`)
-    }
-    )
+    })
 })
 
 app.get('/api/deleteFile/:reqId', async (req, res) => {

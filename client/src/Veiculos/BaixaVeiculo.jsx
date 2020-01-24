@@ -132,7 +132,7 @@ class BaixaVeiculo extends Component {
     render() {
         const { delegaTransf, confirmToast, toastMsg, checked, openAlertDialog,
             alertType } = this.state
-        console.log(this.props)
+        
         return <Fragment>
             <BaixaTemplate
                 data={this.state}

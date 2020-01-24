@@ -2,12 +2,10 @@ import React, { Fragment } from 'react'
 
 import SelectEmpresa from '../Reusable Components/SelectEmpresa'
 import TextInput from '../Reusable Components/TextInput'
-import AutoComplete from '../Utils/autoComplete'
 
 import Grid from '@material-ui/core/Grid'
 import Paper from '@material-ui/core/Paper'
 import Typography from '@material-ui/core/Typography'
-import MenuItem from '@material-ui/core/MenuItem'
 import Button from '@material-ui/core/Button'
 import AddIcon from '@material-ui/icons/Add'
 import { makeStyles } from '@material-ui/core/styles'
@@ -43,21 +41,13 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-export default function ({ handleInput, handleBlur, data, handleEquipa, setActiveStep,
+export default function ({ handleInput, handleBlur, data, handleEquipa, 
     altPlacaOption, showAltPlaca }) {
-    const { tab, razaoSocial, activeStep, subtitle, placa, justificativa } = data,
+    const { tab, activeStep, subtitle, placa, justificativa } = data,
         classes = useStyles(), { paper, container } = classes
 
     let form = altForm[activeStep]    
-
-    const showForm = () => {
-        const check = data.empresas.filter(e => e.razaoSocial === razaoSocial)
-        if (check && check[0]) {
-            return true
-        }
-        else return false
-    }
-
+    
     return (
         <Fragment>
             <Grid

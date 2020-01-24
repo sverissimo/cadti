@@ -39,7 +39,9 @@ export default function ({ tab, collection, showDetails, showFiles, handleEdit, 
     const classes = useStyles(), { paper } = classes
 
     const id = ['delegatarioId', 'socioId', 'procuradorId', 'veiculoId'][tab],
-        subject = ['empresas', 'sócios', 'procuradores', 'veículos', 'seguros']
+        subject = ['empresas', 'sócios', 'procuradores', 'veículos', 'seguros'],
+        options = ['empresas', 'socios', 'procuradores', 'veiculos', 'seguros']
+
     return (
         <Grid item xs={12}>
             <Paper className={paper}>
@@ -58,7 +60,7 @@ export default function ({ tab, collection, showDetails, showFiles, handleEdit, 
 
                     localization={{
                         body: {
-                            emptyDataSourceMessage: 'Carregando...',
+                            emptyDataSourceMessage: 'Registro não encontrado.',
                             editRow: { deleteText: 'Tem certeza que deseja apagar esse registro ?' }
                         },
                         toolbar: {
@@ -105,20 +107,19 @@ export default function ({ tab, collection, showDetails, showFiles, handleEdit, 
                             }), */
                         onRowDelete: async function (oldData) {
 
-                            await del(oldData)
+                           await del(oldData)
                             return new Promise((resolve, reject) => {
                                 setTimeout(() => {
                                     {
                                         let data = collection;
                                         const index = data.indexOf(oldData);
                                         data.splice(index, 1);
-                                        handleEdit({ data }, () => resolve());
+                                        handleEdit({data, name: options[tab]}, () => resolve());
                                     }
                                     resolve();
-                                }, 200);
+                                }, 50);
                             })
                         }
-
                     }}
                 />
                 <div>
