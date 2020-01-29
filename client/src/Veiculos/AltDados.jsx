@@ -90,7 +90,7 @@ class AltDados extends Component {
         } else this.setState({ [name]: value })
     }
 
-    getId = async (name, value, collection, stateId, dbName, dbId, alertLabel) => {
+    getId = async (name, value, collection, stateId, dbName, dbId) => {
 
         const item = collection.filter(el => el[dbName].toLowerCase().match(value.toLowerCase()))
         if (value === '') this.setState({ [name]: '', [stateId]: '' })
@@ -103,7 +103,7 @@ class AltDados extends Component {
             }
         } else {
             await this.setState({ [name]: '', [stateId]: '' })
-            alert(alertLabel + ' não cadastrado')
+            this.setState({openAlertDialog: true, alertType: 'empresaNotFound'})
             document.getElementsByName(name)[0].focus()
         }
     }
@@ -118,7 +118,7 @@ class AltDados extends Component {
                 this.getId(name, value, empresas, 'delegatarioCompartilhado', 'razaoSocial', 'delegatarioId')
                 break;
             case 'delegatario':
-                await this.getId(name, value, empresas, 'delegatarioId', 'razaoSocial', 'delegatarioId', 'Empresa')
+                await this.getId(name, value, empresas, 'delegatarioId', 'razaoSocial', 'delegatarioId')
                 break;
             default:
                 void 0

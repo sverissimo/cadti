@@ -31,13 +31,11 @@ const useStyles = makeStyles(theme => ({
         fontSize: '0.9rem',
         textAlign: 'center'
     },
-    textField: {
+    selectEmpresa: {
         marginLeft: theme.spacing(1),
         marginRight: theme.spacing(1),
-        width: 300,
-        fontSize: '0.8rem',
+        minWidth: 350,
         fontColor: '#bbb',
-        textAlign: 'center',
     },
     formHolder: {
         width: 900,
@@ -57,7 +55,9 @@ export default function ({ handleInput, handleBlur, data, handleEquipa, handleCh
     altPlacaOption, showAltPlaca }) {
     const { empresas, razaoSocial, activeStep, equipamentos, addEquipa,
         delegatarioCompartilhado, subtitle, placa, selectedEmpresa } = data,
-        classes = useStyles(), { paper, container, title } = classes
+
+        classes = useStyles(), { paper, container, title, selectEmpresa,
+            button, formHolder } = classes
 
     const [shared, setShared] = useState(false)
 
@@ -73,25 +73,27 @@ export default function ({ handleInput, handleBlur, data, handleEquipa, handleCh
             <Grid>
                 <Paper className={paper} style={{ padding: '0 2% 0 2%' }}>
                     <Grid container justify="center">
-                        {activeStep === 0 ? <Grid item xs={shared ? 4 : 12} style={{ marginBottom: '15px' }}>
-                            <Typography className={title}> Selecione a Viação</Typography>
+                        {activeStep === 0 ?
+                            <Grid item xs={shared ? 4 : 12} style={{ marginBottom: '15px' }}>
+                                <Typography className={title}> Selecione a Viação</Typography>
 
-                            <TextField
-                                inputProps={{
-                                    list: 'razaoSocial',
-                                    name: 'razaoSocial',
-                                }}
-                                className={classes.textField}
-                                value={razaoSocial}
-                                onChange={handleInput}
-                                onBlur={handleBlur}
-                            />
-                            <AutoComplete
-                                collection={empresas}
-                                datalist='razaoSocial'
-                                value={razaoSocial}
-                            />
-                        </Grid>
+                                <TextField
+                                    inputProps={{
+                                        list: 'razaoSocial',
+                                        name: 'razaoSocial',
+                                        style: { textAlign: 'center', fontSize: '0.8rem' }
+                                    }}
+                                    className={selectEmpresa}
+                                    value={razaoSocial}
+                                    onChange={handleInput}
+                                    onBlur={handleBlur}
+                                />
+                                <AutoComplete
+                                    collection={empresas}
+                                    datalist='razaoSocial'
+                                    value={razaoSocial}
+                                />
+                            </Grid>
                             :
                             <div className='formTitle'>Cadastro de Veículo - {razaoSocial}</div>
                         }
@@ -104,8 +106,9 @@ export default function ({ handleInput, handleBlur, data, handleEquipa, handleCh
                                     inputProps={{
                                         list: 'razaoSocial',
                                         name: 'delegatarioCompartilhado',
+                                        style: { textAlign: 'center', fontSize: '0.8rem' }
                                     }}
-                                    className={classes.textField}
+                                    className={selectEmpresa}
                                     value={delegatarioCompartilhado}
                                     onChange={handleInput}
                                     onBlur={handleBlur}
@@ -157,7 +160,7 @@ export default function ({ handleInput, handleBlur, data, handleEquipa, handleCh
                                         variant="outlined"
                                         size="small"
                                         color="primary"
-                                        className={classes.button}
+                                        className={button}
                                         onClick={handleEquipa}
                                     >
                                         <AddIcon />
@@ -186,7 +189,7 @@ export default function ({ handleInput, handleBlur, data, handleEquipa, handleCh
                         </Grid>
                         :
                         <Grid container justify="center">
-                            <div className={classes.formHolder}></div>
+                            <div className={formHolder}></div>
                         </Grid>
                 }
             </Grid>

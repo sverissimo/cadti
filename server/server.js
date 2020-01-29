@@ -26,7 +26,7 @@ const { uploadFS } = require('./upload')
 const { parseRequestBody } = require('./parseRequest')
 
 dotenv.config()
-app.use(bodyParser.json());
+app.use(bodyParser.json())
 
 app.use(function (req, res, next) { //allow cross origin requests
     res.setHeader("Access-Control-Allow-Methods", "POST, PUT, OPTIONS, DELETE, GET");

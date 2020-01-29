@@ -12,8 +12,8 @@ const useStyles = makeStyles(theme => ({
 
     root: {
         flexGrow: '1',
-        margin: '1%',
-        padding: '1%',
+        margin: '5px',
+        padding: '8px',
     },
     textField: {
         marginLeft: theme.spacing(1),
@@ -26,11 +26,11 @@ const useStyles = makeStyles(theme => ({
         display: 'none'
     },
     paper: {
-        color: theme.palette.text.secondary,
-        margin: theme.spacing(2),
+        color: theme.palette.text.secondary,        
         width: "100%",
-        padding: '2% 0 4% 0',
-        height: '400px'
+        padding: '8px 0 14px 0',
+        height: 'auto',
+        minHeight: '350px'
     },
     button: {
         margin: '3% 0 3% 0',

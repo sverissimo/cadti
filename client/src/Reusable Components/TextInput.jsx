@@ -8,14 +8,12 @@ import TextField from '@material-ui/core/TextField'
 
 const useStyles = makeStyles(theme => ({
 
-    root: {
-        width: "400px",
-        backgroundColor: 'blue'
-    },
     textField: {
         marginLeft: theme.spacing(1),
         marginRight: theme.spacing(1),
-        width: 300,
+        marginTop: '2px',
+        marginBottom: '2px',
+        
         fontSize: '0.8rem',
         fontColor: '#bbb',
         textAlign: 'center',
@@ -23,17 +21,23 @@ const useStyles = makeStyles(theme => ({
     select: {
         marginLeft: theme.spacing(1),
         marginRight: theme.spacing(1),
+        marginTop: '2px',
+        marginBottom: '2px',
         background: '#fafafa',
-        width: 300,
         fontSize: '0.8rem',
         fontColor: '#bbb',
         textAlign: 'center',
-    }
+    },
+    helperText: {
+        margin: '2px 0',
+        fontSize: '0.7rem'
+    },
 }))
 
 export default function TextInput({ handleInput, handleBlur, form, data }) {
 
-    const classes = useStyles()
+    const classes = useStyles(),
+        { helperText } = classes
 
     const errorHandler = (el) => {
         let value = data[el.field]
@@ -53,7 +57,7 @@ export default function TextInput({ handleInput, handleBlur, form, data }) {
         if (value > el.max || value < el.min) return 'Valor inválido'
         else if (value && value.match(el.pattern) === null) return '✘'
         else if (el.pattern && value && value.match(el.pattern) !== null) return '✓'
-        else return undefined
+        else return ' '
     }
 
     return form.map((el, i) =>
@@ -68,6 +72,7 @@ export default function TextInput({ handleInput, handleBlur, form, data }) {
                 type={el.type || ''}
                 error={errorHandler(el)}
                 helperText={helper(el)}
+                FormHelperTextProps={{ className: helperText }}
                 select={el.select || false}
                 value={data[el.field] || ''}
                 disabled={el.disabled || false}
@@ -96,7 +101,7 @@ export default function TextInput({ handleInput, handleBlur, form, data }) {
                     style: {
                         background: el.disabled && data.disable ? '#fff' : '#fafafa',
                         fontSize: '0.9rem', textAlign: 'center', color: '#555', fontWeight: 400,
-                        width: el.width || 300, height: '44px'
+                        width: 325, height: '44px'
                     }
                 }}
             >

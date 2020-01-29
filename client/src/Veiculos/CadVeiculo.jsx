@@ -31,25 +31,19 @@ class VeiculosContainer extends PureComponent {
     }
 
     state = {
+        activeStep: 0,
         steps: ['Dados do Veículo', 'Dados do seguro', 'Vistoria e laudos', 'Documentos', 'Revisão'],
         subtitle: ['Informe os dados do Veículo', 'Informe os dados do Seguro',
             'Preencha os campos abaixo conforme a vistoria realizada'],
-        stateFormData: new FormData(),
-        empresas: [],
         razaoSocial: '',
-        delegatarioCompartilhado: '',
         frota: [],
+        delegatarioCompartilhado: '',
         toastMsg: 'Veículo cadastrado!',
         confirmToast: false,
-        activeStep: 0,
         files: [],
         fileNames: [],
-        modelosChassi: [],
-        seguradoras: [],
         insuranceExists: false,
-        equipamentos: [],
         addEquipa: false,
-        addedPlaca: '',
         openDialog: false
     }
 
@@ -86,12 +80,12 @@ class VeiculosContainer extends PureComponent {
         if (action === 'reset') this.setState({ activeStep: 0 })
 
         if (prevActiveStep === 1) {
-            equipamentos.forEach(async e => {
+            equipamentos.forEach(e => {
                 if (this.state[e.item] === true) {
-                    await array.push(e.item)
+                    array.push(e.item)
                 }
             })
-            this.setState({ equipamentos_id: array })
+            if (array[0]) this.setState({ equipamentos_id: array })
         }
     }
 
@@ -125,7 +119,6 @@ class VeiculosContainer extends PureComponent {
             }
         }
         else this.setState({ [name]: value })
-
     }
 
     getId = async (name, value, collection, stateId, dbName, dbId, alertLabel) => {
@@ -147,7 +140,7 @@ class VeiculosContainer extends PureComponent {
     }
 
     handleBlur = async  e => {
-        const { empresas, frota, placa, modelosChassi, carrocerias, seguradoras,
+        const { empresas, frota, modelosChassi, carrocerias, seguradoras,
             allInsurances } = this.state
         const { name } = e.target
         let { value } = e.target
@@ -164,13 +157,11 @@ class VeiculosContainer extends PureComponent {
                 break;
             case 'seguradora':
                 await this.getId(name, value, seguradoras, 'seguradoraId', 'seguradora', 'id', 'Seguradora')
-
                 let filteredInsurances = []
 
                 if (this.state.delegatarioId && this.state.seguradora === '') {
                     filteredInsurances = allInsurances.filter(s => s.delegatarioId === this.state.delegatarioId)
                     this.setState({ seguros: filteredInsurances })
-
                 }
                 if (!this.state.delegatarioId && this.state.seguradora !== '') {
                     filteredInsurances = allInsurances.filter(s => s.seguradora === this.state.seguradora)
@@ -182,8 +173,7 @@ class VeiculosContainer extends PureComponent {
                         .filter(s => s.seguradora === this.state.seguradora)
                     this.setState({ seguros: filteredInsurances })
                 }
-                break;
-
+                break
             case 'apolice':
                 let insuranceExists = this.state.seguros.filter(s => s.apolice === this.state.apolice)
                 if (insuranceExists && insuranceExists[0] !== undefined && insuranceExists[0].dataEmissao && insuranceExists[0].vencimento) {
@@ -195,19 +185,8 @@ class VeiculosContainer extends PureComponent {
                     insuranceExists = false
                     this.setState({ insuranceExists: false })
                 }
-                break;
-
-            case 'addedPlaca':
-                const { addedPlaca } = this.state
-                const plate = frota.filter(p => p.placa.match(addedPlaca))
-                if (plate && plate[0] && plate[0].length > 0) this.setState({ addedPlaca: plate[0].placa })
-                break;
-
-/*             case 'vencimento':
-                const valid = moment(value, 'YYYY-MM-DD', true).isValid()
-                console.log(valid)
                 break
- */            default:
+            default:
                 void 0
         }
 
@@ -216,28 +195,19 @@ class VeiculosContainer extends PureComponent {
             if (value.length === 7) {
                 const x = value.replace(/(\w{3})/, '$1-')
                 await this.setState({ placa: x })
-                value = x
-                const matchPlaca = frota.filter(v => v.placa === this.state.placa)[0]
-                if (matchPlaca) {
-                    await this.setState({ placa: null });
-                    value = ''
-                    this.setState({ alertType: 'plateExists', openDialog: true })
-                    document.getElementsByName('placa')[0].focus()
-                }
-
+                value = x                
             }
-            const matchPlaca2 = frota.filter(v => v.placa === placa)[0]
-            if (matchPlaca2) {
+            const matchPlaca = frota.find(v => v.placa === value)
+            if (matchPlaca) {                
                 await this.setState({ placa: null });
                 value = ''
                 this.setState({ alertType: 'plateExists', openDialog: true })
                 document.getElementsByName('placa')[0].focus()
             }
-
         }
     }
 
-    handleCadastro = async e => {
+    handleCadastro = async () => {
         const { anoCarroceria, equipamentos_id, peso_dianteiro, peso_traseiro,
             poltronas, delegatarioId, compartilhadoId, seguros, modeloChassiId,
             modeloCarroceriaId, seguradoraId } = this.state,
@@ -252,32 +222,34 @@ class VeiculosContainer extends PureComponent {
         cadForm.forEach(form => {
             form.forEach(obj => {
                 for (let k in this.state) {
-                    if (k === obj.field) {
-                        Object.assign(review, { [k]: this.state[k] })
-                    }
+                    if (k === obj.field) Object.assign(review, { [k]: this.state[k] })
                 }
             })
         })
 
-        let formData = this.state.stateFormData,
-            newForm = new FormData()
-
         let { dataEmissao, vencimento, delegatarioCompartilhado,
-            modeloChassi, modeloCarroceria, seguradora, ...vReview } = review
+            modeloChassi, modeloCarroceria, seguradora, ...vReview } = review,
 
-        let seguro = { apolice: review.apolice, seguradoraId }
+            seguro = { apolice: review.apolice, seguradoraId }
 
         const validEmissao = moment(dataEmissao, 'YYYY-MM-DD', true).isValid(),
             validVenc = moment(vencimento, 'YYYY-MM-DD', true).isValid()
 
         if (validEmissao) seguro.dataEmissao = dataEmissao
         if (validVenc) seguro.vencimento = vencimento
-        
+
         Object.assign(vReview, {
             delegatarioId, situacao, indicadorIdade, pbt, equipamentos_id,
             modeloChassiId, modeloCarroceriaId
         })
         vReview.delegatarioCompartilhado = compartilhadoId
+
+        Object.keys(vReview).forEach(key => {
+            if (vReview[key] === '') delete vReview[key]
+        })
+        Object.keys(seguro).forEach(key => {
+            if (seguro[key] === '') delete seguro[key]
+        })
 
         const vehicle = humps.decamelizeKeys(vReview)
         const insurance = humps.decamelizeKeys(seguro)
@@ -287,15 +259,9 @@ class VeiculosContainer extends PureComponent {
         if (insuranceExists[0]) {
             await axios.post('/api/cadastroVeiculo', vehicle)
                 .then(res => {
-                    const v_Id = res.data[0].veiculo_id
-                    newForm.append('veiculoId', v_Id);
-                    for (let entry of formData.entries()) {
-                        newForm.append(entry[0], entry[1])
-                    }
+                    const veiculoId = res.data[0].veiculo_id
+                    this.submitFiles(veiculoId)
                 })
-            axios.post('/api/mongoUpload', newForm).then(res => {
-                console.log(res.data)
-            })
                 .catch(err => console.log(err))
             this.toast()
         } else if (!insuranceExists[0] && insurance.apolice !== undefined
@@ -304,24 +270,14 @@ class VeiculosContainer extends PureComponent {
                 .then(res => console.log(res.data))
             await axios.post('/api/cadastroVeiculo', vehicle)
                 .then(res => {
-                    const v_Id = res.data[0].veiculo_id
-                    newForm.append('veiculoId', v_Id);
-                    for (let entry of formData.entries()) {
-                        newForm.append(entry[0], entry[1])
-                    }
+                    const veiculoId = res.data[0].veiculo_id
+                    this.submitFiles(veiculoId)
                 })
-            axios.post('/api/mongoUpload', newForm).then(res => {
-                console.log(res.data)
-            })
                 .catch(err => console.log(err))
             this.toast()
         } else {
             alert('Favor verificar os dados do seguro.')
         }
-    }
-
-    toast = e => {
-        this.setState({ confirmToast: !this.state.confirmToast })
     }
 
     handleFiles = async e => {
@@ -331,9 +287,8 @@ class VeiculosContainer extends PureComponent {
 
             document.getElementById(name).value = files[0].name
 
-            let formData = new FormData()
-
-            let fn = this.state.fileNames
+            let formData = new FormData(),
+                fn = this.state.fileNames
 
             if (files && files.length > 0) {
 
@@ -353,13 +308,18 @@ class VeiculosContainer extends PureComponent {
         }
     }
 
-    submitFiles = async e => {
-        const { form } = this.state
+    submitFiles = async veiculoId => {
+        let newForm = new FormData()
 
-        await axios.post('/api/mongoUpload', form)
+        newForm.append('veiculoId', veiculoId);
+        for (let pair of this.state.form.entries()) {
+            if (pair[0] && pair[1]) newForm.append(pair[0], pair[1])
+            else newForm = null
+        }
+        if (newForm) await axios.post('/api/mongoUpload', newForm)
             .then(res => console.log(res.data))
             .catch(err => console.log(err))
-        this.toast()
+        return null
     }
 
     showFiles = id => {
@@ -378,13 +338,11 @@ class VeiculosContainer extends PureComponent {
     handleCheck = item => this.setState({ ...this.state, [item]: !this.state[item] })
     handleEquipa = () => this.setState({ addEquipa: !this.state.addEquipa })
     toggleDialog = () => this.setState({ openDialog: !this.state.openDialog })
+    toast = () => this.setState({ confirmToast: !this.state.confirmToast })
 
     render() {
         const { confirmToast, toastMsg, activeStep,
             openDialog, alertType, steps, selectedEmpresa } = this.state
-
-        /*   const enableAddPlaca = cadForm[1]
-              .every(k => this.state.hasOwnProperty(k.field) && this.state[k.field] !== '') */
 
         return <Fragment>
             <Crumbs links={['Veículos', '/veiculos']} text='Cadastro de veículo' />
@@ -405,7 +363,6 @@ class VeiculosContainer extends PureComponent {
             {activeStep === 3 && <VehicleDocs
                 parentComponent='cadastro'
                 handleFiles={this.handleFiles}
-                handleSubmit={this.submitFiles}
                 handleNames={this.handleNames}
                 showFiles={this.showFiles}
             />}

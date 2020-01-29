@@ -41,14 +41,17 @@ export const cadForm = [[{
     label: 'Ano do Chassi',
     margin: 'normal',
     type: 'number',
-    max: Number(new Date().getFullYear())
+    max: Number(new Date().getFullYear()),
+    min: Number(new Date().getFullYear()) - 20
 },
-{
-    type: 'number',
+{ 
     field: 'valorChassi',
     label: 'Valor do Chassi (R$)',
     margin: 'normal',
-    zero: true
+    zero: true,
+    pattern: '\\d{5,14}',
+    min: 50000,
+    maxLength: 14
 },
 {
     field: 'modeloCarroceria',
@@ -63,14 +66,17 @@ export const cadForm = [[{
     field: 'anoCarroceria',
     label: 'Ano da Carroceria',
     margin: 'normal',
-    max: Number(new Date().getFullYear() + 1)
+    max: Number(new Date().getFullYear() + 1),
+    min: Number(new Date().getFullYear()) - 20
 },
-{
-    type: 'number',
+{    
     field: 'valorCarroceria',
     label: 'Valor da Carroceria (R$)',
     margin: 'normal',
-    zero: true
+    zero: true,
+    pattern: '\\d{5,14}',
+    min: 50000,
+    maxLength: 14
 },
 {
     field: 'dominio',

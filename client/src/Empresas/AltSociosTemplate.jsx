@@ -1,6 +1,9 @@
 import React, { Fragment } from 'react'
 import Dropzone from 'react-dropzone'
+
 import AutoComplete from '../Utils/autoComplete'
+import SelectEmpresa from '../Reusable Components/SelectEmpresa'
+import TextInput from '../Reusable Components/TextInput'
 import { sociosForm } from '../Forms/sociosForm'
 
 import Grid from '@material-ui/core/Grid'
@@ -27,13 +30,6 @@ const useStyles = makeStyles(theme => ({
         fontWeight: 500,
         textAlign: 'center'
     },
-    selector: {
-        width: '380px',
-        fontSize: '0.8rem',
-        margin: '10px 0',
-        textAlign: 'center'
-
-    },
     textField: {
         marginLeft: theme.spacing(1),
         marginRight: theme.spacing(1),
@@ -45,8 +41,8 @@ const useStyles = makeStyles(theme => ({
     formHolder: {
         width: 900,
     },
-    input: {
-        textAlign: 'center'
+    helperText: {        
+        marginTop: '4px'
     },
     paper: {
         padding: theme.spacing(1),
@@ -104,10 +100,10 @@ const useStyles = makeStyles(theme => ({
 export default function AltSociosTemplate({ data, removeSocio, handleBlur, handleInput,
     addSocio, handleFiles, enableEdit, handleEdit, handleSubmit }) {
 
-    const { dropDisplay, razaoSocial, empresas, filteredSocios, form, 
+    const { dropDisplay, filteredSocios, form,
         selectedEmpresa, contratoSocial } = data,
         classes = useStyles(), { paper, container, title, iconButton, dropBox,
-            dropBoxItem, dropBoxItem2, list, addButton, selector } = classes
+            dropBoxItem, dropBoxItem2, list, addButton } = classes
 
     const errorHandler = (el) => {
 
@@ -126,7 +122,7 @@ export default function AltSociosTemplate({ data, removeSocio, handleBlur, handl
         if (value > el.max || value < el.min) return 'Valor inválido'
         else if (value && value.match(el.pattern) === null) return '✘'
         else if (el.pattern && value && value.match(el.pattern) !== null) return '✓'
-        else return undefined
+        else return ' '
     }
 
     return (
@@ -136,32 +132,14 @@ export default function AltSociosTemplate({ data, removeSocio, handleBlur, handl
             className={container}
             justify="center"
         >
-            <Grid item xs={12}>
-                <Paper className={paper}>
-                    <Grid item xs={12} style={{ marginBottom: '15px' }}>
-                        <Typography className={title}>  Alteração de quadro societário - Selecione a Viação</Typography>
-                        <TextField
-                            inputProps={{
-                                list: 'razaoSocial',
-                                name: 'razaoSocial',
-                                style: { fontSize: 15, textAlign: 'center' }
-                            }}
-                            className={selector}
-                            value={razaoSocial}
-                            onChange={handleInput}
-                            placeholder='Selecione a empresa'
-                        />
-                        <AutoComplete
-                            collection={empresas}
-                            datalist='razaoSocial'
-                            value={razaoSocial}
-                        />
-                    </Grid>
-                </Paper>
-            </Grid>
-
+            <SelectEmpresa
+                data={data}
+                handleInput={handleInput}
+                handleBlur={handleBlur}
+            />
             {
-                selectedEmpresa[0] && <Grid item xs={12}>
+                //selectedEmpresa[0] 
+                true && <Grid item xs={12}>
                     <Paper className={paper}>
                         {
                             sociosForm.map((el, i) =>
@@ -176,6 +154,9 @@ export default function AltSociosTemplate({ data, removeSocio, handleBlur, handl
                                         type={el.type || ''}
                                         error={errorHandler(el)}
                                         helperText={helper(el)}
+                                        FormHelperTextProps={{
+                                            className: classes.helperText
+                                        }}
                                         select={el.select || false}
                                         value={data[el.field] || ''}
                                         disabled={el.disabled}
@@ -192,10 +173,7 @@ export default function AltSociosTemplate({ data, removeSocio, handleBlur, handl
                                             minLength: el.minLength || '',
                                             max: el.max || '',
                                         }}
-                                        multiline={el.multiline || false}
-                                        rows={el.rows || null}
                                         variant={el.variant || 'filled'}
-                                        fullWidth={el.fullWidth || false}
                                     >
                                     </TextField>
                                 </Fragment>
@@ -266,16 +244,16 @@ export default function AltSociosTemplate({ data, removeSocio, handleBlur, handl
                         <Grid container direction="row" justify='flex-end' style={{ width: '1200px' }}>
                             <Grid item xs={10} style={{ width: '1000px' }}></Grid>
                             <Grid item xs={1} style={{ align: "right" }}>
-                                    <Button
-                                        size="small"
-                                        color="primary"
-                                        variant="contained"
-                                        style={{ margin: '0px 0 10px 0' }}
-                                        onClick={() => handleSubmit()}
-                                        disabled={contratoSocial !== undefined}
-                                    >
-                                        Salvar <span>&nbsp;&nbsp; </span> <SaveIcon />
-                                    </Button>
+                                <Button
+                                    size="small"
+                                    color="primary"
+                                    variant="contained"
+                                    style={{ margin: '0px 0 10px 0' }}
+                                    onClick={() => handleSubmit()}
+                                    disabled={contratoSocial !== undefined}
+                                >
+                                    Salvar <span>&nbsp;&nbsp; </span> <SaveIcon />
+                                </Button>
                             </Grid>
                         </Grid>
                     </Grid>
