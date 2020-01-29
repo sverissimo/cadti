@@ -26,7 +26,7 @@ const { uploadFS } = require('./upload')
 const { parseRequestBody } = require('./parseRequest')
 
 dotenv.config()
-app.use(bodyParser.json())
+app.use(bodyParser.json());
 
 app.use(function (req, res, next) { //allow cross origin requests
     res.setHeader("Access-Control-Allow-Methods", "POST, PUT, OPTIONS, DELETE, GET");
@@ -304,7 +304,7 @@ app.get('/api/equipamentos', (req, res) => {
     pool.query(equipamentos, (err, table) => {
         if (err) res.send(err)
         else if (table.rows && table.rows.length === 0) { res.send('Nenhum equipamento encontrado.'); return }
-        res.json(table.rows);
+        res.json(table.rows)
     })
 })
 

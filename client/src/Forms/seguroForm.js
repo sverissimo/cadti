@@ -13,7 +13,8 @@ export const seguroForm = [
         margin: 'normal',
         autoComplete: true,
         datalist: 'apolice',
-        collection: 'seguros'        
+        collection: 'seguros',
+        maxLength: 25
     },    
     {
         type: 'date',

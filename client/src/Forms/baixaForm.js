@@ -2,70 +2,73 @@ export const baixaForm = [
     {
         field: 'placa',
         label: 'Placa',
-        margin: 'normal',        
+        margin: 'normal',
         datalist: 'placa',
         autoComplete: true,
-        collection: 'frota'
+        collection: 'frota',
+        maxLength: 8
     },
     {
         field: 'renavam',
         label: 'Renavam',
-        margin: 'normal',  
+        margin: 'normal',
+        maxLength: 11,
+        pattern: '\\d{11}'
     },
     {
         field: 'nChassi',
         label: 'Número do Chassi',
         margin: 'normal',
-        maxLength: 17,  
+        maxLength: 17,
     },
     {
         field: 'delegatario',
         label: 'Delegatário',
-        margin: 'normal',        
+        margin: 'normal',
         disabled: true
-    },  
+    },
     {
         field: 'utilizacao',
         label: 'Utilização',
-        margin: 'normal',        
-        disabled: true       
+        margin: 'normal',
+        disabled: true
     },
     {
         field: 'dominio',
         label: 'Situação da Propriedade',
-        margin: 'normal',                
-        disabled: true  
+        margin: 'normal',
+        disabled: true
     },
-    
+
     {
         field: 'marcaChassi',
         label: 'Marca do Chassi',
         margin: 'normal',
-        disabled: true    
+        disabled: true
     },
     {
         field: 'modeloChassi',
         label: 'Modelo do Chassi',
         margin: 'normal',
-        disabled: true    
+        disabled: true
     },
     {
         field: 'marcaCarroceria',
         label: 'Marca da Carroceria',
         margin: 'normal',
-        disabled: true      
+        disabled: true
     },
     {
         field: 'modeloCarroceria',
         label: 'Modelo da Carroceria',
         margin: 'normal',
-        disabled: true      
+        disabled: true
     },
     {
         type: 'number',
         field: 'indicadorIdade',
         label: 'Ano',
-        margin: 'normal',        
-        disabled: true  
+        margin: 'normal',
+        disabled: true
     }
 ]

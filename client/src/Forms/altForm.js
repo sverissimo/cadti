@@ -6,7 +6,7 @@ export const altForm = [[{
     margin: 'normal',        
     datalist: 'placa',
     autoComplete: true,
-    collection: 'frota'
+    collection: 'frota',
 },
 {
     field: 'delegatario',
@@ -41,7 +41,8 @@ export const altForm = [[{
 {
     field: 'cores',
     label: 'Cores',
-    margin: 'normal'
+    margin: 'normal',
+    maxLength: 50
 },
 {
     field: 'renavam',
@@ -66,8 +67,7 @@ export const altForm = [[{
     field: 'anoChassi',
     label: 'Ano do Chassi',
     margin: 'normal',
-    type: 'number',
-    max: 2020,
+    type: 'number',    
     disabled: true  
 },
 {
@@ -88,8 +88,7 @@ export const altForm = [[{
     type: 'number',
     field: 'anoCarroceria',
     label: 'Ano da Carroceria',
-    margin: 'normal',
-    max: 2020,
+    margin: 'normal',    
     disabled: true  
 },
 {

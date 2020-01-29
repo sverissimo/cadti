@@ -1,10 +1,10 @@
 import React, { Fragment } from 'react'
 
 import MenuItem from '@material-ui/core/MenuItem'
+import AutoComplete from '../Utils/autoComplete'
+
 import { makeStyles } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
-
-import AutoComplete from '../Utils/autoComplete'
 
 const useStyles = makeStyles(theme => ({
 
@@ -37,9 +37,13 @@ export default function TextInput({ handleInput, handleBlur, form, data }) {
 
     const errorHandler = (el) => {
         let value = data[el.field]
+
+        if (el.type === 'number') {
+            if (value > el.max || value < el.min) return true
+            else return false
+        }
         if (value && typeof value !== 'string') value = value.toString()
         if (el.pattern && value) return data[el.field].match(el.pattern) === null
-        else if (value > el.max || value < el.min) return true
         else return false
     }
 

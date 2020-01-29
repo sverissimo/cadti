@@ -41,13 +41,13 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-export default function ({ handleInput, handleBlur, data, handleEquipa, 
+export default function ({ handleInput, handleBlur, data, handleEquipa,
     altPlacaOption, showAltPlaca }) {
-    const { tab, activeStep, subtitle, placa, justificativa } = data,
+    const { tab, activeStep, subtitle, placa, justificativa, selectedEmpresa } = data,
         classes = useStyles(), { paper, container } = classes
 
-    let form = altForm[activeStep]    
-    
+    let form = altForm[activeStep]
+
     return (
         <Fragment>
             <Grid
@@ -64,8 +64,7 @@ export default function ({ handleInput, handleBlur, data, handleEquipa,
                     />
                 }
                 {
-                   // razaoSocial && showForm()
-                     true   ?
+                    selectedEmpresa ?
                         <Grid item xs={12}>
                             {activeStep < 3 &&
                                 <Paper className={paper}>

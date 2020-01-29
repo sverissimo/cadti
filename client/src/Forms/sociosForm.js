@@ -23,6 +23,7 @@ export const sociosForm = [{
 {
     field: 'share',
     label: 'Participação Societária (%)',
-    maxLength: 5,    
+    maxLength: 5,
+    type: 'number',
     max: 100,    
 }]

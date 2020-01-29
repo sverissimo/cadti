@@ -164,10 +164,9 @@ class AltSeguro extends Component {
                 this.setState({ openAlertDialog: true, alertType: 'plateExists' })
                 return null
             }
-        }
+        }        
 
         //Define body to post
-
         const body = {
             table: 'veiculo',
             column: 'apolice',
@@ -192,8 +191,15 @@ class AltSeguro extends Component {
 
         //Create a new insurance
         if (!insuranceExists.hasOwnProperty('apolice')) {
-            const { seguradoraId, apolice, dataEmissao, vencimento } = this.state,
-                cadSeguro = { seguradora_id: seguradoraId, apolice, data_emissao: dataEmissao, vencimento }
+            const { seguradoraId, apolice, dataEmissao, vencimento } = this.state
+
+            let cadSeguro = { seguradora_id: seguradoraId, apolice }
+
+            const validEmissao = moment(dataEmissao, 'YYYY-MM-DD', true).isValid(),
+                validVenc = moment(vencimento, 'YYYY-MM-DD', true).isValid()
+
+            if (validEmissao) cadSeguro.data_emissao = dataEmissao
+            if (validVenc) cadSeguro.vencimento = vencimento
 
             await axios.post('/api/cadSeguro', cadSeguro)
         }
@@ -248,7 +254,7 @@ class AltSeguro extends Component {
     }
 
     handleSubmit = () => {
-        const { apolice, selectedEmpresa, seguroFile } = this.state
+        const { apolice, selectedEmpresa, seguroFile } = this.state        
 
         let seguroFormData = new FormData()
 
@@ -277,7 +283,7 @@ class AltSeguro extends Component {
         const { openAlertDialog, alertType } = this.state
         const enableAddPlaca = seguroForm
             .every(k => this.state.hasOwnProperty(k.field) && this.state[k.field] !== '')
-        
+
         return (
             <Fragment>
                 <AltSeguroTemplate

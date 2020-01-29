@@ -41,7 +41,7 @@ export const cadForm = [[{
     label: 'Ano do Chassi',
     margin: 'normal',
     type: 'number',
-    max: 2020
+    max: Number(new Date().getFullYear())
 },
 {
     type: 'number',
@@ -63,7 +63,7 @@ export const cadForm = [[{
     field: 'anoCarroceria',
     label: 'Ano da Carroceria',
     margin: 'normal',
-    max: 2020
+    max: Number(new Date().getFullYear() + 1)
 },
 {
     type: 'number',
@@ -82,7 +82,8 @@ export const cadForm = [[{
 {
     field: 'cores',
     label: 'Cores',
-    margin: 'normal'
+    margin: 'normal',
+    maxLength: 50
 }
 ]]
     .concat([seguroForm])

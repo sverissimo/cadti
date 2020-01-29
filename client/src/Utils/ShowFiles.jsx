@@ -40,13 +40,19 @@ const ShowFiles = ({ filesCollection, close, format, typeId, empresas }) => {
         })
     }
 
-    const getCompanyName = file => {
+    const getMoreInfo = file => {
         const { metadata } = file
-        if (metadata.fieldName === 'procuracao') {
-            const emp = empresas.find(e => e.delegatarioId === Number(metadata.empresaId))            
-            return ' - ' + emp.razaoSocial
-        } else return ''
+        switch (metadata.fieldName) {
+            case 'procuracao':
+                const emp = empresas.find(e => e.delegatarioId === Number(metadata.empresaId))
+                return ' - ' + emp.razaoSocial
+            case 'seguro':
+                return ' número ' + metadata.apolice
+            default:
+                return ''
+        }
     }
+
 
     if (files[0]) {
         return <PopUp title='Arquivos' close={close} format={format}>
@@ -83,7 +89,7 @@ const ShowFiles = ({ filesCollection, close, format, typeId, empresas }) => {
                                     <span
                                         style={{ textDecoration: 'underline', cursor: 'pointer', color: 'blue' }}
                                         onClick={() => download(file.id, file.filename, collection)}>
-                                        {file.label + getCompanyName(file)}
+                                        {file.label + getMoreInfo(file)}
                                     </span>
                                 </div>
 

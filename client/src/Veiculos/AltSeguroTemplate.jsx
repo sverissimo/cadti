@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { Fragment } from 'react'
 
 import Crumbs from '../Utils/Crumbs'
 import SelectEmpresa from '../Reusable Components/SelectEmpresa'
@@ -69,119 +69,128 @@ export default function AltSeguro({ data, enableAddPlaca, handleInput, handleBlu
     }
 
     return (
-
-        <div style={{ width: '100%' }}>
-            <Crumbs links={['Veículos', '/veiculos']} text='Seguros' />
-            <SelectEmpresa
-                data={data}
-                handleInput={handleInput}
-                handleBlur={handleBlur}
-            />
-            {selectedEmpresa &&
-                <Paper className={paper}>
-                    <h3 className='formSubtitle'>Informe os dados do seguro.</h3>
-                    <TextInput
-                        form={seguroForm}
-                        data={data}
-                        handleBlur={handleBlur}
-                        handleInput={handleInput}
-                    />
-                </Paper>
-            }
-            {selectedEmpresa && (insuranceExists || enableAddPlaca) &&
-                <Paper className={paper}>
-                    <p>Utilize as opções abaixo para filtrar, adicionar ou excluir placas desta apólice</p>
-                    <div className='addSeguro'>
-                        <div>
-                            <TextField
-                                inputProps={{
-                                    name: 'addedPlaca',
-                                    list: 'placa'
-                                }}
-                                InputLabelProps={{
-                                    style: { fontSize: '0.8rem' }
-                                }}
-                                label='Insira a placa'
-                                className={textField}
-                                value={addedPlaca}
-                                onChange={handleInput}
-                                onBlur={handleBlur}
-                            />
-                            <AutoComplete
-                                collection={frota}
-                                datalist='placa'
-                                value={addedPlaca}
-                            />
-                            <Button
-                                size="small"
-                                variant="contained"
-                                className={classes.button}
-                                style={{ margin: '10px 0 10px 0' }}
-                                onClick={() => addPlateInsurance(addedPlaca, apolice)}
-                            >
-                                <Add /> Adicionar
-                            </Button>
-                        </div>
-
-                        <div>
-                            <TextField
-                                inputProps={{
-                                    name: 'placa',
-                                }}
-                                InputLabelProps={{
-                                    style: { fontSize: '0.8rem' }
-                                }}
-                                label='Filtrar'
-                                className={textField}
-                                value={placa || ''}
-                                onChange={handleInput}
-                                onBlur={handleBlur}
-                            />
-                            <Search style={{ marginTop: '18px' }} />
-                        </div>
-
-                        <Dropzone onDrop={handleFiles}>
-                            {({ getRootProps, getInputProps }) => (
-                                <div className={seguroFile ? 'dropBox fileAttached' : 'dropBox'} {...getRootProps()}>
-                                    <input {...getInputProps()} />
-                                    {
-                                        dropDisplay.match('Clique ou') ?
-                                            <div> <AttachFileIcon className='icon' /> <span>  {dropDisplay}</span> </div>
-                                            :
-                                            <div> <DescriptionOutlinedIcon className='icon' />  {dropDisplay} <br /> (clique ou arraste outro arquivo para alterar)</div>
-                                    }
-                                </div>
-                            )}
-                        </Dropzone>
-                    </div>
-                    {seguroFile && <div style={{ height: '60px' }}>
-                        <Button
-                            size="small"
-                            className='saveButton'
-                            onClick={() => handleSubmit()}>
-                            Salvar <span>&nbsp;&nbsp; </span> <SaveIcon />
-                        </Button>
-                    </div>
-                    }
-                    {insuranceExists.hasOwnProperty('apolice') || placas[0]
-                        ?
-                        <div style={{ margin: '15px' }}>
-                            Placas vinculadas a apólice {insuranceExists.apolice}
-                        </div>
-                        :
-                        <div style={{ marginTop: '30px' }}></div>
-                    }
-                    {insuranceExists && placas[0] && placas.map((placa, i) =>
-                        <Chip
-                            key={i}
-                            label={placa}
-                            onDelete={() => deleteInsurance(placa)}
-                            className={chip}
-                            color='primary'
-                            variant="outlined"
+        <Fragment>
+            <div style={{ width: '100%', display: 'flex', flexDirection: 'column' }}>
+                <Crumbs links={['Veículos', '/veiculos']} text='Seguros' />
+                <SelectEmpresa
+                    data={data}
+                    handleInput={handleInput}
+                    handleBlur={handleBlur}
+                />
+                {selectedEmpresa &&
+                    <Paper className={paper}>
+                        <h3 className='formSubtitle'>Informe os dados do seguro.</h3>
+                        <TextInput
+                            form={seguroForm}
+                            data={data}
+                            handleBlur={handleBlur}
+                            handleInput={handleInput}
                         />
-                    )}
-                </Paper>}
-        </div>
+                    </Paper>
+                }
+                {selectedEmpresa && (insuranceExists || enableAddPlaca) &&
+                    <Paper className={paper}>
+                        <p>Utilize as opções abaixo para filtrar, adicionar ou excluir placas desta apólice</p>
+                        <div className='addSeguro'>
+                            <div>
+                                <TextField
+                                    inputProps={{
+                                        name: 'addedPlaca',
+                                        list: 'placa'
+                                    }}
+                                    InputLabelProps={{
+                                        style: { fontSize: '0.8rem' }
+                                    }}
+                                    label='Insira a placa'
+                                    className={textField}
+                                    value={addedPlaca}
+                                    onChange={handleInput}
+                                    onBlur={handleBlur}
+                                />
+                                <AutoComplete
+                                    collection={frota}
+                                    datalist='placa'
+                                    value={addedPlaca}
+                                />
+                                <Button
+                                    size="small"
+                                    variant="contained"
+                                    className={classes.button}
+                                    style={{ margin: '10px 0 10px 0' }}
+                                    onClick={() => addPlateInsurance(addedPlaca, apolice)}
+                                >
+                                    <Add /> Adicionar
+                            </Button>
+                            </div>
+
+                            <div>
+                                <TextField
+                                    inputProps={{
+                                        name: 'placa',
+                                    }}
+                                    InputLabelProps={{
+                                        style: { fontSize: '0.8rem' }
+                                    }}
+                                    label='Filtrar'
+                                    className={textField}
+                                    value={placa || ''}
+                                    onChange={handleInput}
+                                    onBlur={handleBlur}
+                                />
+                                <Search style={{ marginTop: '18px' }} />
+                            </div>
+
+                            <Dropzone onDrop={handleFiles}>
+                                {({ getRootProps, getInputProps }) => (
+                                    <div className={seguroFile ? 'dropBox fileAttached' : 'dropBox'} {...getRootProps()}>
+                                        <input {...getInputProps()} />
+                                        {
+                                            dropDisplay.match('Clique ou') ?
+                                                <div> <AttachFileIcon className='icon' /> <span>  {dropDisplay}</span> </div>
+                                                :
+                                                <div> <DescriptionOutlinedIcon className='icon' />  {dropDisplay} <br /> (clique ou arraste outro arquivo para alterar)</div>
+                                        }
+                                    </div>
+                                )}
+                            </Dropzone>
+                        </div>
+
+                        {insuranceExists.hasOwnProperty('apolice') || placas[0]
+                            ?
+                            <div style={{ margin: '15px' }}>
+                                Placas vinculadas a apólice {insuranceExists.apolice}
+                            </div>
+                            :
+                            <div style={{ marginTop: '30px' }}></div>
+                        }
+                        {insuranceExists && placas[0] && placas.map((placa, i) =>
+                            <Chip
+                                key={i}
+                                label={placa}
+                                onDelete={() => deleteInsurance(placa)}
+                                className={chip}
+                                color='primary'
+                                variant="outlined"
+                            />
+                        )}
+                    </Paper>}
+                {//selectedEmpresa && apolice &&
+
+                }
+            </div >
+            {apolice &&
+                <div style={{ minHeight: '60px', position: 'flex' }}>
+                    <Button
+                        size="small"
+                        color='primary'
+                        className='saveButton'
+                        variant="contained"
+                        onClick={() => handleSubmit()}
+                        disabled={!placas[0] || !seguroFile ? true : false}
+                    >
+                        Salvar <span>&nbsp;&nbsp; </span> <SaveIcon />
+                    </Button>
+                </div>}
+        </Fragment >
     )
 }

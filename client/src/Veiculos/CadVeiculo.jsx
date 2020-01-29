@@ -1,7 +1,7 @@
 import React, { PureComponent, Fragment } from 'react'
 import axios from 'axios'
 import humps from 'humps'
-import ReactToast from '../Utils/ReactToast'
+import moment from 'moment'
 
 import StoreHOC from '../Store/StoreHOC'
 
@@ -12,6 +12,7 @@ import Review from './Review'
 import Crumbs from '../Utils/Crumbs'
 import StepperButtons from '../Utils/StepperButtons'
 import CustomStepper from '../Utils/Stepper'
+import ReactToast from '../Utils/ReactToast'
 
 import { cadVehicleFiles } from '../Forms/cadVehicleFiles'
 import { cadForm } from '../Forms/cadForm'
@@ -33,7 +34,6 @@ class VeiculosContainer extends PureComponent {
         steps: ['Dados do Veículo', 'Dados do seguro', 'Vistoria e laudos', 'Documentos', 'Revisão'],
         subtitle: ['Informe os dados do Veículo', 'Informe os dados do Seguro',
             'Preencha os campos abaixo conforme a vistoria realizada'],
-        form: {},
         stateFormData: new FormData(),
         empresas: [],
         razaoSocial: '',
@@ -98,10 +98,11 @@ class VeiculosContainer extends PureComponent {
     handleInput = async e => {
         const { name } = e.target
         let { value } = e.target
-        const parsedName = humps.decamelize(name)
         const { veiculos, allInsurances } = this.state
 
         if (name === 'razaoSocial') {
+            this.setState({ [name]: value })
+
             let selectedEmpresa = this.state.empresas.find(e => e.razaoSocial === value)
 
             if (selectedEmpresa) {
@@ -114,11 +115,9 @@ class VeiculosContainer extends PureComponent {
 
                 this.setState({ frota, seguros: filteredInsurances })
 
-            } else this.setState({ selectedEmpresa: undefined, frota: [] })
+            } else this.setState({ selectedEmpresa: undefined, frota: [], placa: undefined, apolice: undefined })
         }
-
-        if (name !== 'razaoSocial') this.setState({ [name]: value, form: { ...this.state.form, [parsedName]: value } })
-        if (name === 'placa') {
+        else if (name === 'placa') {
             if (typeof value === 'string') {
                 value = value.toLocaleUpperCase()
                 await this.setState({ [name]: value })
@@ -126,6 +125,7 @@ class VeiculosContainer extends PureComponent {
             }
         }
         else this.setState({ [name]: value })
+
     }
 
     getId = async (name, value, collection, stateId, dbName, dbId, alertLabel) => {
@@ -148,10 +148,10 @@ class VeiculosContainer extends PureComponent {
 
     handleBlur = async  e => {
         const { empresas, frota, placa, modelosChassi, carrocerias, seguradoras,
-            allInsurances, delegatarioId } = this.state
+            allInsurances } = this.state
         const { name } = e.target
         let { value } = e.target
-        console.log(delegatarioId)
+
         switch (name) {
             case 'modeloChassi':
                 this.getId(name, value, modelosChassi, 'modeloChassiId', 'modeloChassi', 'id', 'Chassi')
@@ -190,7 +190,6 @@ class VeiculosContainer extends PureComponent {
                     const dataEmissao = insuranceExists[0].dataEmissao.toString().slice(0, 10),
                         vencimento = insuranceExists[0].vencimento.toString().slice(0, 10),
                         seguradora = insuranceExists[0].seguradora
-
                     this.setState({ seguradora, dataEmissao, vencimento, insuranceExists: insuranceExists[0] })
                 } else {
                     insuranceExists = false
@@ -203,7 +202,12 @@ class VeiculosContainer extends PureComponent {
                 const plate = frota.filter(p => p.placa.match(addedPlaca))
                 if (plate && plate[0] && plate[0].length > 0) this.setState({ addedPlaca: plate[0].placa })
                 break;
-            default:
+
+/*             case 'vencimento':
+                const valid = moment(value, 'YYYY-MM-DD', true).isValid()
+                console.log(valid)
+                break
+ */            default:
                 void 0
         }
 
@@ -261,8 +265,14 @@ class VeiculosContainer extends PureComponent {
         let { dataEmissao, vencimento, delegatarioCompartilhado,
             modeloChassi, modeloCarroceria, seguradora, ...vReview } = review
 
-        let seguro = { apolice: review.apolice, seguradoraId, dataEmissao, vencimento }
+        let seguro = { apolice: review.apolice, seguradoraId }
 
+        const validEmissao = moment(dataEmissao, 'YYYY-MM-DD', true).isValid(),
+            validVenc = moment(vencimento, 'YYYY-MM-DD', true).isValid()
+
+        if (validEmissao) seguro.dataEmissao = dataEmissao
+        if (validVenc) seguro.vencimento = vencimento
+        
         Object.assign(vReview, {
             delegatarioId, situacao, indicadorIdade, pbt, equipamentos_id,
             modeloChassiId, modeloCarroceriaId
@@ -288,7 +298,8 @@ class VeiculosContainer extends PureComponent {
             })
                 .catch(err => console.log(err))
             this.toast()
-        } else if (!insuranceExists[0] && insurance.apolice !== undefined && insurance.apolice.length > 3 && insurance.seguradora_id !== undefined) {
+        } else if (!insuranceExists[0] && insurance.apolice !== undefined
+            && insurance.apolice.length > 2 && insurance.seguradora_id !== undefined) {
             await axios.post('/api/cadSeguro', insurance)
                 .then(res => console.log(res.data))
             await axios.post('/api/cadastroVeiculo', vehicle)

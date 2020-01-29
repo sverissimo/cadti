@@ -11,7 +11,6 @@ import AltSociosTemplate from './AltSociosTemplate'
 import { sociosForm } from '../Forms/sociosForm'
 import AlertDialog from '../Utils/AlertDialog'
 
-//import AlertDialog from '../Utils/AlertDialog'
 
 class AltSocios extends Component {
 
@@ -42,7 +41,7 @@ class AltSocios extends Component {
     componentWillUnmount() { this.setState({}) }
 
     handleInput = async e => {
-        
+
         const { name } = e.target
         let { value } = e.target
 
@@ -76,9 +75,15 @@ class AltSocios extends Component {
                 }
                 break;
             case 'share':
+                
                 if (value) {
                     value = value.replace(',', '.')
 
+                    if (value > 100) {
+                        await this.setState({ share: '' })
+                        value = ''
+                        this.setState({ alertType: 'numberNotValid', openAlertDialog: true })
+                    }
                     if (value !== '0' && value !== '00' && !Number(value)) {
 
                         await this.setState({ share: '' })
@@ -102,6 +107,12 @@ class AltSocios extends Component {
         let socios = this.state.filteredSocios,
             form = sociosForm,
             sObject = {}
+
+        //check if totalShare is more than 100
+        if (this.state.totalShare > 100) {
+            this.setState({ openAlertDialog: true, alertType: 'overShared' })
+            return null
+        }
 
         form.forEach(obj => {
             Object.assign(sObject, { [obj.field]: this.state[obj.field] })
@@ -166,7 +177,16 @@ class AltSocios extends Component {
     }
 
     handleSubmit = async () => {
-        const { selectedEmpresa, socios, contratoSocial } = this.state
+        const { selectedEmpresa, socios, contratoSocial, filteredSocios } = this.state
+
+        //check if totalShare is more than 100
+        let updatedShare = filteredSocios.map(s => Number(s.share))
+        .reduce((a, b) => a + b)
+
+        if (updatedShare > 100) {
+            this.setState({ openAlertDialog: true, alertType: 'overShared' })
+            return null
+        }
 
         let submitSocios = this.state.filteredSocios,
             oldMembers = [], newMembers = [],

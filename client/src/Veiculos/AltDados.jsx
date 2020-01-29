@@ -47,7 +47,7 @@ class AltDados extends Component {
 
     componentDidMount() {
         this.setState({ ...this.props.redux })
-    }    
+    }
 
     componentWillUnmount() { this.setState({}) }
 
@@ -74,7 +74,10 @@ class AltDados extends Component {
 
                 this.setState({ frota })
 
-            } else this.setState({ selectedEmpresa: undefined, frota: [] })
+            } else {
+                this.setState({ selectedEmpresa: undefined, frota: [] })
+                this.reset()
+            }
         }
 
         if (name === 'newPlate') {
@@ -85,7 +88,6 @@ class AltDados extends Component {
                 this.setState({ ...this.state, newPlate })
             }
         } else this.setState({ [name]: value })
-
     }
 
     getId = async (name, value, collection, stateId, dbName, dbId, alertLabel) => {
@@ -231,6 +233,7 @@ class AltDados extends Component {
     toggleDialog = () => this.setState({ altPlaca: !this.state.altPlaca })
     closeAlert = () => this.setState({ openAlertDialog: !this.state.openAlertDialog })
     toast = () => this.setState({ confirmToast: !this.state.confirmToast })
+    reset = () => altForm.forEach(form => form.forEach(el=> this.setState({ [el.field]: '' })))
 
     render() {
         const { confirmToast, toastMsg, stepTitles, activeStep, steps, altPlaca,
