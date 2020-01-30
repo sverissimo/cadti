@@ -456,6 +456,24 @@ app.put('/api/updateInsurance', (req, res) => {
     )
 })
 
+app.put('/api/updateInsurances', (req, res) => {
+    const { table, tablePK, column, value, newVehicles } = req.body
+    let condition = '',
+        query = `
+    UPDATE ${table}
+    SET ${column} = ${value} 
+    WHERE `
+
+    newVehicles.forEach(id => {
+        condition = condition + `${tablePK} = ${id} OR `
+    })
+
+    condition = condition.slice(0, condition.length -3)
+    query += condition
+    res.send(query) 
+
+})
+
 app.put('/api/editSocios', (req, res) => {
 
     const { requestArray, table, tablePK, keys } = req.body

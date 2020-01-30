@@ -50,7 +50,7 @@ const useStyles = makeStyles(theme => ({
 }))
 
 export default function AltSeguro({ data, enableAddPlaca, handleInput, handleBlur,
-    addPlateInsurance, deleteInsurance, handleFiles, handleSubmit }) {
+    addPlate, addPlateInsurance, deleteInsurance, handleFiles, handleSubmit }) {
 
     const { selectedEmpresa, placa, apolice, addedPlaca, frota, insuranceExists,
         dropDisplay, seguroFile } = data
@@ -117,7 +117,7 @@ export default function AltSeguro({ data, enableAddPlaca, handleInput, handleBlu
                                     variant="contained"
                                     className={classes.button}
                                     style={{ margin: '10px 0 10px 0' }}
-                                    onClick={() => addPlateInsurance(addedPlaca, apolice)}
+                                    onClick={() => addPlate(addedPlaca)}
                                 >
                                     <Add /> Adicionar
                             </Button>

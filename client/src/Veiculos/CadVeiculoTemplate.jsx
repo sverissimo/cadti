@@ -39,10 +39,7 @@ const useStyles = makeStyles(theme => ({
     },
     formHolder: {
         width: 900,
-    },
-    input: {
-        textAlign: 'center'
-    },
+    },   
     paper: {
         padding: theme.spacing(1),
         textAlign: 'center',
@@ -146,46 +143,47 @@ export default function ({ handleInput, handleBlur, data, handleEquipa, handleCh
                     selectedEmpresa
                         ?
                         <Grid item xs={12}>
-                            {activeStep < 3 && <Paper className={paper}>
-                                <Typography className='formSubtitle'> {subtitle[activeStep]}</Typography>
-                                <TextInput
-                                    form={form}
-                                    data={data}
-                                    handleBlur={handleBlur}
-                                    handleInput={handleInput}
-                                />
-                                {activeStep === 0 && <Grid container justify="center"
-                                >
-                                    <Button
-                                        variant="outlined"
-                                        size="small"
-                                        color="primary"
-                                        className={button}
-                                        onClick={handleEquipa}
+                            {activeStep < 3 &&
+                                <Paper className={paper}>
+                                    <div className='formSubtitle'> {subtitle[activeStep]}</div>
+                                    <TextInput
+                                        form={form}
+                                        data={data}
+                                        handleBlur={handleBlur}
+                                        handleInput={handleInput}
+                                    />
+                                    {activeStep === 0 && <Grid container justify="center"
                                     >
-                                        <AddIcon />
-                                        Equipamentos
+                                        <Button
+                                            variant="outlined"
+                                            size="small"
+                                            color="primary"
+                                            className={button}
+                                            onClick={handleEquipa}
+                                        >
+                                            <AddIcon />
+                                            Equipamentos
                             </Button>
-                                </Grid>}
-                                {
-                                    addEquipa && <PopUp close={handleEquipa} title='Equipamentos'>
-                                        <AddEquipa
-                                            equipamentos={equipamentos}
-                                            close={handleEquipa}
-                                            handleCheck={handleCheck}
-                                            data={data} />
-                                    </PopUp>
-                                }
-                                {altPlacaOption && placa.match('[a-zA-Z]{3}[-]?\\d{4}') && <Grid item xs={12}>
-                                    <Typography
-                                        style={{ color: '#2979ff', fontWeight: 500, fontSize: '0.75rem', padding: '2% 0 1% 70%', cursor: 'pointer' }}
-                                        onClick={() => showAltPlaca()}
-                                    >
-                                        → Clique aqui para alterar a placa para o formato Mercosul.
+                                    </Grid>}
+                                    {
+                                        addEquipa && <PopUp close={handleEquipa} title='Equipamentos'>
+                                            <AddEquipa
+                                                equipamentos={equipamentos}
+                                                close={handleEquipa}
+                                                handleCheck={handleCheck}
+                                                data={data} />
+                                        </PopUp>
+                                    }
+                                    {altPlacaOption && placa.match('[a-zA-Z]{3}[-]?\\d{4}') && <Grid item xs={12}>
+                                        <Typography
+                                            style={{ color: '#2979ff', fontWeight: 500, fontSize: '0.75rem', padding: '2% 0 1% 70%', cursor: 'pointer' }}
+                                            onClick={() => showAltPlaca()}
+                                        >
+                                            → Clique aqui para alterar a placa para o formato Mercosul.
                                     </Typography>
 
-                                </Grid>}
-                            </Paper>}
+                                    </Grid>}
+                                </Paper>}
                         </Grid>
                         :
                         <Grid container justify="center">
