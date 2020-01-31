@@ -1,14 +1,11 @@
 import React, { Fragment } from 'react'
 import Dropzone from 'react-dropzone'
 
-import AutoComplete from '../Utils/autoComplete'
 import SelectEmpresa from '../Reusable Components/SelectEmpresa'
-import TextInput from '../Reusable Components/TextInput'
 import { sociosForm } from '../Forms/sociosForm'
 
 import Grid from '@material-ui/core/Grid'
 import Paper from '@material-ui/core/Paper'
-import Typography from '@material-ui/core/Typography'
 import { makeStyles } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
 

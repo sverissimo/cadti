@@ -180,6 +180,10 @@ class AltDados extends Component {
 
         tempObj = Object.assign(tempObj, { delegatarioId, delegatarioCompartilhado, pbt })
         tempObj = humps.decamelizeKeys(tempObj)
+        
+        Object.keys(tempObj).forEach(key => {
+            if (tempObj[key] === '' || tempObj[key] === 'null' || !tempObj[key]) delete tempObj[key]
+        })
 
         const { placa, delegatario, compartilhado, ...requestObject } = tempObj
 

@@ -458,20 +458,32 @@ app.put('/api/updateInsurance', (req, res) => {
 
 app.put('/api/updateInsurances', (req, res) => {
     const { table, tablePK, column, value, newVehicles } = req.body
-    let condition = '',
-        query = `
-    UPDATE ${table}
-    SET ${column} = ${value} 
-    WHERE `
+
+    let condition = ''
+
+    console.log(newVehicles)
 
     newVehicles.forEach(id => {
-        condition = condition + `${tablePK} = ${id} OR `
+        condition = condition + `${tablePK} = '${id}' OR `
     })
 
-    condition = condition.slice(0, condition.length -3)
-    query += condition
-    res.send(query) 
+    condition = condition.slice(0, condition.length - 3)
 
+    let query = `
+    UPDATE ${table}
+    SET ${column} = '${value}' 
+    WHERE `
+
+    query = query + condition + ` RETURNING *`
+
+    pool.query(query, (err, t) => {
+        if (err) console.log(err)
+        if (t && t.rows) {
+            const data = getUpdatedData('veiculo', condition)
+            data.then(res => io.sockets.emit('updateInsurance', res))
+        }
+    })
+    res.send(query)
 })
 
 app.put('/api/editSocios', (req, res) => {

@@ -12,6 +12,22 @@ const dataReducer = (state = initState, action) => {
             return {
                 ...state, veiculos
             }
+
+        case 'UPDATE_INSURANCE':
+            console.log(payload)
+            const veiculosArray = state.veiculos.map(v => {
+                payload.forEach(el => {
+                    if (v.veiculoId === el.veiculoId) {
+                        v = el
+                    }
+                })
+                return v
+            })
+            console.log(veiculosArray)
+            return {
+                ...state, veiculos: veiculosArray
+            }
+
         case 'UPDATE_STATE_DATA':
             const { data, collection } = payload
             return {

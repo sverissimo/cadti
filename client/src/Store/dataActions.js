@@ -27,16 +27,25 @@ export const getData = (collectionsArray = []) => {
     }
 }
 
-export const updateData = updatedObject => async (dispatch, getState) => {
-    const payload = humps.camelizeKeys(updatedObject[0])
-    dispatch({
-        type: 'UPDATE_VEHICLE',
-        payload
-    })
+export const updateData = data => async (dispatch, getState) => {
+    const { updatedObject, collection } = data
+    const payload = humps.camelizeKeys(updatedObject)
+    let type
+    console.log(payload)
+    switch (collection) {
+        case 'veiculos':
+            type = 'UPDATE_VEHICLE'
+            break
+        case 'seguros':
+            type = 'UPDATE_INSURANCE'
+            break
+        default: void 0
+    }
+    dispatch({ type, payload })
 }
 
 export const updateStateData = updatedCollection => dispatch => {
-    const payload = updatedCollection    
+    const payload = updatedCollection
     dispatch({
         type: 'UPDATE_STATE_DATA',
         payload

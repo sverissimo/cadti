@@ -30,10 +30,15 @@ export default function (requestArray, WrappedComponent) {
 
             if (request[0]) await this.props.getData(request)
 
-            if (match.path === '/consultas') {
+            if (match.path === '/consultas' || match.path === '/veiculos/altSeguro') {
                 if (!socket) socket = socketIO(':3001')
                 socket.on('updateVehicle', updatedObject => {                    
-                    this.props.updateData(updatedObject)
+                    console.log(updatedObject)
+                    this.props.updateData({updatedObject, collection: 'veiculos'})
+                })
+                socket.on('updateInsurance', updatedObject => {                    
+                    console.log(updatedObject)
+                    this.props.updateData({updatedObject, collection: 'seguros'})
                 })
             }
         }

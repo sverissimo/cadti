@@ -1,6 +1,5 @@
 import React, { Component, Fragment } from 'react'
 import axios from 'axios'
-import humps from 'humps'
 import moment from 'moment'
 import ReactToast from '../Utils/ReactToast'
 
@@ -31,15 +30,33 @@ class AltSeguro extends Component {
     }
 
     checkExistance = async (name, inputValue) => {
-        console.log(this.state.seguros)
-        let insuranceExists,
-            testApolice = { ...this.state.seguros.find(s => s[name] === inputValue) },
-            testSeguradora = { ...this.state.seguros.find(s => s[name] === inputValue && s.apolice === this.state.apolice) }
 
-        if (name === 'apolice') insuranceExists = testApolice
-        if (name === 'seguradora') insuranceExists = testSeguradora
+        const { seguros } = this.props.redux,
+            { frota } = this.state
+        let insuranceExists,
+            testApolice = { ...seguros.find(s => s[name] === inputValue) },
+            testSeguradora = { ...seguros.find(s => s[name] === inputValue && s.apolice === this.state.apolice) },
+            InsuranceUpdatedFrota = [],
+            updatedPlates = [],
+            updatedVehicles = []
+
+        if (name === 'apolice') {
+            insuranceExists = testApolice
+            InsuranceUpdatedFrota = frota.filter(v => v.apolice === inputValue)
+        }
+        if (name === 'seguradora') {
+            insuranceExists = testSeguradora
+            InsuranceUpdatedFrota = frota.filter(v => v.apolice === this.state.apolice)
+        }
 
         if (insuranceExists && insuranceExists.dataEmissao && insuranceExists.vencimento) {
+            InsuranceUpdatedFrota.forEach(v => {
+                updatedPlates.push(v.placa)
+                updatedVehicles.push(v.veiculoId)
+            })            
+
+            insuranceExists.placas = updatedPlates
+            insuranceExists.veiculos = updatedVehicles
 
             const dataEmissao = moment(insuranceExists.dataEmissao).format('YYYY-MM-DD'),
                 vencimento = insuranceExists.vencimento.toString().slice(0, 10),
@@ -47,8 +64,7 @@ class AltSeguro extends Component {
             await this.setState({ seguradora, dataEmissao, vencimento, insuranceExists })
             return
         }
-        if (!insuranceExists) this.setState({ insuranceExists: false, dataEmissao: '', vencimento: '' })
-
+        if (Object.keys(insuranceExists).length === 0) this.setState({ insuranceExists: false, dataEmissao: '', vencimento: '' })
     }
 
     handleInput = async e => {
@@ -68,6 +84,7 @@ class AltSeguro extends Component {
                     if (value !== selectedEmpresa.razaoSocial) this.setState({ selectedEmpresa: undefined })
 
                     const frota = veiculos.filter(v => v.empresa === this.state.razaoSocial)
+                    
                     const filteredInsurances = allInsurances.filter(seguro => seguro.empresa === this.state.razaoSocial)
 
                     this.setState({ frota, seguros: filteredInsurances })
@@ -89,6 +106,7 @@ class AltSeguro extends Component {
 
             case 'addedPlaca':
                 const vehicleFound = frota.find(v => v.placa === value)
+
                 if (vehicleFound) this.setState({ vehicleFound })
                 break;
             default:
@@ -190,9 +208,9 @@ class AltSeguro extends Component {
         return null
     }
 
-    updateInsurance = async (placaInput) => {
+    updateInsurance = async () => {
 
-        const { vehicleFound, insuranceExists, apolice, newVehicles } = this.state
+        const { insuranceExists, apolice, newVehicles } = this.state
 
         //Create a new insurance
         if (!insuranceExists) {
@@ -207,29 +225,7 @@ class AltSeguro extends Component {
             if (validVenc) cadSeguro.vencimento = vencimento
 
             await axios.post('/api/cadSeguro', cadSeguro)
-        }
-
-        //Delete placa from old array
-        if (vehicleFound.apolice !== 'Seguro não cadastrado') {
-
-            let { seguros } = this.state
-            const index = seguros.findIndex(s => s.apolice === vehicleFound.apolice)
-            if (seguros[index]) {
-
-                let pl = seguros[index].placas,
-                    v = seguros[index].veiculos
-                const i = pl.indexOf(vehicleFound.placa),
-                    k = pl.indexOf(vehicleFound.veiculoId)
-
-                pl.splice(i, 1)
-                v.splice(k, 1)
-
-                seguros[index].placas = pl
-                seguros[index].veiculos = v
-
-                await this.setState({ seguros })                
-            }
-        }
+        }      
 
         //Define body to post
         const body = {
@@ -241,47 +237,7 @@ class AltSeguro extends Component {
         }
 
         await axios.put('/api/updateInsurances', body)
-            .then(res => console.log(res.data))
-        const indexToUpdate = [...this.state.seguros].findIndex(s => s.apolice === apolice)
-        let updatedSeguro = { ...this.state.seguros[indexToUpdate] },
-            newSeguros = [...this.state.seguros],
-            { allInsurances, frota } = this.state
-
-        updatedSeguro.placas = insuranceExists.placas
-        updatedSeguro.veiculos = insuranceExists.veiculos
-        newSeguros[indexToUpdate] = updatedSeguro
-
-
-        const allIndex = allInsurances.findIndex(i => i.apolice === apolice)
-        allInsurances[allIndex] = updatedSeguro
-
-        frota = frota.map(v => {
-            if (v.veiculoId === vehicleFound.veiculoId) {
-                v.apolice = apolice
-                console.log(v)
-                return v
-            } else return v
-        })
-
-        await this.setState({ seguros: newSeguros, allInsurances, frota })
-        
-        /* //Update data to/from DataBase
-        await axios.put('/api/UpdateInsurance', body)
-            .catch(err => console.log(err))
-        await axios.get('/api/seguros')
-            .then(r => humps.camelizeKeys(r.data))
-            .then(seguros => {
-                this.setState({ seguros })
-                return seguros
-            })
-            .then(res => this.setState({ insuranceExists: res.filter(s => s.apolice === apolice)[0] }))
-            .catch(err => console.log(err))
-
-        let updateFrota = [...this.state.frota]
-        const vIndex = this.state.frota.findIndex(v => v.veiculoId === vehicleFound.veiculoId)
-        updateFrota[vIndex].apolice = apolice
-        await this.setState({ frota: updateFrota, toastMsg: 'Seguro atualizado.' }) */
-
+            .then(res => console.log(res.data))        
 
         this.toast()
         this.clearFields()
