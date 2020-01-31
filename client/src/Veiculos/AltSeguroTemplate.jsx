@@ -50,23 +50,27 @@ const useStyles = makeStyles(theme => ({
 }))
 
 export default function AltSeguro({ data, enableAddPlaca, handleInput, handleBlur,
-    addPlate, addPlateInsurance, deleteInsurance, handleFiles, handleSubmit }) {
+    addPlate, deleteInsurance, handleFiles, handleSubmit }) {
 
     const { selectedEmpresa, placa, apolice, addedPlaca, frota, insuranceExists,
-        dropDisplay, seguroFile } = data
+        newInsurance, dropDisplay, seguroFile } = data
 
     const classes = useStyles(), { paper, textField, chip } = classes
 
     let placas = []
+    let insurance
 
-    if (insuranceExists.hasOwnProperty('placas')) {
+    if (insuranceExists.hasOwnProperty('placas')) insurance = insuranceExists
+    else if (newInsurance && newInsurance.placas) insurance = newInsurance
 
-        if (insuranceExists.placas[0] !== null) placas = insuranceExists.placas.sort()
+    if (insurance) {
+        if (insurance.placas[0] !== null) placas = insurance.placas.sort()
         if (placa !== undefined && placa.length > 2 && placas[0]) {
-            if (typeof placa === 'string') placas = insuranceExists.placas.filter(p => p.toLowerCase().match(placa.toLowerCase())).sort()
-            else placas = insuranceExists.placas.filter(p => p.match(placa)).sort()
+            if (typeof placa === 'string') placas = insurance.placas.filter(p => p.toLowerCase().match(placa.toLowerCase())).sort()
+            else placas = insurance.placas.filter(p => p.match(placa)).sort()
         }
     }
+
 
     return (
         <Fragment>
@@ -88,7 +92,7 @@ export default function AltSeguro({ data, enableAddPlaca, handleInput, handleBlu
                         />
                     </Paper>
                 }
-                {selectedEmpresa && (insuranceExists || enableAddPlaca) &&
+                {selectedEmpresa && (insurance || enableAddPlaca) &&
                     <Paper className={paper}>
                         <p>Utilize as opções abaixo para filtrar, adicionar ou excluir placas desta apólice</p>
                         <div className='addSeguro'>
@@ -155,15 +159,15 @@ export default function AltSeguro({ data, enableAddPlaca, handleInput, handleBlu
                             </Dropzone>
                         </div>
 
-                        {insuranceExists.hasOwnProperty('apolice') || placas[0]
+                        {insurance.hasOwnProperty('apolice') || placas[0]
                             ?
                             <div style={{ margin: '15px' }}>
-                                Placas vinculadas a apólice {insuranceExists.apolice}
+                                Placas vinculadas a apólice {insurance.apolice}
                             </div>
                             :
                             <div style={{ marginTop: '30px' }}></div>
                         }
-                        {insuranceExists && placas[0] && placas.map((placa, i) =>
+                        {insurance && placas[0] && placas.map((placa, i) =>
                             <Chip
                                 key={i}
                                 label={placa}
@@ -186,7 +190,7 @@ export default function AltSeguro({ data, enableAddPlaca, handleInput, handleBlu
                         className='saveButton'
                         variant="contained"
                         onClick={() => handleSubmit()}
-                        //disabled={!placas[0] || !seguroFile ? true : false}
+                    //disabled={!placas[0] || !seguroFile ? true : false}
                     >
                         Salvar <span>&nbsp;&nbsp; </span> <SaveIcon />
                     </Button>

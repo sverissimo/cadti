@@ -4,6 +4,7 @@ import humps from 'humps'
 
 import StoreHOC from '../Store/StoreHOC'
 
+import { checkInputErrors } from '../Utils/checkInputErrors'
 import ReactToast from '../Utils/ReactToast'
 import { altDadosFiles } from '../Forms/altDadosFiles'
 import { altForm } from '../Forms/altForm'
@@ -51,11 +52,68 @@ class AltDados extends Component {
 
     componentWillUnmount() { this.setState({}) }
 
-    setActiveStep = action => {
+    checkInputError = () => {
+
+        const p = document.querySelectorAll('p')
+        let label = [], errors = []
+        if (p) {
+            p.forEach(el => {
+                if (el.textContent === 'Valor inválido') {
+                    const parent = el.parentNode
+                    const l = parent.querySelectorAll('label')
+                    label.push(l[0])
+                }
+
+            })
+            if (label[0]) {
+                label.forEach(l => errors.push(l.textContent))
+            }
+        }
+
+        this.setState({ errors })
+        console.log(this.state.errors)
+        /*
+        const inputError = document.getElementsByClassName("MuiFormHelperText-root MuiFormHelperText-contained makeStyles-helperText-329 Mui-error MuiFormHelperText-filled")
+        let errorLabels = []
+         if (inputError && inputError[0]) {
+ 
+             Array.from(inputError).forEach(e => {
+                 const parent = e.parentElement
+                 const elementsArray = Array.from(parent.children)
+                 elementsArray.forEach(node => {
+                     node = Object.values(node)
+                     const fiberNode = node['0']
+                     const { innerText } = fiberNode.stateNode
+                     errorLabels.push(innerText)
+                 })
+             })
+ 
+             if (errorLabels.length > 0) {
+                 let output = [], i
+                 for (i = 0; i < errorLabels.length; i++) {
+                     if (i % 3 === 0) output.push(errorLabels[i])
+                 }
+ 
+                 this.setState({ errors: output })
+                 console.log(output)
+             }
+         } */
+    }
+
+    setActiveStep = async action => {
+        const { errors } = this.state
+        if (errors && errors[0]) {            
+            this.setState({ ...this.state, ...checkInputErrors('setState') })
+            return
+        }
+
         const prevActiveStep = this.state.activeStep
         if (action === 'next') this.setState({ activeStep: prevActiveStep + 1 });
         if (action === 'back') this.setState({ activeStep: prevActiveStep - 1 });
         if (action === 'reset') this.setState({ activeStep: 0 })
+
+
+
     }
 
     handleInput = async e => {
@@ -103,7 +161,7 @@ class AltDados extends Component {
             }
         } else {
             await this.setState({ [name]: '', [stateId]: '' })
-            this.setState({openAlertDialog: true, alertType: 'empresaNotFound'})
+            this.setState({ openAlertDialog: true, alertType: 'empresaNotFound' })
             document.getElementsByName(name)[0].focus()
         }
     }
@@ -113,7 +171,12 @@ class AltDados extends Component {
         const { name } = e.target
         let { value } = e.target
 
+        const errors = checkInputErrors()
+        if (errors) this.setState({ errors })
+        else this.setState({ errors: undefined })
+
         switch (name) {
+
             case 'compartilhado':
                 this.getId(name, value, empresas, 'delegatarioCompartilhado', 'razaoSocial', 'delegatarioId')
                 break;
@@ -180,7 +243,7 @@ class AltDados extends Component {
 
         tempObj = Object.assign(tempObj, { delegatarioId, delegatarioCompartilhado, pbt })
         tempObj = humps.decamelizeKeys(tempObj)
-        
+
         Object.keys(tempObj).forEach(key => {
             if (tempObj[key] === '' || tempObj[key] === 'null' || !tempObj[key]) delete tempObj[key]
         })
@@ -229,15 +292,14 @@ class AltDados extends Component {
         const { form } = this.state
 
         axios.post('/api/mongoUpload', form)
-            .then(res => console.log(res.data))
+            .then(res => console.log('uploaded'))
             .catch(err => console.log(err))
     }
-
 
     toggleDialog = () => this.setState({ altPlaca: !this.state.altPlaca })
     closeAlert = () => this.setState({ openAlertDialog: !this.state.openAlertDialog })
     toast = () => this.setState({ confirmToast: !this.state.confirmToast })
-    reset = () => altForm.forEach(form => form.forEach(el=> this.setState({ [el.field]: '' })))
+    reset = () => altForm.forEach(form => form.forEach(el => this.setState({ [el.field]: '' })))
 
     render() {
         const { confirmToast, toastMsg, stepTitles, activeStep, steps, altPlaca,
@@ -282,7 +344,7 @@ class AltDados extends Component {
                 handleFiles={this.handleFiles}
                 updatePlate={this.updatePlate}
             />
-            {openAlertDialog && <AlertDialog open={openAlertDialog} close={this.closeAlert} alertType={alertType} />}
+            {openAlertDialog && <AlertDialog open={openAlertDialog} close={this.closeAlert} alertType={alertType} customMessage={this.state.customMsg} />}
         </Fragment>
     }
 }

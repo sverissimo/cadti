@@ -36,7 +36,7 @@ const vehicleQuery = condition => `
 
 
 const getUpdatedData = async (table, condition) => {
-   console.log(condition)
+   
    if (table === 'veiculo') {
       const data = () => new Promise((resolve, reject) => {
          pool.query(vehicleQuery(condition), (err, t) => {
@@ -44,8 +44,7 @@ const getUpdatedData = async (table, condition) => {
                console.log(err)
                reject(err)
             }
-            if (t && t.rows) {
-               console.log(t.rows)
+            if (t && t.rows) {               
                resolve(t.rows)
             }
          })

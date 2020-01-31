@@ -31,7 +31,7 @@ export const updateData = data => async (dispatch, getState) => {
     const { updatedObject, collection } = data
     const payload = humps.camelizeKeys(updatedObject)
     let type
-    console.log(payload)
+    
     switch (collection) {
         case 'veiculos':
             type = 'UPDATE_VEHICLE'

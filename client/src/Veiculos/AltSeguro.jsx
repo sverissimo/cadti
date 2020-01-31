@@ -13,7 +13,7 @@ class AltSeguro extends Component {
 
     state = {
         addedPlaca: '',
-        insuranceExists: '',
+        insuranceExists: {},
         razaoSocial: '',
         newPlates: [],
         newVehicles: [],
@@ -32,10 +32,12 @@ class AltSeguro extends Component {
     checkExistance = async (name, inputValue) => {
 
         const { seguros } = this.props.redux,
-            { frota } = this.state
+            { frota, selectedEmpresa } = this.state
+        const s = [...seguros.filter(se => se.delegatarioId === selectedEmpresa.delegatarioId)]
+
         let insuranceExists,
-            testApolice = { ...seguros.find(s => s[name] === inputValue) },
-            testSeguradora = { ...seguros.find(s => s[name] === inputValue && s.apolice === this.state.apolice) },
+            testApolice = { ...s.find(s => s[name] === inputValue) },
+            testSeguradora = { ...s.find(s => s[name] === inputValue && s.apolice === this.state.apolice) },
             InsuranceUpdatedFrota = [],
             updatedPlates = [],
             updatedVehicles = []
@@ -48,12 +50,11 @@ class AltSeguro extends Component {
             insuranceExists = testSeguradora
             InsuranceUpdatedFrota = frota.filter(v => v.apolice === this.state.apolice)
         }
-
         if (insuranceExists && insuranceExists.dataEmissao && insuranceExists.vencimento) {
             InsuranceUpdatedFrota.forEach(v => {
                 updatedPlates.push(v.placa)
                 updatedVehicles.push(v.veiculoId)
-            })            
+            })
 
             insuranceExists.placas = updatedPlates
             insuranceExists.veiculos = updatedVehicles
@@ -84,7 +85,7 @@ class AltSeguro extends Component {
                     if (value !== selectedEmpresa.razaoSocial) this.setState({ selectedEmpresa: undefined })
 
                     const frota = veiculos.filter(v => v.empresa === this.state.razaoSocial)
-                    
+
                     const filteredInsurances = allInsurances.filter(seguro => seguro.empresa === this.state.razaoSocial)
 
                     this.setState({ frota, seguros: filteredInsurances })
@@ -138,10 +139,10 @@ class AltSeguro extends Component {
     }
 
     addPlate = async placaInput => {
-        const { vehicleFound, apolice } = this.state
-        let { insuranceExists } = this.state,
-            placas = [...insuranceExists.placas],
-            veiculos = [...insuranceExists.veiculos]
+        const { vehicleFound, apolice, dataEmissao, vencimento, selectedEmpresa } = this.state
+        let
+            { insuranceExists } = this.state,
+            newInsurance = {}
 
         //Check if vehicle belongs to frota before add to insurance and  if plate already belongs to apolice
         if (vehicleFound === undefined || vehicleFound.hasOwnProperty('veiculoId') === false) {
@@ -154,27 +155,40 @@ class AltSeguro extends Component {
                 return null
             }
         }
-
         // Add plates to rendered list
         if (apolice) {
-            if (!placas) placas = []
-            placas.push(placaInput)
-            if (!veiculos) veiculos = []
-            veiculos.push(vehicleFound.veiculoId)
+            if (!insuranceExists.placas && !insuranceExists.veiculos) {
+                const
+                    placas = [].push(placaInput),
+                    veiculos = [].push(vehicleFound.veiculoId)
 
-            if (insuranceExists.hasOwnProperty('placas') && insuranceExists.hasOwnProperty('veiculos')) {
-                let obj = insuranceExists
+                Object.assign(newInsurance,
+                    {
+                        empresa: selectedEmpresa.razaoSocial,
+                        delegatarioId: selectedEmpresa.delegatarioId,
+                        apolice, dataEmissao, vencimento, placas, veiculos
+                    })
+                await this.setState({ newInsurance })
+
+            } else {
+                let obj = { ...insuranceExists }
+                let { placas, veiculos } = obj
+
+                placas.push(placaInput)
+                veiculos.push(vehicleFound.veiculoId)
                 obj.placas = placas
                 obj.veiculos = veiculos
+
                 await this.setState({
                     insuranceExists: obj,
                     newPlates: [...this.state.newPlates, placaInput],
                     newVehicles: [...this.state.newVehicles, vehicleFound.veiculoId]
                 })
-
-                if (document.getElementsByName('addedPlaca')[0]) document.getElementsByName('addedPlaca')[0].focus()
-                this.setState({ addedPlaca: '' })
             }
+
+
+            if (document.getElementsByName('addedPlaca')[0]) document.getElementsByName('addedPlaca')[0].focus()
+            this.setState({ addedPlaca: '' })
         }
     }
 
@@ -225,7 +239,7 @@ class AltSeguro extends Component {
             if (validVenc) cadSeguro.vencimento = vencimento
 
             await axios.post('/api/cadSeguro', cadSeguro)
-        }      
+        }
 
         //Define body to post
         const body = {
@@ -237,11 +251,11 @@ class AltSeguro extends Component {
         }
 
         await axios.put('/api/updateInsurances', body)
-            .then(res => console.log(res.data))        
+            .then(res => console.log(res.data))
 
         this.toast()
         this.clearFields()
-        this.setState({ razaoSocial: '' })
+        this.setState({ razaoSocial: '', newPlates: [], newVehicles: [] })
     }
 
     handleFiles = (file) => {

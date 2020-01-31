@@ -9,7 +9,7 @@ export const altFormVistoria = [
     },
     {
         field: 'pesoTraseiro',
-        label: 'Peso Trasiero (kg)',
+        label: 'Peso Traseiro (kg)',
         margin: 'normal',
         type: 'number',
         max: 15000

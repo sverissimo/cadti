@@ -5,6 +5,7 @@ import moment from 'moment'
 
 import StoreHOC from '../Store/StoreHOC'
 
+import { checkInputErrors } from '../Utils/checkInputErrors'
 import CadVeiculoTemplate from './CadVeiculoTemplate'
 import VehicleDocs from './VehicleDocs'
 import Review from './Review'
@@ -44,7 +45,7 @@ class VeiculosContainer extends PureComponent {
         fileNames: [],
         insuranceExists: false,
         addEquipa: false,
-        openDialog: false
+        openAlertDialog: false
     }
 
     async componentDidMount() {
@@ -67,9 +68,15 @@ class VeiculosContainer extends PureComponent {
             const matchPlaca = this.state.frota.filter(v => v.placa === this.state.placa)[0]
             if (matchPlaca) {
                 await this.setState({ placa: '' });
-                this.setState({ alertType: 'plateExists', openDialog: true })
+                this.setState({ alertType: 'plateExists', openAlertDialog: true })
                 return null
             }
+        }
+
+        const { errors } = this.state
+        if (errors && errors[0]) {
+            await this.setState({ ...this.state, ...checkInputErrors('setState') })            
+            return
         }
 
         let array = []
@@ -145,6 +152,10 @@ class VeiculosContainer extends PureComponent {
         const { name } = e.target
         let { value } = e.target
 
+        const errors = checkInputErrors()
+        if (errors) this.setState({ errors })
+        else this.setState({ errors: undefined })
+
         switch (name) {
             case 'modeloChassi':
                 this.getId(name, value, modelosChassi, 'modeloChassiId', 'modeloChassi', 'id', 'Chassi')
@@ -195,13 +206,13 @@ class VeiculosContainer extends PureComponent {
             if (value.length === 7) {
                 const x = value.replace(/(\w{3})/, '$1-')
                 await this.setState({ placa: x })
-                value = x                
+                value = x
             }
             const matchPlaca = frota.find(v => v.placa === value)
-            if (matchPlaca) {                
+            if (matchPlaca) {
                 await this.setState({ placa: null });
                 value = ''
-                this.setState({ alertType: 'plateExists', openDialog: true })
+                this.setState({ alertType: 'plateExists', openAlertDialog: true })
                 document.getElementsByName('placa')[0].focus()
             }
         }
@@ -330,20 +341,20 @@ class VeiculosContainer extends PureComponent {
             this.setState({ filesCollection: selectedFiles, showFiles: true, selectedVehicle: id })
 
         } else {
-            this.setState({ alertType: 'filesNotFound', openDialog: true })
+            this.setState({ alertType: 'filesNotFound', openAlertDialog: true })
             this.setState({ filesCollection: [] })
         }
     }
 
     handleCheck = item => this.setState({ ...this.state, [item]: !this.state[item] })
     handleEquipa = () => this.setState({ addEquipa: !this.state.addEquipa })
-    toggleDialog = () => this.setState({ openDialog: !this.state.openDialog })
+    toggleDialog = () => this.setState({ openAlertDialog: !this.state.openAlertDialog })
     toast = () => this.setState({ confirmToast: !this.state.confirmToast })
 
     render() {
         const { confirmToast, toastMsg, activeStep,
-            openDialog, alertType, steps, selectedEmpresa } = this.state
-
+            openAlertDialog, alertType, steps, selectedEmpresa } = this.state
+        console.log(openAlertDialog)
         return <Fragment>
             <Crumbs links={['Veículos', '/veiculos']} text='Cadastro de veículo' />
 
@@ -376,7 +387,7 @@ class VeiculosContainer extends PureComponent {
                 setActiveStep={this.setActiveStep}
             />}
             <ReactToast open={confirmToast} close={this.toast} msg={toastMsg} />
-            {openDialog && <AlertDialog open={openDialog} close={this.toggleDialog} alertType={alertType} />}
+            {openAlertDialog && <AlertDialog open={openAlertDialog} close={this.toggleDialog} alertType={alertType} customMessage={this.state.customMsg}/>}
         </Fragment>
     }
 }

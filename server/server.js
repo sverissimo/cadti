@@ -591,21 +591,23 @@ app.put('/api/editProc', (req, res) => {
 app.put('/api/updateVehicle', (req, res) => {
 
     const { requestObject, table, tablePK, id } = req.body
-    let queryString = ''
+    let query = ''
 
     Object.entries(requestObject).forEach(([k, v]) => {
-        queryString += `${k} = '${v}', `
+        query += `${k} = '${v}', `
     })
 
-    queryString = `UPDATE ${table} SET ` +
-        queryString.slice(0, queryString.length - 2) +
-        ` WHERE ${tablePK} = '${id}' RETURNING veiculo_id`
+    query = `UPDATE ${table} SET ` +
+        query.slice(0, query.length - 2) + ` WHERE `
 
-    pool.query(queryString, (err, t) => {
+    const condition = `${tablePK} = '${id}'`
+
+    query = query + condition + ` RETURNING veiculo_id`    
+
+    pool.query(query, (err, t) => {
         if (err) console.log(err)
         if (t && t.rows) {
-            const id = t.rows[0].veiculo_id
-            const data = getUpdatedData('veiculo', id)
+            const data = getUpdatedData('veiculo', condition)
             data.then(res => io.sockets.emit('updateVehicle', res))
         }
         res.send(`${table} table changed fields in ${id}`)

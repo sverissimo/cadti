@@ -37,7 +37,7 @@ export const vistoriaForm = [
     },
     {
         field: 'peso_traseiro',
-        label: 'Peso Trasiero (kg)',
+        label: 'Peso Traseiro (kg)',
         margin: 'normal',
         type: 'number',
         max: 15000
