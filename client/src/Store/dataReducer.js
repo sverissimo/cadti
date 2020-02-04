@@ -2,6 +2,7 @@ const initState = {}
 
 const dataReducer = (state = initState, action) => {
     const { type, payload } = action
+
     switch (type) {
 
         case 'GET_DATA':
@@ -14,7 +15,6 @@ const dataReducer = (state = initState, action) => {
             }
 
         case 'UPDATE_INSURANCE':
-            
             const veiculosArray = state.veiculos.map(v => {
                 payload.forEach(el => {
                     if (v.veiculoId === el.veiculoId) {
@@ -23,42 +23,39 @@ const dataReducer = (state = initState, action) => {
                 })
                 return v
             })
-            
+
             return {
                 ...state, veiculos: veiculosArray
             }
 
-        case 'UPDATE_STATE_DATA':
-            const { data, collection } = payload
+        case 'UPDATE_COLLECTION':
+            const { data, col } = payload
+
             return {
-                ...state, [collection]: data
+                ...state, [col]: data
             }
 
+        case 'REMOVE_FROM_INSURANCE':
+            const { apolice, placaIndex, vehicleIndex } = payload
 
-        /*  
-        
-        case 'UPDATE_SOCIO':            
-            return { ...state, payload }
+            let seguros = [...state.seguros],
+                seguro = seguros.find(s => s.apolice === apolice),
+                index = seguros.findIndex(s => s.apolice === apolice)
 
-        
-        case 'UPDATE_FIELDS':
- 
-             let veiculos = [...state.veiculos]
-             const updatedFields = action.payload
- 
-             let vehicleToUpdate = veiculos.find(v => v.veiculoId === action.payload.id)
-             const index = veiculos.indexOf(vehicleToUpdate)
- 
-             Object.keys(updatedFields).forEach(k => {
-                 vehicleToUpdate[k] = updatedFields[k]
-             })
-             const updatedVehicle = vehicleToUpdate
-             console.log(index, updatedVehicle)
-             veiculos[index] = updatedVehicle
- 
-             return { ...state, veiculos } */
+            seguro.placas.splice(placaIndex, 1)
+            seguro.veiculos.splice(vehicleIndex, 1)
+            seguros[index] = seguro
+            console.log(seguros)
+            return {
+                ...state, seguros
+            }
 
-
+        /* case 'DELETE_ONE':
+            const { collection, index } = payload
+            let updatedData = state[collection].splice(index, 1)
+            return {
+                ...state, [collection]: updatedData
+            } */
 
         case 'SET_COLOR':
             return { ...state, setColor: action.payload }

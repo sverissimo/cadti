@@ -354,7 +354,7 @@ class VeiculosContainer extends PureComponent {
     render() {
         const { confirmToast, toastMsg, activeStep,
             openAlertDialog, alertType, steps, selectedEmpresa } = this.state
-        console.log(openAlertDialog)
+        
         return <Fragment>
             <Crumbs links={['Veículos', '/veiculos']} text='Cadastro de veículo' />
 

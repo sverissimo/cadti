@@ -4,7 +4,7 @@ import humps from 'humps'
 
 import StoreHOC from '../Store/StoreHOC'
 import { connect } from 'react-redux'
-import { updateStateData } from '../Store/dataActions'
+import { updateCollection } from '../Store/dataActions'
 
 import ConsultasTemplate from './consultasTemplate'
 import { TabMenu } from '../Layouts'
@@ -90,7 +90,7 @@ class ConsultasContainer extends Component {
         let n = Number(this.state.tab), x = 2
         if (n === 2) x = 1
 
-        await this.props.updateStateData(data)
+        await this.props.updateCollection(data)
         this.changeTab(null, x)
         this.changeTab(null, n)        
     }
@@ -172,7 +172,7 @@ class ConsultasContainer extends Component {
     render() {
         const { tab, options, items, showDetails, elementDetails, showFiles, selectedElement, filesCollection,
             openAlertDialog, alertType, typeId, empresas } = this.state
-        //console.log(this.state, this.props)
+        console.log(this.props.redux[options[tab]])
         return <Fragment>
             <TabMenu items={items}
                 tab={tab}
@@ -205,4 +205,4 @@ class ConsultasContainer extends Component {
 
 const collections = ['veiculos', 'empresas', 'socios', 'procuradores', 'seguros', 'getFiles/vehicleDocs', 'getFiles/empresaDocs']
 
-export default connect(null, { updateStateData })(StoreHOC(collections, ConsultasContainer))
+export default connect(null, { updateCollection })(StoreHOC(collections, ConsultasContainer))

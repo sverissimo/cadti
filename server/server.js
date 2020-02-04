@@ -452,17 +452,14 @@ app.put('/api/updateInsurance', (req, res) => {
         if (err) console.log(err)
         io.sockets.emit('updateInsurance', t.rows)
         res.send(`${column} changed to ${value}`)
-    }
-    )
+    })
 })
 
 app.put('/api/updateInsurances', (req, res) => {
     const { table, tablePK, column, value, newVehicles } = req.body
 
     let condition = ''
-
-    console.log(newVehicles)
-
+    
     newVehicles.forEach(id => {
         condition = condition + `${tablePK} = '${id}' OR `
     })

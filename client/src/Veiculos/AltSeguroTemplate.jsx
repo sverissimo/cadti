@@ -64,7 +64,7 @@ export default function AltSeguro({ data, enableAddPlaca, handleInput, handleBlu
     else if (newInsurance && newInsurance.placas) insurance = newInsurance
 
     if (insurance) {
-        if (insurance.placas[0] !== null) placas = insurance.placas.sort()
+        if (insurance.placas[0] && insurance.placas[0] !== null) placas = insurance.placas.sort()
         if (placa !== undefined && placa.length > 2 && placas[0]) {
             if (typeof placa === 'string') placas = insurance.placas.filter(p => p.toLowerCase().match(placa.toLowerCase())).sort()
             else placas = insurance.placas.filter(p => p.match(placa)).sort()
@@ -159,7 +159,7 @@ export default function AltSeguro({ data, enableAddPlaca, handleInput, handleBlu
                             </Dropzone>
                         </div>
 
-                        {insurance.hasOwnProperty('apolice') || placas[0]
+                        {insurance && insurance.placas[0]
                             ?
                             <div style={{ margin: '15px' }}>
                                 Placas vinculadas a apólice {insurance.apolice}

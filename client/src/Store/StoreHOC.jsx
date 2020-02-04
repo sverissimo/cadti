@@ -34,11 +34,11 @@ export default function (requestArray, WrappedComponent) {
                 if (!socket) socket = socketIO(':3001')
                 socket.on('updateVehicle', updatedObject => {                    
                     console.log(updatedObject)
-                    this.props.updateData({updatedObject, collection: 'veiculos'})
+                    this.props.updateData(updatedObject, 'veiculos')
                 })
-                socket.on('updateInsurance', updatedObject => {                    
-                    console.log(updatedObject)
-                    this.props.updateData({updatedObject, collection: 'seguros'})
+                socket.on('updateInsurance', updatedObjects => {                    
+                    console.log(updatedObjects)
+                    this.props.updateData(updatedObjects, 'seguros')
                 })
             }
         }

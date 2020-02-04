@@ -50,55 +50,7 @@ class AltDados extends Component {
         this.setState({ ...this.props.redux })
     }
 
-    componentWillUnmount() { this.setState({}) }
-
-    checkInputError = () => {
-
-        const p = document.querySelectorAll('p')
-        let label = [], errors = []
-        if (p) {
-            p.forEach(el => {
-                if (el.textContent === 'Valor inválido') {
-                    const parent = el.parentNode
-                    const l = parent.querySelectorAll('label')
-                    label.push(l[0])
-                }
-
-            })
-            if (label[0]) {
-                label.forEach(l => errors.push(l.textContent))
-            }
-        }
-
-        this.setState({ errors })
-        console.log(this.state.errors)
-        /*
-        const inputError = document.getElementsByClassName("MuiFormHelperText-root MuiFormHelperText-contained makeStyles-helperText-329 Mui-error MuiFormHelperText-filled")
-        let errorLabels = []
-         if (inputError && inputError[0]) {
- 
-             Array.from(inputError).forEach(e => {
-                 const parent = e.parentElement
-                 const elementsArray = Array.from(parent.children)
-                 elementsArray.forEach(node => {
-                     node = Object.values(node)
-                     const fiberNode = node['0']
-                     const { innerText } = fiberNode.stateNode
-                     errorLabels.push(innerText)
-                 })
-             })
- 
-             if (errorLabels.length > 0) {
-                 let output = [], i
-                 for (i = 0; i < errorLabels.length; i++) {
-                     if (i % 3 === 0) output.push(errorLabels[i])
-                 }
- 
-                 this.setState({ errors: output })
-                 console.log(output)
-             }
-         } */
-    }
+    componentWillUnmount() { this.setState({}) }    
 
     setActiveStep = async action => {
         const { errors } = this.state
@@ -111,9 +63,6 @@ class AltDados extends Component {
         if (action === 'next') this.setState({ activeStep: prevActiveStep + 1 });
         if (action === 'back') this.setState({ activeStep: prevActiveStep - 1 });
         if (action === 'reset') this.setState({ activeStep: 0 })
-
-
-
     }
 
     handleInput = async e => {
