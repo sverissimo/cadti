@@ -53,7 +53,7 @@ class ConsultasContainer extends Component {
         const { redux } = this.props
         await this.setState({ ...redux, collection: redux.empresas })
 
-        document.addEventListener('keydown', this.escFunction, false)
+        document.addEventListener('keydown', this.escFunction, false)        
     }
     /* 
         static getDerivedStateFromProps(nextProps, prevState) {
@@ -92,7 +92,7 @@ class ConsultasContainer extends Component {
 
         await this.props.updateCollection(data)
         this.changeTab(null, x)
-        this.changeTab(null, n)        
+        this.changeTab(null, n)
     }
 
     showDetails = (e, elementDetails) => {
@@ -145,8 +145,8 @@ class ConsultasContainer extends Component {
             table = dbTables[tab],
             tablePK = tablePKs[tab],
             itemId = humps.camelize(tablePK)
-       
-            axios.delete(`/api/delete?table=${table}&tablePK=${tablePK}&id=${data[itemId]}`)
+
+        axios.delete(`/api/delete?table=${table}&tablePK=${tablePK}&id=${data[itemId]}`)
             .then(r => console.log(r.data))
     }
 
@@ -172,7 +172,7 @@ class ConsultasContainer extends Component {
     render() {
         const { tab, options, items, showDetails, elementDetails, showFiles, selectedElement, filesCollection,
             openAlertDialog, alertType, typeId, empresas } = this.state
-        console.log(this.props.redux[options[tab]])
+
         return <Fragment>
             <TabMenu items={items}
                 tab={tab}

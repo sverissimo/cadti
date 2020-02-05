@@ -49,6 +49,10 @@ export default function AlertDialog({ open, alertType, close, confirm, customTit
         title = 'Empresa não encontrada.'
         message = `A empresa informada não está registrada no sistema. Para cadastrar uma nova empresa, utilize a opção Empresas -> Cadastrar.`
         return { title, message }
+      case 'seguradoraNotFound':
+        title = 'Seguradora não encontrada.'
+        message = `A seguradora informada não está registrada no sistema. Favor verificar o nome da seguradora.`
+        return { title, message }
 
       case 'alreadyExists':
         title = 'CPF já cadastrado.'

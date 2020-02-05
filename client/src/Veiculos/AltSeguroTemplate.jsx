@@ -167,7 +167,7 @@ export default function AltSeguro({ data, enableAddPlaca, handleInput, handleBlu
                             :
                             <div style={{ marginTop: '30px' }}></div>
                         }
-                        {insurance && placas[0] && placas.map((placa, i) =>
+                        {insurance && apolice && apolice.length > 2 && placas[0] && placas.map((placa, i) =>
                             <Chip
                                 key={i}
                                 label={placa}
@@ -182,7 +182,7 @@ export default function AltSeguro({ data, enableAddPlaca, handleInput, handleBlu
 
                 }
             </div >
-            {apolice &&
+            {apolice && (insurance || enableAddPlaca) &&
                 <div style={{ minHeight: '60px', position: 'flex' }}>
                     <Button
                         size="small"
@@ -190,7 +190,7 @@ export default function AltSeguro({ data, enableAddPlaca, handleInput, handleBlu
                         className='saveButton'
                         variant="contained"
                         onClick={() => handleSubmit()}
-                    //disabled={!placas[0] || !seguroFile ? true : false}
+                        disabled={!placas[0] || !seguroFile ? true : false}
                     >
                         Salvar <span>&nbsp;&nbsp; </span> <SaveIcon />
                     </Button>

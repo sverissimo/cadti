@@ -1,7 +1,7 @@
 const express = require('express')
 const app = express()
 const server = require('http').createServer(app)
-const io = require('socket.io').listen(server);
+const io = require('socket.io').listen(server)
 const bodyParser = require('body-parser')
 const pg = require('pg')
 const path = require('path')
@@ -434,53 +434,32 @@ app.post('/api/cadSeguro', (req, res) => {
         })
 })
 
-app.put('/api/updateInsurance', (req, res) => {
-    const { table, tablePK, column } = req.body
-    let { value, id } = req.body
-
-    id = '\'' + id + '\''
-    value = '\'' + value + '\''
-
-    console.log(`
-    UPDATE ${table}
-    SET ${column} = ${value}
-    WHERE ${tablePK} = ${id}
-    `)
-
-    pool.query(`
-    UPDATE ${table} SET ${column} = ${value} WHERE ${tablePK} = ${id} RETURNING *`, (err, t) => {
-        if (err) console.log(err)
-        io.sockets.emit('updateInsurance', t.rows)
-        res.send(`${column} changed to ${value}`)
-    })
-})
-
 app.put('/api/updateInsurances', (req, res) => {
-    const { table, tablePK, column, value, newVehicles } = req.body
+    const { table, tablePK, column, value, ids } = req.body
 
-    let condition = ''
-    
-    newVehicles.forEach(id => {
-        condition = condition + `${tablePK} = '${id}' OR `
-    })
+    let
+        condition = '',
+        query = `
+            UPDATE ${table}
+            SET ${column} = '${value}' 
+            WHERE `
 
-    condition = condition.slice(0, condition.length - 3)
+    if (ids && ids[0]) {
+        ids.forEach(id => {
+            condition = condition + `${tablePK} = '${id}' OR `
+        })
+        condition = condition.slice(0, condition.length - 3)
+        query = query + condition + ` RETURNING *`
 
-    let query = `
-    UPDATE ${table}
-    SET ${column} = '${value}' 
-    WHERE `
-
-    query = query + condition + ` RETURNING *`
-
-    pool.query(query, (err, t) => {
-        if (err) console.log(err)
-        if (t && t.rows) {
-            const data = getUpdatedData('veiculo', condition)
-            data.then(res => io.sockets.emit('updateInsurance', res))
-        }
-    })
-    res.send(query)
+        pool.query(query, (err, t) => {
+            if (err) console.log(err)
+            if (t && t.rows) {
+                const data = getUpdatedData('veiculo', condition)
+                data.then(res => io.sockets.emit('updateVehicle', res))
+            }
+        })
+        res.send({ ids, value })
+    } else res.send('No changes whatsoever.')
 })
 
 app.put('/api/editSocios', (req, res) => {
@@ -599,15 +578,17 @@ app.put('/api/updateVehicle', (req, res) => {
 
     const condition = `${tablePK} = '${id}'`
 
-    query = query + condition + ` RETURNING veiculo_id`    
+    query = query + condition + ` RETURNING veiculo_id`
 
     pool.query(query, (err, t) => {
         if (err) console.log(err)
         if (t && t.rows) {
             const data = getUpdatedData('veiculo', condition)
-            data.then(res => io.sockets.emit('updateVehicle', res))
+            data.then(r => {
+                io.sockets.emit('updateVehicle', r)
+                res.send(r)
+            })
         }
-        res.send(`${table} table changed fields in ${id}`)
     })
 })
 
@@ -654,7 +635,6 @@ app.delete('/api/removeProc', (req, res) => {
     AND WHERE procurador_id = ${procurador_id}
 `
     )
-
 })
 
 

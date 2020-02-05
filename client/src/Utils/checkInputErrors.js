@@ -20,12 +20,9 @@ export const checkInputErrors = sendState => {
     if (inputs) {
         inputs.forEach(el => {
             if (el.type === 'date') {
-                if (!moment(el.value, 'YYYY-MM-DD', true).isValid()) {
-                    console.log(!moment(el.value, 'YYYY-MM-DD', true).isValid())
+                if (!moment(el.value, 'YYYY-MM-DD', true).isValid()) {                    
                     const parent = el.parentNode                    
-                    //const l = parent.querySelectorAll('label') 
-                    const l = parent.previousSibling
-                    console.log(parent, l)
+                    const l = parent.previousSibling                    
                     label.push(l)
                 }
             }

@@ -69,14 +69,13 @@ SELECT seguro.*,
 	s.seguradora,
 	array_to_json(array_agg(v.veiculo_id)) veiculos,
 	array_to_json(array_agg(v.placa)) placas,
-	d.razao_social empresa,
-	d.delegatario_id,
+	d.razao_social empresa,	
 	cardinality(array_agg(v.placa)) segurados
 FROM seguro
 LEFT JOIN veiculo v
 	ON seguro.apolice = v.apolice
 LEFT JOIN delegatario d
-	ON d.delegatario_id = v.delegatario_id
+	ON d.delegatario_id = seguro.delegatario_id
 LEFT JOIN seguradora s
 	ON s.id = seguro.seguradora_id
 GROUP BY seguro.apolice, d.razao_social, s.seguradora, d.delegatario_id

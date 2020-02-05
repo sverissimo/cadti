@@ -2,8 +2,7 @@ import React from 'react'
 
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { getData, updateData } from './dataActions'
-
+import { getData, insertData, updateData } from './dataActions'
 
 import Loading from '../Utils/Loading'
 
@@ -18,7 +17,7 @@ export default function (requestArray, WrappedComponent) {
     class With extends React.Component {
 
         async componentDidMount() {
-            const { redux, match } = this.props
+            const { redux } = this.props
 
             let request = []
             requestArray.forEach(req => {
@@ -29,18 +28,14 @@ export default function (requestArray, WrappedComponent) {
             })
 
             if (request[0]) await this.props.getData(request)
-
-            if (match.path === '/consultas' || match.path === '/veiculos/altSeguro') {
-                if (!socket) socket = socketIO(':3001')
-                socket.on('updateVehicle', updatedObject => {                    
-                    console.log(updatedObject)
-                    this.props.updateData(updatedObject, 'veiculos')
-                })
-                socket.on('updateInsurance', updatedObjects => {                    
-                    console.log(updatedObjects)
-                    this.props.updateData(updatedObjects, 'seguros')
-                })
-            }
+            
+            if (!socket) socket = socketIO(':3001')
+            socket.on('insertVehicle', insertedObjects => {
+                this.props.insertData(insertedObjects, 'veiculos')
+            })            
+            socket.on('updateVehicle', updatedObjects => {
+                this.props.updateData(updatedObjects, 'veiculos', 'veiculoId')
+            })
         }
 
         render() {
@@ -63,7 +58,7 @@ export default function (requestArray, WrappedComponent) {
     }
 
     function mapDispatchToProps(dispatch) {
-        return bindActionCreators({ getData, updateData }, dispatch)
+        return bindActionCreators({ getData, insertData, updateData }, dispatch)
     }
 
     return connect(mapStateToProps, mapDispatchToProps)(With)

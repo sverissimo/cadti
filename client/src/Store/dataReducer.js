@@ -8,32 +8,38 @@ const dataReducer = (state = initState, action) => {
         case 'GET_DATA':
             return { ...state, ...payload }
 
-        case 'UPDATE_VEHICLE':
-            const veiculos = state.veiculos.map(v => v.veiculoId === payload.veiculoId ? payload : v)
+        case 'INSERT_DATA': {
+            const { collection, data } = payload
+            let update = state[collection]
+            data.forEach(el => update.push(el))
             return {
-                ...state, veiculos
+                ...state, [collection]: update
             }
+        }
 
-        case 'UPDATE_INSURANCE':
-            const veiculosArray = state.veiculos.map(v => {
-                payload.forEach(el => {
-                    if (v.veiculoId === el.veiculoId) {
+        case 'UPDATE_DATA': {
+            const { collection, data, id } = payload
+            const update = state[collection].map(v => {
+                data.forEach(el => {
+                    if (v[id] === el[id]) {
                         v = el
                     }
                 })
                 return v
             })
-
+            console.log({ [collection]: update })
             return {
-                ...state, veiculos: veiculosArray
+                ...state, [collection]: update
             }
+        }
 
-        case 'UPDATE_COLLECTION':
-            const { data, col } = payload
 
+        case 'UPDATE_COLLECTION': {
+            const { data, collection } = payload
             return {
-                ...state, [col]: data
+                ...state, [collection]: data
             }
+        }
 
         case 'REMOVE_FROM_INSURANCE':
             const { apolice, placaIndex, vehicleIndex } = payload

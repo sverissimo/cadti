@@ -20,6 +20,7 @@ class AltSeguro extends Component {
         addedPlaca: '',
         insuranceExists: {},
         razaoSocial: '',
+        seguradora: '',
         newPlates: [],
         newVehicles: [],
         toastMsg: 'Seguro atualizado!',
@@ -37,9 +38,10 @@ class AltSeguro extends Component {
     checkExistance = async (name, inputValue) => {
 
         const
-            { seguros } = this.props.redux,
-            { frota, selectedEmpresa } = this.state,
-            s = [...seguros.filter(se => se.delegatarioId === selectedEmpresa.delegatarioId)]
+            { seguros, veiculos } = this.props.redux,
+            { selectedEmpresa } = this.state,
+            s = [...seguros.filter(se => se.delegatarioId === selectedEmpresa.delegatarioId)],
+            frota = veiculos.filter(v => v.delegatarioId === selectedEmpresa.delegatarioId)
 
         let insuranceExists,
             testApolice = { ...s.find(s => s[name] === inputValue) },
@@ -140,11 +142,15 @@ class AltSeguro extends Component {
     }
 
     handleBlur = e => {
-        const { seguradora, allInsurances, selectedEmpresa } = this.state,
+        const { seguradoras, seguradora, allInsurances, selectedEmpresa } = this.state,
             { name } = e.target
 
         if (name === 'seguradora') {
             let filteredInsurances = []
+
+            const valid = seguradoras.find(s => s.seguradora.toLowerCase().match(seguradora.toLowerCase()))
+            if (valid && seguradora.length > 2) this.setState({ seguradora: valid.seguradora })
+            if (!valid && seguradora.length > 2) this.setState({ openAlertDialog: true, alertType: 'seguradoraNotFound', seguradora: undefined })
 
             if (selectedEmpresa && !seguradora) {
                 filteredInsurances = allInsurances.filter(seguro => seguro.empresa === selectedEmpresa.razaoSocial)
@@ -220,21 +226,34 @@ class AltSeguro extends Component {
     deleteInsurance = async placaInput => {
 
         await this.setState({ vehicleFound: this.state.frota.find(v => v.placa === placaInput) })
-        const { vehicleFound, apolice, selectedEmpresa } = this.state
+        const { vehicleFound, apolice } = this.state
 
         let insuranceExists = { ...this.state.insuranceExists },
-            // frota = [...this.state.frota],
-            { placas, veiculos } = insuranceExists
+            { placas, veiculos } = insuranceExists,
+            newInsurance = { ...this.state.newInsurance },
+            newPlates = [...newInsurance.placas],
+            newVehicles = [...newInsurance.veiculos]
+            
+
+        if (newInsurance) {
+            const i = newPlates.indexOf(placaInput),
+                k = newVehicles.indexOf(vehicleFound.veiculoId)
+            newInsurance.placas.splice(i, 1)
+            newInsurance.veiculos.splice(k, 1)
+            await this.setState({ newInsurance })
+            return
+        }
+
 
         const body = {
             table: 'veiculo',
             column: 'apolice',
             value: 'Seguro não cadastrado',
             tablePK: 'veiculo_id',
-            id: vehicleFound.veiculoId
+            ids: [vehicleFound.veiculoId]
         }
 
-        await axios.put('/api/UpdateInsurance', body)
+        await axios.put('/api/UpdateInsurances', body)
         /*  await axios.get('/api/seguros')
              .then(res => humps.camelizeKeys(res.data))
              .then(res => this.props.updateCollection(res, 'seguros'))
@@ -243,31 +262,37 @@ class AltSeguro extends Component {
             i = placas.indexOf(placaInput),
             k = veiculos.indexOf(vehicleFound.veiculoId)
 
-        this.props.removeInsurance(apolice, i, k)
+        await this.props.removeInsurance(apolice, i, k)
 
-        const frota = this.props.redux.veiculos.filter(v => v.delegatarioId === selectedEmpresa.delegatarioId)
         insuranceExists.placas.splice(i, 1)
         insuranceExists.veiculos.splice(k, 1)
-        this.setState({ insuranceExists, frota })
 
-        return null
+        await this.setState({ insuranceExists })
+        return
     }
 
-    updateInsurance = async () => {
+    handleSubmit = async () => {
 
-        const { insuranceExists, apolice, newVehicles, errors } = this.state
+        const { seguradora, insuranceExists, apolice, newVehicles, errors } = this.state
         let frota = [...this.state.frota]
 
         if (errors && errors[0]) {
             this.setState({ ...this.state, ...checkInputErrors('setState') })
             return
         }
-
+        if (!seguradora || seguradora === '') {
+            this.setState({ openAlertDialog: true, alertType: 'seguradoraNotFound', seguradora: undefined })
+            return
+        }
         //Create a new insurance
         if (!insuranceExists) {
-            const { seguradoraId, apolice, dataEmissao, vencimento } = this.state
+            const { seguradoraId, apolice, dataEmissao, vencimento, selectedEmpresa } = this.state
 
-            let cadSeguro = { seguradora_id: seguradoraId, apolice }
+            let cadSeguro = {
+                apolice,
+                seguradora_id: seguradoraId,
+                delegatario_id: selectedEmpresa.delegatarioId
+            }
 
             const validEmissao = moment(dataEmissao, 'YYYY-MM-DD', true).isValid(),
                 validVenc = moment(vencimento, 'YYYY-MM-DD', true).isValid()
@@ -277,14 +302,14 @@ class AltSeguro extends Component {
 
             await axios.post('/api/cadSeguro', cadSeguro)
         }
-        console.log(this.props.redux.seguros)
+
         //Define body to post
         const body = {
             table: 'veiculo',
             column: 'apolice',
             value: apolice,
             tablePK: 'veiculo_id',
-            newVehicles
+            ids: newVehicles
         }
 
         await axios.put('/api/updateInsurances', body)
@@ -304,46 +329,45 @@ class AltSeguro extends Component {
             return v
         })
 
-        /* vehicleFound.apolice = apolice
-        frota[index] = vehicleFound
- */
         this.toast()
+        this.submitFiles()
         this.clearFields()
-        this.handleSubmit()
         this.setState({ newPlates: [], newVehicles: [], frota })
     }
 
-    handleFiles = (file) => {
+    handleFiles = async file => {
         let formData = new FormData()
         formData.append('seguro', file[0])
-        this.setState({ dropDisplay: file[0].name, seguroFile: formData })
+        await this.setState({ dropDisplay: file[0].name, seguroFile: formData })
     }
 
-    handleSubmit = () => {
-        const { apolice, selectedEmpresa, seguroFile } = this.state
+    submitFiles = async () => {
+        const { apolice, selectedEmpresa } = this.state
 
         let seguroFormData = new FormData()
 
-        if (seguroFile) {
+        if (this.state.seguroFile) {
             seguroFormData.append('fieldName', 'seguro')
             seguroFormData.append('apolice', apolice)
             seguroFormData.append('empresaId', selectedEmpresa.delegatarioId)
-            for (let pair of seguroFile.entries()) {
+            for (let pair of this.state.seguroFile.entries()) {
                 seguroFormData.append(pair[0], pair[1])
             }
-            axios.post('/api/empresaUpload', seguroFormData)
+            await axios.post('/api/empresaUpload', seguroFormData)
                 .then(r => console.log(r.data))
-            //            this.toast()
+            this.toast()
         }
     }
 
     toast = () => this.setState({ confirmToast: !this.state.confirmToast })
     closeAlert = () => this.setState({ openAlertDialog: !this.state.openAlertDialog })
-    clearFields = () => this.setState({
-        insuranceExists: '', seguradora: '',
-        apolice: '', dataEmissao: '', vencimento: '', seguroFile: null,
-        dropDisplay: 'Clique ou arraste para anexar a apólice'
-    })
+    clearFields = () => {
+        this.setState({
+            insuranceExists: '', seguradora: '', newInsurance: '',
+            apolice: '', dataEmissao: '', vencimento: '', seguroFile: null,
+            dropDisplay: 'Clique ou arraste para anexar a apólice'
+        })
+    }
 
     render() {
         const { openAlertDialog, alertType } = this.state
@@ -358,10 +382,9 @@ class AltSeguro extends Component {
                     handleInput={this.handleInput}
                     handleBlur={this.handleBlur}
                     addPlate={this.addPlate}
-                    addPlateInsurance={this.updateInsurance}
                     deleteInsurance={this.deleteInsurance}
                     handleFiles={this.handleFiles}
-                    handleSubmit={this.updateInsurance}
+                    handleSubmit={this.handleSubmit}
                 />
                 {openAlertDialog && <AlertDialog open={openAlertDialog} close={this.closeAlert} alertType={alertType} customMessage={this.state.customMsg} />}
                 <ReactToast open={this.state.confirmToast} close={this.toast} msg={this.state.toastMsg} />
