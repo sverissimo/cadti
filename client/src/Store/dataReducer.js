@@ -10,8 +10,9 @@ const dataReducer = (state = initState, action) => {
 
         case 'INSERT_DATA': {
             const { collection, data } = payload
-            let update = state[collection]
-            data.forEach(el => update.push(el))
+            let update = [...state[collection]]
+            data.forEach(el => update.unshift(el))            
+            console.log(update)
             return {
                 ...state, [collection]: update
             }
@@ -36,6 +37,7 @@ const dataReducer = (state = initState, action) => {
 
         case 'UPDATE_COLLECTION': {
             const { data, collection } = payload
+            console.log(payload)
             return {
                 ...state, [collection]: data
             }

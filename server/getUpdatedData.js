@@ -32,25 +32,44 @@ const vehicleQuery = condition => `
    ORDER BY veiculo.veiculo_id DESC
 `
 
-
-
+const seguroQuery = condition => `
+SELECT seguro.*,
+	s.seguradora,
+	array_to_json(array_agg(v.veiculo_id)) veiculos,
+	array_to_json(array_agg(v.placa)) placas,
+	d.razao_social empresa,	
+	cardinality(array_agg(v.placa)) segurados
+FROM seguro
+LEFT JOIN veiculo v
+	ON seguro.apolice = v.apolice
+LEFT JOIN delegatario d
+	ON d.delegatario_id = seguro.delegatario_id
+LEFT JOIN seguradora s
+	ON s.id = seguro.seguradora_id
+${condition}
+GROUP BY seguro.apolice, d.razao_social, s.seguradora, d.delegatario_id
+ORDER BY seguro.vencimento ASC
+`
 
 const getUpdatedData = async (table, condition) => {
-   
-   if (table === 'veiculo') {
-      const data = () => new Promise((resolve, reject) => {
-         pool.query(vehicleQuery(condition), (err, t) => {
-            if (err) {
-               console.log(err)
-               reject(err)
-            }
-            if (t && t.rows) {               
-               resolve(t.rows)
-            }
-         })
+
+   let query
+   if (table === 'veiculo') query = vehicleQuery
+   if (table === 'seguro') query = seguroQuery
+   console.log(query)
+   const data = () => new Promise((resolve, reject) => {
+      pool.query(query(condition), (err, t) => {
+         if (err) {
+            console.log(err)
+            reject(err)
+         }
+         if (t && t.rows) {
+            resolve(t.rows)
+         }
       })
-      console.log(data())
-      return data()
-   }
+   })
+   console.log(data())
+   return data()
+
 }
 module.exports = { getUpdatedData }

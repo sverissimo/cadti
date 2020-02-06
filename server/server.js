@@ -263,13 +263,6 @@ app.get('/api/veiculos', (req, res) => {
     })
 })
 
-
-app.post('/api/io', (req, res) => {
-    io.sockets.emit('addSocio', req.body)
-    console.log(req.body)
-    res.status(200).send('updated')
-})
-
 app.get('/api/socios', (req, res) => {
 
     pool.query(
@@ -349,40 +342,30 @@ app.get('/api/procuradores', (req, res) => {
     })
 })
 
-
-
-app.get('/api/tst', (req, res) => {
-
-    const proc = req.body.procId || 131
-    pool.query(`
-    SELECT * FROM procuracao
-    where pj @> '${proc}'
-    `, (err, t) => res.send(t.rows))
-
-    /* pool.query(`
-    select * from procuracao
-    `, (err, table) => {
-        const procs = table.rows,
-            a = procs.filter(p => p.pj.some(p => p > 130))
-        res.send(a)
-    }) */
-    //console.log(filter)
-
-
-})
-
-
 app.post('/api/cadastroVeiculo', (req, res) => {
 
     const { keys, values } = parseRequestBody(req.body)
 
     console.log(`INSERT INTO public.veiculo (${keys}) VALUES (${values}) RETURNING *`)
+
+
     pool.query(
-        `INSERT INTO public.veiculo (${keys}) VALUES (${values}) RETURNING *`, (err, table) => {
+        `INSERT INTO public.veiculo (${keys}) VALUES (${values}) RETURNING veiculo_id`, (err, table) => {
             if (err) res.send(err)
             if (table && table.rows && table.rows.length === 0) { res.send('Nenhum veículo cadastrado para esse delegatário.'); return }
-            if (table.rows.length > 0) res.json(table.rows)
-            return
+
+            if (table && table.rows) {
+                const
+                    id = table.rows[0].veiculo_id,
+                    condition = `veiculo_id = '${id}'`,
+                    data = getUpdatedData('veiculo', condition)
+
+                console.log(id, condition, data)
+                data.then(response => {
+                    io.sockets.emit('insertVehicle', response)
+                    res.send(id.toString())
+                })
+            }
         })
 })
 
@@ -429,7 +412,20 @@ app.post('/api/cadSeguro', (req, res) => {
         `INSERT INTO public.seguro (${keys}) VALUES (${parsed}) RETURNING *`, (err, table) => {
             if (err) res.send(err)
             if (table && table.rows && table.rows.length === 0) { res.send('Nenhum seguro cadastrado.'); return }
-            if (table && table.rows.length > 0) res.json(table.rows)
+            if (table && table.rows.length > 0) {
+                if (table && table.rows) {
+                    const
+                        id = table.rows[0].apolice,
+                        condition = `WHERE seguro.apolice = '${id}'`,
+                        data = getUpdatedData('seguro', condition)
+
+                    console.log(id, condition, data)
+                    data.then(response => {
+                        io.sockets.emit('insertInsurance', response)
+                        res.send(id.toString())
+                    })
+                }
+            }
             return
         })
 })
@@ -635,7 +631,7 @@ app.delete('/api/removeProc', (req, res) => {
     AND WHERE procurador_id = ${procurador_id}
 `
     )
-})
+});
 
 
 if (process.env.NODE_ENV === 'production') {

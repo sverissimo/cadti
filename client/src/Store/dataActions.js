@@ -31,6 +31,7 @@ export const insertData = (dataFromServer, collection) => dispatch => {
     const
         data = humps.camelizeKeys(dataFromServer),
         payload = { collection, data }
+    console.log(payload)
     dispatch({ type: 'INSERT_DATA', payload })
 }
 
