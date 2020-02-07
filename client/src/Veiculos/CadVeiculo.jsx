@@ -309,18 +309,16 @@ class VeiculosContainer extends PureComponent {
 
         } else if (!insuranceExists[0] && insurance.apolice !== undefined
             && insurance.apolice.length > 2 && insurance.seguradora_id !== undefined) {
-            await axios.post('/api/cadSeguro', insurance)
-                .then(res => console.log(res.data))
+
             await axios.post('/api/cadastroVeiculo', vehicle)
                 .then(res => {
+                    console.log(res)
                     const veiculoId = res.data
                     this.submitFiles(veiculoId)
                 })
                 .catch(err => console.log(err))
-          /*   await axios.get('/api/seguros')
-                .then(res => humps.camelizeKeys(res.data))
-                .then(res => this.props.updateCollection(res, 'seguros'))
-                .catch(err => console.log(err)) */
+            await axios.post('/api/cadSeguro', insurance)
+                .then(res => console.log(res.data))
 
             this.resetState()
             this.toast()
@@ -370,8 +368,7 @@ class VeiculosContainer extends PureComponent {
         }
         if (newForm) await axios.post('/api/mongoUpload', newForm)
             .then(res => console.log(res.data))
-            .catch(err => console.log(err))
-        return
+            .catch(err => console.log(err))        
     }
 
     showFiles = id => {

@@ -53,7 +53,7 @@ class ConsultasContainer extends Component {
         const { redux } = this.props
         await this.setState({ ...redux, collection: redux.empresas })
 
-        document.addEventListener('keydown', this.escFunction, false)        
+        document.addEventListener('keydown', this.escFunction, false)
     }
     /* 
         static getDerivedStateFromProps(nextProps, prevState) {
@@ -96,7 +96,7 @@ class ConsultasContainer extends Component {
     }
 
     showDetails = (e, elementDetails) => {
-
+        console.log(elementDetails)
         if (elementDetails !== undefined) this.setState({ showDetails: !this.state.showDetails, elementDetails })
         else this.setState({ showDetails: !this.state.showDetails, elementDetails: undefined })
     }
@@ -203,6 +203,6 @@ class ConsultasContainer extends Component {
     }
 }
 
-const collections = ['veiculos', 'empresas', 'socios', 'procuradores', 'seguros', 'getFiles/vehicleDocs', 'getFiles/empresaDocs']
+const collections = ['veiculos', 'empresas', 'socios', 'procuradores', 'seguros', 'seguradoras', 'getFiles/vehicleDocs', 'getFiles/empresaDocs']
 
 export default connect(null, { updateCollection })(StoreHOC(collections, ConsultasContainer))

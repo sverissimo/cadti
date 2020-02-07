@@ -142,7 +142,7 @@ class AltSeguro extends Component {
                 {
                     empresa: selectedEmpresa.razaoSocial,
                     delegatarioId: selectedEmpresa.delegatarioId,
-                    apolice, seguradora, seguradoraId,  dataEmissao, vencimento, placas: [], veiculos: []
+                    apolice, seguradora, seguradoraId, dataEmissao, vencimento, placas: [], veiculos: []
                 })
 
             await this.setState({ newInsurance, seguradoraId })
@@ -296,6 +296,18 @@ class AltSeguro extends Component {
             this.setState({ openAlertDialog: true, alertType: 'seguradoraNotFound', seguradora: undefined })
             return
         }
+        //Define body and post VehicleUpdate
+        const body = {
+            table: 'veiculo',
+            column: 'apolice',
+            value: apolice,
+            tablePK: 'veiculo_id',
+            ids: newVehicles
+        }
+
+        await axios.put('/api/updateInsurances', body)
+            .then(res => console.log(res.data))
+
         //Create a new insurance
         if (!insuranceExists) {
             const { seguradoraId, apolice, dataEmissao, vencimento, selectedEmpresa } = this.state
@@ -314,19 +326,6 @@ class AltSeguro extends Component {
 
             await axios.post('/api/cadSeguro', cadSeguro)
         }
-
-        //Define body to post
-        const body = {
-            table: 'veiculo',
-            column: 'apolice',
-            value: apolice,
-            tablePK: 'veiculo_id',
-            ids: newVehicles
-        }
-
-        await axios.put('/api/updateInsurances', body)
-            .then(res => console.log(res.data))
-        //await axios.get('/api/seguros')
 
         frota = frota.map(v => {
             newVehicles.forEach(id => {

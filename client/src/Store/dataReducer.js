@@ -10,28 +10,35 @@ const dataReducer = (state = initState, action) => {
 
         case 'INSERT_DATA': {
             const { collection, data } = payload
-            let update = [...state[collection]]
-            data.forEach(el => update.unshift(el))            
-            console.log(update)
-            return {
-                ...state, [collection]: update
+
+            if (state[collection]) {
+                let update = [...state[collection]]
+                data.forEach(el => update.unshift(el))
+                console.log(update)
+                return {
+                    ...state, [collection]: update
+                }
             }
+            return state
         }
 
         case 'UPDATE_DATA': {
             const { collection, data, id } = payload
-            const update = state[collection].map(v => {
-                data.forEach(el => {
-                    if (v[id] === el[id]) {
-                        v = el
-                    }
+            if (state[collection]) {
+                const update = state[collection].map(v => {
+                    data.forEach(el => {
+                        if (v[id] === el[id]) {
+                            v = el
+                        }
+                    })
+                    return v
                 })
-                return v
-            })
-            console.log({ [collection]: update })
-            return {
-                ...state, [collection]: update
+                console.log({ [collection]: update })
+                return {
+                    ...state, [collection]: update
+                }
             }
+            return state
         }
 
 
@@ -46,17 +53,21 @@ const dataReducer = (state = initState, action) => {
         case 'REMOVE_FROM_INSURANCE':
             const { apolice, placaIndex, vehicleIndex } = payload
 
-            let seguros = [...state.seguros],
-                seguro = seguros.find(s => s.apolice === apolice),
-                index = seguros.findIndex(s => s.apolice === apolice)
+            if (state.seguros) {
 
-            seguro.placas.splice(placaIndex, 1)
-            seguro.veiculos.splice(vehicleIndex, 1)
-            seguros[index] = seguro
-            console.log(seguros)
-            return {
-                ...state, seguros
+                let seguros = [...state.seguros],
+                    seguro = seguros.find(s => s.apolice === apolice),
+                    index = seguros.findIndex(s => s.apolice === apolice)
+
+                seguro.placas.splice(placaIndex, 1)
+                seguro.veiculos.splice(vehicleIndex, 1)
+                seguros[index] = seguro
+                console.log(seguros)
+                return {
+                    ...state, seguros
+                }
             }
+            return state
 
         /* case 'DELETE_ONE':
             const { collection, index } = payload

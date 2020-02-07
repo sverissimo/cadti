@@ -1,5 +1,6 @@
 import axios from 'axios'
 import humps from 'humps'
+import { batch } from 'react-redux'
 
 export const getData = (collectionsArray = []) => {
     return async (dispatch, getState) => {
@@ -27,15 +28,50 @@ export const getData = (collectionsArray = []) => {
     }
 }
 
-export const insertData = (dataFromServer, collection) => dispatch => {
+export const insertData = (dataFromServer, collection) => (dispatch, getState) => {
     const
         data = humps.camelizeKeys(dataFromServer),
-        payload = { collection, data }
-    console.log(payload)
-    dispatch({ type: 'INSERT_DATA', payload })
+        payload = { collection, data },
+        seguradoras = getState().data.seguradoras
+
+    if (!seguradoras) return
+
+    if (collection === 'seguros' && data[0].placas && data[0].placas.length === 1) {
+
+        const seguradora = seguradoras.find(sg => sg.id === data[0].seguradoraId)
+        let
+            seguro = data[0],
+            plates = [], vehicles = [],
+            veiculos = getState().data.veiculos,
+
+            updatedCollection = veiculos.map(v => {
+                if (v.apolice === seguro.apolice) {
+                    v.seguradora = seguradora.seguradora
+                    v.dataEmissao = seguro.dataEmissao
+                    v.vencimento = seguro.vencimento
+                }
+                return v
+            })
+
+        veiculos.forEach(v => {
+            if (v.apolice === seguro.apolice) {
+                plates.push(v.placa)
+                vehicles.push(v.veiculoId)
+            }
+        })
+        seguro.placas = plates
+        seguro.veiculos = vehicles
+        seguro = [seguro]
+        console.log(data, seguro)
+        const collectionPayload = { data: updatedCollection, collection: 'veiculos' }
+        batch(() => {
+            dispatch({ type: 'INSERT_DATA', payload: { data: seguro, collection: 'seguros' } })
+            dispatch({ type: 'UPDATE_COLLECTION', payload: collectionPayload })
+        })
+    } else dispatch({ type: 'INSERT_DATA', payload })
 }
 
-export const updateData = (dataFromServer, collection, id) => (dispatch, getState) => {
+export const updateData = (dataFromServer, collection, id) => dispatch => {
     const
         data = humps.camelizeKeys(dataFromServer),
         payload = { collection, data, id }
