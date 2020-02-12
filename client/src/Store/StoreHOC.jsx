@@ -2,7 +2,7 @@ import React from 'react'
 
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { getData, insertData, updateData, updateCollection } from './dataActions'
+import { getData, insertData, updateData, updateCollection, deleteOne } from './dataActions'
 
 import Loading from '../Utils/Loading'
 
@@ -44,6 +44,12 @@ export default function (requestArray, WrappedComponent) {
             socket.on('updateInsurance', updatedObjects => {
                 this.props.updateCollection(updatedObjects, 'seguros')
             })
+
+            socket.on('deleteOne', object => {
+                const { id, tablePK, collection } = object
+                console.log(collection)
+                this.props.deleteOne(id, tablePK, collection)
+            })
         }
 
         render() {
@@ -66,7 +72,7 @@ export default function (requestArray, WrappedComponent) {
     }
 
     function mapDispatchToProps(dispatch) {
-        return bindActionCreators({ getData, insertData, updateData, updateCollection }, dispatch)
+        return bindActionCreators({ getData, insertData, updateData, updateCollection, deleteOne }, dispatch)
     }
 
     return connect(mapStateToProps, mapDispatchToProps)(With)

@@ -79,7 +79,7 @@ export const updateData = (dataFromServer, collection, id) => dispatch => {
 }
 
 export const updateCollection = (data, collection) => dispatch => {
-    console.log(data)
+
     data = humps.camelizeKeys(data)
     const payload = { data, collection }
     dispatch({
@@ -126,9 +126,10 @@ export const removeInsurance = (apolice, placaIndex, vehicleIndex) => dispatch =
     })
 }
 
-export const deleteOne = (collection, index) => dispatch => {
+export const deleteOne = (id, tablePK, collection) => dispatch => {
+    tablePK = humps.camelize(tablePK)
     dispatch({
         type: 'DELETE_ONE',
-        payload: { collection, index }
+        payload: { id, tablePK, collection }
     })
 }

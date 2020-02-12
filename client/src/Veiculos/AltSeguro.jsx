@@ -292,17 +292,6 @@ class AltSeguro extends Component {
             this.setState({ openAlertDialog: true, alertType: 'seguradoraNotFound', seguradora: undefined })
             return
         }
-        //Define body and post VehicleUpdate
-        const body = {
-            table: 'veiculo',
-            column: 'apolice',
-            value: apolice,
-            tablePK: 'veiculo_id',
-            ids: newVehicles
-        }
-
-        await axios.put('/api/updateInsurances', body)
-            .then(res => console.log(res.data))
 
         //Create a new insurance
         if (!insuranceExists) {
@@ -322,6 +311,18 @@ class AltSeguro extends Component {
 
             await axios.post('/api/cadSeguro', cadSeguro)
         }
+
+        //Define body and post VehicleUpdate
+        const body = {
+            table: 'veiculo',
+            column: 'apolice',
+            value: apolice,
+            tablePK: 'veiculo_id',
+            ids: newVehicles
+        }
+        await axios.put('/api/updateInsurances', body)
+            .then(res => console.log(res.data))
+
 
         frota = frota.map(v => {
             newVehicles.forEach(id => {

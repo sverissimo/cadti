@@ -86,16 +86,6 @@ class ConsultasContainer extends Component {
         this.setState({ collection })
     }
 
-    handleEdit = async object => {
-        let n = Number(this.state.tab), x = 2
-        if (n === 2) x = 1
-        const { data } = object, collection = object.name
-        
-        await this.props.updateCollection(data, collection)
-        this.changeTab(null, x)
-        this.changeTab(null, n)
-    }
-
     showDetails = (e, elementDetails) => {
         const
             { redux } = this.props,
@@ -186,8 +176,7 @@ class ConsultasContainer extends Component {
 
         let updatedElement
         if (elementDetails) updatedElement = redux[options[tab]].find(e => e[tablePKs[tab]] === elementDetails[tablePKs[tab]])
-
-        console.log(updatedElement)
+        
         return <Fragment>
             <TabMenu items={items}
                 tab={tab}
@@ -197,8 +186,7 @@ class ConsultasContainer extends Component {
                 items={items}
                 collection={this.props.redux[options[tab]]}
                 showDetails={this.showDetails}
-                showFiles={this.showFiles}
-                handleEdit={this.handleEdit}
+                showFiles={this.showFiles}                
                 del={this.deleteHandler}
             />
             {showDetails && <PopUp

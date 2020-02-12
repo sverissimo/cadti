@@ -107,18 +107,18 @@ export default function ({ tab, collection, showDetails, showFiles, handleEdit, 
                             }), */
                         onRowDelete: async function (oldData) {
 
-                           await del(oldData)
-                            return new Promise((resolve, reject) => {
+                            await del(oldData)                            
+                           /*  return new Promise((resolve, reject) => {
                                 setTimeout(() => {
                                     {
                                         let data = collection;
                                         const index = data.indexOf(oldData);
                                         data.splice(index, 1);
-                                        handleEdit({data, name: options[tab]}, () => resolve());
+                                        handleEdit({ data, name: options[tab] }, () => resolve());
                                     }
                                     resolve();
                                 }, 50);
-                            })
+                            }) */
                         }
                     }}
                 />

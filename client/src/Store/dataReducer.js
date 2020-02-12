@@ -69,12 +69,23 @@ const dataReducer = (state = initState, action) => {
             }
             return state
 
-        /* case 'DELETE_ONE':
-            const { collection, index } = payload
-            let updatedData = state[collection].splice(index, 1)
+        case 'DELETE_ONE':
+            const { tablePK, collection } = payload
+            let
+                { id } = payload,
+                updatedData = [...state[collection]]
+            if (collection !== 'seguros') id = Number(id)
+
+            const
+                element = updatedData.find(el => el[tablePK] === id),
+                index = updatedData.findIndex(el => el === element)
+
+
+            updatedData.splice(index, 1)
+            console.log(element, index, id, updatedData)
             return {
                 ...state, [collection]: updatedData
-            } */
+            }
 
         case 'SET_COLOR':
             return { ...state, setColor: action.payload }

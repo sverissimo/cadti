@@ -342,6 +342,21 @@ app.get('/api/procuradores', (req, res) => {
     })
 })
 
+/* 
+app.get('/api/socket/', (req, res) => {
+
+    const { collection } = req.query
+    let query
+
+    if (collection === 'seguros') query = seguros
+    console.log(collection, query)
+    pool.query(query, (err, table) => {
+        if (err) res.send(err)
+        else if (table.rows && table.rows.length === 0) { res.send('Nenhum procurador encontrado.'); return }
+        res.json(table.rows)
+    })
+}) */
+
 app.post('/api/cadastroVeiculo', (req, res) => {
 
     const { keys, values } = parseRequestBody(req.body)
@@ -398,7 +413,7 @@ app.post('/api/empresaFullCad', cadEmpresa, cadSocios, cadProcuradores);
 
 app.post('/api/cadSeguro', (req, res) => {
     let parsed = []
-    console.log(req.body)
+
     const keys = Object.keys(req.body).toString(),
         values = Object.values(req.body)
 
@@ -412,21 +427,7 @@ app.post('/api/cadSeguro', (req, res) => {
         `INSERT INTO public.seguro (${keys}) VALUES (${parsed}) RETURNING *`, (err, table) => {
             if (err) res.send(err)
             if (table && table.rows && table.rows.length === 0) { res.send('Nenhum seguro cadastrado.'); return }
-            if (table && table.rows.length > 0) {
-                if (table && table.rows) {
-                    const
-                        id = table.rows[0].apolice,
-                        condition = `WHERE seguro.apolice = '${id}'`,
-                        data = getUpdatedData('seguro', condition)
-
-                    console.log(id, condition, data)
-                    data.then(response => {
-                        io.sockets.emit('insertInsurance', response)
-                        res.send(id.toString())
-                    })
-                }
-            }
-            return
+            if (table && table.rows.length > 0) res.send(table.rows)
         })
 })
 
@@ -616,13 +617,20 @@ app.get('/api/deleteFile/:reqId', async (req, res) => {
 
 app.delete('/api/delete', (req, res) => {
     const { table, tablePK } = req.query
-    let { id } = req.query
+    let { id } = req.query, collection = table
     if (table === 'seguro') id = '\'' + id + '\''
-
+    if (table === 'delegatario') collection = 'empresa'
+    if (table === 'procurador') collection = 'procuradore'
+    if (table === 'procuracao') collection = 'procuracoe'
+    if (table !== 'socios') collection = collection + 's'
+    
     pool.query(`
     DELETE FROM public.${table} WHERE ${tablePK} = ${id}`, (err, t) => {
         if (err) console.log(err)
-        if (id) res.send(`${id} deleted from ${table}`)
+        if (id) {
+            io.sockets.emit('deleteOne', { id: req.query.id, tablePK, collection })
+            res.send(`${id} deleted from ${table}`)
+        }
         else res.send('no id found.')
     })
 })
