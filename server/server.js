@@ -430,7 +430,7 @@ app.post('/api/cadSeguro', (req, res) => {
         })
 })
 
-app.put('/api/updateInsurances', (req, res) => {
+app.put('/api/updateInsurances', async (req, res) => {
     const { table, tablePK, column, value, ids } = req.body
 
     let
@@ -447,11 +447,17 @@ app.put('/api/updateInsurances', (req, res) => {
         condition = condition.slice(0, condition.length - 3)
         query = query + condition + ` RETURNING *`
 
-        pool.query(query, (err, t) => {
+        await pool.query(query, (err, t) => {
             if (err) console.log(err)
             if (t && t.rows) {
                 const data = getUpdatedData('veiculo', condition)
-                data.then(res => io.sockets.emit('updateVehicle', res))
+                data.then(async res => {
+                    await io.sockets.emit('updateVehicle', res)
+                    pool.query(seguros, (err, t) => {
+                        if (err) console.log(err)
+                        if (t && t.rows) io.sockets.emit('updateInsurance', t.rows)
+                    })
+                })
             }
         })
         res.send({ ids, value })

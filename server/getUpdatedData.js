@@ -56,7 +56,7 @@ const getUpdatedData = async (table, condition) => {
    let query
    if (table === 'veiculo') query = vehicleQuery
    if (table === 'seguro') query = seguroQuery
-   console.log(query)
+   
    const data = () => new Promise((resolve, reject) => {
       pool.query(query(condition), (err, t) => {
          if (err) {

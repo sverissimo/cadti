@@ -86,18 +86,26 @@ class ConsultasContainer extends Component {
         this.setState({ collection })
     }
 
-    handleEdit = async data => {
+    handleEdit = async object => {
         let n = Number(this.state.tab), x = 2
         if (n === 2) x = 1
-
-        await this.props.updateCollection(data)
+        const { data } = object, collection = object.name
+        
+        await this.props.updateCollection(data, collection)
         this.changeTab(null, x)
         this.changeTab(null, n)
     }
 
     showDetails = (e, elementDetails) => {
-        console.log(elementDetails)
-        if (elementDetails !== undefined) this.setState({ showDetails: !this.state.showDetails, elementDetails })
+        const
+            { redux } = this.props,
+            { options, tab, tablePKs } = this.state
+
+        let updatedElement
+        if (elementDetails) updatedElement = redux[options[tab]].find(e => e[tablePKs[tab]] === elementDetails[tablePKs[tab]])
+
+        if (elementDetails !== undefined && updatedElement)
+            this.setState({ showDetails: !this.state.showDetails, elementDetails: updatedElement })
         else this.setState({ showDetails: !this.state.showDetails, elementDetails: undefined })
     }
 
@@ -171,8 +179,15 @@ class ConsultasContainer extends Component {
 
     render() {
         const { tab, options, items, showDetails, elementDetails, showFiles, selectedElement, filesCollection,
-            openAlertDialog, alertType, typeId, empresas } = this.state
+            openAlertDialog, alertType, typeId, empresas, tablePKs } = this.state
 
+        const
+            { redux } = this.props
+
+        let updatedElement
+        if (elementDetails) updatedElement = redux[options[tab]].find(e => e[tablePKs[tab]] === elementDetails[tablePKs[tab]])
+
+        console.log(updatedElement)
         return <Fragment>
             <TabMenu items={items}
                 tab={tab}
@@ -192,7 +207,7 @@ class ConsultasContainer extends Component {
                 format={format}
             >
                 <VehicleDetails
-                    data={elementDetails}
+                    data={updatedElement || elementDetails}
                     tab={tab}
                 />
             </PopUp>}

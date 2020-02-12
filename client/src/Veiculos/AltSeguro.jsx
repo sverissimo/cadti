@@ -1,10 +1,9 @@
 import React, { Component, Fragment } from 'react'
 import axios from 'axios'
-import humps from 'humps'
 import { connect } from 'react-redux'
 
 import StoreHOC from '../Store/StoreHOC'
-import { removeInsurance, updateCollection } from '../Store/dataActions'
+import { removeInsurance } from '../Store/dataActions'
 
 import ReactToast from '../Utils/ReactToast'
 import moment from 'moment'
@@ -266,10 +265,7 @@ class AltSeguro extends Component {
         }
 
         await axios.put('/api/UpdateInsurances', body)
-        /*  await axios.get('/api/seguros')
-             .then(res => humps.camelizeKeys(res.data))
-             .then(res => this.props.updateCollection(res, 'seguros'))
-             .catch(err => console.log(err)) */
+
         const
             i = placas.indexOf(placaInput),
             k = veiculos.indexOf(vehicleFound.veiculoId)
@@ -403,4 +399,4 @@ class AltSeguro extends Component {
 
 const collections = ['veiculos', 'empresas', 'seguradoras', 'seguros']
 
-export default connect(null, { removeInsurance, updateCollection })(StoreHOC(collections, AltSeguro))
+export default connect(null, { removeInsurance })(StoreHOC(collections, AltSeguro))

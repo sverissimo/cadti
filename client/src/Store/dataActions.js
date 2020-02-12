@@ -62,7 +62,7 @@ export const insertData = (dataFromServer, collection) => (dispatch, getState) =
         seguro.placas = plates
         seguro.veiculos = vehicles
         seguro = [seguro]
-        console.log(data, seguro)
+
         const collectionPayload = { data: updatedCollection, collection: 'veiculos' }
         batch(() => {
             dispatch({ type: 'INSERT_DATA', payload: { data: seguro, collection: 'seguros' } })
@@ -79,11 +79,43 @@ export const updateData = (dataFromServer, collection, id) => dispatch => {
 }
 
 export const updateCollection = (data, collection) => dispatch => {
+    console.log(data)
+    data = humps.camelizeKeys(data)
     const payload = { data, collection }
     dispatch({
         type: 'UPDATE_COLLECTION',
         payload
     })
+}
+
+export const updateInsurance = ({ value, ids }) => (dispatch, getState) => {
+    const
+        apolice = value,
+        seguros = getState().data.seguros,
+        veiculos = getState().data.veiculos
+
+    if (!seguros || !veiculos) return
+
+    let seguro = seguros.find(s => s.apolice === apolice),
+        placas = seguro.placas || [], vehicleIDs = seguro.veiculos || []
+
+    veiculos.forEach(v => {
+        ids.forEach(id => {
+            if (v.veiculoId === id) {
+                placas.push(v.placa)
+                vehicleIDs.push(v.veiculoId)
+            }
+        })
+    })
+
+    seguro.placas = placas
+    seguro.veiculos = vehicleIDs
+    seguro = [seguro]
+    console.log(seguro)
+
+    const payload = { collection: 'seguros', data: seguro, id: 'apolice' }
+
+    dispatch({ type: 'UPDATE_DATA', payload })
 }
 
 export const removeInsurance = (apolice, placaIndex, vehicleIndex) => dispatch => {
