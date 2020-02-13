@@ -29,7 +29,7 @@ class AltSeguro extends Component {
 
     componentDidMount() {
         this.setState({
-            ...this.props.redux,
+            seguradoras: this.props.redux['seguradoras'],            
             allInsurances: this.props.redux['seguros']
         })
     }
@@ -85,7 +85,7 @@ class AltSeguro extends Component {
         let { value } = e.target
         const
             { name } = e.target,
-            { veiculos } = this.props.redux,
+            { veiculos, empresas, seguradoras } = this.props.redux,
             { allInsurances, selectedEmpresa, frota, insuranceExists, apolice, dataEmissao,
                 vencimento, newInsurance, seguradora } = this.state
 
@@ -93,7 +93,7 @@ class AltSeguro extends Component {
 
         switch (name) {
             case 'razaoSocial':
-                let selectedEmpresa = this.state.empresas.find(e => e.razaoSocial === value)
+                let selectedEmpresa = empresas.find(e => e.razaoSocial === value)
 
                 if (selectedEmpresa) {
                     await this.setState({ razaoSocial: selectedEmpresa.razaoSocial, selectedEmpresa })
@@ -104,7 +104,10 @@ class AltSeguro extends Component {
 
                     this.setState({ frota, seguros: filteredInsurances })
 
-                } else this.clearFields()
+                } else {
+                    this.setState({ selectedEmpresa: undefined, frota: [] })
+                    this.clearFields()
+                }
                 break
 
             case 'apolice':
@@ -113,7 +116,7 @@ class AltSeguro extends Component {
 
             case 'seguradora':
                 this.checkExistance(name, value)
-                const selectedSeguradora = this.state.seguradoras.find(sg => sg.seguradora === value)
+                const selectedSeguradora = seguradoras.find(sg => sg.seguradora === value)
                 if (selectedSeguradora) {
                     this.setState({ seguradoraId: selectedSeguradora.id })
                 }
@@ -134,7 +137,7 @@ class AltSeguro extends Component {
 
         if (name !== 'razaoSocial' && !newInsurance && checkFields && Object.keys(insuranceExists).length === 0) {
             let newInsurance = {}, seguradoraId
-            const selectedSeguradora = this.state.seguradoras.find(sg => sg.seguradora === this.state.seguradora)
+            const selectedSeguradora = seguradoras.find(sg => sg.seguradora === this.state.seguradora)
             if (selectedSeguradora) seguradoraId = selectedSeguradora.id
 
             Object.assign(newInsurance,
@@ -149,7 +152,10 @@ class AltSeguro extends Component {
     }
 
     handleBlur = e => {
-        const { seguradoras, seguradora, allInsurances, selectedEmpresa } = this.state,
+        
+        const
+            { seguradoras } = this.props.redux,
+            { seguradora, allInsurances, selectedEmpresa } = this.state,
             { name } = e.target
 
         if (name === 'seguradora') {
@@ -264,7 +270,7 @@ class AltSeguro extends Component {
             ids: [vehicleFound.veiculoId]
         }
 
-        await axios.put('/api/UpdateInsurances', body)
+        await axios.put('/api/updateInsurances', body)
 
         const
             i = placas.indexOf(placaInput),
@@ -375,14 +381,18 @@ class AltSeguro extends Component {
     }
 
     render() {
-        const { openAlertDialog, alertType } = this.state
+        const
+            { openAlertDialog, alertType } = this.state,
+            { empresas } = this.props.redux
+            
         const enableAddPlaca = seguroForm
             .every(k => this.state.hasOwnProperty(k.field) && this.state[k.field] !== '')
 
         return (
             <Fragment>
-                <AltSeguroTemplate
+                <AltSeguroTemplate                    
                     data={this.state}
+                    empresas={empresas}
                     enableAddPlaca={enableAddPlaca}
                     handleInput={this.handleInput}
                     handleBlur={this.handleBlur}

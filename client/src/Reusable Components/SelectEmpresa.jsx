@@ -19,10 +19,9 @@ const useStyles = makeStyles(theme => ({
 export default function SelectEmpresa(props) {
 
     const
-        { handleInput, handleBlur } = props,
-        { empresas, razaoSocial } = props.data,
+        { empresas, handleInput, handleBlur } = props,
+        { razaoSocial } = props.data,
         classes = useStyles(), { paper } = classes
-
 
     return (
         <div className='selectEmpresa'>

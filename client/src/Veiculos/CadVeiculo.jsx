@@ -50,12 +50,16 @@ class VeiculosContainer extends PureComponent {
 
     async componentDidMount() {
 
-        const { redux } = this.props
+        const { redux } = this.props,
+            { modelosChassi, carrocerias, seguradoras } = redux
         let equipamentos = {}
 
         if (redux && redux.equipamentos) {
             redux.equipamentos.forEach(e => Object.assign(equipamentos, { [e.item]: false }))
-            await this.setState({ ...this.props.redux, ...equipamentos, allInsurances: this.props.redux['seguros'] })
+            await this.setState({
+                modelosChassi, carrocerias, seguradoras, ...equipamentos,
+                allInsurances: this.props.redux['seguros']
+            })
         }
         document.addEventListener('keydown', this.escFunction, false)
     }
@@ -80,7 +84,7 @@ class VeiculosContainer extends PureComponent {
         }
 
         let array = []
-        const { equipamentos } = this.state
+        const { equipamentos } = this.props.redux
         const prevActiveStep = this.state.activeStep
         if (action === 'next') this.setState({ activeStep: prevActiveStep + 1 });
         if (action === 'back') this.setState({ activeStep: prevActiveStep - 1 });
@@ -97,10 +101,12 @@ class VeiculosContainer extends PureComponent {
     }
 
     handleInput = async e => {
-        const { name } = e.target
-        let { value } = e.target
-        const { veiculos, allInsurances, apolice,
-            seguradora, dataEmissao, vencimento } = this.state
+        const
+            { veiculos, empresas } = this.props.redux,
+            { allInsurances, apolice, seguradora, dataEmissao, vencimento } = this.state,
+            { name } = e.target
+        let
+            { value } = e.target
 
         this.setState({ [name]: value })
 
@@ -108,7 +114,7 @@ class VeiculosContainer extends PureComponent {
             case 'razaoSocial':
                 this.setState({ [name]: value })
 
-                let selectedEmpresa = this.state.empresas.find(e => e.razaoSocial === value)
+                let selectedEmpresa = empresas.find(e => e.razaoSocial === value)
 
                 if (selectedEmpresa) {
                     const { razaoSocial, delegatarioId } = selectedEmpresa
@@ -189,10 +195,12 @@ class VeiculosContainer extends PureComponent {
     }
 
     handleBlur = async  e => {
-        const { empresas, frota, modelosChassi, carrocerias, seguradoras,
-            allInsurances } = this.state
-        const { name } = e.target
-        let { value } = e.target
+        const
+            { empresas } = this.props.redux,
+            { frota, modelosChassi, carrocerias, seguradoras, allInsurances } = this.state,
+            { name } = e.target
+        let
+            { value } = e.target
 
         const errors = checkInputErrors()
         if (errors) this.setState({ errors })
@@ -368,7 +376,7 @@ class VeiculosContainer extends PureComponent {
         }
         if (newForm) await axios.post('/api/mongoUpload', newForm)
             .then(res => console.log(res.data))
-            .catch(err => console.log(err))        
+            .catch(err => console.log(err))
     }
 
     showFiles = id => {
@@ -414,7 +422,8 @@ class VeiculosContainer extends PureComponent {
 
     render() {
         const { confirmToast, toastMsg, activeStep,
-            openAlertDialog, alertType, steps, selectedEmpresa } = this.state
+            openAlertDialog, alertType, steps, selectedEmpresa } = this.state,
+            { empresas, equipamentos } = this.props.redux
 
         return <Fragment>
             <Crumbs links={['Veículos', '/veiculos']} text='Cadastro de veículo' />
@@ -426,6 +435,8 @@ class VeiculosContainer extends PureComponent {
             />
             <CadVeiculoTemplate
                 data={this.state}
+                empresas={empresas}
+                equipamentos={equipamentos}
                 handleInput={this.handleInput}
                 handleBlur={this.handleBlur}
                 handleEquipa={this.handleEquipa}

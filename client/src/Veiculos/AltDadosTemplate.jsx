@@ -42,7 +42,7 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function ({ handleInput, handleBlur, data, handleEquipa,
-    altPlacaOption, showAltPlaca }) {
+    altPlacaOption, showAltPlaca, empresas }) {
     const { tab, activeStep, subtitle, placa, justificativa, selectedEmpresa } = data,
         classes = useStyles(), { paper, container } = classes
 
@@ -59,6 +59,7 @@ export default function ({ handleInput, handleBlur, data, handleEquipa,
                 {activeStep === 0 &&
                     <SelectEmpresa
                         data={data}
+                        empresas={empresas}
                         handleInput={handleInput}
                         handleBlur={handleBlur}
                     />

@@ -46,15 +46,15 @@ class AltDados extends Component {
         placa: ''
     }
 
-    componentDidMount() {
+   /*  componentDidMount() {
         this.setState({ ...this.props.redux })
-    }
+    } */
 
-    componentWillUnmount() { this.setState({}) }    
+    componentWillUnmount() { this.setState({}) }
 
     setActiveStep = async action => {
         const { errors } = this.state
-        if (errors && errors[0]) {            
+        if (errors && errors[0]) {
             this.setState({ ...this.state, ...checkInputErrors('setState') })
             return
         }
@@ -66,12 +66,12 @@ class AltDados extends Component {
     }
 
     handleInput = async e => {
-        const { veiculos } = this.state,
+        const { veiculos, empresas } = this.props.redux,
             { name, value } = e.target
 
 
         if (name === 'razaoSocial') {
-            let selectedEmpresa = this.state.empresas.find(e => e.razaoSocial === value)
+            let selectedEmpresa = empresas.find(e => e.razaoSocial === value)
 
             if (selectedEmpresa) {
                 await this.setState({ razaoSocial: selectedEmpresa.razaoSocial, selectedEmpresa })
@@ -116,9 +116,12 @@ class AltDados extends Component {
     }
 
     handleBlur = async  e => {
-        const { empresas, frota } = this.state
-        const { name } = e.target
-        let { value } = e.target
+        const
+            { empresas } = this.props.redux,
+            { frota } = this.state,
+            { name } = e.target
+        let
+            { value } = e.target
 
         const errors = checkInputErrors()
         if (errors) this.setState({ errors })
@@ -204,7 +207,11 @@ class AltDados extends Component {
 
         await axios.put('/api/updateVehicle', { requestObject, table, tablePK, id: this.state.veiculoId })
         await this.submitFiles()
+        this.setState({activeStep: 0, razaoSocial: '', selectedEmpresa: undefined})
+        this.reset()
+        this.setState({})
         this.toast()
+        
     }
 
     handleFiles = async e => {
@@ -251,8 +258,10 @@ class AltDados extends Component {
     reset = () => altForm.forEach(form => form.forEach(el => this.setState({ [el.field]: '' })))
 
     render() {
-        const { confirmToast, toastMsg, stepTitles, activeStep, steps, altPlaca,
-            selectedEmpresa, openAlertDialog, alertType } = this.state
+        const
+            { confirmToast, toastMsg, stepTitles, activeStep, steps, altPlaca,
+                selectedEmpresa, openAlertDialog, alertType } = this.state,
+            { empresas } = this.props.redux
 
         return <Fragment>
             <Crumbs links={['Veículos', '/veiculos']} text='Alteração de dados' />
@@ -264,6 +273,7 @@ class AltDados extends Component {
             />
             {activeStep < 2 && <AltDadosTemplate
                 data={this.state}
+                empresas={empresas}
                 setActiveStep={this.setActiveStep}
                 altPlacaOption={activeStep === 0}
                 handleInput={this.handleInput}
@@ -276,7 +286,7 @@ class AltDados extends Component {
                 handleSubmit={this.submitFiles}
                 handleNames={this.handleNames}
             />}
-            {activeStep === 3 && <Review parentComponent='cadastro' data={this.state} />}
+            {activeStep === 3 && <Review parentComponent='altDados' data={this.state} />}
 
             {selectedEmpresa && <StepperButtons
                 activeStep={activeStep}

@@ -39,7 +39,7 @@ const useStyles = makeStyles(theme => ({
     },
     formHolder: {
         width: 900,
-    },   
+    },
     paper: {
         padding: theme.spacing(1),
         textAlign: 'center',
@@ -48,9 +48,9 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-export default function ({ handleInput, handleBlur, data, handleEquipa, handleCheck,
+export default function ({ empresas, equipamentos, data, handleInput, handleBlur, handleEquipa, handleCheck,
     altPlacaOption, showAltPlaca }) {
-    const { empresas, razaoSocial, activeStep, equipamentos, addEquipa,
+    const { razaoSocial, activeStep, addEquipa,
         delegatarioCompartilhado, subtitle, placa, selectedEmpresa } = data,
 
         classes = useStyles(), { paper, container, title, selectEmpresa,

@@ -38,8 +38,8 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-export default function ({ handleInput, handleBlur, handleCheck, handleSubmit, data }) {
-    const { empresas, razaoSocial, frota, checked, delegaTransf, justificativa } = data,
+export default function ({ handleInput, handleBlur, handleCheck, handleSubmit, data, empresas }) {
+    const { razaoSocial, frota, checked, delegaTransf, justificativa } = data,
         classes = useStyles(), { paper, container, formHolder } = classes
 
     return (
@@ -47,6 +47,7 @@ export default function ({ handleInput, handleBlur, handleCheck, handleSubmit, d
             <Crumbs links={['Veículos', '/veiculos']} text='Baixa de veículo' />
             <SelectEmpresa
                 data={data}
+                empresas={empresas}
                 handleInput={handleInput}
                 handleBlur={handleBlur}
             />

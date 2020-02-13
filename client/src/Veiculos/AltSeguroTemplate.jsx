@@ -49,7 +49,7 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
-export default function AltSeguro({ data, enableAddPlaca, handleInput, handleBlur,
+export default function AltSeguro({ empresas, data, enableAddPlaca, handleInput, handleBlur,
     addPlate, deleteInsurance, handleFiles, handleSubmit }) {
 
     const { selectedEmpresa, placa, apolice, addedPlaca, frota, insuranceExists,
@@ -78,6 +78,7 @@ export default function AltSeguro({ data, enableAddPlaca, handleInput, handleBlu
                 <Crumbs links={['Veículos', '/veiculos']} text='Seguros' />
                 <SelectEmpresa
                     data={data}
+                    empresas={empresas}
                     handleInput={handleInput}
                     handleBlur={handleBlur}
                 />

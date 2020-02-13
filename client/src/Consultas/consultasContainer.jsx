@@ -30,7 +30,7 @@ class ConsultasContainer extends Component {
                 if (this.state.showFiles) this.closeFiles()
             }
         }
-    };
+    }
 
     state = {
         tab: 0,
@@ -50,52 +50,36 @@ class ConsultasContainer extends Component {
     }
 
     async componentDidMount() {
-        const { redux } = this.props
-        await this.setState({ ...redux, collection: redux.empresas })
+        //  const { redux } = this.props
+        // await this.setState({ ...redux, collection: redux.empresas })
 
         document.addEventListener('keydown', this.escFunction, false)
     }
-    /* 
-        static getDerivedStateFromProps(nextProps, prevState) {
-    
-            if (nextProps && nextProps.redux && prevState) {
-                if (nextProps && nextProps.redux && prevState) {
-                    const veiculos = [...nextProps.redux.veiculos]
-                    if (veiculos !== prevState.veiculos) {
-                        console.log(veiculos)
-                        return { veiculos, collection: veiculos }
-                    } else return null
-                } else return null
-            } else return null
-        } */
-    /*       const socios = nextProps.redux.socios
-               if (socios !== prevState.socios) {
-                   console.log(socios)
-                   return { collection: socios, socios }
-               } else return null     
-     */
-
-
 
     componentWillUnmount() { this.setState({}) }
 
     changeTab = async (e, value) => {
         await this.setState({ tab: value })
-        const options = ['empresas', 'socios', 'procuradores', 'veiculos', 'seguros'],
-            collection = this.props.redux[options[value]]
-        this.setState({ collection })
+        return
+        /*   const options = ['empresas', 'socios', 'procuradores', 'veiculos', 'seguros'],
+              collection = this.props.redux[options[value]]
+          this.setState({ collection }) */
     }
 
-    showDetails = (e, elementDetails) => {
+    showDetails = async (e, elementDetails) => {
         const
             { redux } = this.props,
-            { options, tab, tablePKs } = this.state
+            { options, tab, tablePKs } = this.state,
+            primaryKeys = tablePKs.map(pk => humps.camelize(pk))
 
         let updatedElement
-        if (elementDetails) updatedElement = redux[options[tab]].find(e => e[tablePKs[tab]] === elementDetails[tablePKs[tab]])
 
-        if (elementDetails !== undefined && updatedElement)
-            this.setState({ showDetails: !this.state.showDetails, elementDetails: updatedElement })
+        if (elementDetails) updatedElement = redux[options[tab]].find(e => e[primaryKeys[tab]] === elementDetails[primaryKeys[tab]])
+
+        if (elementDetails !== undefined && updatedElement) {
+            await this.setState({ showDetails: !this.state.showDetails, elementDetails: updatedElement })
+            void 0
+        }
         else this.setState({ showDetails: !this.state.showDetails, elementDetails: undefined })
     }
 
@@ -104,8 +88,11 @@ class ConsultasContainer extends Component {
     }
 
     showFiles = id => {
-        const { tab } = this.state
-        let selectedFiles = this.state.empresaDocs.filter(f => f.metadata.empresaId === id.toString())
+        const
+            { tab } = this.state,
+            { redux } = this.props
+
+        let selectedFiles = redux.empresaDocs.filter(f => f.metadata.empresaId === id.toString())
         let typeId = 'empresaId'
 
         switch (tab) {
@@ -113,7 +100,7 @@ class ConsultasContainer extends Component {
                 typeId = 'procuracaoId'
                 let filesToReturn = []
 
-                this.state.empresaDocs.forEach(f => {
+                redux.empresaDocs.forEach(f => {
                     if (f.metadata.fieldName === 'procuracao') {
                         f.metadata.procuradores.forEach(procId => {
                             if (procId === id) filesToReturn.push(f)
@@ -124,7 +111,7 @@ class ConsultasContainer extends Component {
                 break;
             case 3:
                 typeId = 'veiculoId'
-                selectedFiles = this.state.vehicleDocs.filter(f => f.metadata.veiculoId === id.toString())
+                selectedFiles = redux.vehicleDocs.filter(f => f.metadata.veiculoId === id.toString())
                 break;
             default: void 0
         }
@@ -148,35 +135,23 @@ class ConsultasContainer extends Component {
             .then(r => console.log(r.data))
     }
 
-    createAlert = (alert) => {
-        let dialogTitle, message, subject
-
-        switch (alert) {
-            case 'filesNotFound':
-                subject = this.state.dbTables[this.state.tab]
-                dialogTitle = 'Arquivos não encontrados'
-                message = `Não há nenhum arquivo anexado no sistema para o ${subject} selecionado. 
-                Ao cadastrar ou atualizar os dados do ${subject}, certifique-se de anexar os documentos solicitados.`
-                break
-            default:
-                break
-        }
-        this.setState({ openDialog: true, dialogTitle, message })
-    }
-
     toggleDialog = () => this.setState({ openDialog: !this.state.openDialog })
     closeAlert = () => this.setState({ openAlertDialog: !this.state.openAlertDialog })
 
     render() {
-        const { tab, options, items, showDetails, elementDetails, showFiles, selectedElement, filesCollection,
-            openAlertDialog, alertType, typeId, empresas, tablePKs } = this.state
-
         const
-            { redux } = this.props
+            { tab, options, items, showDetails, elementDetails, showFiles, selectedElement, filesCollection,
+                openAlertDialog, alertType, typeId, tablePKs } = this.state,
+            { redux } = this.props,
+            { empresas } = redux,
+            primaryKeys = tablePKs.map(pk => humps.camelize(pk))
 
         let updatedElement
-        if (elementDetails) updatedElement = redux[options[tab]].find(e => e[tablePKs[tab]] === elementDetails[tablePKs[tab]])
-        
+        if (elementDetails && showDetails) updatedElement = redux[options[tab]].find(e => e[primaryKeys[tab]] === elementDetails[primaryKeys[tab]])
+
+        /* let updatedElement
+        if (elementDetails) updatedElement = redux[options[tab]].find(e => e[tablePKs[tab]] === elementDetails[tablePKs[tab]]) */
+
         return <Fragment>
             <TabMenu items={items}
                 tab={tab}
@@ -186,7 +161,7 @@ class ConsultasContainer extends Component {
                 items={items}
                 collection={this.props.redux[options[tab]]}
                 showDetails={this.showDetails}
-                showFiles={this.showFiles}                
+                showFiles={this.showFiles}
                 del={this.deleteHandler}
             />
             {showDetails && <PopUp
@@ -199,8 +174,16 @@ class ConsultasContainer extends Component {
                     tab={tab}
                 />
             </PopUp>}
-            {showFiles && <ShowFiles tab={tab} elementId={selectedElement} filesCollection={filesCollection}
-                close={this.closeFiles} format={format} typeId={typeId} empresas={empresas} />}
+            {showFiles &&
+                <ShowFiles
+                    tab={tab}
+                    elementId={selectedElement}
+                    filesCollection={filesCollection}
+                    close={this.closeFiles}
+                    format={format}
+                    typeId={typeId}
+                    empresas={empresas} />
+            }
             {openAlertDialog && <AlertDialog open={openAlertDialog} close={this.closeAlert} alertType={alertType} />}
         </Fragment>
     }

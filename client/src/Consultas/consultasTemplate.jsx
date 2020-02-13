@@ -39,8 +39,7 @@ export default function ({ tab, collection, showDetails, showFiles, handleEdit, 
     const classes = useStyles(), { paper } = classes
 
     const id = ['delegatarioId', 'socioId', 'procuradorId', 'veiculoId'][tab],
-        subject = ['empresas', 'sócios', 'procuradores', 'veículos', 'seguros'],
-        options = ['empresas', 'socios', 'procuradores', 'veiculos', 'seguros']
+        subject = ['empresas', 'sócios', 'procuradores', 'veículos', 'seguros']     
 
     return (
         <Grid item xs={12}>

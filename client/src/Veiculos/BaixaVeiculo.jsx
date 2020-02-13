@@ -28,20 +28,16 @@ class BaixaVeiculo extends Component {
         openDialog: false,
     }
 
-    componentDidMount() {
-        this.setState({ ...this.props.redux })
-    }
-    
     componentWillUnmount() { this.setState({}) }
 
     handleInput = async e => {
         const { name, value } = e.target,
-            { veiculos } = this.state
+            { veiculos, empresas } = this.props.redux
 
         this.setState({ [name]: value })
 
         if (name === 'razaoSocial') {
-            let selectedEmpresa = this.state.empresas.find(e => e.razaoSocial === value)
+            let selectedEmpresa = empresas.find(e => e.razaoSocial === value)
 
             if (selectedEmpresa) {
                 await this.setState({ razaoSocial: selectedEmpresa.razaoSocial, selectedEmpresa })
@@ -58,8 +54,10 @@ class BaixaVeiculo extends Component {
     }
 
     handleBlur = async  e => {
-        const { empresas, frota } = this.state
-        const { name } = e.target
+        const
+            { empresas } = this.props.redux,
+            { frota } = this.state,
+            { name } = e.target
         let { value } = e.target
 
         if (name === 'delegaTransf') {
@@ -72,11 +70,11 @@ class BaixaVeiculo extends Component {
             }
         }
 
-        if (name === 'placa' && typeof this.state.frota !== 'string') {
+        if (name === 'placa' && typeof frota !== 'string') {
             if (value === '') this.setState({ disableSubmit: true })
             if (value.length > 0) {
                 let vehicle
-                if (value.length > 2) vehicle = this.state.frota.find(v => {
+                if (value.length > 2) vehicle = frota.find(v => {
                     if (typeof value === 'string') return v.placa.toLowerCase().match(value.toLowerCase())
                     else return v.placa.match(value)
                 })
@@ -115,13 +113,17 @@ class BaixaVeiculo extends Component {
             return null
         }
 
+        tempObj.apolice = 'Seguro não cadastrado'
+
         const requestObject = humps.decamelizeKeys(tempObj)
 
         const table = 'veiculo',
             tablePK = 'veiculo_id'
-        axios.put('/api/updateVehicle', { requestObject, table, tablePK, id: this.state.veiculoId })
+        await axios.put('/api/updateVehicle', { requestObject, table, tablePK, id: this.state.veiculoId })
             .then(() => this.toast())
             .catch(err => console.log(err))
+        await this.setState({ selectedEmpresa: undefined, frota: [], razaoSocial: '' })
+        this.reset()
     }
 
     handleCheck = e => this.setState({ checked: e.target.value })
@@ -132,10 +134,11 @@ class BaixaVeiculo extends Component {
     render() {
         const { delegaTransf, confirmToast, toastMsg, checked, openAlertDialog,
             alertType } = this.state
-        
+
         return <Fragment>
             <BaixaTemplate
                 data={this.state}
+                empresas={this.props.redux.empresas}
                 checked={checked}
                 delegaTransf={delegaTransf}
                 handleInput={this.handleInput}
