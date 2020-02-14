@@ -38,7 +38,7 @@ const useStyles = makeStyles(theme => ({
     formHolder: {
         width: 900,
     },
-    helperText: {        
+    helperText: {
         marginTop: '4px'
     },
     paper: {
@@ -94,12 +94,13 @@ const useStyles = makeStyles(theme => ({
 }))
 
 
-export default function AltSociosTemplate({ data, removeSocio, handleBlur, handleInput,
+export default function AltSociosTemplate({ empresas, data, removeSocio, handleBlur, handleInput,
     addSocio, handleFiles, enableEdit, handleEdit, handleSubmit }) {
 
-    const { dropDisplay, filteredSocios, form,
-        selectedEmpresa, contratoSocial } = data,
-        classes = useStyles(), { paper, container, title, iconButton, dropBox,
+    const
+        { dropDisplay, filteredSocios, selectedEmpresa, contratoSocial } = data,
+        classes = useStyles(),
+        { paper, container, title, iconButton, dropBox,
             dropBoxItem, dropBoxItem2, list, addButton } = classes
 
     const errorHandler = (el) => {
@@ -121,7 +122,7 @@ export default function AltSociosTemplate({ data, removeSocio, handleBlur, handl
         else if (el.pattern && value && value.match(el.pattern) !== null) return '✓'
         else return ' '
     }
-
+    
     return (
         <Grid
             container
@@ -131,11 +132,12 @@ export default function AltSociosTemplate({ data, removeSocio, handleBlur, handl
         >
             <SelectEmpresa
                 data={data}
+                empresas={empresas}
                 handleInput={handleInput}
                 handleBlur={handleBlur}
             />
             {
-                //selectedEmpresa[0] 
+                //selectedEmpresa 
                 true && <Grid item xs={12}>
                     <Paper className={paper}>
                         {
@@ -183,10 +185,10 @@ export default function AltSociosTemplate({ data, removeSocio, handleBlur, handl
                 </Grid>
             }
             {
-                selectedEmpresa[0] && filteredSocios.length === 0 &&
+                selectedEmpresa && filteredSocios.length === 0 &&
                 <Grid item xs={12}>
                     <Paper className={paper}>
-                        Nenhum sócio cadastrado para {selectedEmpresa[0].razaoSocial}
+                        Nenhum sócio cadastrado para {selectedEmpresa.razaoSocial}
                     </Paper>
 
                 </Grid>
@@ -202,7 +204,7 @@ export default function AltSociosTemplate({ data, removeSocio, handleBlur, handl
                             <p className={title}>Sócios cadastrados</p>
                             {filteredSocios.map((s, i) =>
                                 <Grid key={i}>
-                                    {form.map((e, k) =>
+                                    {sociosForm.map((e, k) =>
                                         <Fragment key={k + 1000}>
                                             <TextField
                                                 value={s[e.field] || ''}

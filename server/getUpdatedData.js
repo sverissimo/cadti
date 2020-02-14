@@ -51,12 +51,35 @@ GROUP BY seguro.apolice, d.razao_social, s.seguradora, d.delegatario_id
 ORDER BY seguro.vencimento ASC
 `
 
+const socioQuery = condition => `
+SELECT public.socios.*, public.delegatario.razao_social
+   FROM public.socios 
+LEFT JOIN public.delegatario 
+   ON delegatario.delegatario_id = socios.delegatario_id
+${condition}
+ORDER BY nome_socio ASC
+`
+
+const empresaQuery = condition => ` 
+SELECT d.*,
+	cardinality (array_agg(v.veiculo_id)) frota,
+	array_to_json(array_agg(v.veiculo_id)) veiculos	
+FROM public.delegatario d
+LEFT JOIN veiculo v
+	ON v.delegatario_id = d.delegatario_id
+${condition}
+GROUP BY d.delegatario_id
+ORDER BY frota DESC
+`
+
 const getUpdatedData = async (table, condition) => {
 
    let query
    if (table === 'veiculo') query = vehicleQuery
    if (table === 'seguro') query = seguroQuery
-   
+   if (table === 'socio') query = socioQuery
+   if (table === 'empresa') query = empresaQuery
+
    const data = () => new Promise((resolve, reject) => {
       pool.query(query(condition), (err, t) => {
          if (err) {

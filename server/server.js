@@ -16,7 +16,9 @@ const { cadEmpresa } = require('./cadEmpresa')
 const { cadSocios } = require('./cadSocios')
 const { cadProcuradores } = require('./cadProcuradores')
 
-const { empresas, veiculoInit, modeloChassi, carrocerias, equipamentos, seguradoras, seguros } = require('./queries')
+const { empresas, veiculoInit, modeloChassi, carrocerias, equipamentos, seguradoras,
+    seguros, socios } = require('./queries')
+
 const { getUpdatedData } = require('./getUpdatedData')
 const { filesModel } = require('./models/filesModel')
 const { empresaModel } = require('./models/empresaModel')
@@ -41,13 +43,6 @@ app.use(function (req, res, next) { //allow cross origin requests
 app.use(bodyParser.json({ limit: '50mb' }))
 app.use(bodyParser.urlencoded())
 app.use(express.static('client/build'));
-
-const emitSocket = (func, body, id) => {
-    const obj = { ...body, id }
-    io.sockets.emit(func, obj)
-}
-
-
 
 const Pool = pg.Pool
 let pool = new Pool({
@@ -265,12 +260,7 @@ app.get('/api/veiculos', (req, res) => {
 
 app.get('/api/socios', (req, res) => {
 
-    pool.query(
-        `SELECT public.socios.*, public.delegatario.razao_social
-         FROM public.socios 
-         LEFT JOIN public.delegatario 
-         ON delegatario.delegatario_id = socios.delegatario_id
-         ORDER BY nome_socio ASC`, (err, table) => {
+    pool.query(socios, (err, table) => {
         if (err) res.send(err)
         else if (table.rows.length === 0) { res.send('Nenhum socios cadastrado para esse delegatário.'); return }
         res.json(table.rows)
@@ -342,21 +332,6 @@ app.get('/api/procuradores', (req, res) => {
     })
 })
 
-/* 
-app.get('/api/socket/', (req, res) => {
-
-    const { collection } = req.query
-    let query
-
-    if (collection === 'seguros') query = seguros
-    console.log(collection, query)
-    pool.query(query, (err, table) => {
-        if (err) res.send(err)
-        else if (table.rows && table.rows.length === 0) { res.send('Nenhum procurador encontrado.'); return }
-        res.json(table.rows)
-    })
-}) */
-
 app.post('/api/cadastroVeiculo', (req, res) => {
 
     const { keys, values } = parseRequestBody(req.body)
@@ -386,7 +361,11 @@ app.post('/api/cadastroVeiculo', (req, res) => {
 
 app.post('/api/cadEmpresa', cadEmpresa)
 
-app.post('/api/cadSocios', cadSocios)
+app.post('/api/cadSocios', cadSocios, (req, res) => {
+    const { data } = req
+    io.sockets.emit('insertSocios', data)
+    res.send(data)
+})
 
 app.post('/api/cadProcuradores', cadProcuradores)
 
@@ -409,7 +388,22 @@ app.post('/api/cadProcuracao', (req, res) => {
 })
 
 
-app.post('/api/empresaFullCad', cadEmpresa, cadSocios, cadProcuradores);
+app.post('/api/empresaFullCad', cadEmpresa, (req, res, next) => {
+    const
+        id = req.delegatario_id,
+        condition = `WHERE d.delegatario_id = ${id}`,
+        data = getUpdatedData('empresa', condition)
+    data.then(newObject => {
+        io.sockets.emit('insertEmpresa', newObject)
+        console.log(condition, newObject)
+        next()
+    })
+},
+    cadSocios, (req, res) => {
+        const { data } = req        
+        io.sockets.emit('insertSocios', data)
+        res.send(data)
+    });
 
 app.post('/api/cadSeguro', (req, res) => {
     let parsed = []
@@ -504,13 +498,13 @@ app.put('/api/editSocios', (req, res) => {
         i = 0
     })
 
-    console.log(queryString)
-
     pool.query(queryString, (err, t) => {
         if (err) console.log(err)
-        if (t) console.log('edit ok')
-        io.sockets.emit('tst', 'fuck')
-        //res.send(queryString)
+        if (t)
+            pool.query(socios, (error, table) => {
+                if (error) console.log(error)
+                io.sockets.emit('updateSocios', table.rows)
+            })
         res.send('Dados atualizados.')
     })
 })
@@ -623,7 +617,7 @@ app.delete('/api/delete', (req, res) => {
     if (table === 'procurador') collection = 'procuradore'
     if (table === 'procuracao') collection = 'procuracoe'
     if (table !== 'socios') collection = collection + 's'
-    
+
     pool.query(`
     DELETE FROM public.${table} WHERE ${tablePK} = ${id}`, (err, t) => {
         if (err) console.log(err)

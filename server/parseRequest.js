@@ -3,7 +3,6 @@ const parseRequestBody = (body) => {
     if (body instanceof (Array)) {
         let parsedArray = []
 
-
         body.forEach((obj) => {
 
             let values = [], keys = []
@@ -18,8 +17,7 @@ const parseRequestBody = (body) => {
             values = values.toString().replace(/'\['/g, '').replace(/'\]'/g, '')
 
             if (keys[0] && values[0]) parsedArray.push({ keys, values })
-        })
-        console.log('parsed keys and values:', parsedArray)
+        })        
         return parsedArray
 
     } else {
@@ -32,8 +30,6 @@ const parseRequestBody = (body) => {
         values = values.toString().replace(/'\['/g, '').replace(/'\]'/g, '')
         return { keys, values }
     }
-
-
 }
 
 module.exports = { parseRequestBody }

@@ -7,7 +7,7 @@ const cadEmpresa = (req, res, next) => {
 
     console.log(`INSERT INTO public.delegatario(${keys}) VALUES(${values}) RETURNING delegatario_id`)
 
-    pool.query(`INSERT INTO public.delegatario(${keys}) VALUES(${values}) RETURNING delegatario_id `, (err, table) => {
+    pool.query(`INSERT INTO public.delegatario(${keys}) VALUES(${values}) RETURNING delegatario.delegatario_id `, (err, table) => {
         if (err) res.send(err)
         if (table && table.rows && table.rows.length === 0) { res.send('Nenhuma empresa cadastrada.'); return }
         if (table.hasOwnProperty('rows') && table.rows.length > 0) {

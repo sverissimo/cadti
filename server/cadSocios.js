@@ -1,5 +1,6 @@
 const { pool } = require('./config/pgConfig')
 const { parseRequestBody } = require('./parseRequest')
+const { getUpdatedData } = require('./getUpdatedData')
 
 const cadSocios = (req, res, next) => {
 
@@ -9,7 +10,6 @@ const cadSocios = (req, res, next) => {
     socios.forEach(s => {
         const { keys, values } = s
         let sp = new Promise((resolve, reject) => {
-            console.log(`INSERT INTO public.socios (${keys}) VALUES (${values}) RETURNING socio_id`)
             pool.query(`INSERT INTO public.socios (${keys}) VALUES (${values}) RETURNING socio_id`, (err, table) => {
                 if (err) console.log(err)
                 if (table.hasOwnProperty('rows')) {
@@ -23,16 +23,26 @@ const cadSocios = (req, res, next) => {
         sp = ''
     })
 
-    if (req.body.procuradores) next()
-    else {
-        Promise.all(promisseArray)
-            .then(()=> {
-                if(req.delegatario_id) res.send(req.delegatario_id.toString())
-                else res.send('no empresa_id found.')
+    let condition = '', ids = []
+    Promise.all(promisseArray)
+        .then(array => {
+            if (array && array[0]) array.forEach(a => {
+                ids.push(a[0].socio_id)
             })
-    }
+            if (ids && ids[0]) {
+                ids.forEach(id => {
+                    condition = condition + `socio_id = '${id}' OR `
+                })
+                condition = condition.slice(0, condition.length - 3)
+                condition = 'WHERE ' + condition
 
-
+                const data = getUpdatedData('socio', condition)
+                data.then(res => {
+                    req.data = res
+                    next()
+                })
+            }
+        })
 }
 
 module.exports = { cadSocios }

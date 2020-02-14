@@ -13,8 +13,9 @@ const dataReducer = (state = initState, action) => {
 
             if (state[collection]) {
                 let update = [...state[collection]]
-                data.forEach(el => update.unshift(el))
-                console.log(update)
+                data.forEach(el => {
+                    update.unshift(el)
+                })
                 return {
                     ...state, [collection]: update
                 }
@@ -71,21 +72,24 @@ const dataReducer = (state = initState, action) => {
 
         case 'DELETE_ONE':
             const { tablePK, collection } = payload
-            let
-                { id } = payload,
-                updatedData = [...state[collection]]
-            if (collection !== 'seguros') id = Number(id)
+            if (state[collection]) {
+                let
+                    { id } = payload,
+                    updatedData = [...state[collection]]
+                if (collection !== 'seguros') id = Number(id)
 
-            const
-                element = updatedData.find(el => el[tablePK] === id),
-                index = updatedData.findIndex(el => el === element)
+                const
+                    element = updatedData.find(el => el[tablePK] === id),
+                    index = updatedData.findIndex(el => el === element)
 
 
-            updatedData.splice(index, 1)
-            console.log(element, index, id, updatedData)
-            return {
-                ...state, [collection]: updatedData
+                updatedData.splice(index, 1)
+                console.log(element, index, id, updatedData)
+                return {
+                    ...state, [collection]: updatedData
+                }
             }
+            return state
 
         case 'SET_COLOR':
             return { ...state, setColor: action.payload }

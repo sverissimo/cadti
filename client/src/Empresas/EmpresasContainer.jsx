@@ -3,6 +3,8 @@ import axios from 'axios'
 import humps from 'humps'
 import ReactToast from '../Utils/ReactToast'
 
+import StoreHOC from '../Store/StoreHOC'
+
 import EmpresasTemplate from './EmpresasTemplate'
 import SociosTemplate from './SociosTemplate'
 import EmpresaReview from './EmpresaReview'
@@ -15,7 +17,7 @@ import StepperButtons from '../Utils/StepperButtons'
 import CustomStepper from '../Utils/Stepper'
 import AlertDialog from '../Utils/AlertDialog'
 
-export default class extends Component {
+class EmpresasContainer extends Component {
 
     constructor() {
         super()
@@ -32,9 +34,7 @@ export default class extends Component {
             'Revisão'],
         steps: ['Dados da Empresa', 'Sócios', 'Revisão'],
         form: {},
-        empresas: [],
-        razaoSocial: '',
-        frota: [],
+        razaoSocial: '',        
         toastMsg: 'Empresa cadastrada!',
         confirmToast: false,
         files: [],
@@ -47,12 +47,8 @@ export default class extends Component {
         showFiles: false
     }
 
-    componentDidMount() {
-        axios.get('/api/empresas')
-            .then(res => humps.camelizeKeys(res.data))
-            .then(empresas => this.setState({ empresas }))
-
-        document.addEventListener('keydown', this.escFunction, false)
+    componentDidMount() {      
+        document.addEventListener('keydown', this.escFunction, false)        
     }
 
     componentWillUnmount() { this.setState({}) }
@@ -86,7 +82,7 @@ export default class extends Component {
         })
 
         if (invalid === 100) {
-            this.setState({ alertType: 'fieldsMissing', openAlertDialog: true})
+            this.setState({ alertType: 'fieldsMissing', openAlertDialog: true })
             return null
         } else {
             form.forEach(obj => {
@@ -99,7 +95,7 @@ export default class extends Component {
             })
             if (totalShare > 100) {
                 socios.pop()
-                this.setState({ alertType: 'overShared', openAlertDialog: true})
+                this.setState({ alertType: 'overShared', openAlertDialog: true })
             }
             else {
                 await this.setState({ socios, totalShare })
@@ -166,7 +162,7 @@ export default class extends Component {
     }
 
     handleBlur = async  e => {
-        const { empresas } = this.state
+        const { empresas } = this.props.redux
         const { name } = e.target
         let { value } = e.target
 
@@ -175,13 +171,13 @@ export default class extends Component {
                 const alreadyExists = empresas.filter(e => e.cnpj === value)
                 if (alreadyExists[0]) {
                     this.setState({ cnpj: '' })
-                    this.setState({ alertType: alreadyExists[0], openAlertDialog: true})
+                    this.setState({ alertType: alreadyExists[0], openAlertDialog: true })
                 }
                 break;
             case 'share':
                 value = value.replace(',', '.')
                 if (value > 100) {
-                    this.setState({ alertType: 'overShared', openAlertDialog: true})
+                    this.setState({ alertType: 'overShared', openAlertDialog: true })
                 }
                 else {
                     const totalShare = Number(this.state.totalShare) + Number(value)
@@ -191,7 +187,7 @@ export default class extends Component {
             case 'numero':
                 if (value && !value.match(/^\d+$/)) {
                     await this.setState({ numero: '' })
-                    this.setState({ alertType: 'numberNotValid', openAlertDialog: true})
+                    this.setState({ alertType: 'numberNotValid', openAlertDialog: true })
                 }
                 break;
             default:
@@ -235,7 +231,7 @@ export default class extends Component {
 
         empresa = humps.decamelizeKeys(empresa)
         socios = humps.decamelizeKeys(socios)
-        
+
         await axios.post('/api/empresaFullCad', { empresa, socios })
             .then(delegatarioId => empresaId = delegatarioId.data)
 
@@ -251,7 +247,7 @@ export default class extends Component {
         }
 
         this.toast()
-    }   
+    }
 
     toast = () => this.setState({ confirmToast: !this.state.confirmToast })
     toggleDialog = () => this.setState({ openDialog: !this.state.openDialog })
@@ -308,3 +304,7 @@ export default class extends Component {
         </Fragment>
     }
 }
+
+const collections = ['empresas']
+
+export default (StoreHOC(collections, EmpresasContainer))

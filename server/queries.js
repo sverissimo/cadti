@@ -82,4 +82,14 @@ GROUP BY seguro.apolice, d.razao_social, s.seguradora, d.delegatario_id
 ORDER BY seguro.vencimento ASC
 `
 
-module.exports = { empresas, veiculoInit, modeloChassi, carrocerias, equipamentos, seguradoras, seguros }
+const socios = `
+SELECT public.socios.*, 
+	public.delegatario.razao_social
+	FROM public.socios 
+LEFT JOIN public.delegatario 
+	ON delegatario.delegatario_id = socios.delegatario_id
+ORDER BY nome_socio ASC
+`
+
+module.exports = { empresas, veiculoInit, modeloChassi, carrocerias, equipamentos,
+	 seguradoras, seguros, socios }

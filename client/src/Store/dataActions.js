@@ -33,8 +33,11 @@ export const insertData = (dataFromServer, collection) => (dispatch, getState) =
         data = humps.camelizeKeys(dataFromServer),
         payload = { collection, data },
         seguradoras = getState().data.seguradoras
-
-    if (!seguradoras) return
+    
+    if (!seguradoras) {
+        dispatch({ type: 'INSERT_DATA', payload })
+        return
+    }
 
     if (collection === 'seguros' && data[0].placas && data[0].placas.length === 1) {
 
@@ -69,6 +72,7 @@ export const insertData = (dataFromServer, collection) => (dispatch, getState) =
             dispatch({ type: 'UPDATE_COLLECTION', payload: collectionPayload })
         })
     } else dispatch({ type: 'INSERT_DATA', payload })
+
 }
 
 export const updateData = (dataFromServer, collection, id) => dispatch => {

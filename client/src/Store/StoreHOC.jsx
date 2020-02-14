@@ -31,12 +31,16 @@ export default function (requestArray, WrappedComponent) {
 
             if (!socket) socket = socketIO(':3001')
             socket.on('insertVehicle', insertedObjects => {
-                console.log(insertedObjects)
                 this.props.insertData(insertedObjects, 'veiculos')
             })
             socket.on('insertInsurance', insertedObjects => {
-                console.log(insertedObjects)
                 this.props.insertData(insertedObjects, 'seguros')
+            })
+            socket.on('insertEmpresa', insertedObjects => {                
+                this.props.insertData(insertedObjects, 'empresas')
+            })
+            socket.on('insertSocios', insertedObjects => {
+                this.props.insertData(insertedObjects, 'socios')
             })
             socket.on('updateVehicle', updatedObjects => {
                 this.props.updateData(updatedObjects, 'veiculos', 'veiculoId')
@@ -44,10 +48,12 @@ export default function (requestArray, WrappedComponent) {
             socket.on('updateInsurance', updatedObjects => {
                 this.props.updateCollection(updatedObjects, 'seguros')
             })
+            socket.on('updateSocios', updatedObjects => {
+                this.props.updateCollection(updatedObjects, 'socios')
+            })
 
             socket.on('deleteOne', object => {
                 const { id, tablePK, collection } = object
-                console.log(collection)
                 this.props.deleteOne(id, tablePK, collection)
             })
         }

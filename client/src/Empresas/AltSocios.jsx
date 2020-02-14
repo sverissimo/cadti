@@ -11,11 +11,9 @@ import AltSociosTemplate from './AltSociosTemplate'
 import { sociosForm } from '../Forms/sociosForm'
 import AlertDialog from '../Utils/AlertDialog'
 
-
 class AltSocios extends Component {
 
     state = {
-        empresas: [],
         razaoSocial: '',
         toastMsg: 'Dados atualizados!',
         confirmToast: false,
@@ -27,38 +25,35 @@ class AltSocios extends Component {
         totalShare: 0,
         filteredSocios: [],
         dropDisplay: 'Clique ou arraste para anexar o contrato social atualizado da empresa',
-        showFiles: false,
-        selectedEmpresa: [], socios: []
+        showFiles: false
     }
 
     componentDidMount() {
-        const { redux } = this.props,
-            { empresas, socios } = redux
-
-        this.setState({ empresas, socios, form: sociosForm, originalSocios: humps.decamelizeKeys(socios) })
+        const originals = humps.decamelizeKeys(this.props.redux.socios)
+        this.setState({ originals })
     }
 
     componentWillUnmount() { this.setState({}) }
 
     handleInput = async e => {
-
-        const { name } = e.target
-        let { value } = e.target
-
-        const { socios } = this.state
+        const
+            { empresas, socios } = this.props.redux,
+            { name } = e.target
+        let
+            { value } = e.target
 
         this.setState({ ...this.state, [name]: value })
 
         if (name === 'razaoSocial') {
-            const filteredSocios = socios.filter(s => s.razaoSocial === value),
-                selectedEmpresa = this.state.empresas.filter(e => e.razaoSocial === value)
+            const filteredSocios = [...socios.filter(s => s.razaoSocial === value)],
+                selectedEmpresa = empresas.find(e => e.razaoSocial === value)
             if (filteredSocios.length > 0) {
                 this.setState({ filteredSocios, selectedEmpresa })
             } else this.setState({ filteredSocios: [] })
-            if (selectedEmpresa.length > 0) {
-                await this.setState({ razaoSocial: selectedEmpresa[0].razaoSocial, selectedEmpresa })
-                if (value !== selectedEmpresa[0].razaoSocial) this.setState({ selectedEmpresa: [] })
-            } else this.setState({ selectedEmpresa: [] })
+            if (selectedEmpresa) {
+                await this.setState({ razaoSocial: selectedEmpresa.razaoSocial, selectedEmpresa })
+                if (value !== selectedEmpresa.razaoSocial) this.setState({ selectedEmpresa: undefined })
+            } else this.setState({ selectedEmpresa: undefined })
         }
     }
 
@@ -75,7 +70,7 @@ class AltSocios extends Component {
                 }
                 break;
             case 'share':
-                
+
                 if (value) {
                     value = value.replace(',', '.')
 
@@ -105,7 +100,6 @@ class AltSocios extends Component {
 
     addSocio = async () => {
         let socios = this.state.filteredSocios,
-            form = sociosForm,
             sObject = {}
 
         //check if totalShare is more than 100
@@ -114,10 +108,10 @@ class AltSocios extends Component {
             return null
         }
 
-        form.forEach(obj => {
+        sociosForm.forEach(obj => {
             Object.assign(sObject, { [obj.field]: this.state[obj.field] })
         })
-        socios.push(sObject)
+        socios.unshift(sObject)
 
         await this.setState({ filteredSocios: socios })
 
@@ -129,11 +123,10 @@ class AltSocios extends Component {
 
     removeSocio = async index => {
 
-        let socios = [...this.state.filteredSocios],
-            allSocios = [...this.state.socios]
-
-        const id = socios[index].socioId,
-            originalSocios = humps.camelizeKeys(this.state.originalSocios),
+        let socios = [...this.state.filteredSocios]
+        const
+            id = socios[index].socioId,
+            originalSocios = this.props.redux.socios,
             registered = originalSocios.find(s => s.socioId === id)
 
         if (registered) {
@@ -141,9 +134,8 @@ class AltSocios extends Component {
                 .catch(err => console.log(err))
         }
 
-        allSocios = allSocios.filter(s => s !== socios[index])
         socios.splice(index, 1)
-        this.setState({ filteredSocios: socios, socios: allSocios })
+        this.setState({ filteredSocios: socios })
     }
 
     enableEdit = index => {
@@ -159,8 +151,7 @@ class AltSocios extends Component {
     }
 
     handleEdit = e => {
-        const { name } = e.target,
-            { socios } = this.state
+        const { name } = e.target
         let { value } = e.target
 
         if (name === 'share') value = value.replace(',', '.')
@@ -172,32 +163,34 @@ class AltSocios extends Component {
         let fs = this.state.filteredSocios
         fs[index] = editSocio
 
-        this.setState({ socios, filteredSocios: fs })
+        this.setState({ filteredSocios: fs })
 
     }
 
     handleSubmit = async () => {
-        const { selectedEmpresa, socios, contratoSocial, filteredSocios } = this.state
+        const
+            { selectedEmpresa, contratoSocial, filteredSocios } = this.state,
+            { socios } = this.props.redux
 
         //check if totalShare is more than 100
         let updatedShare = filteredSocios.map(s => Number(s.share))
-        .reduce((a, b) => a + b)
+            .reduce((a, b) => a + b)
 
         if (updatedShare > 100) {
             this.setState({ openAlertDialog: true, alertType: 'overShared' })
             return null
         }
 
-        let submitSocios = this.state.filteredSocios,
+        let
             oldMembers = [], newMembers = [],
             contratoFile = new FormData(),
             keys = sociosForm.map(el => humps.decamelize(el.field))
         keys.splice(1, 1)
 
-        submitSocios.forEach(fs => {
+        filteredSocios.forEach(fs => {
             let { razaoSocial, createdAt, edit, ...rest } = fs
             fs = rest
-            fs.delegatarioId = selectedEmpresa[0].delegatarioId
+            fs.delegatarioId = selectedEmpresa.delegatarioId
             if (!fs.hasOwnProperty('socioId')) {
                 const gotId = socios.find(s => s.cpfSocio === fs.cpfSocio)
                 if (gotId) {
@@ -211,10 +204,11 @@ class AltSocios extends Component {
                 delete oldMembers.socioId
             }
         })
+       
         const table = 'socios', tablePK = 'socio_id'
         let realChanges = [], altObj = {}
 
-        const originals = humps.camelizeKeys(this.state.originalSocios)
+        const originals = humps.camelizeKeys(this.state.originals)
 
         oldMembers.forEach(m => {
             originals.forEach(s => {
@@ -241,19 +235,10 @@ class AltSocios extends Component {
 
             if (newMembers.length > 0) {
                 await axios.post('/api/cadSocios', { socios: newMembers, table, tablePK })
-                    .then(r => {
-                        axios.get('/api/socios')
-                            .then(s => humps.camelizeKeys(s.data))
-                            .then(socios => {
-                                const filteredSocios = socios.filter(s => s.razaoSocial === selectedEmpresa[0].razaoSocial)
-                                if (filteredSocios.length > 0) this.setState({ filteredSocios, socios })
-                            })
-                        console.log(r.data)
-                    })
             }
 
             if (contratoSocial) {
-                contratoFile.append('empresaId', selectedEmpresa[0].delegatarioId)
+                contratoFile.append('empresaId', selectedEmpresa.delegatarioId)
                 for (let pair of contratoSocial.entries()) {
                     contratoFile.append(pair[0], pair[1])
                 }
@@ -263,8 +248,8 @@ class AltSocios extends Component {
         } catch (err) {
             console.log(err)
         }
-
         this.toast()
+        this.setState({ razaoSocial: '', selectedEmpresa: undefined, filteredSocios: [] })
     }
 
     handleFiles = (file) => {
@@ -278,20 +263,24 @@ class AltSocios extends Component {
     closeAlert = () => this.setState({ openAlertDialog: !this.state.openAlertDialog })
     toast = () => this.setState({ confirmToast: !this.state.confirmToast })
 
+
     render() {
-        const { openAlertDialog, alertType } = this.state
+        const { openAlertDialog, alertType } = this.state,
+            { empresas } = this.props.redux
+
         return (
             <React.Fragment>
                 <Crumbs links={['Empresas', '/empresasHome']} text='Alteração do quadro societário' />
                 <AltSociosTemplate
                     data={this.state}
+                    empresas={empresas}
                     handleInput={this.handleInput}
                     handleBlur={this.handleBlur}
-                    removeSocio={this.removeSocio}
-                    handleFiles={this.handleFiles}
                     addSocio={this.addSocio}
+                    removeSocio={this.removeSocio}
                     enableEdit={this.enableEdit}
                     handleEdit={this.handleEdit}
+                    handleFiles={this.handleFiles}
                     handleSubmit={this.handleSubmit}
                 />
                 <ReactToast open={this.state.confirmToast} close={this.toast} msg={this.state.toastMsg} />
