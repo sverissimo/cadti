@@ -38,7 +38,7 @@ app.use(function (req, res, next) { //allow cross origin requests
     next()
 })
 
-//app.use(bodyParser.json())
+//app.use(bodyParser.json());
 
 app.use(bodyParser.json({ limit: '50mb' }))
 app.use(bodyParser.urlencoded())
@@ -403,7 +403,7 @@ app.post('/api/empresaFullCad', cadEmpresa, (req, res, next) => {
         const { data } = req        
         io.sockets.emit('insertSocios', data)
         res.send(data)
-    });
+    })
 
 app.post('/api/cadSeguro', (req, res) => {
     let parsed = []

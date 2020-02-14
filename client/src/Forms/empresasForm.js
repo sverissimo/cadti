@@ -18,8 +18,8 @@ export const empresasForm = [{
 {
     field: 'telefone',
     label: 'Telefone',
-    maxLength: 12,
-    pattern: '?[(]/d{2-3}?[)]?[ ]/d{4}?[-]/d{4}',    
+    maxLength: 20,
+    pattern: '((([+][0-9]{1,3})?[ ]?[-]?[(]?[0-9]{2,3}[)]?[ ]?[-]?[0-9]{4,5}[ ]?[-]?[0-9]{4}))',    
 },
 {
     field: 'email',

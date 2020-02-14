@@ -10,7 +10,7 @@ export const checkInputErrors = sendState => {
 
     if (p) {
         p.forEach(el => {
-            if (el.textContent === 'Valor inválido') {
+            if (el.textContent === 'Valor inválido' || el.textContent === '✘') {
                 const parent = el.parentNode
                 const l = parent.querySelectorAll('label')
                 label.push(l[0])
@@ -20,9 +20,9 @@ export const checkInputErrors = sendState => {
     if (inputs) {
         inputs.forEach(el => {
             if (el.type === 'date') {
-                if (!moment(el.value, 'YYYY-MM-DD', true).isValid()) {                    
-                    const parent = el.parentNode                    
-                    const l = parent.previousSibling                    
+                if (!moment(el.value, 'YYYY-MM-DD', true).isValid()) {
+                    const parent = el.parentNode
+                    const l = parent.previousSibling
                     label.push(l)
                 }
             }

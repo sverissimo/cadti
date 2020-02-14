@@ -5,6 +5,7 @@ import ReactToast from '../Utils/ReactToast'
 
 import StoreHOC from '../Store/StoreHOC'
 
+import { checkInputErrors } from '../Utils/checkInputErrors'
 import EmpresasTemplate from './EmpresasTemplate'
 import SociosTemplate from './SociosTemplate'
 import EmpresaReview from './EmpresaReview'
@@ -33,8 +34,7 @@ class EmpresasContainer extends Component {
         stepTitles: ['Preencha os dados da empresa', 'Informações sobre os sócios',
             'Revisão'],
         steps: ['Dados da Empresa', 'Sócios', 'Revisão'],
-        form: {},
-        razaoSocial: '',        
+        razaoSocial: '',
         toastMsg: 'Empresa cadastrada!',
         confirmToast: false,
         files: [],
@@ -47,8 +47,8 @@ class EmpresasContainer extends Component {
         showFiles: false
     }
 
-    componentDidMount() {      
-        document.addEventListener('keydown', this.escFunction, false)        
+    componentDidMount() {
+        document.addEventListener('keydown', this.escFunction, false)
     }
 
     componentWillUnmount() { this.setState({}) }
@@ -60,7 +60,11 @@ class EmpresasContainer extends Component {
         if (action === 'back') this.setState({ activeStep: prevActiveStep - 1 });
         if (action === 'reset') this.setState({ activeStep: 0 })
 
-        //if (prevActiveStep === 1 && action === 'next' && this.state.totalShare < 100) this.createAlert('subShared')
+        /*  const { errors } = this.state
+         if (errors && errors[0]) {
+             await this.setState({ ...this.state, ...checkInputErrors('setState') })            
+             return
+         } */
     }
 
     handleInput = async e => {
@@ -70,12 +74,11 @@ class EmpresasContainer extends Component {
 
     addSocio = async () => {
         let socios = this.state.socios,
-            form = sociosForm,
             sObject = {},
             invalid = 0,
             totalShare = 0
 
-        form.forEach(obj => {
+        sociosForm.forEach(obj => {
             if (this.state[obj.field] === '' || this.state[obj.field] === undefined) {
                 invalid += 1
             }
@@ -85,7 +88,7 @@ class EmpresasContainer extends Component {
             this.setState({ alertType: 'fieldsMissing', openAlertDialog: true })
             return null
         } else {
-            form.forEach(obj => {
+            sociosForm.forEach(obj => {
                 Object.assign(sObject, { [obj.field]: this.state[obj.field] })
             })
             socios.push(sObject)
@@ -166,6 +169,10 @@ class EmpresasContainer extends Component {
         const { name } = e.target
         let { value } = e.target
 
+        const errors = checkInputErrors()
+        if (errors) this.setState({ errors })
+        else this.setState({ errors: undefined })
+
         switch (name) {
             case 'cnpj':
                 const alreadyExists = empresas.filter(e => e.cnpj === value)
@@ -219,13 +226,13 @@ class EmpresasContainer extends Component {
         console.log(socios, empresa)
 
         Object.entries(empresa).forEach(([k, v]) => {
-            if (!v) empresa[k] = null
+            if (!v || v === '') delete empresa[k]
         })
 
         socios.forEach(s => {
             delete s.edit
             Object.entries(s).forEach(([k, v]) => {
-                if (!v) socios[k] = null
+                if (!v || v === '') delete socios[k]
             })
         })
 
@@ -247,8 +254,40 @@ class EmpresasContainer extends Component {
         }
 
         this.toast()
-    }
+        this.resetState()
 
+    }
+    resetState = () => {
+        const resetEmpresa = {}, resetSocios = {}
+        resetEmpresa.forEach(form => {
+            form.forEach(obj => {
+                Object.keys(obj).forEach(key => {
+                    if (key === 'field' && this.state[obj[key]]) Object.assign(resetEmpresa, { [obj[key]]: undefined })
+                })
+            })
+        })
+        resetSocios.forEach(form => {
+            form.forEach(obj => {
+                Object.keys(obj).forEach(key => {
+                    if (key === 'field' && this.state[obj[key]]) Object.assign(resetSocios, { [obj[key]]: undefined })
+                })
+            })
+        })
+
+        this.setState({
+            ...resetEmpresa, 
+            ...resetSocios,
+            activeStep: 0,
+            razaoSocial: '',
+            files: [],
+            fileNames: [],
+            addedSocios: [0],
+            totalShare: 0,
+            socios: [],
+            dropDisplay: 'Clique ou arraste para anexar o contrato social atualizado da empresa',
+            showFiles: false
+        })
+    }
     toast = () => this.setState({ confirmToast: !this.state.confirmToast })
     toggleDialog = () => this.setState({ openDialog: !this.state.openDialog })
     closeAlert = () => this.setState({ openAlertDialog: !this.state.openAlertDialog })
@@ -300,7 +339,7 @@ class EmpresasContainer extends Component {
                 setActiveStep={this.setActiveStep}
             />
             <ReactToast open={confirmToast} close={this.toast} msg={toastMsg} />
-            {openAlertDialog && <AlertDialog open={openAlertDialog} close={this.closeAlert} alertType={alertType} />}
+            {openAlertDialog && <AlertDialog open={openAlertDialog} close={this.closeAlert} alertType={alertType} customMessage={this.state.customMsg} />}
         </Fragment>
     }
 }
