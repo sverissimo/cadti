@@ -60,11 +60,11 @@ class EmpresasContainer extends Component {
         if (action === 'back') this.setState({ activeStep: prevActiveStep - 1 });
         if (action === 'reset') this.setState({ activeStep: 0 })
 
-        /*  const { errors } = this.state
+         const { errors } = this.state
          if (errors && errors[0]) {
              await this.setState({ ...this.state, ...checkInputErrors('setState') })            
              return
-         } */
+         }
     }
 
     handleInput = async e => {
@@ -223,7 +223,6 @@ class EmpresasContainer extends Component {
         })
 
         empresa.delegatarioStatus = 'Ativo'
-        console.log(socios, empresa)
 
         Object.entries(empresa).forEach(([k, v]) => {
             if (!v || v === '') delete empresa[k]
@@ -240,10 +239,11 @@ class EmpresasContainer extends Component {
         socios = humps.decamelizeKeys(socios)
 
         await axios.post('/api/empresaFullCad', { empresa, socios })
-            .then(delegatarioId => empresaId = delegatarioId.data)
-
+            .then(delegatarioId => {
+                empresaId = delegatarioId.data
+            })
+        console.log(empresaId)
         if (contratoSocial) {
-
             contratoFile.append('fieldName', 'contratoSocial')
             contratoFile.append('empresaId', empresaId)
             for (let pair of contratoSocial.entries()) {
@@ -259,23 +259,22 @@ class EmpresasContainer extends Component {
     }
     resetState = () => {
         const resetEmpresa = {}, resetSocios = {}
-        resetEmpresa.forEach(form => {
-            form.forEach(obj => {
-                Object.keys(obj).forEach(key => {
-                    if (key === 'field' && this.state[obj[key]]) Object.assign(resetEmpresa, { [obj[key]]: undefined })
-                })
-            })
-        })
-        resetSocios.forEach(form => {
-            form.forEach(obj => {
-                Object.keys(obj).forEach(key => {
-                    if (key === 'field' && this.state[obj[key]]) Object.assign(resetSocios, { [obj[key]]: undefined })
-                })
+
+        empresasForm.forEach(obj => {
+            Object.keys(obj).forEach(key => {
+                if (key === 'field' && this.state[obj[key]]) Object.assign(resetEmpresa, { [obj[key]]: undefined })
             })
         })
 
+        sociosForm.forEach(obj => {
+            Object.keys(obj).forEach(key => {
+                if (key === 'field' && this.state[obj[key]]) Object.assign(resetSocios, { [obj[key]]: undefined })
+            })
+        })
+
+
         this.setState({
-            ...resetEmpresa, 
+            ...resetEmpresa,
             ...resetSocios,
             activeStep: 0,
             razaoSocial: '',

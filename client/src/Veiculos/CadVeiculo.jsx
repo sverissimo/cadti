@@ -189,7 +189,10 @@ class VeiculosContainer extends PureComponent {
             }
         } else {
             await this.setState({ [name]: '', [stateId]: '' })
-            alert(alertLabel + ' não cadastrado')
+            this.setState({
+                alertType: 'invalidModel', openAlertDialog: true,
+                customMsg: `O modelo de ${alertLabel} não está cadastrado no sistema.`
+            })
             document.getElementsByName(name)[0].focus()
         }
     }
@@ -208,10 +211,10 @@ class VeiculosContainer extends PureComponent {
 
         switch (name) {
             case 'modeloChassi':
-                this.getId(name, value, modelosChassi, 'modeloChassiId', 'modeloChassi', 'id', 'Chassi')
+                this.getId(name, value, modelosChassi, 'modeloChassiId', 'modeloChassi', 'id', 'chassi')
                 break;
             case 'modeloCarroceria':
-                this.getId(name, value, carrocerias, 'modeloCarroceriaId', 'modelo', 'id', 'Modelo de carroceria')
+                this.getId(name, value, carrocerias, 'modeloCarroceriaId', 'modelo', 'id', 'carroceria')
                 break;
             case 'delegatarioCompartilhado':
                 this.getId(name, value, empresas, 'compartilhadoId', 'razaoSocial', 'delegatarioId')
@@ -332,7 +335,7 @@ class VeiculosContainer extends PureComponent {
             this.toast()
 
         } else {
-            alert('Favor verificar os dados do seguro.')
+            this.setState({ alertType: 'invalidInsurance', openAlertDialog: true })
         }
     }
 
@@ -401,7 +404,6 @@ class VeiculosContainer extends PureComponent {
                 })
             })
         })
-        console.log(resetState)
         this.setState({
             ...resetState,
             activeStep: 0,
@@ -422,7 +424,7 @@ class VeiculosContainer extends PureComponent {
 
     render() {
         const { confirmToast, toastMsg, activeStep,
-            openAlertDialog, alertType, steps, selectedEmpresa } = this.state,
+            openAlertDialog, alertType, steps, selectedEmpresa, placa } = this.state,
             { empresas, equipamentos } = this.props.redux
 
         return <Fragment>
@@ -457,6 +459,7 @@ class VeiculosContainer extends PureComponent {
                 lastStep={steps.length - 1}
                 handleSubmit={this.handleCadastro}
                 setActiveStep={this.setActiveStep}
+                disabled={(typeof placa !== 'string' || placa === '')}
             />}
             <ReactToast open={confirmToast} close={this.toast} msg={toastMsg} />
             {openAlertDialog && <AlertDialog open={openAlertDialog} close={this.toggleDialog} alertType={alertType} customMessage={this.state.customMsg} />}

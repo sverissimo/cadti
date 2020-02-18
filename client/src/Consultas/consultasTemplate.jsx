@@ -39,7 +39,7 @@ export default function ({ tab, collection, showDetails, showFiles, handleEdit, 
     const classes = useStyles(), { paper } = classes
 
     const id = ['delegatarioId', 'socioId', 'procuradorId', 'veiculoId'][tab],
-        subject = ['empresas', 'sócios', 'procuradores', 'veículos', 'seguros']     
+        subject = ['empresas', 'sócios', 'procuradores', 'veículos', 'seguros']
 
     return (
         <Grid item xs={12}>
@@ -50,6 +50,11 @@ export default function ({ tab, collection, showDetails, showFiles, handleEdit, 
                     data={collection}
                     options={{
                         filtering: true,
+                        exportButton: true,
+                        exportFileName: subject[tab],
+                        exportAllData: true,
+                        /* exportCsv: (columns, data) => {
+                            console.log(columns, data)}, */
                         actionsColumnIndex: -1,
                         searchFieldStyle: { color: '#024' },
                         headerStyle: { backgroundColor: '#FAFAFC', height: '5px', maxHeight: '8px' },
@@ -60,11 +65,16 @@ export default function ({ tab, collection, showDetails, showFiles, handleEdit, 
                     localization={{
                         body: {
                             emptyDataSourceMessage: 'Registro não encontrado.',
-                            editRow: { deleteText: 'Tem certeza que deseja apagar esse registro ?' }
+                            editRow: { deleteText: 'Tem certeza que deseja apagar esse registro ?' },
+                            deleteTooltip: 'Apagar',
+                            filterRow: {filterTooltip: 'Filtrar'}
                         },
                         toolbar: {
                             searchTooltip: 'Procurar',
-                            searchPlaceholder: 'Procurar'
+                            searchPlaceholder: 'Procurar',
+                            exportName: 'Salvar como CSV',
+                            exportAriaLabel: 'Exportar',
+                            exportTitle: 'Exportar'
                         },
                         pagination: {
                             rowsPerPageOptions: [5, 10, 25, 50, 100],
@@ -106,18 +116,18 @@ export default function ({ tab, collection, showDetails, showFiles, handleEdit, 
                             }), */
                         onRowDelete: async function (oldData) {
 
-                            await del(oldData)                            
-                           /*  return new Promise((resolve, reject) => {
-                                setTimeout(() => {
-                                    {
-                                        let data = collection;
-                                        const index = data.indexOf(oldData);
-                                        data.splice(index, 1);
-                                        handleEdit({ data, name: options[tab] }, () => resolve());
-                                    }
-                                    resolve();
-                                }, 50);
-                            }) */
+                            await del(oldData)
+                            /*  return new Promise((resolve, reject) => {
+                                 setTimeout(() => {
+                                     {
+                                         let data = collection;
+                                         const index = data.indexOf(oldData);
+                                         data.splice(index, 1);
+                                         handleEdit({ data, name: options[tab] }, () => resolve());
+                                     }
+                                     resolve();
+                                 }, 50);
+                             }) */
                         }
                     }}
                 />

@@ -29,6 +29,10 @@ export default function AlertDialog({ open, alertType, close, confirm, customTit
         title = 'Placa já cadastrada!'
         message = 'A placa informada já está cadastrada. Para atualizar seguro, alterar dados ou solicitar baixa, utilize as opções acima. '
         return { title, message }
+      case 'invalidModel':
+        title = 'Modelo não cadastrado.'
+        message = customMessage
+        return { title, message }
       case 'inputError':
         title = 'Preenchimento inválido.'
         message = customMessage
@@ -37,7 +41,10 @@ export default function AlertDialog({ open, alertType, close, confirm, customTit
         title = 'Favor preencher todos os campos.'
         message = 'Os campos acima são de preenchimento obrigatório. Certifique-se de ter preenchido todos eles.'
         return { title, message }
-
+      case 'invalidInsurance':
+        title = 'Favor verificar os dados do seguro.'
+        message = 'As informações referentes ao seguro do veículo são obrigatórias. Certifique-se de ter informado todas elas.'
+        return { title, message }
       case 'filesNotFound':
         const subject = 'Procuração'
         title = 'Arquivos não encontrados'

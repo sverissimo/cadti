@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react'
+import React from 'react'
 
 import TextInput from '../Reusable Components/TextInput'
 import Dropzone from 'react-dropzone'
@@ -8,7 +8,6 @@ import Paper from '@material-ui/core/Paper'
 import Typography from '@material-ui/core/Typography'
 import DescriptionOutlinedIcon from '@material-ui/icons/DescriptionOutlined';
 import { makeStyles } from '@material-ui/core/styles'
-import TextField from '@material-ui/core/TextField'
 import { empresasForm } from '../Forms/empresasForm'
 
 const useStyles = makeStyles(theme => ({
@@ -78,22 +77,6 @@ export default function ({ handleInput, handleBlur, data, handleFiles }) {
         classes = useStyles(), { paper, container, title, dropBox, dropBoxItem, dropBoxItem2 } = classes
 
     let form = empresasForm
-
-    const errorHandler = (el) => {
-        const value = form[el.field]
-        if (el.pattern && value) return data.form[el.field].match(el.pattern) === null
-        else if (value > el.max || value < el.min) return true
-        else return false
-    }
-
-    const helper = (el) => {
-        const value = form[el.field]
-
-        if (value > el.max || value < el.min) return 'Valor inválido'
-        else if (value && value.match(el.pattern) === null) return '✘'
-        else if (el.pattern && value && value.match(el.pattern) !== null) return '✓'
-        else return undefined
-    }
 
     return (
         <Grid

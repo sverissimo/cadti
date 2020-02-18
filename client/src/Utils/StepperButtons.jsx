@@ -16,7 +16,7 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
-export default function StepperButtons({ activeStep, setActiveStep, lastStep, handleSubmit }) {
+export default function StepperButtons({ activeStep, setActiveStep, lastStep, handleSubmit, disabled }) {
     
     const classes = useStyles(), { backButton, button } = classes
     return (
@@ -35,6 +35,7 @@ export default function StepperButtons({ activeStep, setActiveStep, lastStep, ha
                     color="primary"
                     className={button}
                     onClick={() => setActiveStep('next')}
+                    disabled={disabled}
                 >
                     Avançar
                 </Button>

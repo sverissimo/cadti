@@ -2,6 +2,7 @@ import React, { Fragment } from 'react'
 import Dropzone from 'react-dropzone'
 import moment from 'moment'
 
+import SelectEmpresa from '../Reusable Components/SelectEmpresa'
 import Grid from '@material-ui/core/Grid'
 import Paper from '@material-ui/core/Paper'
 import Typography from '@material-ui/core/Typography'
@@ -16,7 +17,6 @@ import DescriptionOutlinedIcon from '@material-ui/icons/DescriptionOutlined';
 import DeleteOutlinedIcon from '@material-ui/icons/DeleteOutlined';
 
 import Procurador from './Procurador'
-import AutoComplete from '../Utils/autoComplete'
 import { procuradorForm } from '../Forms/procuradorForm'
 
 import GetAppIcon from '@material-ui/icons/GetApp';
@@ -61,7 +61,6 @@ const useStyles = makeStyles(theme => ({
         display: 'flex',
         flexWrap: 'wrap',
         padding: theme.spacing(1),
-        minHeight: '80vh',
         height: 'auto',
         backgroundColor: '#fafafa',
     },
@@ -157,13 +156,14 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-export default function ({ handleInput, handleBlur, data, addProc, removeProc,
+export default function ({ handleInput, handleBlur, redux, data, addProc, removeProc,
     handleFiles, getFile, plusOne, minusOne }) {
-    const { procDisplay, razaoSocial, empresas, selectedEmpresa, procsToAdd, selectedDocs,
-        procuradores } = data,
+    const { procDisplay, selectedEmpresa, procsToAdd, selectedDocs } = data,
+        { empresas, procuradores } = redux,
 
-        classes = useStyles(), { paper, container, title, dropBox,
-            dropBoxItem, dropBoxItem2, addButton, paper2, containerList, selector } = classes
+        classes = useStyles(), {
+            paper, container, title, dropBox,
+            dropBoxItem, dropBoxItem2, addButton, paper2, containerList } = classes
 
     const errorHandler = (el) => {
 
@@ -197,205 +197,186 @@ export default function ({ handleInput, handleBlur, data, addProc, removeProc,
             className={container}
             justify="flex-start"
         >
-            <Grid>
+            <SelectEmpresa
+                data={data}
+                empresas={empresas}
+                handleInput={handleInput}
+                handleBlur={handleBlur}
+            />
+            {selectedEmpresa && <Paper className={paper2}>
+                <Typography className={title}> Cadastrar nova procuração </Typography>
+                <h4 style={{ fontWeight: 400, fontSize: '0.9em' }}> Se a procuração abranger mais de um procurador, clique em "+" para adicionar e anexe apenas 1 vez.</h4>
+                {procsToAdd.map((p, j) =>
+                    <Grid item xs={12} key={j} style={{ float: 'left' }}>
+                        {procuradorForm.map((el, i) =>
+                            <Fragment key={i}>
+                                <TextField
+                                    name={el.field + j}
+                                    label={el.label}
+                                    margin='normal'
+                                    className={classes.textField}
+                                    onChange={e => handleInput(e)}
+                                    onBlur={handleBlur}
+                                    type={el.type || ''}
+                                    error={errorHandler(el)}
+                                    helperText={helper(el)}
+                                    select={el.select || false}
+                                    value={data[el.field + j] || ''}
+                                    disabled={el.disabled || false}
+                                    InputLabelProps={{
+                                        className: classes.textField,
+                                        shrink: el.type === 'date' || undefined,
+                                        style: { fontSize: '0.7rem', fontWeight: 400, color: '#888' }
+                                    }}
+                                    inputProps={{
+                                        style: {
+                                            background: el.disabled && data.disable ? '#fff' : '#fafafa',
+                                            fontSize: '0.9rem', textAlign: 'center', color: '#000', width: el.width || 150, height: '7px'
+                                        },
+                                        value: `${data[el.field + j] || ''}`,
+                                        list: el.datalist || '',
+                                        maxLength: el.maxLength || '',
+                                        minLength: el.minLength || '',
+                                        max: el.max || '',
+                                    }}
+                                    multiline={el.multiline || false}
+                                    rows={el.rows || null}
+                                    variant={el.variant || 'filled'}
+                                    fullWidth={el.fullWidth || false}
+                                >
+                                </TextField>
+                                {j === procsToAdd.length - 1 && i === 3 &&
+                                    <>
+                                        <AddCircleOutlineSharpIcon
+                                            onClick={() => plusOne()}
+                                            style={{
+                                                verticalAlign: 'middle',
+                                                position: 'absolute',
+                                                bottom: '136px',
+                                                right: j > 0 ? '15px' : '35px',
+                                                color: '#009688',
+                                                fontSize: 30,
+                                                cursor: 'pointer',
+                                                zIndex: 1
+                                            }}
+                                        />
+                                        {j > 0 && <RemoveCircleOutlineIcon
+                                            onClick={() => minusOne()}
+                                            style={{
+                                                verticalAlign: 'middle',
+                                                position: 'absolute',
+                                                bottom: '136px',
+                                                right: '45px',
+                                                color: 'red',
+                                                fontSize: 30,
+                                                cursor: 'pointer',
+                                                zIndex: 1
+                                            }}
+                                        />}
+                                    </>
+                                }
+                            </Fragment>
+                        )}
+                    </Grid>
+                )}
+                <Grid container style={{ position: 'relative' }}>
+                    <Grid item xs={6}>
+                        <Dropzone onDrop={handleFiles}>
+                            {({ getRootProps, getInputProps }) => (
+                                <Grid container justify="center"
+                                    alignItems='center' className={dropBox} direction='row' {...getRootProps()}>
+                                    <input {...getInputProps()} />
+                                    {
+                                        procDisplay.match('Clique ou') ?
+                                            <Grid item xs={6} className={dropBoxItem}> {procDisplay} </Grid>
+                                            :
+                                            <Grid item xs={6} className={dropBoxItem2}> <DescriptionOutlinedIcon />  {procDisplay} <br /> (clique ou arraste outro arquivo para alterar)</Grid>
+                                    }
+                                </Grid>
+                            )}
+                        </Dropzone>
+                    </Grid>
+                    <Grid item xs={6} className={dropBox}>
+                        <TextField
+                            name='vencimento'
+                            label='Vencimento'
+                            margin='normal'
+                            className={classes.textField}
+                            onChange={e => handleInput(e)}
+                            type='date'
+                            helper='se indeterminado, deixar em branco'
+                            value={data.vencimento || ''}
+                            InputLabelProps={{
+                                className: classes.textField,
+                                shrink: true,
+                                style: { fontSize: '0.8rem', color: '#455a64', marginBottom: '5%' }
+                            }}
+                            inputProps={{
+                                style: { background: '#fafafa', fontSize: '0.8rem', textAlign: 'center', color: '#000', height: '9px' },
+                            }}
+                            variant={'filled'}
+                        />
+                    </Grid>
+                </Grid>
+            </Paper>}
+            <Grid container direction="row" justify='flex-start' style={{ width: '1200px' }}>
+                <Grid item xs={9} style={{ width: '1000px' }}></Grid>
+                <Grid item xs={3} style={{ align: "right" }}>
+                    {selectedEmpresa && <Button
+                        className={addButton}
+                        size='small'
+                        color="secondary"
+                        variant="contained"
+                        onClick={addProc}
+                    >
+                        <AddIcon />Cadastrar procuração
+                        </Button>}
+                </Grid>
+            </Grid>
+            {selectedEmpresa && selectedDocs[0] && <h2 style={{ margin: '25px 0 0 15px' }}>Procurações cadastradas</h2>}
+            {
+                selectedEmpresa && !selectedDocs[0] &&
                 <Grid item xs={12}>
                     <Paper className={paper}>
-                        <Grid item xs={12} style={{ marginBottom: '15px' }}>
-                            <Typography className={title}>  Gerenciar procurações</Typography>
-                            <TextField
-                                inputProps={{
-                                    list: 'razaoSocial',
-                                    name: 'razaoSocial',
-                                    style: {fontSize: 15, textAlign: 'center'} 
-                                }}
-                                className={selector}
-                                value={razaoSocial}
-                                onChange={handleInput}                                
-                                placeholder= 'Selecione a empresa'
-                            />
-                            <AutoComplete
-                                collection={empresas}
-                                datalist='razaoSocial'
-                                value={razaoSocial}
-                            />
-                        </Grid>
+                        Nenhum procurador cadastrado para {selectedEmpresa.razaoSocial}
                     </Paper>
                 </Grid>
-                {selectedEmpresa && <Paper className={paper2}>
-                    <Typography className={title}> Cadastrar nova procuração </Typography>
-                    <h4 style={{ fontWeight: 400, fontSize: '0.9em' }}> Se a procuração abranger mais de um procurador, clique em "+" para adicionar e anexe apenas 1 vez.</h4>
-                    {procsToAdd.map((p, j) =>
-                        <Grid item xs={12} key={j} style={{ float: 'left' }}>
-                            {procuradorForm.map((el, i) =>
-                                <Fragment key={i}>
-                                    <TextField
-                                        name={el.field + j}
-                                        label={el.label}
-                                        margin='normal'
-                                        className={classes.textField}
-                                        onChange={e => handleInput(e)}
-                                        onBlur={handleBlur}
-                                        type={el.type || ''}
-                                        error={errorHandler(el)}
-                                        helperText={helper(el)}
-                                        select={el.select || false}
-                                        value={data[el.field + j] || ''}
-                                        disabled={el.disabled || false}
-                                        InputLabelProps={{
-                                            className: classes.textField,
-                                            shrink: el.type === 'date' || undefined,
-                                            style: { fontSize: '0.7rem', fontWeight: 400, color: '#888' }
-                                        }}
-                                        inputProps={{
-                                            style: {
-                                                background: el.disabled && data.disable ? '#fff' : '#fafafa',
-                                                fontSize: '0.9rem', textAlign: 'center', color: '#000', width: el.width || 150, height: '7px'
-                                            },
-                                            value: `${data[el.field + j] || ''}`,
-                                            list: el.datalist || '',
-                                            maxLength: el.maxLength || '',
-                                            minLength: el.minLength || '',
-                                            max: el.max || '',
-                                        }}
-                                        multiline={el.multiline || false}
-                                        rows={el.rows || null}
-                                        variant={el.variant || 'filled'}
-                                        fullWidth={el.fullWidth || false}
-                                    >
-                                    </TextField>
-                                    {j === procsToAdd.length - 1 && i === 3 &&
-                                        <>
-                                            <AddCircleOutlineSharpIcon
-                                                onClick={() => plusOne()}
-                                                style={{
-                                                    verticalAlign: 'middle',
-                                                    position: 'absolute',
-                                                    bottom: '136px',
-                                                    right: j > 0 ? '15px' : '35px',
-                                                    color: '#009688',
-                                                    fontSize: 30,
-                                                    cursor: 'pointer',
-                                                    zIndex: 1
-                                                }}
-                                            />
-                                            {j > 0 && <RemoveCircleOutlineIcon
-                                                onClick={() => minusOne()}
-                                                style={{
-                                                    verticalAlign: 'middle',
-                                                    position: 'absolute',
-                                                    bottom: '136px',
-                                                    right: '45px',
-                                                    color: 'red',
-                                                    fontSize: 30,
-                                                    cursor: 'pointer',
-                                                    zIndex: 1
-                                                }}
-                                            />}
-                                        </>
-                                    }
-                                </Fragment>
-                            )}
-                        </Grid>
-                    )}
-                    <Grid container style={{ position: 'relative' }}>
-                        <Grid item xs={6}>
-                            <Dropzone onDrop={handleFiles}>
-                                {({ getRootProps, getInputProps }) => (
-                                    <Grid container justify="center"
-                                        alignItems='center' className={dropBox} direction='row' {...getRootProps()}>
-                                        <input {...getInputProps()} />
-                                        {
-                                            procDisplay.match('Clique ou') ?
-                                                <Grid item xs={6} className={dropBoxItem}> {procDisplay} </Grid>
-                                                :
-                                                <Grid item xs={6} className={dropBoxItem2}> <DescriptionOutlinedIcon />  {procDisplay} <br /> (clique ou arraste outro arquivo para alterar)</Grid>
-                                        }
-                                    </Grid>
-                                )}
-                            </Dropzone>
-                        </Grid>
-                        <Grid item xs={6} className={dropBox}>
-                            <TextField
-                                name='vencimento'
-                                label='Vencimento'
-                                margin='normal'
-                                className={classes.textField}
-                                onChange={e => handleInput(e)}
-                                type='date'
-                                helper='se indeterminado, deixar em branco'
-                                value={data.vencimento || ''}
-                                InputLabelProps={{
-                                    className: classes.textField,
-                                    shrink: true,
-                                    style: { fontSize: '0.8rem', color: '#455a64', marginBottom: '5%' }
-                                }}
-                                inputProps={{
-                                    style: { background: '#fafafa', fontSize: '0.8rem', textAlign: 'center', color: '#000', height: '9px' },
-                                }}
-                                variant={'filled'}
-                            />
-                        </Grid>
-                    </Grid>
-                </Paper>}
-                <Grid container direction="row" justify='flex-start' style={{ width: '1200px' }}>
-                    <Grid item xs={9} style={{ width: '1000px' }}></Grid>
-                    <Grid item xs={3} style={{ align: "right" }}>
-                        {selectedEmpresa && <Button
-                            className={addButton}
-                            size='small'
-                            color="secondary"
-                            variant="contained"
-                            onClick={addProc}
-                        >
-                            <AddIcon />Cadastrar procuração
-                        </Button>}
-                    </Grid>
-                </Grid>
-                {selectedEmpresa && selectedDocs[0] && <h2 style={{ margin: '25px 0 0 15px' }}>Procurações cadastradas</h2>}
-                {
-                    selectedEmpresa && !selectedDocs[0] &&
+            }
+            {
+                selectedDocs.length > 0 && selectedDocs.map((procuracao, z) => <Grid container
+                    key={z * 0.01}
+                    direction="row"
+                    className={containerList}
+                    justify="center"
+                    alignItems="flex-start">
                     <Grid item xs={12}>
-                        <Paper className={paper}>
-                            Nenhum procurador cadastrado para {selectedEmpresa.razaoSocial}
+                        <Paper style={{ padding: '10px 15px 20px 15px' }}>
+                            <p className={title}>Procuração {
+                                !procuracao.vencimento ?
+                                    'por prazo indeterminado'
+                                    :
+                                    'com vencimento em ' + handleDates(procuracao.vencimento)
+                            }</p>
+
+                            <Procurador procuradores={procuradores} procuracao={procuracao} />
+
+                            <div style={divContainer}>
+                                <span style={divFiles}>
+                                    <InsertDriveFileOutlinedIcon style={fileIcon} />
+                                    <span style={{ verticalAlign: 'middle', }}>
+                                        {' '} Baixar arquivo
+                                    </span>
+                                    <GetAppIcon style={icon} onClick={() => getFile(procuracao.procuracaoId)} />
+                                </span>
+                                <span style={{ ...divFiles, width: 90, backgroundColor: 'white', border: 0, position: 'absolute', right: 0 }}>
+                                    <DeleteOutlinedIcon color='secondary' style={icon} onClick={() => removeProc(procuracao)} />
+                                    Apagar
+                                    </span>
+                            </div>
                         </Paper>
                     </Grid>
-                }
-                {
-                    selectedDocs.length > 0 && selectedDocs.map((procuracao, z) => <Grid container
-                        key={z * 0.01}
-                        direction="row"
-                        className={containerList}
-                        justify="center"
-                        alignItems="flex-start">
-                        <Grid item xs={12}>
-                            <Paper style={{ padding: '10px 15px 20px 15px' }}>
-                                <p className={title}>Procuração {
-                                    !procuracao.vencimento ?
-                                        'por prazo indeterminado'
-                                        :
-                                        'com vencimento em ' + handleDates(procuracao.vencimento)
-                                }</p>
-
-                                <Procurador procuradores={procuradores} procuracao={procuracao} />
-
-                                <div style={divContainer}>
-                                    <span style={divFiles}>
-                                        <InsertDriveFileOutlinedIcon style={fileIcon} />
-                                        <span style={{ verticalAlign: 'middle', }}>
-                                            {' '} Baixar arquivo
-                                    </span>
-                                        <GetAppIcon style={icon} onClick={() => getFile(procuracao.procuracaoId)} />
-                                    </span>
-                                    <span style={{ ...divFiles, width: 90, backgroundColor: 'white', border: 0, position: 'absolute', right: 0 }}>
-                                        <DeleteOutlinedIcon color='secondary' style={icon} onClick={() => removeProc(procuracao)} />
-                                        Apagar
-                                    </span>
-                                </div>
-                            </Paper>
-                        </Grid>
-                    </Grid>
-                    )}
-            </Grid>
+                </Grid>
+                )}
         </Grid>
     )
 }

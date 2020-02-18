@@ -35,6 +35,7 @@ export const insertData = (dataFromServer, collection) => (dispatch, getState) =
         seguradoras = getState().data.seguradoras
     
     if (!seguradoras) {
+        console.log(payload)
         dispatch({ type: 'INSERT_DATA', payload })
         return
     }

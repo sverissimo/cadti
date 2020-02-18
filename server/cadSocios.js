@@ -15,7 +15,8 @@ const cadSocios = (req, res, next) => {
                 if (table.hasOwnProperty('rows')) {
                     resolve(table.rows)
                 } else {
-                    console.log('Nenhum procurador cadastrado.')
+                    console.log('Nenhum sócio cadastrado.')
+                    resolve()
                 }
             })
         })
@@ -23,6 +24,7 @@ const cadSocios = (req, res, next) => {
         sp = ''
     })
 
+    if (promisseArray.length === 0) next()
     let condition = '', ids = []
     Promise.all(promisseArray)
         .then(array => {

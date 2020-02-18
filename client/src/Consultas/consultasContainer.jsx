@@ -50,8 +50,6 @@ class ConsultasContainer extends Component {
     }
 
     async componentDidMount() {
-        //  const { redux } = this.props
-        // await this.setState({ ...redux, collection: redux.empresas })
 
         document.addEventListener('keydown', this.escFunction, false)
     }
@@ -189,6 +187,7 @@ class ConsultasContainer extends Component {
     }
 }
 
-const collections = ['veiculos', 'empresas', 'socios', 'procuradores', 'seguros', 'seguradoras', 'getFiles/vehicleDocs', 'getFiles/empresaDocs']
+const collections = ['veiculos', 'empresas', 'socios', 'procuradores', 'seguros', 'seguradoras',
+    'getFiles/vehicleDocs', 'getFiles/empresaDocs']
 
 export default connect(null, { updateCollection })(StoreHOC(collections, ConsultasContainer))

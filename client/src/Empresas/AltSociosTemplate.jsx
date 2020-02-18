@@ -98,7 +98,7 @@ export default function AltSociosTemplate({ empresas, data, removeSocio, handleB
     addSocio, handleFiles, enableEdit, handleEdit, handleSubmit }) {
 
     const
-        { dropDisplay, filteredSocios, selectedEmpresa, contratoSocial } = data,
+        { dropDisplay, filteredSocios, selectedEmpresa } = data,
         classes = useStyles(),
         { paper, container, title, iconButton, dropBox,
             dropBoxItem, dropBoxItem2, list, addButton } = classes
@@ -248,8 +248,7 @@ export default function AltSociosTemplate({ empresas, data, removeSocio, handleB
                                     color="primary"
                                     variant="contained"
                                     style={{ margin: '0px 0 10px 0' }}
-                                    onClick={() => handleSubmit()}
-                                    disabled={contratoSocial !== undefined}
+                                    onClick={() => handleSubmit()}                                    
                                 >
                                     Salvar <span>&nbsp;&nbsp; </span> <SaveIcon />
                                 </Button>

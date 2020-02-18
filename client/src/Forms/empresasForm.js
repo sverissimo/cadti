@@ -6,8 +6,8 @@ export const empresasForm = [{
 {
     field: 'cnpj',
     label: 'CNPJ',
-    maxLength: 14,
-    pattern: '\\d{14}'
+    maxLength: 18,
+    pattern: /^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/
 },
 {
     field: 'inscricaoEstadual',
@@ -36,6 +36,7 @@ export const empresasForm = [{
     field: 'numero',
     label: 'Número',
     type: 'number',
+    max: 32000
 },
 {
     field: 'complemento',
@@ -60,6 +61,7 @@ export const empresasForm = [{
 {
     field: 'uf',
     label: 'Estado',
-    maxLength: 2
+    maxLength: 2, 
+    pattern: '[A-Z]{2}'
 }
 ]

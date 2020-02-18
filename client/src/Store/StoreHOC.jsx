@@ -36,11 +36,14 @@ export default function (requestArray, WrappedComponent) {
             socket.on('insertInsurance', insertedObjects => {
                 this.props.insertData(insertedObjects, 'seguros')
             })
-            socket.on('insertEmpresa', insertedObjects => {                
+            socket.on('insertEmpresa', insertedObjects => {
                 this.props.insertData(insertedObjects, 'empresas')
             })
             socket.on('insertSocios', insertedObjects => {
                 this.props.insertData(insertedObjects, 'socios')
+            })
+            socket.on('insertProcuradores', insertedObjects => {
+                this.props.insertData(insertedObjects, 'procuradores')
             })
             socket.on('updateVehicle', updatedObjects => {
                 this.props.updateData(updatedObjects, 'veiculos', 'veiculoId')
@@ -56,6 +59,13 @@ export default function (requestArray, WrappedComponent) {
                 const { id, tablePK, collection } = object
                 this.props.deleteOne(id, tablePK, collection)
             })
+
+            socket.on('insertFiles', object => {
+                const { insertedObjects, collection } = object
+                console.log(object)
+                this.props.insertData(insertedObjects, collection)
+            })
+
         }
 
         render() {

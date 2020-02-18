@@ -11,7 +11,7 @@ const dataReducer = (state = initState, action) => {
         case 'INSERT_DATA': {
             const { collection, data } = payload
 
-            if (state[collection]) {
+            if (state[collection] && data) {
                 let update = [...state[collection]]
                 data.forEach(el => {
                     update.unshift(el)
@@ -25,7 +25,7 @@ const dataReducer = (state = initState, action) => {
 
         case 'UPDATE_DATA': {
             const { collection, data, id } = payload
-            if (state[collection]) {
+            if (state[collection] && data) {
                 const update = state[collection].map(v => {
                     data.forEach(el => {
                         if (v[id] === el[id]) {
@@ -76,15 +76,15 @@ const dataReducer = (state = initState, action) => {
                 let
                     { id } = payload,
                     updatedData = [...state[collection]]
-                if (collection !== 'seguros') id = Number(id)
-
+                console.log(id, collection)
+                if (collection !== 'seguros' && !collection.match('Docs')) id = Number(id)                
+                console.log(id)
                 const
                     element = updatedData.find(el => el[tablePK] === id),
                     index = updatedData.findIndex(el => el === element)
 
-
                 updatedData.splice(index, 1)
-                console.log(element, index, id, updatedData)
+                
                 return {
                     ...state, [collection]: updatedData
                 }

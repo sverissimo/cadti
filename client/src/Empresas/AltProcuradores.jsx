@@ -3,6 +3,8 @@ import axios from 'axios'
 import humps from 'humps'
 import ReactToast from '../Utils/ReactToast'
 
+import StoreHOC from '../Store/StoreHOC'
+
 import Crumbs from '../Utils/Crumbs'
 import AltProcuradoresTemplate from './AltProcuradoresTemplate'
 import download from '../Utils/downloadFile'
@@ -18,7 +20,7 @@ const format = {
     bottom: '15%'
 }
 
-export default class AltProcuradores extends Component {
+class AltProcuradores extends Component {
 
     constructor() {
         super()
@@ -49,15 +51,6 @@ export default class AltProcuradores extends Component {
     }
 
     componentDidMount() {
-        const empresas = axios.get('/api/empresas'),
-            procuradores = axios.get('/api/procuradores'),
-            procuracoes = axios.get('/api/procuracoes')
-
-        Promise.all([empresas, procuradores, procuracoes])
-            .then(res => res.map(r => humps.camelizeKeys(r.data)))
-            .then(([empresas, procuradores, procuracoes]) => {
-                this.setState({ empresas, procuradores, procuracoes, originalProc: humps.decamelizeKeys(procuradores) });
-            })
 
         axios.get('/api/getFiles/empresaDocs?fieldName=procuracao')
             .then(r => this.setState({ files: r.data }))
@@ -71,11 +64,11 @@ export default class AltProcuradores extends Component {
 
         const { name } = e.target
         let { value } = e.target,
-            procuracoes = [...this.state.procuracoes],
+            procuracoes = [...this.props.redux.procuracoes],
             procArray = [],
             procuracoesArray = []
 
-        const procuradores = [...this.state.procuradores]
+        const procuradores = [...this.props.redux.procuradores]
 
         this.setState({ ...this.state, [name]: value })
 
@@ -87,13 +80,15 @@ export default class AltProcuradores extends Component {
                 pr.procuradores.forEach(id => {
                     const pro = procuradores.find(p => p.procuradorId === id)
                     if (pro) procArray.push(pro)
+
                 })
                 procuracoesArray.push(procArray)
                 procArray = []
             })
+
             this.setState({ procuracoesArray, selectedDocs: procuracoes })
 
-            const selectedEmpresa = this.state.empresas.find(e => e.razaoSocial === value)
+            const selectedEmpresa = this.props.redux.empresas.find(e => e.razaoSocial === value)
 
             if (selectedEmpresa) {
                 await this.setState({ razaoSocial: selectedEmpresa.razaoSocial, selectedEmpresa })
@@ -102,38 +97,13 @@ export default class AltProcuradores extends Component {
         }
     }
 
-    handleBlur = async  e => {
-        /* const { selectedEmpresa, razaoSocial } = this.state
-        const { name } = e.target
-        let { value } = e.target
-
-         */
-        /* switch (name) {
-            case 'cnpj':
-                const alreadyExists = empresas.filter(e => e.cnpj === value)
-                if (alreadyExists[0]) {
-                    this.setState({ cnpj: '' })
-                    this.createAlert(alreadyExists[0])
-                }
-                break;
-            case 'share':
-                if (value > 100) {
-                   console.log('overShared')
-                }
-                else {
-                    const totalShare = Number(this.state.totalShare) + Number(value)
-                    console.log(totalShare)
-                }
-                break;
-            default:
-                break;
-        } */
-    }
-
     addProc = async () => {
-        const { selectedEmpresa, procuradores, procFiles, vencimento } = this.state
-        const nProc = [...this.state.procsToAdd]
-        let selectedDocs = [...this.state.selectedDocs],
+        const
+            { selectedEmpresa, procFiles, vencimento } = this.state,
+            procuradores = [...this.props.redux.procuradores],
+            nProc = [...this.state.procsToAdd]
+        let
+            selectedDocs = [...this.state.selectedDocs],
             files = [...this.state.files],
             addedProcs = [],
             sObject = {}
@@ -187,7 +157,7 @@ export default class AltProcuradores extends Component {
             status: 'vigente',
             procuradores: procIdArray
         }
-
+        
         let procuracaoId
 
         await axios.post('/api/cadProcuracao', novaProcuracao)
@@ -201,12 +171,12 @@ export default class AltProcuradores extends Component {
             contratoFile.append('fieldName', 'procuracao')
             contratoFile.append('empresaId', selectedEmpresa.delegatarioId)
             contratoFile.append('procuracaoId', procuracaoId)
-            contratoFile.append('procuradores', procIdArray.toString())
+            contratoFile.append('procuradores', procIdArray)
             for (let pair of procFiles.entries()) {
                 contratoFile.append(pair[0], pair[1])
             }
             await axios.post('/api/empresaUpload', contratoFile)
-                .then(r => console.log('uploaded'))
+                .then(r => console.log(r.data))
 
             await axios.get(`/api/getOneFile?collection=empresaDocs&id=${procuracaoId}`)
                 .then(r => { if (r.data[0]) files.push(r.data[0]) })
@@ -316,7 +286,7 @@ export default class AltProcuradores extends Component {
         let i = [...this.state.procsToAdd]
         i.pop()
         this.setState({ procsToAdd: i })
-    }   
+    }
 
     toggleDialog = () => this.setState({ openDialog: !this.state.openDialog })
     closeAlert = () => this.setState({ openAlertDialog: !this.state.openAlertDialog })
@@ -330,6 +300,7 @@ export default class AltProcuradores extends Component {
                 <Crumbs links={['Empresas', '/empresasHome']} text='Alteração de procuradores' />
                 <AltProcuradoresTemplate
                     data={this.state}
+                    redux={this.props.redux}
                     handleInput={this.handleInput}
                     removeProc={this.removeProc}
                     handleFiles={this.handleFiles}
@@ -349,3 +320,7 @@ export default class AltProcuradores extends Component {
         )
     }
 }
+
+const collections = ['empresas', 'procuradores', 'procuracoes']
+
+export default (StoreHOC(collections, AltProcuradores))

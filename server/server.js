@@ -38,6 +38,10 @@ app.use(function (req, res, next) { //allow cross origin requests
     next()
 })
 
+
+io.on('connection', socket => {
+    socket.removeAllListeners()
+})
 //app.use(bodyParser.json());
 
 app.use(bodyParser.json({ limit: '50mb' }))
@@ -92,7 +96,7 @@ const empresaStorage = new GridFsStorage({
         gfs.collection('empresaDocs')
         const { fieldName, empresaId, procuracaoId } = req.body
         let { procuradores } = req.body
-
+        console.log('field', file)
         if (procuradores) {
             procuradores = procuradores.split(',')
             procuradores = procuradores.map(id => Number(id))
@@ -114,7 +118,7 @@ const empresaStorage = new GridFsStorage({
                 'fieldName': file.fieldname,
                 'empresaId': empresaId
             }
-        } else {
+        } else if (file.fieldname === 'seguro') {
             let { ...metadata } = req.body
             fileInfo.metadata = metadata
         }
@@ -130,14 +134,17 @@ app.post('/api/empresaUpload', empresaUpload.any(), (req, res) => {
     let filesArray = []
     if (req.files) req.files.forEach(f => {
         filesArray.push({
-            fieldName: f.fieldname,
             id: f.id,
-            originalName: f.originalname,
+            length: f.size,
+            chunkSize: f.chunkSize,
             uploadDate: f.uploadDate,
+            filename: f.originalname,
+            md5: f.md5,
             contentType: f.contentType,
-            fileSize: f.size
+            metadata: f.metadata
         })
     })
+    io.sockets.emit('insertFiles', { insertedObjects: filesArray, collection: 'empresaDocs' })
     res.json({ file: filesArray });
 })
 
@@ -146,14 +153,17 @@ app.post('/api/mongoUpload', upload.any(), (req, res) => {
     let filesArray = []
     if (req.files) req.files.forEach(f => {
         filesArray.push({
-            fieldName: f.fieldname,
             id: f.id,
-            originalName: f.originalname,
+            length: f.size,
+            chunkSize: f.chunkSize,
             uploadDate: f.uploadDate,
+            filename: f.originalname,
+            md5: f.md5,
             contentType: f.contentType,
-            fileSize: f.size
+            metadata: f.metadata
         })
     })
+    io.sockets.emit('insertFiles', { insertedObjects: filesArray, collection: 'vehicleDocs' })
     res.json({ file: filesArray });
 })
 
@@ -367,7 +377,11 @@ app.post('/api/cadSocios', cadSocios, (req, res) => {
     res.send(data)
 })
 
-app.post('/api/cadProcuradores', cadProcuradores)
+app.post('/api/cadProcuradores', cadProcuradores, (req, res) => {
+    const { data } = req
+    io.sockets.emit('insertProcuradores', data)
+    res.send(data)
+})
 
 app.post('/api/cadProcuracao', (req, res) => {
 
@@ -395,14 +409,13 @@ app.post('/api/empresaFullCad', cadEmpresa, (req, res, next) => {
         data = getUpdatedData('empresa', condition)
     data.then(newObject => {
         io.sockets.emit('insertEmpresa', newObject)
-        console.log(condition, newObject)
         next()
     })
 },
     cadSocios, (req, res) => {
-        const { data } = req        
+        const { data } = req
         io.sockets.emit('insertSocios', data)
-        res.send(data)
+        res.send(req.delegatario_id.toString())
     })
 
 app.post('/api/cadSeguro', (req, res) => {
@@ -509,7 +522,6 @@ app.put('/api/editSocios', (req, res) => {
     })
 })
 
-
 app.put('/api/editProc', (req, res) => {
 
     const { requestArray, table, tablePK, keys } = req.body
@@ -560,7 +572,6 @@ app.put('/api/editProc', (req, res) => {
     })
 })
 
-
 app.put('/api/updateVehicle', (req, res) => {
 
     const { requestObject, table, tablePK, id } = req.body
@@ -607,6 +618,7 @@ app.get('/api/deleteFile/:reqId', async (req, res) => {
             res.json(result)
         }
     })
+    io.sockets.emit('deleteOne', { tablePK: '_id', id: reqId, collection: 'empresaDocs' })
 })
 
 app.delete('/api/delete', (req, res) => {
