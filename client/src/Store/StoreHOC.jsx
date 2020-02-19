@@ -18,8 +18,8 @@ export default function (requestArray, WrappedComponent) {
 
         async componentDidMount() {
             const { redux } = this.props
-
             let request = []
+                        
             requestArray.forEach(req => {
                 const colName = req.replace('getFiles/', '')
                 if (!redux[colName] || !redux[colName][0]) {
@@ -65,9 +65,14 @@ export default function (requestArray, WrappedComponent) {
                 console.log(object)
                 this.props.insertData(insertedObjects, collection)
             })
-
         }
+        componentWillUnmount() {
+            if (!socket) socket = socketIO(':3001')
+            const clearAll = ['insertVehicle', 'insertInsurance', 'insertEmpresa', 'insertSocios', 'insertFiles',
+                'insertProcuradores', 'updateVehicle', 'updateInsurance', 'updateSocios', 'deleteOne']
 
+            clearAll.forEach(el => socket.off(el))
+        }
         render() {
 
             if (collections.length === 0 || !collections.every(col => this.props.redux.hasOwnProperty(col))) {

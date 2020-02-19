@@ -242,7 +242,7 @@ class EmpresasContainer extends Component {
             .then(delegatarioId => {
                 empresaId = delegatarioId.data
             })
-        console.log(empresaId)
+        
         if (contratoSocial) {
             contratoFile.append('fieldName', 'contratoSocial')
             contratoFile.append('empresaId', empresaId)

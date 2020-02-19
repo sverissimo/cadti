@@ -31,17 +31,13 @@ dotenv.config()
 app.use(bodyParser.json())
 
 app.use(function (req, res, next) { //allow cross origin requests
-    res.setHeader("Access-Control-Allow-Methods", "POST, PUT, OPTIONS, DELETE, GET");
+    res.setHeader("Access-Control-Allow-Methods", "POST, PUT, OPTIONS, DELETE, GET")
     res.header("Access-Control-Allow-Origin", "*")
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization")
     res.header("Access-Control-Allow-Credentials", true)
     next()
 })
 
-
-io.on('connection', socket => {
-    socket.removeAllListeners()
-})
 //app.use(bodyParser.json());
 
 app.use(bodyParser.json({ limit: '50mb' }))
@@ -96,7 +92,7 @@ const empresaStorage = new GridFsStorage({
         gfs.collection('empresaDocs')
         const { fieldName, empresaId, procuracaoId } = req.body
         let { procuradores } = req.body
-        console.log('field', file)
+
         if (procuradores) {
             procuradores = procuradores.split(',')
             procuradores = procuradores.map(id => Number(id))

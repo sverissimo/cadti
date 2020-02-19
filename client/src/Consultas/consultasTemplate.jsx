@@ -40,7 +40,7 @@ export default function ({ tab, collection, showDetails, showFiles, handleEdit, 
 
     const id = ['delegatarioId', 'socioId', 'procuradorId', 'veiculoId'][tab],
         subject = ['empresas', 'sócios', 'procuradores', 'veículos', 'seguros']
-
+    if (!Array.isArray(collection)) collection = []
     return (
         <Grid item xs={12}>
             <Paper className={paper}>
@@ -67,7 +67,7 @@ export default function ({ tab, collection, showDetails, showFiles, handleEdit, 
                             emptyDataSourceMessage: 'Registro não encontrado.',
                             editRow: { deleteText: 'Tem certeza que deseja apagar esse registro ?' },
                             deleteTooltip: 'Apagar',
-                            filterRow: {filterTooltip: 'Filtrar'}
+                            filterRow: { filterTooltip: 'Filtrar' }
                         },
                         toolbar: {
                             searchTooltip: 'Procurar',

@@ -62,8 +62,10 @@ class AltProcuradores extends Component {
 
     handleInput = async e => {
 
-        const { name } = e.target
-        let { value } = e.target,
+        const
+            { name } = e.target
+        let
+            { value } = e.target,
             procuracoes = [...this.props.redux.procuracoes],
             procArray = [],
             procuracoesArray = []
@@ -151,13 +153,17 @@ class AltProcuradores extends Component {
                 })
         }
 
-        const novaProcuracao = {
+        let novaProcuracao = {
             delegatario_id: selectedEmpresa.delegatarioId,
             vencimento,
             status: 'vigente',
             procuradores: procIdArray
         }
-        
+
+        Object.entries(novaProcuracao).forEach(([k, v]) => {
+            if (!v || v === '') delete novaProcuracao[k]
+        })
+
         let procuracaoId
 
         await axios.post('/api/cadProcuracao', novaProcuracao)
@@ -191,7 +197,9 @@ class AltProcuradores extends Component {
             selectedDocs,
             files,
             procDisplay: 'Clique ou arraste para anexar a procuração referente a este(s) procurador(es).',
-            procsToAdd: [1]
+            procsToAdd: [1],
+            vencimento: '',
+            procFiles: undefined
         })
 
         this.toast()
@@ -215,34 +223,6 @@ class AltProcuradores extends Component {
         procs.splice(i, 1)
 
         this.setState({ selectedDocs: procs })
-    }
-
-    enableEdit = index => {
-
-        let editProc = [...this.state.filteredProc]
-
-        if (editProc[index].edit === true) {
-            editProc[index].edit = false
-        } else {
-            editProc.forEach(s => {
-                s.edit = false
-            })
-            editProc[index].edit = true
-        }
-        this.setState({ filteredProc: editProc })
-    }
-
-    handleEdit = e => {
-        const { name, value } = e.target
-
-        let editProc = this.state.filteredProc.filter(p => p.edit === true)[0]
-        const index = this.state.filteredProc.indexOf(editProc)
-
-        editProc[name] = value
-
-        let fp = [...this.state.filteredProc]
-        fp[index] = editProc
-        this.setState({ filteredProc: fp })
     }
 
     handleFiles = (file) => {
@@ -304,9 +284,7 @@ class AltProcuradores extends Component {
                     handleInput={this.handleInput}
                     removeProc={this.removeProc}
                     handleFiles={this.handleFiles}
-                    addProc={this.addProc}
-                    enableEdit={this.enableEdit}
-                    handleEdit={this.handleEdit}
+                    addProc={this.addProc}                   
                     handleSubmit={this.handleSubmit}
                     showFiles={this.showFiles}
                     plusOne={this.plusOne}
@@ -315,7 +293,7 @@ class AltProcuradores extends Component {
                 />
                 {showFiles && <ShowFiles elementId={selectedElement} typeId='procuracao' filesCollection={filesCollection} format={format} close={this.closeFiles} />}
                 <ReactToast open={this.state.confirmToast} close={this.toast} msg={this.state.toastMsg} />
-                {openAlertDialog && <AlertDialog open={openAlertDialog} close={this.closeAlert} alertType={alertType} />}
+                {openAlertDialog && <AlertDialog open={openAlertDialog} close={this.closeAlert} alertType={alertType} customMessage={this.state.customMsg} />}
             </React.Fragment>
         )
     }

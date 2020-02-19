@@ -156,7 +156,7 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-export default function ({ handleInput, handleBlur, redux, data, addProc, removeProc,
+export default function ({ handleInput, redux, data, addProc, removeProc,
     handleFiles, getFile, plusOne, minusOne }) {
     const { procDisplay, selectedEmpresa, procsToAdd, selectedDocs } = data,
         { empresas, procuradores } = redux,
@@ -200,8 +200,7 @@ export default function ({ handleInput, handleBlur, redux, data, addProc, remove
             <SelectEmpresa
                 data={data}
                 empresas={empresas}
-                handleInput={handleInput}
-                handleBlur={handleBlur}
+                handleInput={handleInput}                
             />
             {selectedEmpresa && <Paper className={paper2}>
                 <Typography className={title}> Cadastrar nova procuração </Typography>
@@ -215,8 +214,7 @@ export default function ({ handleInput, handleBlur, redux, data, addProc, remove
                                     label={el.label}
                                     margin='normal'
                                     className={classes.textField}
-                                    onChange={e => handleInput(e)}
-                                    onBlur={handleBlur}
+                                    onChange={e => handleInput(e)}                                    
                                     type={el.type || ''}
                                     error={errorHandler(el)}
                                     helperText={helper(el)}
@@ -304,7 +302,7 @@ export default function ({ handleInput, handleBlur, redux, data, addProc, remove
                             className={classes.textField}
                             onChange={e => handleInput(e)}
                             type='date'
-                            helper='se indeterminado, deixar em branco'
+                            helper='se indeterminado, deixar em branco'                            
                             value={data.vencimento || ''}
                             InputLabelProps={{
                                 className: classes.textField,

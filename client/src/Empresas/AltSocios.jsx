@@ -164,7 +164,6 @@ class AltSocios extends Component {
         fs[index] = editSocio
 
         this.setState({ filteredSocios: fs })
-
     }
 
     handleSubmit = async () => {
@@ -204,7 +203,7 @@ class AltSocios extends Component {
                 delete oldMembers.socioId
             }
         })
-       
+
         const table = 'socios', tablePK = 'socio_id'
         let realChanges = [], altObj = {}
 
@@ -248,8 +247,21 @@ class AltSocios extends Component {
         } catch (err) {
             console.log(err)
         }
+
+
+        oldMembers = []
+        realChanges = []
+        altObj = {}
+        newMembers = []
         this.toast()
-        this.setState({ razaoSocial: '', selectedEmpresa: undefined, filteredSocios: [] })
+
+        const updatedList = humps.decamelizeKeys(this.props.redux.socios)
+        this.setState({
+            razaoSocial: '', selectedEmpresa: undefined, filteredSocios: [],
+            dropDisplay: 'Clique ou arraste para anexar o contrato social atualizado da empresa',
+            contratoSocial: undefined,
+            originals: updatedList
+        })
     }
 
     handleFiles = (file) => {

@@ -97,9 +97,7 @@ const getUpdatedData = async (table, condition) => {
             resolve(t.rows)
          }
       })
-   })
-   console.log(data())
+   })   
    return data()
-
 }
 module.exports = { getUpdatedData }

@@ -16,8 +16,7 @@ class BaixaVeiculo extends Component {
 
     state = {
         empresas: [],
-        razaoSocial: '',
-        delegatarioCompartilhado: '',
+        razaoSocial: '',        
         frota: [],
         placa: '',
         form: {},
@@ -127,7 +126,10 @@ class BaixaVeiculo extends Component {
     }
 
     handleCheck = e => this.setState({ checked: e.target.value })
-    reset = () => baixaForm.forEach(el => this.setState({ [el.field]: '' }))
+    reset = () => {
+        baixaForm.forEach(el => this.setState({ [el.field]: '' }))
+        this.setState({ delegaTransf: '', check: '', justificativa: '', checked: false })
+    }
     closeAlert = () => this.setState({ openAlertDialog: !this.state.openAlertDialog })
     toast = () => this.setState({ confirmToast: !this.state.confirmToast })
 
