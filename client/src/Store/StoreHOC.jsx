@@ -29,7 +29,7 @@ export default function (requestArray, WrappedComponent) {
 
             if (request[0]) await this.props.getData(request)
 
-            if (!socket) socket = socketIO(':3001')
+            if (!socket) socket = socketIO()
             socket.on('insertVehicle', insertedObjects => {
                 this.props.insertData(insertedObjects, 'veiculos')
             })

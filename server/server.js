@@ -239,7 +239,7 @@ app.get('/api/download', (req, res) => {
 
 app.get('/api/empresas', (req, res) => pool.query(empresas, (err, table) => {
     if (err) res.send(err)
-    if (table.rows.length === 0) { res.send('Nenhum delegatário cadastrado.'); return }
+    if (table.rows.length === 0) { res.send(table.rows); return }
     res.json(table.rows)
 })
 )
@@ -259,7 +259,7 @@ app.get('/api/veiculos', (req, res) => {
 
     pool.query(veiculoInit, (err, table) => {
         if (err) res.send(err)
-        else if (table.rows.length === 0) { res.send('Nenhum veículo cadastrado para esse delegatário.'); return }
+        else if (table.rows.length === 0) { res.send(table.rows); return }
         res.json(table.rows)
     })
 })
@@ -268,7 +268,7 @@ app.get('/api/socios', (req, res) => {
 
     pool.query(socios, (err, table) => {
         if (err) res.send(err)
-        else if (table.rows.length === 0) { res.send('Nenhum socios cadastrado para esse delegatário.'); return }
+        else if (table.rows.length === 0) { res.send(table.rows); return }
         res.json(table.rows)
     })
 })
@@ -276,7 +276,7 @@ app.get('/api/socios', (req, res) => {
 app.get('/api/modelosChassi', (req, res) => {
     pool.query(modeloChassi, (err, table) => {
         if (err) res.send(err)
-        else if (table.rows && table.rows.length === 0) { res.send('Nenhum veículo cadastrado para esse delegatário.'); return }
+        else if (table.rows && table.rows.length === 0) { res.send(table.rows); return }
         res.json(table.rows)
     })
 })
@@ -284,7 +284,7 @@ app.get('/api/modelosChassi', (req, res) => {
 app.get('/api/carrocerias', (req, res) => {
     pool.query(carrocerias, (err, table) => {
         if (err) res.send(err)
-        else if (table.rows && table.rows.length === 0) { res.send('Nenhum veículo cadastrado para esse delegatário.'); return }
+        else if (table.rows && table.rows.length === 0) { res.send(table.rows); return }
         res.json(table.rows)
     })
 })
@@ -292,7 +292,7 @@ app.get('/api/carrocerias', (req, res) => {
 app.get('/api/equipamentos', (req, res) => {
     pool.query(equipamentos, (err, table) => {
         if (err) res.send(err)
-        else if (table.rows && table.rows.length === 0) { res.send('Nenhum equipamento encontrado.'); return }
+        else if (table.rows && table.rows.length === 0) { res.send(table.rows); return }
         res.json(table.rows)
     })
 })
@@ -300,7 +300,7 @@ app.get('/api/equipamentos', (req, res) => {
 app.get('/api/seguros', (req, res) => {
     pool.query(seguros, (err, table) => {
         if (err) res.send(err)
-        else if (table.rows && table.rows.length === 0) { res.send('Nenhum equipamento encontrado.'); return }
+        else if (table.rows && table.rows.length === 0) { res.send(table.rows); return }
         res.json(table.rows)
     })
 })
@@ -308,7 +308,7 @@ app.get('/api/seguros', (req, res) => {
 app.get('/api/seguradoras', (req, res) => {
     pool.query(seguradoras, (err, table) => {
         if (err) res.send(err)
-        else if (table.rows && table.rows.length === 0) { res.send('Nenhum equipamento encontrado.'); return }
+        else if (table.rows && table.rows.length === 0) { res.send(table.rows); return }
         res.json(table.rows);
     })
 })
@@ -323,7 +323,7 @@ app.get('/api/procuracoes', (req, res) => {
             ORDER BY vencimento DESC      
         `, (err, table) => {
         if (err) res.send(err)
-        else if (table.rows && table.rows.length === 0) { res.send('Nenhuma procuração encontrada.'); return }
+        else if (table.rows && table.rows.length === 0) { res.send(table.rows); return }
         res.json(table.rows);
     })
 })
@@ -333,8 +333,10 @@ app.get('/api/procuradores', (req, res) => {
         SELECT * FROM public.procurador
         order by procurador.procurador_id desc`, (err, table) => {
         if (err) res.send(err)
-        else if (table.rows && table.rows.length === 0) { res.send('Nenhum procurador encontrado.'); return }
-        res.json(table.rows)
+        else if (table.rows) {
+            res.json(table.rows)
+            return
+        }
     })
 })
 
@@ -348,7 +350,7 @@ app.post('/api/cadastroVeiculo', (req, res) => {
     pool.query(
         `INSERT INTO public.veiculo (${keys}) VALUES (${values}) RETURNING veiculo_id`, (err, table) => {
             if (err) res.send(err)
-            if (table && table.rows && table.rows.length === 0) { res.send('Nenhum veículo cadastrado para esse delegatário.'); return }
+            if (table && table.rows && table.rows.length === 0) { res.send(table.rows); return }
 
             if (table && table.rows) {
                 const
@@ -391,7 +393,7 @@ app.post('/api/cadProcuracao', (req, res) => {
     pool.query(
         `INSERT INTO public.procuracao (${keys}) VALUES (${values}) RETURNING procuracao_id`, (err, table) => {
             if (err) res.send(err)
-            if (table && table.rows && table.rows.length === 0) { res.send('Nenhuma procuração cadastrada.'); return }
+            if (table && table.rows && table.rows.length === 0) { res.send(table.rows); return }
             if (table.rows.length > 0) res.json(table.rows)
             return
         });
@@ -429,7 +431,7 @@ app.post('/api/cadSeguro', (req, res) => {
     pool.query(
         `INSERT INTO public.seguro (${keys}) VALUES (${parsed}) RETURNING *`, (err, table) => {
             if (err) res.send(err)
-            if (table && table.rows && table.rows.length === 0) { res.send('Nenhum seguro cadastrado.'); return }
+            if (table && table.rows && table.rows.length === 0) { res.send(table.rows); return }
             if (table && table.rows.length > 0) res.send(table.rows)
         })
 })
