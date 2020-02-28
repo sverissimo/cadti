@@ -8,7 +8,7 @@ import StoreHOC from '../Store/StoreHOC'
 import { checkInputErrors } from '../Utils/checkInputErrors'
 import CadVeiculoTemplate from './CadVeiculoTemplate'
 import VehicleDocs from './VehicleDocs'
-import Review from './Review'
+import Review from './Review2'
 
 import Crumbs from '../Utils/Crumbs'
 import StepperButtons from '../Utils/StepperButtons'
@@ -169,11 +169,8 @@ class VeiculosContainer extends PureComponent {
                 }
                 break
             }
-
             default: void 0
         }
-
-
     }
 
     getId = async (name, value, collection, stateId, dbName, dbId, alertLabel) => {
@@ -452,7 +449,11 @@ class VeiculosContainer extends PureComponent {
                 showFiles={this.showFiles}
             />}
 
-            {activeStep === 4 && <Review parentComponent='cadastro' data={this.state} />}
+            {activeStep === 4 && <Review
+                parentComponent='cadastro' files={this.state.form}
+                filesForm={cadVehicleFiles} data={this.state}
+                form={cadForm}
+            />}
 
             {selectedEmpresa && <StepperButtons
                 activeStep={activeStep}

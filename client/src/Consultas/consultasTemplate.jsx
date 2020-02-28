@@ -1,4 +1,7 @@
 import React from 'react'
+import * as FileSaver from 'file-saver';
+import * as XLSX from 'xlsx';
+
 import Grid from '@material-ui/core/Grid'
 import Paper from '@material-ui/core/Paper'
 import { makeStyles } from '@material-ui/core/styles'
@@ -35,7 +38,7 @@ const useStyles = makeStyles(theme => ({
 
 }));
 
-export default function ({ tab, collection, showDetails, showFiles, handleEdit, del }) {
+export default function ({ tab, collection, showDetails, showFiles, del }) {
     const classes = useStyles(), { paper } = classes
 
     const id = ['delegatarioId', 'socioId', 'procuradorId', 'veiculoId'][tab],
@@ -53,8 +56,21 @@ export default function ({ tab, collection, showDetails, showFiles, handleEdit, 
                         exportButton: true,
                         exportFileName: subject[tab],
                         exportAllData: true,
-                        /* exportCsv: (columns, data) => {
-                            console.log(columns, data)}, */
+                        exportCsv: (columns, data) => {
+                            const
+                                fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8',
+                                fileExtension = '.xlsx',
+                                fileName = subject[tab]
+
+                            const exportToCSV = (csvData, fileName) => {
+                                const ws = XLSX.utils.json_to_sheet(csvData);
+                                const wb = { Sheets: { 'data': ws }, SheetNames: ['data'] };
+                                const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+                                const data = new Blob([excelBuffer], { type: fileType });
+                                FileSaver.saveAs(data, fileName + fileExtension);
+                            }
+                            exportToCSV(data, fileName)
+                        },
                         actionsColumnIndex: -1,
                         searchFieldStyle: { color: '#024' },
                         headerStyle: { backgroundColor: '#FAFAFC', height: '5px', maxHeight: '8px' },
@@ -72,7 +88,7 @@ export default function ({ tab, collection, showDetails, showFiles, handleEdit, 
                         toolbar: {
                             searchTooltip: 'Procurar',
                             searchPlaceholder: 'Procurar',
-                            exportName: 'Salvar como CSV',
+                            exportName: 'Salvar como arquivo do excel',
                             exportAriaLabel: 'Exportar',
                             exportTitle: 'Exportar'
                         },
@@ -101,34 +117,8 @@ export default function ({ tab, collection, showDetails, showFiles, handleEdit, 
                             onClick: (event, rowData) => showFiles(rowData[id])
                         }
                     ]}
-                    editable={{
-                        /* onRowUpdate: (newData, oldData) =>
-                            new Promise((resolve, reject) => {
-                                setTimeout(() => {
-                                    {
-                                        const data = collection;
-                                        const index = data.indexOf(oldData);
-                                        data[index] = newData;
-                                        handleEdit({ data }, () => resolve());
-                                    }
-                                    resolve();
-                                }, 1000);
-                            }), */
-                        onRowDelete: async function (oldData) {
-
-                            await del(oldData)
-                            /*  return new Promise((resolve, reject) => {
-                                 setTimeout(() => {
-                                     {
-                                         let data = collection;
-                                         const index = data.indexOf(oldData);
-                                         data.splice(index, 1);
-                                         handleEdit({ data, name: options[tab] }, () => resolve());
-                                     }
-                                     resolve();
-                                 }, 50);
-                             }) */
-                        }
+                    editable={{                        
+                        onRowDelete: async oldData => await del(oldData)
                     }}
                 />
                 <div>

@@ -23,7 +23,7 @@ const useStyles = makeStyles(theme => ({
     container: {
         display: 'flex',
         flexWrap: 'wrap',
-        padding: theme.spacing(1)
+        padding: '6px'
     },
     title: {
         color: '#000',
@@ -59,7 +59,6 @@ export default function ({ empresas, equipamentos, data, handleInput, handleBlur
     const [shared, setShared] = useState(false)
 
     const form = cadForm[activeStep]
-
     return (
         <Grid
             container
@@ -152,19 +151,19 @@ export default function ({ empresas, equipamentos, data, handleInput, handleBlur
                                         handleBlur={handleBlur}
                                         handleInput={handleInput}
                                     />
-                                    {activeStep === 0 && <Grid container justify="center"
-                                    >
-                                        <Button
-                                            variant="outlined"
-                                            size="small"
-                                            color="primary"
-                                            className={button}
-                                            onClick={handleEquipa}
-                                        >
-                                            <AddIcon />
-                                            Equipamentos
-                            </Button>
-                                    </Grid>}
+                                    {activeStep === 0 &&
+                                        <Grid container justify="center">
+                                            <Button
+                                                variant="outlined"
+                                                size="small"
+                                                color="primary"
+                                                className={button}
+                                                onClick={handleEquipa}
+                                            >
+                                                <AddIcon />
+                                                Equipamentos
+                                            </Button>
+                                        </Grid>}
                                     {
                                         addEquipa && <PopUp close={handleEquipa} title='Equipamentos'>
                                             <AddEquipa

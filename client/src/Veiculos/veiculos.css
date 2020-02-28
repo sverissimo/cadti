@@ -92,20 +92,20 @@ body {
 
 .formTitle {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    font-size: 18px;
+    font-size: 17px;
     color: black;
-    margin: 5px;
-    padding: 10px;
-    width: 1206px;    
+    margin: 0px;
+    padding: 10px 0;
+    width: 1208px;    
 }
 
 .formSubtitle {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    font-size: 17px;
+    font-size: 15px;
     font-weight: 400;
     text-align: center;
     color: black;
-    padding: 2px 0 5px 0
+    padding: 3px 0 10px 0
 }
 
 .radio {
@@ -149,3 +149,45 @@ body {
     float: right !important;    
 }
 
+/* ************** Review Template elements ******************* */
+
+.divTable {
+    overflow-x:auto;
+    text-align: center;
+    padding: 0 15px;
+    width: 100%;
+}
+table {
+    width: 100%;
+    margin-top: 5px;    
+    border-collapse: collapse; 
+    border: none;
+}
+  .tHeader {
+    margin-top: 2%;    
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 15px;
+    font-weight: 400;
+    background-color: rgb(209, 231, 231);
+    border: none;
+    text-align: center;
+  }
+
+  th, td {
+    padding: 8px;
+    text-align: left;
+    height: 20px;
+  }
+
+  th {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 12px;
+    font-weight: 500;
+    background-color: rgb(244, 244, 244);
+  }
+
+  td {  
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-size: 12px;
+    vertical-align: bottom;    
+  }
