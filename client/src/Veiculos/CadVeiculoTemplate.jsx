@@ -48,8 +48,8 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-export default function ({ empresas, equipamentos, data, handleInput, handleBlur, handleEquipa, handleCheck,
-    altPlacaOption, showAltPlaca }) {
+export default function ({ empresas, equipamentos, data, handleInput, handleBlur,
+    handleEquipa, handleCheck }) {
     const { razaoSocial, activeStep, addEquipa,
         delegatarioCompartilhado, subtitle, placa, selectedEmpresa } = data,
 
@@ -173,15 +173,6 @@ export default function ({ empresas, equipamentos, data, handleInput, handleBlur
                                                 data={data} />
                                         </PopUp>
                                     }
-                                    {altPlacaOption && placa.match('[a-zA-Z]{3}[-]?\\d{4}') && <Grid item xs={12}>
-                                        <Typography
-                                            style={{ color: '#2979ff', fontWeight: 500, fontSize: '0.75rem', padding: '2% 0 1% 70%', cursor: 'pointer' }}
-                                            onClick={() => showAltPlaca()}
-                                        >
-                                            → Clique aqui para alterar a placa para o formato Mercosul.
-                                    </Typography>
-
-                                    </Grid>}
                                 </Paper>}
                         </Grid>
                         :

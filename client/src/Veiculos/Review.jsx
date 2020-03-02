@@ -1,145 +1,102 @@
-import React from 'react'
+import React, { Fragment } from 'react'
 
-import { cadForm } from '../Forms/cadForm'
-import { altForm } from '../Forms/altForm'
+import ShowLocalFiles from '../Utils/ShowLocalFiles2'
 
-import Grid from '@material-ui/core/Grid'
 import Paper from '@material-ui/core/Paper'
-import TextField from '@material-ui/core/TextField'
-import { makeStyles } from '@material-ui/core/styles'
-import Fab from '@material-ui/core/Fab';
-import { FileCopy } from '@material-ui/icons'
-import Tooltip from '@material-ui/core/Tooltip';
+import FileCopyOutlinedIcon from '@material-ui/icons/FileCopyOutlined';
+import { makeStyles } from '@material-ui/core/styles';
 
 const useStyles = makeStyles(theme => ({
-    root: {
-        flexGrow: '1',
-        margin: '1%',
-        padding: '1%',
-        textAlign: 'center'
-    },
-    textField: {
-        marginLeft: theme.spacing(1),
-        marginRight: theme.spacing(1),
-        marginTop: '9%',
-        width: 150,
-        fontSize: '0.8rem',
-        fontColor: '#bbb',
-        textAlign: 'center'
-    },
-    input: {
-        textAlign: 'center'
-    },
     paper: {
         color: theme.palette.text.secondary,
-        margin: theme.spacing(2),
         width: "100%",
-        padding: '2% 0 4% 0',
-        height: '500px'
-    },
-    equipa: {
-        marginLeft: theme.spacing(1),
-        marginRight: theme.spacing(1),
-        marginTop: '9%',
-        width: 600,
-        fontSize: '0.8rem',
-        fontColor: '#bbb',
-        textAlign: 'center'
+        padding: '8px 0 5px 0',
+        height: 'auto'
     }
 }))
 
-export default function Revisao({ data, parentComponent }) {
-    let review = [], formArray
+export default function Revisao({ data, parentComponent, form, filesForm, files }) {
+
     const classes = useStyles(),
-        { textField, paper, root, equipa, icon } = classes,
-        { justificativa } = data
-
-    if (parentComponent === 'cadastro') formArray = cadForm
-    if (parentComponent === 'altDados') formArray = altForm
+        { paper } = classes
     
-
-    formArray.forEach(form => {
-        form.forEach(obj => {
-            for (let k in data) {
-                if (k === obj.field) review.push({ label: obj.label, field: k, value: data[k] })
+    let vehicleDetails = [], obj = {}, newForm = [], filledForm = [], ultimateData
+    form.forEach(f => {
+        f.forEach(e => {
+            if (data.hasOwnProperty([e.field])) {
+                Object.assign(obj, { [e.field]: data[e.field] })
+                newForm.push(e)
             }
-
         })
+        vehicleDetails.push(obj)
+        filledForm.push(newForm)
+        obj = {}
+        newForm = []
     })
+    if (parentComponent === 'cadastro') ultimateData = [
+        { subtitle: 'Detalhes do veículo', form: filledForm[0], data: vehicleDetails[0] },
+        { subtitle: 'Detalhes do seguro', form: filledForm[1], data: vehicleDetails[1] },
+        { subtitle: 'Informações sobre a vistoria', form: filledForm[2], data: vehicleDetails[2] },
+    ]
 
-    let eq
-    if (parentComponent === 'cadastro' && data.hasOwnProperty('equipamentos_id')) eq = data.equipamentos_id.toString().replace(/,/g, ', ')
+    if (parentComponent === 'altDados') ultimateData = [
+        { subtitle: 'Detalhes do veículo', form: filledForm[0], data: vehicleDetails[0] },
+        { subtitle: 'Informações sobre a vistoria', form: filledForm[1], data: vehicleDetails[1] }
+    ]
 
     return (
-        <Paper className={paper}>
-            <Grid container
-                direction="row"
-                className={root}>
-                {review.map((r, k) =>
-                    <Grid item xs={6} md={3} lg={2} key={k}>
-                        <TextField
-                            id={r.field}
-                            className={textField}
-                            value={r.value}
-                            label={r.label}
-                            disabled={true}
-                            type='text'
-                            InputLabelProps={{ className: textField, shrink: true, style: { fontSize: '0.9rem', fontWeight: 600, color: '#000', marginBottom: '5%' } }}
-                            inputProps={{
-                                style: { textAlign: 'center', color: '#000', backgroundColor: '#f7f7ff', paddingBottom: '2%', height: '40px', fontSize: '0.9rem' }
-                            }}
-                            variant='outlined'
-                        />
-                    </Grid>
-                )}
-                <Grid container justify="flex-end">
+        <>
+            <Paper className={paper}>
+                <div className='divTable'>
+                    {
+                        ultimateData.map(({ subtitle, form, data }, y) =>
+                            <Fragment key={y}>
+                                <table>
+                                    <thead>
+                                        <tr>
+                                            <th className='tHeader'
+                                                colSpan={form.length}>{subtitle}</th>
+                                        </tr>
+                                        <tr>
+                                            {form.map((s, i) => <th key={i}>{s.label}</th>)}
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            {Object.values(data).map((d, j) => <td key={j}>
+                                                {d}
+                                            </td>
+                                            )}
+                                        </tr>
+                                    </tbody>
+                                </table>
 
-                    <Tooltip title='Ver arquivos'>
-                        <Fab color="default" aria-label="files" className={icon}>
-                            <FileCopy />
+                            </Fragment>
+                        )}
 
-                        </Fab>
-                    </Tooltip>
-                </Grid>
-                {parentComponent === 'altDados' && <Grid item xs={12} style={{ margin: '2% 0' }}>
-                    <TextField
-                        name='justificativa'
-                        value={justificativa}
-                        label='Justificativa'
-                        type='text'
-                        disabled={true}
-                        InputLabelProps={{ shrink: true, style: { fontWeight: 600 } }}
-                        inputProps={{ style: { height: '60px', width: '900px' } }}
-                        multiline
-                        rows={4}
-                        variant='outlined'
-                    />
-                </Grid>
-                }
-                {parentComponent === 'cadastro' && <Grid item xs={12} style={{ display: eq ? undefined : 'none' }}>
-                    <TextField
-                        id='equipamentos'
-                        className={equipa}
-                        value={eq}
-                        label='Acessórios'
-                        disabled={true}
-                        type='text'
-                        InputLabelProps={{
-                            shrink: true,
-                            style: { fontSize: '0.9rem', fontWeight: 600, color: '#000', marginBottom: '5%' }
-                        }}
-                        inputProps={{
-                            style: {
-                                textAlign: 'center', color: '#000', backgroundColor: '#f7f7ff', paddingBottom: '2%',
-                                height: '40px', fontSize: '0.7rem'
-                            }
-                        }}
-                        multiline
-                        variant='outlined'
-                    />
-                </Grid>}
+                </div>
+                <div style={{ margin: '30px 0 0 25px' }}>
+                    <h3> Equipamentos </h3>
+                    <p>
+                        {
+                            Array.isArray(data.equipamentosId) && data.equipamentosId &&
+                            data.equipamentosId.map((e, i) => <span
+                                style={{
+                                    fontFamily: 'Segoe UI, Tahoma, Geneva, Verdana',
+                                    fontSize: '12px'
+                                }}
+                                key={i}>
+                                {i !== data.equipamentosId.length ? e + ', ' : e
+                                }
+                            </span>)
+                        }
+                    </p>
+                </div>
 
-            </Grid>
-        </Paper>
+
+                <h3 style={{ margin: '30px 0 0 25px' }}> <FileCopyOutlinedIcon style={{ verticalAlign: 'middle', padding: '0 0 0 8px' }} /> Documentos </h3>
+                {files && <ShowLocalFiles form={filesForm} files={files} />}
+            </Paper >
+        </>
     )
 }

@@ -1,5 +1,6 @@
 body {
     margin: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;    
 }
 
 .jumbotron {
@@ -189,5 +190,5 @@ table {
   td {  
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     font-size: 12px;
-    vertical-align: bottom;    
+    vertical-align: middle;    
   }

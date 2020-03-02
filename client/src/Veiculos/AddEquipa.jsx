@@ -8,9 +8,9 @@ import { makeStyles } from '@material-ui/core/styles'
 
 const useStyles = makeStyles(theme => ({
     item: {
-        color: '#000',        
+        color: '#000',
         fontSize: '0.8rem',
-        textAlign: 'center'
+        textAlign: 'left'
     },
 }))
 
@@ -20,15 +20,15 @@ export default function AddEquipa({ data, equipamentos, handleCheck }) {
     return <Grid
         container
         direction="row"
-        justify="space-evenly"
-        alignItems="baseline"
+        justify="space-between"
+        alignItems="center"
     >
         {
             equipamentos.map((eq, i) =>
-                <Grid key={i}>
-                    <FormControlLabel
+                <Grid item xs={12} md={4} key={i} className={item}>
+                    <FormControlLabel                        
                         control={
-                            <Checkbox
+                            <Checkbox                                
                                 checked={data[eq.item]}
                                 value={eq.item}
                                 onChange={() => handleCheck(eq.item)} />

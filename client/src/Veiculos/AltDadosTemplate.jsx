@@ -2,6 +2,8 @@ import React, { Fragment } from 'react'
 
 import SelectEmpresa from '../Reusable Components/SelectEmpresa'
 import TextInput from '../Reusable Components/TextInput'
+import AddEquipa from './AddEquipa'
+import PopUp from '../Utils/PopUp'
 
 import Grid from '@material-ui/core/Grid'
 import Paper from '@material-ui/core/Paper'
@@ -41,13 +43,13 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-export default function ({ handleInput, handleBlur, data, handleEquipa,
-    altPlacaOption, showAltPlaca, empresas }) {
-    const { tab, activeStep, subtitle, placa, justificativa, selectedEmpresa } = data,
+export default function ({ handleInput, handleBlur, data, handleCheck, handleEquipa,
+    altPlacaOption, showAltPlaca, empresas, equipamentos }) {
+    const { activeStep, subtitle, placa, justificativa, selectedEmpresa, addEquipa } = data,
         classes = useStyles(), { paper, container } = classes
 
     let form = altForm[activeStep]
-
+    
     return (
         <Fragment>
             <Grid
@@ -65,7 +67,8 @@ export default function ({ handleInput, handleBlur, data, handleEquipa,
                     />
                 }
                 {
-                    selectedEmpresa ?
+                    //selectedEmpresa ?
+                    true ?
                         <Grid item xs={12}>
                             {activeStep < 3 &&
                                 <Paper className={paper}>
@@ -79,31 +82,38 @@ export default function ({ handleInput, handleBlur, data, handleEquipa,
                                     />
                                 </Paper>}
 
-                            {activeStep === 0 && tab === 0 &&
-                                <Paper>
-                                    <Grid container justify="center">
-                                        <Button
-                                            variant="outlined"
-                                            size="small"
-                                            color="primary"
-                                            className={classes.button}
-                                            onClick={handleEquipa}
-                                        >
-                                            <AddIcon />
-                                            Equipamentos
+                            {activeStep === 0 &&
+                                <Grid container justify="center">
+                                    <Button
+                                        variant="outlined"
+                                        size="small"
+                                        color="primary"
+                                        className={classes.button}
+                                        onClick={handleEquipa}
+                                    >
+                                        <AddIcon />
+                                        Equipamentos
                                         </Button>
-                                    </Grid>}
+                                </Grid>}
 
-                                    {altPlacaOption && placa.match('[a-zA-Z]{3}[-]?\\d{4}') && <Grid item xs={12}>
-                                        <Typography
-                                            style={{ color: '#2979ff', fontWeight: 500, fontSize: '0.75rem', padding: '2% 0 1% 70%', cursor: 'pointer' }}
-                                            onClick={() => showAltPlaca()}
-                                        >
-                                            → Clique aqui para alterar a placa para o formato Mercosul.
+                            {altPlacaOption && placa.match('[a-zA-Z]{3}[-]?\\d{4}') && <Grid item xs={12}>
+                                <Typography
+                                    style={{ color: '#2979ff', fontWeight: 500, fontSize: '0.75rem', padding: '2% 0 1% 70%', cursor: 'pointer' }}
+                                    onClick={() => showAltPlaca()}
+                                >
+                                    → Clique aqui para alterar a placa para o formato Mercosul.
                                     </Typography>
 
-                                    </Grid>}
-                                </Paper>}
+                            </Grid>}
+                            {
+                                addEquipa && <PopUp close={handleEquipa} title='Equipamentos'>
+                                    <AddEquipa
+                                        equipamentos={equipamentos}
+                                        close={handleEquipa}
+                                        handleCheck={handleCheck}
+                                        data={data} />
+                                </PopUp>
+                            }
                         </Grid>
                         :
                         <Grid container justify="center">

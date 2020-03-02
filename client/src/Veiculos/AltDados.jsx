@@ -22,6 +22,15 @@ import AlertDialog from '../Utils/AlertDialog'
 
 class AltDados extends Component {
 
+    constructor() {
+        super()
+        this.escFunction = (e) => {
+            if (e.keyCode === 27) {
+                if (this.state.addEquipa) this.handleEquipa()
+            }
+        }
+    }
+
     state = {
         stepTitles: ['Informe a placa para alterar os dados abaixo ou mantenha as informações atuais e clique em avançar',
             'Altere os dados desejados abaixo e clique em avançar', 'Anexe os documentos solicitados',
@@ -30,7 +39,6 @@ class AltDados extends Component {
 
         subtitle: ['Dados do Veículo', 'Informações adicionais',
             'Anexe os arquivos solicitados', 'Revisão'],
-        form: {},
         empresas: [],
         razaoSocial: '',
         delegatarioCompartilhado: '',
@@ -43,12 +51,21 @@ class AltDados extends Component {
         openAlertDialog: false,
         altPlaca: false,
         newPlate: '',
-        placa: ''
+        placa: '',
+        addEquipa: false
     }
 
-   /*  componentDidMount() {
-        this.setState({ ...this.props.redux })
-    } */
+    async componentDidMount() {
+        const { redux } = this.props
+        let equipamentos = {}
+
+        if (redux && redux.equipamentos) {
+            redux.equipamentos.forEach(e => Object.assign(equipamentos, { [e.item]: false }))
+            const equipArray = Object.keys(equipamentos)
+            await this.setState({ equipamentos: equipArray, ...equipamentos })
+        }
+        document.addEventListener('keydown', this.escFunction, false)
+    }
 
     componentWillUnmount() { this.setState({}) }
 
@@ -115,13 +132,26 @@ class AltDados extends Component {
         }
     }
 
+    capitalize = (field, value) => {
+        if (!value || typeof value !== 'string') return
+        if (field === 'utilizacao') {
+            if (value === 'RODOVIARIO') value = 'CONVENCIONAL'
+            value = value.charAt(0) + value.slice(1).toLowerCase()
+        }
+        if (field === 'dominio' && value === 'Sim') value = 'Veículo próprio'
+        if (field === 'dominio' && value === 'Não') value = 'Possuidor'
+        
+        return value
+    }
+
     handleBlur = async  e => {
         const
             { empresas } = this.props.redux,
-            { frota } = this.state,
+            { frota, equipamentos } = this.state,
             { name } = e.target
         let
-            { value } = e.target
+            { value } = e.target,
+            vEquip = []
 
         const errors = checkInputErrors()
         if (errors) this.setState({ errors })
@@ -140,11 +170,28 @@ class AltDados extends Component {
         }
         if (name === 'placa' && value.length > 2 && Array.isArray(this.state.frota)) {
 
-            const vehicle = this.state.frota.filter(v => {
+            let vehicle = this.state.frota.find(v => {
                 if (typeof value === 'string') return v.placa.toLowerCase().match(value.toLowerCase())
                 else return v.placa.match(value)
-            })[0]
-            await this.setState({ ...vehicle, disable: true })
+            })
+
+            if (vehicle && vehicle.equipamentosId) {
+                const currentEquipa = vehicle.equipamentosId
+                equipamentos.forEach(e => {
+                    if (currentEquipa.toLowerCase().match(e.toLowerCase())) vEquip.push(e)
+                })
+                vEquip.forEach(ve => this.setState({ [ve]: true }))
+            }
+
+            if (vehicle && vehicle.utilizacao) {
+                vehicle.utilizacao = this.capitalize('utilizacao', vehicle.utilizacao)
+            }
+
+            if (vehicle && vehicle.dominio) {
+                vehicle.dominio = this.capitalize('dominio', vehicle.dominio)
+            }
+
+            await this.setState({ ...vehicle, equipamentosId: vEquip, disable: true })
 
             if (vehicle !== undefined && vehicle.hasOwnProperty('empresa')) this.setState({ delegatario: vehicle.empresa })
 
@@ -176,7 +223,8 @@ class AltDados extends Component {
     }
 
     handleSubmit = async () => {
-        const { poltronas, pesoDianteiro, pesoTraseiro, delegatarioId, delegatarioCompartilhado } = this.state
+        const { poltronas, pesoDianteiro, pesoTraseiro, delegatarioId,
+            delegatarioCompartilhado, equipamentosId } = this.state
 
         let tempObj = {}
 
@@ -193,7 +241,9 @@ class AltDados extends Component {
         let pbt = Number(poltronas) * 93 + (Number(pesoDianteiro) + Number(pesoTraseiro))
         if (isNaN(pbt)) pbt = undefined
 
-        tempObj = Object.assign(tempObj, { delegatarioId, delegatarioCompartilhado, pbt })
+        tempObj = Object.assign(
+            tempObj, { delegatarioId, delegatarioCompartilhado, pbt, equipamentosId })
+
         tempObj = humps.decamelizeKeys(tempObj)
 
         Object.keys(tempObj).forEach(key => {
@@ -201,17 +251,17 @@ class AltDados extends Component {
         })
 
         const { placa, delegatario, compartilhado, ...requestObject } = tempObj
-
+        console.log(tempObj, requestObject)
         const table = 'veiculo',
             tablePK = 'veiculo_id'
 
         await axios.put('/api/updateVehicle', { requestObject, table, tablePK, id: this.state.veiculoId })
         await this.submitFiles()
-        this.setState({activeStep: 0, razaoSocial: '', selectedEmpresa: undefined})
+        this.setState({ activeStep: 0, razaoSocial: '', selectedEmpresa: undefined })
         this.reset()
         this.setState({})
         this.toast()
-        
+
     }
 
     handleFiles = async e => {
@@ -252,6 +302,21 @@ class AltDados extends Component {
             .catch(err => console.log(err))
     }
 
+    handleCheck = async item => {
+        const { equipamentos } = this.state
+        let array = []
+        await this.setState({ ...this.state, [item]: !this.state[item] })
+
+        equipamentos.forEach(e => {
+            if (this.state[e] === true) {
+                array.push(e)
+            }
+        })
+        if (array[0]) this.setState({ equipamentosId: array })
+        else this.setState({ equipamentosId: [] })
+
+    }
+    handleEquipa = () => this.setState({ addEquipa: !this.state.addEquipa })
     toggleDialog = () => this.setState({ altPlaca: !this.state.altPlaca })
     closeAlert = () => this.setState({ openAlertDialog: !this.state.openAlertDialog })
     toast = () => this.setState({ confirmToast: !this.state.confirmToast })
@@ -261,7 +326,7 @@ class AltDados extends Component {
         const
             { confirmToast, toastMsg, stepTitles, activeStep, steps, altPlaca,
                 selectedEmpresa, openAlertDialog, alertType } = this.state,
-            { empresas } = this.props.redux
+            { empresas, equipamentos } = this.props.redux
 
         return <Fragment>
             <Crumbs links={['Veículos', '/veiculos']} text='Alteração de dados' />
@@ -274,11 +339,14 @@ class AltDados extends Component {
             {activeStep < 2 && <AltDadosTemplate
                 data={this.state}
                 empresas={empresas}
+                equipamentos={equipamentos}
                 setActiveStep={this.setActiveStep}
                 altPlacaOption={activeStep === 0}
                 handleInput={this.handleInput}
                 handleBlur={this.handleBlur}
                 showAltPlaca={this.showAltPlaca}
+                handleEquipa={this.handleEquipa}
+                handleCheck={this.handleCheck}
             />}
             {activeStep === 2 && <VehicleDocs
                 parentComponent='altDados'
@@ -286,7 +354,11 @@ class AltDados extends Component {
                 handleSubmit={this.submitFiles}
                 handleNames={this.handleNames}
             />}
-            {activeStep === 3 && <Review parentComponent='altDados' data={this.state} />}
+            {activeStep === 3 && <Review
+                parentComponent='altDados' files={this.state.form}
+                filesForm={altDadosFiles} data={this.state}
+                form={altForm}
+            />}
 
             {selectedEmpresa && <StepperButtons
                 activeStep={activeStep}
@@ -308,6 +380,6 @@ class AltDados extends Component {
     }
 }
 
-const collections = ['veiculos', 'empresas'];
+const collections = ['veiculos', 'empresas', 'equipamentos'];
 
 export default StoreHOC(collections, AltDados)

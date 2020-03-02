@@ -13,9 +13,9 @@ const divContainer = {
 const divFiles = {
     textAlign: 'center',
     alignItems: 'flex-start',
-    lineHeight: '40px',
+    height: '40px',
     border: '1px #ccc solid',
-    padding: '0 1%',
+    padding: '7px 8px 0 8px',
     margin: '1% 1% 0.5% 1%',
     fontSize: '0.8rem',
     backgroundColor: '#f6f6f6',
@@ -43,7 +43,7 @@ export default function ShowLocalFiles({ form, files }) {
     const createLink = (key, fileName) => {
 
         const file = files.get(key)
-        
+
         const url = window.URL.createObjectURL(file);
         const link = document.createElement('a');
         link.href = url;
@@ -60,7 +60,7 @@ export default function ShowLocalFiles({ form, files }) {
 
     let fileArray = []
 
-    for (let pair of files.entries()) {
+    if (files) for (let pair of files.entries()) {
         form.forEach(({ name, title }) => {
             if (name === pair[0]) {
                 fileArray.push({ label: title, fieldName: name, fileName: pair[1].name })

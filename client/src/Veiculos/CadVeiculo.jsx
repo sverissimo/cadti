@@ -8,7 +8,7 @@ import StoreHOC from '../Store/StoreHOC'
 import { checkInputErrors } from '../Utils/checkInputErrors'
 import CadVeiculoTemplate from './CadVeiculoTemplate'
 import VehicleDocs from './VehicleDocs'
-import Review from './Review2'
+import Review from './Review'
 
 import Crumbs from '../Utils/Crumbs'
 import StepperButtons from '../Utils/StepperButtons'
@@ -56,8 +56,9 @@ class VeiculosContainer extends PureComponent {
 
         if (redux && redux.equipamentos) {
             redux.equipamentos.forEach(e => Object.assign(equipamentos, { [e.item]: false }))
+            const equipArray = Object.keys(equipamentos)
             await this.setState({
-                modelosChassi, carrocerias, seguradoras, ...equipamentos,
+                modelosChassi, carrocerias, seguradoras, equipamentos: equipArray, ...equipamentos,
                 allInsurances: this.props.redux['seguros']
             })
         }
@@ -84,19 +85,20 @@ class VeiculosContainer extends PureComponent {
         }
 
         let array = []
-        const { equipamentos } = this.props.redux
+        const { equipamentos } = this.state
         const prevActiveStep = this.state.activeStep
         if (action === 'next') this.setState({ activeStep: prevActiveStep + 1 });
         if (action === 'back') this.setState({ activeStep: prevActiveStep - 1 });
         if (action === 'reset') this.setState({ activeStep: 0 })
 
-        if (prevActiveStep === 1) {
+        if (prevActiveStep === 1) {            
             equipamentos.forEach(e => {
-                if (this.state[e.item] === true) {
-                    array.push(e.item)
+                if (this.state[e] === true) {
+                    array.push(e)                    
                 }
             })
-            if (array[0]) this.setState({ equipamentos_id: array })
+            if (array[0]) this.setState({ equipamentosId: array })
+            else this.setState({equipamentosId: []})
         }
     }
 
@@ -257,7 +259,7 @@ class VeiculosContainer extends PureComponent {
     }
 
     handleCadastro = async () => {
-        const { anoCarroceria, equipamentos_id, peso_dianteiro, peso_traseiro,
+        const { anoCarroceria, equipamentosId, peso_dianteiro, peso_traseiro,
             poltronas, delegatarioId, compartilhadoId, seguros, modeloChassiId,
             modeloCarroceriaId, seguradoraId } = this.state,
             situacao = 'Ativo',
@@ -288,7 +290,7 @@ class VeiculosContainer extends PureComponent {
         if (validVenc) seguro.vencimento = vencimento
 
         Object.assign(vReview, {
-            delegatarioId, situacao, indicadorIdade, pbt, equipamentos_id,
+            delegatarioId, situacao, indicadorIdade, pbt, equipamentosId,
             modeloChassiId, modeloCarroceriaId
         })
         vReview.delegatarioCompartilhado = compartilhadoId

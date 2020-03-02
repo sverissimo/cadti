@@ -3,7 +3,7 @@ import { altFormVistoria } from './altFormVistoria'
 export const altForm = [[{
     field: 'placa',
     label: 'Placa',
-    margin: 'normal',        
+    margin: 'normal',
     datalist: 'placa',
     autoComplete: true,
     collection: 'frota',
@@ -11,7 +11,7 @@ export const altForm = [[{
 {
     field: 'delegatario',
     label: 'Delegatário',
-    margin: 'normal',    
+    margin: 'normal',
     datalist: 'razaoSocial',
     autoComplete: true,
     collection: 'empresas'
@@ -19,7 +19,7 @@ export const altForm = [[{
 {
     field: 'compartilhado',
     label: 'Delegatário Compartilhado',
-    margin: 'normal',    
+    margin: 'normal',
     datalist: 'razaoSocial',
     autoComplete: true,
     collection: 'empresas'
@@ -48,59 +48,57 @@ export const altForm = [[{
     field: 'renavam',
     label: 'Renavam',
     margin: 'normal',
-    disabled: true    
+    disabled: true
 },
 {
     field: 'nChassi',
     label: 'Número do Chassi',
     margin: 'normal',
     maxLength: 17,
-    disabled: true  
+    disabled: true
 },
 {
     field: 'modeloChassi',
     label: 'Modelo do Chassi',
     margin: 'normal',
-    disabled: true    
+    disabled: true
 },
 {
     field: 'anoChassi',
     label: 'Ano do Chassi',
     margin: 'normal',
-    type: 'number',    
-    disabled: true  
+    type: 'number',
+    disabled: true
 },
 {
-    type: 'number',
     field: 'valorChassi',
     label: 'Valor do Chassi (R$)',
     margin: 'normal',
     zero: true,
-    disabled: true  
+    disabled: true
 },
 {
     field: 'modeloCarroceria',
     label: 'Modelo da Carroceria',
     margin: 'normal',
-    disabled: true      
+    disabled: true
 },
 {
     type: 'number',
     field: 'anoCarroceria',
     label: 'Ano da Carroceria',
-    margin: 'normal',    
-    disabled: true  
+    margin: 'normal',
+    disabled: true
 },
 {
-    type: 'number',
     field: 'valorCarroceria',
     label: 'Valor da Carroceria (R$)',
     margin: 'normal',
     zero: true,
-    disabled: true  
+    disabled: true
 },
 
 ]]
     .concat([altFormVistoria])
-    .concat([[]])    
+    .concat([[]])
     .concat([[]])

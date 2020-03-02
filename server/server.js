@@ -42,7 +42,7 @@ app.use(function (req, res, next) { //allow cross origin requests
 
 app.use(bodyParser.json({ limit: '50mb' }))
 app.use(bodyParser.urlencoded())
-app.use(express.static('client/build'));
+app.use(express.static('client/build'))
 
 const Pool = pg.Pool
 let pool = new Pool({
