@@ -51,7 +51,7 @@ const useStyles = makeStyles(theme => ({
 export default function ({ empresas, equipamentos, data, handleInput, handleBlur,
     handleEquipa, handleCheck }) {
     const { razaoSocial, activeStep, addEquipa,
-        delegatarioCompartilhado, subtitle, placa, selectedEmpresa } = data,
+        delegatarioCompartilhado, subtitle, selectedEmpresa } = data,
 
         classes = useStyles(), { paper, container, title, selectEmpresa,
             button, formHolder } = classes

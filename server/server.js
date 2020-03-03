@@ -38,8 +38,6 @@ app.use(function (req, res, next) { //allow cross origin requests
     next()
 })
 
-//app.use(bodyParser.json());
-
 app.use(bodyParser.json({ limit: '50mb' }))
 app.use(bodyParser.urlencoded())
 app.use(express.static('client/build'))

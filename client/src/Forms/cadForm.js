@@ -42,7 +42,7 @@ export const cadForm = [[{
     margin: 'normal',
     type: 'number',
     max: Number(new Date().getFullYear()),
-    min: Number(new Date().getFullYear()) - 20
+    min: Number(new Date().getFullYear()) - 10
 },
 { 
     field: 'valorChassi',
@@ -67,7 +67,7 @@ export const cadForm = [[{
     label: 'Ano da Carroceria',
     margin: 'normal',
     max: Number(new Date().getFullYear() + 1),
-    min: Number(new Date().getFullYear()) - 20
+    min: Number(new Date().getFullYear()) - 10
 },
 {    
     field: 'valorCarroceria',

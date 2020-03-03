@@ -52,7 +52,8 @@ class AltDados extends Component {
         altPlaca: false,
         newPlate: '',
         placa: '',
-        addEquipa: false
+        addEquipa: false,
+        dropDisplay: 'Clique ou arraste para anexar'
     }
 
     async componentDidMount() {
@@ -104,6 +105,11 @@ class AltDados extends Component {
             }
         }
 
+        if (name === 'placa' && this.state.frota) {
+            const vehicle = this.state.frota.find(v => v.placa === value)
+            if (!vehicle) this.state.equipamentos.forEach(e => this.setState({ [e]: false }))
+        }
+
         if (name === 'newPlate') {
             let newPlate = value
             if (typeof newPlate === 'string') {
@@ -136,11 +142,12 @@ class AltDados extends Component {
         if (!value || typeof value !== 'string') return
         if (field === 'utilizacao') {
             if (value === 'RODOVIARIO') value = 'CONVENCIONAL'
-            value = value.charAt(0) + value.slice(1).toLowerCase()
+            if (value === 'SEMI LEITO - EXECUTIVO') value = 'Semi-Leito'
+            if (value !== 'Semi-Leito') value = value.charAt(0) + value.slice(1).toLowerCase()
         }
         if (field === 'dominio' && value === 'Sim') value = 'Veículo próprio'
         if (field === 'dominio' && value === 'Não') value = 'Possuidor'
-        
+
         return value
     }
 
@@ -183,6 +190,8 @@ class AltDados extends Component {
                 vEquip.forEach(ve => this.setState({ [ve]: true }))
             }
 
+
+
             if (vehicle && vehicle.utilizacao) {
                 vehicle.utilizacao = this.capitalize('utilizacao', vehicle.utilizacao)
             }
@@ -210,21 +219,14 @@ class AltDados extends Component {
         this.setState({ altPlaca: true, title, message })
     }
 
-    updatePlate = async () => {
-
-        const table = 'veiculo',
-            tablePK = 'veiculo_id',
-            requestObject = { placa: this.state.newPlate }
-
-        await axios.put('/api/updateVehicle', { requestObject, table, tablePK, id: this.state.veiculoId })
-        await this.submitFiles()
-        this.toggleDialog()
-        this.toast()
+    updatePlate = () => {
+        this.setState({ placa: this.state.newPlate })
+        this.toggleDialog()       
     }
 
     handleSubmit = async () => {
         const { poltronas, pesoDianteiro, pesoTraseiro, delegatarioId,
-            delegatarioCompartilhado, equipamentosId } = this.state
+            delegatarioCompartilhado, equipamentosId, newPlate } = this.state
 
         let tempObj = {}
 
@@ -251,7 +253,9 @@ class AltDados extends Component {
         })
 
         const { placa, delegatario, compartilhado, ...requestObject } = tempObj
-        console.log(tempObj, requestObject)
+
+        if (newPlate && newPlate !== '') requestObject.placa = newPlate
+
         const table = 'veiculo',
             tablePK = 'veiculo_id'
 
@@ -264,12 +268,9 @@ class AltDados extends Component {
 
     }
 
-    handleFiles = async e => {
-        const { name, files } = e.target
+    handleFiles = async (files, name) => {
 
         if (files && files[0]) {
-
-            document.getElementById(name).value = files[0].name
 
             let formData = new FormData()
             formData.append('veiculoId', this.state.veiculoId)
@@ -314,18 +315,21 @@ class AltDados extends Component {
         })
         if (array[0]) this.setState({ equipamentosId: array })
         else this.setState({ equipamentosId: [] })
-
     }
+
     handleEquipa = () => this.setState({ addEquipa: !this.state.addEquipa })
     toggleDialog = () => this.setState({ altPlaca: !this.state.altPlaca })
     closeAlert = () => this.setState({ openAlertDialog: !this.state.openAlertDialog })
     toast = () => this.setState({ confirmToast: !this.state.confirmToast })
-    reset = () => altForm.forEach(form => form.forEach(el => this.setState({ [el.field]: '' })))
+    reset = () => {
+        altForm.forEach(form => form.forEach(el => this.setState({ [el.field]: '' })))
+        this.setState({ form: undefined })
+    }
 
     render() {
         const
             { confirmToast, toastMsg, stepTitles, activeStep, steps, altPlaca,
-                selectedEmpresa, openAlertDialog, alertType } = this.state,
+                selectedEmpresa, openAlertDialog, alertType, dropDisplay, form } = this.state,
             { empresas, equipamentos } = this.props.redux
 
         return <Fragment>
@@ -351,8 +355,8 @@ class AltDados extends Component {
             {activeStep === 2 && <VehicleDocs
                 parentComponent='altDados'
                 handleFiles={this.handleFiles}
-                handleSubmit={this.submitFiles}
-                handleNames={this.handleNames}
+                dropDisplay={dropDisplay}
+                formData={form}
             />}
             {activeStep === 3 && <Review
                 parentComponent='altDados' files={this.state.form}
@@ -374,6 +378,8 @@ class AltDados extends Component {
                 handleInput={this.handleInput}
                 handleFiles={this.handleFiles}
                 updatePlate={this.updatePlate}
+                dropDisplay={dropDisplay}
+                formData={form}
             />
             {openAlertDialog && <AlertDialog open={openAlertDialog} close={this.closeAlert} alertType={alertType} customMessage={this.state.customMsg} />}
         </Fragment>

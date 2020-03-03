@@ -49,7 +49,7 @@ export default function ({ handleInput, handleBlur, data, handleCheck, handleEqu
         classes = useStyles(), { paper, container } = classes
 
     let form = altForm[activeStep]
-    
+
     return (
         <Fragment>
             <Grid
@@ -67,8 +67,7 @@ export default function ({ handleInput, handleBlur, data, handleCheck, handleEqu
                     />
                 }
                 {
-                    //selectedEmpresa ?
-                    true ?
+                    selectedEmpresa ?
                         <Grid item xs={12}>
                             {activeStep < 3 &&
                                 <Paper className={paper}>

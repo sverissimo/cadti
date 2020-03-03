@@ -1,8 +1,7 @@
 export const baixaForm = [
     {
         field: 'placa',
-        label: 'Placa',
-        margin: 'normal',
+        label: 'Placa',      
         datalist: 'placa',
         autoComplete: true,
         collection: 'frota',
@@ -10,65 +9,53 @@ export const baixaForm = [
     },
     {
         field: 'renavam',
-        label: 'Renavam',
-        margin: 'normal',
-        maxLength: 11,
-        pattern: '\\d{11}'
+        label: 'Renavam',        
     },
     {
         field: 'nChassi',
-        label: 'Número do Chassi',
-        margin: 'normal',
+        label: 'Número do Chassi',        
         maxLength: 17,
     },
     {
         field: 'delegatario',
-        label: 'Delegatário',
-        margin: 'normal',
+        label: 'Delegatário',        
         disabled: true
     },
     {
         field: 'utilizacao',
-        label: 'Utilização',
-        margin: 'normal',
+        label: 'Utilização',        
         disabled: true
     },
     {
         field: 'dominio',
-        label: 'Situação da Propriedade',
-        margin: 'normal',
+        label: 'Situação da Propriedade',        
         disabled: true
     },
 
     {
         field: 'marcaChassi',
-        label: 'Marca do Chassi',
-        margin: 'normal',
+        label: 'Marca do Chassi',        
         disabled: true
     },
     {
         field: 'modeloChassi',
-        label: 'Modelo do Chassi',
-        margin: 'normal',
+        label: 'Modelo do Chassi',        
         disabled: true
     },
     {
         field: 'marcaCarroceria',
-        label: 'Marca da Carroceria',
-        margin: 'normal',
+        label: 'Marca da Carroceria',        
         disabled: true
     },
     {
         field: 'modeloCarroceria',
-        label: 'Modelo da Carroceria',
-        margin: 'normal',
+        label: 'Modelo da Carroceria',        
         disabled: true
     },
     {
         type: 'number',
         field: 'indicadorIdade',
-        label: 'Ano',
-        margin: 'normal',
+        label: 'Ano',        
         disabled: true
     }
 ]

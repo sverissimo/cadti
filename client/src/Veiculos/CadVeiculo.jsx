@@ -45,7 +45,8 @@ class VeiculosContainer extends PureComponent {
         fileNames: [],
         insuranceExists: false,
         addEquipa: false,
-        openAlertDialog: false
+        openAlertDialog: false,
+        dropDisplay: 'Clique ou arraste para anexar'
     }
 
     async componentDidMount() {
@@ -91,14 +92,14 @@ class VeiculosContainer extends PureComponent {
         if (action === 'back') this.setState({ activeStep: prevActiveStep - 1 });
         if (action === 'reset') this.setState({ activeStep: 0 })
 
-        if (prevActiveStep === 1) {            
+        if (prevActiveStep === 1) {
             equipamentos.forEach(e => {
                 if (this.state[e] === true) {
-                    array.push(e)                    
+                    array.push(e)
                 }
             })
             if (array[0]) this.setState({ equipamentosId: array })
-            else this.setState({equipamentosId: []})
+            else this.setState({ equipamentosId: [] })
         }
     }
 
@@ -338,15 +339,11 @@ class VeiculosContainer extends PureComponent {
         }
     }
 
-    handleFiles = async e => {
-        const { name, files } = e.target
+    handleFiles = async (files, name) => {
 
         if (files && files[0]) {
-
-            document.getElementById(name).value = files[0].name
-
             let formData = new FormData(),
-                fn = this.state.fileNames
+            fn = this.state.fileNames
 
             if (files && files.length > 0) {
 
@@ -361,7 +358,7 @@ class VeiculosContainer extends PureComponent {
                         else void 0
                     }
                 })
-                this.setState({ form: formData })
+                this.setState({ form: formData })                
             }
         }
     }
@@ -412,7 +409,8 @@ class VeiculosContainer extends PureComponent {
             delegatarioCompartilhado: '',
             files: [],
             fileNames: [],
-            insuranceExists: false
+            insuranceExists: false,
+            form: undefined 
         })
     }
 
@@ -423,7 +421,7 @@ class VeiculosContainer extends PureComponent {
 
     render() {
         const { confirmToast, toastMsg, activeStep,
-            openAlertDialog, alertType, steps, selectedEmpresa, placa } = this.state,
+            openAlertDialog, alertType, steps, selectedEmpresa, placa, dropDisplay, form } = this.state,
             { empresas, equipamentos } = this.props.redux
 
         return <Fragment>
@@ -446,9 +444,9 @@ class VeiculosContainer extends PureComponent {
             />
             {activeStep === 3 && <VehicleDocs
                 parentComponent='cadastro'
-                handleFiles={this.handleFiles}
-                handleNames={this.handleNames}
-                showFiles={this.showFiles}
+                handleFiles={this.handleFiles}                
+                dropDisplay={dropDisplay}
+                formData={form}
             />}
 
             {activeStep === 4 && <Review
