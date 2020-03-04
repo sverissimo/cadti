@@ -28,6 +28,7 @@ const ShowFiles = ({ filesCollection, close, format, typeId, empresas }) => {
             fileLabels = cadVehicleFiles
             if (fileLabels.filter(f => f.name === 'transferenciaDoc').length === 0) fileLabels.push({ title: 'Documento de Transferência', name: 'transferenciaDoc' })
             if (fileLabels.filter(f => f.name === 'newPlateDoc').length === 0) fileLabels.push({ title: 'CRLV com nova placa', name: 'newPlateDoc' })
+            if (fileLabels.filter(f => f.name === 'seguro').length === 0) fileLabels.push({ title: 'Apólice de seguro', name: 'seguro' })
             break;
         default: void 0
     }
@@ -88,7 +89,7 @@ const ShowFiles = ({ filesCollection, close, format, typeId, empresas }) => {
                                 <div className="col s11">
                                     <span
                                         style={{ textDecoration: 'underline', cursor: 'pointer', color: 'blue' }}
-                                        onClick={() => download(file.id, file.filename, collection)}>
+                                        onClick={() => download(file.id, file.filename, collection, file.metadata.fieldName)}>
                                         {file.label + getMoreInfo(file)}
                                     </span>
                                 </div>

@@ -8,40 +8,19 @@ import { makeStyles } from '@material-ui/core/styles'
 import MaterialTable from 'material-table';
 import { tables } from './tables'
 
-const useStyles = makeStyles(theme => ({
-    container: {
-        display: 'flex',
-        flexWrap: 'wrap',
-        padding: theme.spacing(2)
-    },
-    textField: {
-        marginLeft: theme.spacing(1),
-        marginRight: theme.spacing(1),
-        width: 300,
-        fontSize: '0.8rem',
-        fontColor: '#bbb',
-        textAlign: 'center'
-    },
-    input: {
-        textAlign: 'center'
-    },
+const useStyles = makeStyles(theme => ({   
     paper: {
-        padding: theme.spacing(2),
+        padding: '40px',
         textAlign: 'center',
         color: theme.palette.text.secondary,
         margin: theme.spacing(2)
-    },
-    button: {
-        margin: theme.spacing(1),
-        float: 'right',
-    },
-
+    }
 }));
 
 export default function ({ tab, collection, showDetails, showFiles, del }) {
     const classes = useStyles(), { paper } = classes
 
-    const id = ['delegatarioId', 'socioId', 'procuradorId', 'veiculoId'][tab],
+    const id = ['delegatarioId', 'socioId', 'procuradorId', 'veiculoId', 'apolice'][tab],
         subject = ['empresas', 'sócios', 'procuradores', 'veículos', 'seguros']
     if (!Array.isArray(collection)) collection = []
     return (
@@ -54,8 +33,7 @@ export default function ({ tab, collection, showDetails, showFiles, del }) {
                     options={{
                         filtering: true,
                         exportButton: true,
-                        exportFileName: subject[tab],
-                        exportAllData: true,
+                        exportFileName: subject[tab],                                                
                         exportCsv: (columns, data) => {
                             const
                                 fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8',
@@ -93,7 +71,7 @@ export default function ({ tab, collection, showDetails, showFiles, del }) {
                             exportTitle: 'Exportar'
                         },
                         pagination: {
-                            rowsPerPageOptions: [5, 10, 25, 50, 100],
+                         
                             labelRowsSelect: 'Resultados por página',
                             labelDisplayedRows: ' {from}-{to} a {count}',
                             firstTooltip: 'Primeira página',
@@ -109,15 +87,14 @@ export default function ({ tab, collection, showDetails, showFiles, del }) {
                             tooltip: 'Mais informações',
                             onClick: (event, rowData) => showDetails(event, rowData)
                         },
-                        {
-                            hidden: tab !== 1 && tab !== 4 ? false : true,
+                        {                            
                             icon: 'file_copy_outline',
                             iconProps: { color: 'secondary' },
                             tooltip: 'Ver arquivos',
                             onClick: (event, rowData) => showFiles(rowData[id])
                         }
                     ]}
-                    editable={{                        
+                    editable={{
                         onRowDelete: async oldData => await del(oldData)
                     }}
                 />

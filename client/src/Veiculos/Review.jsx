@@ -19,7 +19,7 @@ export default function Revisao({ data, parentComponent, form, filesForm, files 
 
     const classes = useStyles(),
         { paper } = classes
-    
+
     let vehicleDetails = [], obj = {}, newForm = [], filledForm = [], ultimateData
     form.forEach(f => {
         f.forEach(e => {
@@ -63,9 +63,10 @@ export default function Revisao({ data, parentComponent, form, filesForm, files 
                                     </thead>
                                     <tbody>
                                         <tr>
-                                            {Object.values(data).map((d, j) => <td key={j}>
-                                                {d}
-                                            </td>
+                                            {Object.values(data).map((d, j) =>
+                                                <td className='review' key={j}>
+                                                    {d}
+                                                </td>
                                             )}
                                         </tr>
                                     </tbody>

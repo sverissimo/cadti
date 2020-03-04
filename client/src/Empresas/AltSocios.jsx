@@ -225,6 +225,9 @@ class AltSocios extends Component {
 
         oldMembers = humps.decamelizeKeys(realChanges)
         newMembers = humps.decamelizeKeys(newMembers)
+        let socioIdsArray = filteredSocios
+            .filter(s => s.socioId !== undefined)
+            .map(s => s.socioId)
 
         try {
             if (oldMembers.length > 0) {
@@ -234,20 +237,22 @@ class AltSocios extends Component {
 
             if (newMembers.length > 0) {
                 await axios.post('/api/cadSocios', { socios: newMembers, table, tablePK })
+                    .then(r => r.data.forEach(newSocio => socioIdsArray.push(newSocio.socio_id)))
             }
 
             if (contratoSocial) {
                 contratoFile.append('empresaId', selectedEmpresa.delegatarioId)
+                contratoFile.append('socios', socioIdsArray)
+
                 for (let pair of contratoSocial.entries()) {
                     contratoFile.append(pair[0], pair[1])
-                }
+                }               
                 await axios.post('/api/empresaUpload', contratoFile)
                     .then(r => console.log(r.data))
             }
         } catch (err) {
             console.log(err)
         }
-
 
         oldMembers = []
         realChanges = []
@@ -274,7 +279,6 @@ class AltSocios extends Component {
     toggleDialog = () => this.setState({ openDialog: !this.state.openDialog })
     closeAlert = () => this.setState({ openAlertDialog: !this.state.openAlertDialog })
     toast = () => this.setState({ confirmToast: !this.state.confirmToast })
-
 
     render() {
         const { openAlertDialog, alertType } = this.state,

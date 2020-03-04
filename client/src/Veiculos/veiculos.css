@@ -195,7 +195,7 @@ table {
     text-align: center;
 }
 
-th, td {
+th, td.review {
     padding: 8px;
     text-align: left;
     height: 20px;

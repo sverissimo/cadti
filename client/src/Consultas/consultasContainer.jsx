@@ -50,7 +50,6 @@ class ConsultasContainer extends Component {
     }
 
     async componentDidMount() {
-
         document.addEventListener('keydown', this.escFunction, false)
     }
 
@@ -59,9 +58,6 @@ class ConsultasContainer extends Component {
     changeTab = async (e, value) => {
         await this.setState({ tab: value })
         return
-        /*   const options = ['empresas', 'socios', 'procuradores', 'veiculos', 'seguros'],
-              collection = this.props.redux[options[value]]
-          this.setState({ collection }) */
     }
 
     showDetails = async (e, elementDetails) => {
@@ -88,17 +84,34 @@ class ConsultasContainer extends Component {
     showFiles = id => {
         const
             { tab } = this.state,
-            { redux } = this.props
+            { veiculos, socios, empresaDocs, vehicleDocs } = this.props.redux
 
-        let selectedFiles = redux.empresaDocs.filter(f => f.metadata.empresaId === id.toString())
+        let selectedFiles = empresaDocs.filter(f => f.metadata.empresaId === id.toString())
         let typeId = 'empresaId'
 
         switch (tab) {
+            case 1:
+                selectedFiles = empresaDocs.filter(f => f.metadata.empresaId === id.toString())
+                const socio = socios.find(v => v.socioId === id)
+                if (socio) {
+                    let sociosArray = []
+                    selectedFiles = empresaDocs
+                        .filter(f => f.metadata.empresaId === socio.delegatarioId.toString())
+                        .filter(f => f.metadata.fieldName === 'contratoSocial')
+                        .forEach(f => {
+                            if (f.metadata.socios && f.metadata.socios.includes(id))
+                                sociosArray.push(f)
+                        })
+                    selectedFiles = sociosArray
+                    console.log(selectedFiles)
+                }
+                break
+
             case 2:
                 typeId = 'procuracaoId'
                 let filesToReturn = []
 
-                redux.empresaDocs.forEach(f => {
+                empresaDocs.forEach(f => {
                     if (f.metadata.fieldName === 'procuracao') {
                         f.metadata.procuradores.forEach(procId => {
                             if (procId === id) filesToReturn.push(f)
@@ -106,11 +119,19 @@ class ConsultasContainer extends Component {
                     }
                 })
                 selectedFiles = filesToReturn
-                break;
+                break
             case 3:
                 typeId = 'veiculoId'
-                selectedFiles = redux.vehicleDocs.filter(f => f.metadata.veiculoId === id.toString())
-                break;
+                selectedFiles = vehicleDocs.filter(f => f.metadata.veiculoId === id.toString())
+                const vehicle = veiculos.find(v => v.veiculoId === id)
+                if (vehicle) {
+                    const seguro = empresaDocs.find(f => f.metadata.apolice === vehicle.apolice.toString())
+                    selectedFiles.push(seguro)
+                }
+                break
+            case 4:
+                selectedFiles = empresaDocs.filter(f => f.metadata.apolice === id.toString())
+                break
             default: void 0
         }
 
@@ -146,9 +167,6 @@ class ConsultasContainer extends Component {
 
         let updatedElement
         if (elementDetails && showDetails) updatedElement = redux[options[tab]].find(e => e[primaryKeys[tab]] === elementDetails[primaryKeys[tab]])
-
-        /* let updatedElement
-        if (elementDetails) updatedElement = redux[options[tab]].find(e => e[tablePKs[tab]] === elementDetails[tablePKs[tab]]) */
 
         return <Fragment>
             <TabMenu items={items}

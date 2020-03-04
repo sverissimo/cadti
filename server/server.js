@@ -89,11 +89,15 @@ const empresaStorage = new GridFsStorage({
     file: (req, file) => {
         gfs.collection('empresaDocs')
         const { fieldName, empresaId, procuracaoId } = req.body
-        let { procuradores } = req.body
+        let { procuradores, socios } = req.body
 
         if (procuradores) {
             procuradores = procuradores.split(',')
             procuradores = procuradores.map(id => Number(id))
+        }
+        if (socios) {
+            socios = socios.split(',')
+            socios = socios.map(id => Number(id))
         }
 
         let fileInfo = {
@@ -110,7 +114,8 @@ const empresaStorage = new GridFsStorage({
         if (file.fieldname === 'contratoSocial') {
             fileInfo.metadata = {
                 'fieldName': file.fieldname,
-                'empresaId': empresaId
+                'empresaId': empresaId, 
+                'socios': socios
             }
         } else if (file.fieldname === 'seguro') {
             let { ...metadata } = req.body
