@@ -47,7 +47,7 @@ const featuredPosts = [
         date: '07/Nov',
         description:
             'Cadastre e gerencie dados de empresas, sócios e procuradores',
-        link: '/empresasHome',
+        link: '/empresas',
         imageUrl: '/images/empresas12.jpg'
     },
     {

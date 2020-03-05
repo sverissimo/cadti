@@ -5,7 +5,7 @@ import formatFileSize from './formatFileSize'
 import download from './downloadFile'
 import PopUp from './PopUp'
 import { cadVehicleFiles } from '../Forms/cadVehicleFiles'
-import { empresaFiles } from '../Forms/Files/empresaFiles'
+import { empresaFiles } from '../Forms/empresaFiles'
 
 const divRow = {
     marginBottom: 0,

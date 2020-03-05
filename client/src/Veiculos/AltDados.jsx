@@ -14,7 +14,7 @@ import CustomStepper from '../Utils/Stepper'
 
 import AltDadosTemplate from './AltDadosTemplate'
 import VehicleDocs from './VehicleDocs'
-import Review from './Review'
+import Review from './VehicleReview'
 import StepperButtons from '../Utils/StepperButtons'
 
 import FormDialog from '../Utils/FormDialog'

@@ -1,15 +1,13 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Link as RouterLink } from 'react-router-dom'
 import { makeStyles } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import { Toolbar, Typography, Button, IconButton, Link } from '@material-ui/core'
 import SearchIcon from '@material-ui/icons/Search';
+import { withRouter } from 'react-router'
 import './stylez.css'
 
 const useStyles = makeStyles(theme => ({
-    toolbar: {
-        borderBottom: `1px solid ${theme.palette.divider}`,
-    },
     toolbarTitle: {
         flex: 1,
     },
@@ -17,12 +15,11 @@ const useStyles = makeStyles(theme => ({
         justifyContent: 'space-between',
         overflowX: 'auto',
         backgroundColor: '#0398c1',
-        color: 'white',
-        borderBottom: 'solid 3px #fff',        
+        color: 'white'
     },
 
     toolbarLink: {
-        padding: theme.spacing(1),
+        padding: '12px 55px 13px 55px',
         flexShrink: 0,
     },
     mainFeaturedPost: {
@@ -85,59 +82,71 @@ const sections = [
     { title: 'Página Inicial', link: '/' },
     { title: 'Certidões', link: '/certidoes' },
     { title: 'Consultas', link: '/consultas' },
-    { title: 'Veículos', link: '/veiculos' },    
-    { title: 'Empresas', link: '/empresasHome' },
+    { title: 'Veículos', link: '/veiculos' },
+    { title: 'Empresas', link: '/empresas' },
     { title: 'Fale Conosco', link: '/faleConosco' },
 ];
 
 
-export default function () {
-
+const Header = props => {
+    const classes = useStyles()
     const [path, setSelected] = useState(document.location.pathname)
-
-    const classes = useStyles();
+    const { pathname } = props.location
+    
+    useEffect(() => {
+        setSelected(pathname)        
+    }, [pathname])
+    
     return (
         <React.Fragment>
             <CssBaseline />
-            
-                <Toolbar className={classes.toolbar}>
-                    <Button size="small">Criar usuário</Button>
-                    <Typography
-                        component="h2"
-                        variant="h6"
-                        color="inherit"
-                        align="center"
-                        noWrap
-                        className={classes.toolbarTitle}
-                    >
-                        Seinfra - Subsecretaria de Transportes e Mobilidade - MG
+
+            <Toolbar>
+                <Button size="small">Criar usuário</Button>
+                <Typography
+                    component="h2"
+                    variant="h6"
+                    color="inherit"
+                    align="center"
+                    noWrap
+                    className={classes.toolbarTitle}
+                >
+                    Seinfra - Subsecretaria de Transportes e Mobilidade - MG
                     </Typography>
-                    <IconButton>
-                        <SearchIcon />
-                    </IconButton>
-                    <Button variant="outlined" size="small">
-                        Fazer login
+                <IconButton>
+                    <SearchIcon />
+                </IconButton>
+                <Button variant="outlined" size="small">
+                    Fazer login
                     </Button>
-                </Toolbar>
-                <Toolbar component="nav" variant="dense" className={classes.toolbarSecondary}>
-                    {sections.map((section, i) => (
-                        <Link
-                            component={RouterLink}
-                            to={section.link}
-                            key={i}
-                            color="inherit"
-                            noWrap                            
-                            variant="body2"
-                            href=""
-                            className={classes.toolbarLink}
-                            onClick={() => setSelected(section.link)}
-                        >
-                            {path === section.link ?
-                                <strong> {section.title} </strong> : section.title
-                            }
-                        </Link>
-                    ))}
-                </Toolbar>            
-        </React.Fragment>
+            </Toolbar>
+            <Toolbar component="nav" variant="dense" className={classes.toolbarSecondary}>
+                {sections.map(({ link, title }, i) => (
+                    <Link
+                        component={RouterLink}
+                        to={link}
+                        key={i}
+                        color="inherit"
+                        noWrap
+                        variant="body2"
+                        href=""
+                        style={{
+                            fontFamily: 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif',
+                            fontSize: '15px',
+                            backgroundColor: (path.match(link) && link !== '/' && link !== '/faleConosco')
+                                ? '#11a7d2' : '',
+                            //borderTop: (path === link && link !== '/' && link !== '/faleConosco') ? '2px solid #fff' : '',
+                            borderBottom: (path.match(link) && link !== '/' && link !== '/faleConosco') ? '1.5px solid #fff' : '',
+                            fontWeight: (path.match(link) && (link === '/' || link === '/faleConosco')) ? '500' : '400'
+                        }}
+                        className={classes.toolbarLink}
+                        onClick={() => setSelected(link)}
+                    >
+                        {title}
+                    </Link>
+                ))}
+            </Toolbar>
+        </React.Fragment >
     )
 }
+export default withRouter(Header)

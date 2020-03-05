@@ -286,7 +286,7 @@ class AltSocios extends Component {
 
         return (
             <React.Fragment>
-                <Crumbs links={['Empresas', '/empresasHome']} text='Alteração do quadro societário' />
+                <Crumbs links={['Empresas', '/empresas']} text='Alteração do quadro societário' />
                 <AltSociosTemplate
                     data={this.state}
                     empresas={empresas}

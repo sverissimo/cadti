@@ -1,9 +1,9 @@
 import React from 'react'
-import { Paper, Tabs, Tab } from '@material-ui/core'
+import { Tabs, Tab } from '@material-ui/core'
 
 export default ({items, tab, changeTab}) =>
 
-    <Paper style={{backgroundColor:'#e1f5fe'}}> 
+    <div className='tabMenu'> 
         <Tabs value={tab}
             indicatorColor="primary"
             textColor="primary"
@@ -11,6 +11,6 @@ export default ({items, tab, changeTab}) =>
             onChange={changeTab}>
             {items.map((item, i)=> <Tab key={i} label={item} />)}
         </Tabs>
-    </Paper>
+    </div>
 
 

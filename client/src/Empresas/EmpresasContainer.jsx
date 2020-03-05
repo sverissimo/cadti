@@ -8,8 +8,9 @@ import StoreHOC from '../Store/StoreHOC'
 import { checkInputErrors } from '../Utils/checkInputErrors'
 import EmpresasTemplate from './EmpresasTemplate'
 import SociosTemplate from './SociosTemplate'
-import EmpresaReview from './EmpresaReview'
+import Review from './EmpresaReview'
 
+import { empresaFiles } from '../Forms/empresaFiles'
 import { empresasForm } from '../Forms/empresasForm'
 import { sociosForm } from '../Forms/sociosForm'
 import Crumbs from '../Utils/Crumbs'
@@ -60,11 +61,11 @@ class EmpresasContainer extends Component {
         if (action === 'back') this.setState({ activeStep: prevActiveStep - 1 });
         if (action === 'reset') this.setState({ activeStep: 0 })
 
-         const { errors } = this.state
-         if (errors && errors[0]) {
-             await this.setState({ ...this.state, ...checkInputErrors('setState') })            
-             return
-         }
+        const { errors } = this.state
+        if (errors && errors[0]) {
+            await this.setState({ ...this.state, ...checkInputErrors('setState') })
+            return
+        }
     }
 
     handleInput = async e => {
@@ -242,7 +243,7 @@ class EmpresasContainer extends Component {
             .then(delegatarioId => {
                 empresaId = delegatarioId.data
             })
-        
+
         if (contratoSocial) {
             contratoFile.append('fieldName', 'contratoSocial')
             contratoFile.append('empresaId', empresaId)
@@ -295,11 +296,12 @@ class EmpresasContainer extends Component {
 
     render() {
 
-        const { activeStep, confirmToast, toastMsg, steps, openAlertDialog, alertType } = this.state
+        const { activeStep, confirmToast, toastMsg, steps, openAlertDialog,
+            alertType, contratoSocial } = this.state
 
         return <Fragment>
 
-            <Crumbs links={['Empresas', '/empresasHome']} text='Cadastro de empresas' />
+            <Crumbs links={['Empresas', '/empresas']} text='Cadastro de empresas' />
 
             <CustomStepper
                 activeStep={activeStep}
@@ -326,9 +328,10 @@ class EmpresasContainer extends Component {
                             handleEdit={this.handleEdit}
                         />
                         :
-                        <EmpresaReview
-                            data={this.state}
-                            showFiles={this.showFiles}
+                        activeStep === 2 && <Review
+                            files={contratoSocial}
+                            filesForm={empresaFiles} data={this.state}
+                            sociosForm={sociosForm} empresasForm={empresasForm}
                         />
             }
             <StepperButtons

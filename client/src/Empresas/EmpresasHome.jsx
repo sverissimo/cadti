@@ -90,14 +90,14 @@ const featuredPosts = [
         description:
             'Cadastrar uma nova empresa no sistema.',
         imageUrl: '/images/addCompany21.png',
-        link: '/empresas'
+        link: '/empresas/cadastro'
     },
     {
         title: 'Sócios',
         date: '07/Nov',
         description:
             'Gerenciar sócios e alterações de contrato social',
-        link: '/socios',
+        link: '/empresas/socios',
         imageUrl: '/images/socios3.png'
     },
     {
@@ -105,7 +105,7 @@ const featuredPosts = [
         date: '07/Nov',
         description:
             'Alterar relação de procuradores e procurações',
-        link: '/procuradores',
+        link: '/empresas/procuradores',
         imageUrl: '/images/procuradores31.png'
     },
 ]

@@ -277,7 +277,7 @@ class AltProcuradores extends Component {
 
         return (
             <React.Fragment>
-                <Crumbs links={['Empresas', '/empresasHome']} text='Alteração de procuradores' />
+                <Crumbs links={['Empresas', '/empresas']} text='Alteração de procuradores' />
                 <AltProcuradoresTemplate
                     data={this.state}
                     redux={this.props.redux}

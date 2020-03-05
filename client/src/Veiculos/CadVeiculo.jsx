@@ -8,7 +8,7 @@ import StoreHOC from '../Store/StoreHOC'
 import { checkInputErrors } from '../Utils/checkInputErrors'
 import CadVeiculoTemplate from './CadVeiculoTemplate'
 import VehicleDocs from './VehicleDocs'
-import Review from './Review'
+import Review from './VehicleReview'
 
 import Crumbs from '../Utils/Crumbs'
 import StepperButtons from '../Utils/StepperButtons'
