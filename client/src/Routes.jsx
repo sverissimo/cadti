@@ -14,7 +14,7 @@ import Procuradores from './Empresas/AltProcuradores'
 import Socios from './Empresas/AltSocios'
 import { Switch, Route } from 'react-router-dom'
 import UnderConstruction from './Utils/UnderConstruction'
-import PdfTest from './Veiculos/PdfCertificate'
+import PdfTest from './Veiculos/PdfCertificate2'
 
 export default () =>
     

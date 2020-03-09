@@ -5,16 +5,6 @@ import './certificate.css'
 //import styles from './certificate.module.css'
 import { delegatario, caracteristicas } from '../Forms/certificate'
 
-function print() {
-    const filename = 'PdfShit.pdf';
-
-    html2canvas(document.querySelector('#pdfPage'), { scale: 2 })
-        .then(canvas => {
-            let pdf = new jsPDF('p', 'mm', 'a4');
-            pdf.addImage(canvas.toDataURL('image/png'), 'JPEG', 0, -35, 211, 298, 'cert', 'FAST');
-            pdf.save(filename);
-        });
-}
 
 const data = {
     placa: "ZZZ-9999",
@@ -40,8 +30,31 @@ const data = {
     seguradora: "PRUDENTIAL do Brasil Vida em Grupo S.A.",
     dataEmissao: "2019-10-16T03:00:00.000Z",
 }
+const print = () => {
+    const filename = 'PdfShit.pdf';
 
+    html2canvas(document.querySelector('#pdfPage'), { scale: 4 })
+        .then(canvas => {
+            document.body.appendChild(canvas);
+            var canv = document.querySelector('canvas');
+            canv.style.display = 'none';
+            var image = canv.toDataURL("image/png").replace("image/png", "image/octet-stream");
+            var a = document.createElement("a");
+            a.setAttribute('download', 'myImage.png');
+            a.setAttribute('href', image);
+            console.log('fukkkkkkkkkss')
+            a.click();
+
+            let pdf = new jsPDF('p', 'mm', 'a4');
+            pdf.addImage(canvas.toDataURL('image/svg'), 'SVG', 0, -35, 211, 298);
+            pdf.save(filename);
+        });
+}
 export default function PdfCertificate() {
+
+
+
+
     //const { A4 } = styles
 
     let carac = caracteristicas, object = {}
@@ -82,7 +95,6 @@ export default function PdfCertificate() {
                             </Fragment>
                         )}
                     </tbody>
-
                 </table>
             </div>
             <br />

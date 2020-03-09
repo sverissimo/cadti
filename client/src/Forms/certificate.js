@@ -1,35 +1,48 @@
-export const delegatario = [
+export const delegatario = [[
     {
-        field: 'razaoSocial',
-        label: 'Delegatário'
+        field: 'empresa',
+        label: 'Delegatário',
+        width: '120mm',
+        left: '50mm'
     },
     {
-        field: 'vencimento',
-        label: 'validade'
+        field: 'vencimentoContrato',
+        label: 'Validade do Contrato',
+        width: '36mm',
+        left: '5mm'
     },
-]
+]]
 
 export const caracteristicas = [
     [
         {
             field: 'placa',
-            label: 'Placa'
+            label: 'Placa',
+            width: '25mm',
+            left: '8mm'
         },
         {
             field: 'renavam',
-            label: 'Renavam'
+            label: 'Renavam',
+            width: '42mm',
+            left: '14mm'
         },
         {
             field: 'poltronas',
             label: 'Poltronas',
+            width: '16mm',
+            left: '2mm'
         },
         {
             field: 'piquesPoltrona',
             label: 'Piques poltrona',
+            width: '19mm'
         },
         {
             field: 'nChassi',
             label: 'Número do Chassi',
+            width: '50mm',
+            left: '15mm'
         },
 
     ],
@@ -37,10 +50,14 @@ export const caracteristicas = [
         {
             field: 'marcaChassi',
             label: 'Marca do Chassi',
+            width: '49mm',
+            left: '15mm'
         },
         {
             field: 'modeloChassi',
             label: 'Modelo do Chassi',
+            width: '49mm',
+            left: '15mm'
         },
         {
             field: 'anoChassi',
@@ -59,10 +76,14 @@ export const caracteristicas = [
         {
             field: 'marcaCarroceria',
             label: 'Marca da Carroceria',
+            width: '49mm',
+            left: '15mm'
         },
         {
             field: 'modeloCarroceria',
             label: 'Modelo da Carroceria',
+            width: '49mm',
+            left: '15mm'
         },
         {
             field: 'anoCarroceria',
@@ -71,68 +92,103 @@ export const caracteristicas = [
         {
             field: 'cores',
             label: 'Cores',
+            width: '45mm',
+            left: '15mm'
         }]
 ]
 
-
-
-const vistoria = [
+export const seguro = [[
     {
-        field: 'peso_dianteiro',
+        field: 'seguradora',
+        label: 'Seguradora',
+        width: '75mm',
+        left: '27.5mm'
+    },
+    {
+        field: 'apolice',
+        label: 'Apólice',
+        width: '35mm',
+        left: '13mm'
+    },
+    {
+        type: 'date',
+        field: 'dataEmissao',
+        label: 'Data de Emissão',
+        width: '25mm',
+        left: '5mm'
+    },
+    {
+        type: 'date',
+        field: 'vencimento',
+        label: 'Vencimento',
+        width: '25mm',
+        left: '5mm'
+    }]]
+
+export const pesagem = [[
+    {
+        field: 'eixos',
+        label: 'Nº Eixos',
+        width: '20mm',
+        left: '3mm'
+    },
+    {
+        field: 'pbt',
+        label: 'Peso Bruto Total',
+        width: '25mm',
+        left: '5mm'
+    },
+    {
+        field: 'pesoDianteiro',
         label: 'Peso Dianteiro (kg)',
-        margin: 'normal',
-        type: 'number',
-        max: 12000
+        width: '25mm',
+        left: '5mm'
     },
     {
-        field: 'peso_traseiro',
+        field: 'pesoTraseiro',
         label: 'Peso Traseiro (kg)',
-        margin: 'normal',
-        type: 'number',
-        max: 15000
+        width: '25mm',
+        left: '5mm'
     },
-]
+    {
+        field: 'pbt',
+        label: 'Peso Bruto Total',
+        width: '25mm',
+        left: '5mm'
+    },
+    {
+        field: 'pesoPassageiros',
+        label: 'Passag/Bagagem',
+        width: '25mm',
+        left: '5mm'
+    },
+]]
 
 
-const certificate = [{
-    field: 'utilizacao',
-    label: 'Utilização',
-    margin: 'normal',
-    select: true,
-    options: ['Convencional', 'Executivo', 'Leito', 'Semi-Leito', 'Urbano']
-},
-
-
-{
-    field: 'anoChassi',
-    label: 'Ano do Chassi',
-    margin: 'normal',
-    type: 'number',
-    max: Number(new Date().getFullYear()),
-    min: Number(new Date().getFullYear()) - 10
-},
-{
-    type: 'number',
-    field: 'anoCarroceria',
-    label: 'Ano da Carroceria',
-    margin: 'normal',
-    max: Number(new Date().getFullYear() + 1),
-    min: Number(new Date().getFullYear()) - 10
-},
-{
-    field: 'valorCarroceria',
-    label: 'Valor da Carroceria (R$)',
-    margin: 'normal',
-    zero: true,
-    pattern: '\\d{5,14}',
-    min: 50000,
-    maxLength: 14
-},
-{
-    field: 'dominio',
-    label: 'Situação da Propriedade',
-    margin: 'normal',
-    select: true,
-    options: ['Veículo próprio', 'Leasing', 'Possuidor']
-}
-]
+export const informacoesGerais = [[
+    {
+        type: 'date',
+        field: 'dataRegistro',
+        label: 'Data de Registro',
+        width: '35mm',
+        left: '9mm'
+    },
+    {
+        field: 'dataExpedicao',
+        label: 'Data de expedição',
+        width: '35mm',
+        left: '9mm'
+    },
+    {
+        field: 'utilizacao',
+        label: 'Utilização',
+        width: '35mm',
+        left: '9mm'
+    },
+    {
+        field: 'equipamentos',
+        label: 'Acessórios',
+        width: '65mm',
+        left: '16mm'
+    }
+]]

@@ -1,14 +1,38 @@
 .A4 {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
     background: white;
     width: 21cm;
     height: 29.7cm;
     display: block;
     margin: 0 auto;
-    padding: 10px 25px;
+    margin-top: 3mm;
+    padding: 2.5mm 6mm;
     margin-bottom: 0.5cm;
     box-shadow: 0 0 0.5cm rgba(0, 0, 0, 0.5);
     overflow-y: hidden;
     box-sizing: border-box;
+}
+
+.box {
+    border: 1px solid #333;
+    border-radius: 3mm;
+    position: relative;
+    margin-bottom: 3mm
+}
+
+.boxTitle {
+    position: absolute;
+    top: 1mm;
+    left: 2mm;
+    font-size: 3.7mm;
+    font-weight: 500;     
+}
+
+.divLine {
+    display: flex;
+    margin: 8mm 0 7mm 0;
+    width: 100%;
+    padding: 0 2mm 0 6mm;
 }
 
 @media print {
@@ -23,25 +47,49 @@
         margin: 0;
         padding: 0;
     }
+    nav, .MuiToolbar-root {
+        display: none !important;
+    }
     .A4 {
         box-shadow: none;
-        margin: 0;
-        width: auto;
+        margin: 1mm !important;
+        padding: 0;
+        width: 200mm;
         height: auto;
+        display: block !important;
+        overflow-x: hidden;
     }
-    .noprint {
+    .divLine {
+        display: flex;
+        margin: 9mm 0 8mm 0;
+        width: 100%;
+        padding: 0 2mm 0 6mm;
+    }
+    .MuiToolbar-root, .MuiToolbar-regular, .MuiToolbar-gutters, .noprint {
         display: none;
     }
-    .enable-print {
-        display: block;
-    }
 }
 
-tr {
-    padding-bottom: 10px;    
+.certificate {
+    border-radius: 0% !important;
+    height: 15px !important;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+    font-size: 13px !important;
+    font-weight: 500 !important;
+    vertical-align: middle;
+    text-align: center !important;
 }
 
-td, th {
+tr.cert {
+    padding-bottom: 10px;
+}
+
+td.cert, th.cert {
+    width: 25px;
+    text-align: center;
+}
+
+th {
     width: 25px;
     text-align: center;
 }
@@ -49,3 +97,14 @@ td, th {
 table {
     border: 1px solid #ddd;
 }
+
+/* .MuiOutlinedInput-root {
+    border-radius: 0 !important;
+    border: 1px solid #fff !important;
+    margin: 0 -1px 0 -1px;
+}
+
+.MuiInputLabel-shrink, .MuiInputLabel-outlined {
+    text-align: center !important;
+}
+ */
