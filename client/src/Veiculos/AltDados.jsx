@@ -57,7 +57,7 @@ class AltDados extends Component {
     }
 
     async componentDidMount() {
-        const { redux } = this.props
+        const { redux } = this.props        
         let equipamentos = {}
 
         if (redux && redux.equipamentos) {

@@ -5,19 +5,19 @@ import * as XLSX from 'xlsx';
 import MaterialTable from 'material-table';
 import { tables } from './tables'
 
-export default function ({ tab, collection, showDetails, showFiles, del }) {
+export default function ({ tab, collection, showDetails, showFiles, showCertificate, del }) {
 
 
     const id = ['delegatarioId', 'socioId', 'procuradorId', 'veiculoId', 'apolice'][tab],
         subject = ['empresas', 'sócios', 'procuradores', 'veículos', 'seguros']
     if (!Array.isArray(collection)) collection = []
     return (
-        <div style={{ margin: '10px 0' }}>
+        <div style={{ margin: '10px 0' }} className='noPrint'>
             <MaterialTable
                 title={`Pesquisar dados de ${subject[tab]}`}
                 columns={tables[tab]}
                 data={collection}
-                style={{fontFamily: 'Segoe UI', fontSize: '14px'}}
+                style={{ fontFamily: 'Segoe UI', fontSize: '14px' }}
                 options={{
                     filtering: true,
                     exportButton: true,
@@ -45,7 +45,7 @@ export default function ({ tab, collection, showDetails, showFiles, del }) {
                 }}
 
                 localization={{
-                    header: {actions: 'Opções'},
+                    header: { actions: 'Opções' },
                     body: {
                         emptyDataSourceMessage: 'Registro não encontrado.',
                         editRow: { deleteText: 'Tem certeza que deseja apagar esse registro ?' },
@@ -67,7 +67,7 @@ export default function ({ tab, collection, showDetails, showFiles, del }) {
                         previousTooltip: 'Página anterior',
                         nextTooltip: 'Próxima Página',
                         lastTooltip: 'Última Página',
-                        
+
                     }
                 }}
                 actions={[
@@ -82,6 +82,13 @@ export default function ({ tab, collection, showDetails, showFiles, del }) {
                         iconProps: { color: 'secondary' },
                         tooltip: 'Ver arquivos',
                         onClick: (event, rowData) => showFiles(rowData[id])
+                    },
+                    {
+                        icon: 'class_outlined',
+                        iconProps: { color: 'action' },
+                        tooltip: 'Emitir certificado',
+                        hidden: tab !== 3,
+                        onClick: (event, rowData) => showCertificate(rowData)
                     }
                 ]}
                 editable={{

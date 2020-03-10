@@ -1,13 +1,13 @@
 import React from 'react'
 
 export default function PopUp({ close, children, title, format }) {
-    
+
     return (
         <div>
-            <div 
-                style={{
+            <div
+                style={format || {
                     position: 'fixed',
-                    height:'80vh',
+                    height: '80vh',
                     top: format ? format.top : '10%',
                     right: format ? format.right : '33%',
                     left: format ? format.left : '33%',
@@ -15,7 +15,7 @@ export default function PopUp({ close, children, title, format }) {
                     borderRadius: '15px',
                     border: '1px solid #aaa',
                     backgroundColor: 'white',
-                    zIndex:10,
+                    zIndex: 10,
                     boxShadow: '2px',
                     overflowY: 'auto'
                 }}>

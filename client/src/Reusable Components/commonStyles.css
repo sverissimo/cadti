@@ -37,3 +37,6 @@ input.selectEmpresa:focus {
   padding-bottom: 1px;
 }
 
+.MuiIcon-colorAction {
+  color: rgb(58, 164, 33) !important;
+}

@@ -1,6 +1,7 @@
 import React, { Component, Fragment } from 'react'
 import axios from 'axios'
 import humps from 'humps'
+import moment from 'moment'
 
 import StoreHOC from '../Store/StoreHOC'
 import { connect } from 'react-redux'
@@ -9,8 +10,10 @@ import { updateCollection } from '../Store/dataActions'
 import ConsultasTemplate from './consultasTemplate'
 import { TabMenu } from '../Layouts'
 
+import WindowPortal from '../Utils/WindowPortal'
+import Certificate from '../Veiculos/PdfCertificate2'
 import PopUp from '../Utils/PopUp'
-import VehicleDetails from '../Veiculos/VehicleDetails'
+import ShowDetails from '../Reusable Components/ShowDetails'
 import ShowFiles from '../Utils/ShowFiles'
 import AlertDialog from '../Utils/AlertDialog'
 
@@ -18,6 +21,20 @@ const format = {
     top: '5%',
     left: '10%',
     right: '10%'
+}
+
+const printA4 = {
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: '21cm',
+    height: '29.7cm',
+    display: 'block',
+    margin: '0 auto',
+    marginTop: '3mm',
+    padding: '2.5mm 6mm',
+    zIndex: 10
 }
 
 class ConsultasContainer extends Component {
@@ -28,12 +45,13 @@ class ConsultasContainer extends Component {
             if (e.keyCode === 27) {
                 if (this.state.showDetails) this.showDetails()
                 if (this.state.showFiles) this.closeFiles()
+                if (this.state.showCertificate) this.closeCertificate()
             }
         }
     }
 
     state = {
-        tab: 0,
+        tab: 3,
         items: ['Empresas', 'Sócios', 'Procuradores', 'Veículos', 'Seguros'],
         tablePKs: ['delegatario_id', 'socio_id', 'procurador_id', 'veiculo_id', 'apolice'],
         dbTables: ['delegatario', 'socios', 'procurador', 'veiculo', 'seguro'],
@@ -46,7 +64,8 @@ class ConsultasContainer extends Component {
         openDialog: false,
         filesCollection: [],
         elementDetails: '',
-        vehicleDocs: []
+        vehicleDocs: [],
+        showCertificate: false
     }
 
     async componentDidMount() {
@@ -154,13 +173,40 @@ class ConsultasContainer extends Component {
             .then(r => console.log(r.data))
     }
 
+    showCertificate = async vehicle => {
+        const
+            { situacao, vencimento, vencimentoContrato } = vehicle,
+            seguroVencido = moment(vencimento).isBefore(),
+            contratoVencido = moment(vencimentoContrato).isBefore()
+
+        if (situacao !== 'Ativo') {
+            await this.setState({ alertType: 'veiculoPendente', openAlertDialog: true })
+            return
+        }
+        if (seguroVencido) {
+            await this.setState({ alertType: 'seguroVencido', openAlertDialog: true })
+            return
+        }
+        if (contratoVencido) {
+            await this.setState({ alertType: 'contratoVencido', openAlertDialog: true })
+            return
+        }
+
+        await this.setState({ showCertificate: true, certified: vehicle })
+        setTimeout(() => {
+            this.setState({ showCertificate: false, certified: undefined })
+        }, 1000);
+
+    }
+
     toggleDialog = () => this.setState({ openDialog: !this.state.openDialog })
     closeAlert = () => this.setState({ openAlertDialog: !this.state.openAlertDialog })
+    closeCertificate = () => this.setState({ showCertificate: !this.state.showCertificate })
 
     render() {
         const
             { tab, options, items, showDetails, elementDetails, showFiles, selectedElement, filesCollection,
-                openAlertDialog, alertType, typeId, tablePKs } = this.state,
+                openAlertDialog, alertType, typeId, tablePKs, showCertificate, certified } = this.state,
             { redux } = this.props,
             { empresas } = redux,
             primaryKeys = tablePKs.map(pk => humps.camelize(pk))
@@ -179,17 +225,23 @@ class ConsultasContainer extends Component {
                 showDetails={this.showDetails}
                 showFiles={this.showFiles}
                 del={this.deleteHandler}
+                showCertificate={this.showCertificate}
             />
             {showDetails && <PopUp
                 close={this.showDetails}
                 title='Informações sobre o veículo'
                 format={format}
             >
-                <VehicleDetails
+                <ShowDetails
+                    close={this.showDetails}
                     data={updatedElement || elementDetails}
                     tab={tab}
                 />
             </PopUp>}
+            {
+                showCertificate &&
+                <Certificate vehicle={certified} />
+            }
             {showFiles &&
                 <ShowFiles
                     tab={tab}

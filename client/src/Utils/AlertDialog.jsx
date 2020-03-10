@@ -78,9 +78,20 @@ export default function AlertDialog({ open, alertType, close, confirm, customTit
         title = 'Participação societária inválida.'
         message = 'A participação societária informada não soma 100%. Favor informar todos os sócios com suas respectivas participações.'
         return { title, message }
-
+      case 'veiculoPendente':
+        title = 'Pendências encontradas para este veículo.'
+        message = 'Verifique se há alguma aprovação pendente quanto ao cadastro, seguro, transferência ou alteração de dados do veículo.'
+        return { title, message }
+      case 'seguroVencido':
+        title = 'Pendências encontradas para o seguro deste veículo.'
+        message = 'Para regularizar o seguro deste veículo, acesse a opção Veículos=>Seguros no menu acima.'
+        return { title, message }
+      case 'contratoVencido':
+        title = 'Contrato expirado.'
+        message = 'O contrato de concessão com o delegatário selecionado está expirado.'
+        return { title, message }
       default:
-        return null
+        return { title: null, message: null }
     }
   }
   const { title, message } = createAlert(alertType)

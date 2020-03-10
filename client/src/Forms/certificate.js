@@ -6,6 +6,7 @@ export const delegatario = [[
         left: '50mm'
     },
     {
+        type: 'date',
         field: 'vencimentoContrato',
         label: 'Validade do Contrato',
         width: '36mm',
@@ -129,8 +130,8 @@ export const pesagem = [[
     {
         field: 'eixos',
         label: 'Nº Eixos',
-        width: '20mm',
-        left: '3mm'
+        width: '15mm',
+        left: '2mm'
     },
     {
         field: 'pbt',
@@ -141,14 +142,14 @@ export const pesagem = [[
     {
         field: 'pesoDianteiro',
         label: 'Peso Dianteiro (kg)',
-        width: '25mm',
-        left: '5mm'
+        width: '28mm',
+        left: '4mm'
     },
     {
         field: 'pesoTraseiro',
         label: 'Peso Traseiro (kg)',
-        width: '25mm',
-        left: '5mm'
+        width: '28mm',
+        left: '4mm'
     },
     {
         field: 'pbt',
@@ -160,7 +161,7 @@ export const pesagem = [[
         field: 'pesoPassageiros',
         label: 'Passag/Bagagem',
         width: '25mm',
-        left: '5mm'
+        left: '3mm'
     },
 ]]
 
@@ -186,9 +187,22 @@ export const informacoesGerais = [[
         left: '9mm'
     },
     {
-        field: 'equipamentos',
+        field: 'equipamentosId',
         label: 'Acessórios',
         width: '65mm',
-        left: '16mm'
+    }
+]]
+
+export const other = [[
+    {
+        field: 'delegatarioCompartilhado', 
+        label: 'Empresas autorizadas a compartilhar',
+        width: '120mm',
+        left: '20mm'
+    },
+    {
+        field: 'observacoes', 
+        label: 'Observações',
+        width: '80mm',        
     }
 ]]

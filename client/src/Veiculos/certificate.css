@@ -2,8 +2,7 @@
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
     background: white;
     width: 21cm;
-    height: 29.7cm;
-    display: block;
+    height: 29.7cm;    
     margin: 0 auto;
     margin-top: 3mm;
     padding: 2.5mm 6mm;
@@ -11,28 +10,41 @@
     box-shadow: 0 0 0.5cm rgba(0, 0, 0, 0.5);
     overflow-y: hidden;
     box-sizing: border-box;
+    z-index: 2;
 }
 
 .box {
     border: 1px solid #333;
     border-radius: 3mm;
     position: relative;
-    margin-bottom: 3mm
+    margin-bottom: 2.5mm
+}
+
+.firstBox {
+    border: 1px solid #333;
+    border-radius: 3mm;
+    padding-top: 0;
+    margin-bottom: 3mm;
 }
 
 .boxTitle {
     position: absolute;
     top: 1mm;
     left: 2mm;
-    font-size: 3.7mm;
-    font-weight: 500;     
+    font-size: 4mm;
+    font-weight: 500;
 }
 
 .divLine {
     display: flex;
-    margin: 8mm 0 7mm 0;
+    margin: 8mm 0 4.5mm 0;
     width: 100%;
     padding: 0 2mm 0 6mm;
+}
+
+.firstDivLine {
+    margin: 3mm !important;
+    top: 0
 }
 
 @media print {
@@ -47,7 +59,7 @@
         margin: 0;
         padding: 0;
     }
-    nav, .MuiToolbar-root {
+    nav, .MuiToolbar-root, .MuiTabs-flexContainer, .noPrint {
         display: none !important;
     }
     .A4 {
@@ -72,6 +84,7 @@
 
 .certificate {
     border-radius: 0% !important;
+    padding-top: 2mm !important;
     height: 15px !important;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
     font-size: 13px !important;
@@ -80,31 +93,13 @@
     text-align: center !important;
 }
 
-tr.cert {
-    padding-bottom: 10px;
+.MuiInputBase-multiline.MuiInput-multiline, .MuiOutlinedInput-multiline {
+    height: auto;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+    text-align: justify !important;
 }
 
-td.cert, th.cert {
-    width: 25px;
+.porteObrigatorio {
+    margin-top: 10mm;
     text-align: center;
 }
-
-th {
-    width: 25px;
-    text-align: center;
-}
-
-table {
-    border: 1px solid #ddd;
-}
-
-/* .MuiOutlinedInput-root {
-    border-radius: 0 !important;
-    border: 1px solid #fff !important;
-    margin: 0 -1px 0 -1px;
-}
-
-.MuiInputLabel-shrink, .MuiInputLabel-outlined {
-    text-align: center !important;
-}
- */
