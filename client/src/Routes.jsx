@@ -14,7 +14,7 @@ import Procuradores from './Empresas/AltProcuradores'
 import Socios from './Empresas/AltSocios'
 import { Switch, Route } from 'react-router-dom'
 import UnderConstruction from './Utils/UnderConstruction'
-import PdfTest from './Veiculos/PdfCertificate2'
+import PdfTest from './Veiculos/Certificate'
 
 export default () =>
     
@@ -31,6 +31,7 @@ export default () =>
         <Route path='/empresas/cadastro' component = {Empresas} />             
         <Route path='/empresas/socios' component = {Socios} />     
         <Route path='/empresas/procuradores' component = {Procuradores} />     
-        <Route path='/faleConosco' component = {PdfTest} />
+        <Route path='/crv' component = {PdfTest} />
+        <Route path='/faleConosco' component = {UnderConstruction} />
     </Switch>
 

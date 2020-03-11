@@ -3,9 +3,8 @@
     background: white;
     width: 21cm;
     height: 29.7cm;    
-    margin: 0 auto;
-    margin-top: 3mm;
-    padding: 2.5mm 6mm;
+    margin: 0 auto;   
+    padding: 0 6mm;
     margin-bottom: 0.5cm;
     box-shadow: 0 0 0.5cm rgba(0, 0, 0, 0.5);
     overflow-y: hidden;
@@ -77,7 +76,7 @@
         width: 100%;
         padding: 0 2mm 0 6mm;
     }
-    .MuiToolbar-root, .MuiToolbar-regular, .MuiToolbar-gutters, .noprint {
+    .MuiToolbar-root, .MuiToolbar-regular, .MuiToolbar-gutters, .noprint, .printButton {
         display: none;
     }
 }
@@ -102,4 +101,20 @@
 .porteObrigatorio {
     margin-top: 10mm;
     text-align: center;
+}
+
+.printButton {
+    cursor: pointer;
+    color: rgb(161, 161, 180);    
+    position: -webkit-sticky; /* Safari */
+    position: sticky;
+    bottom: 17px;
+    left: 1365px;
+}
+
+.link {
+    cursor: pointer;
+    color: blue;
+    
+    text-decoration: underline;
 }

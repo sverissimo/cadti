@@ -1,11 +1,13 @@
-import React, { Fragment, useEffect } from 'react'
+import React, { Fragment, useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import moment from 'moment'
 
-import './certificate.css'
-import TextField from '@material-ui/core/TextField'
 import { delegatario, caracteristicas, seguro, pesagem, informacoesGerais, other } from '../Forms/certificate'
+
+import './certificate.css'
 import { makeStyles } from '@material-ui/core/styles'
+import TextField from '@material-ui/core/TextField'
+import PrintTwoToneIcon from '@material-ui/icons/PrintTwoTone';
 
 const useStyles = makeStyles(theme => ({
 
@@ -17,13 +19,13 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
-const data = {
+const dataZ = {
     placa: "ZZZ-9999",
-    renavam: "65403210654",
+    renavam: "012345678901",
     dataRegistro: "2020-03-03T18:14:58.980Z",
     utilizacao: "Convencional",
     dominio: "Veículo próprio",
-    apolice: "21120099",
+    apolice: "01234567890",
     poltronas: 50,
     piquesPoltrona: 5,
     eixos: 5,
@@ -42,21 +44,32 @@ const data = {
     modeloChassi: "O-400 RSD PL",
     marcaCarroceria: "BUSSCAR",
     modeloCarroceria: "INTERBUS R",
-    empresa: "SARITUR - SANTA RITA TRANSPORTE URBANO E RODOVIARIO LTDA",
+    empresa: "EMPRESA DE TRANSPORTE URBANO E RODOVIARIO LTDA",
     vencimentoContrato: "2019-10-23T03:00:00.000Z",
-    seguradora: "PRUDENTIAL do Brasil Vida em Grupo S.A.",
+    seguradora: "GRUPO SEGUROS S.A.",
     dataEmissao: "2019-10-16T03:00:00.000Z",
 }
 
-export default function PdfCertificate({ vehicle }) {
+export default function PdfCertificate() {
+
+    const [vehicle, setVehicle] = useState({})
+    const data = JSON.parse(localStorage.getItem('vehicle'))
+    console.log('1', data)
 
     useEffect(() => {
-        let canvas = document.getElementById('pdfPage')
-        setTimeout(() => {
-            window.print()
-        }, 500);
-
-    }, [vehicle])
+        async function setData() {
+            console.log('2', localStorage)
+            let menus = document.querySelectorAll('.MuiToolbar-root')
+            menus.forEach(m => m.style.display = 'none')
+            await setVehicle(data)
+            setTimeout(() => {
+                if (data) window.print()
+            }, 500);
+        }
+        setData()
+        localStorage.removeItem('vehicle')
+        console.log('3', localStorage)
+    }, [])
 
     const classes = useStyles(),
         { textField } = classes
@@ -68,29 +81,33 @@ export default function PdfCertificate({ vehicle }) {
         info = informacoesGerais,
         obs = other,
         object = {}
-    if (!vehicle) vehicle = data
+
     const formArray = [carac, delega, seg, peso, info, obs]
 
-    formArray.forEach(form => {
-        Object.entries(vehicle).forEach(([key, value]) => {
-            form.forEach((line, i) => {
-                line.forEach((obj, k) => {
-                    if (obj.field === key) {
-                        object = Object.assign(obj, { value })
-                        form[i][k] = object
-                        object = {}
-                    }
+    if (vehicle)
+        formArray.forEach(form => {
+            Object.entries(vehicle).forEach(([key, value]) => {
+                form.forEach((line, i) => {
+                    line.forEach((obj, k) => {
+                        if (obj.field === key) {
+                            object = Object.assign(obj, { value })
+                            form[i][k] = object
+                            object = {}
+                        }
+                    })
                 })
             })
         })
-    })
     const checkMulti = field => {
-        if (field === 'equipamentosId' || field === 'equipamentosId') {
-            return
-        }
+        if (field === 'equipamentosId' || field === 'equipamentosId') return
         else return 'certificate'
     }
-
+    const redirect = () => {
+        let menus = document.querySelectorAll('.MuiToolbar-root')
+        menus.forEach(m => m.style.display = 'none')
+        const url = window.location.origin
+        window.location.href = url;
+    }
     const ultimateForm = [
         { title: 'Delegatário', form: delega },
         { title: 'Características do Veículo', form: carac },
@@ -99,6 +116,11 @@ export default function PdfCertificate({ vehicle }) {
         { title: 'Informações gerais', form: info },
         { title: 'Outras informações', form: obs }
     ]
+    if (!vehicle) {
+        const url = window.location.origin
+        window.location.replace(url)
+        return null
+    }
     return (
         <Fragment>
             <div id='pdfPage' className='A4'>
@@ -158,11 +180,17 @@ export default function PdfCertificate({ vehicle }) {
                 <div className='porteObrigatorio'>
                     <img src="/images/porteObrigatorio.png" height='100%' width='100%' alt="porte obrigatório" />
                     <br />
-                    Este certificado pode ser verificado em <Link to=''>  http://www.sismob.mg.gov.br</Link>
+                    Este certificado pode ser verificado em <span className='link' onClick={() => redirect()}> http://www.sismob.mg.gov.br </span>
                 </div>
             </div>
             <br />
-            <button className='noprint' onClick={() => window.print()}> Press this</button>
+
+            <button title='Imprimir / salvar PDF' className='noprint printButton' onClick={() => window.print()}>
+                <PrintTwoToneIcon style={{
+                    cursor: 'pointer',
+                    color: 'rgb(161, 161, 180)',
+                    fontSize: '40pt',
+                }} /></button>
         </Fragment>
     )
 }

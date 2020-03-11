@@ -57,9 +57,9 @@ class AltDados extends Component {
     }
 
     async componentDidMount() {
-        const { redux } = this.props        
+        const { redux } = this.props
         let equipamentos = {}
-
+        
         if (redux && redux.equipamentos) {
             redux.equipamentos.forEach(e => Object.assign(equipamentos, { [e.item]: false }))
             const equipArray = Object.keys(equipamentos)
@@ -221,7 +221,7 @@ class AltDados extends Component {
 
     updatePlate = () => {
         this.setState({ placa: this.state.newPlate })
-        this.toggleDialog()       
+        this.toggleDialog()
     }
 
     handleSubmit = async () => {

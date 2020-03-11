@@ -195,7 +195,7 @@ export const informacoesGerais = [[
 
 export const other = [[
     {
-        field: 'delegatarioCompartilhado', 
+        field: 'compartilhado', 
         label: 'Empresas autorizadas a compartilhar',
         width: '120mm',
         left: '20mm'

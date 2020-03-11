@@ -10,8 +10,7 @@ import { updateCollection } from '../Store/dataActions'
 import ConsultasTemplate from './consultasTemplate'
 import { TabMenu } from '../Layouts'
 
-import WindowPortal from '../Utils/WindowPortal'
-import Certificate from '../Veiculos/PdfCertificate2'
+import Certificate from '../Veiculos/Certificate'
 import PopUp from '../Utils/PopUp'
 import ShowDetails from '../Reusable Components/ShowDetails'
 import ShowFiles from '../Utils/ShowFiles'
@@ -21,20 +20,6 @@ const format = {
     top: '5%',
     left: '10%',
     right: '10%'
-}
-
-const printA4 = {
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    width: '21cm',
-    height: '29.7cm',
-    display: 'block',
-    margin: '0 auto',
-    marginTop: '3mm',
-    padding: '2.5mm 6mm',
-    zIndex: 10
 }
 
 class ConsultasContainer extends Component {
@@ -174,6 +159,7 @@ class ConsultasContainer extends Component {
     }
 
     showCertificate = async vehicle => {
+
         const
             { situacao, vencimento, vencimentoContrato } = vehicle,
             seguroVencido = moment(vencimento).isBefore(),
@@ -192,11 +178,9 @@ class ConsultasContainer extends Component {
             return
         }
 
-        await this.setState({ showCertificate: true, certified: vehicle })
-        setTimeout(() => {
-            this.setState({ showCertificate: false, certified: undefined })
-        }, 1000);
-
+        const url = window.location.origin + '/crv'        
+        localStorage.setItem('vehicle', JSON.stringify(vehicle))
+        window.open(url, 'noopener')
     }
 
     toggleDialog = () => this.setState({ openDialog: !this.state.openDialog })

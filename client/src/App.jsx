@@ -17,7 +17,7 @@ import Routes from './Routes'
 function App() {
 
   const useStyles = makeStyles(theme => ({
-    root: { flexGrow: 1, backgroundColor:'#fbfbfb' }
+    root: { backgroundColor:'#fbfbfb' }
   }))
 
   const { root } = useStyles()

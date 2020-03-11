@@ -5,7 +5,7 @@ export default function PopUp({ close, children, title, format }) {
     return (
         <div>
             <div
-                style={format || {
+                style={{
                     position: 'fixed',
                     height: '80vh',
                     top: format ? format.top : '10%',
