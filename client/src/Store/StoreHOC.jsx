@@ -1,4 +1,5 @@
 import React from 'react'
+import humps from 'humps'
 
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
@@ -12,16 +13,16 @@ let socket
 export default function (requestArray, WrappedComponent) {
 
     let collections = []
-    collections = requestArray.map(req => req.replace('getFiles/', ''))
+    collections = requestArray.map(req => req.replace('getFiles/', '').replace('lookUpTable/', ''))
 
     class With extends React.Component {
 
         async componentDidMount() {
             const { redux } = this.props
             let request = []
-                        
+
             requestArray.forEach(req => {
-                const colName = req.replace('getFiles/', '')
+                const colName = req.replace('getFiles/', '').replace('lookUpTable/', '')
                 if (!redux[colName] || !redux[colName][0]) {
                     request.push(req)
                 }
@@ -74,6 +75,8 @@ export default function (requestArray, WrappedComponent) {
             clearAll.forEach(el => socket.off(el))
         }
         render() {
+
+            collections = collections.map(c => humps.camelize(c))            
 
             if (collections.length === 0 || !collections.every(col => this.props.redux.hasOwnProperty(col))) {
                 return <Loading />

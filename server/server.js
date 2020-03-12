@@ -17,7 +17,7 @@ const { cadSocios } = require('./cadSocios')
 const { cadProcuradores } = require('./cadProcuradores')
 
 const { empresas, veiculoInit, modeloChassi, carrocerias, equipamentos, seguradoras,
-    seguros, socios } = require('./queries')
+    seguros, socios, lookup } = require('./queries')
 
 const { getUpdatedData } = require('./getUpdatedData')
 const { filesModel } = require('./models/filesModel')
@@ -291,6 +291,8 @@ app.get('/api/carrocerias', (req, res) => {
         res.json(table.rows)
     })
 })
+
+app.get('/api/lookUpTable/:table', lookup)
 
 app.get('/api/equipamentos', (req, res) => {
     pool.query(equipamentos, (err, table) => {

@@ -1,3 +1,5 @@
+const { pool } = require('./config/pgConfig')
+
 const empresas = ` 
 SELECT d.*,
 	cardinality (array_agg(v.veiculo_id)) frota,
@@ -57,21 +59,30 @@ LEFT JOIN marca_carroceria
 	ON public.marca_carroceria.id = public.modelo_carroceria.marca_id
 `
 
+const lookup = (req, res) => {
+	const { table } = req.params	
+	pool.query(`SELECT * FROM ${ table }`, (err, table) => {
+		if (err) res.send(err)
+		else if (table.rows && table.rows.length === 0) { res.send(table.rows); return }
+		res.json(table.rows)
+	})
+}
+
 const equipamentos = `
 SELECT * FROM equipamentos
-`
+		`
 
 const seguradoras = `
 SELECT * FROM seguradora
-`
+		`
 
 const seguros = `
 SELECT seguro.*,
-	s.seguradora,
-	array_to_json(array_agg(v.veiculo_id)) veiculos,
-	array_to_json(array_agg(v.placa)) placas,
-	d.razao_social empresa,	
-	cardinality(array_agg(v.placa)) segurados
+		s.seguradora,
+		array_to_json(array_agg(v.veiculo_id)) veiculos,
+		array_to_json(array_agg(v.placa)) placas,
+		d.razao_social empresa,
+		cardinality(array_agg(v.placa)) segurados
 FROM seguro
 LEFT JOIN veiculo v
 	ON seguro.apolice = v.apolice
@@ -81,16 +92,18 @@ LEFT JOIN seguradora s
 	ON s.id = seguro.seguradora_id
 GROUP BY seguro.apolice, d.razao_social, s.seguradora, d.delegatario_id
 ORDER BY seguro.vencimento ASC
-`
+		`
 
 const socios = `
-SELECT public.socios.*, 
-	public.delegatario.razao_social
+SELECT public.socios.*,
+		public.delegatario.razao_social
 	FROM public.socios 
 LEFT JOIN public.delegatario 
 	ON delegatario.delegatario_id = socios.delegatario_id
 ORDER BY nome_socio ASC
-`
+		`
 
-module.exports = { empresas, veiculoInit, modeloChassi, carrocerias, equipamentos,
-	 seguradoras, seguros, socios }
+module.exports = {
+	empresas, veiculoInit, modeloChassi, carrocerias, equipamentos,
+	seguradoras, seguros, socios, lookup
+}

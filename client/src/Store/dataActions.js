@@ -16,7 +16,9 @@ export const getData = (collectionsArray = []) => {
                 .then(responseArray => {
                     responseArray.forEach((el, i) => {
                         let key = collectionsArray[i]
-                        if (key.includes('getFiles')) key = collectionsArray[i].replace('getFiles/', '')
+                            .replace('getFiles/', '')
+                            .replace('lookUpTable/', '')
+                        key = humps.camelize(key)                        
                         Object.assign(returnObj, { [key]: el })
                     })
                 })
@@ -33,7 +35,7 @@ export const insertData = (dataFromServer, collection) => (dispatch, getState) =
         data = humps.camelizeKeys(dataFromServer),
         payload = { collection, data },
         seguradoras = getState().data.seguradoras
-    
+
     if (!seguradoras) {
         console.log(payload)
         dispatch({ type: 'INSERT_DATA', payload })

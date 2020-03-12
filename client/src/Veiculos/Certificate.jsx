@@ -1,5 +1,4 @@
 import React, { Fragment, useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
 import moment from 'moment'
 
 import { delegatario, caracteristicas, seguro, pesagem, informacoesGerais, other } from '../Forms/certificate'
@@ -19,36 +18,6 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
-const dataZ = {
-    placa: "ZZZ-9999",
-    renavam: "012345678901",
-    dataRegistro: "2020-03-03T18:14:58.980Z",
-    utilizacao: "Convencional",
-    dominio: "Veículo próprio",
-    apolice: "01234567890",
-    poltronas: 50,
-    piquesPoltrona: 5,
-    eixos: 5,
-    pbt: "13650",
-    nChassi: "320A65AS4D032ASD654",
-    pesoDianteiro: "5000",
-    pesoTraseiro: "4000",
-    distanciaMinima: '78',
-    distanciaMaxima: '94',
-    anoChassi: '2015',
-    cores: "SRN",
-    equipamentosId: "Ar Condicionado, Assento Preferencial, Banheiro, Bebedouro, Cabine Separada Motorista, Cinto de Segurança, Descanso de Pernas, Monitor DVD",
-    observacoes: "",
-    delegatarioCompartilhado: null,
-    marcaChassi: "Mercedes-Benz",
-    modeloChassi: "O-400 RSD PL",
-    marcaCarroceria: "BUSSCAR",
-    modeloCarroceria: "INTERBUS R",
-    empresa: "EMPRESA DE TRANSPORTE URBANO E RODOVIARIO LTDA",
-    vencimentoContrato: "2019-10-23T03:00:00.000Z",
-    seguradora: "GRUPO SEGUROS S.A.",
-    dataEmissao: "2019-10-16T03:00:00.000Z",
-}
 
 export default function PdfCertificate() {
 

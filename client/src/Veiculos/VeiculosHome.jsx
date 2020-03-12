@@ -34,6 +34,14 @@ const menuCards = [
             'Baixa de veículos',
         link: '/baixaVeiculo',
         imageUrl: "/images/remove_doc.png"
+    },
+    {
+        title: 'Configurações',
+        date: '07/Nov',
+        description:
+            'Chassi, carrocerias, seguradoras, etc',
+        link: '/Config',
+        imageUrl: "/images/config2.jpg"
     }
 ]
 

@@ -36,7 +36,7 @@ class ConsultasContainer extends Component {
     }
 
     state = {
-        tab: 3,
+        tab: 0,
         items: ['Empresas', 'Sócios', 'Procuradores', 'Veículos', 'Seguros'],
         tablePKs: ['delegatario_id', 'socio_id', 'procurador_id', 'veiculo_id', 'apolice'],
         dbTables: ['delegatario', 'socios', 'procurador', 'veiculo', 'seguro'],

@@ -6,6 +6,7 @@ import CadVeiculos from './Veiculos/CadVeiculo'
 import AltVeiculos from './Veiculos/AltDados'
 import AltSeguro from './Veiculos/AltSeguro'
 import BaixaVeiculo from './Veiculos/BaixaVeiculo'
+import Config from './Veiculos/Config'
 
 import Consultas from './Consultas/consultasContainer'
 import Empresas from './Empresas/EmpresasContainer'
@@ -26,6 +27,7 @@ export default () =>
         <Route path='/veiculos/altDados' exact component = {AltVeiculos} />
         <Route path='/veiculos/altSeguro' exact component = {AltSeguro} />
         <Route path='/veiculos/baixaVeiculo' exact component = {BaixaVeiculo} />
+        <Route path='/veiculos/config' exact component = {Config} />
         <Route path='/consultas' component = {Consultas} />
         <Route path='/empresas' exact component = {EmpresasHome} />
         <Route path='/empresas/cadastro' component = {Empresas} />             
