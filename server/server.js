@@ -117,7 +117,7 @@ const empresaStorage = new GridFsStorage({
                 'empresaId': empresaId, 
                 'socios': socios
             }
-        } else if (file.fieldname === 'seguro') {
+        } else if (file.fieldname === 'apoliceDoc') {
             let { ...metadata } = req.body
             fileInfo.metadata = metadata
         }

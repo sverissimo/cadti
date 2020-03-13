@@ -20,19 +20,20 @@ const divRow = {
 const ShowFiles = ({ filesCollection, close, format, typeId, empresas }) => {
 
     let files = [],
-        collection = 'empresaDocs', fileLabels = empresaFiles
+        collection = 'empresaDocs', fileLabels = [...empresaFiles]
 
     switch (typeId) {
         case 'veiculoId':
             collection = 'vehicleDocs'
-            fileLabels = cadVehicleFiles
-            if (fileLabels.filter(f => f.name === 'transferenciaDoc').length === 0) fileLabels.push({ title: 'Documento de Transferência', name: 'transferenciaDoc' })
-            if (fileLabels.filter(f => f.name === 'newPlateDoc').length === 0) fileLabels.push({ title: 'CRLV com nova placa', name: 'newPlateDoc' })
-            if (fileLabels.filter(f => f.name === 'seguro').length === 0) fileLabels.push({ title: 'Apólice de seguro', name: 'seguro' })
+            fileLabels = [...cadVehicleFiles]
+            if (!fileLabels.find(f => f.name === 'transferenciaDoc')) fileLabels.push({ title: 'Documento de Transferência', name: 'transferenciaDoc' })
+            if (!fileLabels.find(f => f.name === 'newPlateDoc')) fileLabels.push({ title: 'CRLV com nova placa', name: 'newPlateDoc' })
+            if (!fileLabels.find(f => f.name === 'apoliceDoc')) fileLabels.push({ title: 'Apólice de seguro', name: 'apoliceDoc' })
             break;
         default: void 0
     }
-
+    console.log('ShowFilesComp, filesCollection', filesCollection)
+    console.log('ShowFilesComp, filesLabels', fileLabels)
     if (filesCollection && filesCollection[0]) {
         filesCollection.forEach(obj => {
             fileLabels.forEach(o => {
@@ -47,7 +48,7 @@ const ShowFiles = ({ filesCollection, close, format, typeId, empresas }) => {
             case 'procuracao':
                 const emp = empresas.find(e => e.delegatarioId === Number(metadata.empresaId))
                 return ' - ' + emp.razaoSocial
-            case 'seguro':
+            case 'apoliceDoc':
                 return ' número ' + metadata.apolice
             default:
                 return ''

@@ -348,7 +348,7 @@ class AltSeguro extends Component {
 
     handleFiles = async file => {
         let formData = new FormData()
-        formData.append('seguro', file[0])
+        formData.append('apoliceDoc', file[0])
         await this.setState({ dropDisplay: file[0].name, seguroFile: formData })
     }
 
@@ -358,7 +358,7 @@ class AltSeguro extends Component {
         let seguroFormData = new FormData()
 
         if (this.state.seguroFile) {
-            seguroFormData.append('fieldName', 'seguro')
+            seguroFormData.append('fieldName', 'apoliceDoc')
             seguroFormData.append('apolice', apolice)
             seguroFormData.append('empresaId', selectedEmpresa.delegatarioId)
             for (let pair of this.state.seguroFile.entries()) {

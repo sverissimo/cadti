@@ -14,14 +14,14 @@ const useStyles = makeStyles(theme => ({
         flexGrow: '1',
         margin: '5px',
         padding: '8px',
-    },   
+    },
     paper: {
         color: theme.palette.text.secondary,
         width: "100%",
         padding: '8px 0 14px 0',
         height: 'auto',
         minHeight: '350px'
-    },    
+    },
     sendButton: {
         margin: '3% 0 3% 0',
         backgroundColor: 'teal',
@@ -33,26 +33,27 @@ const useStyles = makeStyles(theme => ({
         fontSize: '0.9rem',
         fontWeight: '500',
         color: '#333'
-    },    
+    },
     item: {
         marginTop: '10px',
         padding: '0 5px'
     }
 }))
 
-export default function VehicleDocs({ handleFiles, parentComponent, dropDisplay, formData }) {
+export default function VehicleDocs({ handleFiles, parentComponent, dropDisplay, formData, insuranceExists }) {
     const { root, paper, item } = useStyles()
 
     let filesForm
     if (parentComponent === 'cadastro') filesForm = cadVehicleFiles
     if (parentComponent === 'altDados') filesForm = altDadosFiles
-
+    
     return (
         <div >
             <Paper className={paper}>
                 <div className="formSubtitle"> Anexe os documentos solicitados nos campos abaixo </div>
                 <Grid container className={root}>
                     {filesForm.map(({ title, name }, k) =>
+                        name === 'apoliceDoc' && insuranceExists ? null :
                         <Fragment key={k}>
                             <Grid item xs={10} md={4} className={item}>
                                 <DragAndDrop
@@ -62,7 +63,7 @@ export default function VehicleDocs({ handleFiles, parentComponent, dropDisplay,
                                     dropDisplay={dropDisplay}
                                     handleFiles={handleFiles}
                                 />
-                            </Grid>                            
+                            </Grid>
                         </Fragment>
                     )}
                 </Grid>

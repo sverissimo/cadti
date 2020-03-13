@@ -2,7 +2,7 @@ import axios from 'axios'
 //import { logout } from '../auth/logout';
 
 const downloadFile = (id, originalName, collection, fieldName) => {
-    if (fieldName && fieldName === 'seguro') collection = 'empresaDocs'
+    if (fieldName && fieldName === 'apoliceDoc') collection = 'empresaDocs'
         axios({
             url: `/api/mongoDownload/?collection=${collection}&id=${id}`,
             method: 'GET',

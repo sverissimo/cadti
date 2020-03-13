@@ -199,7 +199,7 @@ class VeiculosContainer extends PureComponent {
 
     handleBlur = async  e => {
         const
-            { empresas } = this.props.redux,
+            { empresas, seguros } = this.props.redux,
             { frota, modelosChassi, carrocerias, seguradoras, allInsurances } = this.state,
             { name } = e.target
         let
@@ -238,6 +238,10 @@ class VeiculosContainer extends PureComponent {
                     this.setState({ seguros: filteredInsurances })
                 }
                 break
+            case 'apolice':
+                const insuranceExists = seguros.find(s => s.apolice === value)
+                if (insuranceExists) this.setState({ insuranceExists })
+                break
 
             default: void 0
         }
@@ -246,6 +250,11 @@ class VeiculosContainer extends PureComponent {
 
             if (value.length === 7) {
                 const x = value.replace(/(\w{3})/, '$1-')
+                await this.setState({ placa: x })
+                value = x
+            }
+            if (value.length === 8) {
+                const x = value.replace(' ', '-')
                 await this.setState({ placa: x })
                 value = x
             }
@@ -262,7 +271,7 @@ class VeiculosContainer extends PureComponent {
     handleCadastro = async () => {
         const { anoCarroceria, equipamentosId, peso_dianteiro, peso_traseiro,
             poltronas, delegatarioId, compartilhadoId, seguros, modeloChassiId,
-            modeloCarroceriaId, seguradoraId } = this.state,
+            modeloCarroceriaId, seguradoraId, apolice } = this.state,
             situacao = 'Ativo',
             indicadorIdade = anoCarroceria
 
@@ -320,16 +329,28 @@ class VeiculosContainer extends PureComponent {
 
         } else if (!insuranceExists[0] && insurance.apolice !== undefined
             && insurance.apolice.length > 2 && insurance.seguradora_id !== undefined) {
-
+            let veiculoId
             await axios.post('/api/cadastroVeiculo', vehicle)
                 .then(res => {
                     console.log(res)
-                    const veiculoId = res.data
+                    veiculoId = res.data
                     this.submitFiles(veiculoId)
                 })
                 .catch(err => console.log(err))
             await axios.post('/api/cadSeguro', insurance)
+                .then((res) => console.log(res.data))
+
+            const body = {
+                table: 'veiculo',
+                column: 'apolice',
+                value: insurance.apolice,
+                tablePK: 'veiculo_id',
+                ids: [veiculoId]
+            }
+            await axios.put('/api/updateInsurances', body)
                 .then(res => console.log(res.data))
+
+
 
             this.resetState()
             this.toast()
@@ -343,11 +364,12 @@ class VeiculosContainer extends PureComponent {
 
         if (files && files[0]) {
             let formData = new FormData(),
-            fn = this.state.fileNames
+                fn = this.state.fileNames
 
             if (files && files.length > 0) {
 
                 fn.push({ [name]: files[0].name })
+                console.log('name: ', name, 'files: ', files)
                 await this.setState({ filesNames: fn, [name]: files[0] })
 
                 cadVehicleFiles.forEach(({ name }) => {
@@ -358,22 +380,44 @@ class VeiculosContainer extends PureComponent {
                         else void 0
                     }
                 })
-                this.setState({ form: formData })                
+                this.setState({ form: formData })
+                if (this.state.form) for (let pair of this.state.form.entries()) {
+                    if (pair[0] && pair[1]) console.log(pair)
+                }
             }
         }
     }
 
     submitFiles = async veiculoId => {
-        let newForm = new FormData()
+        const
+            { selectedEmpresa, apolice } = this.state,
+            { delegatarioId } = selectedEmpresa
+        let
+            newForm = new FormData(),
+            seguroForm = new FormData()
 
         if (veiculoId && this.state.form) {
             newForm.append('veiculoId', veiculoId);
             for (let pair of this.state.form.entries()) {
-                if (pair[0] && pair[1]) newForm.append(pair[0], pair[1])
-                else newForm = null
+                if (pair[0] && pair[1]) {
+                    if (pair[0] === 'apoliceDoc') {
+                        seguroForm.append('fieldName', 'apoliceDoc')
+                        seguroForm.append('apolice', apolice)
+                        seguroForm.append('empresaId', delegatarioId)
+                        seguroForm.append(pair[0], pair[1])
+                    }
+                    else newForm.append(pair[0], pair[1])
+                }
+                else {
+                    newForm = null
+                    seguroForm = null
+                }
             }
         }
         if (newForm) await axios.post('/api/mongoUpload', newForm)
+            .then(res => console.log(res.data))
+            .catch(err => console.log(err))
+        if (seguroForm) await axios.post('/api/empresaUpload', seguroForm)
             .then(res => console.log(res.data))
             .catch(err => console.log(err))
     }
@@ -392,7 +436,12 @@ class VeiculosContainer extends PureComponent {
     }
 
     resetState = () => {
-        const resetState = {}
+        const
+            resetState = {},
+            { equipamentos } = this.props.redux,
+            resetFiles = {},
+            resetEquip = {}
+
         cadForm.forEach(form => {
             form.forEach(obj => {
                 Object.keys(obj).forEach(key => {
@@ -400,8 +449,15 @@ class VeiculosContainer extends PureComponent {
                 })
             })
         })
+        cadVehicleFiles.forEach(({ name }) => {
+            Object.assign(resetFiles, { [name]: undefined })
+        })
+
+        equipamentos.forEach(e => Object.assign(resetEquip, { [e.item]: false }))
+
         this.setState({
             ...resetState,
+            ...resetFiles,
             activeStep: 0,
             razaoSocial: '',
             selectedEmpresa: undefined,
@@ -410,7 +466,8 @@ class VeiculosContainer extends PureComponent {
             files: [],
             fileNames: [],
             insuranceExists: false,
-            form: undefined 
+            form: undefined,
+            equipamentos: resetEquip
         })
     }
 
@@ -420,8 +477,9 @@ class VeiculosContainer extends PureComponent {
     toast = () => this.setState({ confirmToast: !this.state.confirmToast })
 
     render() {
-        const { confirmToast, toastMsg, activeStep,
-            openAlertDialog, alertType, steps, selectedEmpresa, placa, dropDisplay, form } = this.state,
+        const
+            { confirmToast, toastMsg, activeStep, openAlertDialog, alertType, steps,
+                selectedEmpresa, placa, dropDisplay, form, insuranceExists } = this.state,
             { empresas, equipamentos } = this.props.redux
 
         return <Fragment>
@@ -444,9 +502,10 @@ class VeiculosContainer extends PureComponent {
             />
             {activeStep === 3 && <VehicleDocs
                 parentComponent='cadastro'
-                handleFiles={this.handleFiles}                
+                handleFiles={this.handleFiles}
                 dropDisplay={dropDisplay}
                 formData={form}
+                insuranceExists={insuranceExists}
             />}
 
             {activeStep === 4 && <Review

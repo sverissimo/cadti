@@ -5,6 +5,5 @@ export const cadVehicleFiles = [
     { title: 'Certificado de Vistoria', name: 'vistoria' },
     { title: 'DAE Quitada', name: 'dae' },
     { title: 'Laudo de Pesagem', name: 'pesagem' },
-    { title: 'Laudo de Vistoria INMETRO', name: 'inmetro' },
-    
+    { title: 'Laudo de Vistoria INMETRO', name: 'inmetro' },    
 ]

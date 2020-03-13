@@ -6,7 +6,7 @@ export const cadForm = [[{
     label: 'Placa',
     margin: 'normal',
     maxLength: 8,
-    pattern: '[a-zA-Z]{3}[-]?\\d{4}'
+    pattern: '[a-zA-Z]{3}[-]?[ ]?\\d{4}|[A-Z]{3}[-]?[ ]?[0-9]{1}[A-Z]{1}[0-9]{2}'
 },
 {
     field: 'renavam',
