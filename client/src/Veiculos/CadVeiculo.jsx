@@ -362,30 +362,25 @@ class VeiculosContainer extends PureComponent {
 
     handleFiles = async (files, name) => {
 
-        if (files && files[0]) {
-            let formData = new FormData(),
+        if (files && files.length > 0) {
+            let
+                formData = new FormData(),
                 fn = this.state.fileNames
 
-            if (files && files.length > 0) {
+            fn.push({ [name]: files[0].name })            
+            await this.setState({ filesNames: fn, [name]: files[0] })
 
-                fn.push({ [name]: files[0].name })
-                console.log('name: ', name, 'files: ', files)
-                await this.setState({ filesNames: fn, [name]: files[0] })
-
-                cadVehicleFiles.forEach(({ name }) => {
-                    for (let keys in this.state) {
-                        if (keys.match(name)) {
-                            formData.append(name, this.state[name])
-                        }
-                        else void 0
+            cadVehicleFiles.forEach(({ name }) => {
+                for (let keys in this.state) {
+                    if (keys.match(name)) {
+                        formData.append(name, this.state[name])
                     }
-                })
-                this.setState({ form: formData })
-                if (this.state.form) for (let pair of this.state.form.entries()) {
-                    if (pair[0] && pair[1]) console.log(pair)
+                    else void 0
                 }
-            }
+            })
+            this.setState({ form: formData })            
         }
+
     }
 
     submitFiles = async veiculoId => {
@@ -453,11 +448,12 @@ class VeiculosContainer extends PureComponent {
             Object.assign(resetFiles, { [name]: undefined })
         })
 
-        equipamentos.forEach(e => Object.assign(resetEquip, { [e.item]: false }))
+        equipamentos.forEach(e => Object.assign(resetEquip, { [e.item]: false }))        
 
         this.setState({
             ...resetState,
             ...resetFiles,
+            ...resetEquip,
             activeStep: 0,
             razaoSocial: '',
             selectedEmpresa: undefined,
@@ -466,8 +462,7 @@ class VeiculosContainer extends PureComponent {
             files: [],
             fileNames: [],
             insuranceExists: false,
-            form: undefined,
-            equipamentos: resetEquip
+            form: undefined
         })
     }
 

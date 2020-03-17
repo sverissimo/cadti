@@ -43,7 +43,7 @@ class AltProcuradores extends Component {
         totalShare: 0,
         filteredProc: [],
         procDisplay: 'Clique ou arraste para anexar a procuração referente a este(s) procurador(es).',
-        showFiles: false,
+        //showFiles: false,
         procuradores: [],
         procsToAdd: [1],
         procuracoesArray: [],
@@ -244,7 +244,7 @@ class AltProcuradores extends Component {
         }
     }
 
-    showFiles = cpf => {
+  /*   showFiles = cpf => {
         let selectedFiles = this.state.files.filter(f => f.metadata.cpfProcurador === cpf.toString())
 
         if (selectedFiles[0]) {
@@ -254,7 +254,7 @@ class AltProcuradores extends Component {
             console.log('filesNotFound')
             this.setState({ filesCollection: [] })
         }
-    }
+    } */
 
     plusOne = () => {
         let i = [...this.state.procsToAdd]
@@ -273,7 +273,7 @@ class AltProcuradores extends Component {
     toast = () => this.setState({ confirmToast: !this.state.confirmToast })
 
     render() {
-        const { showFiles, selectedElement, filesCollection, openAlertDialog, alertType } = this.state
+        const { selectedElement, filesCollection, openAlertDialog, alertType } = this.state
 
         return (
             <React.Fragment>
@@ -286,7 +286,7 @@ class AltProcuradores extends Component {
                     handleFiles={this.handleFiles}
                     addProc={this.addProc}                   
                     handleSubmit={this.handleSubmit}
-                    showFiles={this.showFiles}
+                    //showFiles={this.showFiles}
                     plusOne={this.plusOne}
                     minusOne={this.minusOne}
                     getFile={this.getFile}

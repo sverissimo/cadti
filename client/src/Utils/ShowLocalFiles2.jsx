@@ -63,11 +63,11 @@ export default function ShowLocalFiles({ form, files }) {
     if (files) for (let pair of files.entries()) {
         form.forEach(({ name, title }) => {
             if (name === pair[0]) {
-                fileArray.push({ label: title, fieldName: name, fileName: pair[1].name })
+                if (pair[1] && pair[1].name)
+                    fileArray.push({ label: title, fieldName: name, fileName: pair[1].name })
             }
         })
-    }
-
+    }    
     return <React.Fragment>
         <div style={divContainer}>
             {fileArray.map((f, i) =>
@@ -76,7 +76,8 @@ export default function ShowLocalFiles({ form, files }) {
                     <span style={{ verticalAlign: 'middle', }}>
                         {' '} {f.label}
                     </span>
-                    <GetAppIcon style={icon} onClick={() => createLink(f.fieldName, f.fileName)} />
+                    <GetAppIcon style={icon}
+                        onClick={() => createLink(f.fieldName, f.fileName)} />
                 </div>
             )}
         </div>
