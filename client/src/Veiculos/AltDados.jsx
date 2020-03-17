@@ -59,7 +59,7 @@ class AltDados extends Component {
     async componentDidMount() {
         const { redux } = this.props
         let equipamentos = {}
-        
+
         if (redux && redux.equipamentos) {
             redux.equipamentos.forEach(e => Object.assign(equipamentos, { [e.item]: false }))
             const equipArray = Object.keys(equipamentos)
@@ -322,8 +322,14 @@ class AltDados extends Component {
     closeAlert = () => this.setState({ openAlertDialog: !this.state.openAlertDialog })
     toast = () => this.setState({ confirmToast: !this.state.confirmToast })
     reset = () => {
+
+        let resetFiles = {}
+
         altForm.forEach(form => form.forEach(el => this.setState({ [el.field]: '' })))
-        this.setState({ form: undefined })
+        altDadosFiles.forEach(({ name }) => {
+            Object.assign(resetFiles, { [name]: undefined })
+        })
+        this.setState({ ...resetFiles, form: undefined })
     }
 
     render() {

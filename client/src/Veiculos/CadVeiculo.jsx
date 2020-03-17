@@ -271,7 +271,7 @@ class VeiculosContainer extends PureComponent {
     handleCadastro = async () => {
         const { anoCarroceria, equipamentosId, peso_dianteiro, peso_traseiro,
             poltronas, delegatarioId, compartilhadoId, seguros, modeloChassiId,
-            modeloCarroceriaId, seguradoraId, apolice } = this.state,
+            modeloCarroceriaId, seguradoraId } = this.state,
             situacao = 'Ativo',
             indicadorIdade = anoCarroceria
 
@@ -367,20 +367,20 @@ class VeiculosContainer extends PureComponent {
                 formData = new FormData(),
                 fn = this.state.fileNames
 
-            fn.push({ [name]: files[0].name })            
+            fn.push({ [name]: files[0].name })
             await this.setState({ filesNames: fn, [name]: files[0] })
 
             cadVehicleFiles.forEach(({ name }) => {
                 for (let keys in this.state) {
                     if (keys.match(name)) {
                         formData.append(name, this.state[name])
+                        if (!formData.get(keys)) formData.delete(keys)
                     }
                     else void 0
                 }
             })
-            this.setState({ form: formData })            
+            this.setState({ form: formData })
         }
-
     }
 
     submitFiles = async veiculoId => {
@@ -401,13 +401,16 @@ class VeiculosContainer extends PureComponent {
                         seguroForm.append('empresaId', delegatarioId)
                         seguroForm.append(pair[0], pair[1])
                     }
-                    else newForm.append(pair[0], pair[1])
+                    else if (pair[1]) newForm.append(pair[0], pair[1])
                 }
                 else {
                     newForm = null
                     seguroForm = null
                 }
             }
+        }
+        for (let pair of newForm.entries()) {
+            console.log(pair[0], pair[1])
         }
         if (newForm) await axios.post('/api/mongoUpload', newForm)
             .then(res => console.log(res.data))
@@ -445,10 +448,10 @@ class VeiculosContainer extends PureComponent {
             })
         })
         cadVehicleFiles.forEach(({ name }) => {
-            Object.assign(resetFiles, { [name]: undefined })
+            Object.assign(resetFiles, { [name]: null })
         })
-
-        equipamentos.forEach(e => Object.assign(resetEquip, { [e.item]: false }))        
+      
+        equipamentos.forEach(e => Object.assign(resetEquip, { [e.item]: false }))
 
         this.setState({
             ...resetState,
@@ -462,7 +465,7 @@ class VeiculosContainer extends PureComponent {
             files: [],
             fileNames: [],
             insuranceExists: false,
-            form: undefined
+            form: new FormData()
         })
     }
 

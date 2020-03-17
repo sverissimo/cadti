@@ -13,9 +13,9 @@ const divContainer = {
 const divFiles = {
     textAlign: 'center',
     alignItems: 'flex-start',
-    lineHeight: '40px',
+    height: '40px',
     border: '1px #ccc solid',
-    padding: '0 1%',
+    padding: '7px 8px 0 8px',
     margin: '1% 1% 0.5% 1%',
     fontSize: '0.8rem',
     backgroundColor: '#f6f6f6',
@@ -35,54 +35,51 @@ const fileIcon = {
 
 }
 
-export default function ShowLocalFiles({ data }) {
+export default function ShowLocalFiles({ form, files }) {
 
-    const { contratoSocial } = data
-
-    let contrato
-    if (contratoSocial) contrato = contratoSocial.get('contratoSocial') || new FormData()
+    /* let doc
+    if (files) doc = contratoSocial.get('contratoSocial') || new FormData() */
 
     const createLink = (key, fileName) => {
-        let file
 
-        if (key === 'contratoSocial') file = contrato
-        //else file = procFiles.get(key)
+        const file = files.get(key)
 
         const url = window.URL.createObjectURL(file);
         const link = document.createElement('a');
         link.href = url;
-        link.setAttribute('download', fileName);
+
+        if (file && (file.type === 'application/pdf' || file.type.match('image/'))) {
+            link.setAttribute('rel', "noopener")
+            link.setAttribute('target', "_blank")
+            link.setAttribute('title', fileName)
+        }
+        else link.setAttribute('download', fileName)
         document.body.appendChild(link);
         link.click();
     }
 
-    /* let fileArray = []
+    let fileArray = []
 
-    for (let pair of procFiles.entries()) {
-        procuradores.forEach(p => {
-            if (p.cpfProcurador === pair[0]) {
-                fileArray.push({ nome: p.nomeProcurador, cpf: p.cpfProcurador, fileName: pair[1].name })
+    if (files) for (let pair of files.entries()) {
+        form.forEach(({ name, title }) => {
+            if (name === pair[0]) {
+                if (pair[1] && pair[1].name)
+                    fileArray.push({ label: title, fieldName: name, fileName: pair[1].name })
             }
         })
-    } */
-
+    }    
     return <React.Fragment>
         <div style={divContainer}>
-            {contratoSocial && <div style={divFiles}>
-                <InsertDriveFileOutlinedIcon style={fileIcon} />
-                {' '} Contrato Social
-                <GetAppIcon style={icon} onClick={() => createLink('contratoSocial', contrato.name)} />
-            </div>}
-
-           {/*  {fileArray.map((f, i) =>
+            {fileArray.map((f, i) =>
                 <div style={divFiles} key={i}>
                     <InsertDriveFileOutlinedIcon style={fileIcon} />
                     <span style={{ verticalAlign: 'middle', }}>
-                    {' '} Procuração - {f.nome}
+                        {' '} {f.label}
                     </span>
-                    <GetAppIcon style={icon} onClick={() => createLink(f.cpf, f.fileName)} />
+                    <GetAppIcon style={icon}
+                        onClick={() => createLink(f.fieldName, f.fileName)} />
                 </div>
-            )} */}
+            )}
         </div>
     </React.Fragment >
 }

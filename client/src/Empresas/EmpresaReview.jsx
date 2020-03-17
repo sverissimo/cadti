@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react'
 
-import ShowLocalFiles from '../Utils/ShowLocalFiles2'
+import ShowLocalFiles from '../Utils/ShowLocalFiles'
 
 import Paper from '@material-ui/core/Paper'
 import FileCopyOutlinedIcon from '@material-ui/icons/FileCopyOutlined';

@@ -89,7 +89,7 @@ class ConsultasContainer extends Component {
         const
             { tab } = this.state,
             { veiculos, socios, empresaDocs, vehicleDocs } = this.props.redux
-        console.log('id: ', id, 'tab: ', tab, 'redux: ', this.props.redux)
+        
         let selectedFiles = empresaDocs.filter(f => f.metadata.empresaId === id.toString())
         let typeId = 'empresaId'
 
@@ -101,13 +101,11 @@ class ConsultasContainer extends Component {
                     let sociosArray = []
                     selectedFiles = empresaDocs
                         .filter(f => f.metadata.empresaId === socio.delegatarioId.toString())
-                        .filter(f => f.metadata.fieldName === 'contratoSocial')
                         .forEach(f => {
                             if (f.metadata.socios && f.metadata.socios.includes(id))
                                 sociosArray.push(f)
                         })
-                    selectedFiles = sociosArray
-                    console.log(selectedFiles)
+                    selectedFiles = sociosArray                    
                 }
                 break
 
@@ -124,17 +122,13 @@ class ConsultasContainer extends Component {
                 })
                 selectedFiles = filesToReturn
                 break
-            case 3:
-                console.log('case 3')
+            case 3:                
                 typeId = 'veiculoId'
                 selectedFiles = vehicleDocs.filter(f => f.metadata.veiculoId === id.toString())
-                const vehicle = veiculos.find(v => v.veiculoId === id)
-                console.log('vehicle: ', vehicle)
-                if (vehicle) {
-                    console.log('if vehicle, consoleLog empresaDocs: ', empresaDocs)
-                    const seguro = empresaDocs.find(f => f.metadata.apolice === vehicle.apolice.toString())
-                    console.log('const seguro: ', seguro)
-                    selectedFiles.push(seguro)
+                const vehicle = veiculos.find(v => v.veiculoId === id)                
+                if (vehicle) {                    
+                    const seguro = empresaDocs.find(f => f.metadata.apolice === vehicle.apolice.toString())                    
+                    if (seguro) selectedFiles.push(seguro)
                 }
                 break
             case 4:

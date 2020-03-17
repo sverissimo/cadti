@@ -259,7 +259,10 @@ class EmpresasContainer extends Component {
 
     }
     resetState = () => {
-        const resetEmpresa = {}, resetSocios = {}
+        let
+            resetEmpresa = {},
+            resetSocios = {},
+            resetFiles = {}
 
         empresasForm.forEach(obj => {
             Object.keys(obj).forEach(key => {
@@ -273,10 +276,14 @@ class EmpresasContainer extends Component {
             })
         })
 
+        empresaFiles.forEach(({ name }) => {
+            Object.assign(resetFiles, { [name]: undefined })
+        })
 
         this.setState({
             ...resetEmpresa,
             ...resetSocios,
+            ...resetFiles,
             activeStep: 0,
             razaoSocial: '',
             files: [],

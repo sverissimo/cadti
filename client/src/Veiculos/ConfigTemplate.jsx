@@ -5,9 +5,6 @@ import MenuItem from '@material-ui/core/MenuItem'
 import { makeStyles } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
 
-
-
-
 const useStyles = makeStyles(theme => ({
 
     textField: {
@@ -35,7 +32,6 @@ const useStyles = makeStyles(theme => ({
         fontSize: '0.7rem'
     },
 }))
-
 
 export default function ConfigTemplate({ collections, collection, data, staticData,
     selectCollection, handleChange }) {
@@ -80,9 +76,3 @@ export default function ConfigTemplate({ collections, collection, data, staticDa
         </Fragment>
     )
 }
-
-
-
-
-//<div>id: {el.id}, {data.label}: {el[data.field]}</div>
-

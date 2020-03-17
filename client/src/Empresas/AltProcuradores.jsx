@@ -8,17 +8,9 @@ import StoreHOC from '../Store/StoreHOC'
 import Crumbs from '../Utils/Crumbs'
 import AltProcuradoresTemplate from './AltProcuradoresTemplate'
 import download from '../Utils/downloadFile'
-import ShowFiles from '../Utils/ShowFiles'
 import { procuradorForm } from '../Forms/procuradorForm'
 
 import AlertDialog from '../Utils/AlertDialog'
-
-const format = {
-    top: '15%',
-    left: '10%',
-    right: '10%',
-    bottom: '15%'
-}
 
 class AltProcuradores extends Component {
 
@@ -42,8 +34,7 @@ class AltProcuradores extends Component {
         addedSocios: [0],
         totalShare: 0,
         filteredProc: [],
-        procDisplay: 'Clique ou arraste para anexar a procuração referente a este(s) procurador(es).',
-        //showFiles: false,
+        procDisplay: 'Clique ou arraste para anexar a procuração referente a este(s) procurador(es).',        
         procuradores: [],
         procsToAdd: [1],
         procuracoesArray: [],
@@ -242,19 +233,7 @@ class AltProcuradores extends Component {
         } else {
             this.setState({ alertType: 'filesNotFound', openAlertDialog: true })
         }
-    }
-
-  /*   showFiles = cpf => {
-        let selectedFiles = this.state.files.filter(f => f.metadata.cpfProcurador === cpf.toString())
-
-        if (selectedFiles[0]) {
-            this.setState({ filesCollection: selectedFiles, showFiles: true, selectedElement: cpf })
-
-        } else {
-            console.log('filesNotFound')
-            this.setState({ filesCollection: [] })
-        }
-    } */
+    }  
 
     plusOne = () => {
         let i = [...this.state.procsToAdd]
@@ -273,7 +252,7 @@ class AltProcuradores extends Component {
     toast = () => this.setState({ confirmToast: !this.state.confirmToast })
 
     render() {
-        const { selectedElement, filesCollection, openAlertDialog, alertType } = this.state
+        const {  openAlertDialog, alertType } = this.state
 
         return (
             <React.Fragment>
@@ -285,13 +264,11 @@ class AltProcuradores extends Component {
                     removeProc={this.removeProc}
                     handleFiles={this.handleFiles}
                     addProc={this.addProc}                   
-                    handleSubmit={this.handleSubmit}
-                    //showFiles={this.showFiles}
+                    handleSubmit={this.handleSubmit}                    
                     plusOne={this.plusOne}
                     minusOne={this.minusOne}
                     getFile={this.getFile}
-                />
-                {showFiles && <ShowFiles elementId={selectedElement} typeId='procuracao' filesCollection={filesCollection} format={format} close={this.closeFiles} />}
+                />               
                 <ReactToast open={this.state.confirmToast} close={this.toast} msg={this.state.toastMsg} />
                 {openAlertDialog && <AlertDialog open={openAlertDialog} close={this.closeAlert} alertType={alertType} customMessage={this.state.customMsg} />}
             </React.Fragment>

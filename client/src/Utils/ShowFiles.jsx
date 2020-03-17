@@ -32,8 +32,7 @@ const ShowFiles = ({ filesCollection, close, format, typeId, empresas }) => {
             break;
         default: void 0
     }
-    console.log('ShowFilesComp, filesCollection', filesCollection)
-    console.log('ShowFilesComp, filesLabels', fileLabels)
+    console.log('ShowFilesComp, filesCollection', filesCollection)    
     if (filesCollection && filesCollection[0]) {
         filesCollection.forEach(obj => {
             fileLabels.forEach(o => {
@@ -44,17 +43,20 @@ const ShowFiles = ({ filesCollection, close, format, typeId, empresas }) => {
 
     const getMoreInfo = file => {
         const { metadata } = file
+
         switch (metadata.fieldName) {
             case 'procuracao':
                 const emp = empresas.find(e => e.delegatarioId === Number(metadata.empresaId))
                 return ' - ' + emp.razaoSocial
             case 'apoliceDoc':
-                return ' número ' + metadata.apolice
+                if (metadata.apolice) return ' número ' + metadata.apolice
+                else return ' '
             default:
                 return ''
         }
     }
-
+    const header = ['Arquivo', 'Data de Upload', 'Tamanho']
+    //console.log(filesCollection)
 
     if (files[0]) {
         return <PopUp title='Arquivos' close={close} format={format}>
@@ -69,15 +71,11 @@ const ShowFiles = ({ filesCollection, close, format, typeId, empresas }) => {
                     <div>
                         <img alt="" src="/images/multipleFiles2.png" height='50%' />
                     </div>
-                    <div>
-                        <span style={{ fontSize: '1.2em', fontWeight: 500 }}>Arquivo</span>
-                    </div>
-                    <div >
-                        <span style={{ fontSize: '1.2em', fontWeight: 500 }}>Data de Upload</span>
-                    </div>
-                    <div >
-                        <span style={{ fontSize: '1.2em', fontWeight: 500 }}>Tamanho</span>
-                    </div>
+                    {header.map((title, i) =>
+                        <div key={i}>
+                            <span style={{ fontSize: '1.2em', fontWeight: 500 }}>{title}</span>
+                        </div>
+                    )}
                 </div>
                 <hr style={{ margin: '0 0 20px 0' }} />
                 {
