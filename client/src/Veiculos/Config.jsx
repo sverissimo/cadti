@@ -14,12 +14,23 @@ class VehicleConfig extends PureComponent {
     }
 
     selectCollection = e => {
-        const { value } = e.target
+        const { value } = e.target,
+            { veiculos } = this.props.redux
 
-        let staticData = configVehicleForm.find(el => el.label === value)
+        let
+            staticData = configVehicleForm.find(el => el.label === value),
+            data = this.props.redux[staticData.collection]
 
-        const data = this.props.redux[staticData.collection]
-        
+        data.forEach(el => {
+            const { name, field, label } = staticData
+            const vehicles = veiculos.filter(v => {
+                if (label === 'Equipamentos' && v[name]) return v[name].toLowerCase().match(el[field].toLowerCase())
+                return v[name] === el[field]
+            }),
+                count = vehicles.length
+            Object.assign(el, { count })
+        })
+        console.log(data)
         this.setState({ collection: value, data, staticData })
     }
 
@@ -28,14 +39,14 @@ class VehicleConfig extends PureComponent {
         this.setState({ [name]: value })
         console.log(this.state)
     }
-
+    
     render() {
-        
+
         const { options, collection, data, staticData } = this.state
         return (
             <ConfigTemplate
                 collections={options}
-                collection={collection}                
+                collection={collection}
                 data={data}
                 staticData={staticData}
                 selectCollection={this.selectCollection}
@@ -47,6 +58,6 @@ class VehicleConfig extends PureComponent {
 
 
 const collections = ['seguradoras', 'lookUpTable/marca_chassi', 'modelosChassi', 'lookUpTable/marca_carroceria',
-    'carrocerias', 'equipamentos']
+    'carrocerias', 'equipamentos', 'veiculos']
 
 export default StoreHOC(collections, VehicleConfig)

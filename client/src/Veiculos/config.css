@@ -1,0 +1,26 @@
+.container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;    
+    width: 100%;        
+}
+
+.divCell {    
+    flex: 0,1;    
+    height: auto;
+    margin: 4px;          
+    flex-direction: row;
+    padding: 0 25px 0 0;
+}
+
+.configVehicleIcon {
+    padding-right: 14px !important;
+    width: 10px !important;
+    visibility: hidden;        
+}
+
+.configVehicleIcon>.confIcon {
+    padding: 2px !important;    
+    visibility: visible;
+    cursor: pointer;
+}

@@ -8,7 +8,7 @@ import AltSeguro from './Veiculos/AltSeguro'
 import BaixaVeiculo from './Veiculos/BaixaVeiculo'
 import Config from './Veiculos/Config'
 
-import Consultas from './Consultas/consultasContainer'
+import Consultas from './Consultas/ConsultasContainer'
 import Empresas from './Empresas/EmpresasContainer'
 import EmpresasHome from './Empresas/EmpresasHome'
 import Procuradores from './Empresas/AltProcuradores'
