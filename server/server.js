@@ -114,7 +114,7 @@ const empresaStorage = new GridFsStorage({
         if (file.fieldname === 'contratoSocial') {
             fileInfo.metadata = {
                 'fieldName': file.fieldname,
-                'empresaId': empresaId, 
+                'empresaId': empresaId,
                 'socios': socios
             }
         } else if (file.fieldname === 'apoliceDoc') {
@@ -439,6 +439,45 @@ app.post('/api/cadSeguro', (req, res) => {
             if (table && table.rows && table.rows.length === 0) { res.send(table.rows); return }
             if (table && table.rows.length > 0) res.send(table.rows)
         })
+})
+
+app.post('/api/addElements', (req, res) => {
+    const { table, column, newElements } = req.body
+
+    let queryString = `INSERT INTO public.${table} (${column}) VALUES `,
+        values = ''
+
+    newElements.forEach(el => {
+        values = values + '(\'' + el + '\'), '
+    })
+    values = values.slice(0, values.length - 2)
+    queryString = queryString + values
+    console.log(queryString)
+    //res.send(queryString)
+    pool.query(queryString, (err, t) => {
+        if (err) console.log(err)
+        if (t && t.rows) res.send(t.rows)
+    })
+})
+
+app.put('/api/editElements', (req, res) => {
+    const { table, tablePK, column, requestArray } = req.body
+    let queryString = ''
+
+    requestArray.forEach(obj => {
+        queryString += `
+            UPDATE ${table}
+            SET ${column} = '${obj[column]}' 
+            WHERE ${tablePK} = ${obj.id};             
+            `
+    })
+    pool.query(queryString, (err, t) => {
+        if (err) console.log(err)
+        pool.query(`SELECT * FROM ${table}`, (err, t) => {
+            if (err) console.log(err)
+            res.json(t.rows)
+        })
+    })
 })
 
 app.put('/api/updateInsurances', async (req, res) => {

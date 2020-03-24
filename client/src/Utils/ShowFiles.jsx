@@ -32,11 +32,11 @@ const ShowFiles = ({ filesCollection, close, format, typeId, empresas }) => {
             break;
         default: void 0
     }
-    console.log('ShowFilesComp, filesCollection', filesCollection)    
+    console.log('ShowFilesComp, filesCollection', filesCollection)
     if (filesCollection && filesCollection[0]) {
         filesCollection.forEach(obj => {
             fileLabels.forEach(o => {
-                if (o.name === obj.metadata.fieldName) files.push({ ...obj, label: o.title })
+                if (obj.metadata && o.name === obj.metadata.fieldName) files.push({ ...obj, label: o.title })
             })
         })
     }

@@ -5,7 +5,7 @@ const dataReducer = (state = initState, action) => {
 
     switch (type) {
 
-        case 'GET_DATA':
+        case 'GET_DATA':            
             return { ...state, ...payload }
 
         case 'INSERT_DATA': {
@@ -77,14 +77,14 @@ const dataReducer = (state = initState, action) => {
                     { id } = payload,
                     updatedData = [...state[collection]]
                 console.log(id, collection)
-                if (collection !== 'seguros' && !collection.match('Docs')) id = Number(id)                
+                if (collection !== 'seguros' && !collection.match('Docs')) id = Number(id)
                 console.log(id)
                 const
                     element = updatedData.find(el => el[tablePK] === id),
                     index = updatedData.findIndex(el => el === element)
 
                 updatedData.splice(index, 1)
-                
+
                 return {
                     ...state, [collection]: updatedData
                 }

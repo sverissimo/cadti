@@ -2,9 +2,22 @@
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;    
-    width: 100%;        
+    width: 100%;      
 }
 
+.selectHeader {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.addHeader {
+    display: flex;    
+    justify-content: flex-end;
+}
+.headerElements {
+    flex: 0,5
+}
 .divCell {    
     flex: 0,1;    
     height: auto;

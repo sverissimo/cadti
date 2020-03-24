@@ -60,12 +60,13 @@ LEFT JOIN marca_carroceria
 `
 
 const lookup = (req, res) => {
-	const { table } = req.params	
-	pool.query(`SELECT * FROM ${ table }`, (err, table) => {
-		if (err) res.send(err)
-		else if (table.rows && table.rows.length === 0) { res.send(table.rows); return }
-		res.json(table.rows)
-	})
+	const { table } = req.params
+	if (table)
+		pool.query(`SELECT * FROM ${table}`, (err, table) => {
+			if (err) res.send(err)
+			else if (table.rows && table.rows.length === 0) { res.send(table.rows); return }
+			res.json(table.rows)
+		})
 }
 
 const equipamentos = `
