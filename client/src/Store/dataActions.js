@@ -134,7 +134,7 @@ export const removeInsurance = (apolice, placaIndex, vehicleIndex) => dispatch =
 }
 
 export const deleteOne = (id, tablePK, collection) => dispatch => {
-    tablePK = humps.camelize(tablePK)
+    tablePK = humps.camelize(tablePK)    
     dispatch({
         type: 'DELETE_ONE',
         payload: { id, tablePK, collection }

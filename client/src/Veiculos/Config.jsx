@@ -79,6 +79,26 @@ class VehicleConfig extends PureComponent {
         this.setState({ data: newData })
     }
 
+
+    removeItem = async index => {
+
+        let data = [...this.state.data]
+        const
+            { staticData } = this.state,
+            { collection } = staticData,
+            id = data[index].id,
+            originalData = this.props.redux[collection],
+            registered = originalData.find(el => el.id === id)
+        console.log(staticData)
+        if (registered) {
+            await axios.delete(`/api/delete?table=${collection}&tablePK=id&id=${id}`)
+                .catch(err => console.log(err))
+        }
+        data.splice(index, 1)
+        this.setState({ data })
+    }
+
+
     handleSubmit = async () => {
 
         const
@@ -97,14 +117,14 @@ class VehicleConfig extends PureComponent {
         })
 
         let realChanges = [], tempObj = {}
-        
+
         editedElements.forEach(el => {
             originalData.forEach(item => {
                 if (el.id === item.id) {
                     Object.keys(el).forEach(key => {
                         if (el[key] !== item[key]) {
                             if (!tempObj.id) tempObj = { ...tempObj, id: el.id }
-                            Object.assign(tempObj, { [key]: el[key] })                            
+                            Object.assign(tempObj, { [key]: el[key] })
                         }
                     })
                     if (Object.keys(tempObj).length > 0) realChanges.push(tempObj)
@@ -116,7 +136,7 @@ class VehicleConfig extends PureComponent {
         editedElements = humps.decamelizeKeys(realChanges)
         //console.log(editedElements)
         //newElements = humps.decamelizeKeys(newElements)
-        newElements = ['aa', 'bb', 'cc']
+        newElements = ['Aaaaa']
         const
             tablePK = 'id',
             column = humps.decamelize(field)
@@ -146,6 +166,8 @@ class VehicleConfig extends PureComponent {
             collection: '', data: undefined, staticData: undefined
         })
     }
+
+
     toast = () => this.setState({ confirmToast: !this.state.confirmToast })
 
     render() {
@@ -162,6 +184,7 @@ class VehicleConfig extends PureComponent {
                     enableEdit={this.enableEdit}
                     handleChange={this.handleChange}
                     handleSubmit={this.handleSubmit}
+                    removeItem={this.removeItem}
                 />
                 <ReactToast open={confirmToast} close={this.toast} msg={toastMsg} />
             </Fragment>

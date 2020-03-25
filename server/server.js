@@ -451,12 +451,13 @@ app.post('/api/addElements', (req, res) => {
         values = values + '(\'' + el + '\'), '
     })
     values = values.slice(0, values.length - 2)
-    queryString = queryString + values
-    console.log(queryString)
-    //res.send(queryString)
+    queryString = queryString + values + ` RETURNING *`
     pool.query(queryString, (err, t) => {
         if (err) console.log(err)
-        if (t && t.rows) res.send(t.rows)
+        if (t && t.rows) {
+            io.sockets.emit('addElements', { insertedObjects: t.rows, table })
+            res.send(t.rows)
+        }
     })
 })
 
@@ -671,6 +672,7 @@ app.delete('/api/delete', (req, res) => {
     if (table === 'procurador') collection = 'procuradore'
     if (table === 'procuracao') collection = 'procuracoe'
     if (table !== 'socios') collection = collection + 's'
+    if (table === 'equipamentos') collection = table
 
     pool.query(`
     DELETE FROM public.${table} WHERE ${tablePK} = ${id}`, (err, t) => {

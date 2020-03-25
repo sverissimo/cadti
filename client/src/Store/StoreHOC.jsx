@@ -6,6 +6,7 @@ import { connect } from 'react-redux'
 import { getData, insertData, updateData, updateCollection, deleteOne } from './dataActions'
 
 import Loading from '../Utils/Loading'
+import { configVehicleForm } from '../Forms/configVehicleForm'
 
 const socketIO = require('socket.io-client')
 let socket
@@ -46,6 +47,11 @@ export default function (requestArray, WrappedComponent) {
             socket.on('insertProcuradores', insertedObjects => {
                 this.props.insertData(insertedObjects, 'procuradores')
             })
+            socket.on('addElements', ({ insertedObjects, table }) => {
+                const { collection } = configVehicleForm.find(el => el.table === table)
+                this.props.insertData(insertedObjects, collection)
+            })
+
             socket.on('updateVehicle', updatedObjects => {
                 this.props.updateData(updatedObjects, 'veiculos', 'veiculoId')
             })
@@ -76,7 +82,7 @@ export default function (requestArray, WrappedComponent) {
         }
         render() {
 
-            collections = collections.map(c => humps.camelize(c))            
+            collections = collections.map(c => humps.camelize(c))
 
             if (collections.length === 0 || !collections.every(col => this.props.redux.hasOwnProperty(col))) {
                 return <Loading />
