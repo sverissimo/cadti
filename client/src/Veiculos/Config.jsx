@@ -33,10 +33,9 @@ class VehicleConfig extends PureComponent {
             { staticData, data } = this.state
 
         if (!staticData || !data) return null
-        console.log('1 - called update')
+        
         const { collection } = staticData
-        if (JSON.stringify(prevProps.redux[collection]) !== JSON.stringify(redux[collection])) {
-            console.log('2 - changed')
+        if (JSON.stringify(prevProps.redux[collection]) !== JSON.stringify(redux[collection])) {        
             const data = this.addCounter(veiculos, staticData, redux[collection])
             this.setState({ data })
         }
@@ -124,8 +123,7 @@ class VehicleConfig extends PureComponent {
         let newData = [...this.state.data]
         newData[index] = changedElement
 
-        await this.setState({ data: newData })
-        console.log(this.state.data[index], reduxItem)
+        await this.setState({ data: newData })       
     }
 
     handleInput = e => {
