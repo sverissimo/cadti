@@ -38,7 +38,7 @@ const useStyles = makeStyles(theme => ({
 }))
 
 export default function ConfigTemplate({ collections, collection, data, staticData,
-    selectCollection, handleChange, enableEdit, removeItem, handleSubmit }) {
+    selectCollection, handleChange, enableEdit, removeItem, handleSubmit, openAddDialog }) {
 
     const
         classes = useStyles(),
@@ -69,18 +69,18 @@ export default function ConfigTemplate({ collections, collection, data, staticDa
                     )}
                 </TextField>
             </div>
-            <div className='divHeader'>
+           {staticData && collection && <div className='divHeader'>
                 <Button
                     size="small"
                     color='primary'
                     variant='outlined'
                     //  className={classes.button}
                     style={{ margin: '10px 0 10px 0' }}
-                    //onClick={() => addElement(newElement)}
+                    onClick={() => openAddDialog()}
                 >
                     <Add /> Adicionar
                 </Button>
-            </div>
+            </div>}
             <div className='container'>
                 {
                     data && staticData && data.map((el, i) =>

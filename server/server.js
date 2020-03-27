@@ -19,6 +19,7 @@ const { cadProcuradores } = require('./cadProcuradores')
 const { empresas, veiculoInit, modeloChassi, carrocerias, equipamentos, seguradoras,
     seguros, socios, lookup } = require('./queries')
 
+const { fieldParser } = require('./fieldParser')
 const { getUpdatedData } = require('./getUpdatedData')
 const { filesModel } = require('./models/filesModel')
 const { empresaModel } = require('./models/empresaModel')
@@ -28,7 +29,7 @@ const { uploadFS } = require('./upload')
 const { parseRequestBody } = require('./parseRequest')
 
 dotenv.config()
-app.use(bodyParser.json());
+app.use(bodyParser.json())
 
 app.use(function (req, res, next) { //allow cross origin requests
     res.setHeader("Access-Control-Allow-Methods", "POST, PUT, OPTIONS, DELETE, GET")
@@ -441,22 +442,18 @@ app.post('/api/cadSeguro', (req, res) => {
         })
 })
 
-app.post('/api/addElements', (req, res) => {
-    const { table, column, newElements } = req.body
+app.post('/api/addElement', (req, res) => {
+    const
+        { table, requestElement } = req.body,
+        { keys, values } = parseRequestBody(requestElement)
 
-    let queryString = `INSERT INTO public.${table} (${column}) VALUES `,
-        values = ''
-
-    newElements.forEach(el => {
-        values = values + '(\'' + el + '\'), '
-    })
-    values = values.slice(0, values.length - 2)
-    queryString = queryString + values + ` RETURNING *`
+    let queryString = `INSERT INTO public.${table} (${keys}) VALUES (${values}) RETURNING *`
+    console.log(queryString)
     pool.query(queryString, (err, t) => {
         if (err) console.log(err)
-        if (t && t.rows) {
+        if (t && t.rows) {            
             io.sockets.emit('addElements', { insertedObjects: t.rows, table })
-            res.send(t.rows)
+            res.send(t.rows);
         }
     })
 })
@@ -665,14 +662,11 @@ app.get('/api/deleteFile/:reqId', async (req, res) => {
 })
 
 app.delete('/api/delete', (req, res) => {
-    const { table, tablePK } = req.query
-    let { id } = req.query, collection = table
-    if (table === 'seguro') id = '\'' + id + '\''
-    if (table === 'delegatario') collection = 'empresa'
-    if (table === 'procurador') collection = 'procuradore'
-    if (table === 'procuracao') collection = 'procuracoe'
-    if (table !== 'socios') collection = collection + 's'
-    if (table === 'equipamentos') collection = table
+    const
+        { table, tablePK } = req.query,
+        { collection } = fieldParser.find(f => f.table === table)
+    let
+        { id } = req.query
 
     pool.query(`
     DELETE FROM public.${table} WHERE ${tablePK} = ${id}`, (err, t) => {

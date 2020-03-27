@@ -48,7 +48,7 @@ export default function (requestArray, WrappedComponent) {
                 this.props.insertData(insertedObjects, 'procuradores')
             })
             socket.on('addElements', ({ insertedObjects, table }) => {
-                const { collection } = configVehicleForm.find(el => el.table === table)
+                const { collection } = configVehicleForm.find(el => el.table === table)                
                 this.props.insertData(insertedObjects, collection)
             })
 

@@ -4,6 +4,7 @@ import humps from 'humps'
 
 import StoreHOC from '../Store/StoreHOC'
 
+import ConfigAddDialog from './ConfigAddDialog'
 import ReactToast from '../Utils/ReactToast'
 import ConfigTemplate from './ConfigTemplate'
 import { configVehicleForm } from '../Forms/configVehicleForm'
@@ -13,7 +14,9 @@ class VehicleConfig extends PureComponent {
 
     state = {
         collection: '',
+        marca: '',
         options: [],
+        openAddDialog: false,
         confirmToast: false,
         toastMsg: 'Dados atualizados!',
     }
@@ -23,16 +26,10 @@ class VehicleConfig extends PureComponent {
         this.setState({ options })
     }
 
-    selectCollection = async e => {
-        const
-            { value } = e.target,
-            { veiculos } = this.props.redux
-        let
-            staticData = configVehicleForm.find(el => el.label === value),
-            data = JSON.parse(JSON.stringify(this.props.redux[staticData.collection]))
+    addCounter = (veiculos, staticData, data) => {
+        const { name, field, label } = staticData
 
         data.forEach(el => {
-            const { name, field, label } = staticData
             const vehicles = veiculos.filter(v => {
                 if (label === 'Equipamentos' && v[name]) return v[name].toLowerCase().match(el[field].toLowerCase())
                 return v[name] === el[field]
@@ -40,8 +37,22 @@ class VehicleConfig extends PureComponent {
                 count = vehicles.length
             Object.assign(el, { count })
         })
-        const { field } = staticData
         data = data.sort((a, b) => a[field].localeCompare(b[field]))
+        return data
+    }
+
+    selectCollection = async e => {        
+        const
+            { value } = e.target,
+            { veiculos, marcaChassi, marcaCarroceria } = this.props.redux
+        let
+            staticData = configVehicleForm.find(el => el.label === value),
+            data = JSON.parse(JSON.stringify(this.props.redux[staticData.collection]))
+
+        data = this.addCounter(veiculos, staticData, data)
+
+        if (staticData.collection === 'modelosChassi') this.setState({ marcas: marcaChassi })
+        if (staticData.collection === 'carrocerias') this.setState({ marcas: marcaCarroceria })
 
         await this.setState({ collection: value, data, staticData })
     }
@@ -79,6 +90,45 @@ class VehicleConfig extends PureComponent {
         this.setState({ data: newData })
     }
 
+    handleInput = e => {
+        const { value } = e.target
+        this.setState({ newElement: value })
+    }
+
+    addNewElement = async () => {
+
+        const
+            { staticData, newElement, marcaId } = this.state,
+            { table, field, collection } = staticData,
+            { veiculos } = this.props.redux
+
+        let requestElement = { [field]: newElement }
+        if (marcaId) requestElement.marcaId = marcaId
+        requestElement = humps.decamelizeKeys(requestElement)
+
+        await axios.post('/api/addElement', { table, requestElement })
+
+        let data = this.props.redux[collection]
+        data = this.addCounter(veiculos, staticData, data)
+
+        this.setState({ openAddDialog: false, data })
+    }
+
+    selectMarca = e => {
+        const
+            { value } = e.target,
+            { collection } = this.state.staticData,
+            { marcaChassi, marcaCarroceria } = this.props.redux
+
+        let marcaCollection
+        if (collection === 'modelosChassi') marcaCollection = marcaChassi
+        if (collection === 'carrocerias') marcaCollection = marcaCarroceria
+
+        const { id } = marcaCollection.find(m => m.marca === value)
+
+        this.setState({ marca: value, marcaId: id })
+    }
+
 
     removeItem = async index => {
 
@@ -89,7 +139,7 @@ class VehicleConfig extends PureComponent {
             id = data[index].id,
             originalData = this.props.redux[collection],
             registered = originalData.find(el => el.id === id)
-        console.log(staticData)
+        
         if (registered) {
             await axios.delete(`/api/delete?table=${collection}&tablePK=id&id=${id}`)
                 .catch(err => console.log(err))
@@ -168,11 +218,12 @@ class VehicleConfig extends PureComponent {
     }
 
 
+    toggleDialog = () => this.setState({ openAddDialog: !this.state.openAddDialog })
     toast = () => this.setState({ confirmToast: !this.state.confirmToast })
 
     render() {
 
-        const { options, collection, data, staticData, confirmToast, toastMsg } = this.state
+        const { options, collection, data, staticData, openAddDialog, marca, marcas, confirmToast, toastMsg } = this.state
         return (
             <Fragment>
                 <ConfigTemplate
@@ -184,8 +235,19 @@ class VehicleConfig extends PureComponent {
                     enableEdit={this.enableEdit}
                     handleChange={this.handleChange}
                     handleSubmit={this.handleSubmit}
+                    openAddDialog={this.toggleDialog}
                     removeItem={this.removeItem}
                 />
+                {openAddDialog && <ConfigAddDialog
+                    open={openAddDialog}
+                    close={this.toggleDialog}
+                    title={staticData.label}
+                    marca={marca}
+                    marcas={marcas}
+                    selectMarca={this.selectMarca}
+                    handleInput={this.handleInput}
+                    addNewElement={this.addNewElement}
+                />}
                 <ReactToast open={confirmToast} close={this.toast} msg={toastMsg} />
             </Fragment>
         )
