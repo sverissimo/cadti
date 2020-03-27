@@ -451,7 +451,7 @@ app.post('/api/addElement', (req, res) => {
     console.log(queryString)
     pool.query(queryString, (err, t) => {
         if (err) console.log(err)
-        if (t && t.rows) {            
+        if (t && t.rows) {
             io.sockets.emit('addElements', { insertedObjects: t.rows, table })
             res.send(t.rows);
         }
@@ -459,8 +459,15 @@ app.post('/api/addElement', (req, res) => {
 })
 
 app.put('/api/editElements', (req, res) => {
-    const { table, tablePK, column, requestArray } = req.body
-    let queryString = ''
+    const
+        { table, tablePK, column, requestArray } = req.body,
+        { collection } = fieldParser.find(el => el.table === table)
+    let
+        queryString = ''
+    if (!requestArray && !requestArray[0]) {
+        res.send('nothing to update...')
+        return
+    }
 
     requestArray.forEach(obj => {
         queryString += `
@@ -469,11 +476,12 @@ app.put('/api/editElements', (req, res) => {
             WHERE ${tablePK} = ${obj.id};             
             `
     })
-    pool.query(queryString, (err, t) => {
+    pool.query(queryString, (err, tb) => {
         if (err) console.log(err)
         pool.query(`SELECT * FROM ${table}`, (err, t) => {
             if (err) console.log(err)
-            res.json(t.rows)
+            io.sockets.emit('updateElements', { collection, updatedCollection: t.rows })
+            res.send(t)
         })
     })
 })

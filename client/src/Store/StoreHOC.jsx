@@ -52,6 +52,10 @@ export default function (requestArray, WrappedComponent) {
                 this.props.insertData(insertedObjects, collection)
             })
 
+            socket.on('updateElements', ({ collection, updatedCollection }) => {                
+                this.props.updateCollection(updatedCollection, collection)
+            })
+
             socket.on('updateVehicle', updatedObjects => {
                 this.props.updateData(updatedObjects, 'veiculos', 'veiculoId')
             })

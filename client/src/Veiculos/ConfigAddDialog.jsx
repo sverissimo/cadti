@@ -11,12 +11,6 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 
 export default function ConfigAddDialog({ open, close, title, marca, marcas, selectMarca, newElement, handleInput, addNewElement }) {
 
-    const errorHandler = nPlate => {
-
-        if (nPlate.length < 9 && nPlate.match('[a-zA-Z]{3}?[-]\\d{1}\\w{1}\\d{2}')) return false
-        else return true
-    }
-
     return (
         <div>
             <Dialog open={open} onClose={close} aria-labelledby="form-dialog-title">

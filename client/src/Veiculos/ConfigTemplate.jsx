@@ -1,5 +1,6 @@
 import React, { Fragment } from 'react'
 
+import Crumbs from '../Utils/Crumbs'
 import MenuItem from '@material-ui/core/MenuItem'
 
 import { makeStyles } from '@material-ui/core/styles'
@@ -18,8 +19,7 @@ const useStyles = makeStyles(theme => ({
     textField: {
         marginLeft: theme.spacing(1),
         marginRight: theme.spacing(1),
-        marginTop: '2px',
-        marginBottom: '2px',
+        marginTop: '2px',        
         width: '275px',
         fontSize: '0.8rem',
         fontColor: '#bbb',
@@ -27,8 +27,7 @@ const useStyles = makeStyles(theme => ({
     },
     select: {
         marginLeft: theme.spacing(1),
-        marginRight: theme.spacing(1),
-        marginTop: '2px',
+        marginRight: theme.spacing(1),        
         marginBottom: '2px',
         background: '#fafafa',
         fontSize: '0.8rem',
@@ -46,8 +45,9 @@ export default function ConfigTemplate({ collections, collection, data, staticDa
 
     return (
         <Fragment>
+           <Crumbs links={['Veículos', '/veiculos']} text='Alterar configurações de veículos' />
             <center>
-                <h6>Selecione uma das opções abaixo.</h6>
+                <h5>Selecione uma das opções abaixo.</h5>
             </center>
             <div className="selectHeader">
                 <TextField

@@ -26,6 +26,22 @@ class VehicleConfig extends PureComponent {
         this.setState({ options })
     }
 
+    componentDidUpdate(prevProps) {
+        const
+            { redux } = this.props,
+            { veiculos } = redux,
+            { staticData, data } = this.state
+
+        if (!staticData || !data) return null
+        console.log('1 - called update')
+        const { collection } = staticData
+        if (JSON.stringify(prevProps.redux[collection]) !== JSON.stringify(redux[collection])) {
+            console.log('2 - changed')
+            const data = this.addCounter(veiculos, staticData, redux[collection])
+            this.setState({ data })
+        }
+    }
+
     addCounter = (veiculos, staticData, data) => {
         const { name, field, label } = staticData
 
@@ -41,7 +57,7 @@ class VehicleConfig extends PureComponent {
         return data
     }
 
-    selectCollection = async e => {        
+    selectCollection = async e => {
         const
             { value } = e.target,
             { veiculos, marcaChassi, marcaCarroceria } = this.props.redux
@@ -50,11 +66,14 @@ class VehicleConfig extends PureComponent {
             data = JSON.parse(JSON.stringify(this.props.redux[staticData.collection]))
 
         data = this.addCounter(veiculos, staticData, data)
+        data.forEach(el => el.edit = false)
 
+        this.setState({ marcas: undefined, marca: '' })
         if (staticData.collection === 'modelosChassi') this.setState({ marcas: marcaChassi })
         if (staticData.collection === 'carrocerias') this.setState({ marcas: marcaCarroceria })
 
         await this.setState({ collection: value, data, staticData })
+        void 0
     }
 
     enableEdit = async index => {
@@ -74,20 +93,39 @@ class VehicleConfig extends PureComponent {
         inputTarget.focus()
     }
 
-    handleChange = e => {
+    selectMarca = e => {
         const
             { value } = e.target,
-            name = this.state.staticData.field
+            { collection } = this.state.staticData,
+            { marcaChassi, marcaCarroceria } = this.props.redux
+
+        let marcaCollection
+        if (collection === 'modelosChassi') marcaCollection = marcaChassi
+        if (collection === 'carrocerias') marcaCollection = marcaCarroceria
+
+        const { id } = marcaCollection.find(m => m.marca === value)
+
+        this.setState({ marca: value, marcaId: id })
+    }
+
+    handleChange = async e => {
+        const
+            { value } = e.target,
+            name = this.state.staticData.field,
+            { collection } = this.state.staticData
+
 
         let changedElement = this.state.data.find(el => el.edit === true)
         const index = this.state.data.indexOf(changedElement)
 
+        const reduxItem = JSON.parse(JSON.stringify(this.props.redux[collection][index]))
         changedElement[name] = value
 
         let newData = [...this.state.data]
         newData[index] = changedElement
 
-        this.setState({ data: newData })
+        await this.setState({ data: newData })
+        console.log(this.state.data[index], reduxItem)
     }
 
     handleInput = e => {
@@ -114,56 +152,40 @@ class VehicleConfig extends PureComponent {
         this.setState({ openAddDialog: false, data })
     }
 
-    selectMarca = e => {
-        const
-            { value } = e.target,
-            { collection } = this.state.staticData,
-            { marcaChassi, marcaCarroceria } = this.props.redux
-
-        let marcaCollection
-        if (collection === 'modelosChassi') marcaCollection = marcaChassi
-        if (collection === 'carrocerias') marcaCollection = marcaCarroceria
-
-        const { id } = marcaCollection.find(m => m.marca === value)
-
-        this.setState({ marca: value, marcaId: id })
-    }
-
-
     removeItem = async index => {
 
         let data = [...this.state.data]
         const
             { staticData } = this.state,
-            { collection } = staticData,
+            { collection, table } = staticData,
             id = data[index].id,
             originalData = this.props.redux[collection],
             registered = originalData.find(el => el.id === id)
-        
+
         if (registered) {
-            await axios.delete(`/api/delete?table=${collection}&tablePK=id&id=${id}`)
+            await axios.delete(`/api/delete?table=${table}&tablePK=id&id=${id}`)
                 .catch(err => console.log(err))
         }
         data.splice(index, 1)
         this.setState({ data })
     }
 
-
     handleSubmit = async () => {
 
         const
+            { redux } = this.props,
+            { veiculos } = redux,
             { data, staticData } = this.state,
             { collection, field, table } = staticData,
-            originalData = this.props.redux[collection]
+            originalData = JSON.parse(JSON.stringify(redux[collection]))
 
-        let editedElements = [], newElements = []
+        let editedElements = []
 
         data.forEach(el => {
             if (el.hasOwnProperty('id')) {
                 const { count, edit, ...rest } = el
                 editedElements.push(rest)
             }
-            else newElements.push(el)
         })
 
         let realChanges = [], tempObj = {}
@@ -183,40 +205,26 @@ class VehicleConfig extends PureComponent {
             })
         })
 
-        editedElements = humps.decamelizeKeys(realChanges)
-        //console.log(editedElements)
-        //newElements = humps.decamelizeKeys(newElements)
-        newElements = ['Aaaaa']
         const
             tablePK = 'id',
             column = humps.decamelize(field)
 
-        try {
-            if (editedElements.length > 0) {
+        editedElements = humps.decamelizeKeys(realChanges)
 
-                await axios.put('/api/editElements', { requestArray: editedElements, table, tablePK, column })
-                    .then(r => console.log(r.data));
-            }
-
-            if (newElements.length > 0) {
-                await axios.post('/api/addElements', { newElements, table, column })
-                    .then(r => console.log(r.data))
-            }
-        } catch (err) {
-            console.log(err)
-        }
+        await axios.put('/api/editElements', { requestArray: editedElements, table, tablePK, column })
+            .then(r => console.log(r.data))
+            .catch(err => console.log(err))
 
         editedElements = []
         realChanges = []
         tempObj = {}
-        newElements = []
         this.toast()
 
-        this.setState({
-            collection: '', data: undefined, staticData: undefined
-        })
-    }
+        let updatedData = JSON.parse(JSON.stringify(redux[collection]))
+        updatedData = this.addCounter(veiculos, staticData, updatedData)
 
+        this.setState({ collection: '', staticData: undefined })
+    }
 
     toggleDialog = () => this.setState({ openAddDialog: !this.state.openAddDialog })
     toast = () => this.setState({ confirmToast: !this.state.confirmToast })
