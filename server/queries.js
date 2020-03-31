@@ -1,81 +1,67 @@
 const { pool } = require('./config/pgConfig')
 
 const empresas = ` 
-SELECT d.*,
-	cardinality (array_agg(v.veiculo_id)) frota,
-	array_to_json(array_agg(v.veiculo_id)) veiculos	
-FROM public.delegatario d
-LEFT JOIN veiculo v
-	ON v.delegatario_id = d.delegatario_id
-GROUP BY d.delegatario_id
-ORDER BY frota DESC
-`
+		SELECT d.*,
+			cardinality (array_agg(v.veiculo_id)) frota,
+			array_to_json(array_agg(v.veiculo_id)) veiculos	
+		FROM public.delegatario d
+		LEFT JOIN veiculo v
+			ON v.delegatario_id = d.delegatario_id
+		GROUP BY d.delegatario_id
+		ORDER BY frota DESC
+		`
 
-const veiculoInit = `
-SELECT veiculo.*,	
-	marca_chassi.marca as marca_chassi,
-	modelo_chassi.modelo_chassi,	
-	marca_carroceria.marca as marca_carroceria,
-	modelo_carroceria.modelo as modelo_carroceria,
-	d.razao_social as empresa,
-	d.vencimento_contrato,
-	d2.razao_social as compartilhado,
-	seguradora.seguradora,
-	seguro.data_emissao,
-	seguro.vencimento
-FROM veiculo
-LEFT JOIN public.modelo_chassi
-	ON veiculo.modelo_chassi_id = public.modelo_chassi.id
-LEFT JOIN public.marca_chassi
-	ON modelo_chassi.marca_id = marca_chassi.id
-LEFT JOIN public.modelo_carroceria
-	ON veiculo.modelo_carroceria_id = public.modelo_carroceria.id
-LEFT JOIN public.marca_carroceria
-	ON public.marca_carroceria.id = public.modelo_carroceria.marca_id
-LEFT JOIN public.delegatario d
-	ON veiculo.delegatario_id = d.delegatario_id
-LEFT JOIN public.delegatario d2
-	ON veiculo.delegatario_compartilhado = d2.delegatario_id
-LEFT JOIN public.seguro
-	ON veiculo.apolice = seguro.apolice
-LEFT JOIN public.seguradora
-	ON public.seguradora.id = seguro.seguradora_id
-ORDER BY veiculo.veiculo_id DESC
-`
+const veiculos = `
+		SELECT veiculo.*,	
+			marca_chassi.marca as marca_chassi,
+			modelo_chassi.modelo_chassi,	
+			marca_carroceria.marca as marca_carroceria,
+			modelo_carroceria.modelo as modelo_carroceria,
+			d.razao_social as empresa,
+			d.vencimento_contrato,
+			d2.razao_social as compartilhado,
+			seguradora.seguradora,
+			seguro.data_emissao,
+			seguro.vencimento
+		FROM veiculo
+		LEFT JOIN public.modelo_chassi
+			ON veiculo.modelo_chassi_id = public.modelo_chassi.id
+		LEFT JOIN public.marca_chassi
+			ON modelo_chassi.marca_id = marca_chassi.id
+		LEFT JOIN public.modelo_carroceria
+			ON veiculo.modelo_carroceria_id = public.modelo_carroceria.id
+		LEFT JOIN public.marca_carroceria
+			ON public.marca_carroceria.id = public.modelo_carroceria.marca_id
+		LEFT JOIN public.delegatario d
+			ON veiculo.delegatario_id = d.delegatario_id
+		LEFT JOIN public.delegatario d2
+			ON veiculo.delegatario_compartilhado = d2.delegatario_id
+		LEFT JOIN public.seguro
+			ON veiculo.apolice = seguro.apolice
+		LEFT JOIN public.seguradora
+			ON public.seguradora.id = seguro.seguradora_id
+		ORDER BY veiculo.veiculo_id DESC
+		`
 
 const modeloChassi = `
-SELECT modelo_chassi.id, modelo_chassi,
-	public.marca_chassi.marca as marca
-FROM modelo_chassi 
-LEFT JOIN marca_chassi
-	ON public.marca_chassi.id = public.modelo_chassi.marca_id
-`
+		SELECT modelo_chassi.id, modelo_chassi,
+			public.marca_chassi.marca as marca
+		FROM modelo_chassi 
+		LEFT JOIN marca_chassi
+			ON public.marca_chassi.id = public.modelo_chassi.marca_id
+		`
 
 const carrocerias = `
-SELECT modelo_carroceria.id, modelo_carroceria.modelo,
-	public.marca_carroceria.marca as marca
-FROM modelo_carroceria
-LEFT JOIN marca_carroceria
-	ON public.marca_carroceria.id = public.modelo_carroceria.marca_id
-`
-
-const lookup = (req, res) => {
-	const { table } = req.params
-	if (table)
-		pool.query(`SELECT * FROM ${table}`, (err, table) => {
-			if (err) res.send(err)
-			else if (table.rows && table.rows.length === 0) { res.send(table.rows); return }
-			res.json(table.rows)
-		})
-}
-
-const equipamentos = `
-SELECT * FROM equipamentos
+		SELECT modelo_carroceria.id, modelo_carroceria.modelo,
+			public.marca_carroceria.marca as marca
+		FROM modelo_carroceria
+		LEFT JOIN marca_carroceria
+			ON public.marca_carroceria.id = public.modelo_carroceria.marca_id
 		`
 
-const seguradoras = `
-SELECT * FROM seguradora
-		`
+const equipamentos = `SELECT * FROM equipamentos`
+
+const seguradoras = `SELECT * FROM seguradora`
 
 const seguros = `
 SELECT seguro.*,
@@ -96,15 +82,40 @@ ORDER BY seguro.vencimento ASC
 		`
 
 const socios = `
-SELECT public.socios.*,
-		public.delegatario.razao_social
-	FROM public.socios 
-LEFT JOIN public.delegatario 
-	ON delegatario.delegatario_id = socios.delegatario_id
-ORDER BY nome_socio ASC
+		SELECT public.socios.*,
+				public.delegatario.razao_social
+			FROM public.socios 
+		LEFT JOIN public.delegatario 
+			ON delegatario.delegatario_id = socios.delegatario_id
+		ORDER BY nome_socio ASC
 		`
 
+const procuracoes = `
+		SELECT public.procuracao.*,
+		d.razao_social
+		FROM procuracao
+		LEFT JOIN delegatario d
+		ON d.delegatario_id = procuracao.delegatario_id
+		ORDER BY vencimento DESC      
+		`
+
+const procuradores = `
+	SELECT * FROM public.procurador
+	order by procurador.procurador_id desc
+	`
+
+const lookup = (req, res) => {
+	const { table } = req.params
+	if (table)
+		pool.query(`SELECT * FROM ${table}`, (err, table) => {
+			if (err) res.send(err)
+			else if (table.rows && table.rows.length === 0) { res.send(table.rows); return }
+			res.json(table.rows)
+		})
+}
+
+
 module.exports = {
-	empresas, veiculoInit, modeloChassi, carrocerias, equipamentos,
-	seguradoras, seguros, socios, lookup
+	empresas, veiculos, modeloChassi, carrocerias, equipamentos,
+	seguradoras, seguros, socios, procuradores, procuracoes, lookup
 }

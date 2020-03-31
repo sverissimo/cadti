@@ -172,18 +172,13 @@ class VeiculosContainer extends PureComponent {
                 }
                 break
             }
-            case ('valorChassi'):
-                console.log(name)
+            case ('valorChassi'):                
                 this.setState({ [name]: formatMoney(value) })
                 break
-            case ('valorCarroceria'):
-                console.log(name)
+            case ('valorCarroceria'):                
                 this.setState({ [name]: formatMoney(value) })
                 break
-
-
-
-
+                
             default: void 0
         }
     }

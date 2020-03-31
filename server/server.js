@@ -3,7 +3,6 @@ const app = express()
 const server = require('http').createServer(app)
 const io = require('socket.io').listen(server)
 const bodyParser = require('body-parser')
-const pg = require('pg')
 const path = require('path')
 const dotenv = require('dotenv')
 const mongoose = require('mongoose')
@@ -12,12 +11,14 @@ const GridFsStorage = require('multer-gridfs-storage')
 const Grid = require('gridfs-stream')
 Grid.mongo = mongoose.mongo
 
+const { pool } = require('./config/pgConfig')
+const { apiGetRouter } = require('./apiGetRouter')
+
 const { cadEmpresa } = require('./cadEmpresa')
 const { cadSocios } = require('./cadSocios')
 const { cadProcuradores } = require('./cadProcuradores')
 
-const { empresas, veiculoInit, modeloChassi, carrocerias, equipamentos, seguradoras,
-    seguros, socios, lookup } = require('./queries')
+const { seguros, socios, lookup } = require('./queries')
 
 const { fieldParser } = require('./fieldParser')
 const { getUpdatedData } = require('./getUpdatedData')
@@ -42,16 +43,6 @@ app.use(function (req, res, next) { //allow cross origin requests
 app.use(bodyParser.json({ limit: '50mb' }))
 app.use(bodyParser.urlencoded())
 app.use(express.static('client/build'))
-
-const Pool = pg.Pool
-let pool = new Pool({
-    user: process.env.DB_USER || process.env.USER,
-    host: process.env.DB_HOST || process.env.HOST,
-    database: process.env.DB || process.env.DATABASE,
-    password: process.env.DB_PASS || process.env.PASSWORD,
-    port: 5432
-})
-if (process.env.NODE_ENV === 'production') pool = new Pool({ connectionString: process.env.DATABASE_URL })
 
 const mongoURI = (process.env.MONGODB_URI || 'mongodb://localhost:27017/sismob_db')
 mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true, debug: true })
@@ -237,16 +228,11 @@ app.get('/api/download', (req, res) => {
 
 })
 
+//************************************ GET METHOD ROUTES *********************** */
 
-//************************************ No Binary Data ************************** */
+const routes = 'empresas|socios|veiculos|modelosChassi|carrocerias|equipamentos|seguros|seguradoras|procuradores|procuracoes'
 
-
-app.get('/api/empresas', (req, res) => pool.query(empresas, (err, table) => {
-    if (err) res.send(err)
-    if (table.rows.length === 0) { res.send(table.rows); return }
-    res.json(table.rows)
-})
-)
+app.get(`/api/${routes}`, apiGetRouter)
 
 app.get('/api/veiculo/:id', (req, res) => {
     const { id } = req.params
@@ -257,94 +243,11 @@ app.get('/api/veiculo/:id', (req, res) => {
         if (table.rows.length === 0) { res.send('Veículo não encontrado.'); return }
         res.json(table.rows.map(r => r[column]))
     })
-})
-
-app.get('/api/veiculos', (req, res) => {
-
-    pool.query(veiculoInit, (err, table) => {
-        if (err) res.send(err)
-        else if (table.rows.length === 0) { res.send(table.rows); return }
-        res.json(table.rows)
-    })
-})
-
-app.get('/api/socios', (req, res) => {
-
-    pool.query(socios, (err, table) => {
-        if (err) res.send(err)
-        else if (table.rows.length === 0) { res.send(table.rows); return }
-        res.json(table.rows)
-    })
-})
-
-app.get('/api/modelosChassi', (req, res) => {
-    pool.query(modeloChassi, (err, table) => {
-        if (err) res.send(err)
-        else if (table.rows && table.rows.length === 0) { res.send(table.rows); return }
-        res.json(table.rows)
-    })
-})
-
-app.get('/api/carrocerias', (req, res) => {
-    pool.query(carrocerias, (err, table) => {
-        if (err) res.send(err)
-        else if (table.rows && table.rows.length === 0) { res.send(table.rows); return }
-        res.json(table.rows)
-    })
-})
+});
 
 app.get('/api/lookUpTable/:table', lookup)
 
-app.get('/api/equipamentos', (req, res) => {
-    pool.query(equipamentos, (err, table) => {
-        if (err) res.send(err)
-        else if (table.rows && table.rows.length === 0) { res.send(table.rows); return }
-        res.json(table.rows)
-    })
-})
-
-app.get('/api/seguros', (req, res) => {
-    pool.query(seguros, (err, table) => {
-        if (err) res.send(err)
-        else if (table.rows && table.rows.length === 0) { res.send(table.rows); return }
-        res.json(table.rows)
-    })
-})
-
-app.get('/api/seguradoras', (req, res) => {
-    pool.query(seguradoras, (err, table) => {
-        if (err) res.send(err)
-        else if (table.rows && table.rows.length === 0) { res.send(table.rows); return }
-        res.json(table.rows);
-    })
-})
-
-app.get('/api/procuracoes', (req, res) => {
-    pool.query(`
-            SELECT public.procuracao.*,
-            d.razao_social
-            FROM procuracao
-            LEFT JOIN delegatario d
-            ON d.delegatario_id = procuracao.delegatario_id
-            ORDER BY vencimento DESC      
-        `, (err, table) => {
-        if (err) res.send(err)
-        else if (table.rows && table.rows.length === 0) { res.send(table.rows); return }
-        res.json(table.rows);
-    })
-})
-
-app.get('/api/procuradores', (req, res) => {
-    pool.query(`
-        SELECT * FROM public.procurador
-        order by procurador.procurador_id desc`, (err, table) => {
-        if (err) res.send(err)
-        else if (table.rows) {
-            res.json(table.rows)
-            return
-        }
-    })
-})
+//************************************ OTHER METHOD ROUTES *********************** */
 
 app.post('/api/cadastroVeiculo', (req, res) => {
 
@@ -476,12 +379,15 @@ app.put('/api/editElements', (req, res) => {
             WHERE ${tablePK} = ${obj.id};             
             `
     })
+    
     pool.query(queryString, (err, tb) => {
         if (err) console.log(err)
         pool.query(`SELECT * FROM ${table}`, (err, t) => {
             if (err) console.log(err)
-            io.sockets.emit('updateElements', { collection, updatedCollection: t.rows })
-            res.send(t)
+            if (t && t.rows) {
+                io.sockets.emit('updateElements', { collection, updatedCollection: t.rows })
+                res.send(t.rows)
+            } else res.send('Nothing was returned from the dataBase...')
         })
     })
 })

@@ -74,7 +74,7 @@ export default function TextInput({ handleInput, handleBlur, form, data }) {
                 helperText={helper(el)}
                 FormHelperTextProps={{ className: helperText }}
                 select={el.select || false}
-                value={el.money ? el.money(data[el.field]) : data[el.field] || ''}
+                value={data[el.field] || ''}
                 disabled={el.disabled || false}
                 InputLabelProps={{
                     className: classes.textField,

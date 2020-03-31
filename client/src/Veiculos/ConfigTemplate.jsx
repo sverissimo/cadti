@@ -89,13 +89,14 @@ export default function ConfigTemplate({ collections, collection, data, staticDa
                                 value={el.edit ? el[staticData.field] : el[staticData.field] + ' (' + el['count'] + ')'}
                                 onChange={handleChange}
                                 name={el.field}
+                                type='text'
                                 inputProps={{
                                     autoCorrect: 'off',
                                     spellCheck: false,
                                     style: {
                                         fontSize: '0.8rem',
                                         color: el.edit === true ? '#000' : '#999'
-                                    }
+                                    },                                    
                                 }}
                                 className={textField}
                                 disabled={el.edit === false}

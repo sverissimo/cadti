@@ -172,7 +172,6 @@ class VehicleConfig extends PureComponent {
 
         const
             { redux } = this.props,
-            //{ veiculos } = redux,
             { data, staticData } = this.state,
             { collection, field, table } = staticData,
             originalData = JSON.parse(JSON.stringify(redux[collection]))
@@ -210,16 +209,13 @@ class VehicleConfig extends PureComponent {
         editedElements = humps.decamelizeKeys(realChanges)
 
         await axios.put('/api/editElements', { requestArray: editedElements, table, tablePK, column })
-            .then(r => console.log(r.data))
+            .then(r => console.log('updated.'))
             .catch(err => console.log(err))
 
         editedElements = []
         realChanges = []
         tempObj = {}
         this.toast()
-
-      /*   let updatedData = JSON.parse(JSON.stringify(redux[collection]))
-        updatedData = this.addCounter(veiculos, staticData, updatedData) */
 
         this.setState({ collection: '', staticData: undefined })
     }

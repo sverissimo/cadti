@@ -11,5 +11,6 @@ let pool = new Pool({
     password: process.env.DB_PASS || process.env.PASSWORD,
     port: 5432
 })
+if (process.env.NODE_ENV === 'production') pool = new Pool({ connectionString: process.env.DATABASE_URL })
 
 module.exports = { pool }
