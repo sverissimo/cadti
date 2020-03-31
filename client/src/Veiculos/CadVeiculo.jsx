@@ -15,6 +15,7 @@ import StepperButtons from '../Utils/StepperButtons'
 import CustomStepper from '../Utils/Stepper'
 import ReactToast from '../Utils/ReactToast'
 
+import { formatMoney } from '../Utils/formatMoney'
 import { cadVehicleFiles } from '../Forms/cadVehicleFiles'
 import { cadForm } from '../Forms/cadForm'
 
@@ -115,7 +116,6 @@ class VeiculosContainer extends PureComponent {
 
         switch (name) {
             case 'razaoSocial':
-                this.setState({ [name]: value })
 
                 let selectedEmpresa = empresas.find(e => e.razaoSocial === value)
 
@@ -172,6 +172,18 @@ class VeiculosContainer extends PureComponent {
                 }
                 break
             }
+            case ('valorChassi'):
+                console.log(name)
+                this.setState({ [name]: formatMoney(value) })
+                break
+            case ('valorCarroceria'):
+                console.log(name)
+                this.setState({ [name]: formatMoney(value) })
+                break
+
+
+
+
             default: void 0
         }
     }
@@ -450,7 +462,7 @@ class VeiculosContainer extends PureComponent {
         cadVehicleFiles.forEach(({ name }) => {
             Object.assign(resetFiles, { [name]: null })
         })
-      
+
         equipamentos.forEach(e => Object.assign(resetEquip, { [e.item]: false }))
 
         this.setState({

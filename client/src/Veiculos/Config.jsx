@@ -110,14 +110,14 @@ class VehicleConfig extends PureComponent {
     handleChange = async e => {
         const
             { value } = e.target,
-            name = this.state.staticData.field,
-            { collection } = this.state.staticData
+            name = this.state.staticData.field
+            //{ collection } = this.state.staticData
 
 
         let changedElement = this.state.data.find(el => el.edit === true)
         const index = this.state.data.indexOf(changedElement)
 
-        const reduxItem = JSON.parse(JSON.stringify(this.props.redux[collection][index]))
+        //const reduxItem = JSON.parse(JSON.stringify(this.props.redux[collection][index]))
         changedElement[name] = value
 
         let newData = [...this.state.data]
@@ -172,7 +172,7 @@ class VehicleConfig extends PureComponent {
 
         const
             { redux } = this.props,
-            { veiculos } = redux,
+            //{ veiculos } = redux,
             { data, staticData } = this.state,
             { collection, field, table } = staticData,
             originalData = JSON.parse(JSON.stringify(redux[collection]))
@@ -218,8 +218,8 @@ class VehicleConfig extends PureComponent {
         tempObj = {}
         this.toast()
 
-        let updatedData = JSON.parse(JSON.stringify(redux[collection]))
-        updatedData = this.addCounter(veiculos, staticData, updatedData)
+      /*   let updatedData = JSON.parse(JSON.stringify(redux[collection]))
+        updatedData = this.addCounter(veiculos, staticData, updatedData) */
 
         this.setState({ collection: '', staticData: undefined })
     }

@@ -13,7 +13,7 @@ const useStyles = makeStyles(theme => ({
         marginRight: theme.spacing(1),
         marginTop: '2px',
         marginBottom: '2px',
-        
+
         fontSize: '0.8rem',
         fontColor: '#bbb',
         textAlign: 'center',
@@ -74,7 +74,7 @@ export default function TextInput({ handleInput, handleBlur, form, data }) {
                 helperText={helper(el)}
                 FormHelperTextProps={{ className: helperText }}
                 select={el.select || false}
-                value={data[el.field] || ''}
+                value={el.money ? el.money(data[el.field]) : data[el.field] || ''}
                 disabled={el.disabled || false}
                 InputLabelProps={{
                     className: classes.textField,

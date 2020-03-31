@@ -77,8 +77,8 @@ const dataReducer = (state = initState, action) => {
                     { id } = payload,
                     updatedData = [...state[collection]]
                 console.log(id, collection)
-                if (collection !== 'seguros' && !collection.match('Docs')) id = Number(id)
-                console.log(id)
+                if (!collection.match('Docs')) id = Number(id)
+                
                 const
                     element = updatedData.find(el => el[tablePK] === id),
                     index = updatedData.findIndex(el => el === element)

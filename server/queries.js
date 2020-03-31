@@ -91,7 +91,7 @@ LEFT JOIN delegatario d
 	ON d.delegatario_id = seguro.delegatario_id
 LEFT JOIN seguradora s
 	ON s.id = seguro.seguradora_id
-GROUP BY seguro.apolice, d.razao_social, s.seguradora, d.delegatario_id
+GROUP BY seguro.apolice, d.razao_social, s.seguradora, d.delegatario_id, seguro.id
 ORDER BY seguro.vencimento ASC
 		`
 

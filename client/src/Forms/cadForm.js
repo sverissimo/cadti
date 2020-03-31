@@ -49,9 +49,9 @@ export const cadForm = [[{
     label: 'Valor do Chassi (R$)',
     margin: 'normal',
     zero: true,
-    pattern: '\\d{5,14}',
-    min: 50000,
-    maxLength: 14
+    pattern: '^.{9,12}$',
+    minLength: 8,    
+    maxLength: 11
 },
 {
     field: 'modeloCarroceria',
@@ -73,10 +73,10 @@ export const cadForm = [[{
     field: 'valorCarroceria',
     label: 'Valor da Carroceria (R$)',
     margin: 'normal',
-    zero: true,
-    pattern: '\\d{5,14}',
-    min: 50000,
-    maxLength: 14
+    zero: true,    
+    pattern: '^.{9,12}$',
+    minLength: 8,    
+    maxLength: 11
 },
 {
     field: 'dominio',

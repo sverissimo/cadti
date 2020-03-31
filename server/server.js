@@ -486,6 +486,56 @@ app.put('/api/editElements', (req, res) => {
     })
 })
 
+app.put('/api/updateApolice', async (req, res) => {
+
+    const { columns, updatedDates, id, vehicleIds } = req.body
+
+    let queryString = ''
+    columns.forEach(col => {
+        queryString += `
+                UPDATE seguro
+                SET ${col} = '${updatedDates[col]}'
+                WHERE id = ${id};
+        `
+    })
+    await pool.query(queryString, (err, t) => {
+        if (err) console.log(err)
+        pool.query(seguros, (err, t) => {
+            if (err) console.log(err)
+            if (t && t.rows) io.sockets.emit('updateInsurance', t.rows)
+        })
+    })
+
+    let
+        condition = '',
+        query = `
+            SELECT * FROM veiculo
+            WHERE `
+
+    if (vehicleIds && vehicleIds[0]) {
+        vehicleIds.forEach(id => {
+            condition = condition + `veiculo_id = '${id}' OR `
+        })
+        condition = condition.slice(0, condition.length - 3)
+        query = query + condition
+
+        await pool.query(query, (err, t) => {
+            if (err) console.log(err)
+            if (t && t.rows) {
+                const data = getUpdatedData('veiculo', condition)
+                data.then(async res => {
+                    await io.sockets.emit('updateVehicle', res)
+                    pool.query(seguros, (err, t) => {
+                        if (err) console.log(err)
+                        if (t && t.rows) io.sockets.emit('updateInsurance', t.rows)
+                    })
+                })
+            }
+        })
+        res.send(vehicleIds)
+    } else res.send('No changes whatsoever.')
+})
+
 app.put('/api/updateInsurances', async (req, res) => {
     const { table, tablePK, column, value, ids } = req.body
 

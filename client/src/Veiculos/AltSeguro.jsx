@@ -29,7 +29,7 @@ class AltSeguro extends Component {
 
     componentDidMount() {
         this.setState({
-            seguradoras: this.props.redux['seguradoras'],            
+            seguradoras: this.props.redux['seguradoras'],
             allInsurances: this.props.redux['seguros']
         })
     }
@@ -73,8 +73,8 @@ class AltSeguro extends Component {
 
             const dataEmissao = moment(insuranceExists.dataEmissao).format('YYYY-MM-DD'),
                 vencimento = insuranceExists.vencimento.toString().slice(0, 10),
-                seguradora = insuranceExists.seguradora
-            await this.setState({ seguradora, dataEmissao, vencimento, insuranceExists })
+                { seguradora, seguradoraId } = insuranceExists
+            await this.setState({ seguradora, seguradoraId, dataEmissao, vencimento, insuranceExists })
             return
         }
         if (Object.keys(insuranceExists).length === 0) this.setState({ insuranceExists: false, dataEmissao: '', vencimento: '' })
@@ -152,7 +152,7 @@ class AltSeguro extends Component {
     }
 
     handleBlur = e => {
-        
+
         const
             { seguradoras } = this.props.redux,
             { seguradora, allInsurances, selectedEmpresa } = this.state,
@@ -285,9 +285,36 @@ class AltSeguro extends Component {
         return
     }
 
+    updateApolice = () => {
+        const
+            { insuranceExists, dataEmissao, vencimento } = this.state,
+            { id, veiculos } = insuranceExists
+
+
+        let updatedDates = {}
+        const emissaoDidChange = !moment(dataEmissao).isSame(moment(insuranceExists.dataEmissao))
+        const vencimentoDidChange = !moment(vencimento).isSame(moment(insuranceExists.vencimento))
+
+        if (!emissaoDidChange && !vencimentoDidChange) return
+
+        if (emissaoDidChange) updatedDates.data_emissao = dataEmissao
+        if (vencimentoDidChange) updatedDates.vencimento = vencimento
+
+        const requestObj = {
+            id,
+            columns: Object.keys(updatedDates),
+            updatedDates,
+            vehicleIds: veiculos
+        }
+        axios.put('/api/updateApolice', requestObj)
+            .then(r => console.log(r.data))
+    }
+
     handleSubmit = async () => {
 
-        const { seguradora, insuranceExists, apolice, newVehicles, errors } = this.state
+        const
+            { seguradora, insuranceExists, newVehicles, errors } = this.state,
+            { veiculos } = insuranceExists
         let frota = [...this.state.frota]
 
         if (errors && errors[0]) {
@@ -299,24 +326,26 @@ class AltSeguro extends Component {
             return
         }
 
-        //Create a new insurance
-        if (!insuranceExists) {
-            const { seguradoraId, apolice, dataEmissao, vencimento, selectedEmpresa } = this.state
+        //Create seguro object
+        const { seguradoraId, apolice, dataEmissao, vencimento, selectedEmpresa } = this.state
 
-            let cadSeguro = {
-                apolice,
-                seguradora_id: seguradoraId,
-                delegatario_id: selectedEmpresa.delegatarioId
-            }
-
-            const validEmissao = moment(dataEmissao, 'YYYY-MM-DD', true).isValid(),
-                validVenc = moment(vencimento, 'YYYY-MM-DD', true).isValid()
-
-            if (validEmissao) cadSeguro.data_emissao = dataEmissao
-            if (validVenc) cadSeguro.vencimento = vencimento
-
-            await axios.post('/api/cadSeguro', cadSeguro)
+        let cadSeguro = {
+            apolice,
+            seguradora_id: seguradoraId,
+            delegatario_id: selectedEmpresa.delegatarioId
         }
+
+        const validEmissao = moment(dataEmissao, 'YYYY-MM-DD', true).isValid(),
+            validVenc = moment(vencimento, 'YYYY-MM-DD', true).isValid()
+
+        if (validEmissao) cadSeguro.data_emissao = dataEmissao
+        if (validVenc) cadSeguro.vencimento = vencimento
+
+        //Create a new insurance
+        if (!insuranceExists) await axios.post('/api/cadSeguro', cadSeguro)
+        //else just update the dates
+        if (insuranceExists) await this.updateApolice()
+
 
         //Define body and post VehicleUpdate
         const body = {
@@ -324,11 +353,11 @@ class AltSeguro extends Component {
             column: 'apolice',
             value: apolice,
             tablePK: 'veiculo_id',
-            ids: newVehicles
+            ids: newVehicles,
+            vehicleIds: veiculos
         }
         await axios.put('/api/updateInsurances', body)
             .then(res => console.log(res.data))
-
 
         frota = frota.map(v => {
             newVehicles.forEach(id => {
@@ -384,13 +413,13 @@ class AltSeguro extends Component {
         const
             { openAlertDialog, alertType } = this.state,
             { empresas } = this.props.redux
-            
+
         const enableAddPlaca = seguroForm
             .every(k => this.state.hasOwnProperty(k.field) && this.state[k.field] !== '')
 
         return (
             <Fragment>
-                <AltSeguroTemplate                    
+                <AltSeguroTemplate
                     data={this.state}
                     empresas={empresas}
                     enableAddPlaca={enableAddPlaca}

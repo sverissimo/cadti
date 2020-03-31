@@ -191,7 +191,7 @@ export default function AltSeguro({ empresas, data, enableAddPlaca, handleInput,
                         className='saveButton'
                         variant="contained"
                         onClick={() => handleSubmit()}
-                        disabled={!placas[0] || !seguroFile ? true : false}
+                       // disabled={!placas[0] || !seguroFile ? true : false}
                     >
                         Salvar <span>&nbsp;&nbsp; </span> <SaveIcon />
                     </Button>
