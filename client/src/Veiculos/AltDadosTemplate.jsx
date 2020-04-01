@@ -7,7 +7,6 @@ import PopUp from '../Utils/PopUp'
 
 import Grid from '@material-ui/core/Grid'
 import Paper from '@material-ui/core/Paper'
-import Typography from '@material-ui/core/Typography'
 import Button from '@material-ui/core/Button'
 import AddIcon from '@material-ui/icons/Add'
 import { makeStyles } from '@material-ui/core/styles'
@@ -95,15 +94,11 @@ export default function ({ handleInput, handleBlur, data, handleCheck, handleEqu
                                         </Button>
                                 </Grid>}
 
-                            {altPlacaOption && placa.match('[a-zA-Z]{3}[-]?\\d{4}') && <Grid item xs={12}>
-                                <Typography
-                                    style={{ color: '#2979ff', fontWeight: 500, fontSize: '0.75rem', padding: '2% 0 1% 70%', cursor: 'pointer' }}
-                                    onClick={() => showAltPlaca()}
-                                >
-                                    → Clique aqui para alterar a placa para o formato Mercosul.
-                                    </Typography>
-
-                            </Grid>}
+                            {altPlacaOption && placa.match('[a-zA-Z]{3}[-]?\\d{4}') &&
+                                <div className='addNewDiv'>
+                                    <span onClick={() => showAltPlaca()}> → Clique aqui para alterar a placa para o formato Mercosul.</span>
+                                </div>
+                            }
                             {
                                 addEquipa && <PopUp close={handleEquipa} title='Equipamentos'>
                                     <AddEquipa

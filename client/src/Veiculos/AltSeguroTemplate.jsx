@@ -4,7 +4,7 @@ import Crumbs from '../Utils/Crumbs'
 import SelectEmpresa from '../Reusable Components/SelectEmpresa'
 import TextInput from '../Reusable Components/TextInput'
 import AutoComplete from '../Utils/autoComplete'
-import Dropzone from 'react-dropzone'
+import DragAndDrop from '../Reusable Components/DragAndDrop'
 
 import { makeStyles } from '@material-ui/core/styles'
 import Paper from '@material-ui/core/Paper'
@@ -13,8 +13,6 @@ import Button from '@material-ui/core/Button'
 import Chip from '@material-ui/core/Chip'
 
 import Add from '@material-ui/icons/Add'
-import AttachFileIcon from '@material-ui/icons/AttachFile';
-import DescriptionOutlinedIcon from '@material-ui/icons/DescriptionOutlined';
 import SaveIcon from '@material-ui/icons/Save';
 import Search from '@material-ui/icons/Search'
 
@@ -50,7 +48,7 @@ const useStyles = makeStyles(theme => ({
 }))
 
 export default function AltSeguro({ empresas, data, enableAddPlaca, handleInput, handleBlur,
-    addPlate, deleteInsurance, handleFiles, handleSubmit }) {
+    addPlate, deleteInsurance, handleFiles, handleSubmit, enableChangeApolice }) {
 
     const { selectedEmpresa, placa, apolice, addedPlaca, frota, insuranceExists,
         newInsurance, dropDisplay, seguroFile } = data
@@ -71,7 +69,6 @@ export default function AltSeguro({ empresas, data, enableAddPlaca, handleInput,
         }
     }
 
-
     return (
         <Fragment>
             <div style={{ width: '100%', display: 'flex', flexDirection: 'column' }}>
@@ -91,12 +88,17 @@ export default function AltSeguro({ empresas, data, enableAddPlaca, handleInput,
                             handleBlur={handleBlur}
                             handleInput={handleInput}
                         />
+                        {insurance &&
+                            <div className='addNewDiv'>
+                                <span onClick={()=> enableChangeApolice()}> → Clique aqui para alterar o número da apólice mantendo as placas.</span>
+                            </div>
+                        }
                     </Paper>
                 }
                 {selectedEmpresa && (insurance || enableAddPlaca) &&
                     <Paper className={paper}>
                         <p>Utilize as opções abaixo para filtrar, adicionar ou excluir placas desta apólice</p>
-                        <div className='addSeguro'>
+                        <section className='addSeguro'>
                             <div>
                                 <TextField
                                     inputProps={{
@@ -144,21 +146,16 @@ export default function AltSeguro({ empresas, data, enableAddPlaca, handleInput,
                                 />
                                 <Search style={{ marginTop: '18px' }} />
                             </div>
+                            <DragAndDrop
+                                name='apoliceDoc'
+                                formData={seguroFile}
+                                dropDisplay={dropDisplay}
+                                handleFiles={handleFiles}
+                                single={true}
+                            />
+                        </section>
 
-                            <Dropzone onDrop={handleFiles}>
-                                {({ getRootProps, getInputProps }) => (
-                                    <div className={seguroFile ? 'dropBox fileAttached' : 'dropBox'} {...getRootProps()}>
-                                        <input {...getInputProps()} />
-                                        {
-                                            dropDisplay.match('Clique ou') ?
-                                                <div> <AttachFileIcon className='icon' /> <span>  {dropDisplay}</span> </div>
-                                                :
-                                                <div> <DescriptionOutlinedIcon className='icon' />  {dropDisplay} <br /> (clique ou arraste outro arquivo para alterar)</div>
-                                        }
-                                    </div>
-                                )}
-                            </Dropzone>
-                        </div>
+                        {/********************************* Lista de placas vinculadas (Chips) ********************************************/}
 
                         {insurance && insurance.placas[0]
                             ?
@@ -179,9 +176,6 @@ export default function AltSeguro({ empresas, data, enableAddPlaca, handleInput,
                             />
                         )}
                     </Paper>}
-                {//selectedEmpresa && apolice &&
-
-                }
             </div >
             {apolice && (insurance || enableAddPlaca) &&
                 <div style={{ minHeight: '60px', position: 'flex' }}>
@@ -191,7 +185,7 @@ export default function AltSeguro({ empresas, data, enableAddPlaca, handleInput,
                         className='saveButton'
                         variant="contained"
                         onClick={() => handleSubmit()}
-                       // disabled={!placas[0] || !seguroFile ? true : false}
+                    // disabled={!placas[0] || !seguroFile ? true : false}
                     >
                         Salvar <span>&nbsp;&nbsp; </span> <SaveIcon />
                     </Button>

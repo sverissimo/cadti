@@ -30,7 +30,7 @@ const { uploadFS } = require('./upload')
 const { parseRequestBody } = require('./parseRequest')
 
 dotenv.config()
-app.use(bodyParser.json())
+app.use(bodyParser.json());
 
 app.use(function (req, res, next) { //allow cross origin requests
     res.setHeader("Access-Control-Allow-Methods", "POST, PUT, OPTIONS, DELETE, GET")
@@ -379,7 +379,7 @@ app.put('/api/editElements', (req, res) => {
             WHERE ${tablePK} = ${obj.id};             
             `
     })
-    
+
     pool.query(queryString, (err, tb) => {
         if (err) console.log(err)
         pool.query(`SELECT * FROM ${table}`, (err, t) => {
@@ -394,7 +394,7 @@ app.put('/api/editElements', (req, res) => {
 
 app.put('/api/updateApolice', async (req, res) => {
 
-    const { columns, updatedDates, id, vehicleIds } = req.body
+    const { columns, newApoliceNumber, updatedDates, id, vehicleIds } = req.body
 
     let queryString = ''
     columns.forEach(col => {
@@ -404,6 +404,7 @@ app.put('/api/updateApolice', async (req, res) => {
                 WHERE id = ${id};
         `
     })
+
     await pool.query(queryString, (err, t) => {
         if (err) console.log(err)
         pool.query(seguros, (err, t) => {
@@ -440,6 +441,27 @@ app.put('/api/updateApolice', async (req, res) => {
         })
         res.send(vehicleIds)
     } else res.send('No changes whatsoever.')
+})
+
+app.put('/api/changeApoliceNumber', async (req, res) => {
+
+    const
+        { id, newApoliceNumber } = req.body,
+        queryString = `
+        UPDATE seguro
+        SET apolice = '${newApoliceNumber}'
+        WHERE id = ${id};
+        `
+
+    await pool.query(queryString, (err, t) => {
+        if (err) console.log(err)
+        if (t && t.rows) {
+            pool.query(seguros, (err, t) => {
+                if (err) console.log(err)
+                if (t && t.rows) io.sockets.emit('updateInsurance', t.rows)
+            })
+        }
+    })
 })
 
 app.put('/api/updateInsurances', async (req, res) => {

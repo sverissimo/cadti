@@ -9,15 +9,15 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 
-export default function ConfigAddDialog({ open, close, title, marca, marcas, selectMarca, newElement, handleInput, addNewElement }) {
+export default function ConfigAddDialog({ open, close, title, helperMessage, marca, marcas, selectMarca, newElement, handleInput, addNewElement }) {
 
     return (
         <div>
             <Dialog open={open} onClose={close} aria-labelledby="form-dialog-title">
-                <DialogTitle id="form-dialog-title">Adicionar {title}</DialogTitle>
+                <DialogTitle id="form-dialog-title">{title}</DialogTitle>
                 <DialogContent>
                     <DialogContentText>
-                        Para adicionar, insira o nome no campo abaixo e clique em "Confirmar".
+                        {helperMessage}
                     </DialogContentText>
                     <div className="editFields">
                         {marcas && <div className="configMarca">
@@ -53,8 +53,6 @@ export default function ConfigAddDialog({ open, close, title, marca, marcas, sel
                                 fullWidth
                             />
                         </div>
-
-
                     </div>
 
                     <br /><br /><br />

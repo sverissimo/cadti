@@ -202,11 +202,11 @@ h6 {
     padding-left: 0px !important
 }
 
- td.review {
+td.review {
     padding: 9px;
-    text-align: left;    
+    text-align: left;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
-    font-size: 13px;    
+    font-size: 13px;
     vertical-align: middle;
 }
 
@@ -215,7 +215,7 @@ th {
     text-align: left;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     font-size: 12px;
-    font-weight: 600;    
+    font-weight: 600;
     background-color: rgb(244, 244, 244);
 }
 
@@ -224,9 +224,24 @@ th.MuiTableCell-head {
     line-height: 0.77rem;
     background-color: rgb(248, 248, 248) !important;
 }
+
 td.MuiTableCell-root {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
     font-size: 13.5px !important;
-    padding: 6px 15px !important;    
+    padding: 6px 15px !important;
     vertical-align: middle;
+}
+
+.addNewDiv {
+    display: flex;
+    justify-content: flex-end;
+    padding: 5px 10px 0 0;
+}
+
+.addNewDiv>span {
+    color: #2979db;
+    font-weight: 500;
+    font-size: 0.75rem;
+    padding: 10px 0;
+    cursor: pointer
 }

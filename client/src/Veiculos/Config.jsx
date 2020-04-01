@@ -244,6 +244,7 @@ class VehicleConfig extends PureComponent {
                     open={openAddDialog}
                     close={this.toggleDialog}
                     title={staticData.label}
+                    helperMessage='Para adicionar, insira o nome no campo abaixo e clique em "Confirmar".'
                     marca={marca}
                     marcas={marcas}
                     selectMarca={this.selectMarca}

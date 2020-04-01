@@ -9,6 +9,7 @@ import ReactToast from '../Utils/ReactToast'
 import moment from 'moment'
 
 import AltSeguroTemplate from './AltSeguroTemplate'
+import ConfigAddDialog from './ConfigAddDialog'
 import { checkInputErrors } from '../Utils/checkInputErrors'
 import AlertDialog from '../Utils/AlertDialog'
 import { seguroForm } from '../Forms/seguroForm'
@@ -313,7 +314,7 @@ class AltSeguro extends Component {
     handleSubmit = async () => {
 
         const
-            { seguradora, insuranceExists, newVehicles, errors } = this.state,
+            { seguradora, insuranceExists, newVehicles, errors, newElement } = this.state,
             { veiculos } = insuranceExists
         let frota = [...this.state.frota]
 
@@ -348,7 +349,7 @@ class AltSeguro extends Component {
 
 
         //Define body and post VehicleUpdate
-        const body = {
+        let body = {
             table: 'veiculo',
             column: 'apolice',
             value: apolice,
@@ -356,6 +357,11 @@ class AltSeguro extends Component {
             ids: newVehicles,
             vehicleIds: veiculos
         }
+
+        if (newElement && insuranceExists && insuranceExists.id) {
+            axios.put('/api/changeApoliceNumber', { id: insuranceExists.id, newApoliceNumber: newElement })
+        }
+
         await axios.put('/api/updateInsurances', body)
             .then(res => console.log(res.data))
 
@@ -399,6 +405,7 @@ class AltSeguro extends Component {
         }
     }
 
+    toggleDialog = () => this.setState({ openAddDialog: !this.state.openAddDialog })
     toast = () => this.setState({ confirmToast: !this.state.confirmToast })
     closeAlert = () => this.setState({ openAlertDialog: !this.state.openAlertDialog })
     clearFields = () => {
@@ -411,7 +418,7 @@ class AltSeguro extends Component {
 
     render() {
         const
-            { openAlertDialog, alertType } = this.state,
+            { openAlertDialog, alertType, openAddDialog } = this.state,
             { empresas } = this.props.redux
 
         const enableAddPlaca = seguroForm
@@ -427,9 +434,19 @@ class AltSeguro extends Component {
                     handleBlur={this.handleBlur}
                     addPlate={this.addPlate}
                     deleteInsurance={this.deleteInsurance}
+                    enableChangeApolice={this.toggleDialog}
                     handleFiles={this.handleFiles}
                     handleSubmit={this.handleSubmit}
                 />
+                {openAddDialog && <ConfigAddDialog
+                    open={openAddDialog}
+                    close={this.toggleDialog}
+                    title='Alterar número da apólice'
+                    helperMessage='Informe o número atualizado da apólice.'
+                    handleInput={this.handleInput}
+                    addNewElement={this.toggleDialog}
+                />}
+
                 {openAlertDialog && <AlertDialog open={openAlertDialog} close={this.closeAlert} alertType={alertType} customMessage={this.state.customMsg} />}
                 <ReactToast open={this.state.confirmToast} close={this.toast} msg={this.state.toastMsg} />
             </Fragment>

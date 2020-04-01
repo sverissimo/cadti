@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from 'react'
+import React, { Fragment, useState, useEffect } from 'react'
 import Dropzone from 'react-dropzone'
 
 import AttachFileIcon from '@material-ui/icons/AttachFile';
 import DescriptionOutlinedIcon from '@material-ui/icons/DescriptionOutlined';
 
-export default function DragAndDrop({ title, name, formData, handleFiles, dropDisplay }) {
+export default function DragAndDrop({ title, name, formData, handleFiles, dropDisplay, single }) {
 
     const [fileName, setFileName] = useState()
 
     useEffect(() => {
-        if (formData && typeof formData === 'object') {            
+        if (formData && typeof formData === 'object') {
             for (let pair of formData.entries()) {
                 if (name === pair[0]) {
                     setFileName(pair[1].name)
@@ -23,13 +23,20 @@ export default function DragAndDrop({ title, name, formData, handleFiles, dropDi
             {title && <p className='fileInput'>{title}</p>}
             <Dropzone onDrop={e => handleFiles(e, name)}>
                 {({ getRootProps, getInputProps }) => (
-                    <div className={fileName ? 'dropBox fileAttached' : 'multipleDropBox'} {...getRootProps()}>
+                    <div className={fileName ? 'dropBox fileAttached' : single ? 'dropBox' : 'multipleDropBox'} {...getRootProps()}>
                         <input {...getInputProps()} />
                         {
                             fileName ?
-                                <div> <DescriptionOutlinedIcon className='icon' />  {fileName} </div>
+                                <Fragment>
+                                    <div> <DescriptionOutlinedIcon className='icon' />  {fileName} </div>
+                                    {single &&                                        
+                                            <span>(clique ou arraste outro arquivo para alterar)</span>                                        
+                                    }
+                                </Fragment>
                                 :
-                                <div> <AttachFileIcon className='icon' /> <span>  {dropDisplay}</span> </div>
+                                <div> <AttachFileIcon className='icon' />
+                                    <span>  {dropDisplay}</span>
+                                </div>
                         }
                     </div>
                 )}
