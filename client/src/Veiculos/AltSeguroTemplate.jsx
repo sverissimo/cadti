@@ -48,7 +48,7 @@ const useStyles = makeStyles(theme => ({
 }))
 
 export default function AltSeguro({ empresas, data, enableAddPlaca, handleInput, handleBlur,
-    addPlate, deleteInsurance, handleFiles, handleSubmit, enableChangeApolice }) {
+    addPlate, deleteInsurance, handleFiles, handleSubmit, enableChangeApolice, showAllPlates }) {
 
     const { selectedEmpresa, placa, apolice, addedPlaca, frota, insuranceExists,
         newInsurance, dropDisplay, seguroFile } = data
@@ -90,7 +90,7 @@ export default function AltSeguro({ empresas, data, enableAddPlaca, handleInput,
                         />
                         {insurance &&
                             <div className='addNewDiv'>
-                                <span onClick={()=> enableChangeApolice()}> → Clique aqui para alterar o número da apólice mantendo as placas.</span>
+                                <span onClick={() => enableChangeApolice()}> → Clique aqui para alterar o número da apólice mantendo as placas.</span>
                             </div>
                         }
                     </Paper>
@@ -153,7 +153,13 @@ export default function AltSeguro({ empresas, data, enableAddPlaca, handleInput,
                                 handleFiles={handleFiles}
                                 single={true}
                             />
+
                         </section>
+
+                        <div className='addNewDiv' style={{ justifyContent: 'flex-start', padding: '10px' }}>
+                            <span onClick={() => showAllPlates()}>→ Clique aqui para selecionar placas</span>
+
+                        </div>
 
                         {/********************************* Lista de placas vinculadas (Chips) ********************************************/}
 

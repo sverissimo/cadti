@@ -1,0 +1,25 @@
+.popUpWindow {
+    position: fixed;
+    height: 80vh;
+    top: 10%;
+    right: 25%;
+    left: 25%;
+    padding: 5px 0px 7px 20px;
+    border-radius: 15px;
+    border: 1px solid #aaa;
+    background-color: white!important;
+    z-index: 10 !important;
+    box-shadow: 2px;
+    overflow-y: auto;    
+    box-shadow: 0 0 0 100vmax rgba(0,0,0,.3);
+}
+
+.checkListContainer {
+    display: inline-flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.checkListItem {
+    font-size: 12px;
+}

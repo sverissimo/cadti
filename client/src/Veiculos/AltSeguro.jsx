@@ -9,12 +9,23 @@ import ReactToast from '../Utils/ReactToast'
 import moment from 'moment'
 
 import AltSeguroTemplate from './AltSeguroTemplate'
+import ShowAllPlates from './ShowAllPlates'
 import ConfigAddDialog from './ConfigAddDialog'
 import { checkInputErrors } from '../Utils/checkInputErrors'
 import AlertDialog from '../Utils/AlertDialog'
 import { seguroForm } from '../Forms/seguroForm'
 
 class AltSeguro extends Component {
+
+    constructor() {
+        super()
+        this.escFunction = (e) => {
+            if (e.keyCode === 27) {
+                if (this.state.openAddDialog) this.toggleDialog()
+                if (this.state.showAllPlates) this.setState({ showAllPlates: false })
+            }
+        }
+    }
 
     state = {
         addedPlaca: '',
@@ -25,7 +36,8 @@ class AltSeguro extends Component {
         newVehicles: [],
         toastMsg: 'Seguro atualizado!',
         confirmToast: false,
-        dropDisplay: 'Clique ou arraste para anexar a apólice'
+        dropDisplay: 'Clique ou arraste para anexar a apólice',
+        showAllPlates: false
     }
 
     componentDidMount() {
@@ -33,6 +45,7 @@ class AltSeguro extends Component {
             seguradoras: this.props.redux['seguradoras'],
             allInsurances: this.props.redux['seguros']
         })
+        document.addEventListener('keydown', this.escFunction, false)
     }
 
     checkExistance = async (name, inputValue) => {
@@ -186,6 +199,50 @@ class AltSeguro extends Component {
             if (errors) this.setState({ errors })
             else this.setState({ errors: undefined })
         }
+    }
+    showAllPlates = async () => {
+        const
+            { insuranceExists, newInsurance, frota } = this.state,
+            allPlates = frota.map(vehicle => vehicle.placa).sort()
+
+        let placas, veiculos
+        if (insuranceExists) [placas, veiculos] = [insuranceExists.placas, insuranceExists.veiculos]
+        if (newInsurance) [placas, veiculos] = [newInsurance.placas, newInsurance.veiculos]
+
+        await placas.forEach(p => this.setState({ [p]: true }))
+
+        this.setState({ allPlates, insuredPlates: placas, showAllPlates: !this.state.showAllPlates })
+    }
+
+    handleCheck = async plate => {
+
+        console.log(plate)
+        const
+            { insuranceExists, newInsurance, insuredPlates } = this.state
+
+        let placas, veiculos, insurance, stateKey
+        if (insuranceExists) {
+            [placas, veiculos] = [insuranceExists.placas, insuranceExists.veiculos]
+            insurance = { ...this.state.insuranceExists }
+            stateKey = 'insuranceExists'
+        }
+        if (newInsurance) {
+            [placas, veiculos] = [newInsurance.placas, newInsurance.veiculos]
+            insurance = { ...this.state.newInsurance }
+            stateKey = 'newInsurance'
+        }
+
+        if (placas.includes(plate)) {
+            placas = placas.filter(p => p !== plate)
+            insurance.placas = placas
+        }
+        else {
+            placas.push(plate)
+            insurance.placas = placas
+        }
+
+        await this.setState({ [plate]: !this.state[plate], [stateKey]: insurance })
+        console.log(placas, this.state)
     }
 
     addPlate = async placaInput => {
@@ -405,6 +462,8 @@ class AltSeguro extends Component {
         }
     }
 
+
+    addNewElement = () => this.setState({ apolice: this.state.newElement, openAddDialog: false })
     toggleDialog = () => this.setState({ openAddDialog: !this.state.openAddDialog })
     toast = () => this.setState({ confirmToast: !this.state.confirmToast })
     closeAlert = () => this.setState({ openAlertDialog: !this.state.openAlertDialog })
@@ -418,7 +477,7 @@ class AltSeguro extends Component {
 
     render() {
         const
-            { openAlertDialog, alertType, openAddDialog } = this.state,
+            { openAlertDialog, alertType, openAddDialog, showAllPlates, allPlates } = this.state,
             { empresas } = this.props.redux
 
         const enableAddPlaca = seguroForm
@@ -437,6 +496,7 @@ class AltSeguro extends Component {
                     enableChangeApolice={this.toggleDialog}
                     handleFiles={this.handleFiles}
                     handleSubmit={this.handleSubmit}
+                    showAllPlates={this.showAllPlates}
                 />
                 {openAddDialog && <ConfigAddDialog
                     open={openAddDialog}
@@ -444,8 +504,17 @@ class AltSeguro extends Component {
                     title='Alterar número da apólice'
                     helperMessage='Informe o número atualizado da apólice.'
                     handleInput={this.handleInput}
-                    addNewElement={this.toggleDialog}
+                    addNewElement={this.addNewElement}
                 />}
+                {
+                    showAllPlates &&
+                    <ShowAllPlates
+                        items={allPlates}
+                        close={this.showAllPlates}
+                        title='Selecione as placas para adicionar à apólice.'
+                        handleCheck={this.handleCheck}
+                        data={this.state} />
+                }
 
                 {openAlertDialog && <AlertDialog open={openAlertDialog} close={this.closeAlert} alertType={alertType} customMessage={this.state.customMsg} />}
                 <ReactToast open={this.state.confirmToast} close={this.toast} msg={this.state.toastMsg} />

@@ -459,6 +459,7 @@ app.put('/api/changeApoliceNumber', async (req, res) => {
             pool.query(seguros, (err, t) => {
                 if (err) console.log(err)
                 if (t && t.rows) io.sockets.emit('updateInsurance', t.rows)
+                res.send('updated. ok.')                
             })
         }
     })
