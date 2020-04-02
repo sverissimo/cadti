@@ -14,8 +14,7 @@ export default function AddEquipa({ title, data, items, handleCheck, close }) {
                         control={
                             <Checkbox
                                 size='small'
-                                checked={data[item] === true}
-                                value={item}
+                                checked={data[item] === true}                              
                                 onChange={() => handleCheck(item)} />
                         }
                         label={<p className="checkListItem">{item}</p>}

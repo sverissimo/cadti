@@ -32,8 +32,6 @@ class AltSeguro extends Component {
         insuranceExists: {},
         razaoSocial: '',
         seguradora: '',
-        newPlates: [],
-        newVehicles: [],
         toastMsg: 'Seguro atualizado!',
         confirmToast: false,
         dropDisplay: 'Clique ou arraste para anexar a apólice',
@@ -114,9 +112,10 @@ class AltSeguro extends Component {
                     if (value !== selectedEmpresa.razaoSocial) this.setState({ selectedEmpresa: undefined })
                     const
                         frota = veiculos.filter(v => v.empresa === this.state.razaoSocial),
-                        filteredInsurances = allInsurances.filter(seguro => seguro.empresa === this.state.razaoSocial)
+                        filteredInsurances = allInsurances.filter(seguro => seguro.empresa === this.state.razaoSocial),
+                        allPlates = frota.map(vehicle => vehicle.placa).sort()
 
-                    this.setState({ frota, seguros: filteredInsurances })
+                    this.setState({ frota, seguros: filteredInsurances, allPlates })
 
                 } else {
                     this.setState({ selectedEmpresa: undefined, frota: [] })
@@ -200,52 +199,44 @@ class AltSeguro extends Component {
             else this.setState({ errors: undefined })
         }
     }
-    showAllPlates = async () => {
-        const
-            { insuranceExists, newInsurance, frota } = this.state,
-            allPlates = frota.map(vehicle => vehicle.placa).sort()
+    showAllPlates = () => {
 
-        let placas, veiculos
+        const
+            { insuranceExists, newInsurance, allPlates } = this.state
+
+        let placas, veiculos, allPlatesObj = {}
         if (insuranceExists) [placas, veiculos] = [insuranceExists.placas, insuranceExists.veiculos]
         if (newInsurance) [placas, veiculos] = [newInsurance.placas, newInsurance.veiculos]
 
-        await placas.forEach(p => this.setState({ [p]: true }))
+        allPlates.forEach(p => {
+            Object.assign(allPlatesObj, { [p]: false })
+        })
+        placas.forEach(p => {
+            Object.assign(allPlatesObj, { [p]: true })
+        })
 
-        this.setState({ allPlates, insuredPlates: placas, showAllPlates: !this.state.showAllPlates })
+        this.setState({ allPlatesObj, insuredPlates: placas, showAllPlates: !this.state.showAllPlates })
     }
 
     handleCheck = async plate => {
 
-        console.log(plate)
         const
-            { insuranceExists, newInsurance, insuredPlates } = this.state
+            { frota } = this.state,
+            vehicleFound = frota.find(v => v.placa === plate)
 
-        let placas, veiculos, insurance, stateKey
-        if (insuranceExists) {
-            [placas, veiculos] = [insuranceExists.placas, insuranceExists.veiculos]
-            insurance = { ...this.state.insuranceExists }
-            stateKey = 'insuranceExists'
-        }
-        if (newInsurance) {
-            [placas, veiculos] = [newInsurance.placas, newInsurance.veiculos]
-            insurance = { ...this.state.newInsurance }
-            stateKey = 'newInsurance'
-        }
+        let allPlatesObj = { ...this.state.allPlatesObj }
+        allPlatesObj[plate] = !allPlatesObj[plate]
 
-        if (placas.includes(plate)) {
-            placas = placas.filter(p => p !== plate)
-            insurance.placas = placas
+        if (allPlatesObj[plate] === true) {
+            await this.setState({ vehicleFound, allPlatesObj })
+            this.addPlate(plate)
         }
-        else {
-            placas.push(plate)
-            insurance.placas = placas
-        }
-
-        await this.setState({ [plate]: !this.state[plate], [stateKey]: insurance })
-        console.log(placas, this.state)
+        
+        else this.deleteInsurance(plate)
     }
 
     addPlate = async placaInput => {
+
         const { vehicleFound, apolice } = this.state
         let { insuranceExists, newInsurance } = this.state
 
@@ -270,26 +261,19 @@ class AltSeguro extends Component {
                 update.placas.push(placaInput)
                 update.veiculos.push(vehicleFound.veiculoId)
 
-                await this.setState({
-                    newInsurance: update,
-                    newPlates: [...this.state.newPlates, placaInput],
-                    newVehicles: [...this.state.newVehicles, vehicleFound.veiculoId]
-                })
+                await this.setState({ newInsurance: update, })
 
             } else {
-                let obj = { ...insuranceExists }
-                let { placas, veiculos } = obj
+                let
+                    obj = { ...insuranceExists },
+                    { placas, veiculos } = obj
 
                 placas.push(placaInput)
                 veiculos.push(vehicleFound.veiculoId)
                 obj.placas = placas
                 obj.veiculos = veiculos
 
-                await this.setState({
-                    insuranceExists: obj,
-                    newPlates: [...this.state.newPlates, placaInput],
-                    newVehicles: [...this.state.newVehicles, vehicleFound.veiculoId]
-                })
+                await this.setState({ insuranceExists: obj })
             }
             if (document.getElementsByName('addedPlaca')[0]) document.getElementsByName('addedPlaca')[0].focus()
             this.setState({ addedPlaca: '' })
@@ -298,10 +282,12 @@ class AltSeguro extends Component {
 
     deleteInsurance = async placaInput => {
 
-        await this.setState({ vehicleFound: this.state.frota.find(v => v.placa === placaInput) })
-        const { vehicleFound, apolice } = this.state
+        const
+            { apolice, frota } = this.state,
+            vehicleFound = frota.find(v => v.placa === placaInput)
 
-        let insuranceExists = { ...this.state.insuranceExists },
+        let
+            insuranceExists = { ...this.state.insuranceExists },
             { placas, veiculos } = insuranceExists,
             newInsurance = { ...this.state.newInsurance }
 
@@ -318,7 +304,6 @@ class AltSeguro extends Component {
             await this.setState({ newInsurance })
             return
         }
-
 
         const body = {
             table: 'veiculo',
@@ -371,9 +356,11 @@ class AltSeguro extends Component {
     handleSubmit = async () => {
 
         const
-            { seguradora, insuranceExists, newVehicles, errors, newElement } = this.state,
+            { seguradora, insuranceExists, newInsurance, errors, newElement } = this.state,
             { veiculos } = insuranceExists
-        let frota = [...this.state.frota]
+        let
+            frota = [...this.state.frota],
+            vehicleIds = []
 
         if (errors && errors[0]) {
             this.setState({ ...this.state, ...checkInputErrors('setState') })
@@ -400,10 +387,15 @@ class AltSeguro extends Component {
         if (validVenc) cadSeguro.vencimento = vencimento
 
         //Create a new insurance
-        if (!insuranceExists) await axios.post('/api/cadSeguro', cadSeguro)
+        if (!insuranceExists) {
+            if (newInsurance) vehicleIds = newInsurance.veiculos
+            await axios.post('/api/cadSeguro', cadSeguro)
+        }
         //else just update the dates
-        if (insuranceExists) await this.updateApolice()
-
+        if (insuranceExists) {
+            vehicleIds = insuranceExists.veiculos
+            await this.updateApolice()
+        }
 
         //Define body and post VehicleUpdate
         let body = {
@@ -411,7 +403,7 @@ class AltSeguro extends Component {
             column: 'apolice',
             value: apolice,
             tablePK: 'veiculo_id',
-            ids: newVehicles,
+            ids: vehicleIds,
             vehicleIds: veiculos
         }
 
@@ -423,7 +415,7 @@ class AltSeguro extends Component {
             .then(res => console.log(res.data))
 
         frota = frota.map(v => {
-            newVehicles.forEach(id => {
+            vehicleIds.forEach(id => {
                 if (v.veiculoId === id) {
                     v.apolice = apolice
                     return v
@@ -435,7 +427,7 @@ class AltSeguro extends Component {
         this.toast()
         this.submitFiles()
         this.clearFields()
-        this.setState({ newPlates: [], newVehicles: [], frota })
+        this.setState({ frota })
     }
 
     handleFiles = async file => {
@@ -477,7 +469,7 @@ class AltSeguro extends Component {
 
     render() {
         const
-            { openAlertDialog, alertType, openAddDialog, showAllPlates, allPlates } = this.state,
+            { openAlertDialog, alertType, openAddDialog, showAllPlates, allPlates, allPlatesObj } = this.state,
             { empresas } = this.props.redux
 
         const enableAddPlaca = seguroForm
@@ -513,7 +505,7 @@ class AltSeguro extends Component {
                         close={this.showAllPlates}
                         title='Selecione as placas para adicionar à apólice.'
                         handleCheck={this.handleCheck}
-                        data={this.state} />
+                        data={allPlatesObj} />
                 }
 
                 {openAlertDialog && <AlertDialog open={openAlertDialog} close={this.closeAlert} alertType={alertType} customMessage={this.state.customMsg} />}
