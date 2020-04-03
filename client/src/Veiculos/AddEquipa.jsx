@@ -1,46 +1,31 @@
 import React from 'react'
-import Grid from '@material-ui/core/Grid'
-import Typography from '@material-ui/core/Typography'
+import ClosePopUpButton from '../Reusable Components/ClosePopUpButton'
 import Checkbox from '@material-ui/core/Checkbox'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
 
-import { makeStyles } from '@material-ui/core/styles'
+import '../Layouts/popUp.css'
 
-const useStyles = makeStyles(theme => ({
-    item: {
-        color: '#000',
-        fontSize: '0.8rem',
-        textAlign: 'left'
-    },
-}))
+export default function AddEquipa({ data, equipamentos, handleCheck, close }) {
 
-export default function AddEquipa({ data, equipamentos, handleCheck }) {
-    const classes = useStyles(), { item } = classes
-
-    return <Grid
-        container
-        direction="row"
-        justify="space-between"
-        alignItems="center"
-    >
-        {
-            equipamentos.map((eq, i) =>
-                <Grid item xs={12} md={4} key={i} className={item}>
-                    <FormControlLabel                        
-                        control={
-                            <Checkbox                                
-                                checked={data[eq.item]}
-                                value={eq.item}
-                                onChange={() => handleCheck(eq.item)} />
-                        }
-                        label={
-                            <Typography className={item}>
-                                {eq.item}
-                            </Typography>
-                        }
-                    />
-                </Grid>
-            )
-        }
-    </Grid>
+    return <div className='popUpWindow' style={{ right: '33%', left: '33%' }}>
+        <h4 className = 'equipaHeader'>Equipamentos</h4> <hr />
+        <div className="checkListContainer">
+            {
+                equipamentos.map((eq, i) =>
+                    <span className="checkListEquipa" key={i}>
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={data[eq.item]}
+                                    value={eq.item}
+                                    onChange={() => handleCheck(eq.item)} />
+                            }
+                            label={<p className="checkListLabel">{eq.item}</p>}
+                        />
+                    </span>
+                )
+            }
+        </div>
+        <ClosePopUpButton close={close} />
+    </div>
 }

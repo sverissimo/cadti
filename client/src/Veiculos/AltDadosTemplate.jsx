@@ -3,7 +3,6 @@ import React, { Fragment } from 'react'
 import SelectEmpresa from '../Reusable Components/SelectEmpresa'
 import TextInput from '../Reusable Components/TextInput'
 import AddEquipa from './AddEquipa'
-import PopUp from '../Utils/PopUp'
 
 import Grid from '@material-ui/core/Grid'
 import Paper from '@material-ui/core/Paper'
@@ -100,13 +99,12 @@ export default function ({ handleInput, handleBlur, data, handleCheck, handleEqu
                                 </div>
                             }
                             {
-                                addEquipa && <PopUp close={handleEquipa} title='Equipamentos'>
-                                    <AddEquipa
-                                        equipamentos={equipamentos}
-                                        close={handleEquipa}
-                                        handleCheck={handleCheck}
-                                        data={data} />
-                                </PopUp>
+                                addEquipa && <AddEquipa
+                                    equipamentos={equipamentos}
+                                    close={handleEquipa}
+                                    handleCheck={handleCheck}
+                                    data={data} />
+
                             }
                         </Grid>
                         :

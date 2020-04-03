@@ -16,7 +16,7 @@ class BaixaVeiculo extends Component {
 
     state = {
         empresas: [],
-        razaoSocial: '',        
+        razaoSocial: '',
         frota: [],
         placa: '',
         form: {},
@@ -136,7 +136,7 @@ class BaixaVeiculo extends Component {
     render() {
         const { delegaTransf, confirmToast, toastMsg, checked, openAlertDialog,
             alertType } = this.state
-
+        
         return <Fragment>
             <BaixaTemplate
                 data={this.state}

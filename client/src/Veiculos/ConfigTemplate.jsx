@@ -47,7 +47,7 @@ export default function ConfigTemplate({ collections, collection, data, staticDa
         <Fragment>
            <Crumbs links={['Veículos', '/veiculos']} text='Alterar configurações de veículos' />
             <center>
-                <h5>Selecione uma das opções abaixo.</h5>
+                <h4>Selecione uma das opções abaixo.</h4>
             </center>
             <div className="selectHeader">
                 <TextField

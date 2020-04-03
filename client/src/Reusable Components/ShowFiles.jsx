@@ -1,9 +1,10 @@
 import React from 'react';
-import formatDate from './formatDate'
-import formatFileSize from './formatFileSize'
-//import { fileLabel } from '../config/configLabels'
-import download from './downloadFile'
-import PopUp from './PopUp'
+
+import formatDate from '../Utils/formatDate'
+import formatFileSize from '../Utils/formatFileSize'
+import download from '../Utils/downloadFile'
+
+import ClosePopUpButton from './ClosePopUpButton'
 import { cadVehicleFiles } from '../Forms/cadVehicleFiles'
 import { empresaFiles } from '../Forms/empresaFiles'
 
@@ -59,13 +60,12 @@ const ShowFiles = ({ filesCollection, close, format, typeId, empresas }) => {
     //console.log(filesCollection)
 
     if (files[0]) {
-        return <PopUp title='Arquivos' close={close} format={format}>
-            <div className="row">
-                <div className="row">
-                    <h5>
-                        <img alt="" src="/images/folderIcon2.jpg" style={{ paddingLeft: '20px', marginRight: '20px' }} />
-                    </h5>
-                </div>
+        return (
+            <div className='popUpWindow'>
+                <h5>
+                    <img alt="" src="/images/folderIcon2.jpg" style={{ paddingLeft: '20px', marginRight: '20px' }} /> Arquivos
+                </h5>
+
                 <hr style={{ marginBottom: '5px' }} />
                 <div style={divRow}>
                     <div>
@@ -77,6 +77,7 @@ const ShowFiles = ({ filesCollection, close, format, typeId, empresas }) => {
                         </div>
                     )}
                 </div>
+
                 <hr style={{ margin: '0 0 20px 0' }} />
                 {
                     files.map((file, index) =>
@@ -102,8 +103,9 @@ const ShowFiles = ({ filesCollection, close, format, typeId, empresas }) => {
                             </div>
                         </div>
                     )}
+                <ClosePopUpButton close={close} />
             </div>
-        </PopUp>
+        )
     }
     else return null
 }

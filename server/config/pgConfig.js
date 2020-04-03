@@ -12,7 +12,6 @@ let pool = new Pool({
     port: 5432
 })
 
-console.log (pool)
 //if (process.env.NODE_ENV === 'production') pool = new Pool({ connectionString: process.env.DATABASE_URL })
 
 module.exports = { pool }

@@ -1,6 +1,7 @@
 import React from 'react'
 import Checkbox from '@material-ui/core/Checkbox'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
+import ClosePopUpButton from '../Reusable Components/ClosePopUpButton'
 import '../Layouts/popUp.css'
 
 export default function AddEquipa({ title, data, items, handleCheck, close }) {
@@ -14,7 +15,7 @@ export default function AddEquipa({ title, data, items, handleCheck, close }) {
                         control={
                             <Checkbox
                                 size='small'
-                                checked={data[item] === true}                              
+                                checked={data[item] === true}
                                 onChange={() => handleCheck(item)} />
                         }
                         label={<p className="checkListItem">{item}</p>}
@@ -22,15 +23,7 @@ export default function AddEquipa({ title, data, items, handleCheck, close }) {
                 </span>
             )
             }
-            <div style={{
-                position: 'absolute',
-                top: '0.4%',
-                right: '0.4%'
-            }}>
-                <div>
-                    <i className="material-icons right" title="Fechar" style={{ cursor: 'pointer', color: 'red' }} onClick={close}>close</i>
-                </div>
-            </div>
+            <ClosePopUpButton close={close} />
         </div>
     )
 }

@@ -11,9 +11,8 @@ import ConsultasTemplate from './ConsultasTemplate'
 import { TabMenu } from '../Layouts'
 
 import Certificate from '../Veiculos/Certificate'
-import PopUp from '../Utils/PopUp'
 import ShowDetails from '../Reusable Components/ShowDetails'
-import ShowFiles from '../Utils/ShowFiles'
+import ShowFiles from '../Reusable Components/ShowFiles'
 import AlertDialog from '../Utils/AlertDialog'
 
 const format = {
@@ -41,6 +40,8 @@ class ConsultasContainer extends Component {
         tablePKs: ['delegatario_id', 'socio_id', 'procurador_id', 'veiculo_id', 'id'],
         dbTables: ['delegatario', 'socios', 'procurador', 'veiculo', 'seguro'],
         options: ['empresas', 'socios', 'procuradores', 'veiculos', 'seguros'],
+        detailsTitle: ['Empresa', 'Sócio', 'Procurador', 'Placa', 'Apólice' ],
+        detailsHeader: ['razaoSocial', 'nomeSocio', 'nomeProcurador', 'placa', 'apolice'],
         empresas: [],
         seguros: [],
         razaoSocial: '',
@@ -89,7 +90,7 @@ class ConsultasContainer extends Component {
         const
             { tab } = this.state,
             { veiculos, socios, empresaDocs, vehicleDocs } = this.props.redux
-        
+
         let selectedFiles = empresaDocs.filter(f => f.metadata.empresaId === id.toString())
         let typeId = 'empresaId'
 
@@ -105,7 +106,7 @@ class ConsultasContainer extends Component {
                             if (f.metadata.socios && f.metadata.socios.includes(id))
                                 sociosArray.push(f)
                         })
-                    selectedFiles = sociosArray                    
+                    selectedFiles = sociosArray
                 }
                 break
 
@@ -122,12 +123,12 @@ class ConsultasContainer extends Component {
                 })
                 selectedFiles = filesToReturn
                 break
-            case 3:                
+            case 3:
                 typeId = 'veiculoId'
                 selectedFiles = vehicleDocs.filter(f => f.metadata.veiculoId === id.toString())
-                const vehicle = veiculos.find(v => v.veiculoId === id)                
-                if (vehicle) {                    
-                    const seguro = empresaDocs.find(f => f.metadata.apolice === vehicle.apolice.toString())                    
+                const vehicle = veiculos.find(v => v.veiculoId === id)
+                if (vehicle) {
+                    const seguro = empresaDocs.find(f => f.metadata.apolice === vehicle.apolice.toString())
                     if (seguro) selectedFiles.push(seguro)
                 }
                 break
@@ -188,14 +189,14 @@ class ConsultasContainer extends Component {
     render() {
         const
             { tab, options, items, showDetails, elementDetails, showFiles, selectedElement, filesCollection,
-                openAlertDialog, alertType, typeId, tablePKs, showCertificate, certified } = this.state,
+                openAlertDialog, alertType, typeId, tablePKs, showCertificate, certified, detailsTitle, detailsHeader } = this.state,
             { redux } = this.props,
             { empresas } = redux,
             primaryKeys = tablePKs.map(pk => humps.camelize(pk))
 
         let updatedElement
         if (elementDetails && showDetails) updatedElement = redux[options[tab]].find(e => e[primaryKeys[tab]] === elementDetails[primaryKeys[tab]])
-
+console.log(this.props.redux)
         return <Fragment>
             <TabMenu items={items}
                 tab={tab}
@@ -209,17 +210,15 @@ class ConsultasContainer extends Component {
                 del={this.deleteHandler}
                 showCertificate={this.showCertificate}
             />
-            {showDetails && <PopUp
-                close={this.showDetails}
-                title='Informações sobre o veículo'
-                format={format}
-            >
+            {showDetails &&
                 <ShowDetails
                     close={this.showDetails}
                     data={updatedElement || elementDetails}
                     tab={tab}
+                    title={detailsTitle[tab]}
+                    header={detailsHeader[tab]}
                 />
-            </PopUp>}
+            }
             {
                 showCertificate &&
                 <Certificate vehicle={certified} />

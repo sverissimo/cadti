@@ -15,7 +15,6 @@ import { cadForm } from '../Forms/cadForm'
 
 import AutoComplete from '../Utils/autoComplete'
 import AddEquipa from './AddEquipa'
-import PopUp from '../Utils/PopUp'
 
 import './veiculos.css'
 
@@ -164,16 +163,15 @@ export default function ({ empresas, equipamentos, data, handleInput, handleBlur
                                                 Equipamentos
                                             </Button>
                                         </Grid>}
-                                    {
-                                        addEquipa && <PopUp close={handleEquipa} title='Equipamentos'>
-                                            <AddEquipa
-                                                equipamentos={equipamentos}
-                                                close={handleEquipa}
-                                                handleCheck={handleCheck}
-                                                data={data} />
-                                        </PopUp>
-                                    }
+
                                 </Paper>}
+                            {
+                                addEquipa && <AddEquipa
+                                    equipamentos={equipamentos}
+                                    close={handleEquipa}
+                                    handleCheck={handleCheck}
+                                    data={data} />
+                            }
                         </Grid>
                         :
                         <Grid container justify="center">

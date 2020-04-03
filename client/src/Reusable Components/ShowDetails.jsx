@@ -1,44 +1,48 @@
 import React from 'react'
-import Grid from '@material-ui/core/Grid'
+import moment from 'moment'
+
 import TextField from '@material-ui/core/TextField'
-import { makeStyles } from '@material-ui/core/styles'
-import formatDate from '../Utils/formatDate'
+import ClosePopUpButton from '../Reusable Components/ClosePopUpButton'
+
+import { eForm, sForm, segForm } from '../Forms/joinForms'
+
 import { cadForm } from '../Forms/cadForm'
 import { empresasForm } from '../Forms/empresasForm'
 import { sociosForm } from '../Forms/sociosForm'
 import { procuradorForm } from '../Forms/procuradorForm'
 import { seguroForm } from '../Forms/seguroForm'
 
-const useStyles = makeStyles(theme => ({
-    textField: {
-        marginLeft: theme.spacing(1),
-        marginRight: theme.spacing(1),
-        marginTop: '9%',
-        width: 150,
-        fontSize: '0.6rem',
-        fontColor: '#bbb',
-        textAlign: 'center'
-    }
-}))
-
-export default function VehicleDetails({ data, tab }) {
-    const classes = useStyles(), { textField } = classes
+export default function ShowDetails({ data, tab, title, header, close }) {
 
     let { tableData, ...ultimateData } = data,
-        formPattern = empresasForm
-    if (tab === 1) formPattern = sociosForm
-    if (tab === 2) formPattern = procuradorForm
-    if (tab === 4) formPattern = seguroForm
+        formPattern
 
-    if (tab === 3) {
-        let { veiculoId, laudoId, tableData, modeloChassiId, modeloCarroceriaId, delegatarioId, ...vData } = data
-        vData.dataRegistro = formatDate(data.dataRegistro)
-        vData.dataEmissao = formatDate(data.dataEmissao)
-        vData.vencimento = formatDate(data.vencimento)
-        ultimateData = vData
-        formPattern = cadForm
+    switch (tab) {
+        case 0:            
+            formPattern = empresasForm.concat(eForm)
+            break;
+        case 1:
+            formPattern = sociosForm.concat(sForm)
+            break;
+        case 2:
+            formPattern = procuradorForm
+            break;
+        case 3:
+            let { veiculoId, laudoId, tableData, modeloChassiId, modeloCarroceriaId, delegatarioId, ...vData } = data
+            vData.dataRegistro = moment(data.dataRegistro).format('DD/MM/YYYY')
+            vData.dataEmissao = moment(data.dataEmissao).format('DD/MM/YYYY')
+            vData.vencimento = moment(data.vencimento).format('DD/MM/YYYY')
+            ultimateData = vData
+            formPattern = cadForm
+            break;
+        case 4:
+            formPattern = seguroForm.concat(segForm)
+            break;
+
+        default:
+            break;
     }
-    
+
     let element = []
 
     Object.keys(ultimateData).forEach(key => {
@@ -55,11 +59,12 @@ export default function VehicleDetails({ data, tab }) {
                 })
             })
         } else {
-            formPattern.forEach(({ field, label, type }) => {
+            formPattern.forEach(({ field, label, type, width, fullWidth }) => {
                 if (key === field) {
                     let obj = {}
                     Object.assign(obj, { field, label, value: ultimateData[key] })
                     if (type) Object.assign(obj, { type })
+                    if (width) Object.assign(obj, { width })
                     element.push(obj)
                     obj = {}
                 }
@@ -69,27 +74,35 @@ export default function VehicleDetails({ data, tab }) {
 
     Object.keys(ultimateData).forEach(key => {
         const equal = element.find(el => el.field === key)
-        if (!equal) element.push({ field: key, label: key, value: ultimateData[key] })
+        if (!equal && tab === 3) element.push({ field: key, label: key, value: ultimateData[key] })
     })
 
-    return <Grid
-        container
-        direction="row"
-        justify="space-evenly"
-        alignItems="baseline"
-    >
-        {
-            element.map(({ field, label, value, type }, i) => <Grid key={i} item xs={6} sm={4} md={3} lg={2}>
-                <TextField
-                    className={textField}
-                    name={field}
-                    label={label}
-                    value={type === 'date' ? formatDate(value) : value || ''}
-                    InputLabelProps={{ shrink: true, style: { fontSize: '0.9rem', fontWeight: 500 } }}
-                    inputProps={{ style: { fontSize: '0.7rem' } }}
-                    variant='outlined'
-                />
-            </Grid>
-            )}
-    </Grid>
+    return (
+        <div className="popUpWindow" style={{ left: '20%', right: '20%' }}>
+            <h4 className='equipaHeader'>{title} {data[header]}</h4> <hr />
+            <div className="checkListContainer" style={{ justifyContent: 'flex-start' }}>
+                {
+                    element.map(({ field, label, value, type, width }, i) =>
+                        <div className="showDetailsItem" style={{ width: width ? width : 150, }} key={i}>
+                            <TextField
+                                name={field}
+                                label={label}
+                                value={type === 'date' ? moment(value).format('DD/MM/YYYY') : value || ''}
+                                InputLabelProps={{ shrink: true, style: { fontSize: '0.9rem', fontWeight: 500 } }}
+                                inputProps={{
+                                    style: {
+                                        fontSize: '0.7rem',
+                                        width: width ? width : 150,
+                                        fontColor: '#bbb',
+                                        textAlign: 'center'
+                                    }
+                                }}
+                                variant='outlined'
+                            />
+                        </div>
+                    )}
+            </div>
+            <ClosePopUpButton close={close} />
+        </div>
+    )
 }

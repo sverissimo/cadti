@@ -3,7 +3,8 @@ const { pool } = require('./config/pgConfig')
 const empresas = ` 
 		SELECT d.*,
 			cardinality (array_agg(v.veiculo_id)) frota,
-			array_to_json(array_agg(v.veiculo_id)) veiculos	
+			array_to_json(array_agg(v.veiculo_id)) veiculos,	
+			array_to_json(array_agg(v.placa)) placas
 		FROM public.delegatario d
 		LEFT JOIN veiculo v
 			ON v.delegatario_id = d.delegatario_id
