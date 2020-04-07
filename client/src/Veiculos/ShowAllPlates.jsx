@@ -1,29 +1,21 @@
-import React from 'react'
-import Checkbox from '@material-ui/core/Checkbox'
-import FormControlLabel from '@material-ui/core/FormControlLabel'
-import ClosePopUpButton from '../Reusable Components/ClosePopUpButton'
-import '../Layouts/popUp.css'
+import React, { lazy, Suspense } from 'react'
 
-export default function AddEquipa({ title, data, items, handleCheck, close }) {
+export default function ShowAllPlates({ title, data, items, handleCheck, close }) {
+
+    const LoadPlates = lazy(() => import('./Plates'))
 
     return (
-        <div className="popUpWindow">
-            <h3>{title} Clique em "X" ou pressione 'esc' para voltar</h3>
-            {items.map((item, i) =>
-                <span className="checkListItem" key={i}>
-                    <FormControlLabel
-                        control={
-                            <Checkbox
-                                size='small'
-                                checked={data[item] === true}
-                                onChange={() => handleCheck(item)} />
-                        }
-                        label={<p className="checkListItem">{item}</p>}
-                    />
-                </span>
-            )
-            }
-            <ClosePopUpButton close={close} />
-        </div>
+        <Suspense fallback={<div className='loading'>
+            <img src="/images/loading.gif" alt="" height="60px" width="60px" />
+            <p> Carregando... </p>
+        </div>}>
+            <LoadPlates
+                title={title}
+                data={data}
+                items={items}
+                handleCheck={handleCheck}
+                close={close}
+            />
+        </Suspense>
     )
 }

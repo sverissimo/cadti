@@ -15,3 +15,15 @@ h2, h3, h4, h5, h6, p {
 h5 {
     font-size: 1.2em
 }
+
+div.loading {
+    position: fixed;
+    top: 45%;
+    right: 15%;
+    left: 15%;
+    height: 50%;
+    margin-bottom: 25px;
+    margin-top: 25px;
+    text-align: center;
+    z-index: 15
+  }

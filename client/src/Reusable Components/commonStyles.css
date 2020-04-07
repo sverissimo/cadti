@@ -4,7 +4,7 @@ body {
 
 div.selectEmpresa {
   width: 100%;
-  display: flex;  
+  display: flex;
   justify-content: center;
   min-width: 600px;
 }
@@ -40,3 +40,4 @@ input.selectEmpresa:focus {
 .MuiIcon-colorAction {
   color: rgb(58, 164, 33) !important;
 }
+
