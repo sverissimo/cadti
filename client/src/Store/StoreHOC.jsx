@@ -5,7 +5,7 @@ import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { getData, insertData, updateData, updateCollection, deleteOne } from './dataActions'
 
-import Loading from '../Utils/Loading'
+import Loading from '../Layouts/Loading'
 import { configVehicleForm } from '../Forms/configVehicleForm'
 
 const socketIO = require('socket.io-client')

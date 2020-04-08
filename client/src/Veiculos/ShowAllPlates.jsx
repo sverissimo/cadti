@@ -1,21 +1,28 @@
-import React, { lazy, Suspense } from 'react'
+import React from 'react'
+import ClosePopUpButton from '../Reusable Components/ClosePopUpButton'
+import '../Layouts/popUp.css'
 
-export default function ShowAllPlates({ title, data, items, handleCheck, close }) {
-
-    const LoadPlates = lazy(() => import('./Plates'))
-
+function ShowAllPlates({ items, title, data, close, handleCheck }) {
     return (
-        <Suspense fallback={<div className='loading'>
-            <img src="/images/loading.gif" alt="" height="60px" width="60px" />
-            <p> Carregando... </p>
-        </div>}>
-            <LoadPlates
-                title={title}
-                data={data}
-                items={items}
-                handleCheck={handleCheck}
-                close={close}
-            />
-        </Suspense>
+        <div className="popUpWindow row">
+            <h3>{title} Clique em "X" ou pressione 'esc' para voltar</h3>
+            <div className="checkListContainer">
+                {
+                    items.map((item, i) =>
+                        <div className="checkListItem" key={i}>
+                            <input
+                                id={i}
+                                type='checkbox'
+                                checked={data[item] === true}
+                                onChange={() => handleCheck(item)} />
+                            <label htmlFor={i}>{item}</label>
+                        </div>
+                    )
+                }
+            </div>
+            <ClosePopUpButton close={close} />
+        </div>
     )
 }
+
+export default ShowAllPlates

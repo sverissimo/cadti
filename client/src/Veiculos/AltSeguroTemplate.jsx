@@ -58,7 +58,7 @@ export default function AltSeguro({ empresas, data, enableAddPlaca, handleInput,
     let placas = []
     let insurance
 
-    if (insuranceExists.hasOwnProperty('placas')) insurance = insuranceExists
+    if (insuranceExists && insuranceExists.placas) insurance = insuranceExists
     else if (newInsurance && newInsurance.placas) insurance = newInsurance
 
     if (insurance) {

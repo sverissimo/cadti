@@ -32,6 +32,7 @@ class AltSeguro extends Component {
         insuranceExists: {},
         razaoSocial: '',
         seguradora: '',
+        deletedVehicles: [],
         toastMsg: 'Seguro atualizado!',
         confirmToast: false,
         dropDisplay: 'Clique ou arraste para anexar a apólice',
@@ -44,6 +45,21 @@ class AltSeguro extends Component {
             allInsurances: this.props.redux['seguros']
         })
         document.addEventListener('keydown', this.escFunction, false)
+    }
+
+    componentDidUpdate(prevProps, prevState) {
+        const
+            { seguros } = this.props.redux,
+            { apolice, insuranceExists, dontUpdateProps } = this.state
+
+        if (prevProps.redux.seguros !== seguros && !dontUpdateProps) {
+            console.log('Props updated. DUProps state is:', dontUpdateProps)
+            if (insuranceExists) {
+                const updatedInsurance = seguros.find(s => s.apolice === apolice)
+                this.setState({ insuranceExists: updatedInsurance })
+            }
+        }
+
     }
 
     checkExistance = async (name, inputValue) => {
@@ -204,9 +220,9 @@ class AltSeguro extends Component {
         const
             { insuranceExists, newInsurance, allPlates } = this.state
 
-        let placas, veiculos, allPlatesObj = {}
-        if (insuranceExists) [placas, veiculos] = [insuranceExists.placas, insuranceExists.veiculos]
-        if (newInsurance) [placas, veiculos] = [newInsurance.placas, newInsurance.veiculos]
+        let placas, allPlatesObj = {}
+        if (insuranceExists) placas = insuranceExists.placas
+        if (newInsurance) placas = newInsurance.placas
 
         allPlates.forEach(p => {
             Object.assign(allPlatesObj, { [p]: false })
@@ -220,25 +236,22 @@ class AltSeguro extends Component {
 
     handleCheck = async plate => {
 
-        const
-            { frota } = this.state,
-            vehicleFound = frota.find(v => v.placa === plate)
-
         let allPlatesObj = { ...this.state.allPlatesObj }
         allPlatesObj[plate] = !allPlatesObj[plate]
 
-        if (allPlatesObj[plate] === true) {
-            await this.setState({ vehicleFound, allPlatesObj })
-            this.addPlate(plate)
-        }
-        
+        if (allPlatesObj[plate] === true) this.addPlate(plate)
         else this.deleteInsurance(plate)
+
+        this.setState({ allPlatesObj })
     }
 
     addPlate = async placaInput => {
 
-        const { vehicleFound, apolice } = this.state
-        let { insuranceExists, newInsurance } = this.state
+        const
+            { apolice, frota } = this.state,
+            vehicleFound = frota.find(v => v.placa === placaInput)
+        let
+            { insuranceExists, newInsurance } = this.state
 
         if (!placaInput || placaInput === '') return
 
@@ -275,7 +288,7 @@ class AltSeguro extends Component {
 
                 await this.setState({ insuranceExists: obj })
             }
-            if (document.getElementsByName('addedPlaca')[0]) document.getElementsByName('addedPlaca')[0].focus()
+            //if (document.getElementsByName('addedPlaca')[0]) document.getElementsByName('addedPlaca')[0].focus()
             this.setState({ addedPlaca: '' })
         }
     }
@@ -312,20 +325,30 @@ class AltSeguro extends Component {
             tablePK: 'veiculo_id',
             ids: [vehicleFound.veiculoId]
         }
+        const seg = this.props.redux.seguros.find(s => s.apolice === apolice)
+        let check
+        if (seg && seg.placas) check = seg.placas.includes(vehicleFound.placa)
 
-        await axios.put('/api/updateInsurances', body)
+        if (check) {            
 
-        const
-            i = placas.indexOf(placaInput),
-            k = veiculos.indexOf(vehicleFound.veiculoId)
+            /* let { veiculos } = insurance
+            const k = veiculos.indexOf(vehicleFound.veiculoId)
+            deletedVehicles.push(veiculos[k]) 
+            ...setState insted of axios. Then handleSubmint will take care of it.*/
 
-        await this.props.removeInsurance(apolice, i, k)
+            await this.setState({ dontUpdateProps: false })
+            await axios.put('/api/updateInsurances', body)
+            return
+        } else {
+            const
+                i = placas.indexOf(placaInput),
+                k = veiculos.indexOf(vehicleFound.veiculoId)
 
-        insuranceExists.placas.splice(i, 1)
-        insuranceExists.veiculos.splice(k, 1)
+            insuranceExists.placas.splice(i, 1)
+            insuranceExists.veiculos.splice(k, 1)
+            this.setState({ insuranceExists })
 
-        await this.setState({ insuranceExists })
-        return
+        }
     }
 
     updateApolice = () => {
@@ -355,9 +378,8 @@ class AltSeguro extends Component {
 
     handleSubmit = async () => {
 
-        const
-            { seguradora, insuranceExists, newInsurance, errors, newElement } = this.state,
-            { veiculos } = insuranceExists
+        const { seguradora, insuranceExists, newInsurance, errors, newElement } = this.state
+
         let
             frota = [...this.state.frota],
             vehicleIds = []
@@ -403,8 +425,7 @@ class AltSeguro extends Component {
             column: 'apolice',
             value: apolice,
             tablePK: 'veiculo_id',
-            ids: vehicleIds,
-            vehicleIds: veiculos
+            ids: vehicleIds
         }
 
         if (newElement && insuranceExists && insuranceExists.id) {
@@ -412,7 +433,10 @@ class AltSeguro extends Component {
         }
 
         await axios.put('/api/updateInsurances', body)
-            .then(res => console.log(res.data))
+            .then(res => {
+                console.log(res.data)
+                this.setState({ dontUpdateProps: true })
+            })
 
         frota = frota.map(v => {
             vehicleIds.forEach(id => {
@@ -470,7 +494,7 @@ class AltSeguro extends Component {
     render() {
         const
             { openAlertDialog, alertType, openAddDialog, showAllPlates, allPlates, allPlatesObj } = this.state,
-            { empresas } = this.props.redux
+            { empresas, seguros } = this.props.redux
 
         const enableAddPlaca = seguroForm
             .every(k => this.state.hasOwnProperty(k.field) && this.state[k.field] !== '')
@@ -478,7 +502,7 @@ class AltSeguro extends Component {
         return (
             <Fragment>
                 <AltSeguroTemplate
-                    data={this.state}
+                    data={this.state}                    
                     empresas={empresas}
                     enableAddPlaca={enableAddPlaca}
                     handleInput={this.handleInput}

@@ -16,7 +16,8 @@
 }
 
 .checkListContainer {
-    display: inline-flex;
+    display: flex;
+    flex-direction: row;
     flex-wrap: wrap;
     justify-content: space-between;
     
@@ -32,10 +33,14 @@
 
 
 /********************** Placas - AltSeguro ***********************/
-.checkListItem {
+.checkListItem {    
     font-size: 12px;
-    width: 65px
+    width: 90px;
+    height: auto;
+    box-sizing: content-box;
+    /* padding-right: 15px;     */
 }
+
 
 .checkListLabel {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
