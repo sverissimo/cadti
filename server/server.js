@@ -392,15 +392,15 @@ app.put('/api/editElements', (req, res) => {
     })
 })
 
-app.put('/api/updateApolice', async (req, res) => {
+app.put('/api/updateInsurance', async (req, res) => {
 
-    const { columns, newApoliceNumber, updatedDates, id, vehicleIds } = req.body
+    const { columns, updates, id, vehicleIds } = req.body
 
     let queryString = ''
     columns.forEach(col => {
         queryString += `
                 UPDATE seguro
-                SET ${col} = '${updatedDates[col]}'
+                SET ${col} = '${updates[col]}'
                 WHERE id = ${id};
         `
     })

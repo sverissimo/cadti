@@ -70,7 +70,7 @@ SELECT seguro.*,
 		array_to_json(array_agg(v.veiculo_id)) veiculos,
 		array_to_json(array_agg(v.placa)) placas,
 		d.razao_social empresa,
-		cardinality(array_agg(v.placa)) segurados
+		cardinality(array_remove(array_agg(v.placa), null)) as segurados
 FROM seguro
 LEFT JOIN veiculo v
 	ON seguro.apolice = v.apolice

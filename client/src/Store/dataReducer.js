@@ -34,7 +34,7 @@ const dataReducer = (state = initState, action) => {
                     })
                     return v
                 })
-                console.log({ [collection]: update })
+               // console.log({ [collection]: update })
                 return {
                     ...state, [collection]: update
                 }
@@ -45,7 +45,7 @@ const dataReducer = (state = initState, action) => {
 
         case 'UPDATE_COLLECTION': {
             const { data, collection } = payload
-            console.log(payload)
+           // console.log(payload)
             return {
                 ...state, [collection]: data
             }
@@ -63,7 +63,7 @@ const dataReducer = (state = initState, action) => {
                 seguro.placas.splice(placaIndex, 1)
                 seguro.veiculos.splice(vehicleIndex, 1)
                 seguros[index] = seguro
-                console.log(seguros)
+               // console.log(seguros)
                 return {
                     ...state, seguros
                 }
@@ -76,7 +76,7 @@ const dataReducer = (state = initState, action) => {
                 let
                     { id } = payload,
                     updatedData = [...state[collection]]
-                console.log(id, collection)
+               // console.log(id, collection)
                 if (!collection.match('Docs')) id = Number(id)
                 
                 const

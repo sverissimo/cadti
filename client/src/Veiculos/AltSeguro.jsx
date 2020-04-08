@@ -29,7 +29,8 @@ class AltSeguro extends Component {
 
     state = {
         addedPlaca: '',
-        insuranceExists: {},
+        insurance: {},
+        insuranceExists: false,
         razaoSocial: '',
         seguradora: '',
         deletedVehicles: [],
@@ -59,53 +60,26 @@ class AltSeguro extends Component {
                 this.setState({ insuranceExists: updatedInsurance })
             }
         }
-
     }
 
     checkExistance = async (name, inputValue) => {
 
         const
-            { seguros, veiculos } = this.props.redux,
-            { selectedEmpresa, newInsurance } = this.state,
-            s = [...seguros.filter(se => se.delegatarioId === selectedEmpresa.delegatarioId)],
-            frota = veiculos.filter(v => v.delegatarioId === selectedEmpresa.delegatarioId)
+            seguros = JSON.parse(JSON.stringify(this.props.redux.seguros)),
+            { selectedEmpresa } = this.state,
+            s = [...seguros.filter(se => se.delegatarioId === selectedEmpresa.delegatarioId)]
 
-        let insuranceExists,
-            testApolice = { ...s.find(s => s[name] === inputValue) },
-            testSeguradora = { ...s.find(s => s[name] === inputValue && s.apolice === this.state.apolice) },
-            InsuranceUpdatedFrota = [],
-            updatedPlates = [],
-            updatedVehicles = []
+        let insurance = { ...s.find(s => s[name] === inputValue) }
+        const insuranceExists = Object.keys(insurance).length > 0
 
-        if (name === 'apolice') {
-            insuranceExists = testApolice
-            InsuranceUpdatedFrota = frota.filter(v => v.apolice === inputValue)
-
-            if (newInsurance && newInsurance.apolice && newInsurance.apolice !== inputValue) {
-                this.setState({ newInsurance: false, dataEmissao: '', vencimento: '' })
-            }
-        }
-
-        if (name === 'seguradora') {
-            insuranceExists = testSeguradora
-            InsuranceUpdatedFrota = frota.filter(v => v.apolice === this.state.apolice)
-        }
-        if (insuranceExists && insuranceExists.dataEmissao && insuranceExists.vencimento) {
-            InsuranceUpdatedFrota.forEach(v => {
-                updatedPlates.push(v.placa)
-                updatedVehicles.push(v.veiculoId)
-            })
-
-            insuranceExists.placas = updatedPlates
-            insuranceExists.veiculos = updatedVehicles
-
-            const dataEmissao = moment(insuranceExists.dataEmissao).format('YYYY-MM-DD'),
-                vencimento = insuranceExists.vencimento.toString().slice(0, 10),
-                { seguradora, seguradoraId } = insuranceExists
-            await this.setState({ seguradora, seguradoraId, dataEmissao, vencimento, insuranceExists })
+        if (insuranceExists) {
+            const dataEmissao = moment(insurance.dataEmissao).format('YYYY-MM-DD'),
+                vencimento = insurance.vencimento.toString().slice(0, 10),
+                { seguradora, seguradoraId } = insurance
+            await this.setState({ seguradora, seguradoraId, dataEmissao, vencimento, insurance, insuranceExists })
             return
         }
-        if (Object.keys(insuranceExists).length === 0) this.setState({ insuranceExists: false, dataEmissao: '', vencimento: '' })
+        else this.setState({ insuranceExists, insurance: {}, dataEmissao: '', vencimento: '', deletedVehicles: [] })
     }
 
     handleInput = async e => {
@@ -114,7 +88,7 @@ class AltSeguro extends Component {
         const
             { name } = e.target,
             { veiculos, empresas, seguradoras } = this.props.redux,
-            { allInsurances, selectedEmpresa, frota, insuranceExists, apolice, dataEmissao,
+            { allInsurances, selectedEmpresa, frota, insurance, apolice, dataEmissao,
                 vencimento, newInsurance, seguradora } = this.state
 
         this.setState({ [name]: value })
@@ -144,7 +118,6 @@ class AltSeguro extends Component {
                 break
 
             case 'seguradora':
-                this.checkExistance(name, value)
                 const selectedSeguradora = seguradoras.find(sg => sg.seguradora === value)
                 if (selectedSeguradora) {
                     this.setState({ seguradoraId: selectedSeguradora.id })
@@ -164,7 +137,7 @@ class AltSeguro extends Component {
         const fields = ['seguradora', 'apolice', 'dataEmissao', 'vencimento']
         const checkFields = fields.every(f => this.state[f] && this.state[f] !== '')
 
-        if (name !== 'razaoSocial' && !newInsurance && checkFields && Object.keys(insuranceExists).length === 0) {
+        if (name !== 'razaoSocial' && !newInsurance && checkFields && Object.keys(insurance).length === 0) {
             let newInsurance = {}, seguradoraId
             const selectedSeguradora = seguradoras.find(sg => sg.seguradora === this.state.seguradora)
             if (selectedSeguradora) seguradoraId = selectedSeguradora.id
@@ -176,7 +149,7 @@ class AltSeguro extends Component {
                     apolice, seguradora, seguradoraId, dataEmissao, vencimento, placas: [], veiculos: []
                 })
 
-            await this.setState({ newInsurance, seguradoraId })
+            await this.setState({ insuranceExists: false, insurance: newInsurance, seguradoraId })
         }
     }
 
@@ -216,20 +189,13 @@ class AltSeguro extends Component {
         }
     }
     showAllPlates = () => {
+        const { insurance, allPlates } = this.state
+        let placas = [], allPlatesObj = {}
 
-        const
-            { insuranceExists, newInsurance, allPlates } = this.state
+        if (insurance && insurance.placas) placas = insurance.placas
 
-        let placas, allPlatesObj = {}
-        if (insuranceExists) placas = insuranceExists.placas
-        if (newInsurance) placas = newInsurance.placas
-
-        allPlates.forEach(p => {
-            Object.assign(allPlatesObj, { [p]: false })
-        })
-        placas.forEach(p => {
-            Object.assign(allPlatesObj, { [p]: true })
-        })
+        allPlates.forEach(p => Object.assign(allPlatesObj, { [p]: false }))
+        placas.forEach(p => Object.assign(allPlatesObj, { [p]: true }))
 
         this.setState({ allPlatesObj, insuredPlates: placas, showAllPlates: !this.state.showAllPlates })
     }
@@ -240,7 +206,7 @@ class AltSeguro extends Component {
         allPlatesObj[plate] = !allPlatesObj[plate]
 
         if (allPlatesObj[plate] === true) this.addPlate(plate)
-        else this.deleteInsurance(plate)
+        else this.removeFromInsurance(plate)
 
         this.setState({ allPlatesObj })
     }
@@ -250,8 +216,8 @@ class AltSeguro extends Component {
         const
             { apolice, frota } = this.state,
             vehicleFound = frota.find(v => v.placa === placaInput)
-        let
-            { insuranceExists, newInsurance } = this.state
+        let          
+            { insuranceExists, insurance } = this.state
 
         if (!placaInput || placaInput === '') return
 
@@ -259,126 +225,95 @@ class AltSeguro extends Component {
         if (vehicleFound === undefined || vehicleFound.hasOwnProperty('veiculoId') === false) {
             this.setState({ openAlertDialog: true, alertType: 'plateNotFound' })
             return null
-        } else if (insuranceExists !== undefined && insuranceExists.hasOwnProperty('placas') && vehicleFound.hasOwnProperty('placa')) {
-            const check = insuranceExists.placas.find(p => p === vehicleFound.placa)
-            if (check !== undefined) {
+        } else if (insuranceExists === true && insurance.placas && vehicleFound.placa) {
+            const check = insurance.placas.find(p => p === vehicleFound.placa)
+            if (check) {
                 this.setState({ openAlertDialog: true, alertType: 'plateExists' })
                 return null
             }
         }
         // Add plates to rendered list
         if (apolice) {
-            if (!insuranceExists.placas && !insuranceExists.veiculos) {
+           
+            let update = { ...insurance }
 
-                let update = { ...newInsurance }
-                update.placas.push(placaInput)
-                update.veiculos.push(vehicleFound.veiculoId)
+            if (!update.placas) update.placas = []
+            if (!update.veiculos) update.veiculos = []
 
-                await this.setState({ newInsurance: update, })
+            update.placas.push(placaInput)
+            update.veiculos.push(vehicleFound.veiculoId)
 
-            } else {
-                let
-                    obj = { ...insuranceExists },
-                    { placas, veiculos } = obj
-
-                placas.push(placaInput)
-                veiculos.push(vehicleFound.veiculoId)
-                obj.placas = placas
-                obj.veiculos = veiculos
-
-                await this.setState({ insuranceExists: obj })
-            }
-            //if (document.getElementsByName('addedPlaca')[0]) document.getElementsByName('addedPlaca')[0].focus()
-            this.setState({ addedPlaca: '' })
+            this.setState({ insurance: update, addedPlaca: '' })           
         }
     }
 
-    deleteInsurance = async placaInput => {
+    removeFromInsurance = async placaInput => {
 
         const
             { apolice, frota } = this.state,
-            vehicleFound = frota.find(v => v.placa === placaInput)
+            vehicleFound = frota.find(v => v.placa === placaInput),
+            { veiculoId, placa } = vehicleFound
 
-        let
-            insuranceExists = { ...this.state.insuranceExists },
-            { placas, veiculos } = insuranceExists,
-            newInsurance = { ...this.state.newInsurance }
+        let         
+            insurance = { ...this.state.insurance },
+            deletedVehicles = [...this.state.deletedVehicles],
+            placas = [], veiculos = [],
+            check
+        
+        const seg = this.props.redux.seguros.find(s => s.apolice === apolice)        
+        if (seg && seg.placas) check = seg.placas.includes(placa)
 
-        if (newInsurance && newInsurance.apolice) {
-            let newPlates = [...newInsurance.placas],
-                newVehicles = [...newInsurance.veiculos]
-
-            const
-                i = newPlates.indexOf(placaInput),
-                k = newVehicles.indexOf(vehicleFound.veiculoId)
-
-            newInsurance.placas.splice(i, 1)
-            newInsurance.veiculos.splice(k, 1)
-            await this.setState({ newInsurance })
-            return
+        if (check) {
+            let { veiculos } = insurance
+            const k = veiculos.indexOf(veiculoId)
+            deletedVehicles.push(veiculos[k])
+            this.setState({ deletedVehicles })
         }
 
-        const body = {
-            table: 'veiculo',
-            column: 'apolice',
-            value: 'Seguro não cadastrado',
-            tablePK: 'veiculo_id',
-            ids: [vehicleFound.veiculoId]
-        }
-        const seg = this.props.redux.seguros.find(s => s.apolice === apolice)
-        let check
-        if (seg && seg.placas) check = seg.placas.includes(vehicleFound.placa)
+        if (insurance.placas) placas = insurance.placas
+        if (insurance.veiculos) veiculos = insurance.veiculos
 
-        if (check) {            
+        const
+            i = placas.indexOf(placa),
+            k = veiculos.indexOf(veiculoId)
 
-            /* let { veiculos } = insurance
-            const k = veiculos.indexOf(vehicleFound.veiculoId)
-            deletedVehicles.push(veiculos[k]) 
-            ...setState insted of axios. Then handleSubmint will take care of it.*/
+        insurance.placas.splice(i, 1)
+        insurance.veiculos.splice(k, 1)
 
-            await this.setState({ dontUpdateProps: false })
-            await axios.put('/api/updateInsurances', body)
-            return
-        } else {
-            const
-                i = placas.indexOf(placaInput),
-                k = veiculos.indexOf(vehicleFound.veiculoId)
-
-            insuranceExists.placas.splice(i, 1)
-            insuranceExists.veiculos.splice(k, 1)
-            this.setState({ insuranceExists })
-
-        }
+        this.setState({ insurance })
     }
 
-    updateApolice = () => {
+    updateInsurance = () => {
         const
-            { insuranceExists, dataEmissao, vencimento } = this.state,
-            { id, veiculos } = insuranceExists
+            { insurance, dataEmissao, vencimento, seguradoraId } = this.state,
+            { id, veiculos } = insurance
 
 
-        let updatedDates = {}
-        const emissaoDidChange = !moment(dataEmissao).isSame(moment(insuranceExists.dataEmissao))
-        const vencimentoDidChange = !moment(vencimento).isSame(moment(insuranceExists.vencimento))
+        let updates = {}
+        const
+            emissaoDidChange = !moment(dataEmissao).isSame(moment(insurance.dataEmissao)),
+            vencimentoDidChange = !moment(vencimento).isSame(moment(insurance.vencimento)),
+            seguradoraDidChange = seguradoraId !== insurance.seguradoraId
 
-        if (!emissaoDidChange && !vencimentoDidChange) return
+        if (!emissaoDidChange && !vencimentoDidChange && seguradoraDidChange) return
 
-        if (emissaoDidChange) updatedDates.data_emissao = dataEmissao
-        if (vencimentoDidChange) updatedDates.vencimento = vencimento
+        if (emissaoDidChange) updates.data_emissao = dataEmissao
+        if (vencimentoDidChange) updates.vencimento = vencimento
+        if (seguradoraDidChange) updates.seguradora_id = seguradoraId
 
         const requestObj = {
             id,
-            columns: Object.keys(updatedDates),
-            updatedDates,
+            columns: Object.keys(updates),
+            updates,
             vehicleIds: veiculos
         }
-        axios.put('/api/updateApolice', requestObj)
+        axios.put('/api/updateInsurance', requestObj)
             .then(r => console.log(r.data))
     }
 
     handleSubmit = async () => {
 
-        const { seguradora, insuranceExists, newInsurance, errors, newElement } = this.state
+        const { seguradora, insuranceExists, insurance, errors, newElement, deletedVehicles } = this.state
 
         let
             frota = [...this.state.frota],
@@ -410,13 +345,13 @@ class AltSeguro extends Component {
 
         //Create a new insurance
         if (!insuranceExists) {
-            if (newInsurance) vehicleIds = newInsurance.veiculos
+            if (insurance) vehicleIds = insurance.veiculos
             await axios.post('/api/cadSeguro', cadSeguro)
         }
-        //else just update the dates
+        //else just update the insurer and/or dates
         if (insuranceExists) {
-            vehicleIds = insuranceExists.veiculos
-            await this.updateApolice()
+            vehicleIds = insurance.veiculos
+            await this.updateInsurance()
         }
 
         //Define body and post VehicleUpdate
@@ -428,8 +363,8 @@ class AltSeguro extends Component {
             ids: vehicleIds
         }
 
-        if (newElement && insuranceExists && insuranceExists.id) {
-            axios.put('/api/changeApoliceNumber', { id: insuranceExists.id, newApoliceNumber: newElement })
+        if (newElement && insuranceExists && insurance.id) {
+            axios.put('/api/changeApoliceNumber', { id: insurance.id, newApoliceNumber: newElement })
         }
 
         await axios.put('/api/updateInsurances', body)
@@ -437,6 +372,11 @@ class AltSeguro extends Component {
                 console.log(res.data)
                 this.setState({ dontUpdateProps: true })
             })
+        if (deletedVehicles) {
+            body.value = 'Seguro não cadastrado'
+            body.ids = deletedVehicles
+            await axios.put('/api/updateInsurances', body)
+        }
 
         frota = frota.map(v => {
             vehicleIds.forEach(id => {
@@ -485,8 +425,8 @@ class AltSeguro extends Component {
     closeAlert = () => this.setState({ openAlertDialog: !this.state.openAlertDialog })
     clearFields = () => {
         this.setState({
-            insuranceExists: '', seguradora: '', newInsurance: '',
-            apolice: '', dataEmissao: '', vencimento: '', seguroFile: null,
+            insuranceExists: false, seguradora: '', insurance: {},
+            apolice: '', dataEmissao: '', vencimento: '', seguroFile: null, deletedVehicles: [],
             dropDisplay: 'Clique ou arraste para anexar a apólice'
         })
     }
@@ -494,7 +434,7 @@ class AltSeguro extends Component {
     render() {
         const
             { openAlertDialog, alertType, openAddDialog, showAllPlates, allPlates, allPlatesObj } = this.state,
-            { empresas, seguros } = this.props.redux
+            { empresas } = this.props.redux
 
         const enableAddPlaca = seguroForm
             .every(k => this.state.hasOwnProperty(k.field) && this.state[k.field] !== '')
@@ -502,13 +442,13 @@ class AltSeguro extends Component {
         return (
             <Fragment>
                 <AltSeguroTemplate
-                    data={this.state}                    
+                    data={this.state}
                     empresas={empresas}
                     enableAddPlaca={enableAddPlaca}
                     handleInput={this.handleInput}
                     handleBlur={this.handleBlur}
                     addPlate={this.addPlate}
-                    deleteInsurance={this.deleteInsurance}
+                    removeFromInsurance={this.removeFromInsurance}
                     enableChangeApolice={this.toggleDialog}
                     handleFiles={this.handleFiles}
                     handleSubmit={this.handleSubmit}

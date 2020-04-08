@@ -48,27 +48,23 @@ const useStyles = makeStyles(theme => ({
 }))
 
 export default function AltSeguro({ empresas, data, enableAddPlaca, handleInput, handleBlur,
-    addPlate, deleteInsurance, handleFiles, handleSubmit, enableChangeApolice, showAllPlates }) {
+    addPlate, removeFromInsurance, handleFiles, handleSubmit, enableChangeApolice, showAllPlates }) {
 
     const { selectedEmpresa, placa, apolice, addedPlaca, frota, insuranceExists,
-        newInsurance, dropDisplay, seguroFile } = data
+        insurance, dropDisplay, seguroFile } = data
 
     const classes = useStyles(), { paper, textField, chip } = classes
 
     let placas = []
-    let insurance
 
-    if (insuranceExists && insuranceExists.placas) insurance = insuranceExists
-    else if (newInsurance && newInsurance.placas) insurance = newInsurance
-
-    if (insurance) {
+    if (insurance && insurance.placas) {
         if (insurance.placas[0] && insurance.placas[0] !== null) placas = insurance.placas.sort()
         if (placa !== undefined && placa.length > 2 && placas[0]) {
             if (typeof placa === 'string') placas = insurance.placas.filter(p => p.toLowerCase().match(placa.toLowerCase())).sort()
             else placas = insurance.placas.filter(p => p.match(placa)).sort()
         }
     }
-
+    
     return (
         <Fragment>
             <div style={{ width: '100%', display: 'flex', flexDirection: 'column' }}>
@@ -88,14 +84,14 @@ export default function AltSeguro({ empresas, data, enableAddPlaca, handleInput,
                             handleBlur={handleBlur}
                             handleInput={handleInput}
                         />
-                        {insurance &&
+                        {insuranceExists &&
                             <div className='addNewDiv'>
                                 <span onClick={() => enableChangeApolice()}> → Clique aqui para alterar o número da apólice mantendo as placas.</span>
                             </div>
                         }
                     </Paper>
                 }
-                {selectedEmpresa && (insurance || enableAddPlaca) &&
+                {selectedEmpresa && insurance && (insurance.placas || enableAddPlaca) &&
                     <Paper className={paper}>
                         <p>Utilize as opções abaixo para filtrar, adicionar ou excluir placas desta apólice</p>
                         <section className='addSeguro'>
@@ -163,7 +159,7 @@ export default function AltSeguro({ empresas, data, enableAddPlaca, handleInput,
 
                         {/********************************* Lista de placas vinculadas (Chips) ********************************************/}
 
-                        {insurance && insurance.placas[0]
+                        {insurance && insurance.placas && insurance.placas[0]
                             ?
                             <div style={{ margin: '15px' }}>
                                 Placas vinculadas a apólice {insurance.apolice}
@@ -171,11 +167,11 @@ export default function AltSeguro({ empresas, data, enableAddPlaca, handleInput,
                             :
                             <div style={{ marginTop: '30px' }}></div>
                         }
-                        {insurance && apolice && apolice.length > 2 && placas[0] && placas.map((placa, i) =>
+                        {insurance && insurance.placas && apolice && apolice.length > 2 && placas[0] && placas.map((placa, i) =>
                             <Chip
                                 key={i}
                                 label={placa}
-                                onDelete={() => deleteInsurance(placa)}
+                                onDelete={() => removeFromInsurance(placa)}
                                 className={chip}
                                 color='primary'
                                 variant="outlined"

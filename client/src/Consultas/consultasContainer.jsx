@@ -196,7 +196,7 @@ class ConsultasContainer extends Component {
 
         let updatedElement
         if (elementDetails && showDetails) updatedElement = redux[options[tab]].find(e => e[primaryKeys[tab]] === elementDetails[primaryKeys[tab]])
-console.log(this.props.redux)
+
         return <Fragment>
             <TabMenu items={items}
                 tab={tab}
