@@ -226,7 +226,7 @@ class AltDados extends Component {
 
     handleSubmit = async () => {
         const { poltronas, pesoDianteiro, pesoTraseiro, delegatarioId,
-            delegatarioCompartilhado, equipamentosId, newPlate } = this.state
+            delegatarioCompartilhado, equipamentosId, newPlate, selectedEmpresa } = this.state
 
         let tempObj = {}
 
@@ -255,6 +255,7 @@ class AltDados extends Component {
         const { placa, delegatario, compartilhado, ...requestObject } = tempObj
 
         if (newPlate && newPlate !== '') requestObject.placa = newPlate
+        if (selectedEmpresa.delegatarioId !== delegatarioId) requestObject.apolice = 'Seguro não cadastrado'
 
         const table = 'veiculo',
             tablePK = 'veiculo_id'

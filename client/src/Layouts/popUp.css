@@ -36,9 +36,7 @@
 .checkListItem {    
     font-size: 12px;
     width: 90px;
-    height: auto;
-    box-sizing: content-box;
-    /* padding-right: 15px;     */
+    height: auto;   
 }
 
 
