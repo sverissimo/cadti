@@ -136,7 +136,7 @@ const Header = props => {
                             backgroundColor: (path.match(link) && link !== '/' && link !== '/faleConosco')
                                 ? '#11a7d2' : '',
                             //borderTop: (path === link && link !== '/' && link !== '/faleConosco') ? '2px solid #fff' : '',
-                            borderBottom: (path.match(link) && link !== '/' && link !== '/faleConosco') ? '1.5px solid #fff' : '',
+                            borderBottom: (path.match(link) && link !== '/' && link !== '/faleConosco') ? '1.5px solid #ccc' : '',
                             fontWeight: (path.match(link) && (link === '/' || link === '/faleConosco')) ? '500' : '400'
                         }}
                         className={classes.toolbarLink}
