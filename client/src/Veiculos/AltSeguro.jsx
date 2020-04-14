@@ -1,9 +1,7 @@
 import React, { Component, Fragment } from 'react'
 import axios from 'axios'
-import { connect } from 'react-redux'
 
 import StoreHOC from '../Store/StoreHOC'
-import { removeInsurance } from '../Store/dataActions'
 
 import ReactToast from '../Utils/ReactToast'
 import moment from 'moment'
@@ -216,7 +214,7 @@ class AltSeguro extends Component {
         const
             { apolice, frota } = this.state,
             vehicleFound = frota.find(v => v.placa === placaInput)
-        let          
+        let
             { insuranceExists, insurance } = this.state
 
         if (!placaInput || placaInput === '') return
@@ -234,7 +232,7 @@ class AltSeguro extends Component {
         }
         // Add plates to rendered list
         if (apolice) {
-           
+
             let update = { ...insurance }
 
             if (!update.placas) update.placas = []
@@ -243,7 +241,7 @@ class AltSeguro extends Component {
             update.placas.push(placaInput)
             update.veiculos.push(vehicleFound.veiculoId)
 
-            this.setState({ insurance: update, addedPlaca: '' })           
+            this.setState({ insurance: update, addedPlaca: '' })
         }
     }
 
@@ -254,13 +252,13 @@ class AltSeguro extends Component {
             vehicleFound = frota.find(v => v.placa === placaInput),
             { veiculoId, placa } = vehicleFound
 
-        let         
+        let
             insurance = { ...this.state.insurance },
             deletedVehicles = [...this.state.deletedVehicles],
             placas = [], veiculos = [],
             check
-        
-        const seg = this.props.redux.seguros.find(s => s.apolice === apolice)        
+
+        const seg = this.props.redux.seguros.find(s => s.apolice === apolice)
         if (seg && seg.placas) check = seg.placas.includes(placa)
 
         if (check) {
@@ -481,4 +479,4 @@ class AltSeguro extends Component {
 
 const collections = ['veiculos', 'empresas', 'seguradoras', 'seguros']
 
-export default connect(null, { removeInsurance })(StoreHOC(collections, AltSeguro))
+export default StoreHOC(collections, AltSeguro)

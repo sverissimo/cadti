@@ -80,10 +80,10 @@ const useStyles = makeStyles(theme => ({
 
 const sections = [
     { title: 'Página Inicial', link: '/' },
-    { title: 'Certidões', link: '/certidoes' },
     { title: 'Consultas', link: '/consultas' },
     { title: 'Veículos', link: '/veiculos' },
     { title: 'Empresas', link: '/empresas' },
+    { title: 'Relatórios', link: '/relatorios' },
     { title: 'Fale Conosco', link: '/faleConosco' },
 ];
 
@@ -92,11 +92,11 @@ const Header = props => {
     const classes = useStyles()
     const [path, setSelected] = useState(document.location.pathname)
     const { pathname } = props.location
-    
+
     useEffect(() => {
-        setSelected(pathname)        
+        setSelected(pathname)
     }, [pathname])
-    
+
     return (
         <React.Fragment>
             <CssBaseline />
