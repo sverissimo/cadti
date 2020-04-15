@@ -17,8 +17,7 @@ export const barChart = {
         chart: {
             id: "veiculos_ano_fabricacao",
         },
-        xaxis: {
-            // categories: labels,
+        xaxis: {            
             labels: {
                 style: {
                     fontSize: '9px',
@@ -32,14 +31,8 @@ export const barChart = {
         },
         fill: { colors: ['#f44336'] },
         plotOptions: { bar: { horizontal: false }, },
-    },
-    /* series: [
-        {
-            name: "Veículos",
-            data: values
-        }
-    ] */
-};
+    }
+}
 
 export const donutChart = {
     options: {
