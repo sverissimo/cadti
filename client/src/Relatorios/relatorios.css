@@ -12,3 +12,12 @@
     fill: #f44336 
 }
 
+.relatorioTD:last-child {
+
+    font-weight: 500;
+}
+
+.addSpace {
+    height: 30px;
+}
+

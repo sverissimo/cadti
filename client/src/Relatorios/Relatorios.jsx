@@ -2,8 +2,27 @@ import React, { useState } from 'react'
 import StoreHOC from '../Store/StoreHOC'
 import RelatoriosTemplate from './RelatoriosTemplate'
 
-const Relatorios = props => {
+const sum = array => {
 
+    let newArray = [...array]
+    newArray.shift()
+    const total = newArray.reduce((a, b) => a + b)
+    return total
+}
+
+const average = array => {
+    let newArray = array.map(n => Number(n))
+    newArray.shift()
+
+    const
+        sum = newArray.reduce((a, b) => a + b),
+        average = sum / newArray.length
+
+    return average.toFixed(2)
+}
+
+const Relatorios = props => {
+    
     const
         { veiculos, empresas } = props.redux,
         [razaoSocial, setRazaoSocial] = useState(''),
@@ -35,7 +54,7 @@ const Relatorios = props => {
                 .sort()
 
     let mediaIdades = idades.reduce((a, b) => a + b / idades.length, 0)
-    mediaIdades = new Date().getFullYear() - mediaIdades.toPrecision(4)
+    mediaIdades = (new Date().getFullYear() - mediaIdades).toFixed(2)
 
     // **************************CONTAGEM****************************
 
@@ -46,21 +65,6 @@ const Relatorios = props => {
         }
         counter[e] += 1
     })
-
-
-    /*     const filteredData =
-            selectedVehicles
-                .map(({ anoCarroceria, poltronas }) => {
-                    if (!arr.includes(anoCarroceria)) arr.push(anoCarroceria)
-                    
-                    if (obj[anoCarroceria])
-                        Object.assign(obj, { ...anoCarroceria })
-                    poltronas
-                })
-                .reduce((a, b) => a + b / idades.length, 0)
-    
-     */
-
 
     // *******************CONSOLIDAÇÃO DE VALORES**********************
     const
@@ -81,38 +85,34 @@ const Relatorios = props => {
         ultimateObj[ano] = obj[ano]
         obj = {}
     })
-    let poltronasTotal = 0
 
-    /* ultimateArray.forEach(obj => {
-        Object.keys(obj).forEach(year => {
-            obj[year].forEach(v => {
-                poltronasTotal += v.poltronas
-            })          
-        })
-    }) */
-
-    let parcial = 0, poltronasPerYear = [], poltronasAcc = []
+    let parcial = 0, poltronasPerYear = ['Capacidade Total'], poltronasAcc = [], poltronasMedia = ['Capacidade Média']
 
     Object.keys(ultimateObj).forEach(year => {
         ultimateObj[year].forEach(v => {
             parcial += v.poltronas
         })
-        poltronasTotal += parcial
+        //poltronasTotal += parcial
         poltronasPerYear.push(parcial)
+        poltronasMedia.push((parcial / ultimateObj[year].length).toFixed(2))
+
         const acc = poltronasPerYear.reduce((a, b) => a + b, 0)
         poltronasAcc.push(acc)
         parcial = 0
     })
 
-    console.log(poltronasAcc)
+    poltronasPerYear.push(sum(poltronasPerYear))
 
     let
         tableLabels = ['Ano'],
-        tableValues = ['Veículos']
+        tableValues = ['Nº de Veículos']
 
     tableLabels.push(...labels, 'Total')
     tableValues.push(...values)
+    tableValues.push(sum(tableValues))
+    poltronasMedia.push(average(poltronasMedia))
 
+    const tableData = [tableValues, poltronasMedia, poltronasPerYear]
 
     // **************************MODA****************************
     let moda = unsortedLabels.sort((a, b) => counter[a] - counter[b])
@@ -125,7 +125,7 @@ const Relatorios = props => {
             labels={labels}
             values={values}
             tableLabels={tableLabels}
-            tableValues={tableValues}
+            tableData={tableData}
             selectedEmpresa={selectedEmpresa}
             selectedVehicles={selectedVehicles}
             mediaIdades={mediaIdades}
