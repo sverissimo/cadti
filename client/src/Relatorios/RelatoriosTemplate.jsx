@@ -2,13 +2,14 @@ import React from 'react'
 import Chart from "react-apexcharts";
 import SelectEmpresa from '../Reusable Components/SelectEmpresa'
 import { barChart, donutChart } from './chartsConfig'
+import StandardTable from '../Reusable Components/StandardTable'
 
 import Paper from '@material-ui/core/Paper'
 import './relatorios.css'
 
-const RelatoriosTemplate = ({ empresas, razaoSocial, labels, values, selectedEmpresa, selectedVehicles, mediaIdades, moda, handleInput }) => {
+const RelatoriosTemplate = ({ empresas, razaoSocial, labels, values, tableLabels, tableValues, selectedEmpresa, selectedVehicles, mediaIdades, moda, handleInput }) => {
 
-    const colors = ['#ff7c43', '#ffa600', '#FF9800', '#E91E63', '#f95d6a', '#2E93fA', '#66DA26', '#2f4b7c', '#665191', '#a05195', '#d45087', '#003f5c', '#546E7A']
+    const colors = ['#ff7c43', '#ffa600', '#FF9800', '#f95d6a', '#f44336', '#2E93fA', '#3333ff', '#66DA26', '#669999', '#E91E63', '#d45087', '#a05195', '#665191', '#2f4b7c', '#003f5c',]
 
     return (
         <main >
@@ -45,16 +46,16 @@ const RelatoriosTemplate = ({ empresas, razaoSocial, labels, values, selectedEmp
                                 <thead>
                                     <tr>
                                         <th className='tHeader'
-                                            style={{ backgroundColor: '#4Ea3eA', color: '#fff' }}
-                                            colSpan={labels.length}>Veículos por ano de fabricação - {!selectedEmpresa ? 'Exibindo todos os veículos' : selectedEmpresa.razaoSocial}  </th>
+                                            style={{ color: '#fff', backgroundColor: 'rgb(84, 110, 122, 0.7)' }}
+                                            colSpan={tableLabels.length}>Veículos por ano de fabricação - {!selectedEmpresa ? 'Exibindo todos os veículos' : selectedEmpresa.razaoSocial}  </th>
                                     </tr>
                                     <tr>
-                                        {labels.map((l, i) => <th key={l}>{l}</th>)}
+                                        {tableLabels.map((l, i) => <th key={l}>{l}</th>)}
                                     </tr>
                                 </thead>
                                 <tbody>
                                     <tr>
-                                        {values.map((d, j) =>
+                                        {tableValues.map((d, j) =>
                                             <td className='review' key={j}>
                                                 {d}
                                             </td>

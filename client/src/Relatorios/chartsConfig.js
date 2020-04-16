@@ -29,7 +29,7 @@ export const barChart = {
         dataLabels: {
             enabled: false,
         },
-        fill: { colors: ['#f44336'] },
+      //  fill: { colors: ['rgb(47, 75, 124)'] },
         plotOptions: { bar: { horizontal: false }, },
     }
 }

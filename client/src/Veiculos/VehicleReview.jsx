@@ -1,6 +1,7 @@
 import React, { Fragment } from 'react'
 
 import ShowLocalFiles from '../Utils/ShowLocalFiles'
+import StandardTable from '../Reusable Components/StandardTable'
 
 import Paper from '@material-ui/core/Paper'
 import FileCopyOutlinedIcon from '@material-ui/icons/FileCopyOutlined';
@@ -51,11 +52,17 @@ export default function Revisao({ data, parentComponent, form, filesForm, files 
                     {
                         ultimateData.map(({ subtitle, form, data }, y) =>
                             <Fragment key={y}>
-                                <table>
+                                <StandardTable
+                                    length={form.length}
+                                    title={subtitle}
+                                    labels={form.map(s=> s.label)}
+                                    values={Object.values(data)}
+                                />
+                               {/*  <table>
                                     <thead>
                                         <tr>
                                             <th className='tHeader'
-                                                colSpan={form.length}>{subtitle}</th>
+                                                colSpan={length}>{subtitle}</th>
                                         </tr>
                                         <tr>
                                             {form.map((s, i) => <th key={i}>{s.label}</th>)}
@@ -70,7 +77,7 @@ export default function Revisao({ data, parentComponent, form, filesForm, files 
                                             )}
                                         </tr>
                                     </tbody>
-                                </table>
+                                </table> */}
 
                             </Fragment>
                         )}
