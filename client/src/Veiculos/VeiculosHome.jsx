@@ -61,7 +61,7 @@ export default function VeiculosHome(props) {
                 {
                     menuCards.map(({ title, link, imageUrl, description }, i) =>
                         <Link to={match.url + link} key={i} className="card">                            
-                                <span className="cardImage"> <img src={imageUrl} alt="tst" /> </span>
+                                <span className="cardImage"> <img src={imageUrl} alt={title} /> </span>
                                 <div className="cardText">
                                     <h3 >{title}</h3>
                                     <p > {description}</p>

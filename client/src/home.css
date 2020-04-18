@@ -3,8 +3,8 @@
     margin-bottom: 30px;
     padding: 54px 0 54px 15px;
     color: white;
-    position: relative;    
-    z-index: 1;    
+    position: relative;
+    z-index: 1;
     font-size: 50px;
     line-height: 100vh;
 }
@@ -19,7 +19,7 @@
     background-repeat: no-repeat;
     height: 100%;
     width: 100%;
-    content: '';    
+    content: '';
     filter: brightness(75%);
     z-index: -1;
 }
@@ -38,4 +38,61 @@
     font-weight: 400;
     line-height: 1.334;
     letter-spacing: 0em;
+}
+
+.homeCardsContainer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;    
+}
+
+.homeCard {
+    display: flex;
+    flex-wrap: wrap;    
+    width: 290px;
+    background-color: white;
+    margin-bottom: 30px;    
+    border-radius: 4%;
+    color: black;
+    box-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.15), 0px 1px 1px 0px rgba(0, 0, 0, 0.1), 0px 1px 3px 0px rgba(0, 0, 0, 0.09);
+    height:160px
+}
+
+
+.homeCard:hover {    
+    cursor: pointer;
+}
+
+.homeCardText {
+    width: 45%;    
+    text-decoration: none;
+    padding: 10px 0 10px 10px !important;
+}
+
+h6.homeCardText {
+    text-decoration: none;
+    margin-bottom: auto;    
+}
+
+p.homeCardText {    
+    width: 100%;    
+    font-size: 8pt;        
+    text-decoration: none;
+    margin: 0;
+}
+
+div.homeImage {    
+    width: 55%;      
+    text-align: center;    
+}
+
+img.homeImage {
+    width: 150px;
+    height: 160px;    
+}
+
+.homeCardLink {
+    font-size: 9pt; 
+    color: rgb(62, 62, 182);
+    padding-left: 10px;
 }
