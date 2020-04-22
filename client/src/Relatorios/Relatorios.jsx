@@ -1,38 +1,48 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import StoreHOC from '../Store/StoreHOC'
 import RelatoriosTemplate from './RelatoriosTemplate'
+import moment from 'moment'
 
 const sum = array => {
-
     let newArray = [...array]
     newArray.shift()
-    const total = newArray.reduce((a, b) => a + b)
-    return total
+    if (newArray[0]) {
+        const total = newArray.reduce((a, b) => a + b)
+        return total
+    }
 }
 
 const average = array => {
     let newArray = array.map(n => Number(n))
     newArray.shift()
 
-    const
-        sum = newArray.reduce((a, b) => a + b),
-        average = sum / newArray.length
+    if (newArray[0]) {
+        const
+            sum = newArray.reduce((a, b) => a + b),
+            average = sum / newArray.length
 
-    return average.toFixed(2)
+        return average.toFixed(2)
+    }
 }
 
 const Relatorios = props => {
-    
+
     const
         { veiculos, empresas } = props.redux,
         [razaoSocial, setRazaoSocial] = useState(''),
-        [selectedEmpresa, setEmpresa] = useState(undefined)
+        [selectedEmpresa, setEmpresa] = useState(undefined),
+        [allExpired, setExpired] = useState(''),
+        [allValid, setValid] = useState('')
 
     const handleInput = e => {
         const { value } = e.target
         setRazaoSocial(value)
-        const empresa = empresas.find(e => e.razaoSocial === value)
-        if (empresa) setEmpresa(empresa)
+        let empresa
+
+        if (value.length > 2) {
+            empresa = empresas.find(e => e.razaoSocial === value)
+            if (empresa) setEmpresa(empresa)
+        }
         else setEmpresa('')
     }
 
@@ -118,6 +128,56 @@ const Relatorios = props => {
     let moda = unsortedLabels.sort((a, b) => counter[a] - counter[b])
     moda = moda[moda.length - 1]
 
+    //**********************SEGUROS VENCIDOS***********************
+
+    useEffect(() => {
+        const expired =
+            selectedVehicles
+                .filter(r => {
+                    if (r.vencimento && moment(r.vencimento).isValid()) {
+                        if (moment(r.vencimento).isBefore(moment()) && r.veiculoId) return r
+                    }
+                    return
+                })
+                .length
+        //.map(v => v.veiculoId)
+        setExpired(expired)
+        setValid(selectedVehicles.length - expired)
+    }, [])
+
+    /* 
+ 
+    useEffect(() => {
+        const expired = selectedVehicles
+            .filter(r => {
+                if (r.vencimento && moment(r.vencimento).isValid()) {
+                    if (moment(r.vencimento).isBefore(moment()) && r.veiculoId) return r
+                }
+                return
+            })
+            .map(v => v.veiculoId)
+        setExpired(expired)
+    }, [selectedEmpresa]) */
+
+    let segurosVencidos = [], segurosVigentes
+    if (razaoSocial.length > 2 && selectedEmpresa) {
+        segurosVencidos = selectedVehicles
+            .filter(r => {
+                if (r.vencimento && moment(r.vencimento).isValid()) {
+                    if (moment(r.vencimento).isBefore(moment()) && r.veiculoId) return r
+                }
+                return
+            }).length
+        segurosVigentes = selectedVehicles.length - segurosVencidos
+    }
+    else {
+        segurosVencidos = allExpired
+        segurosVigentes = allValid
+    }
+
+
+    //.map(v => v.veiculoId)
+
     return (
         <RelatoriosTemplate
             empresas={empresas}
@@ -131,6 +191,8 @@ const Relatorios = props => {
             mediaIdades={mediaIdades}
             moda={moda}
             handleInput={handleInput}
+            segurosVencidos={segurosVencidos}
+            segurosVigentes={segurosVigentes}
         />
     )
 }

@@ -28,9 +28,14 @@ const { empresaChunks } = require('./models/chunksModel')
 
 const { uploadFS } = require('./upload')
 const { parseRequestBody } = require('./parseRequest')
+const { getExpired } = require('./getExpired')
+//const { job } = require('./reportGenerator')
+//job.start()
 
 dotenv.config()
 app.use(bodyParser.json());
+
+
 
 app.use(function (req, res, next) { //allow cross origin requests
     res.setHeader("Access-Control-Allow-Methods", "POST, PUT, OPTIONS, DELETE, GET")
@@ -43,6 +48,8 @@ app.use(function (req, res, next) { //allow cross origin requests
 app.use(bodyParser.json({ limit: '50mb' }))
 app.use(bodyParser.urlencoded())
 app.use(express.static('client/build'))
+
+app.get('/tst', getExpired)
 
 const mongoURI = (process.env.MONGODB_URI || 'mongodb://localhost:27017/sismob_db')
 mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true, debug: true })
@@ -459,7 +466,7 @@ app.put('/api/changeApoliceNumber', async (req, res) => {
             pool.query(seguros, (err, t) => {
                 if (err) console.log(err)
                 if (t && t.rows) io.sockets.emit('updateInsurance', t.rows)
-                res.send('updated. ok.')                
+                res.send('updated. ok.')
             })
         }
     })

@@ -6,7 +6,9 @@ import { barChart, donutChart } from './chartsConfig'
 import Paper from '@material-ui/core/Paper'
 import './relatorios.css'
 
-const RelatoriosTemplate = ({ empresas, razaoSocial, labels, values, tableLabels, tableData, selectedEmpresa, selectedVehicles, mediaIdades, moda, handleInput }) => {
+const RelatoriosTemplate = (
+    { empresas, razaoSocial, selectedEmpresa, selectedVehicles,
+        labels, values, tableLabels, tableData, mediaIdades, moda, handleInput, segurosVencidos, segurosVigentes }) => {
 
     const colors = ['#ff7c43', '#ffa600', '#FF9800', '#f95d6a', '#f44336', '#2E93fA', '#3333ff', '#66DA26', '#669999', '#E91E63', '#d45087', '#a05195', '#665191', '#2f4b7c', '#003f5c',]
 
@@ -68,7 +70,22 @@ const RelatoriosTemplate = ({ empresas, razaoSocial, labels, values, tableLabels
                             </table>
                         </section>
                     </Paper>
-                    <div className="addSpace"> </div>
+                    {/* <div className="addSpace"> </div> */}
+                    <section className='rowContainer'>
+                        <Chart
+                            options={{
+                                title: {
+                                    ...donutChart.options.title,
+                                    text: `Seguros vencidos: ${segurosVencidos} / vigentes: ${segurosVigentes}`,                                    
+                                },
+                                labels: ['Seguros vencidos', 'Seguros vigentes'],                               
+                            }}
+                            series={[Number(segurosVencidos), Number(segurosVigentes)]}
+                            type="donut"
+                            width="400"
+                        />
+                    </section>
+
                 </>
             }
         </main >
