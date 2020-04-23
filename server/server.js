@@ -6,13 +6,18 @@ const bodyParser = require('body-parser')
 const path = require('path')
 const dotenv = require('dotenv')
 const mongoose = require('mongoose')
-const multer = require('multer')
-const GridFsStorage = require('multer-gridfs-storage')
+const { conn } = require('./mongo/mongoConfig')
+//const multer = require('multer')
+//const GridFsStorage = require('multer-gridfs-storage')
 const Grid = require('gridfs-stream')
 Grid.mongo = mongoose.mongo
 
 const { pool } = require('./config/pgConfig')
+const { setCorsHeader } = require('./config/setCorsHeader')
 const { apiGetRouter } = require('./apiGetRouter')
+
+const { mongoUpload } = require('./mongo/mongoUpload')
+const { mongoDownload, getFilesMetadata, getOneFileMetadata } = require('./mongo/mongoDownload')
 
 const { cadEmpresa } = require('./cadEmpresa')
 const { cadSocios } = require('./cadSocios')
@@ -22,200 +27,45 @@ const { seguros, socios, lookup } = require('./queries')
 
 const { fieldParser } = require('./fieldParser')
 const { getUpdatedData } = require('./getUpdatedData')
-const { filesModel } = require('./models/filesModel')
-const { empresaModel } = require('./models/empresaModel')
-const { empresaChunks } = require('./models/chunksModel')
+const { empresaChunks } = require('./mongo/models/chunksModel')
 
 const { uploadFS } = require('./upload')
 const { parseRequestBody } = require('./parseRequest')
-const { getExpired } = require('./getExpired')
+//const { getExpired } = require('./getExpired')
 //const { job } = require('./reportGenerator')
 //job.start()
 
 dotenv.config()
-app.use(bodyParser.json());
 
-
-
-app.use(function (req, res, next) { //allow cross origin requests
-    res.setHeader("Access-Control-Allow-Methods", "POST, PUT, OPTIONS, DELETE, GET")
-    res.header("Access-Control-Allow-Origin", "*")
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization")
-    res.header("Access-Control-Allow-Credentials", true)
-    next()
-})
-
+app.use(setCorsHeader)
 app.use(bodyParser.json({ limit: '50mb' }))
 app.use(bodyParser.urlencoded())
 app.use(express.static('client/build'))
 
-app.get('/tst', getExpired)
+//app.get('/tst', getExpired)
 
-const mongoURI = (process.env.MONGODB_URI || 'mongodb://localhost:27017/sismob_db')
-mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true, debug: true })
-
-const conn = mongoose.connection
+//************************************ BINARY DATA *********************** */
 let gfs
-
 conn.on('error', console.error.bind(console, 'connection error:'))
 conn.once('open', () => {
     gfs = Grid(conn.db);
     gfs.collection('vehicleDocs')
-    console.log('Mongo connected!')
+    console.log('Mongo server...')
 })
 
-const storage = new GridFsStorage({
 
-    url: mongoURI,
-    file: (req, file) => {
-        gfs.collection('vehicleDocs');
+app.post(`/api/${'empresaUpload|vehicleUpload'}`, mongoUpload, (req, res) => {
 
-        let metadata = { ...req.body }
-        metadata.fieldName = file.fieldname
-
-        const fileInfo = {
-            filename: file.originalname,
-            metadata,
-            bucketName: 'vehicleDocs',
-        }
-        return fileInfo
-    }
+    const { collection, filesArray } = req
+    io.sockets.emit('insertFiles', { collection, insertedObjects: filesArray })
+    res.json({ files: filesArray });
 })
 
-const empresaStorage = new GridFsStorage({
+app.get('/api/mongoDownload/', (req, res) => { mongoDownload(req, res, gfs) })
 
-    url: mongoURI,
-    file: (req, file) => {
-        gfs.collection('empresaDocs')
-        const { fieldName, empresaId, procuracaoId } = req.body
-        let { procuradores, socios } = req.body
+app.get('/api/getFiles/:collection', getFilesMetadata)
 
-        if (procuradores) {
-            procuradores = procuradores.split(',')
-            procuradores = procuradores.map(id => Number(id))
-        }
-        if (socios) {
-            socios = socios.split(',')
-            socios = socios.map(id => Number(id))
-        }
-
-        let fileInfo = {
-            filename: file.originalname,
-            metadata: {
-                'fieldName': fieldName,
-                'empresaId': empresaId,
-                'procuracaoId': procuracaoId,
-                'procuradores': procuradores
-            },
-            bucketName: 'empresaDocs',
-        }
-
-        if (file.fieldname === 'contratoSocial') {
-            fileInfo.metadata = {
-                'fieldName': file.fieldname,
-                'empresaId': empresaId,
-                'socios': socios
-            }
-        } else if (file.fieldname === 'apoliceDoc') {
-            let { ...metadata } = req.body
-            fileInfo.metadata = metadata
-        }
-        return fileInfo
-    }
-})
-
-const upload = multer({ storage })
-const empresaUpload = multer({ storage: empresaStorage })
-
-app.post('/api/empresaUpload', empresaUpload.any(), (req, res) => {
-
-    let filesArray = []
-    if (req.files) req.files.forEach(f => {
-        filesArray.push({
-            id: f.id,
-            length: f.size,
-            chunkSize: f.chunkSize,
-            uploadDate: f.uploadDate,
-            filename: f.originalname,
-            md5: f.md5,
-            contentType: f.contentType,
-            metadata: f.metadata
-        })
-    })
-    io.sockets.emit('insertFiles', { insertedObjects: filesArray, collection: 'empresaDocs' })
-    res.json({ file: filesArray });
-})
-
-app.post('/api/mongoUpload', upload.any(), (req, res) => {
-
-    let filesArray = []
-    if (req.files) req.files.forEach(f => {
-        filesArray.push({
-            id: f.id,
-            length: f.size,
-            chunkSize: f.chunkSize,
-            uploadDate: f.uploadDate,
-            filename: f.originalname,
-            md5: f.md5,
-            contentType: f.contentType,
-            metadata: f.metadata
-        })
-    })
-    io.sockets.emit('insertFiles', { insertedObjects: filesArray, collection: 'vehicleDocs' })
-    res.json({ file: filesArray });
-})
-
-app.get('/api/mongoDownload/', (req, res) => {
-
-    console.log(typeof req.query.id, req.query.id)
-    const fileId = new mongoose.mongo.ObjectId(req.query.id)
-
-    const collection = req.query.collection
-
-    gfs.collection(collection)
-    gfs.files.findOne({ _id: fileId }, (err, file) => {
-
-        if (!file) {
-            return res.status(404).json({
-                responseMessage: err,
-            })
-        } else {
-
-            const readstream = gfs.createReadStream({
-                filename: file.filename,
-            });
-
-            res.set({
-                'Content-Type': file.contentType,
-                'Content-Disposition': 'attachment',
-            });
-            return readstream.pipe(res)
-        }
-    })
-})
-
-app.get('/api/getFiles/:collection', (req, res) => {
-
-    let filesCollection, fieldName
-
-    if (req.params.collection === 'vehicleDocs') filesCollection = filesModel
-    if (req.params.collection === 'empresaDocs') filesCollection = empresaModel
-    if (req.query.fieldName) fieldName = { 'metadata.fieldName': req.query.fieldName }
-
-    filesCollection.find(fieldName).sort({ uploadDate: -1 }).exec((err, doc) => res.send(doc))
-
-})
-
-app.get('/api/getOneFile/', (req, res) => {
-
-    const { collection, id } = req.query
-
-    let filesCollection = empresaModel
-    if (collection === 'vehicleDocs') filesCollection = filesModel
-
-    filesCollection.find({ 'metadata.procuracaoId': id.toString() }).exec((err, doc) => res.send(doc))
-
-})
+app.get('/api/getOneFile/', getOneFileMetadata)
 
 app.post('/api/upload', uploadFS)
 
@@ -227,12 +77,10 @@ app.get('/api/download', (req, res) => {
     });
 
     //const pathZ = path.resolve(__dirname, '../files', 'delegas.xls')
-    /* const stream = fs.createReadStream(fPath, { autoClose: true })
-
+    /* const stream = fs.createReadStream(fPath, { autoClose: true }) 
     stream.on('close', () => res.end())
     stream.pipe(res) */
     res.download(fPath)
-
 })
 
 //************************************ GET METHOD ROUTES *********************** */

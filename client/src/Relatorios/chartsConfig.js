@@ -40,6 +40,7 @@ export const donutChart = {
             text: 'Percentual de veículos por ano de fabricação',
             align: 'center',
             marginTop: 10,
+            marginBottom: 20,
             offsetX: 0,
             offsetY: 0,
             floating: false,

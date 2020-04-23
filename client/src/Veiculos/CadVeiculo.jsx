@@ -419,7 +419,7 @@ class VeiculosContainer extends PureComponent {
         for (let pair of newForm.entries()) {
             console.log(pair[0], pair[1])
         }
-        if (newForm) await axios.post('/api/mongoUpload', newForm)
+        if (newForm) await axios.post('/api/vehicleUpload', newForm)
             .then(res => console.log(res.data))
             .catch(err => console.log(err))
         if (seguroForm) await axios.post('/api/empresaUpload', seguroForm)

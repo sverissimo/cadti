@@ -1,4 +1,3 @@
-
 .rowContainer {
     display: flex;
     flex-direction: row;
@@ -9,11 +8,10 @@
 }
 
 .apexcharts-bar-area {
-    fill: #f44336 
+    fill: #f44336
 }
 
 .relatorioTD:last-child {
-
     font-weight: 500;
 }
 
@@ -21,3 +19,11 @@
     height: 30px;
 }
 
+div.apexcharts-legend:first-child {
+    padding-top: 25px;
+}
+
+div.apexcharts-legend{
+padding-right: 25px;
+padding-left: 0;
+}

@@ -81,7 +81,7 @@ const RelatoriosTemplate = (
                                 labels: ['Seguros vencidos', 'Seguros vigentes'],                               
                             }}
                             series={[Number(segurosVencidos), Number(segurosVigentes)]}
-                            type="donut"
+                            type="pie"
                             width="400"
                         />
                     </section>

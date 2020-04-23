@@ -285,7 +285,7 @@ class AltDados extends Component {
 
                 altDadosFiles.forEach(({ name }) => {
                     for (let keys in this.state) {
-                        if (keys.match(name)) {
+                        if (keys.match(name) && this.state[name]) {
                             formData.append(name, this.state[name])
                         }
                         else void 0
@@ -299,7 +299,7 @@ class AltDados extends Component {
     submitFiles = () => {
         const { form } = this.state
 
-        axios.post('/api/mongoUpload', form)
+        axios.post('/api/vehicleUpload', form)
             .then(res => console.log('uploaded'))
             .catch(err => console.log(err))
     }
