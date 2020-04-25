@@ -1,90 +1,184 @@
 const mongoose = require('mongoose')
+const { conn } = require('./mongoConfig')
 const multer = require('multer')
 const GridFsStorage = require('multer-gridfs-storage')
 const Grid = require('gridfs-stream')
 Grid.mongo = mongoose.mongo
+const { mongoURI } = require('./mongoConfig')
 
-const { mongoURI, gfsPromise } = require('./mongoConfig')
+let gfs
 
-const vehicleStorage = new GridFsStorage({
-
-    url: mongoURI,
-    file: (req, file) => {
-        gfsPromise.then(gfs => gfs.collection('vehicleDocs'));
-
-        let metadata = { ...req.body }
-        Object.keys(metadata).forEach(field => {
-            if (!metadata[field]) delete metadata[field]
-        })
-
-        metadata.fieldName = file.fieldname
-
-        const fileInfo = {
-            filename: file.originalname,
-            metadata,
-            bucketName: 'vehicleDocs',
-        }
-        return fileInfo
-    }
+conn.on('error', console.error.bind(console, 'connection error:'))
+conn.once('open', () => {
+    gfs = Grid(conn.db);
+    gfs.collection('vehicleDocs')
 })
 
-const empresaStorage = new GridFsStorage({
+const storage2 = () => {
 
-    url: mongoURI,
-    file: (req, file) => {
-        gfsPromise.then(gfs => gfs.collection('empresaDocs'))
-        const { fieldName, empresaId, procuracaoId } = req.body
-        let { procuradores, socios } = req.body
+    console.log(gfs)
+    const vehicleStorage = new GridFsStorage({
 
-        if (procuradores) {
-            procuradores = procuradores.split(',')
-            procuradores = procuradores.map(id => Number(id))
-        }
-        if (socios) {
-            socios = socios.split(',')
-            socios = socios.map(id => Number(id))
-        }
+        url: mongoURI,
+        file: (req, file) => {
+            gfs.collection('vehicleDocs');
+            let metadata = { ...req.body }
+            Object.keys(metadata).forEach(field => {
+                if (!metadata[field]) delete metadata[field]
+            })
 
-        let fileInfo = {
-            filename: file.originalname,
-            metadata: {
-                'fieldName': fieldName,
-                'empresaId': empresaId,
-                'procuracaoId': procuracaoId,
-                'procuradores': procuradores
-            },
-            bucketName: 'empresaDocs',
-        }
+            metadata.fieldName = file.fieldname
 
-        if (file.fieldname === 'contratoSocial') {
-            fileInfo.metadata = {
-                'fieldName': file.fieldname,
-                'empresaId': empresaId,
-                'socios': socios
+            const fileInfo = {
+                filename: file.originalname,
+                metadata,
+                bucketName: 'vehicleDocs',
             }
-        } else if (file.fieldname === 'apoliceDoc') {
-            let { ...metadata } = req.body
-            fileInfo.metadata = metadata
+            return fileInfo
         }
-        return fileInfo
-    }
-})
+    })
 
-const vehicleUpload = multer({ storage: vehicleStorage })
-const empresaUpload = multer({ storage: empresaStorage })
+    const empresaStorage = new GridFsStorage({
 
-let fileUpload = vehicleUpload
+        url: mongoURI,
+        file: (req, file) => {
+            gfs.collection('empresaDocs')
+            const { fieldName, empresaId, procuracaoId } = req.body
+            let { procuradores, socios } = req.body
+
+            if (procuradores) {
+                procuradores = procuradores.split(',')
+                procuradores = procuradores.map(id => Number(id))
+            }
+            if (socios) {
+                socios = socios.split(',')
+                socios = socios.map(id => Number(id))
+            }
+
+            let fileInfo = {
+                filename: file.originalname,
+                metadata: {
+                    'fieldName': fieldName,
+                    'empresaId': empresaId,
+                    'procuracaoId': procuracaoId,
+                    'procuradores': procuradores
+                },
+                bucketName: 'empresaDocs',
+            }
+
+            if (file.fieldname === 'contratoSocial') {
+                fileInfo.metadata = {
+                    'fieldName': file.fieldname,
+                    'empresaId': empresaId,
+                    'socios': socios
+                }
+            } else if (file.fieldname === 'apoliceDoc') {
+                let { ...metadata } = req.body
+                fileInfo.metadata = metadata
+            }
+            return fileInfo
+        }
+    })
+
+    const
+        vehicleUpload = multer({ storage: vehicleStorage }),
+        empresaUpload = multer({ storage: empresaStorage })
+
+    return { empresaUpload, vehicleUpload }
+}
+
+module.exports = { storage2 }
+
+
+
+/*
+
+const storage = (req, res, next, gfs) => {
+
+    const vehicleStorage = new GridFsStorage({
+
+        url: mongoURI,
+        file: (req, file) => {
+            gfs.collection('vehicleDocs');
+            let metadata = { ...req.body }
+            Object.keys(metadata).forEach(field => {
+                if (!metadata[field]) delete metadata[field]
+            })
+
+            metadata.fieldName = file.fieldname
+
+            const fileInfo = {
+                filename: file.originalname,
+                metadata,
+                bucketName: 'vehicleDocs',
+            }
+            return fileInfo
+        }
+    })
+
+    const empresaStorage = new GridFsStorage({
+
+        url: mongoURI,
+        file: (req, file) => {
+            gfs.collection('empresaDocs')
+            const { fieldName, empresaId, procuracaoId } = req.body
+            let { procuradores, socios } = req.body
+
+            if (procuradores) {
+                procuradores = procuradores.split(',')
+                procuradores = procuradores.map(id => Number(id))
+            }
+            if (socios) {
+                socios = socios.split(',')
+                socios = socios.map(id => Number(id))
+            }
+
+            let fileInfo = {
+                filename: file.originalname,
+                metadata: {
+                    'fieldName': fieldName,
+                    'empresaId': empresaId,
+                    'procuracaoId': procuracaoId,
+                    'procuradores': procuradores
+                },
+                bucketName: 'empresaDocs',
+            }
+
+            if (file.fieldname === 'contratoSocial') {
+                fileInfo.metadata = {
+                    'fieldName': file.fieldname,
+                    'empresaId': empresaId,
+                    'socios': socios
+                }
+            } else if (file.fieldname === 'apoliceDoc') {
+                let { ...metadata } = req.body
+                fileInfo.metadata = metadata
+            }
+            return fileInfo
+        }
+    })
+
+    const
+        vehicleUpload = multer({ storage: vehicleStorage }),
+        empresaUpload = multer({ storage: empresaStorage })
+    req.storage = { empresaUpload, vehicleUpload }
+
+    next()
+}
 
 const uploadRouter = (req, res, next) => {
+    const
+        { url, storage } = req,
+        { empresaUpload, vehicleUpload } = storage
 
-    const { url } = req    
     switch (url) {
         case '/api/empresaUpload':
-            fileUpload = empresaUpload
+            req.fileUpload = empresaUpload
             req.collection = 'empresaDocs'
             break
+
         case '/api/vehicleUpload':
-            fileUpload = vehicleUpload
+            req.fileUpload = vehicleUpload
             req.collection = 'vehicleDocs'
             break
         default: return
@@ -93,7 +187,7 @@ const uploadRouter = (req, res, next) => {
 }
 
 const uploadMetadata = (req, res, next) => {
-    
+    console.log('33333333333333333333333')
     let filesArray = []
     if (req.files) req.files.forEach(f => {
         filesArray.push({
@@ -111,6 +205,12 @@ const uploadMetadata = (req, res, next) => {
     next()
 }
 
-const mongoUpload = [uploadRouter, fileUpload.any(), uploadMetadata]
+const mongoUpload = (req, res, next) => {
+    const { collection, fileUpload } = req
 
-module.exports = { mongoUpload }
+    console.log('#############', collection, '$$$$$$$$$$$$$$$$$$$$$$%%%%%%%%%%%%%%%%%%%%%%', fileUpload)
+
+    return uploadMetadata
+}
+module.exports = { storage, mongoUpload, uploadRouter, uploadMetadata }
+ */

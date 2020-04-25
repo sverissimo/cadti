@@ -37,3 +37,22 @@ const uploadFS = (req, res) => {
 }
 
 module.exports = { uploadFS }
+
+
+//*************************************FILESYSTEM UPLOAD AND DOWNLOAD REQUESTS*****************************************
+/* 
+app.post('/api/upload', uploadFS)
+
+app.get('/api/download', (req, res) => {
+    const fPath = path.join(__dirname, '../files', 'a.txt')
+    res.set({
+        'Content-Type': 'text',
+        'Content-Disposition': 'attachment'
+    });
+
+    const pathZ = path.resolve(__dirname, '../files', 'delegas.xls')
+    const stream = fs.createReadStream(fPath, { autoClose: true }) 
+    stream.on('close', () => res.end())
+    stream.pipe(res)
+    res.download(fPath)
+}) */

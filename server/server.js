@@ -16,7 +16,7 @@ const { pool } = require('./config/pgConfig')
 const { setCorsHeader } = require('./config/setCorsHeader')
 const { apiGetRouter } = require('./apiGetRouter')
 
-const { mongoUpload } = require('./mongo/mongoUpload')
+const { storage2, uploadRouter, uploadMetadata } = require('./mongo/mongoUpload')
 const { mongoDownload, getFilesMetadata, getOneFileMetadata } = require('./mongo/mongoDownload')
 
 const { cadEmpresa } = require('./cadEmpresa')
@@ -50,38 +50,55 @@ conn.on('error', console.error.bind(console, 'connection error:'))
 conn.once('open', () => {
     gfs = Grid(conn.db);
     gfs.collection('vehicleDocs')
-    console.log('Mongo server...')
+    console.log('Mongo connected to the server.')
+})
+
+const { vehicleUpload, empresaUpload } = storage2()
+
+app.post('/api/empresaUpload', empresaUpload.any(), (req, res) => {
+
+    let filesArray = []
+    if (req.files) req.files.forEach(f => {
+        filesArray.push({
+            id: f.id,
+            length: f.size,
+            chunkSize: f.chunkSize,
+            uploadDate: f.uploadDate,
+            filename: f.originalname,
+            md5: f.md5,
+            contentType: f.contentType,
+            metadata: f.metadata
+        })
+    })
+    io.sockets.emit('insertFiles', { insertedObjects: filesArray, collection: 'empresaDocs' })
+    res.json({ file: filesArray });
+})
+
+app.post('/api/mongoUpload', vehicleUpload.any(), (req, res) => {
+
+    let filesArray = []
+    if (req.files) req.files.forEach(f => {
+        filesArray.push({
+            id: f.id,
+            length: f.size,
+            chunkSize: f.chunkSize,
+            uploadDate: f.uploadDate,
+            filename: f.originalname,
+            md5: f.md5,
+            contentType: f.contentType,
+            metadata: f.metadata
+        })
+    })
+    io.sockets.emit('insertFiles', { insertedObjects: filesArray, collection: 'vehicleDocs' })
+    res.json({ file: filesArray });
 })
 
 
-app.post(`/api/${'empresaUpload|vehicleUpload'}`, mongoUpload, (req, res) => {
+app.get('/api/mongoDownload/', (req, res) => mongoDownload(req, res, gfs))
 
-    const { collection, filesArray } = req
-    io.sockets.emit('insertFiles', { collection, insertedObjects: filesArray })
-    res.json({ files: filesArray });
-})
-
-app.get('/api/mongoDownload/', (req, res) => { mongoDownload(req, res, gfs) })
-
-app.get('/api/getFiles/:collection', getFilesMetadata)
+app.get('/api/getFiles/:collection', (req, res) => getFilesMetadata(req, res, gfs))
 
 app.get('/api/getOneFile/', getOneFileMetadata)
-
-app.post('/api/upload', uploadFS)
-
-app.get('/api/download', (req, res) => {
-    const fPath = path.join(__dirname, '../files', 'a.txt')
-    res.set({
-        'Content-Type': 'text',
-        'Content-Disposition': 'attachment'
-    });
-
-    //const pathZ = path.resolve(__dirname, '../files', 'delegas.xls')
-    /* const stream = fs.createReadStream(fPath, { autoClose: true }) 
-    stream.on('close', () => res.end())
-    stream.pipe(res) */
-    res.download(fPath)
-})
 
 //************************************ GET METHOD ROUTES *********************** */
 
