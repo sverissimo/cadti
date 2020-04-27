@@ -8,7 +8,7 @@ import './relatorios.css'
 
 const RelatoriosTemplate = (
     { empresas, razaoSocial, selectedEmpresa, selectedVehicles,
-        labels, values, tableLabels, tableData, mediaIdades, moda, handleInput, segurosVencidos, segurosVigentes }) => {
+        labels, values, tableLabels, tableData, mediaIdades, moda, handleInput, segurosVencidos, segurosVigentes, oldVehicles }) => {
 
     const colors = ['#ff7c43', '#ffa600', '#FF9800', '#f95d6a', '#f44336', '#2E93fA', '#3333ff', '#66DA26', '#669999', '#E91E63', '#d45087', '#a05195', '#665191', '#2f4b7c', '#003f5c',]
 
@@ -76,13 +76,28 @@ const RelatoriosTemplate = (
                             options={{
                                 title: {
                                     ...donutChart.options.title,
-                                    text: `Seguros vencidos: ${segurosVencidos} / vigentes: ${segurosVigentes}`,                                    
+                                    text: `Seguros vencidos: ${segurosVencidos} / vigentes: ${segurosVigentes}`,
                                 },
-                                labels: ['Seguros vencidos', 'Seguros vigentes'],                               
+                                labels: ['Seguros vencidos', 'Seguros vigentes'],
+                                colors: ['#FF9800', '#3333ff']
                             }}
                             series={[Number(segurosVencidos), Number(segurosVigentes)]}
                             type="pie"
                             width="400"
+                        />
+                        <Chart
+                            options={{
+                                title: {
+                                    ...donutChart.options.title,
+                                    text: `Idade superior a 15 anos: ${oldVehicles} / inferior 15 anos: ${selectedVehicles.length - oldVehicles}`,
+                                },
+                                labels: ['Veículos com mais de 15 anos', 'Veículos com menos de 15 anos'],
+                                colors: ['#f44336', '#2E93fA']
+                            }}
+                            series={[Number(oldVehicles), Number(selectedVehicles.length - oldVehicles)]}
+                            type="pie"
+                            width="420"
+                            height='220'
                         />
                     </section>
 

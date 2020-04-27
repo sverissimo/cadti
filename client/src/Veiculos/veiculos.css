@@ -186,7 +186,7 @@ table {
 
 .tHeader {
     margin-top: 2%;
-    color: #000;          
+    color: #000;
     background-color: rgb(84, 110, 122, 0.6);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     font-size: 15px;
@@ -248,4 +248,43 @@ td.MuiTableCell-root {
     font-size: 0.75rem;
     padding: 10px 0;
     cursor: pointer
+}
+
+.placasContainer {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.placasContainer>div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: rgb(136, 13, 13);
+    color: white;
+    height: 36px;
+    width: 90px;
+    padding: 2px 08px;
+    margin: 15px;
+    border: 2px solid black;
+    border-radius: 5%;
+    font-weight: 300;
+    cursor: pointer;
+}
+
+.placasContainer:last-child{
+    justify-content: flex-start;
+}
+
+.placaCity {
+    font-size: 7px;    
+    height: 25%;
+    padding: 0 0 10px 0;
+}
+
+.placaCode {
+    font-size: 12px;
+    height: 75%;
+    padding: 5px 0;
 }

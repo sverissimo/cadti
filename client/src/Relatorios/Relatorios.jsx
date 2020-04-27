@@ -32,7 +32,8 @@ const Relatorios = props => {
         [razaoSocial, setRazaoSocial] = useState(''),
         [selectedEmpresa, setEmpresa] = useState(undefined),
         [allExpired, setExpired] = useState(''),
-        [allValid, setValid] = useState('')
+        [allValid, setValid] = useState(''),
+        [oldVehicles, setOldVehicles] = useState('')
 
     const handleInput = e => {
         const { value } = e.target
@@ -129,37 +130,30 @@ const Relatorios = props => {
     moda = moda[moda.length - 1]
 
     //**********************SEGUROS VENCIDOS***********************
-
+    const currentYear = new Date().getFullYear()
     useEffect(() => {
-        const expired =
-            selectedVehicles
-                .filter(r => {
-                    if (r.vencimento && moment(r.vencimento).isValid()) {
-                        if (moment(r.vencimento).isBefore(moment()) && r.veiculoId) return r
-                    }
-                    return
-                })
+        const
+            expired =
+                selectedVehicles
+                    .filter(r => {
+                        if (r.vencimento && moment(r.vencimento).isValid()) {
+                            if (moment(r.vencimento).isBefore(moment()) && r.veiculoId) return r
+                        }
+                        return
+                    })
+                    .length,
+
+            needsLaudo = selectedVehicles
+                .filter(v => currentYear - v.anoCarroceria > 14 && v.anoCarroceria !== null)
                 .length
-        //.map(v => v.veiculoId)
+
         setExpired(expired)
         setValid(selectedVehicles.length - expired)
+        setOldVehicles(needsLaudo)
     }, [])
 
-    /* 
- 
-    useEffect(() => {
-        const expired = selectedVehicles
-            .filter(r => {
-                if (r.vencimento && moment(r.vencimento).isValid()) {
-                    if (moment(r.vencimento).isBefore(moment()) && r.veiculoId) return r
-                }
-                return
-            })
-            .map(v => v.veiculoId)
-        setExpired(expired)
-    }, [selectedEmpresa]) */
+    let segurosVencidos = [], segurosVigentes, veiculosAntigos, veiculosNovos
 
-    let segurosVencidos = [], segurosVigentes
     if (razaoSocial.length > 2 && selectedEmpresa) {
         segurosVencidos = selectedVehicles
             .filter(r => {
@@ -168,15 +162,20 @@ const Relatorios = props => {
                 }
                 return
             }).length
+
+        veiculosAntigos = selectedVehicles
+            .filter(v => currentYear - v.anoCarroceria > 14 && v.anoCarroceria !== null)
+            .length
+
         segurosVigentes = selectedVehicles.length - segurosVencidos
+        veiculosNovos = selectedVehicles.length - veiculosAntigos
     }
     else {
         segurosVencidos = allExpired
         segurosVigentes = allValid
+        veiculosAntigos = oldVehicles
+        veiculosNovos = selectedVehicles.length - oldVehicles
     }
-
-
-    //.map(v => v.veiculoId)
 
     return (
         <RelatoriosTemplate
@@ -193,6 +192,7 @@ const Relatorios = props => {
             handleInput={handleInput}
             segurosVencidos={segurosVencidos}
             segurosVigentes={segurosVigentes}
+            oldVehicles={veiculosAntigos}
         />
     )
 }

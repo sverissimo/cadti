@@ -45,7 +45,7 @@ export const donutChart = {
             offsetY: 0,
             floating: false,
             style: {
-                fontSize: '14px',
+                fontSize: '13px',
                 fontWeight: 500,
                 fontFamily: '\'Segoe UI\', Tahoma, Geneva, Verdana, sans-serif ',
             },
@@ -57,7 +57,7 @@ export const donutChart = {
                         show: true,
                         name: {
                             show: true,
-                            fontSize: '22px',
+                            fontSize: '20px',
                             fontFamily: '\'Segoe UI\', Tahoma, Geneva, Verdana, sans-serif ',
                             fontWeight: 600,
                             color: '#373d3f',
@@ -65,7 +65,7 @@ export const donutChart = {
                         },
                         value: {
                             show: true,
-                            fontSize: '16px',
+                            fontSize: '15px',
                             fontFamily: 'Helvetica, Arial, sans-serif',
                             fontWeight: 400,
                             color: '#373d3f',

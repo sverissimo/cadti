@@ -40,7 +40,7 @@ class ConsultasContainer extends Component {
         tablePKs: ['delegatario_id', 'socio_id', 'procurador_id', 'veiculo_id', 'id'],
         dbTables: ['delegatario', 'socios', 'procurador', 'veiculo', 'seguro'],
         options: ['empresas', 'socios', 'procuradores', 'veiculos', 'seguros'],
-        detailsTitle: ['Empresa', 'Sócio', 'Procurador', 'Placa', 'Apólice' ],
+        detailsTitle: ['Empresa', 'Sócio', 'Procurador', 'Placa', 'Apólice'],
         detailsHeader: ['razaoSocial', 'nomeSocio', 'nomeProcurador', 'placa', 'apolice'],
         empresas: [],
         seguros: [],
@@ -139,8 +139,11 @@ class ConsultasContainer extends Component {
         }
 
         if (selectedFiles[0]) {
+            selectedFiles = selectedFiles
+                .sort((a, b) => new Date(a['uploadDate']) - new Date(b['uploadDate']))
+                .reverse()
             this.setState({ filesCollection: selectedFiles, showFiles: true, typeId, selectedElement: id })
-
+            console.log(selectedFiles)
         } else {
             this.setState({ alertType: 'filesNotFound', openAlertDialog: true })
             this.setState({ filesCollection: [] })

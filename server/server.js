@@ -7,8 +7,6 @@ const path = require('path')
 const dotenv = require('dotenv')
 const mongoose = require('mongoose')
 const { conn } = require('./mongo/mongoConfig')
-//const multer = require('multer')
-//const GridFsStorage = require('multer-gridfs-storage')
 const Grid = require('gridfs-stream')
 Grid.mongo = mongoose.mongo
 
@@ -16,7 +14,7 @@ const { pool } = require('./config/pgConfig')
 const { setCorsHeader } = require('./config/setCorsHeader')
 const { apiGetRouter } = require('./apiGetRouter')
 
-const { storage2, uploadRouter, uploadMetadata } = require('./mongo/mongoUpload')
+const { storage, uploadMetadata } = require('./mongo/mongoUpload')
 const { mongoDownload, getFilesMetadata, getOneFileMetadata } = require('./mongo/mongoDownload')
 
 const { cadEmpresa } = require('./cadEmpresa')
@@ -45,6 +43,7 @@ app.use(express.static('client/build'))
 //app.get('/tst', getExpired)
 
 //************************************ BINARY DATA *********************** */
+
 let gfs
 conn.on('error', console.error.bind(console, 'connection error:'))
 conn.once('open', () => {
@@ -53,46 +52,23 @@ conn.once('open', () => {
     console.log('Mongo connected to the server.')
 })
 
-const { vehicleUpload, empresaUpload } = storage2()
+const { vehicleUpload, empresaUpload } = storage()
 
-app.post('/api/empresaUpload', empresaUpload.any(), (req, res) => {
-
-    let filesArray = []
-    if (req.files) req.files.forEach(f => {
-        filesArray.push({
-            id: f.id,
-            length: f.size,
-            chunkSize: f.chunkSize,
-            uploadDate: f.uploadDate,
-            filename: f.originalname,
-            md5: f.md5,
-            contentType: f.contentType,
-            metadata: f.metadata
-        })
-    })
-    io.sockets.emit('insertFiles', { insertedObjects: filesArray, collection: 'empresaDocs' })
-    res.json({ file: filesArray });
+app.post('/api/empresaUpload', empresaUpload.any(), uploadMetadata, (req, res) => {
+    const { filesArray } = req
+    if (filesArray[0]) {
+        io.sockets.emit('insertFiles', { insertedObjects: filesArray, collection: 'empresaDocs' })
+        res.json({ file: filesArray });
+    } else res.send('No uploads whatsoever...')
 })
 
 app.post('/api/mongoUpload', vehicleUpload.any(), (req, res) => {
-
-    let filesArray = []
-    if (req.files) req.files.forEach(f => {
-        filesArray.push({
-            id: f.id,
-            length: f.size,
-            chunkSize: f.chunkSize,
-            uploadDate: f.uploadDate,
-            filename: f.originalname,
-            md5: f.md5,
-            contentType: f.contentType,
-            metadata: f.metadata
-        })
-    })
-    io.sockets.emit('insertFiles', { insertedObjects: filesArray, collection: 'vehicleDocs' })
-    res.json({ file: filesArray });
+    const { filesArray } = req
+    if (filesArray[0]) {
+        io.sockets.emit('insertFiles', { insertedObjects: filesArray, collection: 'vehicleDocs' })
+        res.json({ file: filesArray });
+    } else res.send('No uploads whatsoever...')
 })
-
 
 app.get('/api/mongoDownload/', (req, res) => mongoDownload(req, res, gfs))
 
