@@ -7,8 +7,8 @@ import Paper from '@material-ui/core/Paper'
 import './relatorios.css'
 
 const RelatoriosTemplate = (
-    { empresas, razaoSocial, selectedEmpresa, selectedVehicles,
-        labels, values, tableLabels, tableData, mediaIdades, moda, handleInput, segurosVencidos, segurosVigentes, oldVehicles }) => {
+    { empresas, razaoSocial, selectedEmpresa, selectedVehicles, labels, values, tableLabels, tableData, mediaIdades, moda, 
+        handleInput, segurosVencidos, segurosVigentes, oldVehicles, veiculosNovos }) => {
 
     const colors = ['#ff7c43', '#ffa600', '#FF9800', '#f95d6a', '#f44336', '#2E93fA', '#3333ff', '#66DA26', '#669999', '#E91E63', '#d45087', '#a05195', '#665191', '#2f4b7c', '#003f5c',]
 
@@ -89,12 +89,12 @@ const RelatoriosTemplate = (
                             options={{
                                 title: {
                                     ...donutChart.options.title,
-                                    text: `Idade superior a 15 anos: ${oldVehicles} / inferior 15 anos: ${selectedVehicles.length - oldVehicles}`,
+                                    text: `Idade superior a 15 anos: ${oldVehicles} / inferior 15 anos: ${veiculosNovos}`,
                                 },
                                 labels: ['Veículos com mais de 15 anos', 'Veículos com menos de 15 anos'],
                                 colors: ['#f44336', '#2E93fA']
                             }}
-                            series={[Number(oldVehicles), Number(selectedVehicles.length - oldVehicles)]}
+                            series={[Number(oldVehicles), Number(veiculosNovos)]}
                             type="pie"
                             width="420"
                             height='220'

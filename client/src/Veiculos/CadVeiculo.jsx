@@ -172,13 +172,13 @@ class VeiculosContainer extends PureComponent {
                 }
                 break
             }
-            case ('valorChassi'):                
+            case ('valorChassi'):
                 this.setState({ [name]: formatMoney(value) })
                 break
-            case ('valorCarroceria'):                
+            case ('valorCarroceria'):
                 this.setState({ [name]: formatMoney(value) })
                 break
-                
+
             default: void 0
         }
     }
@@ -276,13 +276,13 @@ class VeiculosContainer extends PureComponent {
     }
 
     handleCadastro = async () => {
-        const { anoCarroceria, equipamentosId, peso_dianteiro, peso_traseiro,
+        const { anoCarroceria, equipamentosId, pesoDianteiro, pesoTraseiro,
             poltronas, delegatarioId, compartilhadoId, seguros, modeloChassiId,
             modeloCarroceriaId, seguradoraId } = this.state,
             situacao = 'Ativo',
             indicadorIdade = anoCarroceria
 
-        let pbt = Number(poltronas) * 93 + (Number(peso_dianteiro) + Number(peso_traseiro))
+        let pbt = Number(poltronas) * 93 + (Number(pesoDianteiro) + Number(pesoTraseiro))
         if (isNaN(pbt)) pbt = undefined
 
         let review = {}
@@ -295,12 +295,14 @@ class VeiculosContainer extends PureComponent {
             })
         })
 
-        let { dataEmissao, vencimento, delegatarioCompartilhado,
-            modeloChassi, modeloCarroceria, seguradora, ...vReview } = review,
-
+        let
+            { dataEmissao, vencimento, delegatarioCompartilhado,
+                modeloChassi, modeloCarroceria, seguradora, ...vReview } = review,
+                
             seguro = { apolice: review.apolice, seguradoraId, delegatarioId }
 
-        const validEmissao = moment(dataEmissao, 'YYYY-MM-DD', true).isValid(),
+        const
+            validEmissao = moment(dataEmissao, 'YYYY-MM-DD', true).isValid(),
             validVenc = moment(vencimento, 'YYYY-MM-DD', true).isValid()
 
         if (validEmissao) seguro.dataEmissao = dataEmissao
@@ -339,7 +341,7 @@ class VeiculosContainer extends PureComponent {
             let veiculoId
             await axios.post('/api/cadastroVeiculo', vehicle)
                 .then(res => {
-                    console.log(res)
+                    console.log(res.data)
                     veiculoId = res.data
                     this.submitFiles(veiculoId)
                 })

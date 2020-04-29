@@ -56,15 +56,15 @@ const { vehicleUpload, empresaUpload } = storage()
 
 app.post('/api/empresaUpload', empresaUpload.any(), uploadMetadata, (req, res) => {
     const { filesArray } = req
-    if (filesArray[0]) {
+    if (filesArray && filesArray[0]) {
         io.sockets.emit('insertFiles', { insertedObjects: filesArray, collection: 'empresaDocs' })
         res.json({ file: filesArray });
     } else res.send('No uploads whatsoever...')
 })
 
-app.post('/api/mongoUpload', vehicleUpload.any(), (req, res) => {
+app.post('/api/vehicleUpload', vehicleUpload.any(), uploadMetadata, (req, res) => {
     const { filesArray } = req
-    if (filesArray[0]) {
+    if (filesArray && filesArray[0]) {
         io.sockets.emit('insertFiles', { insertedObjects: filesArray, collection: 'vehicleDocs' })
         res.json({ file: filesArray });
     } else res.send('No uploads whatsoever...')

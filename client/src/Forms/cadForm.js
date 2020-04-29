@@ -93,6 +93,4 @@ export const cadForm = [[{
 }
 ]]
     .concat([seguroForm])
-    .concat([vistoriaForm])
-    .concat([[]])
-    .concat([[]])
+    .concat([vistoriaForm])    

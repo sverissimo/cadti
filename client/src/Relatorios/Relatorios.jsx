@@ -25,6 +25,12 @@ const average = array => {
     }
 }
 
+const countExpired = vehicles => {
+    return vehicles
+        .filter(r => r.vencimento && moment(r.vencimento).isValid() && moment(r.vencimento).isBefore(moment()) && r.veiculoId && r)
+        .length
+}
+
 const Relatorios = props => {
 
     const
@@ -131,18 +137,12 @@ const Relatorios = props => {
 
     //**********************SEGUROS VENCIDOS***********************
     const currentYear = new Date().getFullYear()
-    useEffect(() => {
-        const
-            expired =
-                selectedVehicles
-                    .filter(r => {
-                        if (r.vencimento && moment(r.vencimento).isValid()) {
-                            if (moment(r.vencimento).isBefore(moment()) && r.veiculoId) return r
-                        }
-                        return
-                    })
-                    .length,
 
+    useEffect(() => {
+
+        const
+            currentYear = new Date().getFullYear(),
+            expired = countExpired(selectedVehicles),
             needsLaudo = selectedVehicles
                 .filter(v => currentYear - v.anoCarroceria > 14 && v.anoCarroceria !== null)
                 .length
@@ -150,18 +150,13 @@ const Relatorios = props => {
         setExpired(expired)
         setValid(selectedVehicles.length - expired)
         setOldVehicles(needsLaudo)
-    }, [])
+
+    }, [selectedVehicles])
 
     let segurosVencidos = [], segurosVigentes, veiculosAntigos, veiculosNovos
 
     if (razaoSocial.length > 2 && selectedEmpresa) {
-        segurosVencidos = selectedVehicles
-            .filter(r => {
-                if (r.vencimento && moment(r.vencimento).isValid()) {
-                    if (moment(r.vencimento).isBefore(moment()) && r.veiculoId) return r
-                }
-                return
-            }).length
+        segurosVencidos = countExpired(selectedVehicles)
 
         veiculosAntigos = selectedVehicles
             .filter(v => currentYear - v.anoCarroceria > 14 && v.anoCarroceria !== null)
@@ -193,6 +188,7 @@ const Relatorios = props => {
             segurosVencidos={segurosVencidos}
             segurosVigentes={segurosVigentes}
             oldVehicles={veiculosAntigos}
+            veiculosNovos={veiculosNovos}
         />
     )
 }

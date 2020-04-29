@@ -29,14 +29,14 @@ export const vistoriaForm = [
         max: 20
     },
     {
-        field: 'peso_dianteiro',
+        field: 'pesoDianteiro',
         label: 'Peso Dianteiro (kg)',
         margin: 'normal',
         type: 'number',
         max: 12000
     },
     {
-        field: 'peso_traseiro',
+        field: 'pesoTraseiro',
         label: 'Peso Traseiro (kg)',
         margin: 'normal',
         type: 'number',
@@ -50,21 +50,21 @@ export const vistoriaForm = [
         max: 120
     },
     {
-        field: 'piques_poltrona',
+        field: 'piquesPoltrona',
         label: 'Piques poltrona',
         margin: 'normal',
         type: 'number',
         max: 12
     },
     {
-        field: 'distancia_minima',
+        field: 'distanciaMinima',
         label: 'Distância Mínima (cm)',
         margin: 'normal',
         type: 'number',        
         max: 150
     },
     {
-        field: 'distancia_maxima',
+        field: 'distanciaMaxima',
         label: 'Distância Máxima (cm)',
         margin: 'normal',
         type: 'number',

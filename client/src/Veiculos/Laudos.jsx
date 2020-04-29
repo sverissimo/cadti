@@ -1,9 +1,11 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import StoreHOC from '../Store/StoreHOC'
 import SelectEmpresa from '../Reusable Components/SelectEmpresa'
 import ShowDetails from '../Reusable Components/ShowDetails'
+import OnClickMenu from '../Reusable Components/OnClickMenu'
 
 const Laudos = props => {
+
     const
         { veiculos, empresas } = props.redux,
         currentYear = new Date().getFullYear()
@@ -13,7 +15,24 @@ const Laudos = props => {
         [selectedEmpresa, setEmpresa] = useState(),
         [oldVehicles, setOldVehicles] = useState([]),
         [details, setDetails] = useState(false),
-        [selectedVehicle, selectVehicle] = useState()
+        [selectedVehicle, selectVehicle] = useState(),
+        [anchorEl, setAnchorEl] = React.useState(null);
+
+    const openMenu = async (event) => {
+        event.persist()
+        const { id } = event.target
+        let vehicle
+        if (id) vehicle = veiculos.find(v => v.veiculoId.toString() === id)
+
+        await selectVehicle(vehicle)        
+
+        setAnchorEl(event.target);
+    };
+
+    const closeMenu = () => setAnchorEl(null)
+
+    useEffect(() => { document.addEventListener('keydown', escFunction, false) })
+
 
     const handleInput = e => {
         const { value } = e.target
@@ -34,23 +53,20 @@ const Laudos = props => {
     }
 
 
-    const showDetails = async e => {
-        /* const { id } = e.target
-        let updatedElement
-        console.log(id, e.target)
-        if (id) updatedElement = veiculos.find(e => e.veiculoId === id) */
+    const showDetails = async () => {
 
-        console.log(e)
-        if (e) {
-            setDetails(!details)
-            selectVehicle(e)
+        if (selectedVehicle) { 
+            await setDetails(!details) 
+            setAnchorEl(null)
         }
         else {
-            setDetails(!details)
+            setDetails(false)
             selectVehicle(undefined)
+            setAnchorEl(null)
         }
     }
 
+    const escFunction = e => { if (e.keyCode === 27 && details) setDetails(false) }
 
     return (
         <div>
@@ -64,28 +80,40 @@ const Laudos = props => {
                     <h6>Veículos com mais de 15 anos: {oldVehicles.length}</h6>
                     <section className='placasContainer'>
                         {oldVehicles.map((v, i) => (
-                            <div key={i} id={v.veiculoId} onClick={() => showDetails(v)} >
+                            //<div key={i} id={v.veiculoId} onClick={() => showDetails(v)} >
+                            <div key={i} id={v.veiculoId} onClick={openMenu}>
                                 <div className="placaCity">{selectedEmpresa.cidade}</div>
                                 <div className="placaNumber">{v.placa}</div>
+
                             </div>
                         ))}
                     </section>
+                    <OnClickMenu
+                        anchorEl={anchorEl}
+                        handleClose={closeMenu}
+                        menuOptions={[{
+                            title: 'Detalhes',
+                            onClick: showDetails
+                        },
+                        {
+                            title: 'Atualizar laudo',
+                            onClick: showDetails
+                        }]}
+                    />
                 </>
             }
-            {details &&
-                <ShowDetails
+            {
+                details && <ShowDetails
                     close={showDetails}
                     data={{ ...selectedVehicle, tableData: '' }}
                     tab={3}
                     title={'Veículo'}
                     header={'- informações'}
-
                 />
             }
-        </div>
+        </div >
     )
 }
 
 const collections = ['veiculos', 'empresas']
-
 export default StoreHOC(collections, Laudos)

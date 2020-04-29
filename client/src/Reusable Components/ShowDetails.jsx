@@ -4,7 +4,7 @@ import moment from 'moment'
 import TextField from '@material-ui/core/TextField'
 import ClosePopUpButton from '../Reusable Components/ClosePopUpButton'
 
-import { eForm, sForm, segForm } from '../Forms/joinForms'
+import { eForm, sForm, segForm, vForm } from '../Forms/joinForms'
 
 import { cadForm } from '../Forms/cadForm'
 import { empresasForm } from '../Forms/empresasForm'
@@ -18,7 +18,7 @@ export default function ShowDetails({ data, tab, title, header, close }) {
         formPattern
 
     switch (tab) {
-        case 0:            
+        case 0:
             formPattern = empresasForm.concat(eForm)
             break;
         case 1:
@@ -28,12 +28,10 @@ export default function ShowDetails({ data, tab, title, header, close }) {
             formPattern = procuradorForm
             break;
         case 3:
-            let { veiculoId, laudoId, tableData, modeloChassiId, modeloCarroceriaId, delegatarioId, ...vData } = data
-            vData.dataRegistro = moment(data.dataRegistro).format('DD/MM/YYYY')
-            vData.dataEmissao = moment(data.dataEmissao).format('DD/MM/YYYY')
-            vData.vencimento = moment(data.vencimento).format('DD/MM/YYYY')
+            let { veiculoId, laudoId, tableData, modeloChassiId, modeloCarroceriaId, delegatarioId, vencimentoContrato, delegatarioCompartilhado, ...vData } = data
+            
             ultimateData = vData
-            formPattern = cadForm
+            formPattern = cadForm.concat([vForm])
             break;
         case 4:
             formPattern = seguroForm.concat(segForm)
@@ -44,12 +42,12 @@ export default function ShowDetails({ data, tab, title, header, close }) {
     }
 
     let element = []
-
+    
     Object.keys(ultimateData).forEach(key => {
         if (tab === 3) {
             formPattern.forEach(form => {
                 form.forEach(({ field, label, type }) => {
-                    if (key === field) {
+                    if (key === field) {                        
                         let obj = {}
                         Object.assign(obj, { field, label, value: ultimateData[key] })
                         if (type) Object.assign(obj, { type })
