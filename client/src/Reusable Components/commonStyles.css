@@ -41,3 +41,8 @@ input.selectEmpresa:focus {
   color: rgb(58, 164, 33) !important;
 }
 
+p.fileInput {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 13px;
+  margin-top: 0;  
+}

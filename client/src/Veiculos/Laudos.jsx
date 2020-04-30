@@ -1,119 +1,138 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, Fragment } from 'react'
 import StoreHOC from '../Store/StoreHOC'
-import SelectEmpresa from '../Reusable Components/SelectEmpresa'
+
+import LaudosTemplate from './LaudosTemplate'
 import ShowDetails from '../Reusable Components/ShowDetails'
-import OnClickMenu from '../Reusable Components/OnClickMenu'
+import FormDialog from '../Utils/FormDialog'
 
 const Laudos = props => {
 
     const
-        { veiculos, empresas } = props.redux,
-        currentYear = new Date().getFullYear()
+        { veiculos, empresas } = props.redux
 
     const
         [razaoSocial, empresaInput] = useState(''),
         [selectedEmpresa, setEmpresa] = useState(),
-        [oldVehicles, setOldVehicles] = useState([]),
+        [oldVehicles, setOldVehicles] = useState(),
+        [filteredVehicles, setfilteredVehicles] = useState([]),
         [details, setDetails] = useState(false),
         [selectedVehicle, selectVehicle] = useState(),
-        [anchorEl, setAnchorEl] = React.useState(null);
+        [anchorEl, setAnchorEl] = useState(null),
+        [dialogOpen, openDialog] = useState(false),
+        [laudoExpiresOn, setLaudoDate] = useState()
+
+    useEffect(() => {        
+        const escFunction = e => { if (e.keyCode === 27 && details) setDetails(false); setAnchorEl(null) }
+        document.addEventListener('keydown', escFunction)                
+    }, [details])
 
     const openMenu = async (event) => {
         event.persist()
-        const { id } = event.target
+        const { id } = event.currentTarget
         let vehicle
         if (id) vehicle = veiculos.find(v => v.veiculoId.toString() === id)
 
-        await selectVehicle(vehicle)        
-
+        await selectVehicle(vehicle)
         setAnchorEl(event.target);
-    };
+    }
 
     const closeMenu = () => setAnchorEl(null)
 
-    useEffect(() => { document.addEventListener('keydown', escFunction, false) })
-
-
     const handleInput = e => {
-        const { value } = e.target
-        empresaInput(value)
+        const { name } = e.target
+        let { value } = e.target
 
-        let selectedEmpresa = empresas.find(e => e.razaoSocial === value)
-
-        if (selectedEmpresa) {
+        if (name === 'razaoSocial') {
+            empresaInput(value)
+            const selectedEmpresa = empresas.find(e => e.razaoSocial === value)
             setEmpresa(selectedEmpresa)
-            if (value !== selectedEmpresa.razaoSocial) setEmpresa(undefined)
-            const needsLaudo = veiculos
-                .filter(v => v.empresa === value && currentYear - v.anoCarroceria > 14 && v.anoCarroceria !== null)
-            setOldVehicles(needsLaudo)
-        } else {
-            setOldVehicles([])
-            setEmpresa()
         }
+        if (name === 'placa' && oldVehicles[0]) {
+            if (typeof value === 'string') value = value.toLocaleUpperCase()
+            if (!value || value === '') setfilteredVehicles(oldVehicles)
+            else {
+                const filtered = oldVehicles.filter(v => v.placa.match(value))
+                setfilteredVehicles(filtered)
+            }
+        }
+        if (name === 'laudo') setLaudoDate(value)
     }
 
+    useEffect(() => {
+        if (selectedEmpresa && selectedEmpresa !== '') {
+            const
+                currentYear = new Date().getFullYear(),
+                frota = veiculos.filter(v => v.empresa === selectedEmpresa.razaoSocial),
+                oldVehicles = frota.filter(v => currentYear - v.anoCarroceria > 14 && v.anoCarroceria !== null)
+
+            setOldVehicles(oldVehicles)
+            setfilteredVehicles(oldVehicles)
+        } else {
+            setOldVehicles()
+            setfilteredVehicles([])
+            setEmpresa()
+        }
+    }, [selectedEmpresa, veiculos])
 
     const showDetails = async () => {
-
-        if (selectedVehicle) { 
-            await setDetails(!details) 
+        if (selectedVehicle) {
+            await setDetails(!details)
             setAnchorEl(null)
-        }
-        else {
+        } else {
             setDetails(false)
             selectVehicle(undefined)
             setAnchorEl(null)
         }
     }
 
-    const escFunction = e => { if (e.keyCode === 27 && details) setDetails(false) }
+    const insertLaudo = e => {
+        console.log(e, laudoExpiresOn)
+    }
 
+    const handleFiles = e => {
+        console.log(e)
+    }
+    const closeDialog = () => {
+        setLaudoDate()
+        setAnchorEl(null)
+        openDialog(false)
+    }
     return (
-        <div>
-            <SelectEmpresa
-                empresas={empresas}
-                data={{ razaoSocial }}
-                handleInput={handleInput}
-            />
-            {
-                selectedEmpresa && <>
-                    <h6>Veículos com mais de 15 anos: {oldVehicles.length}</h6>
-                    <section className='placasContainer'>
-                        {oldVehicles.map((v, i) => (
-                            //<div key={i} id={v.veiculoId} onClick={() => showDetails(v)} >
-                            <div key={i} id={v.veiculoId} onClick={openMenu}>
-                                <div className="placaCity">{selectedEmpresa.cidade}</div>
-                                <div className="placaNumber">{v.placa}</div>
+        <Fragment>
 
-                            </div>
-                        ))}
-                    </section>
-                    <OnClickMenu
-                        anchorEl={anchorEl}
-                        handleClose={closeMenu}
-                        menuOptions={[{
-                            title: 'Detalhes',
-                            onClick: showDetails
-                        },
-                        {
-                            title: 'Atualizar laudo',
-                            onClick: showDetails
-                        }]}
-                    />
-                </>
-            }
-            {
-                details && <ShowDetails
-                    close={showDetails}
-                    data={{ ...selectedVehicle, tableData: '' }}
-                    tab={3}
-                    title={'Veículo'}
-                    header={'- informações'}
-                />
-            }
-        </div >
+            <LaudosTemplate
+                empresas={empresas} razaoSocial={razaoSocial} selectedEmpresa={selectedEmpresa} filteredVehicles={filteredVehicles}
+                handleInput={handleInput} anchorEl={anchorEl} openMenu={openMenu} closeMenu={closeMenu}
+                showDetails={showDetails} openDialog={openDialog}
+            />
+            {details && <ShowDetails
+                close={showDetails}
+                data={{ ...selectedVehicle, tableData: '' }}
+                tab={3}
+                title={'Veículo'}
+                header={'- informações'}
+            />}
+            {dialogOpen && <FormDialog
+                open={dialogOpen}
+                close={closeDialog}
+                title={`Placa ${selectedVehicle ? selectedVehicle.placa : ''}  Certificado de Segurança Veicular`}
+                header='Para inserir o certificado, informe a data de vencimento e anexe o documento referente ao laudo.'
+                type='date'
+                inputName='laudo'
+                inputLabel='Informe a data de validade do certificado'
+                fileInputName='laudoDoc'
+                value={laudoExpiresOn}
+                handleInput={handleInput}
+                handleFiles={handleFiles}
+                confirm={insertLaudo}
+                dropDisplay='dropDisplay'
+                formData={[]}
+            />}
+        </Fragment >
     )
 }
 
 const collections = ['veiculos', 'empresas']
 export default StoreHOC(collections, Laudos)
+
+//'getFiles/vehicleDocs'

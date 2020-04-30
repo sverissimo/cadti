@@ -190,8 +190,6 @@ class AltDados extends Component {
                 vEquip.forEach(ve => this.setState({ [ve]: true }))
             }
 
-
-
             if (vehicle && vehicle.utilizacao) {
                 vehicle.utilizacao = this.capitalize('utilizacao', vehicle.utilizacao)
             }
@@ -215,8 +213,8 @@ class AltDados extends Component {
 
     showAltPlaca = () => {
         const title = 'Alteração de placa',
-            message = 'Para alterar a placa para o novo padrão Mercosul, informe a nova placa no campo abaixo.'
-        this.setState({ altPlaca: true, title, message })
+            header = 'Para alterar a placa do veículo para o padrão Mercosul, digite a placa no campo abaixo e anexe o CRLV atualizado do veículo.'
+        this.setState({ altPlaca: true, title, header })
     }
 
     updatePlate = () => {
@@ -272,7 +270,7 @@ class AltDados extends Component {
     handleFiles = async (files, name) => {
 
         if (files && files[0]) {
-
+            console.log(files, name)
             let formData = new FormData()
             formData.append('veiculoId', this.state.veiculoId)
 
@@ -335,9 +333,10 @@ class AltDados extends Component {
 
     render() {
         const
-            { confirmToast, toastMsg, stepTitles, activeStep, steps, altPlaca,
-                selectedEmpresa, openAlertDialog, alertType, dropDisplay, form } = this.state,
-            { empresas, equipamentos } = this.props.redux
+            { empresas, equipamentos } = this.props.redux,
+
+            { confirmToast, toastMsg, stepTitles, activeStep, steps, altPlaca, selectedEmpresa, openAlertDialog, alertType,
+                dropDisplay, form, title, header, newPlate } = this.state
 
         return <Fragment>
             <Crumbs links={['Veículos', '/veiculos']} text='Alteração de dados' />
@@ -381,10 +380,15 @@ class AltDados extends Component {
             <FormDialog
                 open={altPlaca}
                 close={this.toggleDialog}
-                newPlate={this.state.newPlate}
+                title={title}
+                header={header}                
+                inputName='newPlate'
+                inputLabel='Alterar Placa'
+                fileInputName='newPlateDoc'
+                value={newPlate}
                 handleInput={this.handleInput}
                 handleFiles={this.handleFiles}
-                updatePlate={this.updatePlate}
+                confirm={this.updatePlate}
                 dropDisplay={dropDisplay}
                 formData={form}
             />

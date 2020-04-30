@@ -36,7 +36,7 @@ const OnClickMenu = ({ anchorEl, handleClose, menuOptions }) => {
                 onClose={handleClose}
             >
                 {menuOptions.map(({ title, onClick }, i) => (
-                    <MenuItem onClick={onClick}>{title}</MenuItem>
+                    <MenuItem key = {i} onClick={onClick}>{title}</MenuItem>
                 ))}               
             </StyledMenu>
         </>
