@@ -6,7 +6,7 @@ import Search from '@material-ui/icons/Search'
 
 const LaudosTemplate = (
     { empresas, razaoSocial, selectedEmpresa, handleInput, filteredVehicles, openMenu, anchorEl, closeMenu, showDetails, openDialog }) => {
-
+    
     return (
         <div>
             <SelectEmpresa
@@ -56,4 +56,4 @@ const LaudosTemplate = (
     )
 }
 
-export default LaudosTemplate
+export default React.memo(LaudosTemplate)

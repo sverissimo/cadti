@@ -407,7 +407,7 @@ class AltSeguro extends Component {
             seguroFormData.append('fieldName', 'apoliceDoc')
             seguroFormData.append('apolice', apolice)
             seguroFormData.append('empresaId', selectedEmpresa.delegatarioId)
-            for (let pair of this.state.seguroFile.entries()) {
+            for (let pair of this.state.seguroFile.entries()) {                
                 seguroFormData.append(pair[0], pair[1])
             }
             await axios.post('/api/empresaUpload', seguroFormData)

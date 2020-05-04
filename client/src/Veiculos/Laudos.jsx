@@ -1,4 +1,5 @@
-import React, { useState, useEffect, Fragment } from 'react'
+import React, { useState, useEffect, useCallback, Fragment } from 'react'
+import axios from 'axios'
 import StoreHOC from '../Store/StoreHOC'
 
 import LaudosTemplate from './LaudosTemplate'
@@ -19,26 +20,28 @@ const Laudos = props => {
         [selectedVehicle, selectVehicle] = useState(),
         [anchorEl, setAnchorEl] = useState(null),
         [dialogOpen, openDialog] = useState(false),
-        [laudoExpiresOn, setLaudoDate] = useState()
+        [laudoExpiresOn, setLaudoDate] = useState(),
+        [dropDisplay, setDropDisplay] = useState('Clique ou arraste o arquivo para anexar o laudo'),
+        [laudoDoc, setlaudoDoc] = useState()
 
-    useEffect(() => {        
-        const escFunction = e => { if (e.keyCode === 27 && details) setDetails(false); setAnchorEl(null) }
-        document.addEventListener('keydown', escFunction)                
-    }, [details])
+    useEffect(() => {
+        const escFunction = e => { if (e.keyCode === 27) setDetails(false); setAnchorEl(null) }
+        document.addEventListener('keydown', escFunction)
+    }, [])
 
-    const openMenu = async (event) => {
+    const openMenu = (event) => {
         event.persist()
         const { id } = event.currentTarget
         let vehicle
         if (id) vehicle = veiculos.find(v => v.veiculoId.toString() === id)
 
-        await selectVehicle(vehicle)
+        selectVehicle(vehicle)
         setAnchorEl(event.target);
     }
 
     const closeMenu = () => setAnchorEl(null)
 
-    const handleInput = e => {
+    const handleInput = useCallback(e => {
         const { name } = e.target
         let { value } = e.target
 
@@ -56,7 +59,7 @@ const Laudos = props => {
             }
         }
         if (name === 'laudo') setLaudoDate(value)
-    }
+    }, [empresaInput, empresas, oldVehicles, laudoExpiresOn])
 
     useEffect(() => {
         if (selectedEmpresa && selectedEmpresa !== '') {
@@ -74,9 +77,10 @@ const Laudos = props => {
         }
     }, [selectedEmpresa, veiculos])
 
-    const showDetails = async () => {
+    const showDetails = () => {
+
         if (selectedVehicle) {
-            await setDetails(!details)
+            setDetails(!details)
             setAnchorEl(null)
         } else {
             setDetails(false)
@@ -89,9 +93,23 @@ const Laudos = props => {
         console.log(e, laudoExpiresOn)
     }
 
-    const handleFiles = e => {
-        console.log(e)
+    const handleFiles = (files, name) => {
+
+        if (files && files[0]) {
+            let formData = new FormData()
+            formData.append('fieldName', 'laudoDoc')
+            formData.append('veiculoId', selectedVehicle.veiculoId)
+            formData.append(name, files[0])
+            setlaudoDoc(formData)
+            setDropDisplay(files[0].name)
+        }
     }
+
+    const submitFiles = () => {
+        axios.post('/api/vehicleUpload', laudoDoc)
+            .then(() => closeDialog)
+    }
+
     const closeDialog = () => {
         setLaudoDate()
         setAnchorEl(null)
@@ -124,8 +142,8 @@ const Laudos = props => {
                 value={laudoExpiresOn}
                 handleInput={handleInput}
                 handleFiles={handleFiles}
-                confirm={insertLaudo}
-                dropDisplay='dropDisplay'
+                confirm={submitFiles}
+                dropDisplay={dropDisplay}
                 formData={[]}
             />}
         </Fragment >
