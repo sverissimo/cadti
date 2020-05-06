@@ -47,7 +47,7 @@ app.use(express.static('client/build'))
 let gfs
 conn.on('error', console.error.bind(console, 'connection error:'))
 conn.once('open', () => {
-    gfs = Grid(conn.db);
+    gfs = Grid(conn.db)
     gfs.collection('vehicleDocs')
     console.log('Mongo connected to the server.')
 })
@@ -78,7 +78,7 @@ app.get('/api/getOneFile/', getOneFileMetadata)
 
 //************************************ GET METHOD ROUTES *********************** */
 
-const routes = 'empresas|socios|veiculos|modelosChassi|carrocerias|equipamentos|seguros|seguradoras|procuradores|procuracoes'
+const routes = 'empresas|socios|veiculos|modelosChassi|carrocerias|equipamentos|seguros|seguradoras|procuradores|procuracoes|laudos'
 
 app.get(`/api/${routes}`, apiGetRouter)
 

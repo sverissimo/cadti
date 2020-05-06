@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, Fragment } from 'react'
 import axios from 'axios'
+import moment from 'moment'
 import StoreHOC from '../Store/StoreHOC'
 
 import LaudosTemplate from './LaudosTemplate'
@@ -54,8 +55,16 @@ const Laudos = props => {
             if (typeof value === 'string') value = value.toLocaleUpperCase()
             if (!value || value === '') setfilteredVehicles(oldVehicles)
             else {
+                let vehicle
                 const filtered = oldVehicles.filter(v => v.placa.match(value))
+                if (filtered.length === 1) vehicle = filtered[0]
+
                 setfilteredVehicles(filtered)
+                selectVehicle(vehicle)
+
+                console.log(vehicle)
+                //selectVehicle(vehicle)
+
             }
         }
         if (name === 'laudo') setLaudoDate(value)
@@ -66,10 +75,13 @@ const Laudos = props => {
             const
                 currentYear = new Date().getFullYear(),
                 frota = veiculos.filter(v => v.empresa === selectedEmpresa.razaoSocial),
-                oldVehicles = frota.filter(v => currentYear - v.anoCarroceria > 14 && v.anoCarroceria !== null)
+                oldVehicles = frota.filter(v => currentYear - v.anoCarroceria > 14 && v.anoCarroceria !== null),
+                gotLaudo = oldVehicles.filter(v => v.validadeLaudo !== null),
+                laudoExiped = gotLaudo.filter(v => moment(v.validadeLaudo).isBefore(moment()))
 
             setOldVehicles(oldVehicles)
             setfilteredVehicles(oldVehicles)
+
         } else {
             setOldVehicles()
             setfilteredVehicles([])
@@ -112,6 +124,8 @@ const Laudos = props => {
 
     const closeDialog = () => {
         setLaudoDate()
+        setlaudoDoc()
+        setDropDisplay('Clique ou arraste o arquivo para anexar o laudo')
         setAnchorEl(null)
         openDialog(false)
     }
@@ -134,12 +148,12 @@ const Laudos = props => {
                 open={dialogOpen}
                 close={closeDialog}
                 title={`Placa ${selectedVehicle ? selectedVehicle.placa : ''}  Certificado de Segurança Veicular`}
-                header='Para inserir o certificado, informe a data de vencimento e anexe o documento referente ao laudo.'
-                type='date'
-                inputName='laudo'
-                inputLabel='Informe a data de validade do certificado'
+                header='Para inserir o certificado, informe o número, a data de vencimento, a empresa que emitiu e anexe o documento referente ao laudo.'
+                type='text'
+                inputNames={['id', 'validade', 'empresa']}
+                inputLabels={['Número do laudo', 'Data de validade', 'Empresa emissora']}
                 fileInputName='laudoDoc'
-                value={laudoExpiresOn}
+                values={[laudoExpiresOn]}
                 handleInput={handleInput}
                 handleFiles={handleFiles}
                 confirm={submitFiles}
@@ -150,7 +164,7 @@ const Laudos = props => {
     )
 }
 
-const collections = ['veiculos', 'empresas']
+const collections = ['veiculos', 'empresas', 'laudos', 'getFiles/vehicleDocs']
 export default StoreHOC(collections, Laudos)
 
 //'getFiles/vehicleDocs'

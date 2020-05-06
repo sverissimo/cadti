@@ -382,10 +382,10 @@ class AltDados extends Component {
                 close={this.toggleDialog}
                 title={title}
                 header={header}                
-                inputName='newPlate'
-                inputLabel='Alterar Placa'
+                inputNames={['newPlate']}
+                inputLabels={['Alterar Placa']}
                 fileInputName='newPlateDoc'
-                value={newPlate}
+                values={[newPlate]}
                 handleInput={this.handleInput}
                 handleFiles={this.handleFiles}
                 confirm={this.updatePlate}

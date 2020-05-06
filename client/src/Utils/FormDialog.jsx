@@ -9,13 +9,20 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 
-export default function AlertDialog({ open, close, title, header, inputName, inputLabel, fileInputName, confirm, handleInput, handleFiles,
-  value, formData, dropDisplay, type = 'text' }) {
+export default function AlertDialog({ open, close, title, header, inputNames, inputLabels, fileInputName, confirm, handleInput, handleFiles,
+  values, formData, dropDisplay, type = 'text' }) {
 
-  const errorHandler = nPlate => {
+  let disabled = true
+  const errorHandler = (inputName, value) => {
     if (inputName === 'newPlate') {
-      if (nPlate.length < 9 && nPlate.match('[a-zA-Z]{3}?[-]\\d{1}\\w{1}\\d{2}')) return false
-      else return true
+      if (value.length < 9 && value.match('[a-zA-Z]{3}?[-]\\d{1}\\w{1}\\d{2}')) {
+        disabled = false
+        return false
+      }
+      else {
+        disabled = true
+        return true
+      }
     }
   }
   console.log(dropDisplay)
@@ -27,17 +34,21 @@ export default function AlertDialog({ open, close, title, header, inputName, inp
           {header}
         </DialogContentText>
         <br />
-        <TextField
-          autoFocus={inputName === 'newPlate' && true}
-          name={inputName}
-          label={inputLabel}
-          onChange={handleInput}
-          value={value}
-          type={type}
-          error={errorHandler(value)}
-          fullWidth
-          InputLabelProps={{ shrink: true }}
-        />
+        {
+          inputNames.map((inputName, i) => (
+            <TextField
+              key={i}
+              autoFocus={inputName === 'newPlate' && true}
+              name={inputName}
+              label={inputLabels[i]}
+              onChange={handleInput}
+              values={values[i]}
+              type={type}
+              error={errorHandler(inputName, values[i])}
+              fullWidth
+              InputLabelProps={{ shrink: true }}
+            />
+          ))}
         <br /><br />
         <DragAndDrop
           title='Anexar arquivo'
@@ -51,7 +62,7 @@ export default function AlertDialog({ open, close, title, header, inputName, inp
         <Button onClick={close} color="primary">
           Cancelar
               </Button>
-        <Button onClick={confirm} color="primary" disabled={errorHandler(value)}>
+        <Button onClick={confirm} color="primary" disabled={disabled}>
           Confirmar
               </Button>
       </DialogActions>

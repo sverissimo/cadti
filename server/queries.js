@@ -23,7 +23,8 @@ const veiculos = `
 			d2.razao_social as compartilhado,
 			seguradora.seguradora,
 			seguro.data_emissao,
-			seguro.vencimento
+			seguro.vencimento,
+			laudos.validade as validade_laudo
 		FROM veiculo
 		LEFT JOIN public.modelo_chassi
 			ON veiculo.modelo_chassi_id = public.modelo_chassi.id
@@ -41,6 +42,8 @@ const veiculos = `
 			ON veiculo.apolice = seguro.apolice
 		LEFT JOIN public.seguradora
 			ON public.seguradora.id = seguro.seguradora_id
+		LEFT JOIN public.laudos
+			ON public.laudos.veiculo_id = veiculo.veiculo_id
 		ORDER BY veiculo.veiculo_id DESC
 		`
 
@@ -63,6 +66,14 @@ const carrocerias = `
 const equipamentos = `SELECT * FROM equipamentos`
 
 const seguradoras = `SELECT * FROM seguradora`
+
+const laudos = `
+SELECT laudos.*,
+	emp.empresa as empresa_laudo
+FROM laudos
+LEFT JOIN empresa_laudo emp
+	ON emp.id = laudos.empresa_id
+`
 
 const seguros = `
 SELECT seguro.*,
@@ -118,5 +129,5 @@ const lookup = (req, res) => {
 
 module.exports = {
 	empresas, veiculos, modeloChassi, carrocerias, equipamentos,
-	seguradoras, seguros, socios, procuradores, procuracoes, lookup
+	seguradoras, seguros, socios, procuradores, procuracoes, lookup, laudos
 }
