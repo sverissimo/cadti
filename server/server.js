@@ -273,7 +273,7 @@ app.put('/api/updateInsurance', async (req, res) => {
 
     if (vehicleIds && vehicleIds[0]) {
         vehicleIds.forEach(id => {
-            condition = condition + `veiculo_id = '${id}' OR `
+            condition = condition + `veiculo.veiculo_id = '${id}' OR `
         })
         condition = condition.slice(0, condition.length - 3)
         query = query + condition
@@ -329,7 +329,7 @@ app.put('/api/updateInsurances', async (req, res) => {
 
     if (ids && ids[0]) {
         ids.forEach(id => {
-            condition = condition + `${tablePK} = '${id}' OR `
+            condition = condition + `veiculo.${tablePK} = '${id}' OR `
         })
         condition = condition.slice(0, condition.length - 3)
         query = query + condition + ` RETURNING *`
@@ -465,7 +465,7 @@ app.put('/api/updateVehicle', (req, res) => {
 
     const condition = `${tablePK} = '${id}'`
 
-    query = query + condition + ` RETURNING veiculo_id`
+    query = query + condition + ` RETURNING veiculo.veiculo_id`
 
     pool.query(query, (err, t) => {
         if (err) console.log(err)

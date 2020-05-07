@@ -25,9 +25,10 @@ const average = array => {
     }
 }
 
-const countExpired = vehicles => {
+const countExpired = vehicles => {        
+    
     return vehicles
-        .filter(r => r.vencimento && moment(r.vencimento).isValid() && moment(r.vencimento).isBefore(moment()) && r.veiculoId && r)
+        .filter(r => !r.vencimento || (moment(r.vencimento).isValid() && moment(r.vencimento).isBefore(moment()) && r.veiculoId && r))
         .length
 }
 
@@ -135,7 +136,7 @@ const Relatorios = props => {
     let moda = unsortedLabels.sort((a, b) => counter[a] - counter[b])
     moda = moda[moda.length - 1]
 
-    //**********************SEGUROS VENCIDOS***********************
+    //**********************SEGUROS VENCIDOS E VEÍCULOS COM LAUDO***********************
     const currentYear = new Date().getFullYear()
 
     useEffect(() => {

@@ -143,7 +143,7 @@ class ConsultasContainer extends Component {
                 .sort((a, b) => new Date(a['uploadDate']) - new Date(b['uploadDate']))
                 .reverse()
             this.setState({ filesCollection: selectedFiles, showFiles: true, typeId, selectedElement: id })
-            console.log(selectedFiles)
+            
         } else {
             this.setState({ alertType: 'filesNotFound', openAlertDialog: true })
             this.setState({ filesCollection: [] })

@@ -3,6 +3,9 @@ import axios from 'axios'
 import moment from 'moment'
 import StoreHOC from '../Store/StoreHOC'
 
+import AlertDialog from '../Utils/AlertDialog'
+import ReactToast from '../Utils/ReactToast'
+
 import { checkInputErrors } from '../Utils/checkInputErrors'
 import LaudosTemplate from './LaudosTemplate'
 import ShowDetails from '../Reusable Components/ShowDetails'
@@ -14,16 +17,21 @@ const Laudos = props => {
         { veiculos, empresas, empresasLaudo } = props.redux
 
     const
-        [razaoSocial, empresaInput] = useState(empresas[0].razaoSocial),
-        [selectedEmpresa, setEmpresa] = useState(empresas[0]),
-        [oldVehicles, setOldVehicles] = useState(veiculos[1]),
-        [filteredVehicles, setfilteredVehicles] = useState([veiculos[1]]),
+        [razaoSocial, empresaInput] = useState(''),
+        [selectedEmpresa, setEmpresa] = useState(),
+        [oldVehicles, setOldVehicles] = useState(),
+        [filteredVehicles, setfilteredVehicles] = useState(),
         [details, setDetails] = useState(false),
-        [selectedVehicle, selectVehicle] = useState(veiculos[1]),
+        [selectedVehicle, selectVehicle] = useState(),
         [anchorEl, setAnchorEl] = useState(null),
-        [laudoExpiresOn, setLaudoDate] = useState(),
         [dropDisplay, setDropDisplay] = useState('Clique ou arraste o arquivo para anexar o laudo'),
         [laudoDoc, setlaudoDoc] = useState(),
+        [toast, setToast] = useState(false),
+        [alertDialog, setAlertDialog] = useState({
+            open: false,
+            type: 'inputError',
+            msg: '',
+        }),
         [stateInputs, changeInputs] = useState({
             id: undefined,
             validade: '',
@@ -33,7 +41,6 @@ const Laudos = props => {
     useEffect(() => {
         const escFunction = e => { if (e.keyCode === 27) setDetails(false); setAnchorEl(null) }
         document.addEventListener('keydown', escFunction)
-        console.log(veiculos)
     }, [])
 
     const openMenu = (event) => {
@@ -85,10 +92,10 @@ const Laudos = props => {
                 frota = veiculos.filter(v => v.empresa === selectedEmpresa.razaoSocial),
                 oldVehicles = frota.filter(v => currentYear - v.anoCarroceria > 14 && v.anoCarroceria !== null),
                 gotLaudo = oldVehicles.filter(v => v.validadeLaudo !== null),
-                laudoExiped = gotLaudo.filter(v => moment(v.validadeLaudo).isBefore(moment()))
+                laudoExpired = gotLaudo.filter(v => moment(v.validadeLaudo).isBefore(moment()))
 
             setOldVehicles(oldVehicles)
-            //    setfilteredVehicles(oldVehicles)
+            setfilteredVehicles(oldVehicles)
 
         } else {
             setOldVehicles()
@@ -121,7 +128,14 @@ const Laudos = props => {
                 errors.push(errorLabel)
             }
         })
-        if (errors[0]) alert(errors)
+        if (errors[0]) {
+            setAlertDialog({
+                ...alertDialog,
+                open: true,
+                msg: 'Favor verificar o preenchimento dos seguintes campos: ' + errors.toString()
+            })
+            return
+        }
 
         //***************************Prepare the request Object*********************/        
 
@@ -132,10 +146,12 @@ const Laudos = props => {
         const requestBody = { table: 'laudos', requestElement }
 
         //*****************************Submit****************************** */
-        
-        
+
         axios.post('/api/addElement', requestBody)
-            .then(r => console.log(r))
+            .then(() => toggleToast())
+            .catch(err=> console.log(err))
+
+        if (laudoDoc) submitFiles()
     }
 
     const handleFiles = (files, name) => {
@@ -143,6 +159,7 @@ const Laudos = props => {
         if (files && files[0]) {
             let formData = new FormData()
             formData.append('fieldName', 'laudoDoc')
+            formData.append('laudoId', stateInputs.id)
             formData.append('veiculoId', selectedVehicle.veiculoId)
             formData.append(name, files[0])
             setlaudoDoc(formData)
@@ -156,12 +173,15 @@ const Laudos = props => {
     }
 
     const closeDialog = () => {
-        setLaudoDate()
         setlaudoDoc()
         setDropDisplay('Clique ou arraste o arquivo para anexar o laudo')
         setAnchorEl(null)
         //openDialog(false)
     }
+
+    const
+        toggleAlert = () => setAlertDialog({ ...alertDialog, open: !alertDialog.open }),
+        toggleToast = () => setToast(!toast)
 
     const selectOptions = props.redux.empresasLaudo.map(e => e.empresa)
 
@@ -180,11 +200,12 @@ const Laudos = props => {
                 title={'Veículo'}
                 header={'- informações'}
             />}
+
+            {alertDialog.open && <AlertDialog open={alertDialog.open} close={toggleAlert} alertType={alertDialog.type} customMessage={alertDialog.msg} />}
+            <ReactToast open={toast} close={toggleToast} msg='Laudo inserido com sucesso.' />
         </Fragment >
     )
 }
 
 const collections = ['veiculos', 'empresas', 'empresasLaudo', 'getFiles/vehicleDocs']
 export default StoreHOC(collections, Laudos)
-
-//'getFiles/vehicleDocs'

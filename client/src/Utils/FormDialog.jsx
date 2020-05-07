@@ -25,7 +25,7 @@ export default function AlertDialog({ open, close, title, header, inputNames, in
       }
     }
   }
-  console.log(dropDisplay)
+  
   return (
     <Dialog open={open} onClose={close} aria-labelledby="form-dialog-title">
       <DialogTitle id="form-dialog-title">{title}</DialogTitle>

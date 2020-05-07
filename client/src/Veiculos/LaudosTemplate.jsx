@@ -26,7 +26,10 @@ const LaudosTemplate = (
                 selectedEmpresa && <>
                     <header className='container laudos'>
                         <h6>
-                            Selecione o veículo para atualizar consultar ou inserir o laudo de segurança veicular.
+                            {!selectedVehicle ?
+                                'Selecione o veículo para atualizar consultar ou inserir o laudo de segurança veicular.'
+                                : `Preencha os campos abaixo para o veículo placa ${selectedVehicle.placa}`
+                            }
                         </h6>
                         <div>
                             <TextField
@@ -40,9 +43,9 @@ const LaudosTemplate = (
                     </header>
                     {selectedVehicle &&
                         <main>
-                            <h5>
+                            <p>
                                 Para atualizar ou inserir o laudo, informe o número, a data de vencimento, a empresa que emitiu e anexe o documento referente ao laudo.
-                            </h5>
+                            </p>
                             <TextInput
                                 form={laudoForm}
                                 data={stateInputs}
@@ -55,6 +58,7 @@ const LaudosTemplate = (
                                 dropDisplay={dropDisplay}
                                 handleFiles={handleFiles}
                                 single={true}
+                                style={{ width: '400px', margin: '15px auto 0 auto' }}
                             />
 
                             <Button
@@ -63,22 +67,26 @@ const LaudosTemplate = (
                                 className='saveButton'
                                 variant="contained"
                                 onClick={() => handleSubmit()}
-                            // disabled={!placas[0] || !seguroFile ? true : false}
+                                disabled={!laudoDoc ? true : false}
                             >
                                 Salvar
                             </Button>
-
                         </main>
                     }
                     <section>
-                        <h4>Veículos com mais de 15 anos: {filteredVehicles.length}</h4>
+                        <h4>
+                            {!selectedVehicle ?
+                                `Veículos com mais de 15 anos: ${filteredVehicles.length}`
+                                :
+                                `Veículo selecionado: ${selectedVehicle.placa}`
+                            }
 
-
+                        </h4>
                     </section>
                     <section className='placasContainer'>
                         {filteredVehicles.map((v, i) => (
                             //<div key={i} id={v.veiculoId} onClick={() => showDetails(v)} >
-                            <div key={i} id={v.veiculoId} onClick={openMenu}>
+                            <div key={i} id={v.veiculoId} onClick={openMenu} >
                                 <div className="placaCity">{selectedEmpresa.cidade}</div>
                                 <div className="placaCode">{v.placa}</div>
 

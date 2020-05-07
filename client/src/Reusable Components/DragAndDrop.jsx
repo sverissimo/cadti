@@ -4,7 +4,7 @@ import Dropzone from 'react-dropzone'
 import AttachFileIcon from '@material-ui/icons/AttachFile';
 import DescriptionOutlinedIcon from '@material-ui/icons/DescriptionOutlined';
 
-export default function DragAndDrop({ title, name, formData, handleFiles, dropDisplay, single }) {
+export default function DragAndDrop({ title, name, formData, handleFiles, dropDisplay, single, style }) {
 
     const [fileName, setFileName] = useState()
 
@@ -19,7 +19,7 @@ export default function DragAndDrop({ title, name, formData, handleFiles, dropDi
     }, [formData, name])
 
     return (
-        <>
+        <div style={style ? style : null}>
             {title && <p className='fileInput'>{title}</p>}
             <Dropzone onDrop={e => handleFiles(e, name)}>
                 {({ getRootProps, getInputProps }) => (
@@ -29,8 +29,8 @@ export default function DragAndDrop({ title, name, formData, handleFiles, dropDi
                             fileName ?
                                 <Fragment>
                                     <div> <DescriptionOutlinedIcon className='icon' />  {fileName} </div>
-                                    {single &&                                        
-                                            <span>(clique ou arraste outro arquivo para alterar)</span>                                        
+                                    {single &&
+                                        <span>(clique ou arraste outro arquivo para alterar)</span>
                                     }
                                 </Fragment>
                                 :
@@ -41,6 +41,6 @@ export default function DragAndDrop({ title, name, formData, handleFiles, dropDi
                     </div>
                 )}
             </Dropzone>
-        </>
+        </div>
     )
 }

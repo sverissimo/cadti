@@ -16,6 +16,10 @@ h5 {
     font-size: 1.2em
 }
 
+h6 {
+    font-size: 1.1em
+}
+
 div.loading {
     position: fixed;
     top: 45%;
@@ -26,4 +30,11 @@ div.loading {
     margin-top: 25px;
     text-align: center;
     z-index: 15
-  }
+}
+
+.flexContainer {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+}
