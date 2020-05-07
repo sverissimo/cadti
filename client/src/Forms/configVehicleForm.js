@@ -41,6 +41,10 @@ export const configVehicleForm = [
         label: 'Seguradoras',
         name: 'seguradora',
         table: 'seguradora'
+    },
+    {
+        collection: 'laudos',        
+        table: 'laudos'
     }
 
 ]

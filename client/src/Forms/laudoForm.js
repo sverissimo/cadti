@@ -1,29 +1,17 @@
 export const laudoForm = [
     {
         field: 'id',
-        label: 'Número',      
-        datalist: 'placa',
-        autoComplete: true,
-        collection: 'frota',
-        maxLength: 8
+        label: 'Número do laudo',              
+        maxLength: 30
     },
     {
-        field: 'renavam',
-        label: 'Renavam',        
+        field: 'validade',
+        label: 'Data de validade',
+        type: 'date'
     },
     {
-        field: 'nChassi',
-        label: 'Número do Chassi',        
-        maxLength: 17,
-    },
-    {
-        field: 'delegatario',
-        label: 'Delegatário',        
-        disabled: true
-    },
-    {
-        field: 'utilizacao',
-        label: 'Utilização',        
-        disabled: true
-    }
+        field: 'empresaLaudo',
+        label: 'Empresa emissora',        
+        select: true
+    },    
 ]

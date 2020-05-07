@@ -3,31 +3,37 @@ import axios from 'axios'
 import moment from 'moment'
 import StoreHOC from '../Store/StoreHOC'
 
+import { checkInputErrors } from '../Utils/checkInputErrors'
 import LaudosTemplate from './LaudosTemplate'
 import ShowDetails from '../Reusable Components/ShowDetails'
-import FormDialog from '../Utils/FormDialog'
+import { laudoForm } from '../Forms/laudoForm'
 
 const Laudos = props => {
 
     const
-        { veiculos, empresas } = props.redux
+        { veiculos, empresas, empresasLaudo } = props.redux
 
     const
-        [razaoSocial, empresaInput] = useState(''),
-        [selectedEmpresa, setEmpresa] = useState(),
-        [oldVehicles, setOldVehicles] = useState(),
-        [filteredVehicles, setfilteredVehicles] = useState([]),
+        [razaoSocial, empresaInput] = useState(empresas[0].razaoSocial),
+        [selectedEmpresa, setEmpresa] = useState(empresas[0]),
+        [oldVehicles, setOldVehicles] = useState(veiculos[1]),
+        [filteredVehicles, setfilteredVehicles] = useState([veiculos[1]]),
         [details, setDetails] = useState(false),
-        [selectedVehicle, selectVehicle] = useState(),
+        [selectedVehicle, selectVehicle] = useState(veiculos[1]),
         [anchorEl, setAnchorEl] = useState(null),
-        [dialogOpen, openDialog] = useState(false),
         [laudoExpiresOn, setLaudoDate] = useState(),
         [dropDisplay, setDropDisplay] = useState('Clique ou arraste o arquivo para anexar o laudo'),
-        [laudoDoc, setlaudoDoc] = useState()
+        [laudoDoc, setlaudoDoc] = useState(),
+        [stateInputs, changeInputs] = useState({
+            id: undefined,
+            validade: '',
+            empresaLaudo: ''
+        })
 
     useEffect(() => {
         const escFunction = e => { if (e.keyCode === 27) setDetails(false); setAnchorEl(null) }
         document.addEventListener('keydown', escFunction)
+        console.log(veiculos)
     }, [])
 
     const openMenu = (event) => {
@@ -50,6 +56,7 @@ const Laudos = props => {
             empresaInput(value)
             const selectedEmpresa = empresas.find(e => e.razaoSocial === value)
             setEmpresa(selectedEmpresa)
+            return
         }
         if (name === 'placa' && oldVehicles[0]) {
             if (typeof value === 'string') value = value.toLocaleUpperCase()
@@ -61,14 +68,15 @@ const Laudos = props => {
 
                 setfilteredVehicles(filtered)
                 selectVehicle(vehicle)
-
-                console.log(vehicle)
-                //selectVehicle(vehicle)
-
+                return
             }
         }
-        if (name === 'laudo') setLaudoDate(value)
-    }, [empresaInput, empresas, oldVehicles, laudoExpiresOn])
+
+        changeInputs({
+            ...stateInputs, [name]: value
+        })
+
+    }, [empresaInput, empresas, oldVehicles, stateInputs])
 
     useEffect(() => {
         if (selectedEmpresa && selectedEmpresa !== '') {
@@ -80,7 +88,7 @@ const Laudos = props => {
                 laudoExiped = gotLaudo.filter(v => moment(v.validadeLaudo).isBefore(moment()))
 
             setOldVehicles(oldVehicles)
-            setfilteredVehicles(oldVehicles)
+            //    setfilteredVehicles(oldVehicles)
 
         } else {
             setOldVehicles()
@@ -101,8 +109,33 @@ const Laudos = props => {
         }
     }
 
-    const insertLaudo = e => {
-        console.log(e, laudoExpiresOn)
+    const handleSubmit = e => {
+        let
+            { empresaLaudo, ...requestElement } = stateInputs,
+            errors = checkInputErrors() || []
+
+        //***************************Check for errors*********************/
+        Object.keys(stateInputs).forEach(k => {
+            if (k !== 'validade' && (!stateInputs[k] || stateInputs[k] === '')) {
+                let errorLabel = laudoForm.find(obj => obj.field === k).label
+                errors.push(errorLabel)
+            }
+        })
+        if (errors[0]) alert(errors)
+
+        //***************************Prepare the request Object*********************/        
+
+        const empresa = empresasLaudo.find(e => e.empresa === empresaLaudo)
+        if (empresa) requestElement.empresa_id = empresa.id
+        requestElement.veiculo_id = selectedVehicle.veiculoId
+
+        const requestBody = { table: 'laudos', requestElement }
+
+        //*****************************Submit****************************** */
+        
+        
+        axios.post('/api/addElement', requestBody)
+            .then(r => console.log(r))
     }
 
     const handleFiles = (files, name) => {
@@ -127,15 +160,18 @@ const Laudos = props => {
         setlaudoDoc()
         setDropDisplay('Clique ou arraste o arquivo para anexar o laudo')
         setAnchorEl(null)
-        openDialog(false)
+        //openDialog(false)
     }
+
+    const selectOptions = props.redux.empresasLaudo.map(e => e.empresa)
+
     return (
         <Fragment>
 
             <LaudosTemplate
-                empresas={empresas} razaoSocial={razaoSocial} selectedEmpresa={selectedEmpresa} filteredVehicles={filteredVehicles}
-                handleInput={handleInput} anchorEl={anchorEl} openMenu={openMenu} closeMenu={closeMenu}
-                showDetails={showDetails} openDialog={openDialog}
+                empresas={empresas} razaoSocial={razaoSocial} selectedEmpresa={selectedEmpresa} filteredVehicles={filteredVehicles} selectedVehicle={selectedVehicle}
+                handleInput={handleInput} anchorEl={anchorEl} openMenu={openMenu} closeMenu={closeMenu} handleFiles={handleFiles} handleSubmit={handleSubmit}
+                showDetails={showDetails} stateInputs={stateInputs} selectOptions={selectOptions} dropDisplay={dropDisplay} laudoDoc={laudoDoc}
             />
             {details && <ShowDetails
                 close={showDetails}
@@ -144,27 +180,11 @@ const Laudos = props => {
                 title={'Veículo'}
                 header={'- informações'}
             />}
-            {dialogOpen && <FormDialog
-                open={dialogOpen}
-                close={closeDialog}
-                title={`Placa ${selectedVehicle ? selectedVehicle.placa : ''}  Certificado de Segurança Veicular`}
-                header='Para inserir o certificado, informe o número, a data de vencimento, a empresa que emitiu e anexe o documento referente ao laudo.'
-                type='text'
-                inputNames={['id', 'validade', 'empresa']}
-                inputLabels={['Número do laudo', 'Data de validade', 'Empresa emissora']}
-                fileInputName='laudoDoc'
-                values={[laudoExpiresOn]}
-                handleInput={handleInput}
-                handleFiles={handleFiles}
-                confirm={submitFiles}
-                dropDisplay={dropDisplay}
-                formData={[]}
-            />}
         </Fragment >
     )
 }
 
-const collections = ['veiculos', 'empresas', 'laudos', 'getFiles/vehicleDocs']
+const collections = ['veiculos', 'empresas', 'empresasLaudo', 'getFiles/vehicleDocs']
 export default StoreHOC(collections, Laudos)
 
 //'getFiles/vehicleDocs'

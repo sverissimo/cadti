@@ -48,15 +48,16 @@ export default function (requestArray, WrappedComponent) {
                 this.props.insertData(insertedObjects, 'procuradores')
             })
             socket.on('addElements', ({ insertedObjects, table }) => {
-                const { collection } = configVehicleForm.find(el => el.table === table)                
+                const { collection } = configVehicleForm.find(el => el.table === table)
                 this.props.insertData(insertedObjects, collection)
             })
 
-            socket.on('updateElements', ({ collection, updatedCollection }) => {                
+            socket.on('updateElements', ({ collection, updatedCollection }) => {
                 this.props.updateCollection(updatedCollection, collection)
             })
 
             socket.on('updateVehicle', updatedObjects => {
+                console.log(updatedObjects)
                 this.props.updateData(updatedObjects, 'veiculos', 'veiculoId')
             })
             socket.on('updateInsurance', updatedObjects => {

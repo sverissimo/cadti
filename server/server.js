@@ -78,7 +78,7 @@ app.get('/api/getOneFile/', getOneFileMetadata)
 
 //************************************ GET METHOD ROUTES *********************** */
 
-const routes = 'empresas|socios|veiculos|modelosChassi|carrocerias|equipamentos|seguros|seguradoras|procuradores|procuracoes|laudos'
+const routes = 'empresas|socios|veiculos|modelosChassi|carrocerias|equipamentos|seguros|seguradoras|procuradores|procuracoes|empresasLaudo'
 
 app.get(`/api/${routes}`, apiGetRouter)
 
@@ -204,6 +204,10 @@ app.post('/api/addElement', (req, res) => {
         if (err) console.log(err)
         if (t && t.rows) {
             io.sockets.emit('addElements', { insertedObjects: t.rows, table })
+            if (table === 'laudos') {
+                const data = getUpdatedData('veiculo', `veiculo.veiculo_id = ${requestElement.veiculo_id}`)
+                data.then(res => io.sockets.emit('updateVehicle', res))
+            }
             res.send(t.rows);
         }
     })

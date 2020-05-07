@@ -64,8 +64,8 @@ const carrocerias = `
 		`
 
 const equipamentos = `SELECT * FROM equipamentos`
-
 const seguradoras = `SELECT * FROM seguradora`
+const empresasLaudo = `SELECT * from empresa_laudo`
 
 const laudos = `
 SELECT laudos.*,
@@ -74,7 +74,6 @@ FROM laudos
 LEFT JOIN empresa_laudo emp
 	ON emp.id = laudos.empresa_id
 `
-
 const seguros = `
 SELECT seguro.*,
 		s.seguradora,
@@ -129,5 +128,5 @@ const lookup = (req, res) => {
 
 module.exports = {
 	empresas, veiculos, modeloChassi, carrocerias, equipamentos,
-	seguradoras, seguros, socios, procuradores, procuracoes, lookup, laudos
+	seguradoras, seguros, socios, procuradores, procuracoes, lookup, laudos, empresasLaudo
 }

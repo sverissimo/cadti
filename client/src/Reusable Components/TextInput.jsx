@@ -34,7 +34,7 @@ const useStyles = makeStyles(theme => ({
     },
 }))
 
-export default function TextInput({ handleInput, handleBlur, form, data }) {
+export default function TextInput({ handleInput, handleBlur, form, data, selectOptions }) {
 
     const classes = useStyles(),
         { helperText } = classes
@@ -59,7 +59,7 @@ export default function TextInput({ handleInput, handleBlur, form, data }) {
         else if (el.pattern && value && value.match(el.pattern) !== null) return '✓'
         else return ' '
     }
-
+    
     return form.map((el, i) =>
         <Fragment key={i}>
             <TextField
@@ -105,13 +105,21 @@ export default function TextInput({ handleInput, handleBlur, form, data }) {
                     }
                 }}
             >
-
-                {el.select === true && el.options.map((opt, i) =>
-                    <MenuItem key={i} value={opt} >
-                        {opt}
-                    </MenuItem>
-                )}
-
+                {el.select === true ?
+                    selectOptions ?
+                        selectOptions.map((opt, i) =>
+                            <MenuItem key={i} value={opt} >
+                                {opt}
+                            </MenuItem>
+                        )
+                        :
+                        el.options.map((opt, i) =>
+                            <MenuItem key={i} value={opt} >
+                                {opt}
+                            </MenuItem>
+                        )
+                    : null
+                }
 
             </TextField>
             {el.autoComplete === true && <AutoComplete
