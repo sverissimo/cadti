@@ -4,16 +4,29 @@ import { laudoForm } from '../Forms/laudoForm'
 
 import TextInput from '../Reusable Components/TextInput'
 import SelectEmpresa from '../Reusable Components/SelectEmpresa'
+import StandardTable from '../Reusable Components/StandardTable'
 import DragAndDrop from '../Reusable Components/DragAndDrop'
 import OnClickMenu from '../Reusable Components/OnClickMenu'
+
 
 import TextField from '@material-ui/core/TextField'
 import Search from '@material-ui/icons/Search'
 import Button from '@material-ui/core/Button'
+import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 
 const LaudosTemplate = (
-    { empresas, razaoSocial, selectedEmpresa, handleInput, filteredVehicles, selectedVehicle, stateInputs, selectOptions,
-        openMenu, anchorEl, closeMenu, showDetails, handleFiles, laudoDoc, dropDisplay, handleSubmit }) => {
+    { empresas, razaoSocial, selectedEmpresa, filteredVehicles, selectedVehicle, stateInputs, selectOptions,
+        anchorEl, laudoDoc, dropDisplay, functions }) => {
+
+    const { handleInput, clickOnPlate, showDetails, formatTable, handleFiles, handleSubmit, closeMenu, clear } = functions
+
+
+    const renderColor = laudos => {
+        if (laudos && laudos[0]) return
+        else return { backgroundColor: 'rgb(136, 13, 13)' }
+    }
+
+    const table = formatTable()
 
     return (
         <div>
@@ -86,13 +99,14 @@ const LaudosTemplate = (
                     <section className='placasContainer'>
                         {filteredVehicles.map((v, i) => (
                             //<div key={i} id={v.veiculoId} onClick={() => showDetails(v)} >
-                            <div key={i} id={v.veiculoId} onClick={openMenu} >
+                            <div key={i} id={v.veiculoId} onClick={clickOnPlate} style={renderColor(v.laudos)}>
                                 <div className="placaCity">{selectedEmpresa.cidade}</div>
                                 <div className="placaCode">{v.placa}</div>
 
                             </div>
                         ))}
                     </section>
+
                     <OnClickMenu
                         anchorEl={anchorEl}
                         handleClose={closeMenu}
@@ -104,6 +118,23 @@ const LaudosTemplate = (
                     />
                 </>
             }
+            {selectedVehicle && selectedVehicle.laudos &&
+                <>
+                    {typeof table === 'object' ? <StandardTable
+                        length='3'
+                        title='Laudos vinculados a este veículo'
+                        labels={table.labels}
+                        values={table.values}
+                    /> :
+                        <p>{table}</p>
+                    }
+                    <div style={{ display: 'flex', alignContent: 'center', padding: '5px 0 5px 10px', cursor: 'pointer', width: '100px' }} onClick={clear}>
+                        <ArrowBackIcon size='small' />
+                        <span style={{ padding: '1px 0 0 2px', marginLeft: '2px', fontSize: '1rem' }}>Voltar</span>
+                    </div>
+                </>
+            }
+
         </div>
     )
 }

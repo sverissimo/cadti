@@ -48,7 +48,7 @@ export default function Revisao({ data, parentComponent, form, filesForm, files 
     return (
         <>
             <Paper className={paper}>
-                <div className='divTable'>
+                <main className='divTable'>
                     {
                         ultimateData.map(({ subtitle, form, data }, y) =>
                             <Fragment key={y}>
@@ -58,32 +58,10 @@ export default function Revisao({ data, parentComponent, form, filesForm, files 
                                     labels={form.map(s=> s.label)}
                                     values={Object.values(data)}
                                 />
-                               {/*  <table>
-                                    <thead>
-                                        <tr>
-                                            <th className='tHeader'
-                                                colSpan={length}>{subtitle}</th>
-                                        </tr>
-                                        <tr>
-                                            {form.map((s, i) => <th key={i}>{s.label}</th>)}
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            {Object.values(data).map((d, j) =>
-                                                <td className='review' key={j}>
-                                                    {d}
-                                                </td>
-                                            )}
-                                        </tr>
-                                    </tbody>
-                                </table> */}
-
                             </Fragment>
                         )}
-
-                </div>
-                <div style={{ margin: '30px 0 0 25px' }}>
+                </main>
+                <section style={{ margin: '30px 0 0 25px' }}>
                     <h3> Equipamentos </h3>
                     <p>
                         {
@@ -99,8 +77,7 @@ export default function Revisao({ data, parentComponent, form, filesForm, files 
                             </span>)
                         }
                     </p>
-                </div>
-
+                </section>
 
                 <h3 style={{ margin: '30px 0 0 25px' }}> <FileCopyOutlinedIcon style={{ verticalAlign: 'middle', padding: '0 0 0 8px' }} /> Documentos </h3>
                 {files && <ShowLocalFiles form={filesForm} files={files} />}

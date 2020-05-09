@@ -23,8 +23,7 @@ const veiculos = `
 			d2.razao_social as compartilhado,
 			seguradora.seguradora,
 			seguro.data_emissao,
-			seguro.vencimento,
-			laudos.validade as validade_laudo
+			seguro.vencimento			
 		FROM veiculo
 		LEFT JOIN public.modelo_chassi
 			ON veiculo.modelo_chassi_id = public.modelo_chassi.id
@@ -41,9 +40,7 @@ const veiculos = `
 		LEFT JOIN public.seguro
 			ON veiculo.apolice = seguro.apolice
 		LEFT JOIN public.seguradora
-			ON public.seguradora.id = seguro.seguradora_id
-		LEFT JOIN public.laudos
-			ON public.laudos.veiculo_id = veiculo.veiculo_id
+			ON public.seguradora.id = seguro.seguradora_id		
 		ORDER BY veiculo.veiculo_id DESC
 		`
 

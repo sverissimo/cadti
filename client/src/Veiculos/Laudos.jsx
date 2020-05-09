@@ -14,13 +14,13 @@ import { laudoForm } from '../Forms/laudoForm'
 const Laudos = props => {
 
     const
-        { veiculos, empresas, empresasLaudo } = props.redux
+        { veiculos, empresas, empresasLaudo, laudos } = props.redux
 
     const
         [razaoSocial, empresaInput] = useState(''),
         [selectedEmpresa, setEmpresa] = useState(),
         [oldVehicles, setOldVehicles] = useState(),
-        [filteredVehicles, setfilteredVehicles] = useState(),
+        [filteredVehicles, setFilteredVehicles] = useState([]),
         [details, setDetails] = useState(false),
         [selectedVehicle, selectVehicle] = useState(),
         [anchorEl, setAnchorEl] = useState(null),
@@ -41,19 +41,49 @@ const Laudos = props => {
     useEffect(() => {
         const escFunction = e => { if (e.keyCode === 27) setDetails(false); setAnchorEl(null) }
         document.addEventListener('keydown', escFunction)
+
     }, [])
 
-    const openMenu = (event) => {
-        event.persist()
-        const { id } = event.currentTarget
-        let vehicle
-        if (id) vehicle = veiculos.find(v => v.veiculoId.toString() === id)
+    useEffect(() => {
+        if (selectedEmpresa && selectedEmpresa !== '') {
+            const
+                currentYear = new Date().getFullYear(),
+                frota = veiculos.filter(v => v.empresa === selectedEmpresa.razaoSocial),
+                oldVehicles = frota.filter(v => currentYear - v.anoCarroceria > 14 && v.anoCarroceria !== null),
+                gotLaudo = oldVehicles.filter(v => v.validadeLaudo !== null),
+                laudoExpired = gotLaudo.filter(v => moment(v.validadeLaudo).isBefore(moment()))
 
-        selectVehicle(vehicle)
-        setAnchorEl(event.target);
-    }
+            let vehiclesLaudo = [], laudosTemp = []
+            oldVehicles.forEach(v => {
+                laudos.forEach(l => {
+                    if (v.veiculoId === l.veiculoId) {
+                        laudosTemp.push(l)
+                    }
+                })
+                laudosTemp.sort((a, b) => {
+                    const dateA = new Date(a.validade)
+                    const dateB = new Date(b.validade)
+                    return dateB - dateA
+                })
 
-    const closeMenu = () => setAnchorEl(null)
+                laudosTemp.forEach(({ validade }, i) => {
+                    if (validade) laudosTemp[i].validade = moment(validade).format('DD/MM/YYYY')
+                })
+
+                vehiclesLaudo.push({ ...v, laudos: laudosTemp })
+                laudosTemp = []
+            })
+
+            setOldVehicles(vehiclesLaudo)
+            setFilteredVehicles(vehiclesLaudo)
+
+        } else {
+            setOldVehicles()
+            setFilteredVehicles([])
+            setEmpresa()
+        }
+    }, [selectedEmpresa, veiculos])
+
 
     const handleInput = useCallback(e => {
         const { name } = e.target
@@ -67,42 +97,58 @@ const Laudos = props => {
         }
         if (name === 'placa' && oldVehicles[0]) {
             if (typeof value === 'string') value = value.toLocaleUpperCase()
-            if (!value || value === '') setfilteredVehicles(oldVehicles)
+            if (!value || value === '') setFilteredVehicles(oldVehicles)
             else {
                 let vehicle
                 const filtered = oldVehicles.filter(v => v.placa.match(value))
                 if (filtered.length === 1) vehicle = filtered[0]
 
-                setfilteredVehicles(filtered)
+                setFilteredVehicles(filtered)
                 selectVehicle(vehicle)
                 return
             }
         }
-
         changeInputs({
             ...stateInputs, [name]: value
         })
 
     }, [empresaInput, empresas, oldVehicles, stateInputs])
 
-    useEffect(() => {
-        if (selectedEmpresa && selectedEmpresa !== '') {
-            const
-                currentYear = new Date().getFullYear(),
-                frota = veiculos.filter(v => v.empresa === selectedEmpresa.razaoSocial),
-                oldVehicles = frota.filter(v => currentYear - v.anoCarroceria > 14 && v.anoCarroceria !== null),
-                gotLaudo = oldVehicles.filter(v => v.validadeLaudo !== null),
-                laudoExpired = gotLaudo.filter(v => moment(v.validadeLaudo).isBefore(moment()))
+    const clickOnPlate = event => {
 
-            setOldVehicles(oldVehicles)
-            setfilteredVehicles(oldVehicles)
-
+        if (selectedVehicle) {
+            event.persist()
+            setAnchorEl(event.target);
         } else {
-            setOldVehicles()
-            setfilteredVehicles([])
-            setEmpresa()
+            const { id } = event.currentTarget
+            let v
+            if (id) v = oldVehicles.find(v => v.veiculoId.toString() === id)
+            console.log(v)
+            selectVehicle(v)
+            setFilteredVehicles([v])
         }
-    }, [selectedEmpresa, veiculos])
+    }
+
+    const formatTable = () => {
+
+        if (selectedVehicle && selectedVehicle.laudos[0]) {
+            const
+                { laudos } = selectedVehicle,
+                { createdAt, veiculoId, empresaId, ...lastLaudo } = laudos[0]
+
+            let labels = [], values = []
+            laudoForm.forEach(obj => {
+                labels.push(obj.label)
+                values = Object.values(lastLaudo)
+            })
+            return { labels, values }
+        } else return 'Nenhum laudo cadastrado para este veículo.'
+    }
+
+    const clear = () => {
+        setFilteredVehicles(oldVehicles)
+        selectVehicle()
+    }
 
     const showDetails = () => {
 
@@ -149,7 +195,7 @@ const Laudos = props => {
 
         axios.post('/api/addElement', requestBody)
             .then(() => toggleToast())
-            .catch(err=> console.log(err))
+            .catch(err => console.log(err))
 
         if (laudoDoc) submitFiles()
     }
@@ -180,6 +226,7 @@ const Laudos = props => {
     }
 
     const
+        closeMenu = () => setAnchorEl(null),
         toggleAlert = () => setAlertDialog({ ...alertDialog, open: !alertDialog.open }),
         toggleToast = () => setToast(!toast)
 
@@ -190,8 +237,8 @@ const Laudos = props => {
 
             <LaudosTemplate
                 empresas={empresas} razaoSocial={razaoSocial} selectedEmpresa={selectedEmpresa} filteredVehicles={filteredVehicles} selectedVehicle={selectedVehicle}
-                handleInput={handleInput} anchorEl={anchorEl} openMenu={openMenu} closeMenu={closeMenu} handleFiles={handleFiles} handleSubmit={handleSubmit}
-                showDetails={showDetails} stateInputs={stateInputs} selectOptions={selectOptions} dropDisplay={dropDisplay} laudoDoc={laudoDoc}
+                anchorEl={anchorEl} stateInputs={stateInputs} selectOptions={selectOptions} dropDisplay={dropDisplay} laudoDoc={laudoDoc}
+                functions={{ handleInput, clickOnPlate, formatTable, showDetails, handleFiles, handleSubmit, closeMenu, clear }}
             />
             {details && <ShowDetails
                 close={showDetails}
@@ -207,5 +254,14 @@ const Laudos = props => {
     )
 }
 
-const collections = ['veiculos', 'empresas', 'empresasLaudo', 'getFiles/vehicleDocs']
+const collections = ['veiculos', 'empresas', 'empresasLaudo', 'laudos', 'getFiles/vehicleDocs']
 export default StoreHOC(collections, Laudos)
+
+
+
+/*  [razaoSocial, empresaInput] = useState(empresas[0].razaoSocial),
+ [selectedEmpresa, setEmpresa] = useState(empresas[0]),
+ [oldVehicles, setOldVehicles] = useState(veiculos[1]),
+ [filteredVehicles, setFilteredVehicles] = useState([veiculos[1]]),
+ [details, setDetails] = useState(false),
+ [selectedVehicle, selectVehicle] = useState(veiculos[1]), */

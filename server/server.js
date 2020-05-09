@@ -78,7 +78,7 @@ app.get('/api/getOneFile/', getOneFileMetadata)
 
 //************************************ GET METHOD ROUTES *********************** */
 
-const routes = 'empresas|socios|veiculos|modelosChassi|carrocerias|equipamentos|seguros|seguradoras|procuradores|procuracoes|empresasLaudo'
+const routes = 'empresas|socios|veiculos|modelosChassi|carrocerias|equipamentos|seguros|seguradoras|procuradores|procuracoes|empresasLaudo|laudos'
 
 app.get(`/api/${routes}`, apiGetRouter)
 
