@@ -7,7 +7,7 @@
     background-color: #e5eaf1
 }
 
-h2, h3, h4, h5, h6, p, span {
+h2, h3, h4, h5, h6, p {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
     font-weight: 400;
 }
@@ -37,4 +37,14 @@ div.loading {
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: center;
+}
+
+.voltarDiv {
+    display: flex;
+    align-content: center;
+    margin-top: 15px;
+    padding: 5px 0 5px 10px;
+    cursor: pointer;
+    width: 100px;
+    color: rgb(50, 65, 120);
 }

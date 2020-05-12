@@ -17,8 +17,8 @@ const Laudos = props => {
         { veiculos, empresas, empresasLaudo, laudos } = props.redux
 
     const
-        [razaoSocial, empresaInput] = useState(''),
-        [selectedEmpresa, setEmpresa] = useState(),
+        [razaoSocial, empresaInput] = useState(empresas[0].razaoSocial),
+        [selectedEmpresa, setEmpresa] = useState(empresas[0]),
         [oldVehicles, setOldVehicles] = useState(),
         [filteredVehicles, setFilteredVehicles] = useState([]),
         [details, setDetails] = useState(false),
@@ -49,7 +49,7 @@ const Laudos = props => {
             const
                 currentYear = new Date().getFullYear(),
                 frota = veiculos.filter(v => v.empresa === selectedEmpresa.razaoSocial),
-                oldVehicles = frota.filter(v => currentYear - v.anoCarroceria > 14 && v.anoCarroceria !== null),
+                oldVehicles = frota.filter(v => currentYear - v.anoCarroceria > 14 && v.anoCarroceria !== null).sort((a, b) => a.placa.localeCompare(b.placa)),
                 gotLaudo = oldVehicles.filter(v => v.validadeLaudo !== null),
                 laudoExpired = gotLaudo.filter(v => moment(v.validadeLaudo).isBefore(moment()))
 
@@ -57,19 +57,16 @@ const Laudos = props => {
             oldVehicles.forEach(v => {
                 laudos.forEach(l => {
                     if (v.veiculoId === l.veiculoId) {
+
                         laudosTemp.push(l)
                     }
-                })
+                })                
                 laudosTemp.sort((a, b) => {
                     const dateA = new Date(a.validade)
                     const dateB = new Date(b.validade)
                     return dateB - dateA
                 })
-
-                laudosTemp.forEach(({ validade }, i) => {
-                    if (validade) laudosTemp[i].validade = moment(validade).format('DD/MM/YYYY')
-                })
-
+                
                 vehiclesLaudo.push({ ...v, laudos: laudosTemp })
                 laudosTemp = []
             })
@@ -123,7 +120,6 @@ const Laudos = props => {
             const { id } = event.currentTarget
             let v
             if (id) v = oldVehicles.find(v => v.veiculoId.toString() === id)
-            console.log(v)
             selectVehicle(v)
             setFilteredVehicles([v])
         }
@@ -131,7 +127,8 @@ const Laudos = props => {
 
     const formatTable = () => {
 
-        if (selectedVehicle && selectedVehicle.laudos[0]) {
+        if (selectedVehicle && selectedVehicle.laudos && selectedVehicle.laudos[0]) {
+
             const
                 { laudos } = selectedVehicle,
                 { createdAt, veiculoId, empresaId, ...lastLaudo } = laudos[0]
@@ -259,9 +256,22 @@ export default StoreHOC(collections, Laudos)
 
 
 
-/*  [razaoSocial, empresaInput] = useState(empresas[0].razaoSocial),
- [selectedEmpresa, setEmpresa] = useState(empresas[0]),
- [oldVehicles, setOldVehicles] = useState(veiculos[1]),
- [filteredVehicles, setFilteredVehicles] = useState([veiculos[1]]),
- [details, setDetails] = useState(false),
- [selectedVehicle, selectVehicle] = useState(veiculos[1]), */
+
+
+
+/*
+[razaoSocial, empresaInput] = useState(empresas[0].razaoSocial),
+        [selectedEmpresa, setEmpresa] = useState(empresas[0]),
+        [oldVehicles, setOldVehicles] = useState(veiculos[1]),
+        [filteredVehicles, setFilteredVehicles] = useState([veiculos[1]]),
+        [details, setDetails] = useState(false),
+        [selectedVehicle, selectVehicle] = useState(veiculos[1]),
+
+
+
+[razaoSocial, empresaInput] = useState(''),
+[selectedEmpresa, setEmpresa] = useState(),
+[oldVehicles, setOldVehicles] = useState(),
+[filteredVehicles, setFilteredVehicles] = useState([]),
+[details, setDetails] = useState(false),
+[selectedVehicle, selectVehicle] = useState(), */

@@ -1,6 +1,19 @@
 import React from 'react'
+import moment from 'moment'
 
 export default function StandardTable({ length, title, labels, values, style }) {
+
+    const dateFormat = value => {
+        if (moment.utc(value).isValid()) {
+            return moment(value).format('DD/MM/YYYY')
+
+        }
+        else {
+            console.log(value)
+            return value
+        }
+    }
+
     return (
         <table>
             <thead>
@@ -17,7 +30,7 @@ export default function StandardTable({ length, title, labels, values, style }) 
                 <tr>
                     {values.map((v, j) =>
                         <td className='review' key={j}>
-                            {v}
+                            {dateFormat(v)}
                         </td>
                     )}
                 </tr>

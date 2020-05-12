@@ -1,4 +1,5 @@
 import React from 'react'
+import moment from 'moment'
 
 import { laudoForm } from '../Forms/laudoForm'
 
@@ -7,7 +8,6 @@ import SelectEmpresa from '../Reusable Components/SelectEmpresa'
 import StandardTable from '../Reusable Components/StandardTable'
 import DragAndDrop from '../Reusable Components/DragAndDrop'
 import OnClickMenu from '../Reusable Components/OnClickMenu'
-
 
 import TextField from '@material-ui/core/TextField'
 import Search from '@material-ui/icons/Search'
@@ -20,10 +20,15 @@ const LaudosTemplate = (
 
     const { handleInput, clickOnPlate, showDetails, formatTable, handleFiles, handleSubmit, closeMenu, clear } = functions
 
-
     const renderColor = laudos => {
-        if (laudos && laudos[0]) return
-        else return { backgroundColor: 'rgb(136, 13, 13)' }
+        if (laudos && laudos[0] && laudos[0].validade) {
+            const { validade } = laudos[0]
+
+            if (moment(validade).isValid() && moment(validade).isAfter(moment().toDate())) return { backgroundColor: 'rgb(13, 136, 13)' }
+            if (moment(validade).isValid() && moment(validade).isBefore(moment().toDate())) return
+            //console.log(moment(validade).isAfter(moment().toDate()))           
+        }
+        else return  { backgroundColor: 'rgb(136, 13, 13)' }
     }
 
     const table = formatTable()
@@ -38,12 +43,12 @@ const LaudosTemplate = (
             {
                 selectedEmpresa && <>
                     <header className='container laudos'>
-                        <h6>
+                        <h5>
                             {!selectedVehicle ?
                                 'Selecione o veículo para atualizar consultar ou inserir o laudo de segurança veicular.'
                                 : `Preencha os campos abaixo para o veículo placa ${selectedVehicle.placa}`
                             }
-                        </h6>
+                        </h5>
                         <div>
                             <TextField
                                 inputProps={{ name: 'placa' }}
@@ -73,7 +78,6 @@ const LaudosTemplate = (
                                 single={true}
                                 style={{ width: '400px', margin: '15px auto 0 auto' }}
                             />
-
                             <Button
                                 size="small"
                                 color='primary'
@@ -89,11 +93,16 @@ const LaudosTemplate = (
                     <section>
                         <h4>
                             {!selectedVehicle ?
-                                `Veículos com mais de 15 anos: ${filteredVehicles.length}`
+                                <>
+                                    {`Exibindo ${filteredVehicles.length} veículos com mais de 15 anos.`} <br />
+                                    <span style ={{ color: 'rgb(13, 136, 13)' }}>Laudo vigente</span><br />
+                                    <span style ={{ color: 'rgb(197, 128, 0)' }}>Laudo vencido</span><br />
+                                    <span style ={{ color: 'rgb(136, 13, 13)' }}>Nenhum Laudo cadastrado</span><br />
+
+                                </>
                                 :
                                 `Veículo selecionado: ${selectedVehicle.placa}`
                             }
-
                         </h4>
                     </section>
                     <section className='placasContainer'>
@@ -102,7 +111,6 @@ const LaudosTemplate = (
                             <div key={i} id={v.veiculoId} onClick={clickOnPlate} style={renderColor(v.laudos)}>
                                 <div className="placaCity">{selectedEmpresa.cidade}</div>
                                 <div className="placaCode">{v.placa}</div>
-
                             </div>
                         ))}
                     </section>
@@ -128,13 +136,12 @@ const LaudosTemplate = (
                     /> :
                         <p>{table}</p>
                     }
-                    <div style={{ display: 'flex', alignContent: 'center', padding: '5px 0 5px 10px', cursor: 'pointer', width: '100px' }} onClick={clear}>
+                    <div className='voltarDiv' onClick={clear}>
                         <ArrowBackIcon size='small' />
-                        <span style={{ padding: '1px 0 0 2px', marginLeft: '2px', fontSize: '1rem' }}>Voltar</span>
+                        <span style={{ padding: '2px 0 0 2px', marginLeft: '2px', fontSize: '1rem' }}>Voltar</span>
                     </div>
                 </>
             }
-
         </div>
     )
 }
