@@ -32,11 +32,23 @@ div.loading {
     z-index: 15
 }
 
-.flexContainer {
+.flex {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
+    justify-content: space-between;
+}
+
+.flex:last-child:not(:first-child) {
+    justify-content: flex-start;
+}
+
+.center {
     justify-content: center;
+}
+
+.spaceBetween:last-child {
+    justify-content: flex-start;
 }
 
 .voltarDiv {

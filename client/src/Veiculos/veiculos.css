@@ -189,7 +189,6 @@ table {
 }
 
 h6 {
-    
     padding-left: 0px !important
 }
 
@@ -225,7 +224,9 @@ td.MuiTableCell-root {
     vertical-align: middle;
     color: #000;
 }
+
 /* ********************CLIQUE AQUI PARA <div> ************************* */
+
 .addNewDiv {
     display: flex;
     justify-content: flex-end;
@@ -242,45 +243,45 @@ td.MuiTableCell-root {
 
 /*******************************PLACAS******************************/
 
-.placasContainer {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: space-between;
-}
 
-.placasContainer>div {
+.placaContainer {
     display: flex;
     flex-direction: column;
     align-items: center;
-    background-color: rgb(197, 128, 0);
     color: white;
     height: 36px;
     width: 90px;
     padding: 2px 08px;
-    margin: 15px;
+    margin: 10px ;
     border: 2px solid black;
     border-radius: 5%;
     font-weight: 300;
     cursor: pointer;
 }
 
-.placasContainer:last-child {
+.placaContainer:last-child {
     justify-content: flex-start;
 }
 
 .placaCity {
     font-size: 7px;
     height: 25%;
-    padding: 0 0 10px 0;    
+    padding: 0 0 10px 0;
 }
 
 .placaCode, .placaCity {
-    pointer-events: none;   
+    pointer-events: none;
 }
 
-.container.laudos{
+
+.placasCaption {
+    margin-right: 20px;
+    width: 36%;
+    justify-content: space-between !important;
+    align-items: center;
+}
+
+.placasCaption>span {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
+    align-items: center;    
 }

@@ -3,6 +3,7 @@ import moment from 'moment'
 
 import { laudoForm } from '../Forms/laudoForm'
 
+import Placa from '../Reusable Components/Placa'
 import TextInput from '../Reusable Components/TextInput'
 import SelectEmpresa from '../Reusable Components/SelectEmpresa'
 import StandardTable from '../Reusable Components/StandardTable'
@@ -11,6 +12,7 @@ import OnClickMenu from '../Reusable Components/OnClickMenu'
 
 import TextField from '@material-ui/core/TextField'
 import Search from '@material-ui/icons/Search'
+import StopIcon from '@material-ui/icons/Stop';
 import Button from '@material-ui/core/Button'
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 
@@ -24,11 +26,10 @@ const LaudosTemplate = (
         if (laudos && laudos[0] && laudos[0].validade) {
             const { validade } = laudos[0]
 
-            if (moment(validade).isValid() && moment(validade).isAfter(moment().toDate())) return { backgroundColor: 'rgb(13, 136, 13)' }
-            if (moment(validade).isValid() && moment(validade).isBefore(moment().toDate())) return
-            //console.log(moment(validade).isAfter(moment().toDate()))           
+            if (moment(validade, moment.ISO_8601).isValid() && moment(validade).isAfter(moment().toDate())) return { backgroundColor: 'rgb(13, 136, 13)' }
+            if (moment(validade, moment.ISO_8601).isValid() && moment(validade).isBefore(moment().toDate())) return { backgroundColor: 'rgb(197, 128, 0)' }
         }
-        else return  { backgroundColor: 'rgb(136, 13, 13)' }
+        else return { backgroundColor: 'rgb(136, 13, 13)' }
     }
 
     const table = formatTable()
@@ -42,13 +43,19 @@ const LaudosTemplate = (
             />
             {
                 selectedEmpresa && <>
-                    <header className='container laudos'>
-                        <h5>
-                            {!selectedVehicle ?
-                                'Selecione o veículo para atualizar consultar ou inserir o laudo de segurança veicular.'
-                                : `Preencha os campos abaixo para o veículo placa ${selectedVehicle.placa}`
-                            }
-                        </h5>
+                    <header className='flex'>
+                        {
+                            !selectedVehicle ?
+                                <h5> Selecione o veículo para atualizar consultar ou inserir o laudo de segurança veicular. </h5>
+                                :
+                                <Placa
+                                    veiculoId={selectedVehicle.veiculoId}
+                                    onClick={clickOnPlate}
+                                    style={{ ...renderColor(selectedVehicle.laudos), marginLeft: 0 }}
+                                    city={selectedEmpresa.cidade}
+                                    placa={selectedVehicle.placa}
+                                />
+                        }
                         <div>
                             <TextField
                                 inputProps={{ name: 'placa' }}
@@ -61,9 +68,12 @@ const LaudosTemplate = (
                     </header>
                     {selectedVehicle &&
                         <main>
-                            <p>
+                            <br />
+                            <h3>
                                 Para atualizar ou inserir o laudo, informe o número, a data de vencimento, a empresa que emitiu e anexe o documento referente ao laudo.
-                            </p>
+                            </h3>
+                            <br />
+                            <br />
                             <TextInput
                                 form={laudoForm}
                                 data={stateInputs}
@@ -93,27 +103,42 @@ const LaudosTemplate = (
                     <section>
                         <h4>
                             {!selectedVehicle ?
-                                <>
-                                    {`Exibindo ${filteredVehicles.length} veículos com mais de 15 anos.`} <br />
-                                    <span style ={{ color: 'rgb(13, 136, 13)' }}>Laudo vigente</span><br />
-                                    <span style ={{ color: 'rgb(197, 128, 0)' }}>Laudo vencido</span><br />
-                                    <span style ={{ color: 'rgb(136, 13, 13)' }}>Nenhum Laudo cadastrado</span><br />
-
-                                </>
+                                <div className='flex'>
+                                    <div>
+                                        {`Exibindo ${filteredVehicles.length} veículos com mais de 15 anos.`}
+                                    </div>
+                                    <div className='flex placasCaption' style={{ fontSize: '0.8rem' }}>
+                                        <span>
+                                            <span style={{ paddingTop: '5px', color: 'rgb(13, 136, 13)' }}><StopIcon /></span> Laudo vigente
+                                        </span>
+                                        <span>
+                                            <span style={{ paddingTop: '5px', color: 'rgb(197, 128, 0)' }}><StopIcon /></span> Laudo vencido                                            </span>
+                                        <span>
+                                            <span style={{ paddingTop: '5px', color: 'rgb(136, 13, 13)' }}><StopIcon /></span> Nenhum Laudo cadastrado
+                                        </span>
+                                    </div>
+                                </div>
                                 :
-                                `Veículo selecionado: ${selectedVehicle.placa}`
+                                null
                             }
                         </h4>
                     </section>
-                    <section className='placasContainer'>
-                        {filteredVehicles.map((v, i) => (
-                            //<div key={i} id={v.veiculoId} onClick={() => showDetails(v)} >
-                            <div key={i} id={v.veiculoId} onClick={clickOnPlate} style={renderColor(v.laudos)}>
-                                <div className="placaCity">{selectedEmpresa.cidade}</div>
-                                <div className="placaCode">{v.placa}</div>
-                            </div>
-                        ))}
-                    </section>
+
+                    {!selectedVehicle &&
+                        <section className='flex' style={{ margin: '0 -10px' }}>
+                            {filteredVehicles.map((v, i) => (
+                                <Placa
+                                    key={i}
+                                    veiculoId={v.veiculoId}
+                                    onClick={clickOnPlate}
+                                    style={renderColor(v.laudos)}
+                                    city={selectedEmpresa.cidade}
+                                    placa={v.placa}
+                                />
+
+                            ))}
+                        </section>
+                    }
 
                     <OnClickMenu
                         anchorEl={anchorEl}
@@ -129,12 +154,18 @@ const LaudosTemplate = (
             {selectedVehicle && selectedVehicle.laudos &&
                 <>
                     {typeof table === 'object' ? <StandardTable
-                        length='3'
-                        title='Laudos vinculados a este veículo'
+                        length={table.labels.length}
+                        title={`Laudos vinculados ao veículo placa ${selectedVehicle.placa}`}
                         labels={table.labels}
                         values={table.values}
+                        docs={table.docs}
+                        style={{textAlign: 'center'}}
                     /> :
-                        <p>{table}</p>
+                        <>
+                            <br />
+                            <br />
+                            <p>{table}</p>
+                        </>
                     }
                     <div className='voltarDiv' onClick={clear}>
                         <ArrowBackIcon size='small' />

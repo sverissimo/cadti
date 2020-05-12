@@ -1,15 +1,14 @@
 import React from 'react'
 import moment from 'moment'
+import downloadFile from '../Utils/downloadFile'
 
-export default function StandardTable({ length, title, labels, values, style }) {
+export default function StandardTable({ length, title, labels, values, style, docs }) {
 
     const dateFormat = value => {
-        if (moment.utc(value).isValid()) {
-            return moment(value).format('DD/MM/YYYY')
-
+        if (moment(value, 'YYYY-MM-DDTHH:mm:ss.SSSZZ', true).isValid()) {
+            return moment(value, moment.ISO_8601, true).format('DD/MM/YYYY')
         }
         else {
-            console.log(value)
             return value
         }
     }
@@ -19,17 +18,17 @@ export default function StandardTable({ length, title, labels, values, style }) 
             <thead>
                 <tr>
                     <th className='tHeader'
-                        style={style ? style : null}
+                        style={style}
                         colSpan={length}>{title}</th>
                 </tr>
                 <tr>
-                    {labels.map((l, i) => <th key={i}>{l}</th>)}
+                    {labels.map((l, i) => <th key={i} style={style}>{l}</th>)}
                 </tr>
             </thead>
             <tbody>
                 <tr>
                     {values.map((v, j) =>
-                        <td className='review' key={j}>
+                        <td className='review' key={j} style={style} onClick={() => docs && docs.id ? downloadFile(docs.id, docs.filename, 'vehicleDocs', docs.metadata.fieldName) : null}>
                             {dateFormat(v)}
                         </td>
                     )}

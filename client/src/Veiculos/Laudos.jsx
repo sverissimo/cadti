@@ -60,13 +60,13 @@ const Laudos = props => {
 
                         laudosTemp.push(l)
                     }
-                })                
+                })
                 laudosTemp.sort((a, b) => {
                     const dateA = new Date(a.validade)
                     const dateB = new Date(b.validade)
                     return dateB - dateA
                 })
-                
+
                 vehiclesLaudo.push({ ...v, laudos: laudosTemp })
                 laudosTemp = []
             })
@@ -79,7 +79,7 @@ const Laudos = props => {
             setFilteredVehicles([])
             setEmpresa()
         }
-    }, [selectedEmpresa, veiculos])
+    }, [selectedEmpresa, veiculos, laudos])
 
 
     const handleInput = useCallback(e => {
@@ -127,22 +127,35 @@ const Laudos = props => {
 
     const formatTable = () => {
 
-        if (selectedVehicle && selectedVehicle.laudos && selectedVehicle.laudos[0]) {
+        if (selectedVehicle) {
+            if (selectedVehicle.laudos && selectedVehicle.laudos[0]) {
 
-            const
-                { laudos } = selectedVehicle,
-                { createdAt, veiculoId, empresaId, ...lastLaudo } = laudos[0]
+                const
+                    { vehicleDocs } = props.redux,
+                    { laudos } = selectedVehicle,
+                    { createdAt, veiculoId, empresaId, ...lastLaudo } = laudos[0],
 
-            let labels = [], values = []
-            laudoForm.forEach(obj => {
-                labels.push(obj.label)
-                values = Object.values(lastLaudo)
-            })
-            return { labels, values }
-        } else return 'Nenhum laudo cadastrado para este veículo.'
+                    docs = vehicleDocs.find(d => d.metadata.laudoId === lastLaudo.id)
+
+                
+                let labels = [], values = []
+                laudoForm.forEach(obj => {
+                    labels.push(obj.label)
+                    values = Object.values(lastLaudo)
+                })
+
+                if (docs) {
+                    labels.push('Arquivo')
+                    values.push('Clique para baixar o laudo')
+                }
+
+                return { labels, values, docs }
+            } else return `Nenhum laudo cadastrado para o veículo placa ${selectedVehicle.placa}.`
+        }
     }
 
     const clear = () => {
+        document.querySelector('[name = "placa"]').value = ''
         setFilteredVehicles(oldVehicles)
         selectVehicle()
     }

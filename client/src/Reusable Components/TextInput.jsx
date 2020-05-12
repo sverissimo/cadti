@@ -61,7 +61,7 @@ export default function TextInput({ handleInput, handleBlur, form, data, selectO
     }
 
     return (
-        <div className='flexContainer'>
+        <div className='flex center'>
             {
                 form.map((el, i) => (
                     <Fragment key={i}>
