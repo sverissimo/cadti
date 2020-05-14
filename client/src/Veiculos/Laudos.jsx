@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback, Fragment } from 'react'
 import axios from 'axios'
-import moment from 'moment'
 import StoreHOC from '../Store/StoreHOC'
 
 import AlertDialog from '../Utils/AlertDialog'
@@ -50,15 +49,12 @@ const Laudos = props => {
             const
                 currentYear = new Date().getFullYear(),
                 frota = veiculos.filter(v => v.empresa === selectedEmpresa.razaoSocial),
-                oldVehicles = frota.filter(v => currentYear - v.anoCarroceria > 14 && v.anoCarroceria !== null).sort((a, b) => a.placa.localeCompare(b.placa)),
-                gotLaudo = oldVehicles.filter(v => v.validadeLaudo !== null),
-                laudoExpired = gotLaudo.filter(v => moment(v.validadeLaudo).isBefore(moment()))
+                oldVehicles = frota.filter(v => currentYear - v.anoCarroceria > 14 && v.anoCarroceria !== null).sort((a, b) => a.placa.localeCompare(b.placa))
 
             let vehiclesLaudo = [], laudosTemp = []
             oldVehicles.forEach(v => {
                 laudos.forEach(l => {
                     if (v.veiculoId === l.veiculoId) {
-
                         laudosTemp.push(l)
                     }
                 })
@@ -137,38 +133,30 @@ const Laudos = props => {
 
                     laudoDocs = vehicleDocs.filter(d => d.metadata.fieldName === 'laudoDoc')
 
-                let laudosArray = [], tableHeaders = [], tempArray = []
+                let laudosArray = [], tableHeaders = [], tempArray = [], table = [...laudosTable]
 
                 laudos.forEach(l => {
-                    laudosTable.forEach(t => {
+                    table.forEach(t => {
                         let laudoDocId
-                        const laudoDoc = vehicleDocs.find(d => d.metadata.laudoId === l.id)
-
+                        const laudoDoc = laudoDocs.find(d => d.metadata.laudoId === l.id)
+                        
                         if (laudoDoc) laudoDocId = laudoDoc.id
-                        if (t.title) tableHeaders.push(t.title)
-                        delete t.title
-                        if (t.field === 'laudoDoc') tempArray.push({ ...t, value: l[t.field], laudoDocId })
-                        else tempArray.push({ ...t, value: l[t.field] })
+                        if (!tableHeaders.includes(t.title)) tableHeaders.push(t.title)
+                        const { title, ...tableData } = t
+
+                        if (t.field === 'laudoDoc') tempArray.push({ ...tableData, value: l[t.field], laudoDocId })
+                        else tempArray.push({ ...tableData, value: l[t.field] })
                     })
-                    tempArray[4].value = 'Clique para visualizar o laudo'
+
+                    if (tempArray[4].laudoDocId) tempArray[4].value = 'Clique para visualizar o laudo'
+                    else tempArray[4].value = 'Nenhum arquivo encontrado'
                     laudosArray.push(tempArray)
                     tempArray = []
                 })
-                return { tableHeaders, laudosArray, laudoDocs }
-                //     
-                /*   
-                  let labels = [], values = []
-                  laudoForm.forEach(obj => {
-                      labels.push(obj.label)
-                      values = Object.values(lastLaudo)
-                  })
-  
-                  if (docs) {
-                      labels.push('Arquivo')
-                      values.push('Clique para baixar o laudo')
-                  } */
 
-                //return { labels, values, docs }
+                table = [...laudosTable]
+                return { tableHeaders, laudosArray, laudoDocs }
+
             } else return `Nenhum laudo cadastrado para o veículo placa ${selectedVehicle.placa}.`
         }
     }
@@ -212,8 +200,7 @@ const Laudos = props => {
             return
         }
 
-        //***************************Prepare the request Object*********************/        
-
+        //***************************Prepare the request Object*********************/
         const empresa = empresasLaudo.find(e => e.empresa === empresaLaudo)
         if (empresa) requestElement.empresa_id = empresa.id
         requestElement.veiculo_id = selectedVehicle.veiculoId
@@ -221,7 +208,6 @@ const Laudos = props => {
         const requestBody = { table: 'laudos', requestElement }
 
         //*****************************Submit****************************** */
-
         axios.post('/api/addElement', requestBody)
             .then(() => toggleToast())
             .catch(err => console.log(err))
@@ -285,11 +271,6 @@ const Laudos = props => {
 
 const collections = ['veiculos', 'empresas', 'empresasLaudo', 'laudos', 'getFiles/vehicleDocs']
 export default StoreHOC(collections, Laudos)
-
-
-
-
-
 
 /*
 [razaoSocial, empresaInput] = useState(empresas[0].razaoSocial),

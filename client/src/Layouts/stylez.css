@@ -36,7 +36,7 @@ div.loading {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    justify-content: space-between;
+    justify-content: space-between; 
 }
 
 .flex:last-child:not(:first-child) {
@@ -51,6 +51,16 @@ div.loading {
     justify-content: flex-start;
 }
 
+.paper {        
+    background-color: white;
+    width: auto;
+    border-radius: 5px;    
+    margin-bottom: 25px;
+    padding: 15px 5px;    
+    color: black;    
+    box-shadow: 0px 2px 1px -1px rgba(0,0,0,0.2), 0px 1px 1px 0px rgba(0,0,0,0.14), 0px 1px 3px 0px rgba(0,0,0,0.12);
+}
+
 .voltarDiv {
     display: flex;
     align-content: center;
@@ -59,4 +69,12 @@ div.loading {
     cursor: pointer;
     width: 100px;
     color: rgb(50, 65, 120);
+}
+
+.link2 {
+    cursor: pointer;
+    color: rgb(33, 54, 141);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+    font-size: 13px;
+    font-weight: 500;
 }

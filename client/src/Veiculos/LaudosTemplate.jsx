@@ -3,11 +3,11 @@ import moment from 'moment'
 
 import { laudoForm } from '../Forms/laudoForm'
 
+import Crumbs from '../Utils/Crumbs'
 import Placa from '../Reusable Components/Placa'
 import TextInput from '../Reusable Components/TextInput'
 import SelectEmpresa from '../Reusable Components/SelectEmpresa'
 import CustomTable from '../Reusable Components/CustomTable'
-import StandardTable from '../Reusable Components/StandardTable'
 import DragAndDrop from '../Reusable Components/DragAndDrop'
 import OnClickMenu from '../Reusable Components/OnClickMenu'
 
@@ -37,6 +37,7 @@ const LaudosTemplate = (
 
     return (
         <div>
+            <Crumbs links={['Veículos', '/veiculos']} text='Laudos' />
             <SelectEmpresa
                 empresas={empresas}
                 data={{ razaoSocial }}
@@ -44,7 +45,7 @@ const LaudosTemplate = (
             />
             {
                 selectedEmpresa && <>
-                    <header className='flex'>
+                    <header className='flex' style={{ marginBottom: '15px' }}>
                         {
                             !selectedVehicle ?
                                 <h5> Selecione o veículo para atualizar consultar ou inserir o laudo de segurança veicular. </h5>
@@ -68,9 +69,9 @@ const LaudosTemplate = (
                         </div>
                     </header>
                     {selectedVehicle &&
-                        <main>
+                        <main className='paper'>
                             <br />
-                            <h3>
+                            <h3 style={{ paddingLeft: '15px', marginTop: '-10px' }}>
                                 Para atualizar ou inserir o laudo, informe o número, a data de vencimento, a empresa que emitiu e anexe o documento referente ao laudo.
                             </h3>
                             <br />
@@ -126,7 +127,7 @@ const LaudosTemplate = (
                     </section>
 
                     {!selectedVehicle &&
-                        <section className='flex' style={{ margin: '0 -10px' }}>
+                        <section className='flex paper' style={{ justifyContent: 'center' }}>
                             {filteredVehicles.map((v, i) => (
                                 <Placa
                                     key={i}
@@ -154,12 +155,16 @@ const LaudosTemplate = (
             }
             {selectedVehicle && selectedVehicle.laudos &&
                 <>
-                    {typeof table === 'object' ? <CustomTable
-                        length={ table.tableHeaders.length}
-                        title={`Laudos vinculados ao veículo placa ${selectedVehicle.placa}`}
-                        table={table}                        
-                        style={{textAlign: 'center', padding: '8px 0'}}
-                    /> :
+                    {typeof table === 'object' ?
+                        <div className="paper" style={{marginTop: '52px', width:'100%', padding: '0', borderRadius: '5px', overflow: 'hidden'}}>
+                            <CustomTable
+                                length={table.tableHeaders.length}
+                                title={`Laudos vinculados ao veículo placa ${selectedVehicle.placa}`}
+                                table={table}
+                                style={{ textAlign: 'center', padding: '8px 0' }}
+                            />
+                        </div>
+                        :
                         <>
                             <br />
                             <br />

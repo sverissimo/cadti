@@ -31,7 +31,7 @@ const featuredPosts = [
         title: 'Relatórios',
         date: '03/Dez',
         description:
-            'Acompanhe a situação dos veículos por meio de gráficos e tabelas.',
+            'Acompanhe a situação dos veículos por meio de gráficos e tabelas',
         link: '/relatorios',
         imageUrl: '/images/relatorios.jpg'
     },
@@ -62,7 +62,7 @@ export default function () {
                             <Link to={link} style={{ textDecoration: 'none' }}>
                                 <div className='homeCard'>
                                     <div className="homeCardText">
-                                        <h6 className="homeCardText">
+                                        <h6 className="homeCardText" style={{fontWeight: 500}}>
                                             {title}
                                         </h6>
                                         <p className="homeCardText">

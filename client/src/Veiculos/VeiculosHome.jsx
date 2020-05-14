@@ -7,7 +7,7 @@ const menuCards = [
         title: 'Cadastro de Veículos',
         date: '07/Nov',
         description:
-            'Cadastrar um novo veículo no sistema.',
+            'Cadastrar um novo veículo no sistema',
         imageUrl: '/images/add_new.jpg',
         link: '/cadastro'
     },
@@ -28,6 +28,14 @@ const menuCards = [
         imageUrl: "/images/car_insurance2.png"
     },
     {
+        title: 'Laudos',
+        date: '07/Nov',
+        description:
+            'Laudos de segurança veicular',
+        link: '/laudos',
+        imageUrl: "/images/laudos.png"
+    },
+    {
         title: 'Baixa',
         date: '07/Nov',
         description:
@@ -40,7 +48,7 @@ const menuCards = [
         date: '07/Nov',
         description:
             'Chassi, carrocerias, seguradoras, etc',
-        link: '/Config',
+        link: '/config',
         imageUrl: "/images/config2.jpg"
     }
 ]

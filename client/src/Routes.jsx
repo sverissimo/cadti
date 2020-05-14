@@ -16,7 +16,7 @@ import Socios from './Empresas/AltSocios'
 import Relatorios from './Relatorios/Relatorios'
 import { Switch, Route } from 'react-router-dom'
 import Laudos from './Veiculos/Laudos'
-//import UnderConstruction from './Utils/UnderConstruction'
+import UnderConstruction from './Utils/UnderConstruction'
 import PdfTest from './Veiculos/Certificate'
 
 export default () =>
@@ -27,6 +27,7 @@ export default () =>
         <Route path='/veiculos/cadastro' exact component={CadVeiculos} />
         <Route path='/veiculos/altDados' exact component={AltVeiculos} />
         <Route path='/veiculos/altSeguro' exact component={AltSeguro} />
+        <Route path='/veiculos/laudos' exact component={Laudos} />
         <Route path='/veiculos/baixaVeiculo' exact component={BaixaVeiculo} />
         <Route path='/veiculos/config' exact component={Config} />
         <Route path='/consultas' component={Consultas} />
@@ -36,7 +37,7 @@ export default () =>
         <Route path='/empresas/procuradores' component={Procuradores} />
         <Route path='/relatorios' component={Relatorios} />
         <Route path='/crv' component={PdfTest} />
-        <Route path='/faleConosco' component={Laudos} />
+        <Route path='/faleConosco' component={UnderConstruction} />
         {/* <Route path='/faleConosco' component={UnderConstruction} /> */}
     </Switch>
 

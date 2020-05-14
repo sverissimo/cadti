@@ -49,18 +49,18 @@
 .homeCard {
     display: flex;
     flex-wrap: wrap;    
-    width: 290px;
+    width: 270px;
     background-color: white;
     margin-bottom: 30px;    
     border-radius: 4%;
     color: black;
-    box-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.15), 0px 1px 1px 0px rgba(0, 0, 0, 0.1), 0px 1px 3px 0px rgba(0, 0, 0, 0.09);
+    box-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.10), 0px 1px 1px 0px rgba(0, 0, 0, 0.06), 0px 1px 3px 0px rgba(0, 0, 0, 0.05);
     height:160px
 }
 
-
 .homeCard:hover {    
     cursor: pointer;
+    filter: brightness(99%);
 }
 
 .homeCardText {
@@ -71,7 +71,8 @@
 
 h6.homeCardText {
     text-decoration: none;
-    margin-bottom: auto;    
+    margin-bottom: auto;
+    margin-top: 0px;    
 }
 
 p.homeCardText {    
@@ -89,6 +90,8 @@ div.homeImage {
 img.homeImage {
     width: 150px;
     height: 160px;    
+    border-radius: 4%;
+    padding-right: 1px;
 }
 
 .homeCardLink {

@@ -18,7 +18,7 @@ export default function StandardTable({ table, length, title, style }) {
         const file = laudoDocs.find(f => f.id === id)
         if (id && file) downloadFile(file.id, file.filename, 'vehicleDocs', file.metadata.fieldName);
     }
-    
+
     return (
         <table>
             <thead>
@@ -34,12 +34,12 @@ export default function StandardTable({ table, length, title, style }) {
             <tbody>
                 {
                     laudosArray.map((laudo, j) =>
-                        <tr key ={j}>
+                        <tr key={j}>
                             {
                                 laudo.map((obj, i) =>
-                                    <td className='review' key={i} style={style} className={obj.type === 'link' ? 'link' : null}
+                                    <td key={i} style={style} className={obj.type === 'link' && obj.laudoDocId ? 'link2' : 'review'}
                                         onClick={() => obj.field === 'laudoDoc' && obj.laudoDocId ? getFile(obj.laudoDocId) : null}>
-                                        {dateFormat(obj.value)}
+                                        {obj.type === 'date' ? dateFormat(obj.value) : obj.value}
                                     </td>
                                 )}
                         </tr>
