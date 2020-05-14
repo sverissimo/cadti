@@ -6,6 +6,7 @@ import { laudoForm } from '../Forms/laudoForm'
 import Placa from '../Reusable Components/Placa'
 import TextInput from '../Reusable Components/TextInput'
 import SelectEmpresa from '../Reusable Components/SelectEmpresa'
+import CustomTable from '../Reusable Components/CustomTable'
 import StandardTable from '../Reusable Components/StandardTable'
 import DragAndDrop from '../Reusable Components/DragAndDrop'
 import OnClickMenu from '../Reusable Components/OnClickMenu'
@@ -153,13 +154,11 @@ const LaudosTemplate = (
             }
             {selectedVehicle && selectedVehicle.laudos &&
                 <>
-                    {typeof table === 'object' ? <StandardTable
-                        length={table.labels.length}
+                    {typeof table === 'object' ? <CustomTable
+                        length={ table.tableHeaders.length}
                         title={`Laudos vinculados ao veículo placa ${selectedVehicle.placa}`}
-                        labels={table.labels}
-                        values={table.values}
-                        docs={table.docs}
-                        style={{textAlign: 'center'}}
+                        table={table}                        
+                        style={{textAlign: 'center', padding: '8px 0'}}
                     /> :
                         <>
                             <br />

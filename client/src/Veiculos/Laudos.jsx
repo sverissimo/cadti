@@ -10,6 +10,7 @@ import { checkInputErrors } from '../Utils/checkInputErrors'
 import LaudosTemplate from './LaudosTemplate'
 import ShowDetails from '../Reusable Components/ShowDetails'
 import { laudoForm } from '../Forms/laudoForm'
+import { laudosTable } from '../Forms/laudosTable'
 
 const Laudos = props => {
 
@@ -133,23 +134,41 @@ const Laudos = props => {
                 const
                     { vehicleDocs } = props.redux,
                     { laudos } = selectedVehicle,
-                    { createdAt, veiculoId, empresaId, ...lastLaudo } = laudos[0],
 
-                    docs = vehicleDocs.find(d => d.metadata.laudoId === lastLaudo.id)
+                    laudoDocs = vehicleDocs.filter(d => d.metadata.fieldName === 'laudoDoc')
 
-                
-                let labels = [], values = []
-                laudoForm.forEach(obj => {
-                    labels.push(obj.label)
-                    values = Object.values(lastLaudo)
+                let laudosArray = [], tableHeaders = [], tempArray = []
+
+                laudos.forEach(l => {
+                    laudosTable.forEach(t => {
+                        let laudoDocId
+                        const laudoDoc = vehicleDocs.find(d => d.metadata.laudoId === l.id)
+
+                        if (laudoDoc) laudoDocId = laudoDoc.id
+                        if (t.title) tableHeaders.push(t.title)
+                        delete t.title
+                        if (t.field === 'laudoDoc') tempArray.push({ ...t, value: l[t.field], laudoDocId })
+                        else tempArray.push({ ...t, value: l[t.field] })
+                    })
+                    tempArray[4].value = 'Clique para visualizar o laudo'
+                    laudosArray.push(tempArray)
+                    tempArray = []
                 })
+                return { tableHeaders, laudosArray, laudoDocs }
+                //     
+                /*   
+                  let labels = [], values = []
+                  laudoForm.forEach(obj => {
+                      labels.push(obj.label)
+                      values = Object.values(lastLaudo)
+                  })
+  
+                  if (docs) {
+                      labels.push('Arquivo')
+                      values.push('Clique para baixar o laudo')
+                  } */
 
-                if (docs) {
-                    labels.push('Arquivo')
-                    values.push('Clique para baixar o laudo')
-                }
-
-                return { labels, values, docs }
+                //return { labels, values, docs }
             } else return `Nenhum laudo cadastrado para o veículo placa ${selectedVehicle.placa}.`
         }
     }
