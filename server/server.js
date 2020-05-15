@@ -21,7 +21,7 @@ const { cadEmpresa } = require('./cadEmpresa')
 const { cadSocios } = require('./cadSocios')
 const { cadProcuradores } = require('./cadProcuradores')
 
-const { seguros, socios, lookup } = require('./queries')
+const { seguros, socios, laudos, lookup } = require('./queries')
 
 const { fieldParser } = require('./fieldParser')
 const { getUpdatedData } = require('./getUpdatedData')
@@ -199,14 +199,17 @@ app.post('/api/addElement', (req, res) => {
         { keys, values } = parseRequestBody(requestElement)
 
     let queryString = `INSERT INTO public.${table} (${keys}) VALUES (${values}) RETURNING *`
-    console.log(queryString)
+
     pool.query(queryString, (err, t) => {
         if (err) console.log(err)
+
         if (t && t.rows) {
-            io.sockets.emit('addElements', { insertedObjects: t.rows, table })
-            if (table === 'laudos') {
-                const data = getUpdatedData('veiculo', `veiculo.veiculo_id = ${requestElement.veiculo_id}`)
-                data.then(res => io.sockets.emit('updateVehicle', res))
+            if (table !== 'laudos') io.sockets.emit('addElements', { insertedObjects: t.rows, table })
+            else {
+                pool.query(laudos, (err, t) => {
+                    if (err) console.log(err)
+                    if (t && t.rows) io.sockets.emit('updateElements', { collection: table, updatedCollection: t.rows })
+                })
             }
             res.send(t.rows);
         }

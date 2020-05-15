@@ -89,6 +89,7 @@ export const updateCollection = (data, collection) => dispatch => {
 
     data = humps.camelizeKeys(data)
     const payload = { data, collection }
+    console.log(payload)
     dispatch({
         type: 'UPDATE_COLLECTION',
         payload

@@ -14,7 +14,16 @@ import { laudosTable } from '../Forms/laudosTable'
 const Laudos = props => {
 
     const
-        { veiculos, empresas, empresasLaudo, laudos } = props.redux
+        { veiculos, empresas, empresasLaudo, laudos, vehicleDocs } = props.redux
+
+    const initState = {
+        dropDisplay: 'Clique ou arraste o arquivo para anexar o laudo',
+        stateInputs: {
+            id: undefined,
+            validade: '',
+            empresaLaudo: ''
+        }
+    }
 
     const
         [razaoSocial, empresaInput] = useState(empresas[0].razaoSocial),
@@ -24,7 +33,7 @@ const Laudos = props => {
         [details, setDetails] = useState(false),
         [selectedVehicle, selectVehicle] = useState(),
         [anchorEl, setAnchorEl] = useState(null),
-        [dropDisplay, setDropDisplay] = useState('Clique ou arraste o arquivo para anexar o laudo'),
+        [dropDisplay, setDropDisplay] = useState(initState.dropDisplay),
         [laudoDoc, setlaudoDoc] = useState(),
         [toast, setToast] = useState(false),
         [alertDialog, setAlertDialog] = useState({
@@ -32,51 +41,55 @@ const Laudos = props => {
             type: 'inputError',
             msg: '',
         }),
-        [stateInputs, changeInputs] = useState({
-            id: undefined,
-            validade: '',
-            empresaLaudo: ''
-        })
+        [stateInputs, changeInputs] = useState({ ...initState.stateInputs }),
+        [table, setTableData] = useState()
 
     useEffect(() => {
         const escFunction = e => { if (e.keyCode === 27) setDetails(false); setAnchorEl(null) }
         document.addEventListener('keydown', escFunction)
-
     }, [])
 
     useEffect(() => {
-        if (selectedEmpresa && selectedEmpresa !== '') {
-            const
-                currentYear = new Date().getFullYear(),
-                frota = veiculos.filter(v => v.empresa === selectedEmpresa.razaoSocial),
-                oldVehicles = frota.filter(v => currentYear - v.anoCarroceria > 14 && v.anoCarroceria !== null).sort((a, b) => a.placa.localeCompare(b.placa))
+        async function insertLaudos() {
+            if (selectedEmpresa && selectedEmpresa !== '') {
+                const
+                    currentYear = new Date().getFullYear(),
+                    frota = veiculos.filter(v => v.empresa === selectedEmpresa.razaoSocial),
+                    oldVehicles = frota.filter(v => currentYear - v.anoCarroceria > 14 && v.anoCarroceria !== null).sort((a, b) => a.placa.localeCompare(b.placa))
 
-            let vehiclesLaudo = [], laudosTemp = []
-            oldVehicles.forEach(v => {
-                laudos.forEach(l => {
-                    if (v.veiculoId === l.veiculoId) {
-                        laudosTemp.push(l)
-                    }
+                let vehiclesLaudo = [], laudosTemp = []
+                oldVehicles.forEach(v => {
+                    laudos.forEach(l => {
+                        if (v.veiculoId === l.veiculoId) {
+                            laudosTemp.push(l)
+                        }
+                    })
+                    laudosTemp.sort((a, b) => {
+                        const dateA = new Date(a.validade)
+                        const dateB = new Date(b.validade)
+                        return dateB - dateA
+                    })
+                    vehiclesLaudo.push({ ...v, laudos: laudosTemp })
+                    laudosTemp = []
                 })
-                laudosTemp.sort((a, b) => {
-                    const dateA = new Date(a.validade)
-                    const dateB = new Date(b.validade)
-                    return dateB - dateA
-                })
+                await setOldVehicles(vehiclesLaudo)
+                await setFilteredVehicles(vehiclesLaudo)
 
-                vehiclesLaudo.push({ ...v, laudos: laudosTemp })
-                laudosTemp = []
-            })
-
-            setOldVehicles(vehiclesLaudo)
-            setFilteredVehicles(vehiclesLaudo)
-
-        } else {
-            setOldVehicles()
-            setFilteredVehicles([])
-            setEmpresa()
+                if (selectedVehicle && vehiclesLaudo?.length > 0) {
+                    const updatedVehicle = vehiclesLaudo.find(v => v.veiculoId === selectedVehicle.veiculoId)
+                    if (updatedVehicle?.laudos.length !== selectedVehicle?.laudos.length) {
+                        selectVehicle(updatedVehicle)
+                    } else return
+                }
+            } else {
+                setOldVehicles()
+                setFilteredVehicles([])
+                setEmpresa()
+            }
         }
-    }, [selectedEmpresa, veiculos, laudos])
+
+        insertLaudos()
+    }, [selectedEmpresa, veiculos, laudos, selectedVehicle])
 
 
     const handleInput = useCallback(e => {
@@ -108,7 +121,7 @@ const Laudos = props => {
 
     }, [empresaInput, empresas, oldVehicles, stateInputs])
 
-    const clickOnPlate = event => {
+    const clickOnPlate = async event => {
 
         if (selectedVehicle) {
             event.persist()
@@ -122,24 +135,20 @@ const Laudos = props => {
         }
     }
 
-    const formatTable = () => {
-
+    useEffect(() => {
         if (selectedVehicle) {
             if (selectedVehicle.laudos && selectedVehicle.laudos[0]) {
 
-                const
-                    { vehicleDocs } = props.redux,
-                    { laudos } = selectedVehicle,
-
+                const { laudos } = selectedVehicle,
                     laudoDocs = vehicleDocs.filter(d => d.metadata.fieldName === 'laudoDoc')
 
-                let laudosArray = [], tableHeaders = [], tempArray = [], table = [...laudosTable]
+                let laudosArray = [], tableHeaders = [], tempArray = [], table2 = [...laudosTable]
 
                 laudos.forEach(l => {
-                    table.forEach(t => {
+                    table2.forEach(t => {
                         let laudoDocId
                         const laudoDoc = laudoDocs.find(d => d.metadata.laudoId === l.id)
-                        
+
                         if (laudoDoc) laudoDocId = laudoDoc.id
                         if (!tableHeaders.includes(t.title)) tableHeaders.push(t.title)
                         const { title, ...tableData } = t
@@ -154,12 +163,13 @@ const Laudos = props => {
                     tempArray = []
                 })
 
-                table = [...laudosTable]
-                return { tableHeaders, laudosArray, laudoDocs }
+                table2 = [...laudosTable]
+                setTableData({ tableHeaders, laudosArray, laudoDocs })
 
-            } else return `Nenhum laudo cadastrado para o veículo placa ${selectedVehicle.placa}.`
+            } else setTableData(`Nenhum laudo cadastrado para o veículo placa ${selectedVehicle.placa}.`)
         }
-    }
+
+    }, [selectedVehicle, laudos, vehicleDocs])
 
     const clear = () => {
         document.querySelector('[name = "placa"]').value = ''
@@ -179,7 +189,7 @@ const Laudos = props => {
         }
     }
 
-    const handleSubmit = e => {
+    const handleSubmit = async () => {
         let
             { empresaLaudo, ...requestElement } = stateInputs,
             errors = checkInputErrors() || []
@@ -208,11 +218,13 @@ const Laudos = props => {
         const requestBody = { table: 'laudos', requestElement }
 
         //*****************************Submit****************************** */
-        axios.post('/api/addElement', requestBody)
+        await axios.post('/api/addElement', requestBody)
             .then(() => toggleToast())
             .catch(err => console.log(err))
 
-        if (laudoDoc) submitFiles()
+        if (laudoDoc) await submitFiles()
+        changeInputs({ ...initState.stateInputs })
+        setDropDisplay(initState.dropDisplay)
     }
 
     const handleFiles = (files, name) => {
@@ -252,8 +264,8 @@ const Laudos = props => {
 
             <LaudosTemplate
                 empresas={empresas} razaoSocial={razaoSocial} selectedEmpresa={selectedEmpresa} filteredVehicles={filteredVehicles} selectedVehicle={selectedVehicle}
-                anchorEl={anchorEl} stateInputs={stateInputs} selectOptions={selectOptions} dropDisplay={dropDisplay} laudoDoc={laudoDoc}
-                functions={{ handleInput, clickOnPlate, formatTable, showDetails, handleFiles, handleSubmit, closeMenu, clear }}
+                anchorEl={anchorEl} stateInputs={stateInputs} selectOptions={selectOptions} dropDisplay={dropDisplay} laudoDoc={laudoDoc} table={table}
+                functions={{ handleInput, clickOnPlate, showDetails, handleFiles, handleSubmit, closeMenu, clear }}
             />
             {details && <ShowDetails
                 close={showDetails}

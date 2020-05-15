@@ -18,10 +18,10 @@ import Button from '@material-ui/core/Button'
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 
 const LaudosTemplate = (
-    { empresas, razaoSocial, selectedEmpresa, filteredVehicles, selectedVehicle, stateInputs, selectOptions,
+    { empresas, razaoSocial, selectedEmpresa, filteredVehicles, selectedVehicle, stateInputs, selectOptions, table,
         anchorEl, laudoDoc, dropDisplay, functions }) => {
 
-    const { handleInput, clickOnPlate, showDetails, formatTable, handleFiles, handleSubmit, closeMenu, clear } = functions
+    const { handleInput, clickOnPlate, showDetails, handleFiles, handleSubmit, closeMenu, clear } = functions
 
     const renderColor = laudos => {
         if (laudos && laudos[0] && laudos[0].validade) {
@@ -32,8 +32,6 @@ const LaudosTemplate = (
         }
         else return { backgroundColor: 'rgb(136, 13, 13)' }
     }
-
-    const table = formatTable()
 
     return (
         <div>
@@ -68,6 +66,7 @@ const LaudosTemplate = (
                             <Search style={{ marginTop: '18px' }} />
                         </div>
                     </header>
+
                     {selectedVehicle &&
                         <main className='paper'>
                             <br />
@@ -102,6 +101,7 @@ const LaudosTemplate = (
                             </Button>
                         </main>
                     }
+                    
                     <section>
                         <h4>
                             {!selectedVehicle ?
@@ -127,7 +127,7 @@ const LaudosTemplate = (
                     </section>
 
                     {!selectedVehicle &&
-                        <section className='flex paper' style={{ justifyContent: 'center' }}>
+                        <section className='center flex paper'>
                             {filteredVehicles.map((v, i) => (
                                 <Placa
                                     key={i}
