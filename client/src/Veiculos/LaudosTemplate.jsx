@@ -71,7 +71,7 @@ const LaudosTemplate = (
                         <main className='paper'>
                             <br />
                             <h3 style={{ paddingLeft: '15px', marginTop: '-10px' }}>
-                                Para atualizar ou inserir o laudo, informe o número, a data de vencimento, a empresa que emitiu e anexe o documento referente ao laudo.
+                                Para inserir novo laudo, informe o número, a data de vencimento, a empresa que emitiu e anexe o documento referente ao laudo.
                             </h3>
                             <br />
                             <br />

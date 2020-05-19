@@ -16,6 +16,7 @@ export default function DragAndDrop({ title, name, formData, handleFiles, dropDi
                 }
             }
         }
+        else setFileName(null)
     }, [formData, name])
 
     return (

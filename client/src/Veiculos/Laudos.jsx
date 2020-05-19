@@ -16,25 +16,25 @@ const Laudos = props => {
     const
         { veiculos, empresas, empresasLaudo, laudos, vehicleDocs } = props.redux
 
-    const initState = {
+    const initState = Object.freeze({
         dropDisplay: 'Clique ou arraste o arquivo para anexar o laudo',
         stateInputs: {
             id: undefined,
             validade: '',
             empresaLaudo: ''
         }
-    }
+    })
 
     const
-        [razaoSocial, empresaInput] = useState(empresas[0].razaoSocial),
-        [selectedEmpresa, setEmpresa] = useState(empresas[0]),
+        [razaoSocial, empresaInput] = useState(''),
+        [selectedEmpresa, setEmpresa] = useState(),
         [oldVehicles, setOldVehicles] = useState(),
         [filteredVehicles, setFilteredVehicles] = useState([]),
         [details, setDetails] = useState(false),
         [selectedVehicle, selectVehicle] = useState(),
         [anchorEl, setAnchorEl] = useState(null),
         [dropDisplay, setDropDisplay] = useState(initState.dropDisplay),
-        [laudoDoc, setlaudoDoc] = useState(),
+        [laudoDoc, setLaudoDoc] = useState(),
         [toast, setToast] = useState(false),
         [alertDialog, setAlertDialog] = useState({
             open: false,
@@ -195,6 +195,17 @@ const Laudos = props => {
             errors = checkInputErrors() || []
 
         //***************************Check for errors*********************/
+
+        const laudoAlreadyExists = laudos.find(l => l.id === stateInputs.id)
+        if (laudoAlreadyExists) {
+            setAlertDialog({
+                ...alertDialog,
+                open: true,
+                msg: 'O laudo informado já existe no sistema. Laudo nº ' + laudoAlreadyExists.id.toString()
+            })
+            clearForm()
+            return
+        }
         Object.keys(stateInputs).forEach(k => {
             if (k !== 'validade' && (!stateInputs[k] || stateInputs[k] === '')) {
                 let errorLabel = laudoForm.find(obj => obj.field === k).label
@@ -207,6 +218,7 @@ const Laudos = props => {
                 open: true,
                 msg: 'Favor verificar o preenchimento dos seguintes campos: ' + errors.toString()
             })
+            clearForm()
             return
         }
 
@@ -222,9 +234,8 @@ const Laudos = props => {
             .then(() => toggleToast())
             .catch(err => console.log(err))
 
-        if (laudoDoc) await submitFiles()
-        changeInputs({ ...initState.stateInputs })
-        setDropDisplay(initState.dropDisplay)
+        if (laudoDoc) await axios.post('/api/vehicleUpload', laudoDoc)
+        clearForm('Clear all Of It!!!')
     }
 
     const handleFiles = (files, name) => {
@@ -235,27 +246,21 @@ const Laudos = props => {
             formData.append('laudoId', stateInputs.id)
             formData.append('veiculoId', selectedVehicle.veiculoId)
             formData.append(name, files[0])
-            setlaudoDoc(formData)
+            setLaudoDoc(formData)
             setDropDisplay(files[0].name)
         }
-    }
-
-    const submitFiles = () => {
-        axios.post('/api/vehicleUpload', laudoDoc)
-            .then(() => closeDialog)
-    }
-
-    const closeDialog = () => {
-        setlaudoDoc()
-        setDropDisplay('Clique ou arraste o arquivo para anexar o laudo')
-        setAnchorEl(null)
-        //openDialog(false)
     }
 
     const
         closeMenu = () => setAnchorEl(null),
         toggleAlert = () => setAlertDialog({ ...alertDialog, open: !alertDialog.open }),
-        toggleToast = () => setToast(!toast)
+        toggleToast = () => setToast(!toast),
+
+        clearForm = allFields => {
+            if (allFields) changeInputs({ ...initState.stateInputs })
+            setLaudoDoc()
+            setDropDisplay(initState.dropDisplay)
+        }
 
     const selectOptions = props.redux.empresasLaudo.map(e => e.empresa)
 
