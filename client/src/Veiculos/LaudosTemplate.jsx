@@ -21,7 +21,7 @@ const LaudosTemplate = (
     { empresas, razaoSocial, selectedEmpresa, filteredVehicles, selectedVehicle, stateInputs, selectOptions, table,
         anchorEl, laudoDoc, dropDisplay, functions }) => {
 
-    const { handleInput, clickOnPlate, showDetails, handleFiles, handleSubmit, closeMenu, clear } = functions
+    const { handleInput, clickOnPlate, showDetails, handleFiles, handleSubmit, closeMenu, clear, deleteLaudo } = functions
 
     const renderColor = laudos => {
         if (laudos && laudos[0] && laudos[0].validade) {
@@ -31,6 +31,12 @@ const LaudosTemplate = (
             if (moment(validade, moment.ISO_8601).isValid() && moment(validade).isBefore(moment().toDate())) return { backgroundColor: 'rgb(197, 128, 0)' }
         }
         else return { backgroundColor: 'rgb(136, 13, 13)' }
+    }
+
+    const deleteIconProperties = {
+        color: 'secondary',
+        title: 'Apagar Laudo',
+        style: { cursor: 'pointer' }        
     }
 
     return (
@@ -95,13 +101,13 @@ const LaudosTemplate = (
                                 className='saveButton'
                                 variant="contained"
                                 onClick={() => handleSubmit()}
-                                disabled={!laudoDoc ? true : false}
+                             //   disabled={!laudoDoc ? true : false}
                             >
                                 Salvar
                             </Button>
                         </main>
                     }
-                    
+
                     <section>
                         <h4>
                             {!selectedVehicle ?
@@ -156,12 +162,15 @@ const LaudosTemplate = (
             {selectedVehicle && selectedVehicle.laudos &&
                 <>
                     {typeof table === 'object' ?
-                        <div className="paper" style={{marginTop: '52px', width:'100%', padding: '0', borderRadius: '5px', overflow: 'hidden'}}>
+                        <div className="paper" style={{ marginTop: '52px', width: '100%', padding: '0', borderRadius: '5px', overflow: 'hidden' }}>
                             <CustomTable
                                 length={table.tableHeaders.length}
                                 title={`Laudos vinculados ao veículo placa ${selectedVehicle.placa}`}
                                 table={table}
                                 style={{ textAlign: 'center', padding: '8px 0' }}
+                                deleteIconProperties={deleteIconProperties}
+                                deleteFunction={deleteLaudo}
+                                idIndex={1}
                             />
                         </div>
                         :

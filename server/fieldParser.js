@@ -1,28 +1,28 @@
 const fieldParser = [
 
     {
-        collection: 'veiculos',      
+        collection: 'veiculos',
         label: 'Veículos',
         name: 'veiculoId',
         column: 'veiculo_id',
         table: 'veiculo'
     },
     {
-        collection: 'seguros',      
+        collection: 'seguros',
         label: 'Seguros',
         name: 'apolice',
         column: 'apolice',
         table: 'seguro'
     },
     {
-        collection: 'empresas',      
+        collection: 'empresas',
         label: 'Empresas',
         name: 'delegatarioId',
         column: 'delegatario_id',
         table: 'delegatario'
     },
     {
-        collection: 'socios',      
+        collection: 'socios',
         label: 'Sócios',
         name: 'socioId',
         column: 'socio_id',
@@ -41,7 +41,7 @@ const fieldParser = [
         name: 'procuracaoId',
         column: 'procuracao_id',
         table: 'procuracao'
-    },    
+    },
     {
         collection: 'equipamentos',
         column: 'item',
@@ -83,6 +83,13 @@ const fieldParser = [
         label: 'Seguradoras',
         name: 'seguradora',
         table: 'seguradora'
+    },
+    {
+        collection: 'laudos',
+        column: 'laudo',
+        label: 'Laudos',
+        name: 'laudos',
+        table: 'laudos'
     }
 ]
 

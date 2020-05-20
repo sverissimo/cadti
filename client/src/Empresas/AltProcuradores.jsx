@@ -34,7 +34,7 @@ class AltProcuradores extends Component {
         addedSocios: [0],
         totalShare: 0,
         filteredProc: [],
-        procDisplay: 'Clique ou arraste para anexar a procuração referente a este(s) procurador(es).',        
+        procDisplay: 'Clique ou arraste para anexar a procuração referente a este(s) procurador(es).',
         procuradores: [],
         procsToAdd: [1],
         procuracoesArray: [],
@@ -206,9 +206,11 @@ class AltProcuradores extends Component {
         let procs = [...this.state.selectedDocs]
 
         await axios.delete(`/api/delete?table=procuracao&tablePK=procuracao_id&id=${id}`)
-            .then(r => { console.log(r.data) })
+            .then(r => console.log(r.data))
 
-        if (selectedFile && selectedFile.hasOwnProperty('_id')) axios.get(`/api/deleteFile/${selectedFile._id}`)
+        if (selectedFile && selectedFile.hasOwnProperty('_id'))
+            axios.delete(`/api/deleteFile?collection=empresaDocs&id=${selectedFile._id}`)
+                .then(({ data }) => console.log(data))
 
         const i = procs.indexOf(proc)
         procs.splice(i, 1)
@@ -233,7 +235,7 @@ class AltProcuradores extends Component {
         } else {
             this.setState({ alertType: 'filesNotFound', openAlertDialog: true })
         }
-    }  
+    }
 
     plusOne = () => {
         let i = [...this.state.procsToAdd]
@@ -252,7 +254,7 @@ class AltProcuradores extends Component {
     toast = () => this.setState({ confirmToast: !this.state.confirmToast })
 
     render() {
-        const {  openAlertDialog, alertType } = this.state
+        const { openAlertDialog, alertType } = this.state
 
         return (
             <React.Fragment>
@@ -263,12 +265,12 @@ class AltProcuradores extends Component {
                     handleInput={this.handleInput}
                     removeProc={this.removeProc}
                     handleFiles={this.handleFiles}
-                    addProc={this.addProc}                   
-                    handleSubmit={this.handleSubmit}                    
+                    addProc={this.addProc}
+                    handleSubmit={this.handleSubmit}
                     plusOne={this.plusOne}
                     minusOne={this.minusOne}
                     getFile={this.getFile}
-                />               
+                />
                 <ReactToast open={this.state.confirmToast} close={this.toast} msg={this.state.toastMsg} />
                 {openAlertDialog && <AlertDialog open={openAlertDialog} close={this.closeAlert} alertType={alertType} customMessage={this.state.customMsg} />}
             </React.Fragment>

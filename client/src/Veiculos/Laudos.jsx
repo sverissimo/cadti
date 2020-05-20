@@ -4,6 +4,7 @@ import StoreHOC from '../Store/StoreHOC'
 
 import AlertDialog from '../Utils/AlertDialog'
 import ReactToast from '../Utils/ReactToast'
+import ConfirmDialog from '../Reusable Components/ConfirmDialog'
 
 import { checkInputErrors } from '../Utils/checkInputErrors'
 import LaudosTemplate from './LaudosTemplate'
@@ -26,23 +27,28 @@ const Laudos = props => {
     })
 
     const
-        [razaoSocial, empresaInput] = useState(''),
-        [selectedEmpresa, setEmpresa] = useState(),
-        [oldVehicles, setOldVehicles] = useState(),
-        [filteredVehicles, setFilteredVehicles] = useState([]),
+        [razaoSocial, empresaInput] = useState(empresas[0].razaoSocial),
+        [selectedEmpresa, setEmpresa] = useState(empresas[0]),
+        [oldVehicles, setOldVehicles] = useState(veiculos[0]),
+        [filteredVehicles, setFilteredVehicles] = useState([veiculos[0]]),
         [details, setDetails] = useState(false),
-        [selectedVehicle, selectVehicle] = useState(),
+        [selectedVehicle, selectVehicle] = useState(veiculos[0]),
         [anchorEl, setAnchorEl] = useState(null),
         [dropDisplay, setDropDisplay] = useState(initState.dropDisplay),
         [laudoDoc, setLaudoDoc] = useState(),
         [toast, setToast] = useState(false),
+        [stateInputs, changeInputs] = useState({ ...initState.stateInputs }),
+        [table, setTableData] = useState(),
         [alertDialog, setAlertDialog] = useState({
             open: false,
             type: 'inputError',
             msg: '',
         }),
-        [stateInputs, changeInputs] = useState({ ...initState.stateInputs }),
-        [table, setTableData] = useState()
+        [confirmDialogProps, setConfirmDialog] = useState({
+            open: false,
+            type: 'delete',
+            element: undefined,
+        })
 
     useEffect(() => {
         const escFunction = e => { if (e.keyCode === 27) setDetails(false); setAnchorEl(null) }
@@ -77,7 +83,7 @@ const Laudos = props => {
 
                 if (selectedVehicle && vehiclesLaudo?.length > 0) {
                     const updatedVehicle = vehiclesLaudo.find(v => v.veiculoId === selectedVehicle.veiculoId)
-                    if (updatedVehicle?.laudos.length !== selectedVehicle?.laudos.length) {
+                    if (updatedVehicle?.laudos?.length !== selectedVehicle?.laudos?.length) {
                         selectVehicle(updatedVehicle)
                     } else return
                 }
@@ -251,10 +257,31 @@ const Laudos = props => {
         }
     }
 
+    function confirmDelete(laudoId) {
+        setConfirmDialog({
+            ...confirmDialogProps, open: true,
+            element: `laudo nº ${laudoId}`,
+            laudoId
+        })
+    }
+
+    function deleteLaudo(laudoId) {
+        if (laudoId) {
+            closeConfirmDialog()
+            const laudoDoc = vehicleDocs.find(d => d.metadata.fieldName === 'laudoDoc' && d.metadata.laudoId === laudoId.toString())
+            axios.delete(`/api/delete?table=laudos&tablePK=id&id='${laudoId}'`)
+                .then(({ data }) => console.log(data))
+
+            if (laudoDoc) axios.delete(`/api/deleteFile?collection=vehicleDocs&id=${laudoDoc?.id}`)
+                .then(({ data }) => console.log(data))
+        }
+    }
+
     const
         closeMenu = () => setAnchorEl(null),
         toggleAlert = () => setAlertDialog({ ...alertDialog, open: !alertDialog.open }),
         toggleToast = () => setToast(!toast),
+        closeConfirmDialog = () => setConfirmDialog({ ...confirmDialogProps, open: false }),
 
         clearForm = allFields => {
             if (allFields) changeInputs({ ...initState.stateInputs })
@@ -270,7 +297,7 @@ const Laudos = props => {
             <LaudosTemplate
                 empresas={empresas} razaoSocial={razaoSocial} selectedEmpresa={selectedEmpresa} filteredVehicles={filteredVehicles} selectedVehicle={selectedVehicle}
                 anchorEl={anchorEl} stateInputs={stateInputs} selectOptions={selectOptions} dropDisplay={dropDisplay} laudoDoc={laudoDoc} table={table}
-                functions={{ handleInput, clickOnPlate, showDetails, handleFiles, handleSubmit, closeMenu, clear }}
+                functions={{ handleInput, clickOnPlate, showDetails, handleFiles, handleSubmit, closeMenu, clear, deleteLaudo: confirmDelete }}
             />
             {details && <ShowDetails
                 close={showDetails}
@@ -279,6 +306,9 @@ const Laudos = props => {
                 title={'Veículo'}
                 header={'- informações'}
             />}
+
+            {confirmDialogProps.open && <ConfirmDialog {...confirmDialogProps} close={closeConfirmDialog} confirm={deleteLaudo} id={confirmDialogProps.laudoId} />}
+
 
             {alertDialog.open && <AlertDialog open={alertDialog.open} close={toggleAlert} alertType={alertDialog.type} customMessage={alertDialog.msg} />}
             <ReactToast open={toast} close={toggleToast} msg='Laudo inserido com sucesso.' />
@@ -290,12 +320,12 @@ const collections = ['veiculos', 'empresas', 'empresasLaudo', 'laudos', 'getFile
 export default StoreHOC(collections, Laudos)
 
 /*
-[razaoSocial, empresaInput] = useState(empresas[0].razaoSocial),
+        [razaoSocial, empresaInput] = useState(empresas[0].razaoSocial),
         [selectedEmpresa, setEmpresa] = useState(empresas[0]),
-        [oldVehicles, setOldVehicles] = useState(veiculos[1]),
-        [filteredVehicles, setFilteredVehicles] = useState([veiculos[1]]),
+        [oldVehicles, setOldVehicles] = useState(veiculos[0]),
+        [filteredVehicles, setFilteredVehicles] = useState([veiculos[0]]),
         [details, setDetails] = useState(false),
-        [selectedVehicle, selectVehicle] = useState(veiculos[1]),
+        [selectedVehicle, selectVehicle] = useState(veiculos[0]),
 
 
 

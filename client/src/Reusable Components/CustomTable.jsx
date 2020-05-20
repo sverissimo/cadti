@@ -1,8 +1,9 @@
 import React from 'react'
 import moment from 'moment'
 import downloadFile from '../Utils/downloadFile'
+import DeleteIcon from '@material-ui/icons/Delete';
 
-export default function StandardTable({ table, length, title, style }) {
+export default function StandardTable({ table, length, title, style, idIndex = 0, deleteIconProperties = {}, deleteFunction }) {
     const { tableHeaders, laudosArray, laudoDocs } = table
 
     const dateFormat = value => {
@@ -18,7 +19,7 @@ export default function StandardTable({ table, length, title, style }) {
         const file = laudoDocs.find(f => f.id === id)
         if (id && file) downloadFile(file.id, file.filename, 'vehicleDocs', file.metadata.fieldName);
     }
-
+    
     return (
         <table>
             <thead>
@@ -38,8 +39,15 @@ export default function StandardTable({ table, length, title, style }) {
                             {
                                 laudo.map((obj, i) =>
                                     <td key={i} style={style} className={obj.type === 'link' && obj.laudoDocId ? 'link2' : 'review'}
-                                        onClick={() => obj.field === 'laudoDoc' && obj.laudoDocId ? getFile(obj.laudoDocId) : null}>
-                                        {obj.type === 'date' ? dateFormat(obj.value) : obj.value}
+                                        onClick={
+                                            () => obj.field === 'laudoDoc' && obj.laudoDocId ? getFile(obj.laudoDocId)
+                                                : obj?.action === 'delete' ? deleteFunction(laudo[idIndex]?.value)
+                                                    : null}>
+                                        {
+                                            obj.type === 'date' ? dateFormat(obj.value)
+                                                : obj?.action === 'delete' && laudo[idIndex]?.value ? <DeleteIcon {...deleteIconProperties} />
+                                                    : obj.value
+                                        }
                                     </td>
                                 )}
                         </tr>

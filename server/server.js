@@ -25,7 +25,7 @@ const { seguros, socios, laudos, lookup } = require('./queries')
 
 const { fieldParser } = require('./fieldParser')
 const { getUpdatedData } = require('./getUpdatedData')
-const { empresaChunks } = require('./mongo/models/chunksModel')
+const { empresaChunks, vehicleChunks } = require('./mongo/models/chunksModel')
 
 const { uploadFS } = require('./upload')
 const { parseRequestBody } = require('./parseRequest')
@@ -33,7 +33,7 @@ const { parseRequestBody } = require('./parseRequest')
 //const { job } = require('./reportGenerator')
 //job.start()
 
-dotenv.config()
+dotenv.config();
 
 app.use(setCorsHeader)
 app.use(bodyParser.json({ limit: '50mb' }))
@@ -482,39 +482,42 @@ app.put('/api/updateVehicle', (req, res) => {
     })
 })
 
-app.get('/api/deleteFile/:reqId', async (req, res) => {
-    const { reqId } = req.params
+app.delete('/api/deleteFile', async (req, res) => {
+    const
+        { id, collection } = req.query,
+        fileId = new mongoose.mongo.ObjectId(id)
 
-    const fileId = new mongoose.mongo.ObjectId(reqId)
+    let chunks
+    gfs.collection(collection)
 
-    gfs.collection('empresaDocs')
     gfs.files.deleteOne({ _id: fileId }, (err, result) => {
         if (err) console.log(err)
         if (result) console.log(result)
     })
 
-    empresaChunks.deleteMany({ files_id: fileId }, (err, result) => {
+    if (collection === 'empresaDocs') chunks = empresaChunks
+    if (collection === 'vehicleDocs') chunks = vehicleChunks
+
+    chunks.deleteMany({ files_id: fileId }, (err, result) => {
         if (err) console.log(err)
         if (result) {
             console.log(result)
             res.json(result)
         }
     })
-    io.sockets.emit('deleteOne', { tablePK: '_id', id: reqId, collection: 'empresaDocs' })
+    io.sockets.emit('deleteOne', { tablePK: '_id', id, collection })
 })
 
 app.delete('/api/delete', (req, res) => {
     const
-        { table, tablePK } = req.query,
-        { collection } = fieldParser.find(f => f.table === table)
-    let
-        { id } = req.query
+        { table, tablePK, id } = req.query,
+        { collection } = fieldParser.find(f => f.table === table),
+        query = ` DELETE FROM public.${table} WHERE ${tablePK} = ${id}`
 
-    pool.query(`
-    DELETE FROM public.${table} WHERE ${tablePK} = ${id}`, (err, t) => {
+    pool.query(query, (err, t) => {
         if (err) console.log(err)
         if (id) {
-            io.sockets.emit('deleteOne', { id: req.query.id, tablePK, collection })
+            io.sockets.emit('deleteOne', { id, tablePK, collection })
             res.send(`${id} deleted from ${table}`)
         }
         else res.send('no id found.')
@@ -531,7 +534,7 @@ app.delete('/api/removeProc', (req, res) => {
     AND WHERE procurador_id = ${procurador_id}
 `
     )
-});
+})
 
 
 if (process.env.NODE_ENV === 'production') {

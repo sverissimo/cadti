@@ -23,6 +23,12 @@ export const laudosTable = [
         title: 'Laudo',
         type: 'link'
     },
+    {
+        field: 'delete',
+        title: 'Remover',        
+        action: 'delete',
+        deleteFile: true
+    }
 ]
 
 
