@@ -5,14 +5,15 @@ import DialogActions from '@material-ui/core/DialogActions';
 import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
+import { Fragment } from 'react';
 
-export default function ConfirmDialog({ open, type, close, confirm, element, id, customTitle = '', customMessage = '' }) {
+export default function ConfirmDialog({ open, type, close, confirm, element, id, index, customTitle = '', customMessage = '' }) {
 
     let title, message
     if (type === 'delete') {
         title = 'Confirmar exclusão'
         message = 'Tem certeza que deseja excluir esse registro?'
-        if (element) message = message.replace('?', ': ') + element + '?'
+        if (element) message = message.replace('?', ': ')
     }
 
     if (title && message) return (
@@ -26,12 +27,16 @@ export default function ConfirmDialog({ open, type, close, confirm, element, id,
                 <DialogTitle id="alert-dialog-title">{title}</DialogTitle>
                 <DialogContent>
                     <DialogContentText id="alert-dialog-description">
-                        {message}
+                        {element ?
+                            <Fragment>
+                                {message}<strong>  {element}    </strong>?
+                            </Fragment>
+                            : message}
                     </DialogContentText>
                 </DialogContent>
                 <DialogActions>
                     <Button onClick={close} autoFocus> Cancelar </Button>
-                    <Button onClick={()=> confirm(id)} color="primary"> Confirmar </Button>
+                    <Button onClick={() => confirm(id || index)} color="primary"> Confirmar </Button>
                 </DialogActions>
             </Dialog>
         </div>

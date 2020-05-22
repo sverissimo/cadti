@@ -37,7 +37,7 @@ const useStyles = makeStyles(theme => ({
 }))
 
 export default function ConfigTemplate({ collections, collection, data, staticData,
-    selectCollection, handleChange, enableEdit, removeItem, handleSubmit, openAddDialog }) {
+    selectCollection, handleChange, enableEdit, confirmDelete, handleSubmit, openAddDialog }) {
 
     const
         classes = useStyles(),
@@ -112,7 +112,7 @@ export default function ConfigTemplate({ collections, collection, data, staticDa
                             <button
                                 className='configVehicleIcon'
                                 title='Remover'
-                                onClick={() => removeItem(i)}>
+                                onClick={() => confirmDelete(i)}>
                                 <DeleteIcon className='confIcon' color='secondary' />
                             </button>
                         </div>

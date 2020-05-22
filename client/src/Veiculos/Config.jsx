@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react'
+import React, { PureComponent, Fragment } from 'react'
 import axios from 'axios'
 import humps from 'humps'
 
@@ -7,8 +7,9 @@ import StoreHOC from '../Store/StoreHOC'
 import ConfigAddDialog from './ConfigAddDialog'
 import ReactToast from '../Utils/ReactToast'
 import ConfigTemplate from './ConfigTemplate'
+import ConfirmDialog from '../Reusable Components/ConfirmDialog'
+
 import { configVehicleForm } from '../Forms/configVehicleForm'
-import { Fragment } from 'react'
 
 class VehicleConfig extends PureComponent {
 
@@ -19,11 +20,12 @@ class VehicleConfig extends PureComponent {
         openAddDialog: false,
         confirmToast: false,
         toastMsg: 'Dados atualizados!',
+        confirmDialogProps: { open: false }
     }
     componentDidMount() {
         let options = []
         configVehicleForm.forEach(col => { options.push(col.label) })
-        this.setState({ options })
+        this.setState({ options })        
     }
 
     componentDidUpdate(prevProps) {
@@ -33,9 +35,9 @@ class VehicleConfig extends PureComponent {
             { staticData, data } = this.state
 
         if (!staticData || !data) return null
-        
+
         const { collection } = staticData
-        if (JSON.stringify(prevProps.redux[collection]) !== JSON.stringify(redux[collection])) {        
+        if (JSON.stringify(prevProps.redux[collection]) !== JSON.stringify(redux[collection])) {
             const data = this.addCounter(veiculos, staticData, redux[collection])
             this.setState({ data })
         }
@@ -59,6 +61,7 @@ class VehicleConfig extends PureComponent {
     selectCollection = async e => {
         const
             { value } = e.target,
+            //value = 'Equipamentos',
             { veiculos, marcaChassi, marcaCarroceria } = this.props.redux
         let
             staticData = configVehicleForm.find(el => el.label === value),
@@ -111,7 +114,7 @@ class VehicleConfig extends PureComponent {
         const
             { value } = e.target,
             name = this.state.staticData.field
-            //{ collection } = this.state.staticData
+        //{ collection } = this.state.staticData
 
 
         let changedElement = this.state.data.find(el => el.edit === true)
@@ -123,7 +126,7 @@ class VehicleConfig extends PureComponent {
         let newData = [...this.state.data]
         newData[index] = changedElement
 
-        await this.setState({ data: newData })       
+        await this.setState({ data: newData })
     }
 
     handleInput = e => {
@@ -142,7 +145,7 @@ class VehicleConfig extends PureComponent {
         if (marcaId) requestElement.marcaId = marcaId
         requestElement = humps.decamelizeKeys(requestElement)
 
-        await axios.post('/api/addElement', { table, requestElement })
+        await axios.post('/api/addElement', { table, requestElement })            
 
         let data = this.props.redux[collection]
         data = this.addCounter(veiculos, staticData, data)
@@ -150,22 +153,42 @@ class VehicleConfig extends PureComponent {
         this.setState({ openAddDialog: false, data })
     }
 
+    confirmDelete = index => {
+
+        const
+            { data, staticData } = this.state,
+            { field } = staticData,
+
+            elementName = data[index][field],
+            confirmDialogProps = {
+                open: true,
+                type: 'delete',
+                element: `${elementName}`,
+                index
+            }
+
+        this.setState({ confirmDialogProps })
+    }
+
     removeItem = async index => {
+        this.closeConfirmDialog()
 
         let data = [...this.state.data]
+
         const
             { staticData } = this.state,
             { collection, table } = staticData,
             id = data[index].id,
             originalData = this.props.redux[collection],
             registered = originalData.find(el => el.id === id)
-
+        
         if (registered) {
             await axios.delete(`/api/delete?table=${table}&tablePK=id&id=${id}`)
                 .catch(err => console.log(err))
         }
         data.splice(index, 1)
         this.setState({ data })
+
     }
 
     handleSubmit = async () => {
@@ -220,12 +243,19 @@ class VehicleConfig extends PureComponent {
         this.setState({ collection: '', staticData: undefined })
     }
 
+    closeConfirmDialog = () => {
+        let confirmDialogProps = { ...this.state.confirmDialogProps }
+        confirmDialogProps.open = false
+
+        this.setState({ confirmDialogProps })
+    }
+
     toggleDialog = () => this.setState({ openAddDialog: !this.state.openAddDialog })
     toast = () => this.setState({ confirmToast: !this.state.confirmToast })
 
     render() {
 
-        const { options, collection, data, staticData, openAddDialog, marca, marcas, confirmToast, toastMsg } = this.state
+        const { options, collection, data, staticData, openAddDialog, marca, marcas, confirmToast, toastMsg, confirmDialogProps } = this.state
         return (
             <Fragment>
                 <ConfigTemplate
@@ -238,7 +268,7 @@ class VehicleConfig extends PureComponent {
                     handleChange={this.handleChange}
                     handleSubmit={this.handleSubmit}
                     openAddDialog={this.toggleDialog}
-                    removeItem={this.removeItem}
+                    confirmDelete={this.confirmDelete}
                 />
                 {openAddDialog && <ConfigAddDialog
                     open={openAddDialog}
@@ -251,6 +281,8 @@ class VehicleConfig extends PureComponent {
                     handleInput={this.handleInput}
                     addNewElement={this.addNewElement}
                 />}
+                {confirmDialogProps.open && <ConfirmDialog {...confirmDialogProps} close={this.closeConfirmDialog} confirm={this.removeItem} />}
+
                 <ReactToast open={confirmToast} close={this.toast} msg={toastMsg} />
             </Fragment>
         )

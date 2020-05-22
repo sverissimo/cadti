@@ -5,10 +5,12 @@ import FormControlLabel from '@material-ui/core/FormControlLabel'
 
 import '../Layouts/popUp.css'
 
-export default function AddEquipa({ data, equipamentos, handleCheck, close }) {
+export default function AddEquipa({ data, equipamentos, handleCheck, close }) {    
+    
+    if (Array.isArray(equipamentos) && equipamentos[0]?.item) equipamentos = equipamentos.sort((a, b) => a.item.localeCompare(b.item))
 
     return <div className='popUpWindow' style={{ right: '33%', left: '33%' }}>
-        <h4 className = 'equipaHeader'>Equipamentos</h4> <hr />
+        <h4 className='equipaHeader'>Equipamentos</h4> <hr />
         <div className="checkListContainer">
             {
                 equipamentos.map((eq, i) =>

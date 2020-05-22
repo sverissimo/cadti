@@ -27,12 +27,12 @@ const Laudos = props => {
     })
 
     const
-        [razaoSocial, empresaInput] = useState(empresas[0].razaoSocial),
-        [selectedEmpresa, setEmpresa] = useState(empresas[0]),
-        [oldVehicles, setOldVehicles] = useState(veiculos[0]),
-        [filteredVehicles, setFilteredVehicles] = useState([veiculos[0]]),
+        [razaoSocial, empresaInput] = useState(''),
+        [selectedEmpresa, setEmpresa] = useState(),
+        [oldVehicles, setOldVehicles] = useState(),
+        [filteredVehicles, setFilteredVehicles] = useState([]),
         [details, setDetails] = useState(false),
-        [selectedVehicle, selectVehicle] = useState(veiculos[0]),
+        [selectedVehicle, selectVehicle] = useState(),
         [anchorEl, setAnchorEl] = useState(null),
         [dropDisplay, setDropDisplay] = useState(initState.dropDisplay),
         [laudoDoc, setLaudoDoc] = useState(),
@@ -308,7 +308,6 @@ const Laudos = props => {
             />}
 
             {confirmDialogProps.open && <ConfirmDialog {...confirmDialogProps} close={closeConfirmDialog} confirm={deleteLaudo} id={confirmDialogProps.laudoId} />}
-
 
             {alertDialog.open && <AlertDialog open={alertDialog.open} close={toggleAlert} alertType={alertDialog.type} customMessage={alertDialog.msg} />}
             <ReactToast open={toast} close={toggleToast} msg='Laudo inserido com sucesso.' />

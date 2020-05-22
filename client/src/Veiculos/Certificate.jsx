@@ -22,12 +22,11 @@ const useStyles = makeStyles(theme => ({
 export default function PdfCertificate() {
 
     const [vehicle, setVehicle] = useState({})
-    const data = JSON.parse(localStorage.getItem('vehicle'))
-    console.log('1', data)
+    
 
     useEffect(() => {
-        async function setData() {
-            console.log('2', localStorage)
+        async function setData() {            
+            const data = JSON.parse(localStorage.getItem('vehicle'))        
             let menus = document.querySelectorAll('.MuiToolbar-root')
             menus.forEach(m => m.style.display = 'none')
             await setVehicle(data)
@@ -36,8 +35,7 @@ export default function PdfCertificate() {
             }, 500);
         }
         setData()
-        localStorage.removeItem('vehicle')
-        console.log('3', localStorage)
+        localStorage.removeItem('vehicle')        
     }, [])
 
     const classes = useStyles(),
