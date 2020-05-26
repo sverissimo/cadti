@@ -1,6 +1,6 @@
 import React from 'react';
 
-import formatDate from '../Utils/formatDate'
+import { formatDate } from '../Utils/formatValues'
 import formatFileSize from '../Utils/formatFileSize'
 import download from '../Utils/downloadFile'
 

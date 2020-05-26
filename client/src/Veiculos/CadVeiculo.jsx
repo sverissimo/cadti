@@ -15,7 +15,7 @@ import StepperButtons from '../Utils/StepperButtons'
 import CustomStepper from '../Utils/Stepper'
 import ReactToast from '../Utils/ReactToast'
 
-import { formatMoney } from '../Utils/formatMoney'
+import { formatMoney } from '../Utils/formatValues'
 import { cadVehicleFiles } from '../Forms/cadVehicleFiles'
 import { cadForm } from '../Forms/cadForm'
 

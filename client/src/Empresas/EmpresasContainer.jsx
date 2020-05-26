@@ -10,6 +10,7 @@ import EmpresasTemplate from './EmpresasTemplate'
 import SociosTemplate from './SociosTemplate'
 import Review from './EmpresaReview'
 
+import valueParser from '../Utils/valueParser'
 import { empresaFiles } from '../Forms/empresaFiles'
 import { empresasForm } from '../Forms/empresasForm'
 import { sociosForm } from '../Forms/sociosForm'
@@ -68,9 +69,12 @@ class EmpresasContainer extends Component {
         }
     }
 
-    handleInput = async e => {
-        const { name, value } = e.target
-        this.setState({ [name]: value })
+    handleInput = e => {
+        const
+            { name, value } = e.target,
+            parsedValue = valueParser(name, value)
+
+        this.setState({ [name]: parsedValue })
     }
 
     addSocio = async () => {

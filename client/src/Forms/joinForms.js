@@ -1,20 +1,4 @@
-const
-    razaoSocial = {
-        field: 'razaoSocial',
-        label: 'Empresa',
-        width: '340px'
-    },
-    placas = {
-        field: 'placas',
-        label: 'Veículos cadastrados',
-        width: '340px'
-    },
-    createdAt = {
-        field: 'createdAt',
-        label: 'Data do registro no sistema',
-        type: 'date',
-        width: '190px'
-    }
+import { razaoSocial, placas, createdAt} from '../Forms/commonFields'
 
 export const eForm = [
     {

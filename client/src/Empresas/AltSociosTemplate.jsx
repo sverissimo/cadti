@@ -2,6 +2,7 @@ import React, { Fragment } from 'react'
 import Dropzone from 'react-dropzone'
 
 import SelectEmpresa from '../Reusable Components/SelectEmpresa'
+import TextInput from '../Reusable Components/TextInput'
 import { sociosForm } from '../Forms/sociosForm'
 
 import Grid from '@material-ui/core/Grid'
@@ -140,10 +141,14 @@ export default function AltSociosTemplate({ empresas, data, removeSocio, handleB
                 //selectedEmpresa 
                 true && <Grid item xs={12}>
                     <Paper className={paper}>
-                        {
-                            sociosForm.map((el, i) =>
-                                <Fragment key={i}>
-                                    <TextField
+                       
+                                    <TextInput
+                                        form={sociosForm}
+                                        data={data}
+                                        handleBlur={handleBlur}
+                                        handleInput={handleInput}
+                                    />
+                                    {/* <TextField
                                         name={el.field}
                                         label={el.label}
                                         margin='normal'
@@ -174,9 +179,8 @@ export default function AltSociosTemplate({ empresas, data, removeSocio, handleB
                                         }}
                                         variant={el.variant || 'filled'}
                                     >
-                                    </TextField>
-                                </Fragment>
-                            )}
+                                    </TextField> */}
+                                
 
                         <Button color='primary' className={addButton} onClick={addSocio}>
                             <AddIcon /> Adicionar sócio
@@ -248,7 +252,7 @@ export default function AltSociosTemplate({ empresas, data, removeSocio, handleB
                                     color="primary"
                                     variant="contained"
                                     style={{ margin: '0px 0 10px 0' }}
-                                    onClick={() => handleSubmit()}                                    
+                                    onClick={() => handleSubmit()}
                                 >
                                     Salvar <span>&nbsp;&nbsp; </span> <SaveIcon />
                                 </Button>

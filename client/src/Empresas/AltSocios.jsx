@@ -5,6 +5,8 @@ import StoreHOC from '../Store/StoreHOC'
 
 import humps from 'humps'
 import ReactToast from '../Utils/ReactToast'
+import valueParser from '../Utils/valueParser'
+//import cpfValidator from '../Utils/cpfValidator'
 
 import Crumbs from '../Utils/Crumbs'
 import AltSociosTemplate from './AltSociosTemplate'
@@ -42,7 +44,10 @@ class AltSocios extends Component {
         let
             { value } = e.target
 
-        this.setState({ ...this.state, [name]: value })
+        const parsedValue = valueParser(name, value)        
+        if (name === 'cpfSocio') this.setState({ [name]: parsedValue })       
+        else
+            this.setState({ ...this.state, [name]: value })
 
         if (name === 'razaoSocial') {
             const filteredSocios = [...socios.filter(s => s.razaoSocial === value)],
@@ -239,7 +244,7 @@ class AltSocios extends Component {
                 await axios.post('/api/cadSocios', { socios: newMembers, table, tablePK })
                     .then(r => r.data.forEach(newSocio => socioIdsArray.push(newSocio.socio_id)))
             }
-            
+
             if (contratoSocial) {
                 contratoFile.append('empresaId', selectedEmpresa.delegatarioId)
                 contratoFile.append('socios', socioIdsArray)

@@ -1,4 +1,4 @@
-import formatDate from '../Utils/formatDate'
+import { formatDate } from '../Utils/formatValues'
 
 export const delegatarioTable = [
     {
@@ -27,17 +27,17 @@ export const delegatarioTable = [
         field: 'frota',
         title: 'Tamanho da frota'
     }
-  /*   {
-        field: 'procuradoresList',
-        title: 'Nome do Procurador',
-        fSize: '0.3rem',
-        render: rowData => rowData.procuradoresList
-            ?
-            rowData.procuradoresList.map(s => s.charAt(0).toUpperCase()
-                .concat(s.slice(1).toLowerCase())).toString().replace(/,/g, ", ")
-            :
-            ''
-    } */
+    /*   {
+          field: 'procuradoresList',
+          title: 'Nome do Procurador',
+          fSize: '0.3rem',
+          render: rowData => rowData.procuradoresList
+              ?
+              rowData.procuradoresList.map(s => s.charAt(0).toUpperCase()
+                  .concat(s.slice(1).toLowerCase())).toString().replace(/,/g, ", ")
+              :
+              ''
+      } */
 ]
 
 export const sociosTable = [
@@ -55,13 +55,13 @@ export const sociosTable = [
     },
     {
         field: 'emailSocio',
-        title: 'E-mail',        
-        
+        title: 'E-mail',
+
     },
     {
         field: 'share',
         title: 'Participação Societária (%)',
-        filtering: false,        
+        filtering: false,
     }
 ]
 
@@ -81,7 +81,7 @@ export const procuradorTable = [
     },
     {
         field: 'telProcurador',
-        title: 'Telefone'        
+        title: 'Telefone'
     }
 ]
 

@@ -74,9 +74,7 @@ const useStyles = makeStyles(theme => ({
 
 export default function ({ handleInput, handleBlur, data, handleFiles }) {
     const { activeStep, stepTitles, dropDisplay } = data,
-        classes = useStyles(), { paper, container, title, dropBox, dropBoxItem, dropBoxItem2 } = classes
-
-    let form = empresasForm
+        classes = useStyles(), { paper, container, title, dropBox, dropBoxItem, dropBoxItem2 } = classes    
 
     return (
         <Grid
@@ -93,7 +91,7 @@ export default function ({ handleInput, handleBlur, data, handleFiles }) {
                             <Paper className={paper}>
                                 <Typography className={title}> {stepTitles[activeStep]}</Typography>
                                 <TextInput
-                                    form={form}
+                                    form={empresasForm}
                                     data={data}
                                     handleBlur={handleBlur}
                                     handleInput={handleInput}

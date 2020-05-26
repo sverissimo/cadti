@@ -1,3 +1,5 @@
+import { cpf } from './commonFields'
+
 export const sociosForm = [{
     field: 'nomeSocio',
     label: 'Nome do Sócio',
@@ -5,16 +7,13 @@ export const sociosForm = [{
     width: 190
 },
 {
-    field: 'cpfSocio',
-    label: 'CPF',    
-    maxLength: 11,
-    pattern: '\\d{11}',
+    ...cpf,
     width: 190
 },
 {
     field: 'telSocio',
     label: 'Telefone',
-    maxLength: 16,    
+    maxLength: 16,
     pattern: '((([+][0-9]{1,3})?[ ]?[-]?[(]?[0-9]{2,3}[)]?[ ]?[-]?[0-9]{4,5}[ ]?[-]?[0-9]{4}))',
     width: 190
 },
@@ -30,5 +29,5 @@ export const sociosForm = [{
     maxLength: 5,
     type: 'number',
     max: 100,
-    width: 190    
+    width: 190
 }]

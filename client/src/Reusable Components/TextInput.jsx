@@ -2,6 +2,7 @@ import React, { Fragment } from 'react'
 
 import MenuItem from '@material-ui/core/MenuItem'
 import AutoComplete from '../Utils/autoComplete'
+//import { clearFormat } from '../Utils/formatValues'
 
 import { makeStyles } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
@@ -42,6 +43,9 @@ export default function TextInput({ handleInput, handleBlur, form, data, selectO
     const errorHandler = (el) => {
         let value = data[el.field]
 
+        if (el.errorHandler && el.errorHandler(value)) return false
+        else if (value && el.errorHandler && !el.errorHandler(value)) return true
+
         if (el.type === 'number') {
             if (value > el.max || value < el.min) return true
             else return false
@@ -53,6 +57,10 @@ export default function TextInput({ handleInput, handleBlur, form, data, selectO
 
     const helper = (el) => {
         let value = data[el.field]
+
+        if (el.errorHandler && el.errorHandler(value)) return '✓'
+        else if (value && el.errorHandler && !el.errorHandler(value)) return '✘'
+
         if (value && typeof value !== 'string') value = value.toString()
         if (value > el.max || value < el.min) return 'Valor inválido'
         else if (value && value.match(el.pattern) === null) return '✘'
