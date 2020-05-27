@@ -102,28 +102,8 @@ export default function AltSociosTemplate({ empresas, data, removeSocio, handleB
         { dropDisplay, filteredSocios, selectedEmpresa } = data,
         classes = useStyles(),
         { paper, container, title, iconButton, dropBox,
-            dropBoxItem, dropBoxItem2, list, addButton } = classes
+            dropBoxItem, dropBoxItem2, list, addButton } = classes   
 
-    const errorHandler = (el) => {
-
-        const value = data[el.field]
-
-        if (el.pattern && value) {
-            return value.match(el.pattern) === null
-        }
-        if (value > el.max || value < el.min) return true
-        else return false
-    }
-
-    const helper = (el) => {
-        const value = data[el.field]
-
-        if (value > el.max || value < el.min) return 'Valor inválido'
-        else if (value && value.match(el.pattern) === null) return '✘'
-        else if (el.pattern && value && value.match(el.pattern) !== null) return '✓'
-        else return ' '
-    }
-    
     return (
         <Grid
             container
@@ -138,50 +118,15 @@ export default function AltSociosTemplate({ empresas, data, removeSocio, handleB
                 handleBlur={handleBlur}
             />
             {
-                //selectedEmpresa 
-                true && <Grid item xs={12}>
+                selectedEmpresa &&
+                <Grid item xs={12}>
                     <Paper className={paper}>
-                       
-                                    <TextInput
-                                        form={sociosForm}
-                                        data={data}
-                                        handleBlur={handleBlur}
-                                        handleInput={handleInput}
-                                    />
-                                    {/* <TextField
-                                        name={el.field}
-                                        label={el.label}
-                                        margin='normal'
-                                        className={classes.textField}
-                                        onChange={handleInput}
-                                        onBlur={handleBlur}
-                                        type={el.type || ''}
-                                        error={errorHandler(el)}
-                                        helperText={helper(el)}
-                                        FormHelperTextProps={{
-                                            className: classes.helperText
-                                        }}
-                                        select={el.select || false}
-                                        value={data[el.field] || ''}
-                                        disabled={el.disabled}
-                                        InputLabelProps={{
-                                            className: classes.textField,
-                                            shrink: el.type === 'date' || undefined,
-                                            style: { fontSize: '0.7rem', color: '#455a64', marginBottom: '5%' }
-                                        }}
-                                        inputProps={{
-                                            style: { background: el.disabled && data.disable ? '#fff' : '#fafafa', height: '7px' },
-                                            value: `${data[el.field] || ''}`,
-                                            list: el.datalist || '',
-                                            maxLength: el.maxLength || '',
-                                            minLength: el.minLength || '',
-                                            max: el.max || '',
-                                        }}
-                                        variant={el.variant || 'filled'}
-                                    >
-                                    </TextField> */}
-                                
-
+                        <TextInput
+                            form={sociosForm}
+                            data={data}
+                            handleBlur={handleBlur}
+                            handleInput={handleInput}
+                        />
                         <Button color='primary' className={addButton} onClick={addSocio}>
                             <AddIcon /> Adicionar sócio
                         </Button>
@@ -198,7 +143,8 @@ export default function AltSociosTemplate({ empresas, data, removeSocio, handleB
                 </Grid>
             }
             {
-                filteredSocios.length > 0 && selectedEmpresa && <Grid container
+                filteredSocios.length > 0 && selectedEmpresa &&
+                <Grid container
                     direction="row"
                     className={container}
                     justify="center"

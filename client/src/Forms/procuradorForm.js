@@ -1,27 +1,23 @@
+import { cpf, email, phone } from './commonFields'
+
 export const procuradorForm = [{
     field: 'nomeProcurador',
     label: 'Nome do Procurador',
     maxLength: 90,
-    width: 320
+    width: 235
 },
 {
+    ...cpf,
     field: 'cpfProcurador',
-    label: 'CPF',    
-    maxLength: 11,
-    pattern: '\\d{11}'  
+    width: 235
 },
 {
-    field: 'telProcurador',
-    label: 'Telefone',    
-    type: 'tel',    
-    maxLength: 20,
-    pattern: '((([+][0-9]{1,3})?[ ]?[-]?[(]?[0-9]{2,3}[)]?[ ]?[-]?[0-9]{4,5}[ ]?[-]?[0-9]{4}))'
+    ...phone,
+    field: 'telProcurador',    
+    width: 235
 },
 {
+    ...email,
     field: 'emailProcurador',
-    label: 'E-mail',
-    type: 'email',
-    maxLength: 60,
-    pattern: '[a-zA-Z0-9]@([a-zA-Z0-9])?[.]([a-zA-Z0-9])',
-    width: 320
+    width: 235
 }]

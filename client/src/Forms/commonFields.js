@@ -24,4 +24,16 @@ export const
         maxLength: 14,
         width: 190,
         errorHandler: (cpfString) => cpfValidator(clearFormat(cpfString))
-    } 
+    },
+    phone = {
+        label: 'Telefone',
+        type: 'tel',
+        maxLength: 20,
+        pattern: '((([+][0-9]{1,3})?[ ]?[-]?[(]?[0-9]{2,3}[)]?[ ]?[-]?[0-9]{4,5}[ ]?[-]?[0-9]{4}))',
+    },
+    email = {
+        label: 'E-mail',
+        type: 'email',
+        maxLength: 60,
+        pattern: '[a-zA-Z0-9]@[a-zA-Z0-9]{1,20}?[.]([a-zA-Z0-9])',
+    }

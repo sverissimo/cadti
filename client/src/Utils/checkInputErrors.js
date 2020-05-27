@@ -1,6 +1,6 @@
 import moment from 'moment'
 
-export const checkInputErrors = sendState => {
+export const checkInputErrors = (sendState, dontSetDate) => {
 
     const p = document.querySelectorAll('p'),
         inputs = document.querySelectorAll('input')
@@ -17,7 +17,7 @@ export const checkInputErrors = sendState => {
             }
         })
     }
-    if (inputs) {
+    if (inputs && !dontSetDate) {
         inputs.forEach(el => {
             if (el.type === 'date') {
                 if (!moment(el.value, 'YYYY-MM-DD', true).isValid()) {
@@ -37,7 +37,7 @@ export const checkInputErrors = sendState => {
             .replace('(cm)', '')
             .slice(0, -2) + '.'
 
-        if (sendState) return { openAlertDialog: true, alertType: 'inputError', customMsg: errString }
+        if (sendState) return { openAlertDialog: true, alertType: 'inputError', customMsg: errString }        
         return errors
     } else return null
 }

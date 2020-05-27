@@ -165,19 +165,24 @@ export default function ({ handleInput, redux, data, addProc, removeProc,
             paper, container, title, dropBox,
             dropBoxItem, dropBoxItem2, addButton, paper2, containerList } = classes
 
-    const errorHandler = (el) => {
+    const errorHandler = (el, index) => {
 
-        const value = data[el.field]
+        const value = data[el.field + index]
 
-        if (el.pattern && value) {
-            return value.match(el.pattern) === null
-        }
+        if (el.errorHandler && el.errorHandler(value)) return false
+        else if (value && el.errorHandler && !el.errorHandler(value)) return true
+
+        if (el.pattern && value) return value.match(el.pattern) === null
+
         if (value > el.max || value < el.min) return true
         else return false
     }
 
-    const helper = (el) => {
-        const value = data[el.field]
+    const helper = (el, index) => {
+        const value = data[el.field + index]
+
+        if (el.errorHandler && el.errorHandler(value)) return '✓'
+        else if (value && el.errorHandler && !el.errorHandler(value)) return '✘'
 
         if (value > el.max || value < el.min) return 'Valor inválido'
         else if (value && value.match(el.pattern) === null) return '✘'
@@ -200,123 +205,124 @@ export default function ({ handleInput, redux, data, addProc, removeProc,
             <SelectEmpresa
                 data={data}
                 empresas={empresas}
-                handleInput={handleInput}                
+                handleInput={handleInput}
             />
-            {selectedEmpresa && <Paper className={paper2}>
-                <Typography className={title}> Cadastrar nova procuração </Typography>
-                <h4 style={{ fontWeight: 400, fontSize: '0.9em' }}> Se a procuração abranger mais de um procurador, clique em "+" para adicionar e anexe apenas 1 vez.</h4>
-                {procsToAdd.map((p, j) =>
-                    <Grid item xs={12} key={j} style={{ float: 'left' }}>
-                        {procuradorForm.map((el, i) =>
-                            <Fragment key={i}>
-                                <TextField
-                                    name={el.field + j}
-                                    label={el.label}
-                                    margin='normal'
-                                    className={classes.textField}
-                                    onChange={e => handleInput(e)}                                    
-                                    type={el.type || ''}
-                                    error={errorHandler(el)}
-                                    helperText={helper(el)}
-                                    select={el.select || false}
-                                    value={data[el.field + j] || ''}
-                                    disabled={el.disabled || false}
-                                    InputLabelProps={{
-                                        className: classes.textField,
-                                        shrink: el.type === 'date' || undefined,
-                                        style: { fontSize: '0.7rem', fontWeight: 400, color: '#888' }
-                                    }}
-                                    inputProps={{
-                                        style: {
-                                            background: el.disabled && data.disable ? '#fff' : '#fafafa',
-                                            fontSize: '0.9rem', textAlign: 'center', color: '#000', width: el.width || 150, height: '7px'
-                                        },
-                                        value: `${data[el.field + j] || ''}`,
-                                        list: el.datalist || '',
-                                        maxLength: el.maxLength || '',
-                                        minLength: el.minLength || '',
-                                        max: el.max || '',
-                                    }}
-                                    multiline={el.multiline || false}
-                                    rows={el.rows || null}
-                                    variant={el.variant || 'filled'}
-                                    fullWidth={el.fullWidth || false}
-                                >
-                                </TextField>
-                                {j === procsToAdd.length - 1 && i === 3 &&
-                                    <>
-                                        <AddCircleOutlineSharpIcon
-                                            onClick={() => plusOne()}
-                                            style={{
-                                                verticalAlign: 'middle',
-                                                position: 'absolute',
-                                                bottom: '136px',
-                                                right: j > 0 ? '15px' : '35px',
-                                                color: '#009688',
-                                                fontSize: 30,
-                                                cursor: 'pointer',
-                                                zIndex: 1
-                                            }}
-                                        />
-                                        {j > 0 && <RemoveCircleOutlineIcon
-                                            onClick={() => minusOne()}
-                                            style={{
-                                                verticalAlign: 'middle',
-                                                position: 'absolute',
-                                                bottom: '136px',
-                                                right: '45px',
-                                                color: 'red',
-                                                fontSize: 30,
-                                                cursor: 'pointer',
-                                                zIndex: 1
-                                            }}
-                                        />}
-                                    </>
-                                }
-                            </Fragment>
-                        )}
-                    </Grid>
-                )}
-                <Grid container style={{ position: 'relative' }}>
-                    <Grid item xs={6}>
-                        <Dropzone onDrop={handleFiles}>
-                            {({ getRootProps, getInputProps }) => (
-                                <Grid container justify="center"
-                                    alignItems='center' className={dropBox} direction='row' {...getRootProps()}>
-                                    <input {...getInputProps()} />
-                                    {
-                                        procDisplay.match('Clique ou') ?
-                                            <Grid item xs={6} className={dropBoxItem}> {procDisplay} </Grid>
-                                            :
-                                            <Grid item xs={6} className={dropBoxItem2}> <DescriptionOutlinedIcon />  {procDisplay} <br /> (clique ou arraste outro arquivo para alterar)</Grid>
+            {//selectedEmpresa && 
+                true && <Paper className={paper2}>
+                    <Typography className={title}> Cadastrar nova procuração </Typography>
+                    <h4 style={{ fontWeight: 400, fontSize: '0.9em' }}> Se a procuração abranger mais de um procurador, clique em "+" para adicionar e anexe apenas 1 vez.</h4>
+                    {procsToAdd.map((p, j) =>
+                        <Grid item xs={12} key={j} style={{ float: 'left' }}>
+                            {procuradorForm.map((el, i) =>
+                                <Fragment key={i}>
+                                    <TextField
+                                        name={el.field + j}
+                                        label={el.label}
+                                        margin='normal'
+                                        className={classes.textField}
+                                        onChange={e => handleInput(e)}
+                                        type={el.type || ''}
+                                        error={errorHandler(el, j)}
+                                        helperText={helper(el, j)}
+                                        select={el.select || false}
+                                        value={data[el.field + j] || ''}
+                                        disabled={el.disabled || false}
+                                        InputLabelProps={{
+                                            className: classes.textField,
+                                            shrink: el.type === 'date' || undefined,
+                                            style: { fontSize: '0.7rem', fontWeight: 400, color: '#888' }
+                                        }}
+                                        inputProps={{
+                                            style: {
+                                                background: el.disabled && data.disable ? '#fff' : '#fafafa',
+                                                fontSize: '0.9rem', textAlign: 'center', color: '#000', width: el.width || 150, height: '7px'
+                                            },
+                                            value: `${data[el.field + j] || ''}`,
+                                            list: el.datalist || '',
+                                            maxLength: el.maxLength || '',
+                                            minLength: el.minLength || '',
+                                            max: el.max || '',
+                                        }}
+                                        multiline={el.multiline || false}
+                                        rows={el.rows || null}
+                                        variant={el.variant || 'filled'}
+                                        fullWidth={el.fullWidth || false}
+                                    >
+                                    </TextField>
+                                    {j === procsToAdd.length - 1 && i === 3 &&
+                                        <>
+                                            <AddCircleOutlineSharpIcon
+                                                onClick={() => plusOne()}
+                                                style={{
+                                                    verticalAlign: 'middle',
+                                                    position: 'absolute',
+                                                    bottom: '136px',
+                                                    right: j > 0 ? '15px' : '35px',
+                                                    color: '#009688',
+                                                    fontSize: 30,
+                                                    cursor: 'pointer',
+                                                    zIndex: 1
+                                                }}
+                                            />
+                                            {j > 0 && <RemoveCircleOutlineIcon
+                                                onClick={() => minusOne()}
+                                                style={{
+                                                    verticalAlign: 'middle',
+                                                    position: 'absolute',
+                                                    bottom: '136px',
+                                                    right: '45px',
+                                                    color: 'red',
+                                                    fontSize: 30,
+                                                    cursor: 'pointer',
+                                                    zIndex: 1
+                                                }}
+                                            />}
+                                        </>
                                     }
-                                </Grid>
+                                </Fragment>
                             )}
-                        </Dropzone>
+                        </Grid>
+                    )}
+                    <Grid container style={{ position: 'relative' }}>
+                        <Grid item xs={6}>
+                            <Dropzone onDrop={handleFiles}>
+                                {({ getRootProps, getInputProps }) => (
+                                    <Grid container justify="center"
+                                        alignItems='center' className={dropBox} direction='row' {...getRootProps()}>
+                                        <input {...getInputProps()} />
+                                        {
+                                            procDisplay.match('Clique ou') ?
+                                                <Grid item xs={6} className={dropBoxItem}> {procDisplay} </Grid>
+                                                :
+                                                <Grid item xs={6} className={dropBoxItem2}> <DescriptionOutlinedIcon />  {procDisplay} <br /> (clique ou arraste outro arquivo para alterar)</Grid>
+                                        }
+                                    </Grid>
+                                )}
+                            </Dropzone>
+                        </Grid>
+                        <Grid item xs={6} className={dropBox}>
+                            <TextField
+                                name='vencimento'
+                                label='Vencimento'
+                                margin='normal'
+                                className={classes.textField}
+                                onChange={e => handleInput(e)}
+                                type='date'
+                                helper='se indeterminado, deixar em branco'
+                                value={data.vencimento || ''}
+                                InputLabelProps={{
+                                    className: classes.textField,
+                                    shrink: true,
+                                    style: { fontSize: '0.8rem', color: '#455a64', marginBottom: '5%' }
+                                }}
+                                inputProps={{
+                                    style: { background: '#fafafa', fontSize: '0.8rem', textAlign: 'center', color: '#000', height: '9px' },
+                                }}
+                                variant={'filled'}
+                            />
+                        </Grid>
                     </Grid>
-                    <Grid item xs={6} className={dropBox}>
-                        <TextField
-                            name='vencimento'
-                            label='Vencimento'
-                            margin='normal'
-                            className={classes.textField}
-                            onChange={e => handleInput(e)}
-                            type='date'
-                            helper='se indeterminado, deixar em branco'                            
-                            value={data.vencimento || ''}
-                            InputLabelProps={{
-                                className: classes.textField,
-                                shrink: true,
-                                style: { fontSize: '0.8rem', color: '#455a64', marginBottom: '5%' }
-                            }}
-                            inputProps={{
-                                style: { background: '#fafafa', fontSize: '0.8rem', textAlign: 'center', color: '#000', height: '9px' },
-                            }}
-                            variant={'filled'}
-                        />
-                    </Grid>
-                </Grid>
-            </Paper>}
+                </Paper>}
             <Grid container direction="row" justify='flex-start' style={{ width: '1200px' }}>
                 <Grid item xs={9} style={{ width: '1000px' }}></Grid>
                 <Grid item xs={3} style={{ align: "right" }}>

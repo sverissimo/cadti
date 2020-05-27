@@ -5,6 +5,9 @@ import ReactToast from '../Utils/ReactToast'
 
 import StoreHOC from '../Store/StoreHOC'
 
+import valueParser from '../Utils/valueParser'
+import { checkInputErrors } from '../Utils/checkInputErrors'
+
 import Crumbs from '../Utils/Crumbs'
 import AltProcuradoresTemplate from './AltProcuradoresTemplate'
 import download from '../Utils/downloadFile'
@@ -54,17 +57,28 @@ class AltProcuradores extends Component {
     handleInput = async e => {
 
         const
-            { name } = e.target
+            { name } = e.target,
+            procuradores = [...this.props.redux.procuradores]
         let
             { value } = e.target,
             procuracoes = [...this.props.redux.procuracoes],
             procArray = [],
             procuracoesArray = []
 
-        const procuradores = [...this.props.redux.procuradores]
+        //***********************Check for errors *********************** */
+        /* let errors = [...checkInputErrors()]
+        if (errors) {            
+            await this.setState({ errors })
+        }
+        else await this.setState({ errors: undefined }) */
 
-        this.setState({ ...this.state, [name]: value })
+        //***********************Parse values (cpf) ********************** */
+        const parsedValue = valueParser(name, value)
+        if (name.match('cpfProcurador')) this.setState({ [name]: parsedValue })
+        else
+            this.setState({ ...this.state, [name]: value })
 
+        //**************************SetState *********************** */
         if (name === 'razaoSocial' && Array.isArray(procuradores)) {
 
             procuracoes = procuracoes.filter(pr => pr.razaoSocial === value)
@@ -100,6 +114,18 @@ class AltProcuradores extends Component {
             files = [...this.state.files],
             addedProcs = [],
             sObject = {}
+
+        //***********************Check for errors *********************** */
+        let errors = [...checkInputErrors()]
+        const i = errors.indexOf('Vencimento')
+        if (i !== -1) errors.splice(i, 1)
+
+        if (errors && errors[0]) {
+            console.log(errors)
+            await this.setState({ ...this.state, ...checkInputErrors('setState', 'dontCheckDate') })
+            return
+        }
+        //************************************************* */
 
         nProc.forEach((n, i) => {
             procuradorForm.forEach(obj => {
