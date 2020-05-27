@@ -175,6 +175,9 @@ export default function ({ handleInput, redux, data, addProc, removeProc,
         if (el.pattern && value) return value.match(el.pattern) === null
 
         if (value > el.max || value < el.min) return true
+
+        if (value?.length < el?.minLength) return true
+
         else return false
     }
 
@@ -187,6 +190,10 @@ export default function ({ handleInput, redux, data, addProc, removeProc,
         if (value > el.max || value < el.min) return 'Valor inválido'
         else if (value && value.match(el.pattern) === null) return '✘'
         else if (el.pattern && value && value.match(el.pattern) !== null) return '✓'
+
+        if (value?.length < el?.minLength) return '✘'
+        if (value?.length >= el?.minLength) return '✓'
+
         else return undefined
     }
 

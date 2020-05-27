@@ -49,3 +49,23 @@ export function clearFormat(input) {
     if (!input) return
     else return input.replace(/(\.|\/|-)/g, "");
 }
+
+export function formatPhone(phone) {
+    if (!phone) return
+
+    phone = phone
+        .replace(/(?!\d)./g, '')
+        .replace(/(\d{2})/, '($1) ')
+    if (phone.length === 13) phone = phone.replace(/(\d{4})(\d)/, '$1-$2')
+    if (phone.length === 14) phone = phone.replace(/(\d{5})(\d)/, '$1-$2')
+
+    return phone
+}
+
+export function formatShare(number) {
+    if (!number) return
+    number = number
+        .replace(/(?!\d|[,])./g, '')                    
+    return number
+
+}

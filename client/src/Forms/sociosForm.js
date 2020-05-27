@@ -1,33 +1,32 @@
-import { cpf } from './commonFields'
+import { cpf, email, phone } from './commonFields'
+
+const width = 190
 
 export const sociosForm = [{
     field: 'nomeSocio',
     label: 'Nome do Sócio',
     maxLength: 90,
-    width: 190
+    width
 },
 {
     ...cpf,
-    width: 190
+    width
 },
 {
+    ...phone,
     field: 'telSocio',
-    label: 'Telefone',
-    maxLength: 16,
-    pattern: '((([+][0-9]{1,3})?[ ]?[-]?[(]?[0-9]{2,3}[)]?[ ]?[-]?[0-9]{4,5}[ ]?[-]?[0-9]{4}))',
-    width: 190
+    width
 },
 {
+    ...email,
     field: 'emailSocio',
-    label: 'E-mail',
-    maxLength: 60,
-    width: 190
+    width
 },
 {
     field: 'share',
     label: 'Participação Societária (%)',
+    pattern: /(^100(,0{1,2})?$)|(^([1-9]([0-9])?|0)(,[0-9]{1,2})?$)/,
     maxLength: 5,
-    type: 'number',
-    max: 100,
-    width: 190
+    width
 }]
+

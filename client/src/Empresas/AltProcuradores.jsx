@@ -65,19 +65,11 @@ class AltProcuradores extends Component {
             procArray = [],
             procuracoesArray = []
 
-        //***********************Check for errors *********************** */
-        /* let errors = [...checkInputErrors()]
-        if (errors) {            
-            await this.setState({ errors })
-        }
-        else await this.setState({ errors: undefined }) */
-
-        //***********************Parse values (cpf) ********************** */
-        const parsedValue = valueParser(name, value)
-        if (name.match('cpfProcurador')) this.setState({ [name]: parsedValue })
-        else
-            this.setState({ ...this.state, [name]: value })
-
+        //***********************Parse values ********************** */
+        
+        const parsedValue = valueParser(name, value)               
+        this.setState({ [name]: parsedValue })
+        
         //**************************SetState *********************** */
         if (name === 'razaoSocial' && Array.isArray(procuradores)) {
 

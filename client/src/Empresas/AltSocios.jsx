@@ -6,7 +6,6 @@ import StoreHOC from '../Store/StoreHOC'
 import humps from 'humps'
 import ReactToast from '../Utils/ReactToast'
 import valueParser from '../Utils/valueParser'
-//import cpfValidator from '../Utils/cpfValidator'
 
 import Crumbs from '../Utils/Crumbs'
 import AltSociosTemplate from './AltSociosTemplate'
@@ -16,7 +15,8 @@ import AlertDialog from '../Utils/AlertDialog'
 class AltSocios extends Component {
 
     state = {
-        razaoSocial: '',
+        razaoSocial: this.props.redux.empresas[0].razaoSocial,
+        selectedEmpresa: this.props.redux.empresas[0],
         toastMsg: 'Dados atualizados!',
         confirmToast: false,
         files: [],
@@ -44,10 +44,8 @@ class AltSocios extends Component {
         let
             { value } = e.target
 
-        const parsedValue = valueParser(name, value)        
-        if (name === 'cpfSocio') this.setState({ [name]: parsedValue })       
-        else
-            this.setState({ ...this.state, [name]: value })
+        const parsedValue = valueParser(name, value)
+        this.setState({ [name]: parsedValue })
 
         if (name === 'razaoSocial') {
             const filteredSocios = [...socios.filter(s => s.razaoSocial === value)],
@@ -77,7 +75,7 @@ class AltSocios extends Component {
             case 'share':
 
                 if (value) {
-                    value = value.replace(',', '.')
+                    //value = value.replace(',', '.')
 
                     if (value > 100) {
                         await this.setState({ share: '' })
@@ -86,15 +84,28 @@ class AltSocios extends Component {
                     }
                     if (value !== '0' && value !== '00' && !Number(value)) {
 
-                        await this.setState({ share: '' })
-                        this.setState({ alertType: 'numberNotValid', openAlertDialog: true })
+                        let totalShare = filteredSocios.map(s => Number(s.share) ? Number(s.share) : 0)
+                        console.log(totalShare)
+                        totalShare = totalShare.reduce((a, b) => a + b)
 
+                        const parsedNumber = Number(value.replace(',', '.'))
+
+                        if (typeof totalShare === 'number') totalShare += parsedNumber
+                        else totalShare = parsedNumber
+                        console.log(totalShare, parsedNumber)
+                        this.setState({ totalShare, share: parsedNumber })
+                        /* 
+                                                await this.setState({ share: '' })
+                                                this.setState({ alertType: 'numberNotValid', openAlertDialog: true })
+                         */
                     } else {
-                        let totalShare = filteredSocios.map(s => Number(s.share))
+                        let totalShare = filteredSocios.map(s => parseFloat(s.share))
                             .reduce((a, b) => a + b)
+                        const parsedNumber = parseFloat(value.replace(',', '.'))
 
-                        totalShare += Number(value)
-                        this.setState({ totalShare, share: value })
+                        totalShare += parsedNumber
+                        console.log(totalShare, parsedNumber)
+                        this.setState({ totalShare, share: parsedNumber })
                     }
                 }
                 break;
@@ -112,7 +123,7 @@ class AltSocios extends Component {
             this.setState({ openAlertDialog: true, alertType: 'overShared' })
             return null
         }
-
+        console.log(this.state.totalShare)
         sociosForm.forEach(obj => {
             Object.assign(sObject, { [obj.field]: this.state[obj.field] })
         })
@@ -120,8 +131,8 @@ class AltSocios extends Component {
 
         await this.setState({ filteredSocios: socios })
 
-        sociosForm.forEach(obj => {
-            this.setState({ [obj.field]: '' })
+        sociosForm.forEach(async obj => {
+            await this.setState({ [obj.field]: undefined })
         })
         document.getElementsByName('nomeSocio')[0].focus()
     }

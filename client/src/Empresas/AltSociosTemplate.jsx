@@ -118,7 +118,7 @@ export default function AltSociosTemplate({ empresas, data, removeSocio, handleB
                 handleBlur={handleBlur}
             />
             {
-                selectedEmpresa &&
+                //selectedEmpresa &&                
                 <Grid item xs={12}>
                     <Paper className={paper}>
                         <TextInput

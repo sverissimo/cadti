@@ -42,29 +42,36 @@ export default function TextInput({ handleInput, handleBlur, form, data, selectO
 
     const errorHandler = (el) => {
         let value = data[el.field]
-
+        if (!value) return
+        
         if (el.errorHandler && el.errorHandler(value)) return false
         else if (value && el.errorHandler && !el.errorHandler(value)) return true
+
+        if (value?.length < el?.minLength) return true
 
         if (el.type === 'number') {
             if (value > el.max || value < el.min) return true
             else return false
         }
-        if (value && typeof value !== 'string') value = value.toString()
-        if (el.pattern && value) return data[el.field].match(el.pattern) === null
+
+        if (typeof value !== 'string') value = value.toString()        
+        if (el.pattern) return value.match(el.pattern) === null
         else return false
     }
 
     const helper = (el) => {
         let value = data[el.field]
-
+        if (!value) return
         if (el.errorHandler && el.errorHandler(value)) return '✓'
         else if (value && el.errorHandler && !el.errorHandler(value)) return '✘'
 
-        if (value && typeof value !== 'string') value = value.toString()
-        if (value > el.max || value < el.min) return 'Valor inválido'
-        else if (value && value.match(el.pattern) === null) return '✘'
-        else if (el.pattern && value && value.match(el.pattern) !== null) return '✓'
+        if (value?.length < el?.minLength) return '✘'
+        if (value?.length >= el?.minLength) return '✓'
+
+        if (typeof value !== 'string') value = value.toString()
+        if (value > el.max || value < el.min) return 'Valor inválido'        
+        else if (value.match(el.pattern) === null) return '✘'
+        else if (el.pattern && value.match(el.pattern) !== null) return '✓'
         else return ' '
     }
 
