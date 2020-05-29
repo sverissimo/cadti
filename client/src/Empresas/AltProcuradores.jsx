@@ -1,14 +1,15 @@
 import React, { Component } from 'react'
 import axios from 'axios'
 import humps from 'humps'
-import ReactToast from '../Utils/ReactToast'
+import moment from 'moment'
 
 import StoreHOC from '../Store/StoreHOC'
 
 import valueParser from '../Utils/valueParser'
 import { checkInputErrors } from '../Utils/checkInputErrors'
-
+import ReactToast from '../Utils/ReactToast'
 import Crumbs from '../Utils/Crumbs'
+
 import AltProcuradoresTemplate from './AltProcuradoresTemplate'
 import download from '../Utils/downloadFile'
 import { procuradorForm } from '../Forms/procuradorForm'
@@ -34,10 +35,9 @@ class AltProcuradores extends Component {
         files: [],
         fileNames: [],
         openDialog: false,
-        addedSocios: [0],
-        totalShare: 0,
+        expires: false,
         filteredProc: [],
-        procDisplay: 'Clique ou arraste para anexar a procuração referente a este(s) procurador(es).',
+        dropDisplay: 'Clique ou arraste para anexar a procuração referente a este(s) procurador(es).',
         procuradores: [],
         procsToAdd: [1],
         procuracoesArray: [],
@@ -49,6 +49,24 @@ class AltProcuradores extends Component {
         axios.get('/api/getFiles/empresaDocs?fieldName=procuracao')
             .then(r => this.setState({ files: r.data }))
 
+
+        const procuracoes = this.props.redux.procuracoes.filter(pr => pr.razaoSocial === this.props.redux.empresas[0].razaoSocial)
+        let procArray = [], procuracoesArray = []
+
+        if (procuracoes[0]) procuracoes.forEach(pr => {
+            pr.procuradores.forEach(id => {
+                const pro = this.props.redux.procuradores.find(p => p.procuradorId === id)
+                if (pro) procArray.push(pro)
+
+            })
+            procuracoesArray.push(procArray)
+            procArray = []
+        })
+
+        this.setState({ procuracoesArray, selectedDocs: procuracoes })
+        this.setState({ selectedEmpresa: this.props.redux.empresas[0], razaoSocial: this.props.redux.empresas[0].razaoSocial })
+
+        document.querySelector('.MuiFormControlLabel-root').style = 'padding:15px 15px 0 0'
         document.addEventListener('keydown', this.escFunction, false)
     }
 
@@ -66,10 +84,10 @@ class AltProcuradores extends Component {
             procuracoesArray = []
 
         //***********************Parse values ********************** */
-        
-        const parsedValue = valueParser(name, value)               
+
+        const parsedValue = valueParser(name, value)
         this.setState({ [name]: parsedValue })
-        
+
         //**************************SetState *********************** */
         if (name === 'razaoSocial' && Array.isArray(procuradores)) {
 
@@ -94,11 +112,32 @@ class AltProcuradores extends Component {
                 if (value !== selectedEmpresa.razaoSocial) this.setState({ selectedEmpresa: undefined })
             } else this.setState({ selectedEmpresa: undefined })
         }
+        if (name.match('cpfProcurador')) {
+
+            const proc = procuradores.find(p => p.cpfProcurador === value)
+            if (proc) {
+                const index = name.charAt(name.length - 1)
+                let cpfExists
+                Object.keys(this.state).forEach(stateKey => {
+                    if (stateKey !== name && this.state[stateKey] === value) {
+                        alert('Este CPF já foi informado.')
+                        this.setState({[name]: ''})
+                        cpfExists = true
+                    }
+                })
+
+                if (!cpfExists)
+                    procuradorForm.forEach(({ field }) => {
+                        const key = field + index
+                        this.setState({ [key]: proc[field] })
+                    })
+            }
+        }
     }
 
     addProc = async () => {
         const
-            { selectedEmpresa, procFiles, vencimento } = this.state,
+            { selectedEmpresa, procFiles, vencimento, expires } = this.state,
             procuradores = [...this.props.redux.procuradores],
             nProc = [...this.state.procsToAdd]
         let
@@ -108,13 +147,12 @@ class AltProcuradores extends Component {
             sObject = {}
 
         //***********************Check for errors *********************** */
-        let errors = [...checkInputErrors()]
-        const i = errors.indexOf('Vencimento')
-        if (i !== -1) errors.splice(i, 1)
 
+        let errors = checkInputErrors()
         if (errors && errors[0]) {
-            console.log(errors)
-            await this.setState({ ...this.state, ...checkInputErrors('setState', 'dontCheckDate') })
+
+            if (!expires) await this.setState({ ...this.state, ...checkInputErrors('setState', 'dontCheckDate') })
+            else await this.setState({ ...this.state, ...checkInputErrors('setState') })
             return
         }
         //************************************************* */
@@ -197,18 +235,16 @@ class AltProcuradores extends Component {
                 .then(r => { if (r.data[0]) files.push(r.data[0]) })
         }
 
-
-        selectedDocs.reverse()
-        selectedDocs.push(novaProcuracao)
-        selectedDocs.reverse()
+        selectedDocs.unshift(novaProcuracao)
 
         this.setState({
             selectedDocs,
             files,
-            procDisplay: 'Clique ou arraste para anexar a procuração referente a este(s) procurador(es).',
+            dropDisplay: 'Clique ou arraste para anexar a procuração referente a este(s) procurador(es).',
             procsToAdd: [1],
-            vencimento: '',
-            procFiles: undefined
+            vencimento: undefined,
+            procFiles: undefined,
+            telProcurador0: undefined
         })
 
         this.toast()
@@ -239,7 +275,7 @@ class AltProcuradores extends Component {
     handleFiles = (file) => {
         let procFiles = new FormData()
         procFiles.append('procFile', file[0])
-        this.setState({ procFiles, procDisplay: file[0].name })
+        this.setState({ procFiles, dropDisplay: file[0].name })
     }
 
     getFile = id => {
@@ -267,6 +303,11 @@ class AltProcuradores extends Component {
         this.setState({ procsToAdd: i })
     }
 
+    checkExpires = () => {
+        if (this.state.expires === true) this.setState({ vencimento: '' })
+        this.setState({ expires: !this.state.expires })
+    }
+
     toggleDialog = () => this.setState({ openDialog: !this.state.openDialog })
     closeAlert = () => this.setState({ openAlertDialog: !this.state.openAlertDialog })
     toast = () => this.setState({ confirmToast: !this.state.confirmToast })
@@ -288,6 +329,7 @@ class AltProcuradores extends Component {
                     plusOne={this.plusOne}
                     minusOne={this.minusOne}
                     getFile={this.getFile}
+                    checkExpires={this.checkExpires}
                 />
                 <ReactToast open={this.state.confirmToast} close={this.toast} msg={this.state.toastMsg} />
                 {openAlertDialog && <AlertDialog open={openAlertDialog} close={this.closeAlert} alertType={alertType} customMessage={this.state.customMsg} />}

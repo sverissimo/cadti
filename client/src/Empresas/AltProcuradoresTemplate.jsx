@@ -1,5 +1,4 @@
 import React, { Fragment } from 'react'
-import Dropzone from 'react-dropzone'
 import moment from 'moment'
 
 import SelectEmpresa from '../Reusable Components/SelectEmpresa'
@@ -9,14 +8,16 @@ import Typography from '@material-ui/core/Typography'
 import Button from '@material-ui/core/Button'
 import { makeStyles } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
+import Checkbox from '@material-ui/core/Checkbox'
+import FormControlLabel from '@material-ui/core/FormControlLabel'
 
 import AddCircleOutlineSharpIcon from '@material-ui/icons/AddCircleOutlineSharp';
 import RemoveCircleOutlineIcon from '@material-ui/icons/RemoveCircleOutline';
 import AddIcon from '@material-ui/icons/Add';
-import DescriptionOutlinedIcon from '@material-ui/icons/DescriptionOutlined';
 import DeleteOutlinedIcon from '@material-ui/icons/DeleteOutlined';
 
 import Procurador from './Procurador'
+import DragAndDrop from '../Reusable Components/DragAndDrop'
 import { procuradorForm } from '../Forms/procuradorForm'
 
 import GetAppIcon from '@material-ui/icons/GetApp';
@@ -129,41 +130,16 @@ const useStyles = makeStyles(theme => ({
     },
     dropBox: {
         margin: '30px 0 15px 0',
-    },
-    dropBoxItem: {
-        border: '1px solid #ccc',
-        borderRadius: '3%',
-        height: '60px',
-        padding: '10px 15px 0 15px',
-        cursor: 'pointer',
-        zIndex: '1',
-        boxShadow: 'inset 3px -3px -3px 0px black',
-        fontSize: '0.75rem',
-        color: '#4169E1',
-        backgroundColor: '#fafafa'
-
-    },
-    dropBoxItem2: {
-        margin: '1% 0',
-        border: '1px solid #ccc',
-        borderRadius: '3%',
-        height: '60px',
-        padding: '0 1% 0 1%',
-        cursor: 'pointer',
-        zIndex: '1',
-        boxShadow: 'inset 3px -3px -3px 0px black',
-        color: 'black',
     }
 }));
 
 export default function ({ handleInput, redux, data, addProc, removeProc,
-    handleFiles, getFile, plusOne, minusOne }) {
-    const { procDisplay, selectedEmpresa, procsToAdd, selectedDocs } = data,
+    handleFiles, getFile, plusOne, minusOne, checkExpires }) {
+    const
+        { dropDisplay, selectedEmpresa, procsToAdd, selectedDocs, procFiles, expires } = data,
         { empresas, procuradores } = redux,
 
-        classes = useStyles(), {
-            paper, container, title, dropBox,
-            dropBoxItem, dropBoxItem2, addButton, paper2, containerList } = classes
+        classes = useStyles(), { paper, container, title, dropBox, addButton, paper2, containerList } = classes
 
     const errorHandler = (el, index) => {
 
@@ -175,7 +151,6 @@ export default function ({ handleInput, redux, data, addProc, removeProc,
         if (el.pattern && value) return value.match(el.pattern) === null
 
         if (value > el.max || value < el.min) return true
-
         if (value?.length < el?.minLength) return true
 
         else return false
@@ -290,43 +265,55 @@ export default function ({ handleInput, redux, data, addProc, removeProc,
                             )}
                         </Grid>
                     )}
-                    <Grid container style={{ position: 'relative' }}>
+                    <Grid container style={{ position: 'relative', alignItems: 'center' }}>
                         <Grid item xs={6}>
-                            <Dropzone onDrop={handleFiles}>
-                                {({ getRootProps, getInputProps }) => (
-                                    <Grid container justify="center"
-                                        alignItems='center' className={dropBox} direction='row' {...getRootProps()}>
-                                        <input {...getInputProps()} />
-                                        {
-                                            procDisplay.match('Clique ou') ?
-                                                <Grid item xs={6} className={dropBoxItem}> {procDisplay} </Grid>
-                                                :
-                                                <Grid item xs={6} className={dropBoxItem2}> <DescriptionOutlinedIcon />  {procDisplay} <br /> (clique ou arraste outro arquivo para alterar)</Grid>
-                                        }
-                                    </Grid>
-                                )}
-                            </Dropzone>
+                            <DragAndDrop                              
+                                style={{ marginTop: '22px', width: '90%' }}
+                                name='procFile'
+                                formData={procFiles}
+                                dropDisplay={dropDisplay}
+                                handleFiles={handleFiles}
+                            />                    
                         </Grid>
                         <Grid item xs={6} className={dropBox}>
-                            <TextField
-                                name='vencimento'
-                                label='Vencimento'
-                                margin='normal'
-                                className={classes.textField}
-                                onChange={e => handleInput(e)}
-                                type='date'
-                                helper='se indeterminado, deixar em branco'
-                                value={data.vencimento || ''}
-                                InputLabelProps={{
-                                    className: classes.textField,
-                                    shrink: true,
-                                    style: { fontSize: '0.8rem', color: '#455a64', marginBottom: '5%' }
-                                }}
-                                inputProps={{
-                                    style: { background: '#fafafa', fontSize: '0.8rem', textAlign: 'center', color: '#000', height: '9px' },
-                                }}
-                                variant={'filled'}
-                            />
+                            <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginRight: '67px' }}>
+                                <FormControlLabel
+                                    control={
+                                        <Checkbox
+                                            checked={expires === true}
+                                            onChange={() => checkExpires()}
+                                            value={expires}
+                                        />
+                                    }
+                                    label={
+
+                                        <span style={{ color: '#2979ff', fontSize: '0.8em', float: 'right' }}>
+                                            Procuração por prazo determinado?
+                                    </span>
+                                    }
+                                />
+                                <TextField
+                                    name='vencimento'
+                                    label='Vencimento'
+                                    margin='normal'
+                                    className={classes.textField}
+                                    onChange={e => handleInput(e)}
+                                    type='date'
+                                    helper='se indeterminado, deixar em branco'
+                                    value={data.vencimento || ''}
+                                    disabled={expires === false}
+                                    InputLabelProps={{
+                                        className: classes.textField,
+                                        shrink: true,
+                                        style: { fontSize: '0.8rem', color: '#455a64', marginBottom: '5%' }
+                                    }}
+                                    inputProps={{
+                                        style: { background: '#fafafa', fontSize: '0.8rem', textAlign: 'center', color: '#000', height: '9px' },
+                                    }}
+                                    variant={'filled'}
+                                />
+
+                            </div>
                         </Grid>
                     </Grid>
                 </Paper>}

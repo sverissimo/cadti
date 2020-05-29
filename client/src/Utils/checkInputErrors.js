@@ -19,10 +19,11 @@ export const checkInputErrors = (sendState, dontSetDate) => {
     }
     if (inputs && !dontSetDate) {
         inputs.forEach(el => {
-            if (el.type === 'date') {
+            if (el.type === 'date') {                
                 if (!moment(el.value, 'YYYY-MM-DD', true).isValid()) {
                     const parent = el.parentNode
                     const l = parent.previousSibling
+                    console.log(dontSetDate)
                     label.push(l)
                 }
             }
@@ -37,7 +38,7 @@ export const checkInputErrors = (sendState, dontSetDate) => {
             .replace('(cm)', '')
             .slice(0, -2) + '.'
 
-        if (sendState) return { openAlertDialog: true, alertType: 'inputError', customMsg: errString }        
+        if (sendState) return { openAlertDialog: true, alertType: 'inputError', customMsg: errString }                
         return errors
     } else return null
 }
