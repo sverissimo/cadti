@@ -4,7 +4,8 @@ export const seguroForm = [
         label: 'Seguradora',        
         autoComplete: true,
         datalist: 'seguradora',
-        collection: 'seguradoras'
+        collection: 'seguradoras',
+        width: 225
     },
     {       
         field: 'apolice',
@@ -12,15 +13,18 @@ export const seguroForm = [
         autoComplete: true,
         datalist: 'apolice',
         collection: 'seguros',
-        maxLength: 25
+        maxLength: 25,
+        width: 225
     },    
     {
         type: 'date',
         field: 'dataEmissao',
-        label: 'Data de Emissão',        
+        label: 'Data de Emissão',
+        width: 225
     },
     {
         type: 'date',
         field: 'vencimento',
-        label: 'Vencimento',        
+        label: 'Vencimento',
+        width: 225
     }]

@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 import axios from 'axios'
 import humps from 'humps'
-import moment from 'moment'
 
 import StoreHOC from '../Store/StoreHOC'
 

@@ -28,7 +28,9 @@ export const
     phone = {
         label: 'Telefone',
         minLength: 14,
-        maxLength: 15,        
+        maxLength: 15,
+        pattern: '((([+][0-9]{1,3})?[ ]?[-]?[(]?[0-9]{2,3}[)]?[ ]?[-]?[0-9]{4,5}[ ]?[-]?[0-9]{4}))'
+
     },
     email = {
         label: 'E-mail',

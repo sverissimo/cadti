@@ -37,7 +37,7 @@ const useStyles = makeStyles(theme => ({
     textField: {
         marginLeft: theme.spacing(1),
         marginRight: theme.spacing(1),
-        width: 300,
+        width: 250,
         fontSize: '0.8rem',
         fontColor: '#bbb',
         textAlign: 'center',
@@ -64,7 +64,7 @@ export default function AltSeguro({ empresas, data, enableAddPlaca, handleInput,
             else placas = insurance.placas.filter(p => p.match(placa)).sort()
         }
     }
-    
+    console.log(seguroForm)
     return (
         <Fragment>
             <div style={{ width: '100%', display: 'flex', flexDirection: 'column' }}>
