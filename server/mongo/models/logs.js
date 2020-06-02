@@ -1,14 +1,6 @@
 const mongoose = require('mongoose');
 
-const logsSchema = mongoose.Schema({
-    _id: {
-        type: String,
-        trim: true
-    },
-    uploadDate: {
-        type: String,
-        trim: true
-    },
+const logsSchema = new mongoose.Schema({
     componente: {
         type: String,
         trim: true
@@ -28,8 +20,9 @@ const logsSchema = mongoose.Schema({
     content: {
         type: String,
         trim: true
-    }
-});
+    },
+
+}, { timestamps: { createdAt: 'created_at' } });
 
 const logsModel = mongoose.model('logs', logsSchema, 'logs');
 

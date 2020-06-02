@@ -1,4 +1,6 @@
 import cpfValidator from '../Utils/cpfValidator'
+import { cnpjValidator } from '../Utils/cnpjValidator'
+
 import { clearFormat } from '../Utils/formatValues'
 
 export const
@@ -17,6 +19,13 @@ export const
         label: 'Data do registro no sistema',
         type: 'date',
         width: '190px'
+    },
+    cnpj = {
+        field: 'cnpj',
+        label: 'CNPJ',
+        maxLength: 18,
+        pattern: /^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/,
+        errorHandler: (cnpjString) => cnpjValidator(cnpjString)
     },
     cpf = {
         field: 'cpfSocio',

@@ -1,3 +1,5 @@
+import { cnpj } from './commonFields'
+
 export const empresasForm = [
     {
         field: 'razaoSocial',
@@ -5,8 +7,7 @@ export const empresasForm = [
         width: '340px'
     },
     {
-        field: 'cnpj',
-        label: 'CNPJ',
+        ...cnpj,
         maxLength: 18,
         pattern: /^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/
     },

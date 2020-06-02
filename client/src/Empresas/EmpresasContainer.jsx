@@ -70,6 +70,7 @@ class EmpresasContainer extends Component {
     }
 
     handleInput = e => {
+        
         const
             { name, value } = e.target,
             parsedValue = valueParser(name, value)
@@ -125,7 +126,6 @@ class EmpresasContainer extends Component {
             editSocio[index].edit = true
         }
         this.setState({ socios: editSocio })
-
     }
 
     handleEdit = e => {

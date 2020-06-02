@@ -40,9 +40,35 @@ export const formatCpf = (input) => {
     return input
 }
 
-export const formatCnpj = (input) => {
+/* export const formatCnpj = (input) => {
     if (!input) return
     return input.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/g, "$1.$2.$3/$4-$5");
+} */
+
+export function formatCnpj(input) {
+    
+    const tecla = k => k.keyCode;
+    document.addEventListener('keypress', tecla)
+
+    let
+        tam,
+        vr = input.toString()
+
+    vr = vr.replace(".", "");
+    vr = vr.replace("/", "");
+    vr = vr.replace("-", "");
+    tam = vr.length + 1;
+    if (tecla !== 14) {
+        if (tam === 3)
+            input = vr.substr(0, 2) + '.';
+        if (tam === 6)
+            input = vr.substr(0, 2) + '.' + vr.substr(2, 5) + '.';
+        if (tam === 10)
+            input = vr.substr(0, 2) + '.' + vr.substr(2, 3) + '.' + vr.substr(6, 3) + '/';
+        if (tam === 15)
+            input = vr.substr(0, 2) + '.' + vr.substr(2, 3) + '.' + vr.substr(6, 3) + '/' + vr.substr(9, 4) + '-' + vr.substr(13, 2);
+    }
+    return input
 }
 
 export function clearFormat(input) {
@@ -65,7 +91,7 @@ export function formatPhone(phone) {
 export function formatShare(number) {
     if (!number) return
     number = number
-        .replace(/(?!\d|[,])./g, '')                    
+        .replace(/(?!\d|[,])./g, '')
     return number
 
 }

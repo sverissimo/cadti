@@ -224,7 +224,7 @@ class AltDados extends Component {
 
     handleSubmit = async () => {
         const { poltronas, pesoDianteiro, pesoTraseiro, delegatarioId,
-            delegatarioCompartilhado, equipamentosId, newPlate, selectedEmpresa } = this.state
+            delegatarioCompartilhado, equipamentosId, newPlate, selectedEmpresa, justificativa } = this.state
 
         let tempObj = {}
 
@@ -258,8 +258,9 @@ class AltDados extends Component {
         const table = 'veiculo',
             tablePK = 'veiculo_id'
 
-        await axios.put('/api/updateVehicle', { requestObject, table, tablePK, id: this.state.veiculoId })
-        await this.submitFiles()
+        //        await axios.put('/api/updateVehicle', { requestObject, table, tablePK, id: this.state.veiculoId })
+        axios.post('/api/logs', { log: { componente: 'altDados', user: 'none', tema: 'justificativa', empresa: selectedEmpresa.delegatarioId, content: justificativa || '' } })
+        //      await this.submitFiles()
         this.setState({ activeStep: 0, razaoSocial: '', selectedEmpresa: undefined })
         this.reset()
         this.setState({})
@@ -381,7 +382,7 @@ class AltDados extends Component {
                 open={altPlaca}
                 close={this.toggleDialog}
                 title={title}
-                header={header}                
+                header={header}
                 inputNames={['newPlate']}
                 inputLabels={['Alterar Placa']}
                 fileInputName='newPlateDoc'

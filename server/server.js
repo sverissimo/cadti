@@ -16,6 +16,7 @@ const { apiGetRouter } = require('./apiGetRouter')
 
 const { storage, uploadMetadata } = require('./mongo/mongoUpload')
 const { mongoDownload, getFilesMetadata, getOneFileMetadata } = require('./mongo/mongoDownload')
+const { logGenerator } = require('./logGenerator')
 
 const { cadEmpresa } = require('./cadEmpresa')
 const { cadSocios } = require('./cadSocios')
@@ -75,6 +76,10 @@ app.get('/api/mongoDownload/', (req, res) => mongoDownload(req, res, gfs))
 app.get('/api/getFiles/:collection', (req, res) => getFilesMetadata(req, res, gfs))
 
 app.get('/api/getOneFile/', getOneFileMetadata)
+
+//************************************ LOGS RECORDING ************************** */
+
+app.post('/api/logs', logGenerator)
 
 //************************************ GET METHOD ROUTES *********************** */
 
