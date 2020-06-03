@@ -1,5 +1,5 @@
 import React from 'react';
-import DragAndDrop from '../Reusable Components/DragAndDrop'
+import DragAndDrop from './DragAndDrop'
 
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';

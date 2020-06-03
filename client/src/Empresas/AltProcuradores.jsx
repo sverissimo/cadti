@@ -120,7 +120,7 @@ class AltProcuradores extends Component {
                 Object.keys(this.state).forEach(stateKey => {
                     if (stateKey !== name && this.state[stateKey] === value) {
                         alert('Este CPF já foi informado.')
-                        this.setState({[name]: ''})
+                        this.setState({ [name]: '' })
                         cpfExists = true
                     }
                 })
@@ -147,11 +147,15 @@ class AltProcuradores extends Component {
 
         //***********************Check for errors *********************** */
 
-        let errors = checkInputErrors()
+        let { errors } = checkInputErrors('returnObj', 'Dont check the date, please!') || []
+
         if (errors && errors[0]) {
 
             if (!expires) await this.setState({ ...this.state, ...checkInputErrors('setState', 'dontCheckDate') })
-            else await this.setState({ ...this.state, ...checkInputErrors('setState') })
+
+            else {
+                await this.setState({ ...this.state, ...checkInputErrors('setState') })
+            }
             return
         }
         //************************************************* */

@@ -8,6 +8,7 @@ import { checkInputErrors } from '../Utils/checkInputErrors'
 import ReactToast from '../Utils/ReactToast'
 import { altDadosFiles } from '../Forms/altDadosFiles'
 import { altForm } from '../Forms/altForm'
+import { logGenerator } from '../Utils/logGenerator'
 
 import Crumbs from '../Utils/Crumbs'
 import CustomStepper from '../Utils/Stepper'
@@ -17,7 +18,7 @@ import VehicleDocs from './VehicleDocs'
 import Review from './VehicleReview'
 import StepperButtons from '../Utils/StepperButtons'
 
-import FormDialog from '../Utils/FormDialog'
+import FormDialog from '../Reusable Components/FormDialog'
 import AlertDialog from '../Utils/AlertDialog'
 
 class AltDados extends Component {
@@ -59,7 +60,7 @@ class AltDados extends Component {
     async componentDidMount() {
         const { redux } = this.props
         let equipamentos = {}
-
+        console.log(this.props)
         if (redux && redux.equipamentos) {
             redux.equipamentos.forEach(e => Object.assign(equipamentos, { [e.item]: false }))
             const equipArray = Object.keys(equipamentos)
@@ -259,7 +260,9 @@ class AltDados extends Component {
             tablePK = 'veiculo_id'
 
         //        await axios.put('/api/updateVehicle', { requestObject, table, tablePK, id: this.state.veiculoId })
-        axios.post('/api/logs', { log: { componente: 'altDados', user: 'none', tema: 'justificativa', empresa: selectedEmpresa.delegatarioId, content: justificativa || '' } })
+
+        logGenerator({ empresa: selectedEmpresa.delegatarioId, veiculoId: this.state.veiculoId, content: justificativa || '' })
+            .then(r => console.log(r.data))
         //      await this.submitFiles()
         this.setState({ activeStep: 0, razaoSocial: '', selectedEmpresa: undefined })
         this.reset()

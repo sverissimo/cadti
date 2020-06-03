@@ -2,10 +2,13 @@ import moment from 'moment'
 
 export const checkInputErrors = (sendState, dontSetDate) => {
 
-    const p = document.querySelectorAll('p'),
+    const
+        p = document.querySelectorAll('p'),
         inputs = document.querySelectorAll('input')
 
-    let label = [], errors = [],
+    let
+        label = [],
+        errors = [],
         errString = 'Favor verificar o preenchimento dos seguintes campos: '
 
     if (p) {
@@ -19,11 +22,10 @@ export const checkInputErrors = (sendState, dontSetDate) => {
     }
     if (inputs && !dontSetDate) {
         inputs.forEach(el => {
-            if (el.type === 'date') {                
+            if (el.type === 'date') {
                 if (!moment(el.value, 'YYYY-MM-DD', true).isValid()) {
                     const parent = el.parentNode
-                    const l = parent.previousSibling
-                    console.log(dontSetDate)
+                    const l = parent.previousSibling                    
                     label.push(l)
                 }
             }
@@ -38,7 +40,7 @@ export const checkInputErrors = (sendState, dontSetDate) => {
             .replace('(cm)', '')
             .slice(0, -2) + '.'
 
-        if (sendState) return { openAlertDialog: true, alertType: 'inputError', customMsg: errString }                
+        if (sendState) return { openAlertDialog: true, alertType: 'inputError', customMsg: errString, errors }          
         return errors
     } else return null
 }

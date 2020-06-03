@@ -8,6 +8,7 @@ import BaixaTemplate from './BaixaTemplate'
 import AlertDialog from '../Utils/AlertDialog'
 import ReactToast from '../Utils/ReactToast'
 
+import { logGenerator } from '../Utils/logGenerator'
 import { baixaForm } from '../Forms/baixaForm'
 
 import './veiculos.css'
@@ -92,20 +93,26 @@ class BaixaVeiculo extends Component {
 
     handleSubmit = async () => {
 
-        const { checked, delegatarioId } = this.state
-
-        let checkArray = ['selectedEmpresa', 'placa', 'delegatarioId']
-        let tempObj, enableSubmit
+        const { checked, delegatarioId, selectedEmpresa, veiculoId, justificativa, delegaTransf } = this.state
+        let
+            tempObj,
+            enableSubmit,
+            logSubject,
+            obs,
+            checkArray = ['selectedEmpresa', 'placa', 'delegatarioId']
 
         if (checked === 'venda') {
             checkArray.push('delegaTransf')
             enableSubmit = checkArray.every(k => this.state.hasOwnProperty(k) && this.state[k] !== '')
             tempObj = { delegatarioId, situacao: 'pendente' }
+            logSubject = 'Transferência de veículo para outra empresa do sistema'
+            obs = `Transferência para ${delegaTransf}`
         }
         if (checked === 'outro') {
             checkArray.push('justificativa')
             enableSubmit = checkArray.every(k => this.state.hasOwnProperty(k) && this.state[k] !== '')
-            tempObj = { situacao: 'excluído' }
+            tempObj = { situacao: 'baixado' }
+            logSubject = 'Baixa de veículo'            
         }
         if (!enableSubmit) {
             await this.setState({ openAlertDialog: true, alertType: 'fieldsMissing' })
@@ -114,13 +121,17 @@ class BaixaVeiculo extends Component {
 
         tempObj.apolice = 'Seguro não cadastrado'
 
-        const requestObject = humps.decamelizeKeys(tempObj)
-
-        const table = 'veiculo',
+        const
+            requestObject = humps.decamelizeKeys(tempObj),
+            table = 'veiculo',
             tablePK = 'veiculo_id'
+
         await axios.put('/api/updateVehicle', { requestObject, table, tablePK, id: this.state.veiculoId })
             .then(() => this.toast())
             .catch(err => console.log(err))
+
+        logGenerator({ subject: logSubject, empresa: selectedEmpresa.delegatarioId, veiculoId, content: justificativa || obs || '' }).then(r => console.log(r.data))
+
         await this.setState({ selectedEmpresa: undefined, frota: [], razaoSocial: '' })
         this.reset()
     }
@@ -136,7 +147,7 @@ class BaixaVeiculo extends Component {
     render() {
         const { delegaTransf, confirmToast, toastMsg, checked, openAlertDialog,
             alertType } = this.state
-        
+
         return <Fragment>
             <BaixaTemplate
                 data={this.state}

@@ -6,6 +6,7 @@ import moment from 'moment'
 import StoreHOC from '../Store/StoreHOC'
 
 import { checkInputErrors } from '../Utils/checkInputErrors'
+import { logGenerator } from '../Utils/logGenerator'
 import CadVeiculoTemplate from './CadVeiculoTemplate'
 import VehicleDocs from './VehicleDocs'
 import Review from './VehicleReview'
@@ -276,11 +277,12 @@ class VeiculosContainer extends PureComponent {
     }
 
     handleCadastro = async () => {
-        const { anoCarroceria, equipamentosId, pesoDianteiro, pesoTraseiro,
-            poltronas, delegatarioId, compartilhadoId, seguros, modeloChassiId,
-            modeloCarroceriaId, seguradoraId } = this.state,
+        const
+            { anoCarroceria, equipamentosId, pesoDianteiro, pesoTraseiro, poltronas, delegatarioId, compartilhadoId, seguros, modeloChassiId,
+                modeloCarroceriaId, seguradoraId, selectedEmpresa } = this.state,
             situacao = 'Ativo',
             indicadorIdade = anoCarroceria
+
 
         let pbt = Number(poltronas) * 93 + (Number(pesoDianteiro) + Number(pesoTraseiro))
         if (isNaN(pbt)) pbt = undefined
@@ -298,7 +300,7 @@ class VeiculosContainer extends PureComponent {
         let
             { dataEmissao, vencimento, delegatarioCompartilhado,
                 modeloChassi, modeloCarroceria, seguradora, ...vReview } = review,
-                
+
             seguro = { apolice: review.apolice, seguradoraId, delegatarioId }
 
         const
@@ -329,8 +331,9 @@ class VeiculosContainer extends PureComponent {
         if (insuranceExists[0]) {
             await axios.post('/api/cadastroVeiculo', vehicle)
                 .then(res => {
-                    const veiculoId = res.data
+                    const veiculoId = res.data                    
                     this.submitFiles(veiculoId)
+                    logGenerator({ empresa: selectedEmpresa.delegatarioId, veiculoId, content: '' })
                 })
                 .catch(err => console.log(err))
             this.resetState()
@@ -344,6 +347,7 @@ class VeiculosContainer extends PureComponent {
                     console.log(res.data)
                     veiculoId = res.data
                     this.submitFiles(veiculoId)
+                    logGenerator({ empresa: selectedEmpresa.delegatarioId, veiculoId, content: '' })
                 })
                 .catch(err => console.log(err))
             await axios.post('/api/cadSeguro', insurance)
@@ -358,8 +362,6 @@ class VeiculosContainer extends PureComponent {
             }
             await axios.put('/api/updateInsurances', body)
                 .then(res => console.log(res.data))
-
-
 
             this.resetState()
             this.toast()
