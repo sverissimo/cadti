@@ -14,6 +14,7 @@ import EmpresasHome from './Empresas/EmpresasHome'
 import Procuradores from './Empresas/AltProcuradores'
 import Socios from './Empresas/AltSocios'
 import Relatorios from './Relatorios/Relatorios'
+import Solicitacoes from './Solicitacoes/Solicitacoes'
 import { Switch, Route } from 'react-router-dom'
 import Laudos from './Veiculos/Laudos'
 import UnderConstruction from './Utils/UnderConstruction'
@@ -37,7 +38,7 @@ export default () =>
         <Route path='/empresas/procuradores' component={Procuradores} />
         <Route path='/relatorios' component={Relatorios} />
         <Route path='/crv' component={PdfTest} />
-        <Route path='/faleConosco' component={UnderConstruction} />
+        <Route path='/faleConosco' component={Solicitacoes} />
         {/* <Route path='/faleConosco' component={UnderConstruction} /> */}
     </Switch>
 

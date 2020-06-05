@@ -27,6 +27,7 @@ const { seguros, socios, laudos, lookup } = require('./queries')
 const { fieldParser } = require('./fieldParser')
 const { getUpdatedData } = require('./getUpdatedData')
 const { empresaChunks, vehicleChunks } = require('./mongo/models/chunksModel')
+const { vehicleLogsModel } = require('./mongo/models/vehicleLogsModel')
 
 const { uploadFS } = require('./upload')
 const { parseRequestBody } = require('./parseRequest')
@@ -80,6 +81,24 @@ app.get('/api/getOneFile/', getOneFileMetadata)
 //************************************ LOGS RECORDING ************************** */
 
 app.post('/api/logs', logHandler)
+
+app.get('/api/logs/:collection', (req, res) => {
+
+
+    const
+        { collection } = req.params,
+        collections = { vehicleLogsModel },
+        model = collections[collection]
+    console.log(collection, vehicleLogsModel)
+
+    model.find({}, (err, doc) => {
+        if (err) console.log(err)
+        res.send(doc)
+        console.log(doc, model)
+    })
+
+
+})
 
 //************************************ GET METHOD ROUTES *********************** */
 
