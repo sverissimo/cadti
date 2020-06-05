@@ -5,15 +5,19 @@ const logsSchema = new mongoose.Schema({
         type: String,
         trim: true
     },
-    user: {
-        type: String,
-        trim: true
-    },
     empresaId: {
         type: String,
         trim: true
     },
     veiculoId: {
+        type: String,
+        trim: true
+    },
+    apolice: {
+        type: String,
+        trim: true
+    },
+    laudoId: {
         type: String,
         trim: true
     },
@@ -28,6 +32,6 @@ const logsSchema = new mongoose.Schema({
         strict: false
     });
 
-const logsModel = mongoose.model('logs', logsSchema, 'logs');
+const vehicleLogsModel = mongoose.model('vehicleLogs', logsSchema, 'vehicleLogs');
 
-module.exports = { logsModel }
+module.exports = { vehicleLogsModel }

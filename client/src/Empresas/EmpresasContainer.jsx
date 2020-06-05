@@ -51,6 +51,7 @@ class EmpresasContainer extends Component {
 
     componentDidMount() {
         document.addEventListener('keydown', this.escFunction, false)
+        document.querySelector("input[name='razaoSocial']").style.width = '300px'
     }
 
     componentWillUnmount() { this.setState({}) }
@@ -70,7 +71,6 @@ class EmpresasContainer extends Component {
     }
 
     handleInput = e => {
-        
         const
             { name, value } = e.target,
             parsedValue = valueParser(name, value)
@@ -205,7 +205,6 @@ class EmpresasContainer extends Component {
             default:
                 break;
         }
-
     }
 
     handleFiles = (file) => {

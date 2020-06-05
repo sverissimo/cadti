@@ -74,7 +74,10 @@ const useStyles = makeStyles(theme => ({
 
 export default function ({ handleInput, handleBlur, data, handleFiles }) {
     const { activeStep, stepTitles, dropDisplay } = data,
-        classes = useStyles(), { paper, container, title, dropBox, dropBoxItem, dropBoxItem2 } = classes    
+        classes = useStyles(), { paper, container, title, dropBox, dropBoxItem, dropBoxItem2 } = classes
+
+    
+
 
     return (
         <Grid

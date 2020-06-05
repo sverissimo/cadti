@@ -4,19 +4,22 @@ import { routesLabels } from './routesLabels'
 export function logGenerator(obj) {
     const
         path = window.location.pathname,
-        component = routesLabels.find(e => e.path === path)
+        route = routesLabels.find(e => e.path === path),
+        collection = route?.collection,
 
-    let subject = ''
-    if (component) subject = component.subject
+        contentPattern = {
+            user: 'none',
+            createdAt: new Date(),
+        }
 
-    const elementsToAdd = {
-        subject,
-        user: 'none'
-    }
+    const content = Object.assign(obj.content, contentPattern)
+    let log = obj
 
-    const
-        log = Object.assign(elementsToAdd, obj),
-        post = axios.post('/api/logs', { log })
-        
+    log.subject = route?.subject
+    log.content = content
+    if (contentPattern.user === 'none') log.status = 'Aguardando aprovação'
+
+    const post = axios.post('/api/logs', { log, collection })
+
     return post
 }

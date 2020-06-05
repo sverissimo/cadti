@@ -71,6 +71,7 @@ FROM laudos
 LEFT JOIN empresa_laudo emp
 	ON emp.id = laudos.empresa_id
 `
+
 const seguros = `
 SELECT seguro.*,
 		s.seguradora,

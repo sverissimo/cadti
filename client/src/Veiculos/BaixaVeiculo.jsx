@@ -105,14 +105,14 @@ class BaixaVeiculo extends Component {
             checkArray.push('delegaTransf')
             enableSubmit = checkArray.every(k => this.state.hasOwnProperty(k) && this.state[k] !== '')
             tempObj = { delegatarioId, situacao: 'pendente' }
-            logSubject = 'Transferência de veículo para outra empresa do sistema'
+            logSubject = 'Transferência de veículo para outra empresa'
             obs = `Transferência para ${delegaTransf}`
         }
         if (checked === 'outro') {
             checkArray.push('justificativa')
             enableSubmit = checkArray.every(k => this.state.hasOwnProperty(k) && this.state[k] !== '')
             tempObj = { situacao: 'baixado' }
-            logSubject = 'Baixa de veículo'            
+            logSubject = 'Baixa de veículo'
         }
         if (!enableSubmit) {
             await this.setState({ openAlertDialog: true, alertType: 'fieldsMissing' })
@@ -130,7 +130,22 @@ class BaixaVeiculo extends Component {
             .then(() => this.toast())
             .catch(err => console.log(err))
 
-        logGenerator({ subject: logSubject, empresa: selectedEmpresa.delegatarioId, veiculoId, content: justificativa || obs || '' }).then(r => console.log(r.data))
+        //**************Create Log****************** */
+
+        let action
+        if (!this.state.aintShit) action = 'Solicitação de baixa'
+        
+        const content = justificativa ? { action, justificativa } : { obs } || ''
+        const log = {
+            subject: logSubject,
+            empresaId: selectedEmpresa.delegatarioId,
+            veiculoId,
+            content
+        }
+
+        logGenerator(log).then(r => console.log(r.data))
+
+        //***********Clear state****************** */
 
         await this.setState({ selectedEmpresa: undefined, frota: [], razaoSocial: '' })
         this.reset()
