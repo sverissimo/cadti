@@ -36,7 +36,7 @@ div.loading {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    justify-content: space-between;     
+    justify-content: space-between !important;     
 }
 
 .flex:last-child:not(:first-child) {

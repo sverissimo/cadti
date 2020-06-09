@@ -20,15 +20,15 @@ export const solicitacoesTable = [
         title: 'Registro no sistema',
         type: 'date'
     },    
+    {
+        field: 'info',
+        title: 'Ver detalhes',        
+        action: 'info'        
+    }
     /* {
         field: 'laudoDoc',
         title: 'Laudo',
         type: 'link'
     },
-    {
-        field: 'delete',
-        title: 'Remover',        
-        action: 'delete',
-        deleteFile: true
-    } */
+    */
 ]

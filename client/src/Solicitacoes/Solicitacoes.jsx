@@ -2,6 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react'
 import axios from 'axios'
 import StoreHOC from '../Store/StoreHOC'
 
+import Solicitacao from './Solicitacao'
 import { solicitacoesTable } from '../Forms/solicitacoesTable'
 import Table from '../Reusable Components/Table'
 
@@ -10,7 +11,8 @@ function Solicitacoes(props) {
     const
         { veiculos, empresas } = props.redux,
         [vehicleLogs, setVehicleLogs] = useState([]),
-        [table, setTable] = useState()
+        [showInfo, setShowInfo] = useState(false),
+        [selectedLog, selectLog] = useState()
 
     useEffect(() => {
 
@@ -21,7 +23,7 @@ function Solicitacoes(props) {
             logs.forEach((log, i) => {
                 logs[i].empresa = empresas.find(e => e.delegatarioId.toString() === log.empresaId)?.razaoSocial
                 logs[i].veiculo = veiculos.find(v => v.veiculoId.toString() === log.veiculoId)?.placa
-                const { _id, empresaId, veiculoId, __v, ...filtered } = log
+                const { empresaId, veiculoId, __v, ...filtered } = log
                 logs[i] = filtered
             })
 
@@ -30,39 +32,31 @@ function Solicitacoes(props) {
         getVehicleLogs()
     }, [])
 
-
-    useEffect(() => {
-        async function formatTable (){
-            let
-                tableHeaders = [],
-                arrayOfRows = [],
-                tableRow = []
-
-            const table = [...solicitacoesTable]
-
-            vehicleLogs.forEach(log => {
-                table.forEach(obj => {
-                    if (!tableHeaders.includes(obj.title)) tableHeaders.push(obj.title)
-                    tableRow.push({ ...obj, value: log[obj.field] })
-                })
-                arrayOfRows.push(tableRow)
-                tableRow = []
-            })
-
-            await setTable({ tableHeaders, arrayOfRows })
-        }
-
-        formatTable()
-    }, [vehicleLogs])
-
+    const showDetails = id => {
+        setShowInfo(!showInfo)
+        const log = vehicleLogs.find(l => l._id === id)
+        selectLog(log)
+    }
+    const close = () => setShowInfo(false)
 
     return (
         <>
-            {table && <Table
-                table={table}
-                length= {5}
-                title='Whatever'
-            />}
+            <header>
+                <h3>Minhas solicitações</h3>
+            </header>
+            {!showInfo ?
+                <Table
+                    tableData={vehicleLogs}
+                    staticFields={solicitacoesTable}
+                    length={5}
+                    title='Solicitações em andamento'
+                    showDetails={showDetails}
+                />
+                :
+                <Solicitacao
+                    solicitacao={selectedLog}
+                    close={close}
+                />}
         </>
     )
 }
@@ -70,19 +64,3 @@ function Solicitacoes(props) {
 const collections = ['veiculos', 'empresas']
 
 export default StoreHOC(collections, Solicitacoes)
-
-/* Fuck
-<div>
-    {vehicleLogs && vehicleLogs.map(log => {
-        return Object.keys(log).map(key =>
-            key !== 'content' &&
-            <ul>
-                <li>{key}: {log[key]}</li>
-            </ul>
-        )
-
-    })
-
-    }
-
-</div> */
