@@ -8,13 +8,13 @@ export default function Solicitacao({ solicitacao, close }) {
     const { content } = solicitacao,
 
         headers = ['Usuário', 'Data', 'Justificativa', 'Arquivos']
-console.log(content[0]?.justitificativa)
+    
     return (
         <main className="popUpWindow">
             <header>
                 <h3>Whaaa??</h3> <hr />
                 <div className='flex fullWidth'>
-                    {headers.map(h => <span>{h}</span>)}
+                    {headers.map((h, i) => <span key={i}>{h}</span>)}
                 </div>
             </header>
 

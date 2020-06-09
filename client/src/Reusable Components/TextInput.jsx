@@ -35,7 +35,7 @@ const useStyles = makeStyles(theme => ({
     },
 }))
 
-export default function TextInput({ handleInput, handleBlur, form, data, selectOptions }) {
+export default function TextInput({ handleInput, handleBlur, form, data, selectOptions, disableAll }) {
 
     const classes = useStyles(),
         { helperText } = classes
@@ -93,7 +93,7 @@ export default function TextInput({ handleInput, handleBlur, form, data, selectO
                             FormHelperTextProps={{ className: helperText }}
                             select={el.select || false}
                             value={data[el.field] || ''}
-                            disabled={el.disabled || false}
+                            disabled={el.disabled || disableAll || false}
                             InputLabelProps={{
                                 className: classes.textField,
                                 shrink: el.type === 'date' || undefined,

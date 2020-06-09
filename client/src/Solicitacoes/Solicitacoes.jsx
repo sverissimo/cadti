@@ -1,6 +1,7 @@
-import React, { useEffect, useState, useCallback } from 'react'
+import React, { useEffect, useState, useContext } from 'react'
 import axios from 'axios'
 import StoreHOC from '../Store/StoreHOC'
+import { ReactContext } from '../Store/ReactContext'
 
 import Solicitacao from './Solicitacao'
 import { solicitacoesTable } from '../Forms/solicitacoesTable'
@@ -14,6 +15,8 @@ function Solicitacoes(props) {
         [showInfo, setShowInfo] = useState(false),
         [selectedLog, selectLog] = useState()
 
+    const { context, setContext } = useContext(ReactContext)
+
     useEffect(() => {
 
         async function getVehicleLogs() {
@@ -26,11 +29,20 @@ function Solicitacoes(props) {
                 const { empresaId, veiculoId, __v, ...filtered } = log
                 logs[i] = filtered
             })
-
             setVehicleLogs(logs)
         }
+
+
         getVehicleLogs()
-    }, [])
+    }, [veiculos, empresas])
+
+    const assessDemand = async id => {
+        const log = vehicleLogs.find(l => l._id === id)
+
+        await setContext({ ...context, demand: log })
+        props.history.push('/veiculos/baixaVeiculo')
+    }
+
 
     const showDetails = id => {
         setShowInfo(!showInfo)
@@ -51,6 +63,7 @@ function Solicitacoes(props) {
                     length={5}
                     title='Solicitações em andamento'
                     showDetails={showDetails}
+                    assessDemand={assessDemand}
                 />
                 :
                 <Solicitacao

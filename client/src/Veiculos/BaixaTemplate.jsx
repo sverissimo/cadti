@@ -3,21 +3,16 @@ import React, { Fragment } from 'react'
 import Crumbs from '../Utils/Crumbs'
 import SelectEmpresa from '../Reusable Components/SelectEmpresa'
 import TextInput from '../Reusable Components/TextInput'
-import AutoComplete from '../Utils/autoComplete'
+
+import BaixaOptions from './BaixaOptions'
+
+
 import { baixaForm } from '../Forms/baixaForm'
 
 import Grid from '@material-ui/core/Grid'
 import Paper from '@material-ui/core/Paper'
-import Typography from '@material-ui/core/Typography'
 import { makeStyles } from '@material-ui/core/styles'
-import TextField from '@material-ui/core/TextField'
-import Button from '@material-ui/core/Button'
-import { Send } from '@material-ui/icons'
-import Radio from '@material-ui/core/Radio';
-import RadioGroup from '@material-ui/core/RadioGroup';
-import FormControlLabel from '@material-ui/core/FormControlLabel';
-import FormControl from '@material-ui/core/FormControl';
-import FormLabel from '@material-ui/core/FormLabel';
+
 
 import './veiculos.css'
 
@@ -39,8 +34,9 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function ({ handleInput, handleBlur, handleCheck, handleSubmit, data, empresas }) {
-    const { razaoSocial, frota, checked, delegaTransf, justificativa } = data,
+    const { razaoSocial, frota, checked, delegaTransf, justificativa, demand } = data,
         classes = useStyles(), { paper, container, formHolder } = classes
+
 
     return (
         <Fragment>
@@ -50,6 +46,7 @@ export default function ({ handleInput, handleBlur, handleCheck, handleSubmit, d
                 empresas={empresas}
                 handleInput={handleInput}
                 handleBlur={handleBlur}
+                demand={demand}
             />
             <Grid
                 container
@@ -60,15 +57,28 @@ export default function ({ handleInput, handleBlur, handleCheck, handleSubmit, d
                 {razaoSocial && frota[0] &&
                     <Grid item xs={12}>
                         <Paper className={paper}>
-                            <Typography className='formSubtitle'>Informe os dados para a baixa</Typography>
+                            <h3>{!demand ? 'Informe os dados para a baixa' : `Solicitação nº${demand?.numero} - ${demand?.subject}`}</h3>
                             <TextInput
                                 form={baixaForm}
                                 data={data}
                                 handleBlur={handleBlur}
                                 handleInput={handleInput}
+                                disableAll={demand ? true : false}
                             />
                         </Paper>
-                        <Grid container
+
+                        <BaixaOptions
+                            demand={demand}
+                            checked={checked}
+                            delegaTransf={delegaTransf}
+                            justificativa={justificativa}
+                            empresas={empresas}                            
+                            handleInput={handleInput}
+                            handleBlur={handleBlur}
+                            handleCheck={handleCheck}
+                            handleSubmit={handleSubmit}
+                        />
+                        {/* <Grid container
                             direction="row"
                             justify="space-between"
                             alignItems="center"
@@ -102,24 +112,7 @@ export default function ({ handleInput, handleBlur, handleCheck, handleSubmit, d
                             </Grid>
 
                             {checked === 'venda' ?
-                                <Grid item xs={6} >
-                                    <TextField
-                                        inputProps={{
-                                            list: 'razaoSocial',
-                                            name: 'delegaTransf',
-                                        }}
-                                        value={delegaTransf}
-                                        onChange={handleInput}
-                                        onBlur={handleBlur}
-                                        label='Informe o delegatário para o qual foi transferido o veículo.'
-                                        fullWidth
-                                    />
-                                    <AutoComplete
-                                        collection={empresas}
-                                        datalist='razaoSocial'
-                                        value={delegaTransf}
-                                    />
-                                </Grid>
+                              checkOptions('venda')
                                 :
                                 checked === 'outro' &&
                                 <Grid item xs={6}>
@@ -151,7 +144,7 @@ export default function ({ handleInput, handleBlur, handleCheck, handleSubmit, d
                                     Confirmar <span>&nbsp;&nbsp; </span> <Send />
                                 </Button>
                             </Grid>
-                        </Grid>
+                        </Grid> */}
                     </Grid>
                 }
                 {!razaoSocial && !frota[0] &&

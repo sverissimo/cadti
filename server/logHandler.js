@@ -8,7 +8,7 @@ const logHandler = (req, res, next) => {
 
         logObject = new logsModel[collection](log)
 
-    console.log(log, logObject)
+    
     if (!id) {
         logObject.save(function (err, doc) {
             if (err) console.log(err)

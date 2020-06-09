@@ -1,10 +1,13 @@
 import React from 'react'
 import moment from 'moment'
 import downloadFile from '../Utils/downloadFile'
-import DeleteIcon from '@material-ui/icons/Delete';
-import InfoIcon from '@material-ui/icons/Info';
 
-export default function StandardTable({ tableData, staticFields, title, style, files, showDetails, idIndex = 0, deleteIconProperties = {}, deleteFunction }) {
+import AssignmentTurnedInOutlinedIcon from '@material-ui/icons/AssignmentTurnedInOutlined';
+import InfoIcon from '@material-ui/icons/Info';
+import DeleteIcon from '@material-ui/icons/Delete';
+
+
+export default function StandardTable({ tableData, staticFields, title, style, files, showDetails, assessDemand, idIndex = 0, deleteIconProperties = {}, deleteFunction }) {
 
     const dateFormat = value => {
         if (moment(value, 'YYYY-MM-DDTHH:mm:ss.SSSZZ', true).isValid()) {
@@ -21,17 +24,22 @@ export default function StandardTable({ tableData, staticFields, title, style, f
         if (file) downloadFile(file.id, file.filename, 'vehicleDocs', file.metadata.fieldName);
     }
 
+    const parseValue = () => {
+
+
+    }
+
 
     let
         tableHeaders = [],
         arrayOfRows = [],
         tableRow = []
-
+    console.log(tableData)
     tableData.forEach(log => {
         staticFields.forEach(obj => {
 
             if (!tableHeaders.includes(obj.title)) tableHeaders.push(obj.title)
-            if (obj.field === 'info') tableRow.push({ ...obj, id: log?._id })
+            if (obj.action) tableRow.push({ ...obj, id: log?._id })
             else tableRow.push({ ...obj, value: log[obj.field] })
         })
 
@@ -63,13 +71,15 @@ export default function StandardTable({ tableData, staticFields, title, style, f
                                         onClick={
                                             () => obj.type === 'file' && obj.laudoDocId ? getFile(obj.laudoDocId)
                                                 : obj?.action === 'info' ? showDetails(obj?.id)
-                                                    //: obj?.action === 'delete' ? deleteFunction(laudo[idIndex]?.value)
-                                                    : null}>
+                                                    : obj?.action === 'assess' ? assessDemand(obj?.id)
+                                                        //: obj?.action === 'delete' ? deleteFunction(laudo[idIndex]?.value)
+                                                        : null}>
                                         {
                                             obj.type === 'date' ? dateFormat(obj.value)
-                                                : obj?.action === 'info' ? <InfoIcon title={obj.title}/>
-                                                    //: obj?.action === 'delete' && laudo[idIndex]?.value ? <DeleteIcon {...deleteIconProperties} />
-                                                    : obj.value
+                                                : obj?.action === 'info' ? <InfoIcon title={obj.title} color='primary' />
+                                                    : obj?.action === 'assess' ? <AssignmentTurnedInOutlinedIcon title={obj.title} color='action' />
+                                                        //: obj?.action === 'delete' && laudo[idIndex]?.value ? <DeleteIcon {...deleteIconProperties} />
+                                                        : obj.value
                                         }
                                     </td>
                                 )}

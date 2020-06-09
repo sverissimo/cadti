@@ -36,7 +36,7 @@ div.loading {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    justify-content: space-between !important;     
+    justify-content: space-between !important;
 }
 
 .flex:last-child:not(:first-child) {
@@ -51,14 +51,14 @@ div.loading {
     justify-content: flex-start;
 }
 
-.paper {        
+.paper {
     background-color: white;
     width: auto;
-    border-radius: 5px;    
+    border-radius: 5px;
     margin-bottom: 25px;
-    padding: 15px 5px;    
-    color: black;    
-    box-shadow: 0px 2px 1px -1px rgba(0,0,0,0.2), 0px 1px 1px 0px rgba(0,0,0,0.14), 0px 1px 3px 0px rgba(0,0,0,0.12);
+    padding: 15px 5px;
+    color: black;
+    box-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, 0.12);
 }
 
 .voltarDiv {
@@ -77,4 +77,12 @@ div.loading {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
     font-size: 13px;
     font-weight: 500;
+}
+
+.selectedEmpresa {
+     
+}
+
+h3.selectedEmpresa{
+    font-weight: 400;
 }

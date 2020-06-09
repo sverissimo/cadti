@@ -19,29 +19,37 @@ const useStyles = makeStyles(theme => ({
 export default function SelectEmpresa(props) {
 
     const
-        { empresas, handleInput, handleBlur } = props,
+        { empresas, handleInput, handleBlur, demand } = props,
         { razaoSocial } = props.data,
         classes = useStyles(), { paper } = classes
+
+
 
     return (
         <div className='selectEmpresa'>
             <Paper className={paper} style={{ padding: '0 2% 0 2%' }}>
-                <div className='item'>
-                    <h3>  Selecione a Viação </h3>
-                    <input
-                        list='razaoSocial'
-                        name='razaoSocial'
-                        className='selectEmpresa'
-                        value={razaoSocial}
-                        onChange={handleInput}
-                        onBlur={handleBlur}
-                    />
-                    <AutoComplete
-                        style={{ textAlign: 'center', width: '500px' }}
-                        collection={empresas}
-                        datalist='razaoSocial'
-                        value={razaoSocial}
-                    />
+                <div className={demand ? 'selectedEmpresa' : 'item  '}>
+                    {!demand ?
+                        <>
+                            <h3>  Selecione a Viação </h3>
+                            <input
+                                list='razaoSocial'
+                                name='razaoSocial'
+                                className='selectEmpresa'
+                                value={razaoSocial}
+                                onChange={handleInput}
+                                onBlur={handleBlur}
+                            />
+                            <AutoComplete
+                                style={{ textAlign: 'center', width: '500px' }}
+                                collection={empresas}
+                                datalist='razaoSocial'
+                                value={razaoSocial}
+                            />
+                        </>
+                        :
+                        <h3 className='selectedEmpresa'> {demand.empresa} </h3>
+                    }
                 </div>
             </Paper>
         </div>

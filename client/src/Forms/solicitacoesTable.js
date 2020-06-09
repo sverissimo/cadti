@@ -1,5 +1,9 @@
 export const solicitacoesTable = [
     {
+        field: 'numero',
+        title: 'Número',
+    },
+    {
         field: 'subject',
         title: 'Solicitação',
     },
@@ -24,11 +28,10 @@ export const solicitacoesTable = [
         field: 'info',
         title: 'Ver detalhes',        
         action: 'info'        
-    }
-    /* {
-        field: 'laudoDoc',
-        title: 'Laudo',
-        type: 'link'
     },
-    */
+    {
+        field: 'assess',
+        title: 'Analisar solicitação',
+        action: 'assess'
+    } 
 ]

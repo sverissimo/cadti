@@ -1,4 +1,5 @@
 import React, { Component, Fragment } from 'react'
+import { ReactContext } from '../Store/ReactContext'
 import axios from 'axios'
 import humps from 'humps'
 
@@ -15,6 +16,8 @@ import './veiculos.css'
 
 class BaixaVeiculo extends Component {
 
+    static contextType = ReactContext
+
     state = {
         empresas: [],
         razaoSocial: '',
@@ -26,6 +29,25 @@ class BaixaVeiculo extends Component {
         toastMsg: 'Baixa realizada com sucesso!',
         confirmToast: false,
         openDialog: false,
+    }
+
+    async componentDidMount() {
+
+        const demand = this?.context?.context?.demand
+
+        if (demand) {
+            const
+                { empresas, veiculos } = this.props.redux,
+                { empresa, veiculo } = demand,
+                selectedEmpresa = empresas.find(e => e.razaoSocial === empresa),
+                frota = veiculos.filter(v => v.placa === veiculo),
+                selectedVehicle = frota.find(v => v.placa === veiculo)
+
+            await this.setState({ razaoSocial: empresa, selectedEmpresa, placa: veiculo, frota, ...selectedVehicle, demand })
+
+            console.log(this.state)
+
+        } else console.log('fuck')
     }
 
     componentWillUnmount() { this.setState({}) }
@@ -134,7 +156,7 @@ class BaixaVeiculo extends Component {
 
         let action
         if (!this.state.aintShit) action = 'Solicitação de baixa'
-        
+
         const content = justificativa ? { action, justificativa } : { obs } || ''
         const log = {
             subject: logSubject,

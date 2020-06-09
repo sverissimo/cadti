@@ -1,4 +1,5 @@
-import React from 'react'
+import React, { useState } from 'react'
+import { ReactContext } from './Store/ReactContext'
 import HomeTemplate from './HomeTemplate'
 
 import VeiculosHome from './Veiculos/VeiculosHome'
@@ -17,28 +18,35 @@ import Relatorios from './Relatorios/Relatorios'
 import Solicitacoes from './Solicitacoes/Solicitacoes'
 import { Switch, Route } from 'react-router-dom'
 import Laudos from './Veiculos/Laudos'
-import UnderConstruction from './Utils/UnderConstruction'
+//import UnderConstruction from './Utils/UnderConstruction'
 import PdfTest from './Veiculos/Certificate'
 
-export default () =>
+const Routes = () => {
 
-    <Switch>
-        <Route exact path='/' component={HomeTemplate} />
-        <Route path='/veiculos' exact component={VeiculosHome} />
-        <Route path='/veiculos/cadastro' exact component={CadVeiculos} />
-        <Route path='/veiculos/altDados' exact component={AltVeiculos} />
-        <Route path='/veiculos/altSeguro' exact component={AltSeguro} />
-        <Route path='/veiculos/laudos' exact component={Laudos} />
-        <Route path='/veiculos/baixaVeiculo' exact component={BaixaVeiculo} />
-        <Route path='/veiculos/config' exact component={Config} />
-        <Route path='/consultas' component={Consultas} />
-        <Route path='/empresas' exact component={EmpresasHome} />
-        <Route path='/empresas/cadastro' component={Empresas} />
-        <Route path='/empresas/socios' component={Socios} />
-        <Route path='/empresas/procuradores' component={Procuradores} />
-        <Route path='/relatorios' component={Relatorios} />
-        <Route path='/crv' component={PdfTest} />
-        <Route path='/faleConosco' component={Solicitacoes} />
-        {/* <Route path='/faleConosco' component={UnderConstruction} /> */}
-    </Switch>
+    const [context, setContext] = useState()
 
+    return (
+        <Switch>
+            <ReactContext.Provider value={{ context, setContext }}>
+                <Route exact path='/' component={HomeTemplate} />
+                <Route path='/veiculos' exact component={VeiculosHome} />
+                <Route path='/veiculos/cadastro' exact component={CadVeiculos} />
+                <Route path='/veiculos/altDados' exact component={AltVeiculos} />
+                <Route path='/veiculos/altSeguro' exact component={AltSeguro} />
+                <Route path='/veiculos/laudos' exact component={Laudos} />
+                <Route path='/veiculos/baixaVeiculo' exact component={BaixaVeiculo} />
+                <Route path='/veiculos/config' exact component={Config} />
+                <Route path='/consultas' component={Consultas} />
+                <Route path='/empresas' exact component={EmpresasHome} />
+                <Route path='/empresas/cadastro' component={Empresas} />
+                <Route path='/empresas/socios' component={Socios} />
+                <Route path='/empresas/procuradores' component={Procuradores} />
+                <Route path='/relatorios' component={Relatorios} />
+                <Route path='/crv' component={PdfTest} />
+                <Route path='/faleConosco' component={Solicitacoes} />
+                {/* <Route path='/faleConosco' component={UnderConstruction} /> */}
+            </ReactContext.Provider>
+        </Switch>
+    )
+}
+export default Routes
