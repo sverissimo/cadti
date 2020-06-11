@@ -12,44 +12,58 @@ import FormControlLabel from '@material-ui/core/FormControlLabel';
 import FormControl from '@material-ui/core/FormControl';
 import FormLabel from '@material-ui/core/FormLabel';
 
-export default function BaixaOptions({ empresas, demand, checked, delegaTransf, justificativa, handleInput, handleBlur, handleCheck, handleSubmit }) {
 
+const radioAttempt = [
+    {
+        value: 'venda',
+        label: 'Venda para outra empresa do sistema'
+    },
+    {
+        value: 'outro',
+        label: 'Outro'
+    }
+]
+
+const radioAproval = [
+    {
+        value: 'aprovar',
+        label: 'Aprovar baixa do veículo'
+    },
+    {
+        value: 'pendencias',
+        label: 'Informar pendências/impedimentos para a baixa'
+    }
+]
+
+export default function BaixaOptions({ empresas, demand, checked, delegaTransf, justificativa, pendencias, handleInput, handleBlur, handleCheck, handleSubmit }) {
+
+    
     const checkOptions = () => {
 
-        const radioAttempt = [
-            {
-                value: 'venda',
-                label: 'Venda para outra empresa do sistema'
-            },
-            {
-                value: 'outro',
-                label: 'Outro'
-            }
-        ]
-
-
-        if (!demand) return radioAttempt
+        if (!demand || demand?.status.match('Pendências')) return radioAttempt
+        else return radioAproval
     }
 
     const formControl = checkOptions()
+    
     return (
         <>
             <Grid container
                 direction="row"
                 justify="space-between"
                 alignItems="center"
-                style={{ width: checked === 'venda' || checked === 'outro' ? '1200px' : '600px', marginTop: '25px' }}
+                style={{ width: checked ? '1200px' : '600px', marginTop: '25px' }}
             >
                 <Grid item xs={checked ? 6 : 12}>
                     <FormControl component="fieldset">
-                        <FormLabel component="legend">Motivo da baixa</FormLabel>
+                        <FormLabel component="legend">{!demand || demand?.status.match('Pendências') ? 'Motivo da baixa' : 'Aprovar baixa?'}</FormLabel>
                         <RadioGroup aria-label="position" name="position"
                             onChange={handleCheck} row
                             style={{ width: 'auto' }}
                             className='radio'
                         >
                             {
-                                formControl.map(({value, label}, i) =>
+                                formControl.map(({ value, label }, i) =>
                                     <FormControlLabel
                                         className='radio'
                                         value={value}
@@ -59,22 +73,7 @@ export default function BaixaOptions({ empresas, demand, checked, delegaTransf, 
                                     />
                                 )
                             }
-{/* 
-                            <FormControlLabel
-                                className='radio'
-                                value="venda"
-                                control={<Radio color="primary" />}
-                                label={<span style={{ fontSize: '0.8rem' }}>{"Venda para outra empresa do sistema"}</span>}
-                                labelPlacement="start"
-                            />
-                            <FormControlLabel
-                                value="outro"
-                                control={<Radio color="primary" />}
-                                label={<span style={{ fontSize: '0.8rem' }}>{"Outro"}</span>}
-                                labelPlacement="start"
-                            />
-
- */}                        </RadioGroup>
+                          </RadioGroup>
                     </FormControl>
                 </Grid>
 
@@ -98,13 +97,12 @@ export default function BaixaOptions({ empresas, demand, checked, delegaTransf, 
                         />
                     </Grid>
                     :
-                    checked === 'outro' &&
+                    checked && checked !== 'aprovar' &&
                     <Grid item xs={6}>
                         <TextField
-                            name='justificativa'
-                            value={justificativa}
-                            label='Justificativa'
-                            type='text'
+                            name={checked === 'outro' ? 'justificativa' : 'pendencias'}
+                            value={checked === 'outro' ? justificativa : pendencias}
+                            label={checked === 'outro' ? 'Justificativa' : 'Pendências'}                            
                             onChange={handleInput}
                             InputLabelProps={{ shrink: true }}
                             multiline

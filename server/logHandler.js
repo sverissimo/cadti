@@ -1,28 +1,26 @@
-const { logsModel } = require('./mongo/models/logsModel')
 const { vehicleLogsModel } = require('./mongo/models/vehicleLogsModel')
 
 const logHandler = (req, res, next) => {
     const
-        { log, collection, id } = req.body,
+        { log, collection, } = req.body,
+        { _id, history, status, completed } = log,
         logsModel = { vehicleLogs: vehicleLogsModel },
 
         logObject = new logsModel[collection](log)
 
-    
-    if (!id) {
+
+    if (!_id) {
         logObject.save(function (err, doc) {
             if (err) console.log(err)
-            if (doc) res.json({doc, log})
+            if (doc) res.json({ doc, log })
         })
     }
-
-
     else {
-        logModelSelector[collection].updateOne(
-            { '_id': req.body.item._id },
+        logsModel[collection].updateOne(
+            { '_id': _id },
             {
-                $push: { 'processHistory': req.body.processHistory },
-                $set: req.body.item
+                $push: { 'history': history },
+                $set: { 'status': status, completed: completed || false }
             }).then(result => res.json(result))
     }
 

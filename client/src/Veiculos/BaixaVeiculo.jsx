@@ -13,6 +13,7 @@ import { logGenerator } from '../Utils/logGenerator'
 import { baixaForm } from '../Forms/baixaForm'
 
 import './veiculos.css'
+import { InvertColorsOff } from '@material-ui/icons'
 
 class BaixaVeiculo extends Component {
 
@@ -44,16 +45,18 @@ class BaixaVeiculo extends Component {
                 selectedVehicle = frota.find(v => v.placa === veiculo)
 
             await this.setState({ razaoSocial: empresa, selectedEmpresa, placa: veiculo, frota, ...selectedVehicle, demand })
+        }
 
-            console.log(this.state)
-
-        } else console.log('fuck')
     }
 
-    componentWillUnmount() { this.setState({}) }
+    componentWillUnmount() {
+        this.setState({})
+        this.context.setContext()
+    }
 
     handleInput = async e => {
-        const { name, value } = e.target,
+        const
+            { name, value } = e.target,
             { veiculos, empresas } = this.props.redux
 
         this.setState({ [name]: value })
@@ -115,27 +118,46 @@ class BaixaVeiculo extends Component {
 
     handleSubmit = async () => {
 
-        const { checked, delegatarioId, selectedEmpresa, veiculoId, justificativa, delegaTransf } = this.state
+        const { checked, delegatarioId, selectedEmpresa, veiculoId, justificativa, pendencias, delegaTransf, demand } = this.state
         let
             tempObj,
             enableSubmit,
             logSubject,
             obs,
+            history,
             checkArray = ['selectedEmpresa', 'placa', 'delegatarioId']
 
-        if (checked === 'venda') {
-            checkArray.push('delegaTransf')
-            enableSubmit = checkArray.every(k => this.state.hasOwnProperty(k) && this.state[k] !== '')
-            tempObj = { delegatarioId, situacao: 'pendente' }
-            logSubject = 'Transferência de veículo para outra empresa'
-            obs = `Transferência para ${delegaTransf}`
+        switch (checked) {
+            case ('venda'):
+                checkArray.push('delegaTransf')
+                tempObj = { delegatarioId, situacao: 'Aguardando aprovação de transferência' }
+                logSubject = 'Transferência de veículo para outra empresa'
+                obs = `Transferência para ${delegaTransf}`
+                history = { action: 'Solicitação de baixa', obs }
+                break
+
+            case ('outro'):
+                checkArray.push('justificativa')
+                tempObj = { situacao: 'Aguardando aprovação de baixa' }
+                logSubject = 'Baixa de veículo'
+                history = { action: 'Solicitação de baixa', justificativa }
+                break
+
+            case ('pendencias'):
+                tempObj = { situacao: 'Pendências para a baixa do veículo' }
+                history = { action: 'Pendências para a baixa do veículo', pendencias }
+                break
+
+            case ('aprovar'):
+                tempObj = { situacao: 'Veículo baixado' }
+                history = { action: 'Baixa do veículo aprovada' }
+                break
+
+            default: return
         }
-        if (checked === 'outro') {
-            checkArray.push('justificativa')
-            enableSubmit = checkArray.every(k => this.state.hasOwnProperty(k) && this.state[k] !== '')
-            tempObj = { situacao: 'baixado' }
-            logSubject = 'Baixa de veículo'
-        }
+
+
+        enableSubmit = checkArray.every(k => this.state.hasOwnProperty(k) && this.state[k] !== '')
         if (!enableSubmit) {
             await this.setState({ openAlertDialog: true, alertType: 'fieldsMissing' })
             return null
@@ -153,30 +175,29 @@ class BaixaVeiculo extends Component {
             .catch(err => console.log(err))
 
         //**************Create Log****************** */
-
-        let action
-        if (!this.state.aintShit) action = 'Solicitação de baixa'
-
-        const content = justificativa ? { action, justificativa } : { obs } || ''
-        const log = {
+        let log = {
             subject: logSubject,
             empresaId: selectedEmpresa.delegatarioId,
             veiculoId,
-            content
+            status: tempObj.situacao,
+            history
         }
+
+        if (demand) log._id = demand?._id
+        if (checked === 'aprovar') log.completed = true
 
         logGenerator(log).then(r => console.log(r.data))
 
         //***********Clear state****************** */
-
         await this.setState({ selectedEmpresa: undefined, frota: [], razaoSocial: '' })
+        if (demand) this.context.setContext()
         this.reset()
     }
 
     handleCheck = e => this.setState({ checked: e.target.value })
     reset = () => {
         baixaForm.forEach(el => this.setState({ [el.field]: '' }))
-        this.setState({ delegaTransf: '', check: '', justificativa: '', checked: false })
+        this.setState({ delegaTransf: '', check: '', justificativa: '', checked: false, demand: undefined })
     }
     closeAlert = () => this.setState({ openAlertDialog: !this.state.openAlertDialog })
     toast = () => this.setState({ confirmToast: !this.state.confirmToast })

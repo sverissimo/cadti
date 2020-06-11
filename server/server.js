@@ -35,7 +35,7 @@ const { parseRequestBody } = require('./parseRequest')
 //const { job } = require('./reportGenerator')
 //job.start()
 
-dotenv.config();
+dotenv.config()
 
 app.use(setCorsHeader)
 app.use(bodyParser.json({ limit: '50mb' }))
@@ -83,8 +83,6 @@ app.get('/api/getOneFile/', getOneFileMetadata)
 app.post('/api/logs', logHandler)
 
 app.get('/api/logs/:collection', (req, res) => {
-
-
     const
         { collection } = req.params,
         collections = { vehicleLogsModel },
@@ -96,8 +94,6 @@ app.get('/api/logs/:collection', (req, res) => {
         res.send(doc)
         console.log(doc, model)
     })
-
-
 })
 
 //************************************ GET METHOD ROUTES *********************** */

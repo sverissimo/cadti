@@ -2,12 +2,14 @@ import React from 'react'
 import moment from 'moment'
 import downloadFile from '../Utils/downloadFile'
 
+import Button from '@material-ui/core/Button'
 import AssignmentTurnedInOutlinedIcon from '@material-ui/icons/AssignmentTurnedInOutlined';
 import InfoIcon from '@material-ui/icons/Info';
-import DeleteIcon from '@material-ui/icons/Delete';
+import DoneIcon from '@material-ui/icons/Done';
+//import DeleteIcon from '@material-ui/icons/Delete';
 
 
-export default function StandardTable({ tableData, staticFields, title, style, files, showDetails, assessDemand, idIndex = 0, deleteIconProperties = {}, deleteFunction }) {
+export default function StandardTable({ tableData, staticFields, title, style, files, showDetails, assessDemand, completed, idIndex = 0, deleteIconProperties = {}, deleteFunction }) {
 
     const dateFormat = value => {
         if (moment(value, 'YYYY-MM-DDTHH:mm:ss.SSSZZ', true).isValid()) {
@@ -24,17 +26,34 @@ export default function StandardTable({ tableData, staticFields, title, style, f
         if (file) downloadFile(file.id, file.filename, 'vehicleDocs', file.metadata.fieldName);
     }
 
-    const parseValue = () => {
+    const createButton = action => {
 
+        switch (action) {
+            case ('info'):
+                return <Button component='span' title='Ver histórico'>
+                    <InfoIcon color='primary' />
+                </Button>
 
+            case ('assess'):
+                return <Button component='span' title='Analisar demanda'>
+                    <AssignmentTurnedInOutlinedIcon style={{ color: 'rgb(255, 153, 51)' }} />
+                </Button>
+
+            case ('completed'):
+                return <DoneIcon style={{ color: 'green' }} />
+
+            default: return
+        }
     }
 
-
+    /*  const parseValue = () => {
+     }
+  */
     let
         tableHeaders = [],
         arrayOfRows = [],
         tableRow = []
-    console.log(tableData)
+
     tableData.forEach(log => {
         staticFields.forEach(obj => {
 
@@ -46,7 +65,10 @@ export default function StandardTable({ tableData, staticFields, title, style, f
         arrayOfRows.push(tableRow)
         tableRow = []
     })
-
+    if (completed) {
+        const i = tableHeaders.indexOf('Analisar solicitação')
+        tableHeaders[i] = 'Concluída'
+    }
     const tableSpan = arrayOfRows[0]?.length || ''
 
     return (
@@ -71,14 +93,13 @@ export default function StandardTable({ tableData, staticFields, title, style, f
                                         onClick={
                                             () => obj.type === 'file' && obj.laudoDocId ? getFile(obj.laudoDocId)
                                                 : obj?.action === 'info' ? showDetails(obj?.id)
-                                                    : obj?.action === 'assess' ? assessDemand(obj?.id)
+                                                    : obj?.action === 'assess' && !completed ? assessDemand(obj?.id)
                                                         //: obj?.action === 'delete' ? deleteFunction(laudo[idIndex]?.value)
                                                         : null}>
-                                        {
-                                            obj.type === 'date' ? dateFormat(obj.value)
-                                                : obj?.action === 'info' ? <InfoIcon title={obj.title} color='primary' />
-                                                    : obj?.action === 'assess' ? <AssignmentTurnedInOutlinedIcon title={obj.title} color='action' />
-                                                        //: obj?.action === 'delete' && laudo[idIndex]?.value ? <DeleteIcon {...deleteIconProperties} />
+                                        {obj.type === 'date' ? dateFormat(obj.value)
+                                            : obj?.action === 'info' ? createButton('info')
+                                                : obj?.action === 'assess' && !completed ? createButton('assess')
+                                                    : obj?.action === 'assess' && completed ? createButton('completed')
                                                         : obj.value
                                         }
                                     </td>

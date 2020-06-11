@@ -4,6 +4,7 @@ import StoreHOC from '../Store/StoreHOC'
 import { ReactContext } from '../Store/ReactContext'
 
 import Solicitacao from './Solicitacao'
+import SolicitacoesTemplate from './SolicitacoesTemplate'
 import { solicitacoesTable } from '../Forms/solicitacoesTable'
 import Table from '../Reusable Components/Table'
 
@@ -13,7 +14,8 @@ function Solicitacoes(props) {
         { veiculos, empresas } = props.redux,
         [vehicleLogs, setVehicleLogs] = useState([]),
         [showInfo, setShowInfo] = useState(false),
-        [selectedLog, selectLog] = useState()
+        [selectedLog, selectLog] = useState(),
+        [completed, showCompleted] = useState(false)
 
     const { context, setContext } = useContext(ReactContext)
 
@@ -29,12 +31,14 @@ function Solicitacoes(props) {
                 const { empresaId, veiculoId, __v, ...filtered } = log
                 logs[i] = filtered
             })
+            if (completed) logs = logs.filter(l => l.completed === true)
+            else logs = logs.filter(l => l.completed === false)
             setVehicleLogs(logs)
         }
 
 
         getVehicleLogs()
-    }, [veiculos, empresas])
+    }, [veiculos, empresas, completed])
 
     const assessDemand = async id => {
         const log = vehicleLogs.find(l => l._id === id)
@@ -51,25 +55,28 @@ function Solicitacoes(props) {
     }
     const close = () => setShowInfo(false)
 
+
+
     return (
         <>
-            <header>
-                <h3>Minhas solicitações</h3>
-            </header>
-            {!showInfo ?
-                <Table
-                    tableData={vehicleLogs}
-                    staticFields={solicitacoesTable}
-                    length={5}
-                    title='Solicitações em andamento'
-                    showDetails={showDetails}
-                    assessDemand={assessDemand}
-                />
-                :
-                <Solicitacao
-                    solicitacao={selectedLog}
-                    close={close}
-                />}
+            <SolicitacoesTemplate
+                completed={completed}
+                showCompleted={showCompleted}
+            />
+            <Table
+                tableData={vehicleLogs}
+                staticFields={solicitacoesTable}
+                length={5}
+                title='Solicitações em andamento'
+                showDetails={showDetails}
+                assessDemand={assessDemand}
+                completed={completed}
+                style={{ textAlign: 'center' }}
+            />
+            {showInfo && <Solicitacao
+                solicitacao={selectedLog}
+                close={close}
+            />}
         </>
     )
 }

@@ -2,7 +2,7 @@ const
     mongoose = require('mongoose'),
     AutoIncrement = require('mongoose-sequence')(mongoose)
 
-const VehicleLogsSchema = new mongoose.Schema({    
+const VehicleLogsSchema = new mongoose.Schema({
     numero: {
         type: Number
     },
@@ -30,7 +30,11 @@ const VehicleLogsSchema = new mongoose.Schema({
         type: String,
         trim: true
     },
-    content: { type: [] },
+    completed: {
+        type: Boolean,
+        default: false
+    },
+    history: { type: [] },
 },
     {
         timestamps: true,
