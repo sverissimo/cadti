@@ -37,7 +37,7 @@ const radioAproval = [
 
 export default function BaixaOptions({ empresas, demand, checked, delegaTransf, justificativa, pendencias, handleInput, handleBlur, handleCheck, handleSubmit }) {
 
-    
+
     const checkOptions = () => {
 
         if (!demand || demand?.status.match('Pendências')) return radioAttempt
@@ -45,7 +45,7 @@ export default function BaixaOptions({ empresas, demand, checked, delegaTransf, 
     }
 
     const formControl = checkOptions()
-    
+
     return (
         <>
             <Grid container
@@ -65,6 +65,7 @@ export default function BaixaOptions({ empresas, demand, checked, delegaTransf, 
                             {
                                 formControl.map(({ value, label }, i) =>
                                     <FormControlLabel
+                                        key={i}
                                         className='radio'
                                         value={value}
                                         control={<Radio color="primary" />}
@@ -73,7 +74,7 @@ export default function BaixaOptions({ empresas, demand, checked, delegaTransf, 
                                     />
                                 )
                             }
-                          </RadioGroup>
+                        </RadioGroup>
                     </FormControl>
                 </Grid>
 
@@ -102,7 +103,7 @@ export default function BaixaOptions({ empresas, demand, checked, delegaTransf, 
                         <TextField
                             name={checked === 'outro' ? 'justificativa' : 'pendencias'}
                             value={checked === 'outro' ? justificativa : pendencias}
-                            label={checked === 'outro' ? 'Justificativa' : 'Pendências'}                            
+                            label={checked === 'outro' ? 'Justificativa' : 'Pendências'}
                             onChange={handleInput}
                             InputLabelProps={{ shrink: true }}
                             multiline

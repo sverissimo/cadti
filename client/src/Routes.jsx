@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import { ReactContext } from './Store/ReactContext'
 import HomeTemplate from './HomeTemplate'
 
 import VeiculosHome from './Veiculos/VeiculosHome'
@@ -22,12 +21,8 @@ import Laudos from './Veiculos/Laudos'
 import PdfTest from './Veiculos/Certificate'
 
 const Routes = () => {
-
-    const [context, setContext] = useState()
-
     return (
-        <Switch>
-            <ReactContext.Provider value={{ context, setContext }}>
+        <Switch>            
                 <Route exact path='/' component={HomeTemplate} />
                 <Route path='/veiculos' exact component={VeiculosHome} />
                 <Route path='/veiculos/cadastro' exact component={CadVeiculos} />
@@ -43,10 +38,10 @@ const Routes = () => {
                 <Route path='/empresas/procuradores' component={Procuradores} />
                 <Route path='/relatorios' component={Relatorios} />
                 <Route path='/crv' component={PdfTest} />
-                <Route path='/faleConosco' component={Solicitacoes} />
-                {/* <Route path='/faleConosco' component={UnderConstruction} /> */}
-            </ReactContext.Provider>
+                <Route path='/solicitacoes' component={Solicitacoes} />
+                {/* <Route path='/faleConosco' component={UnderConstruction} /> */}            
         </Switch>
     )
 }
+
 export default Routes

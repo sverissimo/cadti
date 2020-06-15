@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useContext } from 'react'
+import React, { useEffect, useState, useContext, useRef } from 'react'
 import axios from 'axios'
 import StoreHOC from '../Store/StoreHOC'
 import { ReactContext } from '../Store/ReactContext'
@@ -18,10 +18,13 @@ function Solicitacoes(props) {
         [completed, showCompleted] = useState(false)
 
     const { context, setContext } = useContext(ReactContext)
+    let mountedRef = useRef(true)
 
     useEffect(() => {
-
+        
+        console.log(mountedRef)
         async function getVehicleLogs() {
+
             const query = await axios.get('/api/logs/vehicleLogsModel')
             let logs = query.data
 
@@ -35,10 +38,13 @@ function Solicitacoes(props) {
             else logs = logs.filter(l => l.completed === false)
             setVehicleLogs(logs)
         }
+        if (mountedRef.current) getVehicleLogs()
+        else return null
 
-
-        getVehicleLogs()
     }, [veiculos, empresas, completed])
+
+    //will Unmount effect
+
 
     const assessDemand = async id => {
         const log = vehicleLogs.find(l => l._id === id)
@@ -47,7 +53,6 @@ function Solicitacoes(props) {
         props.history.push('/veiculos/baixaVeiculo')
     }
 
-
     const showDetails = id => {
         setShowInfo(!showInfo)
         const log = vehicleLogs.find(l => l._id === id)
@@ -55,7 +60,10 @@ function Solicitacoes(props) {
     }
     const close = () => setShowInfo(false)
 
-
+    useEffect(() => () => {
+        mountedRef.current = false
+        console.log(mountedRef)
+    }, [])
 
     return (
         <>

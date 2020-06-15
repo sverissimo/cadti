@@ -3,7 +3,7 @@ import moment from 'moment'
 
 import { laudoForm } from '../Forms/laudoForm'
 
-import Crumbs from '../Utils/Crumbs'
+import Crumbs from '../Reusable Components/Crumbs'
 import Placa from '../Reusable Components/Placa'
 import TextInput from '../Reusable Components/TextInput'
 import SelectEmpresa from '../Reusable Components/SelectEmpresa'

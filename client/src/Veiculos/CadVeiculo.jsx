@@ -11,7 +11,7 @@ import CadVeiculoTemplate from './CadVeiculoTemplate'
 import VehicleDocs from './VehicleDocs'
 import Review from './VehicleReview'
 
-import Crumbs from '../Utils/Crumbs'
+import Crumbs from '../Reusable Components/Crumbs'
 import StepperButtons from '../Utils/StepperButtons'
 import CustomStepper from '../Utils/Stepper'
 import ReactToast from '../Utils/ReactToast'

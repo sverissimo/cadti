@@ -14,7 +14,7 @@ import valueParser from '../Utils/valueParser'
 import { empresaFiles } from '../Forms/empresaFiles'
 import { empresasForm } from '../Forms/empresasForm'
 import { sociosForm } from '../Forms/sociosForm'
-import Crumbs from '../Utils/Crumbs'
+import Crumbs from '../Reusable Components/Crumbs'
 
 import StepperButtons from '../Utils/StepperButtons'
 import CustomStepper from '../Utils/Stepper'

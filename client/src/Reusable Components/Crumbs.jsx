@@ -5,7 +5,12 @@ import Grid from '@material-ui/core/Grid'
 import Breadcrumbs from '@material-ui/core/Breadcrumbs';
 import HomeIcon from '@material-ui/icons/Home';
 
-export default function Crumbs({links, text}) {
+export default function Crumbs({ links, text, demand }) {
+    if (demand) {
+        links = ['Solicitações', '/solicitacoes']
+        text = `solicitação nº ${demand?.numero}`
+    }
+    
     return (
         <Grid style={{ marginTop: '1%', paddingLeft: '1%' }}>
             <Breadcrumbs separator="›" aria-label="breadcrumb" >
@@ -20,7 +25,7 @@ export default function Crumbs({links, text}) {
                 </Link>
                 <Link color="primary" to={links[1]} style={{ fontSize: '0.8rem' }}>
                     {links[0]}
-            </Link>
+                </Link>
                 <span style={{ fontSize: '0.8rem' }} >{text}</span>
             </Breadcrumbs>
         </Grid>

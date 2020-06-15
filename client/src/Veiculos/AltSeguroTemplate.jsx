@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react'
 
-import Crumbs from '../Utils/Crumbs'
+import Crumbs from '../Reusable Components/Crumbs'
 import SelectEmpresa from '../Reusable Components/SelectEmpresa'
 import TextInput from '../Reusable Components/TextInput'
 import AutoComplete from '../Utils/autoComplete'

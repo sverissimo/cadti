@@ -7,7 +7,7 @@ import StoreHOC from '../Store/StoreHOC'
 import valueParser from '../Utils/valueParser'
 import { checkInputErrors } from '../Utils/checkInputErrors'
 import ReactToast from '../Utils/ReactToast'
-import Crumbs from '../Utils/Crumbs'
+import Crumbs from '../Reusable Components/Crumbs'
 
 import AltProcuradoresTemplate from './AltProcuradoresTemplate'
 import download from '../Utils/downloadFile'

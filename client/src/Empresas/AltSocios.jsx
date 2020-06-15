@@ -7,7 +7,7 @@ import humps from 'humps'
 import ReactToast from '../Utils/ReactToast'
 import valueParser from '../Utils/valueParser'
 
-import Crumbs from '../Utils/Crumbs'
+import Crumbs from '../Reusable Components/Crumbs'
 import AltSociosTemplate from './AltSociosTemplate'
 import { sociosForm } from '../Forms/sociosForm'
 import AlertDialog from '../Utils/AlertDialog'

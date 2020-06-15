@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
+import { ReactContext } from '../Store/ReactContext'
 import { Link as RouterLink } from 'react-router-dom'
 import { makeStyles } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -84,18 +85,45 @@ const sections = [
     { title: 'Veículos', link: '/veiculos' },
     { title: 'Empresas', link: '/empresas' },
     { title: 'Relatórios', link: '/relatorios' },
-    { title: 'Fale Conosco', link: '/faleConosco' },
+    { title: 'Solicitacões', link: '/solicitacoes' },
+    //{ title: 'Fale Conosco', link: '/faleConosco' },
 ];
 
 
 const Header = props => {
-    const classes = useStyles()
-    const [path, setSelected] = useState(document.location.pathname)
-    const { pathname } = props.location
+    const
+        classes = useStyles(),
+        [path, setSelected] = useState(document.location.pathname),
+        { pathname } = props.location,
+        { context } = useContext(ReactContext),
+        demand = context?.demand
 
     useEffect(() => {
         setSelected(pathname)
     }, [pathname])
+
+    const selected = link => {
+        let
+            bgColor = '',
+            borderB = '',
+            borderT = '',
+            fontW = '400'
+
+        if (demand) {
+            let style = document.querySelector("a[href='/solicitacoes']")?.style
+            style['background-color'] = '#11a7d2'
+            style['border-bottom'] = '1.5px solid #ccc'
+            //style['border-top'] = '2px solid #fff'
+          //  style['font-weight'] = '500'
+        }
+        else if (path.match(link) && link !== '/' && !demand) {
+            bgColor = '#11a7d2'            
+            borderB = '1.5px solid #ccc'
+            //borderT = '2px solid #fff'
+            //fontW = '500'
+        }        
+        return {bgColor, borderB, borderT, fontW}
+    }
 
     return (
         <React.Fragment>
@@ -133,11 +161,17 @@ const Header = props => {
                         style={{
                             fontFamily: 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif',
                             fontSize: '15px',
-                            backgroundColor: (path.match(link) && link !== '/' && link !== '/faleConosco')
-                                ? '#11a7d2' : '',
+                            backgroundColor: selected(link).bgColor,
+                            borderBottom: selected(link).borderB,
+                            fontWeight: selected(link).fontW,
+                            borderTop: selected(link).borderT
+                            /* backgroundColor:
+                                path === 'solicitacoes' && demand ? '#11a7d2'
+                                    : (path.match(link) && link !== '/' && !demand) ? '#11a7d2'
+                                        : '', */
                             //borderTop: (path === link && link !== '/' && link !== '/faleConosco') ? '2px solid #fff' : '',
-                            borderBottom: (path.match(link) && link !== '/' && link !== '/faleConosco') ? '1.5px solid #ccc' : '',
-                            fontWeight: (path.match(link) && (link === '/' || link === '/faleConosco')) ? '500' : '400'
+                            //borderBottom: (path.match(link) && link !== '/' && link !== '/faleConosco') ? '1.5px solid #ccc' : '',
+                            //fontWeight: (path.match(link) && (link === '/' || link === '/faleConosco')) ? '500' : '400'
                         }}
                         className={classes.toolbarLink}
                         onClick={() => setSelected(link)}

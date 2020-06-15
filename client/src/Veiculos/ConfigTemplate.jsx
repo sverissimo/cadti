@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react'
 
-import Crumbs from '../Utils/Crumbs'
+import Crumbs from '../Reusable Components/Crumbs'
 import MenuItem from '@material-ui/core/MenuItem'
 
 import { makeStyles } from '@material-ui/core/styles'

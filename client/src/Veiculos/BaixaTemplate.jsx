@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react'
 
-import Crumbs from '../Utils/Crumbs'
+import Crumbs from '../Reusable Components/Crumbs'
 import SelectEmpresa from '../Reusable Components/SelectEmpresa'
 import TextInput from '../Reusable Components/TextInput'
 
@@ -38,7 +38,7 @@ export default function ({ handleInput, handleBlur, handleCheck, handleSubmit, d
 
     return (
         <Fragment>
-            <Crumbs links={['Veículos', '/veiculos']} text='Baixa de veículo' />
+            <Crumbs links={['Veículos', '/veiculos']} text='Baixa de veículo' demand={demand} />
             <SelectEmpresa
                 data={data}
                 empresas={empresas}
@@ -55,7 +55,10 @@ export default function ({ handleInput, handleBlur, handleCheck, handleSubmit, d
                 {razaoSocial && frota[0] &&
                     <Grid item xs={12}>
                         <Paper className={paper}>
-                            <h3>{!demand ? 'Informe os dados para a baixa' : `Solicitação nº${demand?.numero} - ${demand?.subject}`}</h3>
+                            <h3 style={{ marginBottom: '7px' }}>
+                                {!demand ? 'Informe os dados para a baixa' : `Solicitação nº${demand?.numero} - ${demand?.subject}`}
+                            </h3>
+                            {demand && <h4>Situação: {demand?.status}</h4>}
                             <TextInput
                                 form={baixaForm}
                                 data={data}
@@ -70,12 +73,12 @@ export default function ({ handleInput, handleBlur, handleCheck, handleSubmit, d
                             checked={checked}
                             delegaTransf={delegaTransf}
                             justificativa={justificativa}
-                            empresas={empresas}                            
+                            empresas={empresas}
                             handleInput={handleInput}
                             handleBlur={handleBlur}
                             handleCheck={handleCheck}
                             handleSubmit={handleSubmit}
-                        />                       
+                        />
                     </Grid>
                 }
                 {!razaoSocial && !frota[0] &&

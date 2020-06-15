@@ -13,7 +13,6 @@ import { logGenerator } from '../Utils/logGenerator'
 import { baixaForm } from '../Forms/baixaForm'
 
 import './veiculos.css'
-import { InvertColorsOff } from '@material-ui/icons'
 
 class BaixaVeiculo extends Component {
 
@@ -50,8 +49,8 @@ class BaixaVeiculo extends Component {
     }
 
     componentWillUnmount() {
-        this.setState({})
         this.context.setContext()
+        this.setState({})
     }
 
     handleInput = async e => {
@@ -78,7 +77,7 @@ class BaixaVeiculo extends Component {
         }
     }
 
-    handleBlur = async  e => {
+    handleBlur = async e => {
         const
             { empresas } = this.props.redux,
             { frota } = this.state,
@@ -192,6 +191,9 @@ class BaixaVeiculo extends Component {
         await this.setState({ selectedEmpresa: undefined, frota: [], razaoSocial: '' })
         if (demand) this.context.setContext()
         this.reset()
+
+        //***********if demand, Redirect to /solicitacoes */
+        if (demand) this.props.history.push('/solicitacoes')
     }
 
     handleCheck = e => this.setState({ checked: e.target.value })
