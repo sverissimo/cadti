@@ -85,9 +85,8 @@ app.post('/api/logs', logHandler)
 app.get('/api/logs/:collection', (req, res) => {
     const
         { collection } = req.params,
-        collections = { vehicleLogsModel },
-        model = collections[collection]
-    console.log(collection, vehicleLogsModel)
+        collectionModels = { vehicleLogs: vehicleLogsModel },
+        model = collectionModels[collection]
 
     model.find({}, (err, doc) => {
         if (err) console.log(err)

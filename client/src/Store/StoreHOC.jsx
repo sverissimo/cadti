@@ -5,6 +5,8 @@ import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { getData, insertData, updateData, updateCollection, deleteOne } from './dataActions'
 
+import { withRouter } from 'react-router-dom'
+
 import Loading from '../Layouts/Loading'
 import { configVehicleForm } from '../Forms/configVehicleForm'
 
@@ -14,7 +16,7 @@ let socket
 export default function (requestArray, WrappedComponent) {
 
     let collections = []
-    collections = requestArray.map(req => req.replace('getFiles/', '').replace('lookUpTable/', ''))
+    collections = requestArray.map(req => req.replace('getFiles/', '').replace('lookUpTable/', '').replace('/logs/', ''))
 
     class With extends React.Component {
 
@@ -23,12 +25,12 @@ export default function (requestArray, WrappedComponent) {
             let request = []
 
             requestArray.forEach(req => {
-                const colName = req.replace('getFiles/', '').replace('lookUpTable/', '')
-                if (!redux[colName] || !redux[colName][0]) {
+                const colName = req.replace('getFiles/', '').replace('lookUpTable/', '').replace('/logs/', '')
+                if (!redux[colName] || !redux[colName][0]) {                    
                     request.push(req)
                 }
             })
-
+            
             if (request[0]) await this.props.getData(request)
 
             if (!socket) socket = socketIO()
@@ -52,11 +54,11 @@ export default function (requestArray, WrappedComponent) {
                 this.props.insertData(insertedObjects, collection)
             })
 
-            socket.on('updateElements', ({ collection, updatedCollection }) => {                
+            socket.on('updateElements', ({ collection, updatedCollection }) => {
                 this.props.updateCollection(updatedCollection, collection)
             })
 
-            socket.on('updateVehicle', updatedObjects => {                
+            socket.on('updateVehicle', updatedObjects => {
                 this.props.updateData(updatedObjects, 'veiculos', 'veiculoId')
             })
             socket.on('updateInsurance', updatedObjects => {
@@ -85,10 +87,17 @@ export default function (requestArray, WrappedComponent) {
             clearAll.forEach(el => socket.off(el))
         }
         render() {
+            const
+                { redux, location } = this.props,
+                { historyState } = location
 
             collections = collections.map(c => humps.camelize(c))
+            //console.log(this.props.location, this.props.redux, collections)
 
-            if (collections.length === 0 || !collections.every(col => this.props.redux.hasOwnProperty(col))) {
+            let globalState = redux
+            if (historyState) globalState = Object.assign(globalState, historyState)
+console.log(collections, this.props)
+            if (collections.length === 0 || !collections.every(col => globalState.hasOwnProperty(col))) {
                 return <Loading />
             }
             else {

@@ -33,9 +33,13 @@ class BaixaVeiculo extends Component {
 
     async componentDidMount() {
 
-        const demand = this?.context?.context?.demand
+        //const demand = this?.context?.context?.demand
+
+        let demand = localStorage.getItem('demand')
 
         if (demand) {
+            demand = JSON.parse(demand)
+            console.log(demand)
             const
                 { empresas, veiculos } = this.props.redux,
                 { empresa, veiculo } = demand,
@@ -45,12 +49,21 @@ class BaixaVeiculo extends Component {
 
             await this.setState({ razaoSocial: empresa, selectedEmpresa, placa: veiculo, frota, ...selectedVehicle, demand })
         }
+        console.log(this.props)
 
     }
 
-    componentWillUnmount() {
-        this.context.setContext()
-        this.setState({})
+    async componentWillUnmount() {
+        localStorage.clear()
+        //const { context, setContext } = this.context
+
+        //setContext({ ...context, demand: undefined })
+        //clearContext?.context?.demand = undefined
+        //await this.context.setContext({ ...clearContext })
+        /* await this.setState({})
+        console.log(context)
+ */
+
     }
 
     handleInput = async e => {

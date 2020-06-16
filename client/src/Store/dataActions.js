@@ -13,16 +13,17 @@ export const getData = (collectionsArray = []) => {
 
             await Promise.all(promiseArray)
                 .then(res => res.map(r => humps.camelizeKeys(r.data)))
-                .then(responseArray => {
+                .then(responseArray => {                    
                     responseArray.forEach((el, i) => {
                         let key = collectionsArray[i]
                             .replace('getFiles/', '')
                             .replace('lookUpTable/', '')
+                            .replace('/logs/', '')
                         key = humps.camelize(key)                        
                         Object.assign(returnObj, { [key]: el })
                     })
                 })
-        }
+        }        
         dispatch({
             type: 'GET_DATA',
             payload: returnObj

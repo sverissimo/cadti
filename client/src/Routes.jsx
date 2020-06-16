@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React from 'react'
 import HomeTemplate from './HomeTemplate'
 
 import VeiculosHome from './Veiculos/VeiculosHome'

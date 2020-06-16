@@ -2,6 +2,11 @@ import React, { useEffect, useState, useContext, useRef } from 'react'
 import axios from 'axios'
 import StoreHOC from '../Store/StoreHOC'
 import { ReactContext } from '../Store/ReactContext'
+import { createBrowserHistory } from 'history';
+import { Redirect } from 'react-router-dom'
+//import { Redirect } from 'react-router'
+import BaixaVeiculo from '../Veiculos/BaixaVeiculo'
+//import BaixaVeiculo from './Veiculos/BaixaVeiculo'
 
 import Solicitacao from './Solicitacao'
 import SolicitacoesTemplate from './SolicitacoesTemplate'
@@ -18,16 +23,15 @@ function Solicitacoes(props) {
         [completed, showCompleted] = useState(false)
 
     const { context, setContext } = useContext(ReactContext)
-    let mountedRef = useRef(true)
 
     useEffect(() => {
-        
-        console.log(mountedRef)
+
         async function getVehicleLogs() {
 
-            const query = await axios.get('/api/logs/vehicleLogsModel')
+            const query = await axios.get('/api/logs/vehicleLogs')
             let logs = query.data
-
+            //let logs = props.redux.vehicleLogs
+            console.log(logs)
             logs.forEach((log, i) => {
                 logs[i].empresa = empresas.find(e => e.delegatarioId.toString() === log.empresaId)?.razaoSocial
                 logs[i].veiculo = veiculos.find(v => v.veiculoId.toString() === log.veiculoId)?.placa
@@ -38,19 +42,29 @@ function Solicitacoes(props) {
             else logs = logs.filter(l => l.completed === false)
             setVehicleLogs(logs)
         }
-        if (mountedRef.current) getVehicleLogs()
-        else return null
+        getVehicleLogs()
 
     }, [veiculos, empresas, completed])
 
     //will Unmount effect
 
-
+    /* useEffect(() => {
+        return () => {
+            showCompleted(false)
+            selectLog()
+            setVehicleLogs([])
+            setShowInfo(false)
+        }
+    }, []) */
     const assessDemand = async id => {
         const log = vehicleLogs.find(l => l._id === id)
 
-        await setContext({ ...context, demand: log })
-        props.history.push('/veiculos/baixaVeiculo')
+        //await setContext({ ...context, demand: log })
+        const demand = JSON.stringify(log)
+        localStorage.setItem('demand', demand)
+        //console.log(context)
+        //let history = createBrowserHistory();
+        props.history.push({ pathname: '/veiculos/baixaVeiculo', historyState: props.redux })
     }
 
     const showDetails = id => {
@@ -60,10 +74,6 @@ function Solicitacoes(props) {
     }
     const close = () => setShowInfo(false)
 
-    useEffect(() => () => {
-        mountedRef.current = false
-        console.log(mountedRef)
-    }, [])
 
     return (
         <>
@@ -89,6 +99,6 @@ function Solicitacoes(props) {
     )
 }
 
-const collections = ['veiculos', 'empresas']
+const collections = ['veiculos', 'empresas', '/logs/vehicleLogs']
 
 export default StoreHOC(collections, Solicitacoes)

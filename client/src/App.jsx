@@ -11,7 +11,7 @@ import rootReducer from './rootReducer'
 import { ReactContext } from './Store/ReactContext'
 
 import { Header, Footer } from './Layouts'
-import { Container } from '@material-ui/core';
+import Container from '@material-ui/core/Container';
 import Routes from './Routes'
 
 function App() {
