@@ -38,8 +38,7 @@ class BaixaVeiculo extends Component {
         let demand = localStorage.getItem('demand')
 
         if (demand) {
-            demand = JSON.parse(demand)
-            console.log(demand)
+            demand = JSON.parse(demand)        
             const
                 { empresas, veiculos } = this.props.redux,
                 { empresa, veiculo } = demand,
@@ -48,9 +47,8 @@ class BaixaVeiculo extends Component {
                 selectedVehicle = frota.find(v => v.placa === veiculo)
 
             await this.setState({ razaoSocial: empresa, selectedEmpresa, placa: veiculo, frota, ...selectedVehicle, demand })
+            console.log(empresa, veiculo, this.state)
         }
-        console.log(this.props)
-
     }
 
     async componentWillUnmount() {

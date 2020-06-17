@@ -29,8 +29,8 @@ function Solicitacoes(props) {
         async function getVehicleLogs() {
 
             const query = await axios.get('/api/logs/vehicleLogs')
-            let logs = query.data
-            //let logs = props.redux.vehicleLogs
+            //let logs = query.data
+            let logs = [...props.redux.vehicleLogs]
             console.log(logs)
             logs.forEach((log, i) => {
                 logs[i].empresa = empresas.find(e => e.delegatarioId.toString() === log.empresaId)?.razaoSocial
