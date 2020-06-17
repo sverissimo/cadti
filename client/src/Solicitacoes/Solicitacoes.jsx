@@ -1,12 +1,5 @@
-import React, { useEffect, useState, useContext, useRef } from 'react'
-import axios from 'axios'
+import React, { useEffect, useState } from 'react'
 import StoreHOC from '../Store/StoreHOC'
-import { ReactContext } from '../Store/ReactContext'
-import { createBrowserHistory } from 'history';
-import { Redirect } from 'react-router-dom'
-//import { Redirect } from 'react-router'
-import BaixaVeiculo from '../Veiculos/BaixaVeiculo'
-//import BaixaVeiculo from './Veiculos/BaixaVeiculo'
 
 import Solicitacao from './Solicitacao'
 import SolicitacoesTemplate from './SolicitacoesTemplate'
@@ -18,20 +11,22 @@ function Solicitacoes(props) {
     const
         { veiculos, empresas } = props.redux,
         [vehicleLogs, setVehicleLogs] = useState([]),
-        [showInfo, setShowInfo] = useState(false),
+        [showHistory, setshowHistory] = useState(false),
         [selectedLog, selectLog] = useState(),
-        [completed, showCompleted] = useState(false)
+        [completed, showCompleted] = useState(false),
+        [info, setInfo] = useState()
 
-    const { context, setContext } = useContext(ReactContext)
+    const escFunction = (e) => { if (e.keyCode === 27) setshowHistory(false) }
+
+    useEffect(() => {
+        document.addEventListener('keydown', escFunction, false)
+    }, [])
 
     useEffect(() => {
 
         async function getVehicleLogs() {
-
-            const query = await axios.get('/api/logs/vehicleLogs')
-            //let logs = query.data
             let logs = [...props.redux.vehicleLogs]
-            console.log(logs)
+
             logs.forEach((log, i) => {
                 logs[i].empresa = empresas.find(e => e.delegatarioId.toString() === log.empresaId)?.razaoSocial
                 logs[i].veiculo = veiculos.find(v => v.veiculoId.toString() === log.veiculoId)?.placa
@@ -44,37 +39,34 @@ function Solicitacoes(props) {
         }
         getVehicleLogs()
 
-    }, [veiculos, empresas, completed])
+    }, [veiculos, empresas, completed, props.redux.vehicleLogs])
 
-    //will Unmount effect
-
-    /* useEffect(() => {
-        return () => {
-            showCompleted(false)
-            selectLog()
-            setVehicleLogs([])
-            setShowInfo(false)
-        }
-    }, []) */
     const assessDemand = async id => {
-        const log = vehicleLogs.find(l => l._id === id)
+        const
+            log = vehicleLogs.find(l => l.id === id),
+            demand = JSON.stringify(log)
 
-        //await setContext({ ...context, demand: log })
-        const demand = JSON.stringify(log)
         localStorage.setItem('demand', demand)
-        //console.log(context)
-        //let history = createBrowserHistory();
-        props.history.push({ pathname: '/veiculos/baixaVeiculo', historyState: props.redux })
+        props.history.push({ pathname: '/veiculos/baixaVeiculo' })
     }
 
     const showDetails = id => {
-        setShowInfo(!showInfo)
-        const log = vehicleLogs.find(l => l._id === id)
+        setshowHistory(!showHistory)
+        const log = vehicleLogs.find(l => l.id === id)
         selectLog(log)
     }
-    const close = () => setShowInfo(false)
+    const close = () => setshowHistory(false)
+    const showInfo = index => {
 
+        console.log(index, selectedLog)
+        if (selectedLog && selectedLog?.history) {
 
+            const history = selectedLog?.history[index]
+            const additionalInfo = history?.info
+            console.log(additionalInfo)
+            setInfo(additionalInfo)
+        }
+    }
     return (
         <>
             <SolicitacoesTemplate
@@ -91,9 +83,11 @@ function Solicitacoes(props) {
                 completed={completed}
                 style={{ textAlign: 'center' }}
             />
-            {showInfo && <Solicitacao
+            {showHistory && <Solicitacao
                 solicitacao={selectedLog}
                 close={close}
+                showInfo={showInfo}
+                info={info}
             />}
         </>
     )

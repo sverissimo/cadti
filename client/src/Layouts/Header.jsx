@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useContext } from 'react'
-import { ReactContext } from '../Store/ReactContext'
+import React, { useState, useEffect } from 'react'
 import { Link as RouterLink } from 'react-router-dom'
 import { makeStyles } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -89,40 +88,42 @@ const sections = [
     //{ title: 'Fale Conosco', link: '/faleConosco' },
 ];
 
-
 const Header = props => {
     const
         classes = useStyles(),
         [path, setSelected] = useState(document.location.pathname),
         { pathname } = props.location,
-        { context } = useContext(ReactContext),
-        demand = context?.demand
+        demand = localStorage.getItem('demand')
 
     useEffect(() => {
         setSelected(pathname)
     }, [pathname])
 
     const selected = link => {
+        let style = document.querySelector("a[href='/solicitacoes']")?.style
+
         let
             bgColor = '',
             borderB = '',
             borderT = '',
             fontW = '400'
 
-        if (demand) {
-            let style = document.querySelector("a[href='/solicitacoes']")?.style
-            style['background-color'] = '#11a7d2'
-            style['border-bottom'] = '1.5px solid #ccc'
-            //style['border-top'] = '2px solid #fff'
-          //  style['font-weight'] = '500'
+        if (path === '/solicitacoes' || demand) {
+            if (style) {
+                style['background-color'] = '#11a7d2'
+                style['border-bottom'] = '1.5px solid #ccc'
+            }
         }
-        else if (path.match(link) && link !== '/' && !demand) {
-            bgColor = '#11a7d2'            
+
+        else if (path.match(link) && link !== '/') {
+            bgColor = '#11a7d2'
             borderB = '1.5px solid #ccc'
-            //borderT = '2px solid #fff'
-            //fontW = '500'
-        }        
-        return {bgColor, borderB, borderT, fontW}
+            if (style) {
+                style['background-color'] = ''
+                style['border-bottom'] = ''
+            }
+        }
+        return { bgColor, borderB, borderT, fontW }
     }
 
     return (
@@ -165,13 +166,6 @@ const Header = props => {
                             borderBottom: selected(link).borderB,
                             fontWeight: selected(link).fontW,
                             borderTop: selected(link).borderT
-                            /* backgroundColor:
-                                path === 'solicitacoes' && demand ? '#11a7d2'
-                                    : (path.match(link) && link !== '/' && !demand) ? '#11a7d2'
-                                        : '', */
-                            //borderTop: (path === link && link !== '/' && link !== '/faleConosco') ? '2px solid #fff' : '',
-                            //borderBottom: (path.match(link) && link !== '/' && link !== '/faleConosco') ? '1.5px solid #ccc' : '',
-                            //fontWeight: (path.match(link) && (link === '/' || link === '/faleConosco')) ? '500' : '400'
                         }}
                         className={classes.toolbarLink}
                         onClick={() => setSelected(link)}

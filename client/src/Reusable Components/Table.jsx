@@ -6,14 +6,18 @@ import Button from '@material-ui/core/Button'
 import AssignmentTurnedInOutlinedIcon from '@material-ui/icons/AssignmentTurnedInOutlined';
 import InfoIcon from '@material-ui/icons/Info';
 import DoneIcon from '@material-ui/icons/Done';
+import HistoryIcon from '@material-ui/icons/History'
 //import DeleteIcon from '@material-ui/icons/Delete';
 
 
-export default function StandardTable({ tableData, staticFields, title, style, files, showDetails, assessDemand, completed, idIndex = 0, deleteIconProperties = {}, deleteFunction }) {
+export default function StandardTable({ tableData, staticFields, title, tableStyle, style, files, showDetails, assessDemand, completed, id, showInfo,
+    idIndex = 0, deleteIconProperties = {}, deleteFunction, info }) {
+
+    console.log(info)
 
     const dateFormat = value => {
         if (moment(value, 'YYYY-MM-DDTHH:mm:ss.SSSZZ', true).isValid()) {
-            return moment(value, moment.ISO_8601, true).format('DD/MM/YYYY')
+            return moment(value, moment.ISO_8601, true).format('DD/MM/YYYY, HH:mm[h]')
         }
         else {
             return value
@@ -29,14 +33,19 @@ export default function StandardTable({ tableData, staticFields, title, style, f
     const createButton = action => {
 
         switch (action) {
-            case ('info'):
+            case ('showHistory'):
                 return <Button component='span' title='Ver histórico'>
-                    <InfoIcon color='primary' />
+                    <HistoryIcon color='primary' />
                 </Button>
 
             case ('assess'):
                 return <Button component='span' title='Analisar demanda'>
                     <AssignmentTurnedInOutlinedIcon style={{ color: 'rgb(255, 153, 51)' }} />
+                </Button>
+
+            case ('info'):
+                return <Button component='span' title='Informações adicionais'>
+                    <InfoIcon color='primary' />
                 </Button>
 
             case ('completed'):
@@ -46,19 +55,17 @@ export default function StandardTable({ tableData, staticFields, title, style, f
         }
     }
 
-    /*  const parseValue = () => {
-     }
-  */
     let
         tableHeaders = [],
         arrayOfRows = [],
         tableRow = []
 
-    tableData.forEach(log => {
+    tableData.forEach((log, i) => {
         staticFields.forEach(obj => {
 
             if (!tableHeaders.includes(obj.title)) tableHeaders.push(obj.title)
-            if (obj.action) tableRow.push({ ...obj, id: log?._id })
+            if (obj.field === 'info') tableRow.push({ ...obj, index: i })
+            else if (obj.action) tableRow.push({ ...obj, id: log?.id })
             else tableRow.push({ ...obj, value: log[obj.field] })
         })
 
@@ -72,7 +79,7 @@ export default function StandardTable({ tableData, staticFields, title, style, f
     const tableSpan = arrayOfRows[0]?.length || ''
 
     return (
-        <table>
+        <table style={tableStyle || undefined}>
             <thead>
                 <tr>
                     <th className='tHeader'
@@ -90,17 +97,19 @@ export default function StandardTable({ tableData, staticFields, title, style, f
                             {
                                 rowArray.map((obj, i) =>
                                     <td key={i} style={style} className={obj.type === 'link' && obj.laudoDocId ? 'link2' : 'review'}
+
                                         onClick={
                                             () => obj.type === 'file' && obj.laudoDocId ? getFile(obj.laudoDocId)
-                                                : obj?.action === 'info' ? showDetails(obj?.id)
+                                                : obj?.action === 'showHistory' ? showDetails(obj?.id)
                                                     : obj?.action === 'assess' && !completed ? assessDemand(obj?.id)
-                                                        //: obj?.action === 'delete' ? deleteFunction(laudo[idIndex]?.value)
-                                                        : null}>
+                                                        : obj.field === 'info' ? showInfo(obj?.index)
+                                                            //: obj?.action === 'delete' ? deleteFunction(laudo[idIndex]?.value)
+                                                            : null}
+                                    >
                                         {obj.type === 'date' ? dateFormat(obj.value)
-                                            : obj?.action === 'info' ? createButton('info')
-                                                : obj?.action === 'assess' && !completed ? createButton('assess')
-                                                    : obj?.action === 'assess' && completed ? createButton('completed')
-                                                        : obj.value
+                                            : obj?.action === 'assess' && completed ? createButton('completed')
+                                                : obj?.action ? createButton(obj.action)
+                                                    : obj.value
                                         }
                                     </td>
                                 )}

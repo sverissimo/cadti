@@ -54,7 +54,7 @@ class ConsultasContainer extends Component {
         showCertificate: false
     }
 
-    async componentDidMount() {
+    componentDidMount() {
         document.addEventListener('keydown', this.escFunction, false)
     }
 

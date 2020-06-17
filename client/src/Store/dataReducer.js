@@ -5,8 +5,7 @@ const dataReducer = (state = initState, action) => {
 
     switch (type) {
 
-        case 'GET_DATA':
-            console.log(action)
+        case 'GET_DATA':            
             return { ...state, ...payload }
 
         case 'INSERT_DATA': {

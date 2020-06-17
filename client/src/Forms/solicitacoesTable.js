@@ -20,18 +20,18 @@ export const solicitacoesTable = [
         title: 'Situação',
     },
     {
-        field: 'createdAt',
-        title: 'Registro no sistema',
+        field: 'updatedAt',
+        title: 'Última Atualização',
         type: 'date'
     },    
     {
-        field: 'info',
-        title: 'Ver detalhes',        
-        action: 'info'        
+        field: 'history',
+        title: 'Ver histórico',        
+        action: 'showHistory'
     },
     {
         field: 'assess',
         title: 'Analisar solicitação',
         action: 'assess'
-    } 
+    }  
 ]

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { BrowserRouter } from 'react-router-dom'
 
 import { createStore, applyMiddleware } from 'redux';
@@ -8,27 +8,21 @@ import multi from 'redux-multi';
 import thunk from 'redux-thunk';
 import rootReducer from './rootReducer'
 
-import { ReactContext } from './Store/ReactContext'
-
 import { Header, Footer } from './Layouts'
 import Container from '@material-ui/core/Container';
 import Routes from './Routes'
 
 function App() {
 
-  const
-    store = applyMiddleware(promise, multi, thunk)(createStore),
-    [context, setContext] = useState()
+  const store = applyMiddleware(promise, multi, thunk)(createStore)
 
   return (
     <Provider store={store(rootReducer)}>
       <div style={{ backgroundColor: '#fbfbfb' }}>
         <Container maxWidth="lg" style={{ minHeight: '100vh' }}>
           <BrowserRouter>
-            <ReactContext.Provider value={{ context, setContext }}>
-              <Header />
-              <Routes />
-            </ReactContext.Provider>
+            <Header />
+            <Routes />
           </BrowserRouter>
           <Footer />
         </Container>

@@ -38,7 +38,7 @@ class BaixaVeiculo extends Component {
         let demand = localStorage.getItem('demand')
 
         if (demand) {
-            demand = JSON.parse(demand)        
+            demand = JSON.parse(demand)
             const
                 { empresas, veiculos } = this.props.redux,
                 { empresa, veiculo } = demand,
@@ -47,21 +47,12 @@ class BaixaVeiculo extends Component {
                 selectedVehicle = frota.find(v => v.placa === veiculo)
 
             await this.setState({ razaoSocial: empresa, selectedEmpresa, placa: veiculo, frota, ...selectedVehicle, demand })
-            console.log(empresa, veiculo, this.state)
+            console.log(demand)
         }
     }
 
-    async componentWillUnmount() {
+    componentWillUnmount() {
         localStorage.clear()
-        //const { context, setContext } = this.context
-
-        //setContext({ ...context, demand: undefined })
-        //clearContext?.context?.demand = undefined
-        //await this.context.setContext({ ...clearContext })
-        /* await this.setState({})
-        console.log(context)
- */
-
     }
 
     handleInput = async e => {
@@ -143,19 +134,19 @@ class BaixaVeiculo extends Component {
                 tempObj = { delegatarioId, situacao: 'Aguardando aprovação de transferência' }
                 logSubject = 'Transferência de veículo para outra empresa'
                 obs = `Transferência para ${delegaTransf}`
-                history = { action: 'Solicitação de baixa', obs }
+                history = { action: 'Solicitação de baixa', info: obs }
                 break
 
             case ('outro'):
                 checkArray.push('justificativa')
                 tempObj = { situacao: 'Aguardando aprovação de baixa' }
                 logSubject = 'Baixa de veículo'
-                history = { action: 'Solicitação de baixa', justificativa }
+                history = { action: 'Solicitação de baixa', info: justificativa }
                 break
 
             case ('pendencias'):
                 tempObj = { situacao: 'Pendências para a baixa do veículo' }
-                history = { action: 'Pendências para a baixa do veículo', pendencias }
+                history = { action: 'Pendências para a baixa do veículo', info: pendencias }
                 break
 
             case ('aprovar'):
@@ -193,14 +184,14 @@ class BaixaVeiculo extends Component {
             history
         }
 
-        if (demand) log._id = demand?._id
+        if (demand) log.id = demand?.id
         if (checked === 'aprovar') log.completed = true
 
         logGenerator(log).then(r => console.log(r.data))
 
         //***********Clear state****************** */
-        await this.setState({ selectedEmpresa: undefined, frota: [], razaoSocial: '' })
-        if (demand) this.context.setContext()
+        if (demand) localStorage.clear()
+        await this.setState({ selectedEmpresa: undefined, frota: [], razaoSocial: '' })        
         this.reset()
 
         //***********if demand, Redirect to /solicitacoes */

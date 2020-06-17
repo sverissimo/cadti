@@ -5,8 +5,6 @@ import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
 import { getData, insertData, updateData, updateCollection, deleteOne } from './dataActions'
 
-import { withRouter } from 'react-router-dom'
-
 import Loading from '../Layouts/Loading'
 import { configVehicleForm } from '../Forms/configVehicleForm'
 
@@ -91,12 +89,11 @@ export default function (requestArray, WrappedComponent) {
                 { redux, location } = this.props,
                 { historyState } = location
 
-            collections = collections.map(c => humps.camelize(c))
-            //console.log(this.props.location, this.props.redux, collections)
+            collections = collections.map(c => humps.camelize(c))            
 
             let globalState = redux
             if (historyState) globalState = Object.assign(globalState, historyState)
-console.log(collections, this.props)
+
             if (collections.length === 0 || !collections.every(col => globalState.hasOwnProperty(col))) {
                 return <Loading />
             }

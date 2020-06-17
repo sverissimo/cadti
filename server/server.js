@@ -35,7 +35,7 @@ const { parseRequestBody } = require('./parseRequest')
 //const { job } = require('./reportGenerator')
 //job.start()
 
-dotenv.config()
+dotenv.config();
 
 app.use(setCorsHeader)
 app.use(bodyParser.json({ limit: '50mb' }))
@@ -90,8 +90,7 @@ app.get('/api/logs/:collection', (req, res) => {
 
     model.find({}, (err, doc) => {
         if (err) console.log(err)
-        res.send(doc)
-        console.log(doc, model)
+        res.send(doc)        
     })
 })
 
