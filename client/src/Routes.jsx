@@ -1,4 +1,5 @@
 import React from 'react'
+import { Switch, Route } from 'react-router-dom'
 import HomeTemplate from './HomeTemplate'
 
 import VeiculosHome from './Veiculos/VeiculosHome'
@@ -15,12 +16,11 @@ import Procuradores from './Empresas/AltProcuradores'
 import Socios from './Empresas/AltSocios'
 import Relatorios from './Relatorios/Relatorios'
 import Solicitacoes from './Solicitacoes/Solicitacoes'
-import { Switch, Route } from 'react-router-dom'
 import Laudos from './Veiculos/Laudos'
 //import UnderConstruction from './Utils/UnderConstruction'
 import PdfTest from './Veiculos/Certificate'
 
-const Routes = () => {
+const Routes = () => {  
     return (
         <Switch>            
                 <Route exact path='/' component={HomeTemplate} />
@@ -38,7 +38,8 @@ const Routes = () => {
                 <Route path='/empresas/procuradores' component={Procuradores} />
                 <Route path='/relatorios' component={Relatorios} />
                 <Route path='/crv' component={PdfTest} />
-                <Route path='/solicitacoes' component={Solicitacoes} />
+                <Route path='/solicitacoes' exact component={Solicitacoes} />
+                <Route path='/solicitacoes/baixaVeiculo' exact component={BaixaVeiculo} />
                 {/* <Route path='/faleConosco' component={UnderConstruction} /> */}            
         </Switch>
     )

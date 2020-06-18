@@ -11,9 +11,7 @@ import HistoryIcon from '@material-ui/icons/History'
 
 
 export default function StandardTable({ tableData, staticFields, title, tableStyle, style, files, showDetails, assessDemand, completed, id, showInfo,
-    idIndex = 0, deleteIconProperties = {}, deleteFunction, info }) {
-
-    console.log(info)
+    idIndex = 0, deleteIconProperties = {}, deleteFunction, info }) {    
 
     const dateFormat = value => {
         if (moment(value, 'YYYY-MM-DDTHH:mm:ss.SSSZZ', true).isValid()) {

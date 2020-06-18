@@ -24,11 +24,11 @@ export default function (requestArray, WrappedComponent) {
 
             requestArray.forEach(req => {
                 const colName = req.replace('getFiles/', '').replace('lookUpTable/', '').replace('/logs/', '')
-                if (!redux[colName] || !redux[colName][0]) {                    
+                if (!redux[colName] || !redux[colName][0]) {
                     request.push(req)
                 }
             })
-            
+
             if (request[0]) await this.props.getData(request)
 
             if (!socket) socket = socketIO()
@@ -52,6 +52,15 @@ export default function (requestArray, WrappedComponent) {
                 this.props.insertData(insertedObjects, collection)
             })
 
+            socket.on('insertElements', ({ insertedObjects, collection }) => {
+                console.log(insertedObjects)
+                this.props.insertData(insertedObjects, collection)
+            })
+
+            socket.on('updateLogs', updatedObjects => {
+                this.props.updateData(updatedObjects, 'vehicleLogs', 'id')
+            })
+
             socket.on('updateElements', ({ collection, updatedCollection }) => {
                 this.props.updateCollection(updatedCollection, collection)
             })
@@ -59,6 +68,7 @@ export default function (requestArray, WrappedComponent) {
             socket.on('updateVehicle', updatedObjects => {
                 this.props.updateData(updatedObjects, 'veiculos', 'veiculoId')
             })
+
             socket.on('updateInsurance', updatedObjects => {
                 this.props.updateCollection(updatedObjects, 'seguros')
             })
@@ -80,21 +90,15 @@ export default function (requestArray, WrappedComponent) {
         componentWillUnmount() {
             if (!socket) socket = socketIO(':3001')
             const clearAll = ['insertVehicle', 'insertInsurance', 'insertEmpresa', 'insertSocios', 'insertFiles',
-                'insertProcuradores', 'updateVehicle', 'updateInsurance', 'updateSocios', 'deleteOne']
+            'insertElements', 'insertProcuradores', 'updateVehicle', 'updateInsurance', 'updateSocios', 'deleteOne', ]
 
             clearAll.forEach(el => socket.off(el))
         }
         render() {
-            const
-                { redux, location } = this.props,
-                { historyState } = location
 
-            collections = collections.map(c => humps.camelize(c))            
+            collections = collections.map(c => humps.camelize(c))
 
-            let globalState = redux
-            if (historyState) globalState = Object.assign(globalState, historyState)
-
-            if (collections.length === 0 || !collections.every(col => globalState.hasOwnProperty(col))) {
+            if (collections.length === 0 || !collections.every(col => this.props.redux.hasOwnProperty(col))) {
                 return <Loading />
             }
             else {

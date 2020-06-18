@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import StoreHOC from '../Store/StoreHOC'
 
-import Solicitacao from './Solicitacao'
+import SolHistory from './SolHistory'
 import SolicitacoesTemplate from './SolicitacoesTemplate'
+
 import { solicitacoesTable } from '../Forms/solicitacoesTable'
 import Table from '../Reusable Components/Table'
 
@@ -25,29 +26,29 @@ function Solicitacoes(props) {
     useEffect(() => {
 
         async function getVehicleLogs() {
-            let logs = [...props.redux.vehicleLogs]
+            const originalLogs = [...props.redux.vehicleLogs]
 
-            logs.forEach((log, i) => {
-                logs[i].empresa = empresas.find(e => e.delegatarioId.toString() === log.empresaId)?.razaoSocial
-                logs[i].veiculo = veiculos.find(v => v.veiculoId.toString() === log.veiculoId)?.placa
+            let logs = originalLogs.map(log => {
+                log.empresa = empresas.find(e => e.delegatarioId.toString() === log.empresaId)?.razaoSocial
+                log.veiculo = veiculos.find(v => v.veiculoId.toString() === log.veiculoId)?.placa
                 const { empresaId, veiculoId, __v, ...filtered } = log
-                logs[i] = filtered
+                return filtered
             })
+
             if (completed) logs = logs.filter(l => l.completed === true)
             else logs = logs.filter(l => l.completed === false)
-            setVehicleLogs(logs)
+            setVehicleLogs(logs)            
         }
         getVehicleLogs()
 
     }, [veiculos, empresas, completed, props.redux.vehicleLogs])
 
     const assessDemand = async id => {
-        const
-            log = vehicleLogs.find(l => l.id === id),
-            demand = JSON.stringify(log)
+        const log = vehicleLogs.find(l => l.id === id)
+        selectLog(log)
+        props.history.push({ pathname: '/solicitacoes/baixaVeiculo', state: { demand: log } })
 
-        localStorage.setItem('demand', demand)
-        props.history.push({ pathname: '/veiculos/baixaVeiculo' })
+        //setShowDemand(!showDemand)
     }
 
     const showDetails = id => {
@@ -58,15 +59,14 @@ function Solicitacoes(props) {
     const close = () => setshowHistory(false)
     const showInfo = index => {
 
-        console.log(index, selectedLog)
         if (selectedLog && selectedLog?.history) {
-
             const history = selectedLog?.history[index]
             const additionalInfo = history?.info
-            console.log(additionalInfo)
             setInfo(additionalInfo)
         }
     }
+    //if (selectedLog && showDemand) return <SolicitacoesRouter route='/solicitacoes/baixaVeiculo' data={selectedLog} history={props.history}/>
+
     return (
         <>
             <SolicitacoesTemplate
@@ -83,12 +83,14 @@ function Solicitacoes(props) {
                 completed={completed}
                 style={{ textAlign: 'center' }}
             />
-            {showHistory && <Solicitacao
+            {showHistory && <SolHistory
                 solicitacao={selectedLog}
                 close={close}
                 showInfo={showInfo}
                 info={info}
-            />}
+            />
+
+            }
         </>
     )
 }

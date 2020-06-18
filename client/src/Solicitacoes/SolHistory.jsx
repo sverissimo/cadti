@@ -3,7 +3,7 @@ import Table from '../Reusable Components/Table'
 import solicitacaoTable from '../Forms/solicitacaoTable'
 import ClosePopUpButton from '../Reusable Components/ClosePopUpButton'
 
-export default function Solicitacao({ solicitacao, showInfo, info, close }) {
+export default function SolHistory({ solicitacao, showInfo, info, close }) {
 
     const { history } = solicitacao
 

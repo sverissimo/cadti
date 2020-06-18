@@ -80,7 +80,17 @@ app.get('/api/getOneFile/', getOneFileMetadata)
 
 //************************************ LOGS RECORDING ************************** */
 
-app.post('/api/logs', logHandler)
+app.post('/api/logs', logHandler, (req, res) => {
+    const
+        { collection } = req.body,
+        { id, doc } = res.locals,
+        insertedObjects = [doc],
+        insertResponseObj = { insertedObjects, collection }    
+
+    if (!id) io.sockets.emit('insertElements', insertResponseObj)
+    else io.sockets.emit('updateLogs', insertedObjects)
+    res.sendStatus(200)
+})
 
 app.get('/api/logs/:collection', (req, res) => {
     const
@@ -90,7 +100,7 @@ app.get('/api/logs/:collection', (req, res) => {
 
     model.find({}, (err, doc) => {
         if (err) console.log(err)
-        res.send(doc)        
+        res.send(doc)
     })
 })
 

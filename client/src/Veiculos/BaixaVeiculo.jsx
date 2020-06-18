@@ -33,12 +33,8 @@ class BaixaVeiculo extends Component {
 
     async componentDidMount() {
 
-        //const demand = this?.context?.context?.demand
-
-        let demand = localStorage.getItem('demand')
-
+        const demand = this.props?.location?.state?.demand
         if (demand) {
-            demand = JSON.parse(demand)
             const
                 { empresas, veiculos } = this.props.redux,
                 { empresa, veiculo } = demand,
@@ -47,12 +43,7 @@ class BaixaVeiculo extends Component {
                 selectedVehicle = frota.find(v => v.placa === veiculo)
 
             await this.setState({ razaoSocial: empresa, selectedEmpresa, placa: veiculo, frota, ...selectedVehicle, demand })
-            console.log(demand)
         }
-    }
-
-    componentWillUnmount() {
-        localStorage.clear()
     }
 
     handleInput = async e => {
@@ -131,16 +122,15 @@ class BaixaVeiculo extends Component {
         switch (checked) {
             case ('venda'):
                 checkArray.push('delegaTransf')
-                tempObj = { delegatarioId, situacao: 'Aguardando aprovação de transferência' }
-                logSubject = 'Transferência de veículo para outra empresa'
-                obs = `Transferência para ${delegaTransf}`
+                tempObj = { situacao: 'Aguardando aprovação de transferência' }                
+                obs = `Solicitação de transferência do veículo para ${delegaTransf}`
                 history = { action: 'Solicitação de baixa', info: obs }
+                logSubject = `Baixa - venda de veículo para ${delegaTransf}`
                 break
 
             case ('outro'):
                 checkArray.push('justificativa')
-                tempObj = { situacao: 'Aguardando aprovação de baixa' }
-                logSubject = 'Baixa de veículo'
+                tempObj = { situacao: 'Aguardando aprovação de baixa' }                
                 history = { action: 'Solicitação de baixa', info: justificativa }
                 break
 
@@ -164,7 +154,15 @@ class BaixaVeiculo extends Component {
             return null
         }
 
+
+//*******************FIX DELEGATARIOID SWITCH!!!!!!!!!!!!!!!!!! AND SEGURO NAO CADASTRADO ONLY AT CHECKED === APROVAR!!!!!!!!!!!!!!!!!!!!!!!!! */
+
+
+
+
+
         tempObj.apolice = 'Seguro não cadastrado'
+        if (checked === 'aprovar' && demand.subject.match('venda de veículo')) tempObj.delegatarioId = delegatarioId
 
         const
             requestObject = humps.decamelizeKeys(tempObj),
@@ -189,9 +187,8 @@ class BaixaVeiculo extends Component {
 
         logGenerator(log).then(r => console.log(r.data))
 
-        //***********Clear state****************** */
-        if (demand) localStorage.clear()
-        await this.setState({ selectedEmpresa: undefined, frota: [], razaoSocial: '' })        
+        //***********Clear state****************** */        
+        await this.setState({ selectedEmpresa: undefined, frota: [], razaoSocial: '' })
         this.reset()
 
         //***********if demand, Redirect to /solicitacoes */

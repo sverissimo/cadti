@@ -22,7 +22,7 @@ export const routesLabels = [
     {
         subject: 'Baixa de veículo',
         collection: 'vehicleLogs',
-        path: '/veiculos/baixaVeiculo'
+        path: '/baixaVeiculo'
     },
     {
         subject: 'Configurações de Veículo',

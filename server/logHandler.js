@@ -1,34 +1,38 @@
 const { vehicleLogsModel } = require('./mongo/models/vehicleLogsModel')
 
-const logHandler = (req, res, next) => {
+const logHandler = async (req, res, next) => {
+
     const
         { log, collection, } = req.body,
-        { id, history, status, completed } = log,
-        logsModel = { vehicleLogs: vehicleLogsModel },
+        { id, subject, history, status, completed } = log,
+        logsModel = { vehicleLogs: vehicleLogsModel }
 
-        logObject = new logsModel[collection](log)
-
+    const
+        logObject = new logsModel[collection](log),
+        model = logsModel[collection]
 
     if (!id) {
         logObject.save(function (err, doc) {
             if (err) console.log(err)
-            if (doc) res.json({ doc, log })
+            if (doc) res.locals = { doc }
+            next()
         })
     }
     else {
-        logsModel[collection].updateOne(
+        let updatedObject = { status, subject, completed: completed || false }
+        if (!subject) delete updatedObject.subject
+
+        res.locals.id = id
+        res.locals.doc = await model.findOneAndUpdate(
             { '_id': id },
             {
                 $push: { 'history': history },
-                $set: { 'status': status, completed: completed || false }
-            }).then(result => res.json(result))
+                $set: { ...updatedObject }
+            },
+            { new: true }
+        )
+        next()
     }
-
-    /* logObject.save(function (err, doc) {
-        if (err) console.log(err)
-        if (doc) res.json(doc)
-    }); */
-
 }
 
 module.exports = { logHandler }
