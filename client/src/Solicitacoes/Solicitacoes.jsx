@@ -3,9 +3,7 @@ import StoreHOC from '../Store/StoreHOC'
 
 import SolHistory from './SolHistory'
 import SolicitacoesTemplate from './SolicitacoesTemplate'
-
-import { solicitacoesTable } from '../Forms/solicitacoesTable'
-import Table from '../Reusable Components/Table'
+import SolicitacoesTable from './SolicitacoesTable'
 
 function Solicitacoes(props) {
 
@@ -37,7 +35,7 @@ function Solicitacoes(props) {
 
             if (completed) logs = logs.filter(l => l.completed === true)
             else logs = logs.filter(l => l.completed === false)
-            setVehicleLogs(logs)            
+            setVehicleLogs(logs)
         }
         getVehicleLogs()
 
@@ -54,6 +52,7 @@ function Solicitacoes(props) {
     const showDetails = id => {
         setshowHistory(!showHistory)
         const log = vehicleLogs.find(l => l.id === id)
+        console.log(log)
         selectLog(log)
     }
     const close = () => setshowHistory(false)
@@ -65,7 +64,7 @@ function Solicitacoes(props) {
             setInfo(additionalInfo)
         }
     }
-    //if (selectedLog && showDemand) return <SolicitacoesRouter route='/solicitacoes/baixaVeiculo' data={selectedLog} history={props.history}/>
+    //if (selectedLog && showDemand) return <SolicitacoesRouter route='/solicitacoes/baixaVeiculo' data={selectedLog} history={props.history}/>    
 
     return (
         <>
@@ -73,10 +72,8 @@ function Solicitacoes(props) {
                 completed={completed}
                 showCompleted={showCompleted}
             />
-            <Table
+            <SolicitacoesTable
                 tableData={vehicleLogs}
-                staticFields={solicitacoesTable}
-                length={5}
                 title='Solicitações em andamento'
                 showDetails={showDetails}
                 assessDemand={assessDemand}
@@ -98,3 +95,15 @@ function Solicitacoes(props) {
 const collections = ['veiculos', 'empresas', '/logs/vehicleLogs']
 
 export default StoreHOC(collections, Solicitacoes)
+
+
+{/* <Table
+tableData={vehicleLogs}
+staticFields={solicitacoesTable}
+length={5}
+title='Solicitações em andamento'
+showDetails={showDetails}
+assessDemand={assessDemand}
+completed={completed}
+style={{ textAlign: 'center' }}
+/> */}

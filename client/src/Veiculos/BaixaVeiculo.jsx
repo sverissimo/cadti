@@ -79,9 +79,16 @@ class BaixaVeiculo extends Component {
 
         if (name === 'delegaTransf') {
             if (value.length > 0) {
-                const newDelega = empresas.find(e => e.razaoSocial === value)
-                if (newDelega) {
-                    await this.setState({ delegatarioId: newDelega.delegatarioId, delegaTransf: newDelega.razaoSocial, disableSubmit: true })
+                const delegaTransf = empresas.find(e => e.razaoSocial === value)
+                if (delegaTransf) {
+                    const { razaoSocial, delegatarioId } = delegaTransf
+                    await this.setState(
+                        {
+                            delegaTransf: razaoSocial,
+                            delegaTransfId: delegatarioId,
+                            disableSubmit: true
+                        }
+                    )
                     void 0
                 } else this.setState({ openAlertDialog: true, alertType: 'empresaNotFound', delegaTransf: '' })
             }
@@ -110,27 +117,38 @@ class BaixaVeiculo extends Component {
 
     handleSubmit = async () => {
 
-        const { checked, delegatarioId, selectedEmpresa, veiculoId, justificativa, pendencias, delegaTransf, demand } = this.state
+        const
+            { selectedEmpresa, checked, veiculoId, justificativa, pendencias, delegaTransf, delegaTransfId, demand } = this.state,            
+            demandHistory = demand?.history
         let
             tempObj,
             enableSubmit,
+            log = {},
             logSubject,
             obs,
             history,
+            historyTransfId,
             checkArray = ['selectedEmpresa', 'placa', 'delegatarioId']
+
+        if (Array.isArray(demandHistory)) historyTransfId = demandHistory.reverse().find(e => e.hasOwnProperty('delegaTransfId')).delegaTransfId
 
         switch (checked) {
             case ('venda'):
                 checkArray.push('delegaTransf')
-                tempObj = { situacao: 'Aguardando aprovação de transferência' }                
+                tempObj = { situacao: 'Aguardando aprovação de transferência' }
+
+                logSubject = `Baixa - venda de veículo para ${delegaTransf}`
                 obs = `Solicitação de transferência do veículo para ${delegaTransf}`
                 history = { action: 'Solicitação de baixa', info: obs }
-                logSubject = `Baixa - venda de veículo para ${delegaTransf}`
+
+
+                if (!demand && delegaTransfId) history.delegaTransfId = delegaTransfId
+                if (demand && delegaTransfId && delegaTransfId !== historyTransfId) history.delegaTransfId = delegaTransfId
                 break
 
             case ('outro'):
                 checkArray.push('justificativa')
-                tempObj = { situacao: 'Aguardando aprovação de baixa' }                
+                tempObj = { situacao: 'Aguardando aprovação de baixa' }
                 history = { action: 'Solicitação de baixa', info: justificativa }
                 break
 
@@ -140,8 +158,14 @@ class BaixaVeiculo extends Component {
                 break
 
             case ('aprovar'):
-                tempObj = { situacao: 'Veículo baixado' }
+                tempObj = { situacao: 'Veículo baixado', apolice: 'Seguro não cadastrado' }
                 history = { action: 'Baixa do veículo aprovada' }
+
+                if (demand?.subject.match('venda de veículo')) {
+                    const newEmpresaId = demand?.history[0]?.delegaTransfId
+                    tempObj.delegatarioId = newEmpresaId
+                    tempObj.situacao = 'Ativo'
+                }
                 break
 
             default: return
@@ -154,16 +178,6 @@ class BaixaVeiculo extends Component {
             return null
         }
 
-
-//*******************FIX DELEGATARIOID SWITCH!!!!!!!!!!!!!!!!!! AND SEGURO NAO CADASTRADO ONLY AT CHECKED === APROVAR!!!!!!!!!!!!!!!!!!!!!!!!! */
-
-
-
-
-
-        tempObj.apolice = 'Seguro não cadastrado'
-        if (checked === 'aprovar' && demand.subject.match('venda de veículo')) tempObj.delegatarioId = delegatarioId
-
         const
             requestObject = humps.decamelizeKeys(tempObj),
             table = 'veiculo',
@@ -174,9 +188,9 @@ class BaixaVeiculo extends Component {
             .catch(err => console.log(err))
 
         //**************Create Log****************** */
-        let log = {
+        log = {
             subject: logSubject,
-            empresaId: selectedEmpresa.delegatarioId,
+            empresaId: selectedEmpresa?.delegatarioId,
             veiculoId,
             status: tempObj.situacao,
             history
@@ -188,10 +202,13 @@ class BaixaVeiculo extends Component {
         logGenerator(log).then(r => console.log(r.data))
 
         //***********Clear state****************** */        
+
         await this.setState({ selectedEmpresa: undefined, frota: [], razaoSocial: '' })
         this.reset()
 
+
         //***********if demand, Redirect to /solicitacoes */
+
         if (demand) this.props.history.push('/solicitacoes')
     }
 

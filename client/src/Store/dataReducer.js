@@ -5,7 +5,7 @@ const dataReducer = (state = initState, action) => {
 
     switch (type) {
 
-        case 'GET_DATA':            
+        case 'GET_DATA':
             return { ...state, ...payload }
 
         case 'INSERT_DATA': {
@@ -14,7 +14,8 @@ const dataReducer = (state = initState, action) => {
             if (state[collection] && data) {
                 let update = [...state[collection]]
                 data.forEach(el => {
-                    update.unshift(el)
+                    if (collection.match('Logs')) update.push(el)
+                    else update.unshift(el)
                 })
                 return {
                     ...state, [collection]: update

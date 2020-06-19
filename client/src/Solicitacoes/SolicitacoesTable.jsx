@@ -3,39 +3,39 @@ import * as FileSaver from 'file-saver';
 import * as XLSX from 'xlsx';
 
 import MaterialTable from 'material-table';
-import { tables } from './tables'
 
-export default function ({ tab, collection, showDetails, showFiles, showCertificate, del }) {
-    console.log(tables[tab], collection)
+import { solicitacoesTable } from '../Forms/solicitacoesTable'
 
-    const id = ['delegatarioId', 'socioId', 'procuradorId', 'veiculoId', 'apolice'][tab],
-        subject = ['empresas', 'sócios', 'procuradores', 'veículos', 'seguros']
-    if (!Array.isArray(collection)) collection = []
+export default function ({ tableData, title, showDetails, assessDemand, completed, showInfo }) {
+
+    let parsedData = JSON.parse(JSON.stringify(tableData))
+    parsedData.forEach(obj => delete obj.history)
+
     return (
         <div style={{ margin: '10px 0' }} className='noPrint'>
             <MaterialTable
-                title={`Pesquisar dados de ${subject[tab]}`}
-                columns={tables[tab]}
-                data={collection}
+                title={title}
+                columns={solicitacoesTable}
+                data={parsedData}
                 style={{ fontFamily: 'Segoe UI', fontSize: '14px' }}
                 options={{
                     filtering: true,
                     exportButton: true,
-                    exportFileName: subject[tab],
+                    exportFileName: 'Solicitações',
                     exportCsv: (columns, data) => {
                         const
                             fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8',
                             fileExtension = '.xlsx',
-                            fileName = subject[tab]
+                            fileName = 'Solicitações'
 
-                        const exportToCSV = (csvData, fileName) => {
+                        const exportToXLSX = (csvData, fileName) => {
                             const ws = XLSX.utils.json_to_sheet(csvData);
                             const wb = { Sheets: { 'data': ws }, SheetNames: ['data'] };
                             const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
                             const data = new Blob([excelBuffer], { type: fileType });
                             FileSaver.saveAs(data, fileName + fileExtension);
                         }
-                        exportToCSV(data, fileName)
+                        exportToXLSX(data, fileName)
                     },
                     actionsColumnIndex: -1,
                     searchFieldStyle: { color: '#024', fontSize: '14px' },
@@ -72,28 +72,18 @@ export default function ({ tab, collection, showDetails, showFiles, showCertific
                 }}
                 actions={[
                     {
-                        icon: 'info',
+                        icon: 'history_icon',
                         iconProps: { color: 'primary' },
-                        tooltip: 'Mais informações',
-                        onClick: (event, rowData) => showDetails(event, rowData)
+                        tooltip: 'Ver histórico',
+                        onClick: (event, rowData) => showDetails(rowData['id'])
                     },
                     {
-                        icon: 'file_copy_outline',
-                        iconProps: { color: 'secondary' },
-                        tooltip: 'Ver arquivos',
-                        onClick: (event, rowData) => showFiles(rowData[id])
-                    },
-                    {
-                        icon: 'class_outlined',
+                        icon: !completed ? 'assignment_turned_in_outlined_icon' : 'done_icon',
                         iconProps: { color: 'action' },
-                        tooltip: 'Emitir certificado',
-                        hidden: tab !== 3,
-                        onClick: (event, rowData) => showCertificate(rowData)
+                        tooltip: !completed ? 'Analisar solicitação' : 'Concluída',
+                        onClick: !completed ? (event, rowData) => assessDemand(rowData['id']) : null
                     }
                 ]}
-                editable={{
-                    onRowDelete: async oldData => await del(oldData)
-                }}
             />
         </div>
     )

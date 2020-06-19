@@ -24,14 +24,14 @@ export const solicitacoesTable = [
         title: 'Última Atualização',
         type: 'date'
     },    
-    {
+   /*  {
         field: 'history',
         title: 'Ver histórico',        
         action: 'showHistory'
     },
     {
         field: 'assess',
-        title: 'Analisar solicitação',
+        title: '    ',
         action: 'assess'
-    }  
+    }   */
 ]
