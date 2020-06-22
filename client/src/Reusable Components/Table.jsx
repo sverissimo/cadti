@@ -11,7 +11,7 @@ import HistoryIcon from '@material-ui/icons/History'
 
 
 export default function StandardTable({ tableData, staticFields, title, tableStyle, style, files, showDetails, assessDemand, completed, id, showInfo,
-    idIndex = 0, deleteIconProperties = {}, deleteFunction, info }) {    
+    idIndex = 0, deleteIconProperties = {}, deleteFunction, info }) {
 
     const dateFormat = value => {
         if (moment(value, 'YYYY-MM-DDTHH:mm:ss.SSSZZ', true).isValid()) {
@@ -94,7 +94,7 @@ export default function StandardTable({ tableData, staticFields, title, tableSty
                         <tr key={j}>
                             {
                                 rowArray.map((obj, i) =>
-                                    <td key={i} style={style} className={obj.type === 'link' && obj.laudoDocId ? 'link2' : 'review'}
+                                    <td key={i} style={obj?.style ? obj.style : style} className={obj.type === 'link' && obj.laudoDocId ? 'link2' : 'review'}
 
                                         onClick={
                                             () => obj.type === 'file' && obj.laudoDocId ? getFile(obj.laudoDocId)

@@ -78,10 +78,10 @@ export default function ({ tableData, title, showDetails, assessDemand, complete
                         onClick: (event, rowData) => showDetails(rowData['id'])
                     },
                     {
-                        icon: !completed ? 'assignment_turned_in_outlined_icon' : 'done_icon',
-                        iconProps: { color: 'action' },
+                        icon: !completed ? 'assignment_turned_in_outlined' : 'done_icon',
+                        iconProps: { className: !completed ? 'assessDemandButton' : '', color: completed ? 'action' : 'disabled' },
                         tooltip: !completed ? 'Analisar solicitação' : 'Concluída',
-                        onClick: !completed ? (event, rowData) => assessDemand(rowData['id']) : null
+                        onClick: (event, rowData) => !completed ? assessDemand(rowData['id']) : null
                     }
                 ]}
             />

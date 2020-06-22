@@ -4,9 +4,9 @@ import Checkbox from '@material-ui/core/Checkbox'
 
 export default function SolicitacoesTemplate({ completed, showCompleted }) {
     return (
-        <header className='flex' style={{  marginTop: '0px', justifyContent: 'flexEnd' }}>
+        <header style={{ display:'flex', justifyContent: 'flex-end', height: '50px', paddingBotom: '10px' }}>
             <FormControlLabel
-                style={{ marginTop: '50px' }}
+                style={{ marginTop: '20px' }}
                 control={
                     <Checkbox
                         checked={completed === true}

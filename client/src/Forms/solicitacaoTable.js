@@ -16,7 +16,8 @@ const solicitacaoTable = [
     {
         field: 'info',
         title: 'Informações adicionais',
-        action: 'info'
+        action: 'info',
+        style: {textAlign: 'center'}
     }
 ]
 

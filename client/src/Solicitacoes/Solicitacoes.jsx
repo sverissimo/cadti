@@ -4,21 +4,24 @@ import StoreHOC from '../Store/StoreHOC'
 import SolHistory from './SolHistory'
 import SolicitacoesTemplate from './SolicitacoesTemplate'
 import SolicitacoesTable from './SolicitacoesTable'
+import { solRoutes } from './solRoutes'
 
 function Solicitacoes(props) {
 
     const
         { veiculos, empresas } = props.redux,
         [vehicleLogs, setVehicleLogs] = useState([]),
-        [showHistory, setshowHistory] = useState(false),
+        [showHistory, setShowHistory] = useState(false),
         [selectedLog, selectLog] = useState(),
         [completed, showCompleted] = useState(false),
-        [info, setInfo] = useState()
+        [historyLog, setHistoryLog] = useState()
 
-    const escFunction = (e) => { if (e.keyCode === 27) setshowHistory(false) }
+    const escFunction = (e) => {
+        if (e.keyCode === 27) close()
+    }
 
     useEffect(() => {
-        document.addEventListener('keydown', escFunction, false)
+        document.addEventListener('keydown', escFunction)
     }, [])
 
     useEffect(() => {
@@ -42,29 +45,31 @@ function Solicitacoes(props) {
     }, [veiculos, empresas, completed, props.redux.vehicleLogs])
 
     const assessDemand = async id => {
+
         const log = vehicleLogs.find(l => l.id === id)
         selectLog(log)
-        props.history.push({ pathname: '/solicitacoes/baixaVeiculo', state: { demand: log } })
-
-        //setShowDemand(!showDemand)
+        const pathname = solRoutes.find(r => log?.subject.match(r.subject))?.path
+        props.history.push({ pathname, state: { demand: log } })
     }
 
     const showDetails = id => {
-        setshowHistory(!showHistory)
+        setShowHistory(true)
+
         const log = vehicleLogs.find(l => l.id === id)
-        console.log(log)
         selectLog(log)
     }
-    const close = () => setshowHistory(false)
-    const showInfo = index => {
 
+    const showInfo = index => {
         if (selectedLog && selectedLog?.history) {
-            const history = selectedLog?.history[index]
-            const additionalInfo = history?.info
-            setInfo(additionalInfo)
+            const historyLog = selectedLog?.history[index]
+            setHistoryLog(historyLog)
         }
     }
-    //if (selectedLog && showDemand) return <SolicitacoesRouter route='/solicitacoes/baixaVeiculo' data={selectedLog} history={props.history}/>    
+
+    const close = () => {
+        setShowHistory(false)
+        setHistoryLog(false)
+    }
 
     return (
         <>
@@ -74,7 +79,7 @@ function Solicitacoes(props) {
             />
             <SolicitacoesTable
                 tableData={vehicleLogs}
-                title='Solicitações em andamento'
+                title={!completed ? 'Solicitações em andamento' : 'Solicitações concluídas'}
                 showDetails={showDetails}
                 assessDemand={assessDemand}
                 completed={completed}
@@ -84,9 +89,9 @@ function Solicitacoes(props) {
                 solicitacao={selectedLog}
                 close={close}
                 showInfo={showInfo}
-                info={info}
+                historyLog={historyLog}
+                setHistoryLog={setHistoryLog}
             />
-
             }
         </>
     )
@@ -95,15 +100,3 @@ function Solicitacoes(props) {
 const collections = ['veiculos', 'empresas', '/logs/vehicleLogs']
 
 export default StoreHOC(collections, Solicitacoes)
-
-
-{/* <Table
-tableData={vehicleLogs}
-staticFields={solicitacoesTable}
-length={5}
-title='Solicitações em andamento'
-showDetails={showDetails}
-assessDemand={assessDemand}
-completed={completed}
-style={{ textAlign: 'center' }}
-/> */}

@@ -79,10 +79,20 @@ div.loading {
     font-weight: 500;
 }
 
-.selectedEmpresa {
-     
+h3.selectedEmpresa {
+    font-weight: 400;
 }
 
-h3.selectedEmpresa{
-    font-weight: 400;
+.assessDemandButton {
+    color: #cb975d !important
+}
+
+.infoLogHeader {
+    padding-top: 5px;
+}
+.floatRight {
+    display: inline-box;
+    float: right;    
+    margin: 0px 10px 50px 0px;    
+    font-size: 12px;
 }
