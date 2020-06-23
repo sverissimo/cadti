@@ -4,7 +4,7 @@ import HomeTemplate from './HomeTemplate'
 
 import VeiculosHome from './Veiculos/VeiculosHome'
 import CadVeiculos from './Veiculos/CadVeiculo'
-import AltVeiculos from './Veiculos/AltDados'
+import AltDados from './Veiculos/AltDados'
 import AltSeguro from './Veiculos/AltSeguro'
 import BaixaVeiculo from './Veiculos/BaixaVeiculo'
 import Config from './Veiculos/Config'
@@ -26,7 +26,7 @@ const Routes = () => {
                 <Route exact path='/' component={HomeTemplate} />
                 <Route path='/veiculos' exact component={VeiculosHome} />
                 <Route path='/veiculos/cadastro' exact component={CadVeiculos} />
-                <Route path='/veiculos/altDados' exact component={AltVeiculos} />
+                <Route path='/veiculos/altDados' exact component={AltDados} />
                 <Route path='/veiculos/altSeguro' exact component={AltSeguro} />
                 <Route path='/veiculos/laudos' exact component={Laudos} />
                 <Route path='/veiculos/baixaVeiculo' exact component={BaixaVeiculo} />
@@ -40,6 +40,7 @@ const Routes = () => {
                 <Route path='/crv' component={PdfTest} />
                 <Route path='/solicitacoes' exact component={Solicitacoes} />
                 <Route path='/solicitacoes/baixaVeiculo' exact component={BaixaVeiculo} />
+                <Route path='/solicitacoes/altDados' exact component={AltDados} />
                 {/* <Route path='/faleConosco' component={UnderConstruction} /> */}            
         </Switch>
     )

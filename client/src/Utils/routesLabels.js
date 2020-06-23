@@ -7,7 +7,8 @@ export const routesLabels = [
     {
         subject: 'Alteração de dados do veículo',
         collection: 'vehicleLogs',
-        path: '/veiculos/altDados'
+        path: '/veiculos/altDados',
+        shortPath: '/altDados'
     },
     {
         subject: 'Cadastro ou alteração de seguro',
@@ -22,7 +23,8 @@ export const routesLabels = [
     {
         subject: 'Baixa de veículo',
         collection: 'vehicleLogs',
-        path: '/baixaVeiculo'
+        path: 'veiculos/baixaVeiculo',
+        shortPath: '/baixaVeiculo'
     },
     {
         subject: 'Configurações de Veículo',
@@ -30,7 +32,7 @@ export const routesLabels = [
         path: '/veiculos/config'
     },
     {
-        subject: 'Consultas',        
+        subject: 'Consultas',
         path: '/consultas'
     },
     {

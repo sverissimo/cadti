@@ -60,7 +60,7 @@ class AltDados extends Component {
     async componentDidMount() {
         const { redux } = this.props
         let equipamentos = {}
-        console.log(this.props)
+        
         if (redux && redux.equipamentos) {
             redux.equipamentos.forEach(e => Object.assign(equipamentos, { [e.item]: false }))
             const equipArray = Object.keys(equipamentos)
@@ -152,7 +152,7 @@ class AltDados extends Component {
         return value
     }
 
-    handleBlur = async  e => {
+    handleBlur = async e => {
         const
             { empresas } = this.props.redux,
             { frota, equipamentos } = this.state,
@@ -224,8 +224,8 @@ class AltDados extends Component {
     }
 
     handleSubmit = async () => {
-        const { poltronas, pesoDianteiro, pesoTraseiro, delegatarioId,
-            delegatarioCompartilhado, equipamentosId, newPlate, selectedEmpresa, justificativa } = this.state
+        const { veiculoId, poltronas, pesoDianteiro, pesoTraseiro, delegatarioId,
+            delegatarioCompartilhado, equipamentosId, newPlate, selectedEmpresa, justificativa, demand, completed } = this.state
 
         let tempObj = {}
 
@@ -256,14 +256,37 @@ class AltDados extends Component {
         if (newPlate && newPlate !== '') requestObject.placa = newPlate
         if (selectedEmpresa.delegatarioId !== delegatarioId) requestObject.apolice = 'Seguro não cadastrado'
 
-        const table = 'veiculo',
-            tablePK = 'veiculo_id'
+        //******************GenerateLog********************** */
+        let log = {
+            subject: 'Alteração de dados do veículo',
+            empresaId: selectedEmpresa?.delegatarioId,
+            veiculoId,            
+            history: { alteracoes: requestObject }
+        }
 
-        //        await axios.put('/api/updateVehicle', { requestObject, table, tablePK, id: this.state.veiculoId })
+        if (demand) log.id = demand?.id
 
-        logGenerator({ empresa: selectedEmpresa.delegatarioId, veiculoId: this.state.veiculoId, content: justificativa || '' })
-            .then(r => console.log(r.data))
+        if (justificativa && justificativa !== '') log.history.info = 'Justificativa: \n' + justificativa
+        if (completed) log.completed = true
+
+        logGenerator(log).then(r => console.log(r.data))
+
+
+
         //      await this.submitFiles()
+
+        //*********************if approved, putRequest to update DB  ********************** */
+        if (demand && completed) {
+            const
+                table = 'veiculo',
+                tablePK = 'veiculo_id'
+
+            await axios.put('/api/updateVehicle', { requestObject, table, tablePK, id: veiculoId })
+        }
+
+
+
+
         this.setState({ activeStep: 0, razaoSocial: '', selectedEmpresa: undefined })
         this.reset()
         this.setState({})

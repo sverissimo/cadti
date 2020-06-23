@@ -118,8 +118,9 @@ class BaixaVeiculo extends Component {
     handleSubmit = async () => {
 
         const
-            { selectedEmpresa, checked, veiculoId, justificativa, pendencias, delegaTransf, delegaTransfId, demand } = this.state,            
-            demandHistory = demand?.history
+            { selectedEmpresa, checked, veiculoId, justificativa, pendencias, delegaTransf, delegaTransfId, demand } = this.state,
+            oldHistoryLength = demand?.history?.length,
+            demandHistory = demand?.history.some(el => el.hasOwnProperty('delegaTransfId'))
         let
             tempObj,
             enableSubmit,
@@ -130,7 +131,8 @@ class BaixaVeiculo extends Component {
             historyTransfId,
             checkArray = ['selectedEmpresa', 'placa', 'delegatarioId']
 
-        if (Array.isArray(demandHistory)) historyTransfId = demandHistory.reverse().find(e => e.hasOwnProperty('delegaTransfId')).delegaTransfId
+        if (demand && demandHistory && Array.isArray(demandHistory))
+            historyTransfId = demandHistory.reverse().find(e => e.hasOwnProperty('delegaTransfId')).delegaTransfId
 
         switch (checked) {
             case ('venda'):
@@ -193,7 +195,8 @@ class BaixaVeiculo extends Component {
             empresaId: selectedEmpresa?.delegatarioId,
             veiculoId,
             status: tempObj.situacao,
-            history
+            history,
+            historyLength: oldHistoryLength
         }
 
         if (demand) log.id = demand?.id
