@@ -13,7 +13,7 @@ export default function SolHistory({ solicitacao, showInfo, historyLog, setHisto
     const
         { history } = solicitacao,
         date = moment(historyLog?.createdAt).format('DD/MM/YYYY, HH:mm[h]')
-
+    
     return (
         <main className="popUpWindow" sytle={{ width: '90%' }}>
             {!historyLog ?
@@ -23,7 +23,7 @@ export default function SolHistory({ solicitacao, showInfo, historyLog, setHisto
                     length={solicitacaoTable.length}
                     title={`Solicitação nº ${solicitacao?.numero}`}
                     id={solicitacao.id}
-                    showInfo={showInfo}                    
+                    showInfo={showInfo}
                     style={{ padding: '9px 4px' }}
                     tableStyle={{ marginTop: '23px' }}
                 />
@@ -35,7 +35,7 @@ export default function SolHistory({ solicitacao, showInfo, historyLog, setHisto
                         <div className='floatRight'>Inserido por {historyLog?.user} {date ? 'às ' + date : ''}</div>
                     </header>
                     <section>
-                        
+
                         <br /><br /><br />
                         <div>{historyLog.info}</div>
                     </section>
@@ -51,11 +51,9 @@ export default function SolHistory({ solicitacao, showInfo, historyLog, setHisto
                                 <span style={{ padding: '2px 0 0 2px', marginLeft: '2px', fontSize: '.85rem' }}>Voltar</span>
                             </Button>
                         </div>
-
                     </footer>
                 </>
             }
-
             <ClosePopUpButton close={close} />
         </main >
     )

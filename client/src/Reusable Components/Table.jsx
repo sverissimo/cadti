@@ -28,7 +28,8 @@ export default function StandardTable({ tableData, staticFields, title, tableSty
         if (file) downloadFile(file.id, file.filename, 'vehicleDocs', file.metadata.fieldName);
     }
 
-    const createButton = action => {
+    const createButton = (action, index) => {
+        const disable = !tableData[index]?.info ? true : false
 
         switch (action) {
             case ('showHistory'):
@@ -42,7 +43,8 @@ export default function StandardTable({ tableData, staticFields, title, tableSty
                 </Button>
 
             case ('info'):
-                return <Button component='span' title='Informações adicionais'>
+                if (disable) return <p> - </p>
+                return <Button component='span' title='Ver informações adicionais'>
                     <InfoIcon color='primary' />
                 </Button>
 
@@ -106,7 +108,7 @@ export default function StandardTable({ tableData, staticFields, title, tableSty
                                     >
                                         {obj.type === 'date' ? dateFormat(obj.value)
                                             : obj?.action === 'assess' && completed ? createButton('completed')
-                                                : obj?.action ? createButton(obj.action)
+                                                : obj?.action ? createButton(obj.action, obj?.index)
                                                     : obj.value
                                         }
                                     </td>

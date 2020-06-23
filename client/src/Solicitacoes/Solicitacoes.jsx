@@ -16,14 +16,20 @@ function Solicitacoes(props) {
         [completed, showCompleted] = useState(false),
         [historyLog, setHistoryLog] = useState()
 
-    const escFunction = (e) => {
-        if (e.keyCode === 27) close()
-    }
-
+    //*********Effect adds eventListner to Esc key--> back/closes windows ************/
     useEffect(() => {
-        document.addEventListener('keydown', escFunction)
-    }, [])
+        function escFunction(e) {
+            if (e.keyCode === 27) {
+                if (historyLog) setHistoryLog()
+                else setShowHistory()
+            }
+        }
 
+        document.addEventListener('keydown', escFunction)
+        return () => document.removeEventListener('keydown', escFunction)
+    }, [historyLog])
+
+    //********Prepares the Logs ArrayofObjects from the DB to be displayed with additional and filtered fields************/
     useEffect(() => {
 
         async function getVehicleLogs() {
@@ -52,24 +58,23 @@ function Solicitacoes(props) {
         props.history.push({ pathname, state: { demand: log } })
     }
 
-    const showDetails = id => {
-        setShowHistory(true)
-
+    const showDetails = async id => {
         const log = vehicleLogs.find(l => l.id === id)
-        selectLog(log)
+        await selectLog(log)
+        setShowHistory(true)
     }
 
     const showInfo = index => {
         if (selectedLog && selectedLog?.history) {
+
             const historyLog = selectedLog?.history[index]
+
+            if (!historyLog?.info) return
             setHistoryLog(historyLog)
         }
     }
 
-    const close = () => {
-        setShowHistory(false)
-        setHistoryLog(false)
-    }
+    const close = () => setShowHistory(false)
 
     return (
         <>
