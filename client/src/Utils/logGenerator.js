@@ -1,48 +1,53 @@
 import axios from 'axios'
-import { routesLabels } from './routesLabels'
-import { solRoutes } from '../Solicitacoes/solRoutes'
+import { logRoutesConfig } from '../Solicitacoes/logRoutesConfig'
 
 export function logGenerator(obj) {
     const
         path = window.location.pathname,
-        route = routesLabels.find(e => path.match(e.shortPath)),
-        solRoute = solRoutes.find(r => r.path.match(path)),
-        collection = route?.collection,
+        logConfig = logRoutesConfig.find(e => e.shortPath && path.match(e.shortPath)),
+        collection = logConfig?.collection,
         historyLength = obj.historyLength,
         commonFields = {
-            user: 'Joe Demaggio',
+            user: 'Joe Dimaggio',
             createdAt: new Date(),
         }
 
-    let log = obj
-    if (!obj.id || obj.subject) log.subject = obj?.subject || route?.subject
-
+    let log = JSON.parse(JSON.stringify(obj))
+    console.log(obj)
     const history = Object.assign(obj.history, commonFields)
     log.history = history || {}
 
-    //****Se par o action é a resposta de cada rota caso contrário a demanda */
-    if (historyLength && historyLength > 1) {
-        if (historyLength % 2 === 0) {
-            log.history.action = solRoute?.requestAction
+    //Se par, a próxima action é a demanda de cada rota caso contrário a resposta. Depois apaga-se o historyLength */
+    if (historyLength || historyLength === 0) {
+        if (historyLength % 2 === 0 || historyLength === 0) {
+            if (!obj?.history?.action) log.history.action = logConfig?.requestAction
             log.status = 'Aguardando análise'
             console.log('empresaReq', log)
         }
         else {
 
-            log.history.action = solRoute?.responseAction
+            if (!obj?.history?.action) log.history.action = logConfig?.responseAction
             log.status = 'Pendências'
             console.log('seinfraReq', log)
         }
     }
 
-    if (obj?.history?.action) log.action = obj.history.action
+    delete log.historyLength
 
+    //if log already exists, no need to inform veiculoId and empresaId
+    if (obj?.id && log.empresaId) delete log.empresaId
+    if (obj?.id && log.veiculoId) delete log.veiculoId
+
+    //If given by the component which called this fuction, overwrite logRoutesConfig*/
+    if (!obj.id || obj.subject) log.subject = obj?.subject || logConfig?.subject
+
+    //If completed, add standard action/status to the log  */
     if (log.completed) {
-        log.history.action = solRoute.concludedAction || obj.history.action || 'Solicitação concluída.'
-        log.status = obj.status || 'Solicitação concluída.'
+        log.history.action = obj?.history?.action || logConfig?.concludedAction || 'Solicitação concluída'
+        log.status = obj?.status || 'Solicitação concluída'
     }
-
-    console.log(log, historyLength)
+    console.log(obj)
+    //request and return promisse
     const post = axios.post('/api/logs', { log, collection })
     return post
 }

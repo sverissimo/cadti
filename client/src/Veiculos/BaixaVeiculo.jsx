@@ -119,7 +119,7 @@ class BaixaVeiculo extends Component {
 
         const
             { selectedEmpresa, checked, veiculoId, justificativa, pendencias, delegaTransf, delegaTransfId, demand } = this.state,
-            oldHistoryLength = demand?.history?.length,
+            oldHistoryLength = demand?.history?.length || 0,
             demandHistory = demand?.history.some(el => el.hasOwnProperty('delegaTransfId'))
         let
             tempObj,
@@ -137,12 +137,10 @@ class BaixaVeiculo extends Component {
         switch (checked) {
             case ('venda'):
                 checkArray.push('delegaTransf')
-                tempObj = { situacao: 'Aguardando aprovação de transferência' }
 
                 logSubject = `Baixa - venda de veículo para ${delegaTransf}`
                 obs = `Solicitação de transferência do veículo para ${delegaTransf}`
                 history = { action: 'Solicitação de baixa', info: obs }
-
 
                 if (!demand && delegaTransfId) history.delegaTransfId = delegaTransfId
                 if (demand && delegaTransfId && delegaTransfId !== historyTransfId) history.delegaTransfId = delegaTransfId
@@ -150,12 +148,10 @@ class BaixaVeiculo extends Component {
 
             case ('outro'):
                 checkArray.push('justificativa')
-                tempObj = { situacao: 'Aguardando aprovação de baixa' }
                 history = { action: 'Solicitação de baixa', info: justificativa }
                 break
 
             case ('pendencias'):
-                tempObj = { situacao: 'Pendências para a baixa do veículo' }
                 history = { action: 'Pendências para a baixa do veículo', info: pendencias }
                 break
 
@@ -180,21 +176,11 @@ class BaixaVeiculo extends Component {
             return null
         }
 
-        const
-            requestObject = humps.decamelizeKeys(tempObj),
-            table = 'veiculo',
-            tablePK = 'veiculo_id'
-
-        await axios.put('/api/updateVehicle', { requestObject, table, tablePK, id: this.state.veiculoId })
-            .then(() => this.toast())
-            .catch(err => console.log(err))
-
         //**************Create Log****************** */
         log = {
             subject: logSubject,
             empresaId: selectedEmpresa?.delegatarioId,
-            veiculoId,
-            status: tempObj.situacao,
+            veiculoId,            
             history,
             historyLength: oldHistoryLength
         }
@@ -203,6 +189,18 @@ class BaixaVeiculo extends Component {
         if (checked === 'aprovar') log.completed = true
 
         logGenerator(log).then(r => console.log(r.data))
+
+        //*************If approved, submit request to update Postgres DB **************** */
+        if (checked === 'aprovar') {
+            const
+                requestObject = humps.decamelizeKeys(tempObj),
+                table = 'veiculo',
+                tablePK = 'veiculo_id'
+
+            await axios.put('/api/updateVehicle', { requestObject, table, tablePK, id: this.state.veiculoId })
+                .then(() => this.toast())
+                .catch(err => console.log(err))
+        }
 
         //***********Clear state****************** */        
 

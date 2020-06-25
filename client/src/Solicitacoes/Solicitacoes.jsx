@@ -4,7 +4,8 @@ import StoreHOC from '../Store/StoreHOC'
 import SolHistory from './SolHistory'
 import SolicitacoesTemplate from './SolicitacoesTemplate'
 import SolicitacoesTable from './SolicitacoesTable'
-import { solRoutes } from './solRoutes'
+import { logRoutesConfig } from './logRoutesConfig'
+
 
 function Solicitacoes(props) {
 
@@ -38,7 +39,7 @@ function Solicitacoes(props) {
             let logs = originalLogs.map(log => {
                 log.empresa = empresas.find(e => e.delegatarioId.toString() === log.empresaId)?.razaoSocial
                 log.veiculo = veiculos.find(v => v.veiculoId.toString() === log.veiculoId)?.placa
-                const { empresaId, veiculoId, __v, ...filtered } = log
+                const { __v, ...filtered } = log
                 return filtered
             })
 
@@ -49,12 +50,12 @@ function Solicitacoes(props) {
         getVehicleLogs()
 
     }, [veiculos, empresas, completed, props.redux.vehicleLogs])
-
+    
     const assessDemand = async id => {
 
         const log = vehicleLogs.find(l => l.id === id)
         selectLog(log)
-        const pathname = solRoutes.find(r => log?.subject.match(r.subject))?.path
+        const pathname = logRoutesConfig.find(r => log?.subject.match(r.subject))?.path
         props.history.push({ pathname, state: { demand: log } })
     }
 

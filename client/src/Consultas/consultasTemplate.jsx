@@ -6,8 +6,7 @@ import MaterialTable from 'material-table';
 import { tables } from './tables'
 
 export default function ({ tab, collection, showDetails, showFiles, showCertificate, del }) {
-    console.log(tables[tab], collection)
-
+    
     const id = ['delegatarioId', 'socioId', 'procuradorId', 'veiculoId', 'apolice'][tab],
         subject = ['empresas', 'sócios', 'procuradores', 'veículos', 'seguros']
     if (!Array.isArray(collection)) collection = []

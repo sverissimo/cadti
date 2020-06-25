@@ -58,13 +58,33 @@ class AltDados extends Component {
     }
 
     async componentDidMount() {
-        const { redux } = this.props
-        let equipamentos = {}
-        
+        const
+            { redux } = this.props,
+            { veiculos, empresas } = redux
+        let equipamentos = {}, alteracoes
+
+        const
+            demand = this.props?.location?.state?.demand,
+            history = demand?.history
+
+        if (Array.isArray(history)) alteracoes = history.reverse().find(el => el.hasOwnProperty('alteracoes')).alteracoes
+
+        if (demand) {
+            const
+                vehicleData = JSON.parse(JSON.stringify(veiculos.find(v => v.veiculoId.toString() === demand.veiculoId))),
+                selectedEmpresa = empresas.find(e => e.razaoSocial === demand?.empresa),
+                razaoSocial = selectedEmpresa?.razaoSocial,
+                delegatario = razaoSocial,
+                selectedVehicle = Object.assign(vehicleData, alteracoes)
+
+            await this.setState({ ...selectedVehicle, selectedVehicle, delegatario, razaoSocial, selectedEmpresa, demand })
+        }
+
         if (redux && redux.equipamentos) {
             redux.equipamentos.forEach(e => Object.assign(equipamentos, { [e.item]: false }))
             const equipArray = Object.keys(equipamentos)
             await this.setState({ equipamentos: equipArray, ...equipamentos })
+            //if (demand) this.setEquipa(this.state.selectedVehicle)
         }
         document.addEventListener('keydown', this.escFunction, false)
     }
@@ -155,11 +175,10 @@ class AltDados extends Component {
     handleBlur = async e => {
         const
             { empresas } = this.props.redux,
-            { frota, equipamentos } = this.state,
+            { frota } = this.state,
             { name } = e.target
-        let
-            { value } = e.target,
-            vEquip = []
+
+        let { value } = e.target
 
         const errors = checkInputErrors()
         if (errors) this.setState({ errors })
@@ -183,13 +202,7 @@ class AltDados extends Component {
                 else return v.placa.match(value)
             })
 
-            if (vehicle && vehicle.equipamentosId) {
-                const currentEquipa = vehicle.equipamentosId
-                equipamentos.forEach(e => {
-                    if (currentEquipa.toLowerCase().match(e.toLowerCase())) vEquip.push(e)
-                })
-                vEquip.forEach(ve => this.setState({ [ve]: true }))
-            }
+            if (vehicle && vehicle.equipamentosId) this.setEquipa(vehicle)
 
             if (vehicle && vehicle.utilizacao) {
                 vehicle.utilizacao = this.capitalize('utilizacao', vehicle.utilizacao)
@@ -198,8 +211,9 @@ class AltDados extends Component {
             if (vehicle && vehicle.dominio) {
                 vehicle.dominio = this.capitalize('dominio', vehicle.dominio)
             }
+            const originalVehicle = Object.freeze(vehicle)
 
-            await this.setState({ ...vehicle, equipamentosId: vEquip, disable: true })
+            await this.setState({ ...vehicle, originalVehicle, disable: true })
 
             if (vehicle !== undefined && vehicle.hasOwnProperty('empresa')) this.setState({ delegatario: vehicle.empresa })
 
@@ -211,7 +225,18 @@ class AltDados extends Component {
             }
         }
     }
+    setEquipa = vehicle => {
+        const
+            { equipamentos } = this.state,
+            currentEquipa = vehicle.equipamentosId
+        let vEquip = []
 
+        equipamentos.forEach(e => {
+            if (currentEquipa.toLowerCase().match(e.toLowerCase())) vEquip.push(e)
+        })
+        vEquip.forEach(ve => this.setState({ [ve]: true }))
+        this.setState({ equipamentosId: vEquip })
+    }
     showAltPlaca = () => {
         const title = 'Alteração de placa',
             header = 'Para alterar a placa do veículo para o padrão Mercosul, digite a placa no campo abaixo e anexe o CRLV atualizado do veículo.'
@@ -224,9 +249,13 @@ class AltDados extends Component {
     }
 
     handleSubmit = async () => {
-        const { veiculoId, poltronas, pesoDianteiro, pesoTraseiro, delegatarioId,
-            delegatarioCompartilhado, equipamentosId, newPlate, selectedEmpresa, justificativa, demand, completed } = this.state
+        const
+            { veiculoId, poltronas, pesoDianteiro, pesoTraseiro, delegatarioId, originalVehicle,
+                delegatarioCompartilhado, equipamentosId, newPlate, selectedEmpresa, justificativa, demand, completed } = this.state,
 
+            oldHistoryLength = demand?.history?.length || 0
+
+        //****************************Prepare the request Object*******************************
         let tempObj = {}
 
         altForm.forEach(form => {
@@ -242,41 +271,45 @@ class AltDados extends Component {
         let pbt = Number(poltronas) * 93 + (Number(pesoDianteiro) + Number(pesoTraseiro))
         if (isNaN(pbt)) pbt = undefined
 
-        tempObj = Object.assign(
-            tempObj, { delegatarioId, delegatarioCompartilhado, pbt, equipamentosId })
-
-        tempObj = humps.decamelizeKeys(tempObj)
+        tempObj = Object.assign(tempObj, { delegatarioId, delegatarioCompartilhado, pbt, equipamentosId })
 
         Object.keys(tempObj).forEach(key => {
+            //Save only real changes to the request Object
+            if (tempObj[key] && originalVehicle[key]) {
+                if (key === 'equipamentosId' && tempObj[key].sort().toString() === originalVehicle[key].toString())
+                    delete tempObj[key]
+                else if (tempObj[key].toString() === originalVehicle[key].toString()) {
+                    delete tempObj[key]
+                }
+            }
             if (tempObj[key] === '' || tempObj[key] === 'null' || !tempObj[key]) delete tempObj[key]
         })
 
-        const { placa, delegatario, compartilhado, ...requestObject } = tempObj
+        let { placa, delegatario, compartilhado, ...camelizedRequest } = tempObj
 
-        if (newPlate && newPlate !== '') requestObject.placa = newPlate
-        if (selectedEmpresa.delegatarioId !== delegatarioId) requestObject.apolice = 'Seguro não cadastrado'
+        if (newPlate && newPlate !== '') camelizedRequest.placa = newPlate
+        const requestObject = humps.decamelizeKeys(camelizedRequest)
+
 
         //******************GenerateLog********************** */
         let log = {
-            subject: 'Alteração de dados do veículo',
             empresaId: selectedEmpresa?.delegatarioId,
-            veiculoId,            
-            history: { alteracoes: requestObject }
+            veiculoId,
+            history: { alteracoes: camelizedRequest },
+            historyLength: oldHistoryLength
         }
 
         if (demand) log.id = demand?.id
-
         if (justificativa && justificativa !== '') log.history.info = 'Justificativa: \n' + justificativa
         if (completed) log.completed = true
 
         logGenerator(log).then(r => console.log(r.data))
-
-
-
-        //      await this.submitFiles()
+        await this.submitFiles()
 
         //*********************if approved, putRequest to update DB  ********************** */
         if (demand && completed) {
+            if (selectedEmpresa.delegatarioId !== delegatarioId) requestObject.apolice = 'Seguro não cadastrado'
+
             const
                 table = 'veiculo',
                 tablePK = 'veiculo_id'
@@ -284,14 +317,11 @@ class AltDados extends Component {
             await axios.put('/api/updateVehicle', { requestObject, table, tablePK, id: veiculoId })
         }
 
-
-
-
+        //******************Clear the state ********************** */
         this.setState({ activeStep: 0, razaoSocial: '', selectedEmpresa: undefined })
         this.reset()
         this.setState({})
         this.toast()
-
     }
 
     handleFiles = async (files, name) => {
@@ -324,7 +354,7 @@ class AltDados extends Component {
     submitFiles = () => {
         const { form } = this.state
 
-        axios.post('/api/vehicleUpload', form)
+        if (form) axios.post('/api/vehicleUpload', form)
             .then(res => console.log('uploaded'))
             .catch(err => console.log(err))
     }
@@ -343,7 +373,12 @@ class AltDados extends Component {
         else this.setState({ equipamentosId: [] })
     }
 
-    handleEquipa = () => this.setState({ addEquipa: !this.state.addEquipa })
+    handleEquipa = async () => {
+        const { demand, selectedVehicle } = this.state
+
+        if (demand) await this.setEquipa(selectedVehicle)
+        this.setState({ addEquipa: !this.state.addEquipa })
+    }
     toggleDialog = () => this.setState({ altPlaca: !this.state.altPlaca })
     closeAlert = () => this.setState({ openAlertDialog: !this.state.openAlertDialog })
     toast = () => this.setState({ confirmToast: !this.state.confirmToast })
@@ -359,6 +394,7 @@ class AltDados extends Component {
     }
 
     render() {
+
         const
             { empresas, equipamentos } = this.props.redux,
 

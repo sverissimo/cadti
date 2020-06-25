@@ -1,14 +1,18 @@
-export const routesLabels = [
+export const logRoutesConfig = [
     {
         subject: 'Cadastro de veículo',
         collection: 'vehicleLogs',
-        path: '/veiculos/cadastro'
+        shortPath: '/cadastro',
+        path: '/veiculos/cadastro'        
     },
     {
-        subject: 'Alteração de dados do veículo',
-        collection: 'vehicleLogs',
-        path: '/veiculos/altDados',
-        shortPath: '/altDados'
+        subject: 'Alteração de dados do veículo',        
+        collection: 'vehicleLogs',        
+        path: '/solicitacoes/altDados',
+        shortPath: '/altDados',
+        requestAction: 'Alteração de dados de veículo solicitada',
+        responseAction: 'Pendências para a alteração de dados veicular',
+        concludedAction: 'Dados do veículo alterados'            
     },
     {
         subject: 'Cadastro ou alteração de seguro',
@@ -20,10 +24,10 @@ export const routesLabels = [
         collection: 'vehicleLogs',
         path: '/veiculos/laudos'
     },
-    {
-        subject: 'Baixa de veículo',
-        collection: 'vehicleLogs',
-        path: 'veiculos/baixaVeiculo',
+    {        
+        subject: 'Baixa de veículo',        
+        collection: 'vehicleLogs',        
+        path: '/solicitacoes/baixaVeiculo',
         shortPath: '/baixaVeiculo'
     },
     {

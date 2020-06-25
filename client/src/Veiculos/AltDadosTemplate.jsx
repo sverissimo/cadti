@@ -43,7 +43,7 @@ const useStyles = makeStyles(theme => ({
 
 export default function ({ handleInput, handleBlur, data, handleCheck, handleEquipa,
     altPlacaOption, showAltPlaca, empresas, equipamentos }) {
-    const { activeStep, subtitle, placa, justificativa, selectedEmpresa, addEquipa } = data,
+    const { activeStep, subtitle, placa, justificativa, selectedEmpresa, addEquipa, demand } = data,
         classes = useStyles(), { paper, container } = classes
 
     let form = altForm[activeStep]
@@ -62,6 +62,7 @@ export default function ({ handleInput, handleBlur, data, handleCheck, handleEqu
                         empresas={empresas}
                         handleInput={handleInput}
                         handleBlur={handleBlur}
+                        demand={demand}
                     />
                 }
                 {
