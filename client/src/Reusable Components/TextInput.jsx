@@ -35,7 +35,7 @@ const useStyles = makeStyles(theme => ({
     },
 }))
 
-export default function TextInput({ handleInput, handleBlur, form, data, selectOptions, disableAll }) {
+export default function TextInput({ handleInput, handleBlur, form, data, selectOptions, disableAll, disableSome = [] }) {
 
     const classes = useStyles(),
         { helperText } = classes
@@ -43,7 +43,7 @@ export default function TextInput({ handleInput, handleBlur, form, data, selectO
     const errorHandler = (el) => {
         let value = data[el.field]
         if (!value) return
-        
+
         if (el.errorHandler && el.errorHandler(value)) return false
         else if (value && el.errorHandler && !el.errorHandler(value)) return true
 
@@ -54,7 +54,7 @@ export default function TextInput({ handleInput, handleBlur, form, data, selectO
             else return false
         }
 
-        if (typeof value !== 'string') value = value.toString()        
+        if (typeof value !== 'string') value = value.toString()
         if (el.pattern) return value.match(el.pattern) === null
         else return false
     }
@@ -69,7 +69,7 @@ export default function TextInput({ handleInput, handleBlur, form, data, selectO
         if (value?.length >= el?.minLength) return '✓'
 
         if (typeof value !== 'string') value = value.toString()
-        if (value > el.max || value < el.min) return 'Valor inválido'        
+        if (value > el.max || value < el.min) return 'Valor inválido'
         else if (value.match(el.pattern) === null) return '✘'
         else if (el.pattern && value.match(el.pattern) !== null) return '✓'
         else return ' '
@@ -93,7 +93,7 @@ export default function TextInput({ handleInput, handleBlur, form, data, selectO
                             FormHelperTextProps={{ className: helperText }}
                             select={el.select || false}
                             value={data[el.field] || ''}
-                            disabled={el.disabled || disableAll || false}
+                            disabled={el.disabled || disableAll || disableSome.includes(el.field) || false}
                             InputLabelProps={{
                                 className: classes.textField,
                                 shrink: el.type === 'date' || undefined,

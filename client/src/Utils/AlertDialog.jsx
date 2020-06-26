@@ -6,10 +6,17 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 
-export default function AlertDialog({ open, alertType, close, confirm, customTitle = '', customMessage = '' }) {
+export default function AlertDialog({ open, alertType, close, confirm, customTitle, customMessage }) {
 
   const createAlert = type => {
     let title, message
+
+    if (customTitle && customMessage) {
+      title = customTitle
+      message = customMessage
+      return { title, message }
+    }
+
     if (typeof type === 'object') {
       title = 'Empresa já cadastrada'
       message = `A empresa ${type.razaoSocial} já está cadastrada no sistema com o CNPJ ${type.cnpj}.`

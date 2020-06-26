@@ -2,9 +2,13 @@ import axios from 'axios'
 import { logRoutesConfig } from '../Solicitacoes/logRoutesConfig'
 
 export function logGenerator(obj) {
+    const path = window.location.pathname
+
+    logRoutesConfig.forEach((el, i) => el.path = logRoutesConfig[i].path.replace('/veiculos', '').replace('/solicitacoes', '').replace('/empresas', ''))
+    
+    console.log(logRoutesConfig)
     const
-        path = window.location.pathname,
-        logConfig = logRoutesConfig.find(e => e.shortPath && path.match(e.shortPath)),
+        logConfig = logRoutesConfig.find(e => path.match(e.path)),
         collection = logConfig?.collection,
         historyLength = obj.historyLength,
         commonFields = {
@@ -13,7 +17,7 @@ export function logGenerator(obj) {
         }
 
     let log = JSON.parse(JSON.stringify(obj))
-    console.log(obj)
+
     const history = Object.assign(obj.history, commonFields)
     log.history = history || {}
 

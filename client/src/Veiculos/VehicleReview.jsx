@@ -18,10 +18,18 @@ const useStyles = makeStyles(theme => ({
 
 export default function Revisao({ data, parentComponent, form, filesForm, files }) {
 
-    const classes = useStyles(),
-        { paper } = classes
+    const
+        classes = useStyles(),
+        { paper } = classes,
+        { alteracoes } = data
 
-    let vehicleDetails = [], obj = {}, newForm = [], filledForm = [], ultimateData
+    let vehicleDetails = [],
+        obj = {},
+        newForm = [],
+        filledForm = [],
+        ultimateData,
+        alteredElements
+
     form.forEach(f => {
         f.forEach(e => {
             if (data.hasOwnProperty([e.field])) {
@@ -45,6 +53,8 @@ export default function Revisao({ data, parentComponent, form, filesForm, files 
         { subtitle: 'Informações sobre a vistoria', form: filledForm[1], data: vehicleDetails[1] }
     ]
 
+    if (alteracoes && typeof alteracoes === 'object') alteredElements = Object.keys(alteracoes)
+
     return (
         <>
             <Paper className={paper}>
@@ -55,8 +65,10 @@ export default function Revisao({ data, parentComponent, form, filesForm, files 
                                 <StandardTable
                                     length={form.length}
                                     title={subtitle}
-                                    labels={form.map(s=> s.label)}
+                                    labels={form.map(s => s.label)}
+                                    fields={form.map(el=>el.field)}
                                     values={Object.values(data)}
+                                    alteredElements={alteredElements}
                                 />
                             </Fragment>
                         )}

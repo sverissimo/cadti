@@ -85,7 +85,7 @@ app.post('/api/logs', logHandler, (req, res) => {
         { collection } = req.body,
         { id, doc } = res.locals,
         insertedObjects = [doc],
-        insertResponseObj = { insertedObjects, collection }    
+        insertResponseObj = { insertedObjects, collection }
 
     if (!id) io.sockets.emit('insertElements', insertResponseObj)
     else io.sockets.emit('updateLogs', insertedObjects)
@@ -101,6 +101,20 @@ app.get('/api/logs/:collection', (req, res) => {
     model.find({}, (err, doc) => {
         if (err) console.log(err)
         res.send(doc)
+    })
+})
+
+app.get('/api/log', (req, res) => {
+    const
+        { collection, subject, primaryKey, id } = req.query,
+        collectionModels = { vehicleLogs: vehicleLogsModel },
+        model = collectionModels[collection]
+        console.log(subject, typeof subject)
+    model.find({ [primaryKey]: id, completed: false, subject: { $regex: subject } }, (err, doc) => {
+        if (err) console.log(err)
+        console.log(doc)
+        if (!doc || doc.length === 0) res.send(false)
+        else res.send(doc)
     })
 })
 

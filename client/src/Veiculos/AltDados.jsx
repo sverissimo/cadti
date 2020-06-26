@@ -4,6 +4,7 @@ import humps from 'humps'
 
 import StoreHOC from '../Store/StoreHOC'
 
+import { checkDemand } from '../Utils/checkDemand'
 import { checkInputErrors } from '../Utils/checkInputErrors'
 import ReactToast from '../Utils/ReactToast'
 import { altDadosFiles } from '../Forms/altDadosFiles'
@@ -20,6 +21,7 @@ import StepperButtons from '../Utils/StepperButtons'
 
 import FormDialog from '../Reusable Components/FormDialog'
 import AlertDialog from '../Utils/AlertDialog'
+
 
 class AltDados extends Component {
 
@@ -77,7 +79,7 @@ class AltDados extends Component {
                 delegatario = razaoSocial,
                 selectedVehicle = Object.assign(vehicleData, alteracoes)
 
-            await this.setState({ ...selectedVehicle, selectedVehicle, delegatario, razaoSocial, selectedEmpresa, demand })
+            await this.setState({ ...selectedVehicle, selectedVehicle, delegatario, razaoSocial, selectedEmpresa, demand, alteracoes })
         }
 
         if (redux && redux.equipamentos) {
@@ -175,10 +177,11 @@ class AltDados extends Component {
     handleBlur = async e => {
         const
             { empresas } = this.props.redux,
-            { frota } = this.state,
+            { frota, demand } = this.state,
             { name } = e.target
 
-        let { value } = e.target
+        let
+            { value } = e.target
 
         const errors = checkInputErrors()
         if (errors) this.setState({ errors })
@@ -202,24 +205,43 @@ class AltDados extends Component {
                 else return v.placa.match(value)
             })
 
-            if (vehicle && vehicle.equipamentosId) this.setEquipa(vehicle)
+            if (vehicle && typeof vehicle === 'object') {
 
-            if (vehicle && vehicle.utilizacao) {
-                vehicle.utilizacao = this.capitalize('utilizacao', vehicle.utilizacao)
+                let
+                    utilizacao = this.capitalize('utilizacao', vehicle?.utilizacao) || null,
+                    dominio = this.capitalize('dominio', vehicle?.dominio) || null
+
+
+
+                if (vehicle.equipamentosId) this.setEquipa(vehicle)
+
+                vehicle = Object.assign({}, vehicle, { utilizacao, dominio })
+
+                const originalVehicle = Object.freeze(vehicle)
+
+                await this.setState({ ...vehicle, originalVehicle, disable: true })
+                if (vehicle !== undefined && vehicle.hasOwnProperty('empresa')) this.setState({ delegatario: vehicle.empresa })
+
+                if (!demand) {
+                    const customTitle = 'Solicitação já cadastrada',
+                        customMessage = `Já existe uma demanda aberta para o veículo de placa ${vehicle.placa}. Para acessá-la, clique em "Solicitações" no menu superior.`
+
+                    checkDemand(vehicle?.veiculoId)
+                        .then(r => {
+                            if (r?.data) {
+                                this.setState({ customTitle, customMessage, openAlertDialog: true, delegatario: '' })
+                                this.reset()
+                                return
+                            }
+                        })
+                }
             }
 
-            if (vehicle && vehicle.dominio) {
-                vehicle.dominio = this.capitalize('dominio', vehicle.dominio)
-            }
-            const originalVehicle = Object.freeze(vehicle)
 
-            await this.setState({ ...vehicle, originalVehicle, disable: true })
 
-            if (vehicle !== undefined && vehicle.hasOwnProperty('empresa')) this.setState({ delegatario: vehicle.empresa })
-
-            let reset = {}
-            if (frota[0]) Object.keys(frota[0]).forEach(k => reset[k] = '')
             if (this.state.placa !== '' && !vehicle) {
+                let reset = {}
+                if (frota[0]) Object.keys(frota[0]).forEach(k => reset[k] = '')
                 this.setState({ alertType: 'plateNotFound', openAlertDialog: true })
                 this.setState({ ...reset, disable: false })
             }
@@ -284,7 +306,7 @@ class AltDados extends Component {
             }
             if (tempObj[key] === '' || tempObj[key] === 'null' || !tempObj[key]) delete tempObj[key]
         })
-
+        console.log(tempObj)
         let { placa, delegatario, compartilhado, ...camelizedRequest } = tempObj
 
         if (newPlate && newPlate !== '') camelizedRequest.placa = newPlate
@@ -398,11 +420,11 @@ class AltDados extends Component {
         const
             { empresas, equipamentos } = this.props.redux,
 
-            { confirmToast, toastMsg, stepTitles, activeStep, steps, altPlaca, selectedEmpresa, openAlertDialog, alertType,
-                dropDisplay, form, title, header, newPlate } = this.state
+            { confirmToast, toastMsg, stepTitles, activeStep, steps, altPlaca, selectedEmpresa, openAlertDialog, alertType, customTitle, customMessage,
+                dropDisplay, form, title, header, newPlate, demand } = this.state
 
         return <Fragment>
-            <Crumbs links={['Veículos', '/veiculos']} text='Alteração de dados' />
+            <Crumbs links={['Veículos', '/veiculos']} text='Alteração de dados' demand={demand} />
             <CustomStepper
                 activeStep={activeStep}
                 steps={steps}
@@ -455,7 +477,7 @@ class AltDados extends Component {
                 dropDisplay={dropDisplay}
                 formData={form}
             />
-            {openAlertDialog && <AlertDialog open={openAlertDialog} close={this.closeAlert} alertType={alertType} customMessage={this.state.customMsg} />}
+            {openAlertDialog && <AlertDialog open={openAlertDialog} close={this.closeAlert} alertType={alertType} customMessage={customMessage} customTitle={customTitle} />}
         </Fragment>
     }
 }

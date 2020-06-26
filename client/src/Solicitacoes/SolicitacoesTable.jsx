@@ -11,6 +11,21 @@ export default function ({ tableData, title, showDetails, assessDemand, complete
     let parsedData = JSON.parse(JSON.stringify(tableData))
     parsedData.forEach(obj => delete obj.history)
 
+    const dataToExcel = rawData => {
+        const keysToDelete = ['id', 'v', 'veiculoId', 'empresaId', 'tableData', 'createdAt', 'completed']
+        rawData.forEach((obj, i) => {
+            Object.keys(obj).forEach(key => {
+                solicitacoesTable.forEach(({ field, title }) => {
+                    if (key === field) {
+                        obj[title] = obj[key]
+                        delete obj[key]
+                    } else if (keysToDelete.includes(key)) delete obj[key]
+                })
+            })
+        })
+        return rawData
+    }
+
     return (
         <div style={{ margin: '10px 0' }} className='noPrint'>
             <MaterialTable
@@ -35,7 +50,9 @@ export default function ({ tableData, title, showDetails, assessDemand, complete
                             const data = new Blob([excelBuffer], { type: fileType });
                             FileSaver.saveAs(data, fileName + fileExtension);
                         }
-                        exportToXLSX(data, fileName)
+
+                        const tst = dataToExcel(data)
+                        exportToXLSX(tst, fileName)
                     },
                     actionsColumnIndex: -1,
                     searchFieldStyle: { color: '#024', fontSize: '14px' },

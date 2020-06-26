@@ -62,7 +62,7 @@ export default function ({ handleInput, handleBlur, data, handleCheck, handleEqu
                         empresas={empresas}
                         handleInput={handleInput}
                         handleBlur={handleBlur}
-                        demand={demand}
+                        demand={demand}                        
                     />
                 }
                 {
@@ -77,6 +77,7 @@ export default function ({ handleInput, handleBlur, data, handleCheck, handleEqu
                                         data={data}
                                         handleBlur={handleBlur}
                                         handleInput={handleInput}
+                                        disableSome={demand ? ['placa', 'delegatario'] : ['delegatario']}
                                     />
                                 </Paper>}
 

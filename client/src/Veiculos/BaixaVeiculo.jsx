@@ -11,8 +11,10 @@ import ReactToast from '../Utils/ReactToast'
 
 import { logGenerator } from '../Utils/logGenerator'
 import { baixaForm } from '../Forms/baixaForm'
+import { checkDemand } from '../Utils/checkDemand'
 
 import './veiculos.css'
+
 
 class BaixaVeiculo extends Component {
 
@@ -73,7 +75,7 @@ class BaixaVeiculo extends Component {
     handleBlur = async e => {
         const
             { empresas } = this.props.redux,
-            { frota } = this.state,
+            { frota, demand } = this.state,
             { name } = e.target
         let { value } = e.target
 
@@ -95,23 +97,31 @@ class BaixaVeiculo extends Component {
         }
 
         if (name === 'placa' && typeof frota !== 'string') {
-            if (value === '') this.setState({ disableSubmit: true })
-            if (value.length > 0) {
-                let vehicle
-                if (value.length > 2) vehicle = frota.find(v => {
+            if (!value || value === '') this.setState({ disableSubmit: true })
+
+            let vehicle
+            if (value.length > 2)
+                vehicle = frota.find(v => {
                     if (typeof value === 'string') return v.placa.toLowerCase().match(value.toLowerCase())
                     else return v.placa.match(value)
                 })
 
-                await this.setState({ ...vehicle })
+            if (vehicle) {
 
-                if (!vehicle) {
-                    let reset = {}
-                    if (frota[0]) Object.keys(frota[0]).forEach(k => reset[k] = '')
-                    this.setState({ alertType: 'plateNotFound', openAlertDialog: true, disableSubmit: true })
-                    this.setState({ ...reset })
+                if (!demand) {
+                    checkDemand(vehicle?.veiculoId)
+                        .then(r => console.log(r))
                 }
+
+                await this.setState({ ...vehicle })
             }
+            else {
+                let reset = {}
+                if (frota[0]) Object.keys(frota[0]).forEach(k => reset[k] = '')
+                this.setState({ alertType: 'plateNotFound', openAlertDialog: true, disableSubmit: true })
+                this.setState({ ...reset })
+            }
+
         }
     }
 
@@ -138,7 +148,7 @@ class BaixaVeiculo extends Component {
             case ('venda'):
                 checkArray.push('delegaTransf')
 
-                logSubject = `Baixa - venda de veículo para ${delegaTransf}`
+                logSubject = `Baixa de veículo - venda para ${delegaTransf}`
                 obs = `Solicitação de transferência do veículo para ${delegaTransf}`
                 history = { action: 'Solicitação de baixa', info: obs }
 
@@ -180,7 +190,7 @@ class BaixaVeiculo extends Component {
         log = {
             subject: logSubject,
             empresaId: selectedEmpresa?.delegatarioId,
-            veiculoId,            
+            veiculoId,
             history,
             historyLength: oldHistoryLength
         }
