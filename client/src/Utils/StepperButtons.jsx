@@ -1,6 +1,8 @@
 import React from 'react'
 import { makeStyles } from '@material-ui/core/styles'
-import { Button } from '@material-ui/core'
+import Button from '@material-ui/core/Button'
+import TextField from '@material-ui/core/TextField'
+
 
 const useStyles = makeStyles(theme => ({
 
@@ -13,22 +15,31 @@ const useStyles = makeStyles(theme => ({
         float: 'left',
         color: '#333',
         backgroundColor: '#eee'
+    },
+    textField: {
+        marginTop: '20px'
     }
 }))
 
-export default function StepperButtons({ activeStep, setActiveStep, lastStep, handleSubmit, disabled }) {
-    
-    const classes = useStyles(), { backButton, button } = classes
+export default function StepperButtons({ activeStep, setActiveStep, lastStep, handleSubmit, disabled, demand, setShowPendencias, showPendencias, handleInput, pendencias }) {
+
+    const classes = useStyles(), { backButton, button, textField } = classes
+
+    let role
+    if (demand?.status.match('Pendências')) role = 'empresa'
+    if (demand?.status.match('Aguardando')) role = 'seinfra'
+    console.log(role)
     return (
         <div>
-            <Button
-                variant="contained"
-                className={backButton}
-                onClick={() => setActiveStep('back')}
-                disabled={activeStep === 0}
-            >
-                Voltar
-            </Button>
+            {!showPendencias && activeStep < lastStep &&
+                <Button
+                    variant="contained"
+                    className={backButton}
+                    onClick={() => setActiveStep('back')}
+                    disabled={activeStep === 0}
+                >
+                    Voltar
+            </Button>}
             {activeStep < lastStep ?
                 <Button
                     variant="contained"
@@ -40,14 +51,65 @@ export default function StepperButtons({ activeStep, setActiveStep, lastStep, ha
                     Avançar
                 </Button>
                 :
-                <Button
-                    variant="contained"
-                    color="primary"
-                    className={button}
-                    onClick={() => handleSubmit()}
-                >
-                    Aprovar
-            </Button>}
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    {showPendencias && <TextField
+                        name='pendencias'
+                        className={textField}
+                        value={pendencias}
+                        label='Pendências/irregularidades para a aprovação'
+                        type='text'
+                        onChange={handleInput}
+                        InputLabelProps={{ shrink: true, style: { fontWeight: 600, marginBottom: '5%' } }}
+                        inputProps={{ style: { paddingBottom: '2%', width: '900px' }, maxLength: 500 }}
+                        multiline
+                        rows={4}
+                        variant='outlined'
+                    />}
+                    <div style={{ display: 'flex', width: '100%' }}>
+                        <Button
+                            variant="contained"
+                            className={backButton}
+                            onClick={() => setActiveStep('back')}
+                            disabled={activeStep === 0}
+                        >
+                            Voltar
+                        </Button>
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
+                            {
+                                role === 'empresa' ?
+                                    <Button
+                                        variant='contained'
+                                        color="primary"
+                                        className={button}
+                                        onClick={() => handleSubmit()}
+                                    >
+                                        Enviar solicitação
+                                    </Button>
+                                    :
+                                    <>
+                                        <Button
+                                            variant='outlined'
+                                            color="secondary"
+                                            className={button}
+                                            onClick={() => setShowPendencias()}
+                                        >
+                                            {showPendencias ? 'Cancelar' : 'Registrar pendencias'}
+                                        </Button>
+                                        <Button
+                                            variant="contained"
+                                            color={showPendencias ? "secondary" : "primary"}
+                                            className={button}
+                                            onClick={() => handleSubmit()}
+                                        >
+                                            {showPendencias ? 'Indeferir' : 'Aprovar'}
+                                        </Button>
+                                    </>
+                            }
+                        </div>
+                    </div>
+
+                </div>
+            }
         </div>
     )
 }

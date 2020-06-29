@@ -4,12 +4,12 @@ import { logRoutesConfig } from '../Solicitacoes/logRoutesConfig'
 export function logGenerator(obj) {
     const path = window.location.pathname
 
-    logRoutesConfig.forEach((el, i) => el.path = logRoutesConfig[i].path.replace('/veiculos', '').replace('/solicitacoes', '').replace('/empresas', ''))
-    
-    console.log(logRoutesConfig)
+    let logRoutes = JSON.parse(JSON.stringify(logRoutesConfig))
+    logRoutes.forEach((el, i) => el.path = logRoutesConfig[i].path.replace('/veiculos', '').replace('/solicitacoes', '').replace('/empresas', ''))
+
     const
-        logConfig = logRoutesConfig.find(e => path.match(e.path)),
-        collection = logConfig?.collection,
+        logConfig = logRoutes.find(e => path.match(e.path)),
+        collection = 'vehicleLogs',
         historyLength = obj.historyLength,
         commonFields = {
             user: 'Joe Dimaggio',

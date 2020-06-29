@@ -12,7 +12,7 @@ export default function StandardTable({ length, title, labels, fields, values, s
             return value
         }
     }
-    console.log(alteredElements, fields)
+    
     return (
         <table>
             <thead>

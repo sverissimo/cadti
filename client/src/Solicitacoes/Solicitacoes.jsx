@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react'
+
 import StoreHOC from '../Store/StoreHOC'
 
 import SolHistory from './SolHistory'
 import SolicitacoesTemplate from './SolicitacoesTemplate'
 import SolicitacoesTable from './SolicitacoesTable'
 import { logRoutesConfig } from './logRoutesConfig'
+import AlertDialog from '../Utils/AlertDialog'
 
 
 function Solicitacoes(props) {
@@ -15,7 +17,9 @@ function Solicitacoes(props) {
         [showHistory, setShowHistory] = useState(false),
         [selectedLog, selectLog] = useState(),
         [completed, showCompleted] = useState(false),
-        [historyLog, setHistoryLog] = useState()
+        [historyLog, setHistoryLog] = useState(),
+        [alertProperties, setAlertDialog] = useState({ openAlertDialog: false, customMessage: '', customTitle: '' }),
+        { openAlertDialog, customTitle, customMessage } = alertProperties
 
     //*********Effect adds eventListner to Esc key--> back/closes windows ************/
     useEffect(() => {
@@ -34,6 +38,7 @@ function Solicitacoes(props) {
     useEffect(() => {
 
         async function getVehicleLogs() {
+
             const originalLogs = [...props.redux.vehicleLogs]
 
             let logs = originalLogs.map(log => {
@@ -50,12 +55,29 @@ function Solicitacoes(props) {
         getVehicleLogs()
 
     }, [veiculos, empresas, completed, props.redux.vehicleLogs])
-    
+
     const assessDemand = async id => {
 
-        const log = vehicleLogs.find(l => l.id === id)
+        let log = vehicleLogs.find(l => l.id === id)
         selectLog(log)
-        const pathname = logRoutesConfig.find(r => log?.subject.match(r.subject))?.path
+
+        //Make sure vehicle still exists
+        const vehicle = veiculos.find(v => v.veiculoId.toString() === log.veiculoId.toString())
+
+        if (!vehicle) {
+            const customTitle = 'Veículo não encontrado',
+                customMessage = `O veículo para o qual a demanda foi informada não foi encontrado. Verifique se o veículo está registrado em "Consultas -> Veículos"`
+
+            await setAlertDialog({ openAlertDialog: true, customTitle, customMessage })
+            return
+        }
+
+        const pathname = logRoutesConfig.find(r => {
+            if (log.subject) console.log(r, log)
+
+            return log?.subject.match(r.subject)
+        })?.path
+        console.log(pathname)
         props.history.push({ pathname, state: { demand: log } })
     }
 
@@ -76,6 +98,7 @@ function Solicitacoes(props) {
     }
 
     const close = () => setShowHistory(false)
+    const toggleAlertDialog = () => setAlertDialog({ ...alertProperties, openAlertDialog: !openAlertDialog })
 
     return (
         <>
@@ -99,6 +122,8 @@ function Solicitacoes(props) {
                 setHistoryLog={setHistoryLog}
             />
             }
+            {openAlertDialog &&
+                <AlertDialog open={openAlertDialog} close={toggleAlertDialog} customMessage={customMessage} customTitle={customTitle} />}
         </>
     )
 }

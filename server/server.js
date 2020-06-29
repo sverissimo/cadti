@@ -94,14 +94,18 @@ app.post('/api/logs', logHandler, (req, res) => {
 
 app.get('/api/logs/:collection', (req, res) => {
     const
-        { collection } = req.params,
+        { collection } = req.params,        
         collectionModels = { vehicleLogs: vehicleLogsModel },
         model = collectionModels[collection]
 
-    model.find({}, (err, doc) => {
-        if (err) console.log(err)
-        res.send(doc)
-    })
+    let oneYearAgo = new Date()
+    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);    
+
+    let query = { $or: [{ completed: false }, { completed: true, updatedAt: { $gte: oneYearAgo } }] }    
+
+    model.find(query)
+        .then(doc => res.send(doc))
+        .catch(err => console.log(err))
 })
 
 app.get('/api/log', (req, res) => {
@@ -109,7 +113,7 @@ app.get('/api/log', (req, res) => {
         { collection, subject, primaryKey, id } = req.query,
         collectionModels = { vehicleLogs: vehicleLogsModel },
         model = collectionModels[collection]
-        console.log(subject, typeof subject)
+    console.log(subject, typeof subject)
     model.find({ [primaryKey]: id, completed: false, subject: { $regex: subject } }, (err, doc) => {
         if (err) console.log(err)
         console.log(doc)

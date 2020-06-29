@@ -46,7 +46,11 @@ export default function ({ handleInput, handleBlur, data, handleCheck, handleEqu
     const { activeStep, subtitle, placa, justificativa, selectedEmpresa, addEquipa, demand } = data,
         classes = useStyles(), { paper, container } = classes
 
-    let form = altForm[activeStep]
+    let
+        form = altForm[activeStep],
+        role
+    if (demand?.status.match('Pendências')) role = 'empresa'
+    if (demand?.status.match('Aguardando')) role = 'seinfra'
 
     return (
         <Fragment>
@@ -62,7 +66,7 @@ export default function ({ handleInput, handleBlur, data, handleCheck, handleEqu
                         empresas={empresas}
                         handleInput={handleInput}
                         handleBlur={handleBlur}
-                        demand={demand}                        
+                        demand={demand}
                     />
                 }
                 {
@@ -115,26 +119,27 @@ export default function ({ handleInput, handleBlur, data, handleCheck, handleEqu
                         </Grid>
                 }
             </Grid>
-            {activeStep === 1 && <Grid
-                container
-                direction="row"
-                justify="center"
-                alignItems="center">
-                <Grid>
-                    <TextField
-                        name='justificativa'
-                        value={justificativa}
-                        label='Justificativa'
-                        type='text'
-                        onChange={handleInput}
-                        InputLabelProps={{ shrink: true, style: { fontWeight: 600, marginBottom: '5%' } }}
-                        inputProps={{ style: { paddingBottom: '2%', width: '900px' } }}
-                        multiline
-                        rows={4}
-                        variant='outlined'
-                    />
-                </Grid>
-            </Grid>}
+            {activeStep === 1 && role === 'empresa' &&
+                <Grid
+                    container
+                    direction="row"
+                    justify="center"
+                    alignItems="center">
+                    <Grid>
+                        <TextField
+                            name='justificativa'
+                            value={justificativa}
+                            label='Justificativa'
+                            type='text'
+                            onChange={handleInput}
+                            InputLabelProps={{ shrink: true, style: { fontWeight: 600, marginBottom: '5%' } }}
+                            inputProps={{ style: { paddingBottom: '2%', width: '900px' }, maxLength: 500 }}
+                            multiline
+                            rows={4}
+                            variant='outlined'
+                        />
+                    </Grid>
+                </Grid>}
         </Fragment>
     )
 }   

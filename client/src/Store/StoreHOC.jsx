@@ -14,6 +14,7 @@ let socket
 export default function (requestArray, WrappedComponent) {
 
     let collections = []
+    if (!requestArray.includes('/logs/vehicleLogs')) requestArray.push('/logs/vehicleLogs')
     collections = requestArray.map(req => req.replace('getFiles/', '').replace('lookUpTable/', '').replace('/logs/', ''))
 
     class With extends React.Component {
@@ -90,7 +91,7 @@ export default function (requestArray, WrappedComponent) {
         componentWillUnmount() {
             if (!socket) socket = socketIO(':3001')
             const clearAll = ['insertVehicle', 'insertInsurance', 'insertEmpresa', 'insertSocios', 'insertFiles',
-            'insertElements', 'insertProcuradores', 'updateVehicle', 'updateInsurance', 'updateSocios', 'updateLogs', 'deleteOne', ]
+                'insertElements', 'insertProcuradores', 'updateVehicle', 'updateInsurance', 'updateSocios', 'updateLogs', 'deleteOne',]
 
             clearAll.forEach(el => socket.off(el))
         }

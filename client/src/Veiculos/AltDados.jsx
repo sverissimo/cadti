@@ -56,7 +56,8 @@ class AltDados extends Component {
         newPlate: '',
         placa: '',
         addEquipa: false,
-        dropDisplay: 'Clique ou arraste para anexar'
+        dropDisplay: 'Clique ou arraste para anexar',
+        showPendencias: false
     }
 
     async componentDidMount() {
@@ -73,20 +74,23 @@ class AltDados extends Component {
 
         if (demand) {
             const
-                vehicleData = JSON.parse(JSON.stringify(veiculos.find(v => v.veiculoId.toString() === demand.veiculoId))),
+                vehicle = veiculos.find(v => v.veiculoId.toString() === demand.veiculoId.toString()),
+                originalVehicle = Object.freeze(vehicle)
+
+            const
+                vehicleData = JSON.parse(JSON.stringify(vehicle)),
                 selectedEmpresa = empresas.find(e => e.razaoSocial === demand?.empresa),
                 razaoSocial = selectedEmpresa?.razaoSocial,
                 delegatario = razaoSocial,
                 selectedVehicle = Object.assign(vehicleData, alteracoes)
 
-            await this.setState({ ...selectedVehicle, selectedVehicle, delegatario, razaoSocial, selectedEmpresa, demand, alteracoes })
+            await this.setState({ ...selectedVehicle, selectedVehicle, originalVehicle, delegatario, razaoSocial, selectedEmpresa, demand, alteracoes, activeStep: 3 })
         }
 
         if (redux && redux.equipamentos) {
             redux.equipamentos.forEach(e => Object.assign(equipamentos, { [e.item]: false }))
             const equipArray = Object.keys(equipamentos)
             await this.setState({ equipamentos: equipArray, ...equipamentos })
-            //if (demand) this.setEquipa(this.state.selectedVehicle)
         }
         document.addEventListener('keydown', this.escFunction, false)
     }
@@ -109,7 +113,6 @@ class AltDados extends Component {
     handleInput = async e => {
         const { veiculos, empresas } = this.props.redux,
             { name, value } = e.target
-
 
         if (name === 'razaoSocial') {
             let selectedEmpresa = empresas.find(e => e.razaoSocial === value)
@@ -176,7 +179,7 @@ class AltDados extends Component {
 
     handleBlur = async e => {
         const
-            { empresas } = this.props.redux,
+            { empresas, vehicleLogs } = this.props.redux,
             { frota, demand } = this.state,
             { name } = e.target
 
@@ -211,8 +214,6 @@ class AltDados extends Component {
                     utilizacao = this.capitalize('utilizacao', vehicle?.utilizacao) || null,
                     dominio = this.capitalize('dominio', vehicle?.dominio) || null
 
-
-
                 if (vehicle.equipamentosId) this.setEquipa(vehicle)
 
                 vehicle = Object.assign({}, vehicle, { utilizacao, dominio })
@@ -226,18 +227,14 @@ class AltDados extends Component {
                     const customTitle = 'Solicitação já cadastrada',
                         customMessage = `Já existe uma demanda aberta para o veículo de placa ${vehicle.placa}. Para acessá-la, clique em "Solicitações" no menu superior.`
 
-                    checkDemand(vehicle?.veiculoId)
-                        .then(r => {
-                            if (r?.data) {
-                                this.setState({ customTitle, customMessage, openAlertDialog: true, delegatario: '' })
-                                this.reset()
-                                return
-                            }
-                        })
+                    const demandExists = checkDemand(vehicle?.veiculoId, vehicleLogs)
+                    if (demandExists) {
+                        this.setState({ customTitle, customMessage, openAlertDialog: true, delegatario: '' })
+                        this.reset()
+                        return
+                    }
                 }
             }
-
-
 
             if (this.state.placa !== '' && !vehicle) {
                 let reset = {}
@@ -259,6 +256,28 @@ class AltDados extends Component {
         vEquip.forEach(ve => this.setState({ [ve]: true }))
         this.setState({ equipamentosId: vEquip })
     }
+
+    handleCheck = async item => {
+        const { equipamentos } = this.state
+        let array = []
+        await this.setState({ ...this.state, [item]: !this.state[item] })
+
+        equipamentos.forEach(e => {
+            if (this.state[e] === true) {
+                array.push(e)
+            }
+        })
+        if (array[0]) this.setState({ equipamentosId: array })
+        else this.setState({ equipamentosId: [] })
+    }
+
+    handleEquipa = async () => {
+        const { demand, selectedVehicle } = this.state
+
+        if (demand) await this.setEquipa(selectedVehicle)
+        this.setState({ addEquipa: !this.state.addEquipa })
+    }
+
     showAltPlaca = () => {
         const title = 'Alteração de placa',
             header = 'Para alterar a placa do veículo para o padrão Mercosul, digite a placa no campo abaixo e anexe o CRLV atualizado do veículo.'
@@ -270,9 +289,13 @@ class AltDados extends Component {
         this.toggleDialog()
     }
 
+    rejectDemand = () => {
+
+    }
+
     handleSubmit = async () => {
         const
-            { veiculoId, poltronas, pesoDianteiro, pesoTraseiro, delegatarioId, originalVehicle,
+            { veiculoId, poltronas, pesoDianteiro, pesoTraseiro, delegatarioId, originalVehicle, showPendencias, pendencias,
                 delegatarioCompartilhado, equipamentosId, newPlate, selectedEmpresa, justificativa, demand, completed } = this.state,
 
             oldHistoryLength = demand?.history?.length || 0
@@ -294,19 +317,23 @@ class AltDados extends Component {
         if (isNaN(pbt)) pbt = undefined
 
         tempObj = Object.assign(tempObj, { delegatarioId, delegatarioCompartilhado, pbt, equipamentosId })
+        console.log(tempObj)
 
+        //Save only real changes to the request Object
         Object.keys(tempObj).forEach(key => {
-            //Save only real changes to the request Object
             if (tempObj[key] && originalVehicle[key]) {
-                if (key === 'equipamentosId' && tempObj[key].sort().toString() === originalVehicle[key].toString())
-                    delete tempObj[key]
+                if (key === 'equipamentosId') {
+                    if (typeof tempObj[key] === 'string') tempObj[key] = tempObj[key].split(',')
+                    if (tempObj[key].sort().toString() === originalVehicle[key].toString())
+                        delete tempObj[key]
+                }
                 else if (tempObj[key].toString() === originalVehicle[key].toString()) {
                     delete tempObj[key]
                 }
             }
             if (tempObj[key] === '' || tempObj[key] === 'null' || !tempObj[key]) delete tempObj[key]
         })
-        console.log(tempObj)
+
         let { placa, delegatario, compartilhado, ...camelizedRequest } = tempObj
 
         if (newPlate && newPlate !== '') camelizedRequest.placa = newPlate
@@ -314,22 +341,25 @@ class AltDados extends Component {
 
 
         //******************GenerateLog********************** */
+        let history = { alteracoes: camelizedRequest }
+        if (showPendencias && pendencias && pendencias !== '') history.info = pendencias
+        else if (justificativa && justificativa !== '') history.info = justificativa
+
         let log = {
             empresaId: selectedEmpresa?.delegatarioId,
             veiculoId,
-            history: { alteracoes: camelizedRequest },
+            history,
             historyLength: oldHistoryLength
         }
 
         if (demand) log.id = demand?.id
-        if (justificativa && justificativa !== '') log.history.info = 'Justificativa: \n' + justificativa
         if (completed) log.completed = true
 
         logGenerator(log).then(r => console.log(r.data))
         await this.submitFiles()
 
         //*********************if approved, putRequest to update DB  ********************** */
-        if (demand && completed) {
+        if (demand && completed && !showPendencias) {
             if (selectedEmpresa.delegatarioId !== delegatarioId) requestObject.apolice = 'Seguro não cadastrado'
 
             const
@@ -381,26 +411,8 @@ class AltDados extends Component {
             .catch(err => console.log(err))
     }
 
-    handleCheck = async item => {
-        const { equipamentos } = this.state
-        let array = []
-        await this.setState({ ...this.state, [item]: !this.state[item] })
 
-        equipamentos.forEach(e => {
-            if (this.state[e] === true) {
-                array.push(e)
-            }
-        })
-        if (array[0]) this.setState({ equipamentosId: array })
-        else this.setState({ equipamentosId: [] })
-    }
-
-    handleEquipa = async () => {
-        const { demand, selectedVehicle } = this.state
-
-        if (demand) await this.setEquipa(selectedVehicle)
-        this.setState({ addEquipa: !this.state.addEquipa })
-    }
+    setShowPendencias = () => this.setState({ showPendencias: !this.state.showPendencias })
     toggleDialog = () => this.setState({ altPlaca: !this.state.altPlaca })
     closeAlert = () => this.setState({ openAlertDialog: !this.state.openAlertDialog })
     toast = () => this.setState({ confirmToast: !this.state.confirmToast })
@@ -421,7 +433,7 @@ class AltDados extends Component {
             { empresas, equipamentos } = this.props.redux,
 
             { confirmToast, toastMsg, stepTitles, activeStep, steps, altPlaca, selectedEmpresa, openAlertDialog, alertType, customTitle, customMessage,
-                dropDisplay, form, title, header, newPlate, demand } = this.state
+                dropDisplay, form, title, header, newPlate, demand, showPendencias, pendencias } = this.state
 
         return <Fragment>
             <Crumbs links={['Veículos', '/veiculos']} text='Alteração de dados' demand={demand} />
@@ -460,6 +472,12 @@ class AltDados extends Component {
                 lastStep={steps.length - 1}
                 handleSubmit={this.handleSubmit}
                 setActiveStep={this.setActiveStep}
+                rejectDemand={this.rejectDemand}
+                showPendencias={showPendencias}
+                setShowPendencias={this.setShowPendencias}
+                pendencias={pendencias}
+                handleInput={this.handleInput}
+                demand={demand}
             />}
             <ReactToast open={confirmToast} close={this.toast} msg={toastMsg} />
             <FormDialog

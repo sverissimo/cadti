@@ -74,7 +74,7 @@ class BaixaVeiculo extends Component {
 
     handleBlur = async e => {
         const
-            { empresas } = this.props.redux,
+            { empresas, vehicleLogs } = this.props.redux,
             { frota, demand } = this.state,
             { name } = e.target
         let { value } = e.target
@@ -107,21 +107,26 @@ class BaixaVeiculo extends Component {
                 })
 
             if (vehicle) {
-
                 if (!demand) {
-                    checkDemand(vehicle?.veiculoId)
-                        .then(r => console.log(r))
-                }
+                    const
+                        customTitle = 'Solicitação já cadastrada',
+                        customMessage = `Já existe uma demanda aberta para o veículo de placa ${vehicle.placa}. Para acessá-la, clique em "Solicitações" no menu superior.`
 
+                    const demandExists = checkDemand(vehicle?.veiculoId, vehicleLogs)
+                    
+                    if (demandExists) {
+                        this.setState({ customTitle, customMessage, openAlertDialog: true, delegatario: '', placa: undefined })
+                        return
+                    }
+                }
                 await this.setState({ ...vehicle })
-            }
-            else {
+
+            } else {
                 let reset = {}
                 if (frota[0]) Object.keys(frota[0]).forEach(k => reset[k] = '')
                 this.setState({ alertType: 'plateNotFound', openAlertDialog: true, disableSubmit: true })
                 this.setState({ ...reset })
             }
-
         }
     }
 
@@ -232,8 +237,7 @@ class BaixaVeiculo extends Component {
     toast = () => this.setState({ confirmToast: !this.state.confirmToast })
 
     render() {
-        const { delegaTransf, confirmToast, toastMsg, checked, openAlertDialog,
-            alertType } = this.state
+        const { delegaTransf, confirmToast, toastMsg, checked, openAlertDialog, customTitle, customMessage, alertType } = this.state
 
         return <Fragment>
             <BaixaTemplate
@@ -246,7 +250,7 @@ class BaixaVeiculo extends Component {
                 handleCheck={this.handleCheck}
                 handleSubmit={this.handleSubmit}
             />
-            {openAlertDialog && <AlertDialog open={openAlertDialog} close={this.closeAlert} alertType={alertType} />}
+            {openAlertDialog && <AlertDialog open={openAlertDialog} close={this.closeAlert} alertType={alertType} customTitle={customTitle} customMessage={customMessage} />}
             <ReactToast open={confirmToast} close={this.toast} msg={toastMsg} />
         </Fragment >
     }
