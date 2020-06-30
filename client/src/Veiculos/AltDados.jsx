@@ -10,6 +10,7 @@ import ReactToast from '../Utils/ReactToast'
 import { altDadosFiles } from '../Forms/altDadosFiles'
 import { altForm } from '../Forms/altForm'
 import { logGenerator } from '../Utils/logGenerator'
+import { equipamentsParseDB, accessParseDB } from '../Utils/equipamentsParseDB'
 
 import Crumbs from '../Reusable Components/Crumbs'
 import CustomStepper from '../Utils/Stepper'
@@ -63,8 +64,14 @@ class AltDados extends Component {
     async componentDidMount() {
         const
             { redux } = this.props,
-            { veiculos, empresas } = redux
+            { veiculos, empresas, acessibilidade } = redux
+
         let equipamentos = {}, alteracoes
+
+        const eq = accessParseDB(veiculos, acessibilidade),
+            f = eq.filter(e => e.ids.length > 0)
+
+        console.log(f)
 
         const
             demand = this.props?.location?.state?.demand,
@@ -500,6 +507,6 @@ class AltDados extends Component {
     }
 }
 
-const collections = ['veiculos', 'empresas', 'equipamentos'];
+const collections = ['veiculos', 'empresas', 'equipamentos', 'acessibilidade'];
 
 export default StoreHOC(collections, AltDados)

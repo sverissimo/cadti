@@ -1,11 +1,11 @@
 const { pool } = require('./config/pgConfig')
 const
     { empresas, veiculos, modeloChassi, carrocerias, equipamentos, seguradoras,
-        seguros, socios, procuradores, procuracoes, empresasLaudo, laudos } = require('./queries'),
+        seguros, socios, procuradores, procuracoes, empresasLaudo, laudos, acessibilidade } = require('./queries'),
 
     routes = {
         empresas, veiculos, modelosChassi: modeloChassi, carrocerias, equipamentos, seguradoras,
-        seguros, socios, procuradores, procuracoes, empresasLaudo, laudos
+        seguros, socios, procuradores, procuracoes, empresasLaudo, laudos, acessibilidade
     }
 
 const apiGetRouter = (req, res) => {

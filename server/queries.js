@@ -60,6 +60,7 @@ const carrocerias = `
 			ON public.marca_carroceria.id = public.modelo_carroceria.marca_id
 		`
 
+const acessibilidade = `SELECT * FROM acessibilidade`
 const equipamentos = `SELECT * FROM equipamentos`
 const seguradoras = `SELECT * FROM seguradora`
 const empresasLaudo = `SELECT * from empresa_laudo`
@@ -126,5 +127,5 @@ const lookup = (req, res) => {
 
 module.exports = {
 	empresas, veiculos, modeloChassi, carrocerias, equipamentos,
-	seguradoras, seguros, socios, procuradores, procuracoes, lookup, laudos, empresasLaudo
+	seguradoras, seguros, socios, procuradores, procuracoes, lookup, laudos, empresasLaudo, acessibilidade
 }

@@ -124,7 +124,7 @@ app.get('/api/log', (req, res) => {
 
 //************************************ GET METHOD ROUTES *********************** */
 
-const routes = 'empresas|socios|veiculos|modelosChassi|carrocerias|equipamentos|seguros|seguradoras|procuradores|procuracoes|empresasLaudo|laudos'
+const routes = 'empresas|socios|veiculos|modelosChassi|carrocerias|equipamentos|seguros|seguradoras|procuradores|procuracoes|empresasLaudo|laudos|acessibilidade'
 
 app.get(`/api/${routes}`, apiGetRouter)
 
