@@ -25,7 +25,8 @@ class VehicleConfig extends PureComponent {
     componentDidMount() {
         let options = []
         configVehicleForm.forEach(col => { options.push(col.label) })
-        this.setState({ options })        
+        this.setState({ options })
+
     }
 
     componentDidUpdate(prevProps) {
@@ -48,6 +49,12 @@ class VehicleConfig extends PureComponent {
 
         data.forEach(el => {
             const vehicles = veiculos.filter(v => {
+                if (label === 'Itens de acessibilidade' && v[name]) {
+                    const vehicleAccessItems = v[name]
+                    const hasItem = vehicleAccessItems.find(ac => ac === el.id)
+                    return hasItem
+                }
+
                 if (label === 'Equipamentos' && v[name]) return v[name].toLowerCase().match(el[field].toLowerCase())
                 return v[name] === el[field]
             }),
@@ -61,7 +68,6 @@ class VehicleConfig extends PureComponent {
     selectCollection = async e => {
         const
             { value } = e.target,
-            //value = 'Equipamentos',
             { veiculos, marcaChassi, marcaCarroceria } = this.props.redux
         let
             staticData = configVehicleForm.find(el => el.label === value),
@@ -144,8 +150,8 @@ class VehicleConfig extends PureComponent {
         let requestElement = { [field]: newElement }
         if (marcaId) requestElement.marcaId = marcaId
         requestElement = humps.decamelizeKeys(requestElement)
-
-        await axios.post('/api/addElement', { table, requestElement })            
+        
+        await axios.post('/api/addElement', { table, requestElement })
 
         let data = this.props.redux[collection]
         data = this.addCounter(veiculos, staticData, data)
@@ -181,7 +187,7 @@ class VehicleConfig extends PureComponent {
             id = data[index].id,
             originalData = this.props.redux[collection],
             registered = originalData.find(el => el.id === id)
-        
+
         if (registered) {
             await axios.delete(`/api/delete?table=${table}&tablePK=id&id=${id}`)
                 .catch(err => console.log(err))
@@ -290,6 +296,6 @@ class VehicleConfig extends PureComponent {
 }
 
 const collections = ['seguradoras', 'lookUpTable/marca_chassi', 'modelosChassi', 'lookUpTable/marca_carroceria',
-    'carrocerias', 'equipamentos', 'veiculos']
+    'carrocerias', 'equipamentos', 'veiculos', 'acessibilidade']
 
 export default StoreHOC(collections, VehicleConfig)

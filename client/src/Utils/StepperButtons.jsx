@@ -21,14 +21,14 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
-export default function StepperButtons({ activeStep, setActiveStep, lastStep, handleSubmit, disabled, demand, setShowPendencias, showPendencias, handleInput, pendencias }) {
+export default function StepperButtons({ activeStep, setActiveStep, lastStep, handleSubmit, disabled, demand, setShowPendencias, showPendencias, handleInput, justificativa, pendencias }) {
 
     const classes = useStyles(), { backButton, button, textField } = classes
 
     let role
     if (demand?.status.match('Pendências')) role = 'empresa'
     if (demand?.status.match('Aguardando')) role = 'seinfra'
-    console.log(role)
+
     return (
         <div>
             {!showPendencias && activeStep < lastStep &&
@@ -52,19 +52,22 @@ export default function StepperButtons({ activeStep, setActiveStep, lastStep, ha
                 </Button>
                 :
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
-                    {showPendencias && <TextField
-                        name='pendencias'
-                        className={textField}
-                        value={pendencias}
-                        label='Pendências/irregularidades para a aprovação'
-                        type='text'
-                        onChange={handleInput}
-                        InputLabelProps={{ shrink: true, style: { fontWeight: 600, marginBottom: '5%' } }}
-                        inputProps={{ style: { paddingBottom: '2%', width: '900px' }, maxLength: 500 }}
-                        multiline
-                        rows={4}
-                        variant='outlined'
-                    />}
+                    {role === 'seinfra' && !showPendencias ? null
+                        :
+                        <TextField
+                            name={!demand || role === 'empresa' ? 'justificativa' : 'pendencias'}
+                            className={textField}
+                            value={!demand || role === 'empresa' ? justificativa : pendencias}
+                            label={!demand || role === 'empresa' ? 'Observações/informações complementares' : 'Pendências/irregularidades para a aprovação'}
+                            type='text'
+                            onChange={handleInput}
+                            InputLabelProps={{ shrink: true, style: { fontWeight: 600, marginBottom: '5%' } }}
+                            inputProps={{ style: { paddingBottom: '2%', width: '900px' }, maxLength: 500 }}
+                            multiline
+                            rows={4}
+                            variant='outlined'
+                        />
+                    }
                     <div style={{ display: 'flex', width: '100%' }}>
                         <Button
                             variant="contained"
@@ -76,7 +79,7 @@ export default function StepperButtons({ activeStep, setActiveStep, lastStep, ha
                         </Button>
                         <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
                             {
-                                role === 'empresa' ?
+                                !demand || role === 'empresa' ?
                                     <Button
                                         variant='contained'
                                         color="primary"
@@ -99,7 +102,7 @@ export default function StepperButtons({ activeStep, setActiveStep, lastStep, ha
                                             variant="contained"
                                             color={showPendencias ? "secondary" : "primary"}
                                             className={button}
-                                            onClick={() => handleSubmit()}
+                                            onClick={() => showPendencias ? handleSubmit(false) : handleSubmit(true)}
                                         >
                                             {showPendencias ? 'Indeferir' : 'Aprovar'}
                                         </Button>

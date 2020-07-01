@@ -9,7 +9,6 @@ import Paper from '@material-ui/core/Paper'
 import Button from '@material-ui/core/Button'
 import AddIcon from '@material-ui/icons/Add'
 import { makeStyles } from '@material-ui/core/styles'
-import TextField from '@material-ui/core/TextField'
 import { altForm } from '../Forms/altForm'
 
 const useStyles = makeStyles(theme => ({
@@ -43,15 +42,15 @@ const useStyles = makeStyles(theme => ({
 
 export default function ({ handleInput, handleBlur, data, handleCheck, handleEquipa,
     altPlacaOption, showAltPlaca, empresas, equipamentos }) {
-    const { activeStep, subtitle, placa, justificativa, selectedEmpresa, addEquipa, demand } = data,
+    const { activeStep, subtitle, placa, selectedEmpresa, addEquipa, demand } = data,
         classes = useStyles(), { paper, container } = classes
 
-    let
-        form = altForm[activeStep],
-        role
+    let form = altForm[activeStep]
+    /* 
+    role
     if (demand?.status.match('Pendências')) role = 'empresa'
     if (demand?.status.match('Aguardando')) role = 'seinfra'
-
+ */
     return (
         <Fragment>
             <Grid
@@ -119,7 +118,7 @@ export default function ({ handleInput, handleBlur, data, handleCheck, handleEqu
                         </Grid>
                 }
             </Grid>
-            {activeStep === 1 && role === 'empresa' &&
+            {/*    {activeStep === 1 && role === 'empresa' &&
                 <Grid
                     container
                     direction="row"
@@ -139,7 +138,7 @@ export default function ({ handleInput, handleBlur, data, handleCheck, handleEqu
                             variant='outlined'
                         />
                     </Grid>
-                </Grid>}
+                </Grid>} */}
         </Fragment>
     )
 }   

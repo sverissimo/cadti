@@ -1,6 +1,6 @@
 export const accessParseDB = (veiculos, access) => {
 
-    let acArray = [], acessibilidade = [], ids = [], tst = []
+    let acArray = [], acessibilidade = [], ids = []
 
     veiculos.forEach(v => {
         if (v.equipamentosId) {

@@ -10,7 +10,6 @@ import ReactToast from '../Utils/ReactToast'
 import { altDadosFiles } from '../Forms/altDadosFiles'
 import { altForm } from '../Forms/altForm'
 import { logGenerator } from '../Utils/logGenerator'
-import { equipamentsParseDB, accessParseDB } from '../Utils/equipamentsParseDB'
 
 import Crumbs from '../Reusable Components/Crumbs'
 import CustomStepper from '../Utils/Stepper'
@@ -64,14 +63,9 @@ class AltDados extends Component {
     async componentDidMount() {
         const
             { redux } = this.props,
-            { veiculos, empresas, acessibilidade } = redux
+            { veiculos, empresas } = redux
 
-        let equipamentos = {}, alteracoes
-
-        const eq = accessParseDB(veiculos, acessibilidade),
-            f = eq.filter(e => e.ids.length > 0)
-
-        console.log(f)
+        let equipamentos = {}, alteracoes, compartilhado
 
         const
             demand = this.props?.location?.state?.demand,
@@ -91,7 +85,18 @@ class AltDados extends Component {
                 delegatario = razaoSocial,
                 selectedVehicle = Object.assign(vehicleData, alteracoes)
 
-            await this.setState({ ...selectedVehicle, selectedVehicle, originalVehicle, delegatario, razaoSocial, selectedEmpresa, demand, alteracoes, activeStep: 3 })
+            if (history) {
+                const
+                    length = history?.length,
+                    delCompartilhado = history[length - 1]?.alteracoes?.delegatarioCompartilhado
+
+                if (delCompartilhado) {
+                    compartilhado = empresas.find(e => e.delegatarioId === delCompartilhado)?.razaoSocial
+                    if (alteracoes && typeof alteracoes === 'object') alteracoes.compartilhado = compartilhado
+                }
+            }
+
+            await this.setState({ ...selectedVehicle, selectedVehicle, originalVehicle, delegatario, compartilhado, razaoSocial, selectedEmpresa, demand, alteracoes, activeStep: 3 })
         }
 
         if (redux && redux.equipamentos) {
@@ -296,14 +301,10 @@ class AltDados extends Component {
         this.toggleDialog()
     }
 
-    rejectDemand = () => {
-
-    }
-
-    handleSubmit = async () => {
+    handleSubmit = async (approved) => {
         const
             { veiculoId, poltronas, pesoDianteiro, pesoTraseiro, delegatarioId, originalVehicle, showPendencias, pendencias,
-                delegatarioCompartilhado, equipamentosId, newPlate, selectedEmpresa, justificativa, demand, completed } = this.state,
+                delegatarioCompartilhado, equipamentosId, newPlate, selectedEmpresa, justificativa, demand } = this.state,
 
             oldHistoryLength = demand?.history?.length || 0
 
@@ -343,9 +344,13 @@ class AltDados extends Component {
 
         let { placa, delegatario, compartilhado, ...camelizedRequest } = tempObj
 
-        if (newPlate && newPlate !== '') camelizedRequest.placa = newPlate
-        const requestObject = humps.decamelizeKeys(camelizedRequest)
+        if (newPlate && newPlate !== '')
+            camelizedRequest.placa = newPlate
 
+        if ((!this.state.compartilhado || this.state.compartilhado === '') && originalVehicle?.delegatarioCompartilhado)
+            camelizedRequest.delegatarioCompartilhado = 'NULL'
+
+        const requestObject = humps.decamelizeKeys(camelizedRequest)
 
         //******************GenerateLog********************** */
         let history = { alteracoes: camelizedRequest }
@@ -360,13 +365,13 @@ class AltDados extends Component {
         }
 
         if (demand) log.id = demand?.id
-        if (completed) log.completed = true
+        if (approved) log.completed = true
 
         logGenerator(log).then(r => console.log(r.data))
         await this.submitFiles()
 
         //*********************if approved, putRequest to update DB  ********************** */
-        if (demand && completed && !showPendencias) {
+        if (demand && approved && !showPendencias) {
             if (selectedEmpresa.delegatarioId !== delegatarioId) requestObject.apolice = 'Seguro não cadastrado'
 
             const
@@ -377,10 +382,11 @@ class AltDados extends Component {
         }
 
         //******************Clear the state ********************** */
-        this.setState({ activeStep: 0, razaoSocial: '', selectedEmpresa: undefined })
+        //this.setState({ activeStep: 0, razaoSocial: '', selectedEmpresa: undefined })
         this.reset()
-        this.setState({})
         this.toast()
+        await this.setState({})
+        if (demand) this.props.history.push('/solicitacoes')
     }
 
     handleFiles = async (files, name) => {
@@ -417,7 +423,6 @@ class AltDados extends Component {
             .then(res => console.log('uploaded'))
             .catch(err => console.log(err))
     }
-
 
     setShowPendencias = () => this.setState({ showPendencias: !this.state.showPendencias })
     toggleDialog = () => this.setState({ altPlaca: !this.state.altPlaca })

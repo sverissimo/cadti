@@ -71,13 +71,9 @@ function Solicitacoes(props) {
             await setAlertDialog({ openAlertDialog: true, customTitle, customMessage })
             return
         }
-
-        const pathname = logRoutesConfig.find(r => {
-            if (log.subject) console.log(r, log)
-
-            return log?.subject.match(r.subject)
-        })?.path
-        console.log(pathname)
+        
+        let pathname = logRoutesConfig.find(r => log?.subject.match(r.subject))?.path
+        if(!pathname.match('/solicitacoes')) pathname = '/solicitacoes'+pathname
         props.history.push({ pathname, state: { demand: log } })
     }
 

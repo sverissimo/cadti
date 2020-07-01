@@ -94,14 +94,14 @@ app.post('/api/logs', logHandler, (req, res) => {
 
 app.get('/api/logs/:collection', (req, res) => {
     const
-        { collection } = req.params,        
+        { collection } = req.params,
         collectionModels = { vehicleLogs: vehicleLogsModel },
         model = collectionModels[collection]
 
     let oneYearAgo = new Date()
-    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);    
+    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
 
-    let query = { $or: [{ completed: false }, { completed: true, updatedAt: { $gte: oneYearAgo } }] }    
+    let query = { $or: [{ completed: false }, { completed: true, updatedAt: { $gte: oneYearAgo } }] }
 
     model.find(query)
         .then(doc => res.send(doc))
@@ -257,7 +257,7 @@ app.post('/api/addElement', (req, res) => {
                     if (t && t.rows) io.sockets.emit('updateElements', { collection: table, updatedCollection: t.rows })
                 })
             }
-            res.send(t.rows);
+            res.send(t.rows)
         }
     })
 })
@@ -279,7 +279,7 @@ app.put('/api/editElements', (req, res) => {
             SET ${column} = '${obj[column]}' 
             WHERE ${tablePK} = ${obj.id};             
             `
-    })
+    });
 
     pool.query(queryString, (err, tb) => {
         if (err) console.log(err)
@@ -506,7 +506,8 @@ app.put('/api/updateVehicle', (req, res) => {
     let query = ''
 
     Object.entries(requestObject).forEach(([k, v]) => {
-        query += `${k} = '${v}', `
+        if (k === 'delegatario_compartilhado') query += `${k} = NULL, `
+        else query += `${k} = '${v}', `
     })
 
     query = `UPDATE ${table} SET ` +
@@ -515,7 +516,7 @@ app.put('/api/updateVehicle', (req, res) => {
     const condition = `${tablePK} = '${id}'`
 
     query = query + condition + ` RETURNING veiculo.veiculo_id`
-
+    console.log(query)
     pool.query(query, (err, t) => {
         if (err) console.log(err)
         if (t && t.rows) {
@@ -526,7 +527,7 @@ app.put('/api/updateVehicle', (req, res) => {
             })
         }
     })
-})
+});
 
 app.delete('/api/deleteFile', async (req, res) => {
     const

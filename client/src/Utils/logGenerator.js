@@ -8,7 +8,6 @@ export function logGenerator(obj) {
     logRoutes.forEach((el, i) => el.path = logRoutesConfig[i].path.replace('/veiculos', '').replace('/solicitacoes', '').replace('/empresas', ''))
 
     const
-        logConfig = logRoutes.find(e => path.match(e.path)),
         collection = 'vehicleLogs',
         historyLength = obj.historyLength,
         commonFields = {
@@ -16,7 +15,9 @@ export function logGenerator(obj) {
             createdAt: new Date(),
         }
 
-    let log = JSON.parse(JSON.stringify(obj))
+    let
+        logConfig = logRoutes.find(e => path.match(e.path)),
+        log = JSON.parse(JSON.stringify(obj))
 
     const history = Object.assign(obj.history, commonFields)
     log.history = history || {}
@@ -26,13 +27,11 @@ export function logGenerator(obj) {
         if (historyLength % 2 === 0 || historyLength === 0) {
             if (!obj?.history?.action) log.history.action = logConfig?.requestAction
             log.status = 'Aguardando análise'
-            console.log('empresaReq', log)
         }
         else {
 
             if (!obj?.history?.action) log.history.action = logConfig?.responseAction
             log.status = 'Pendências'
-            console.log('seinfraReq', log)
         }
     }
 
@@ -47,10 +46,13 @@ export function logGenerator(obj) {
 
     //If completed, add standard action/status to the log  */
     if (log.completed) {
-        log.history.action = obj?.history?.action || logConfig?.concludedAction || 'Solicitação concluída'
+        log.history.action = logConfig?.concludedAction || 'Solicitação concluída'
         log.status = obj?.status || 'Solicitação concluída'
     }
-    console.log(obj)
+    //reestablish path
+    logRoutes = JSON.parse(JSON.stringify(logRoutesConfig))
+    logConfig = logRoutes.find(e => path.match(e.path))
+
     //request and return promisse
     const post = axios.post('/api/logs', { log, collection })
     return post

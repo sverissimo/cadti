@@ -50,6 +50,13 @@ const fieldParser = [
         table: 'equipamentos'
     },
     {
+        collection: 'acessibilidade',
+        field: 'item',
+        label: 'Itens de acessibilidade',
+        name: 'acessibilidadeId',
+        table: 'acessibilidade'
+    },
+    {
         collection: 'marcaCarroceria',
         column: 'marca',
         label: 'Marcas de Carroceria',

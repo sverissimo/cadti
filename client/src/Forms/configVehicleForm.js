@@ -8,6 +8,13 @@ export const configVehicleForm = [
         table: 'equipamentos'
     },
     {
+        collection: 'acessibilidade',
+        field: 'item',
+        label: 'Itens de acessibilidade',
+        name: 'acessibilidadeId',
+        table: 'acessibilidade'
+    },
+    {
         collection:'marcaCarroceria',
         field: 'marca',
         label: 'Marcas de Carroceria',

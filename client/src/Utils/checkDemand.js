@@ -1,4 +1,3 @@
-import axios from 'axios'
 import { logRoutesConfig } from '../Solicitacoes/logRoutesConfig'
 
 export const checkDemand = (id, logsCollection) => {
