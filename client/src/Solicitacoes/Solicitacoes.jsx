@@ -12,27 +12,30 @@ import AlertDialog from '../Utils/AlertDialog'
 function Solicitacoes(props) {
 
     const
-        { veiculos, empresas } = props.redux,
+        { veiculos, empresas, vehicleDocs } = props.redux,
         [vehicleLogs, setVehicleLogs] = useState([]),
         [showHistory, setShowHistory] = useState(false),
         [selectedLog, selectLog] = useState(),
         [completed, showCompleted] = useState(false),
         [historyLog, setHistoryLog] = useState(),
         [alertProperties, setAlertDialog] = useState({ openAlertDialog: false, customMessage: '', customTitle: '' }),
+        [showFiles, setShowFiles] = useState(false),
+        [filesIds, setFilesId] = useState(),
         { openAlertDialog, customTitle, customMessage } = alertProperties
 
+    console.log(showFiles)
     //*********Effect adds eventListner to Esc key--> back/closes windows ************/
     useEffect(() => {
         function escFunction(e) {
             if (e.keyCode === 27) {
-                if (historyLog) setHistoryLog()
-                else setShowHistory()
+                if (!showFiles && !historyLog) setShowHistory()
+                if (showFiles) setShowFiles(false)
+                else if (historyLog) setHistoryLog()
             }
         }
-
         document.addEventListener('keydown', escFunction)
         return () => document.removeEventListener('keydown', escFunction)
-    }, [historyLog])
+    }, [historyLog, showFiles])
 
     //********Prepares the Logs ArrayofObjects from the DB to be displayed with additional and filtered fields************/
     useEffect(() => {
@@ -71,16 +74,20 @@ function Solicitacoes(props) {
             await setAlertDialog({ openAlertDialog: true, customTitle, customMessage })
             return
         }
-        
+
         let pathname = logRoutesConfig.find(r => log?.subject.match(r.subject))?.path
-        if(!pathname.match('/solicitacoes')) pathname = '/solicitacoes'+pathname
+        if (!pathname.match('/solicitacoes')) pathname = '/solicitacoes' + pathname
         props.history.push({ pathname, state: { demand: log } })
     }
 
     const showDetails = async id => {
+        setHistoryLog(false)
+        setShowFiles(false)
+
         const log = vehicleLogs.find(l => l.id === id)
         await selectLog(log)
         setShowHistory(true)
+
     }
 
     const showInfo = index => {
@@ -92,9 +99,19 @@ function Solicitacoes(props) {
             setHistoryLog(historyLog)
         }
     }
+    const renderFiles = (ids) => {
+        if (ids) {
+            setShowFiles(true)
+            setFilesId(ids)
+        }
+        else setShowFiles(false)
+    }
 
-    const close = () => setShowHistory(false)
     const toggleAlertDialog = () => setAlertDialog({ ...alertProperties, openAlertDialog: !openAlertDialog })
+    const close = () => {
+        setShowHistory(false)
+        setShowFiles(false)
+    }
 
     return (
         <>
@@ -116,6 +133,10 @@ function Solicitacoes(props) {
                 showInfo={showInfo}
                 historyLog={historyLog}
                 setHistoryLog={setHistoryLog}
+                vehicleDocs={vehicleDocs}
+                setShowFiles={renderFiles}
+                showFiles={showFiles}
+                filesIds={filesIds}
             />
             }
             {openAlertDialog &&
@@ -124,6 +145,6 @@ function Solicitacoes(props) {
     )
 }
 
-const collections = ['veiculos', 'empresas', '/logs/vehicleLogs']
+const collections = ['veiculos', 'empresas', '/logs/vehicleLogs', 'getFiles/vehicleDocs']
 
 export default StoreHOC(collections, Solicitacoes)

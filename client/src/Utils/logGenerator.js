@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { logRoutesConfig } from '../Solicitacoes/logRoutesConfig'
 
-export function logGenerator(obj) {
+export async function logGenerator(obj) {
     const path = window.location.pathname
 
     let logRoutes = JSON.parse(JSON.stringify(logRoutesConfig))
@@ -37,23 +37,37 @@ export function logGenerator(obj) {
 
     delete log.historyLength
 
-    //if log already exists, no need to inform veiculoId and empresaId
+    //**********************if log already exists, no need to inform veiculoId and empresaId**********************
     if (obj?.id && log.empresaId) delete log.empresaId
     if (obj?.id && log.veiculoId) delete log.veiculoId
 
-    //If given by the component which called this fuction, overwrite logRoutesConfig*/
+    //**********************If given by the component which called this fuction, overwrite logRoutesConfig*/
     if (!obj.id || obj.subject) log.subject = obj?.subject || logConfig?.subject
 
-    //If completed, add standard action/status to the log  */
+    //********************** Upload files and get their Ids***********************/    
+    let
+        objFiles = obj?.files,
+        files,
+        filesIds = []
+
+    if (objFiles) files = await axios.post('/api/vehicleUpload', objFiles)
+
+    if (files?.data?.file) {
+        const filesArray = files.data.file
+        filesIds = filesArray.map(f => f.id)
+        log.history.files = filesIds
+    }    
+
+    //**********************If completed, add standard action/status to the log**********************  */
     if (log.completed) {
         log.history.action = logConfig?.concludedAction || 'Solicitação concluída'
         log.status = obj?.status || 'Solicitação concluída'
     }
-    //reestablish path
+    //**********************reestablish path**********************
     logRoutes = JSON.parse(JSON.stringify(logRoutesConfig))
     logConfig = logRoutes.find(e => path.match(e.path))
 
-    //request and return promisse
+    //**********************request and return promisse**********************
     const post = axios.post('/api/logs', { log, collection })
     return post
 }

@@ -7,6 +7,8 @@ export const logRoutesConfig = [
     {
         subject: 'Alteração de dados do veículo',                
         path: '/solicitacoes/altDados',        
+        collection: 'vehicleLogs',  
+        docs: 'vehicleDocs',
         primaryKey: 'veiculoId',
         requestAction: 'Alteração de dados de veículo solicitada',
         responseAction: 'Pendências para a alteração de dados veicular',
@@ -24,6 +26,7 @@ export const logRoutesConfig = [
     },
     {        
         subject: 'Baixa de veículo',        
+        collection: 'vehicleLogs',  
         primaryKey: 'veiculoId',
         path: '/solicitacoes/baixaVeiculo'        
     },

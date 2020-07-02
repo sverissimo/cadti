@@ -18,7 +18,7 @@ const divRow = {
     justifyItems: 'auto'
 }
 
-const ShowFiles = ({ filesCollection, close, format, typeId, empresas }) => {
+const ShowFiles = ({ filesCollection, close, format, typeId, empresas, filesIds }) => {
 
     let files = [],
         collection = 'empresaDocs', fileLabels = [...empresaFiles]
@@ -34,7 +34,10 @@ const ShowFiles = ({ filesCollection, close, format, typeId, empresas }) => {
             break;
         default: void 0
     }
-    
+    if (filesIds) {
+
+        filesCollection = filesCollection.filter(f => filesIds.indexOf(f.id) !== -1)
+    }
     if (filesCollection && filesCollection[0]) {
         filesCollection.forEach(obj => {
             fileLabels.forEach(o => {
@@ -62,7 +65,7 @@ const ShowFiles = ({ filesCollection, close, format, typeId, empresas }) => {
 
     if (files[0]) {
         return (
-            <div className='popUpWindow'>
+            <div className={filesIds ? '' : 'popUpWindow'}>
                 <h5>
                     <img alt="" src="/images/folderIcon2.jpg" style={{ paddingLeft: '20px', marginRight: '20px' }} /> Arquivos
                 </h5>

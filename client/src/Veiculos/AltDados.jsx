@@ -304,7 +304,7 @@ class AltDados extends Component {
     handleSubmit = async (approved) => {
         const
             { veiculoId, poltronas, pesoDianteiro, pesoTraseiro, delegatarioId, originalVehicle, showPendencias, pendencias,
-                delegatarioCompartilhado, equipamentosId, newPlate, selectedEmpresa, justificativa, demand } = this.state,
+                delegatarioCompartilhado, equipamentosId, newPlate, selectedEmpresa, justificativa, demand, form } = this.state,
 
             oldHistoryLength = demand?.history?.length || 0
 
@@ -344,6 +344,7 @@ class AltDados extends Component {
 
         let { placa, delegatario, compartilhado, ...camelizedRequest } = tempObj
 
+        if (!camelizedRequest) return
         if (newPlate && newPlate !== '')
             camelizedRequest.placa = newPlate
 
@@ -352,8 +353,10 @@ class AltDados extends Component {
 
         const requestObject = humps.decamelizeKeys(camelizedRequest)
 
+      
         //******************GenerateLog********************** */
-        let history = { alteracoes: camelizedRequest }
+        let history = { alteracoes: camelizedRequest }        
+
         if (showPendencias && pendencias && pendencias !== '') history.info = pendencias
         else if (justificativa && justificativa !== '') history.info = justificativa
 
@@ -361,6 +364,7 @@ class AltDados extends Component {
             empresaId: selectedEmpresa?.delegatarioId,
             veiculoId,
             history,
+            files: form,
             historyLength: oldHistoryLength
         }
 
@@ -368,7 +372,6 @@ class AltDados extends Component {
         if (approved) log.completed = true
 
         logGenerator(log).then(r => console.log(r.data))
-        await this.submitFiles()
 
         //*********************if approved, putRequest to update DB  ********************** */
         if (demand && approved && !showPendencias) {
@@ -385,7 +388,8 @@ class AltDados extends Component {
         //this.setState({ activeStep: 0, razaoSocial: '', selectedEmpresa: undefined })
         this.reset()
         this.toast()
-        await this.setState({})
+        await this.setState({ activeStep: 0 })
+        
         if (demand) this.props.history.push('/solicitacoes')
     }
 
@@ -420,8 +424,9 @@ class AltDados extends Component {
         const { form } = this.state
 
         if (form) axios.post('/api/vehicleUpload', form)
-            .then(res => console.log('uploaded'))
+            .then(res => res.data)
             .catch(err => console.log(err))
+        else return null
     }
 
     setShowPendencias = () => this.setState({ showPendencias: !this.state.showPendencias })
@@ -436,7 +441,7 @@ class AltDados extends Component {
         altDadosFiles.forEach(({ name }) => {
             Object.assign(resetFiles, { [name]: undefined })
         })
-        this.setState({ ...resetFiles, form: undefined })
+        this.setState({ ...resetFiles, form: undefined, selectedEmpresa: undefined, razaoSocial: undefined })
     }
 
     render() {

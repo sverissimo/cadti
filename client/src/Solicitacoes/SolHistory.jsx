@@ -8,12 +8,12 @@ import ClosePopUpButton from '../Reusable Components/ClosePopUpButton'
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import Button from '@material-ui/core/Button'
 
-export default function SolHistory({ solicitacao, showInfo, historyLog, setHistoryLog, close }) {
+export default function SolHistory({ solicitacao, showInfo, historyLog, setHistoryLog, close, vehicleDocs, showFiles, setShowFiles, filesIds }) {
 
     const
         { history } = solicitacao,
         date = moment(historyLog?.createdAt).format('DD/MM/YYYY, HH:mm[h]')
-    
+
     return (
         <main className="popUpWindow" sytle={{ width: '90%' }}>
             {!historyLog ?
@@ -26,6 +26,11 @@ export default function SolHistory({ solicitacao, showInfo, historyLog, setHisto
                     showInfo={showInfo}
                     style={{ padding: '9px 4px' }}
                     tableStyle={{ marginTop: '23px' }}
+                    vehicleDocs={vehicleDocs}
+                    showFiles={showFiles}
+                    setShowFiles={setShowFiles}
+                    close={close}
+                    filesIds={filesIds}
                 />
                 :
                 <>
