@@ -1,6 +1,7 @@
 import axios from 'axios'
 import humps from 'humps'
 import { batch } from 'react-redux'
+import { idsToString } from '../Utils/idsToString'
 
 export const getData = (collectionsArray = []) => {
     return async (dispatch, getState) => {
@@ -13,17 +14,23 @@ export const getData = (collectionsArray = []) => {
 
             await Promise.all(promiseArray)
                 .then(res => res.map(r => humps.camelizeKeys(r.data)))
-                .then(responseArray => {                    
+                .then(responseArray => {
                     responseArray.forEach((el, i) => {
                         let key = collectionsArray[i]
                             .replace('getFiles/', '')
                             .replace('lookUpTable/', '')
                             .replace('/logs/', '')
-                        key = humps.camelize(key)                        
+                        key = humps.camelize(key)
                         Object.assign(returnObj, { [key]: el })
                     })
                 })
-        }        
+        }
+
+        if (['acessibilidade', 'equipamentos', 'veiculos'].every(p => returnObj.hasOwnProperty(p))) {
+            const { acessibilidade, equipamentos, veiculos } = returnObj
+            const updatedFields = idsToString(veiculos, equipamentos, acessibilidade)
+            returnObj.veiculos = updatedFields
+        }
         dispatch({
             type: 'GET_DATA',
             payload: returnObj
@@ -136,7 +143,7 @@ export const removeInsurance = (apolice, placaIndex, vehicleIndex) => dispatch =
 }
 
 export const deleteOne = (id, tablePK, collection) => dispatch => {
-    tablePK = humps.camelize(tablePK)    
+    tablePK = humps.camelize(tablePK)
     dispatch({
         type: 'DELETE_ONE',
         payload: { id, tablePK, collection }

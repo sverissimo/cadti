@@ -1,8 +1,12 @@
 import React, { useState, useEffect } from 'react'
 import { Link as RouterLink } from 'react-router-dom'
-import { makeStyles } from '@material-ui/core/styles';
+
+import { connect } from 'react-redux';
+
+import { makeStyles, withStyles } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import { Toolbar, Typography, Button, IconButton, Link } from '@material-ui/core'
+import Badge from '@material-ui/core/Badge';
 import SearchIcon from '@material-ui/icons/Search';
 import { withRouter } from 'react-router'
 import './stylez.css'
@@ -84,25 +88,47 @@ const sections = [
     { title: 'Veículos', link: '/veiculos' },
     { title: 'Empresas', link: '/empresas' },
     { title: 'Relatórios', link: '/relatorios' },
-    { title: 'Solicitacões', link: '/solicitacoes' },
+    { title: 'Solicitações ', link: '/solicitacoes' },
     //{ title: 'Fale Conosco', link: '/faleConosco' },
 ];
 
+const StyledBadge = withStyles((theme) => ({
+    badge: {
+      right: -8,
+      top: -1,
+      padding: '0 4px',
+    },
+  }))(Badge);
+
 const Header = props => {
+
+
     const
+        vehicleLogs = props?.vehicleLogs,
         classes = useStyles(),
-        [path, setSelected] = useState(document.location.pathname),
         { pathname } = props.location,
         demand = localStorage.getItem('demand')
 
+    const
+        [path, setSelected] = useState(document.location.pathname),
+        [logCounter, setLogCounter] = useState()
+
+
+
     useEffect(() => {
+        if (vehicleLogs && Array.isArray(vehicleLogs)) {
+            const count = vehicleLogs
+                .filter(l => l.completed === false)
+                .length
+
+            setLogCounter(count)
+        }
         setSelected(pathname)
-    }, [pathname])
+    }, [pathname, logCounter, vehicleLogs])
 
     const selected = link => {
-        let style = document.querySelector("a[href='/solicitacoes']")?.style
-
         let
+            style = document.querySelector("a[href='/solicitacoes']")?.style,
             bgColor = '',
             borderB = '',
             borderT = '',
@@ -125,7 +151,7 @@ const Header = props => {
         }
         return { bgColor, borderB, borderT, fontW }
     }
-
+    
     return (
         <React.Fragment>
             <CssBaseline />
@@ -170,11 +196,28 @@ const Header = props => {
                         className={classes.toolbarLink}
                         onClick={() => setSelected(link)}
                     >
-                        {title}
+                        {
+                            title === 'Solicitações ' ?
+
+                                <StyledBadge badgeContent={logCounter} color='secondary'>
+                                    <span>
+                                        {title}
+                                    </span>
+                                </StyledBadge>
+                                :
+                                title
+                        }
                     </Link>
                 ))}
             </Toolbar>
         </React.Fragment >
     )
 }
-export default withRouter(Header)
+
+function mapStateToProps(state) {
+    return {
+        vehicleLogs: state.data.vehicleLogs,
+    }
+}
+
+export default connect(mapStateToProps)(withRouter(Header))

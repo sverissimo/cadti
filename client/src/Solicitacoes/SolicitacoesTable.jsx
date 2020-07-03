@@ -7,7 +7,7 @@ import MaterialTable from 'material-table';
 import { solicitacoesTable } from '../Forms/solicitacoesTable'
 
 export default function ({ tableData, title, showDetails, assessDemand, completed, showInfo }) {
-
+    
     let parsedData = JSON.parse(JSON.stringify(tableData))
     parsedData.forEach(obj => delete obj.history)
 
@@ -94,12 +94,12 @@ export default function ({ tableData, title, showDetails, assessDemand, complete
                         tooltip: 'Ver histórico',
                         onClick: (event, rowData) => showDetails(rowData['id'])
                     },
-                    {
+                    rowData => ({
                         icon: !completed ? 'assignment_turned_in_outlined' : 'done_icon',
                         iconProps: { className: !completed ? 'assessDemandButton' : '', color: completed ? 'action' : 'disabled' },
-                        tooltip: !completed ? 'Analisar solicitação' : 'Concluída',
+                        tooltip: rowData?.status.match('Aguardando') ? 'Analisar solicitação' : rowData?.status.match('Pendências') ? 'Abrir solicitação' : 'Concluída',
                         onClick: (event, rowData) => !completed ? assessDemand(rowData['id']) : null
-                    }
+                    })
                 ]}
             />
         </div>

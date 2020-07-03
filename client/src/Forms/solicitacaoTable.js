@@ -1,5 +1,4 @@
 const solicitacaoTable = [
-
     {
         field: 'action',
         title: 'Movimentação',
@@ -18,13 +17,7 @@ const solicitacaoTable = [
         title: 'Informações adicionais',
         action: 'info',
         style: {textAlign: 'center'}
-    },
-   /*  {
-        field: 'files',
-        title: 'Arquivos',
-        action: 'getFile',
-        style: {textAlign: 'center'}
-    } */
+    }   
 ]
 
 export default solicitacaoTable

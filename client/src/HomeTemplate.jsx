@@ -1,5 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
+
+import StoreHOC from './Store/StoreHOC'
 import './home.css'
 
 const featuredPosts = [
@@ -37,7 +39,7 @@ const featuredPosts = [
     },
 ]
 
-export default function () {
+ function Home () {
 
     return (
         <React.Fragment>            
@@ -83,3 +85,5 @@ export default function () {
         </React.Fragment >
     )
 }
+
+export default StoreHOC(['/logs/vehicleLogs'], Home)

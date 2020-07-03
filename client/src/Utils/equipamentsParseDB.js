@@ -1,3 +1,6 @@
+//Essa função foi criada para transformar os strings "equipamentos" do DB antigo para ids, com todas as diferenças de digitação/Upper/Lower.
+//Não possui nenhuma funcionalidade no aplicativo rodando, mas fica aqui para caso haja necessidade de refazer essa conversão em outro ambiente.
+
 export const accessParseDB = (veiculos, access) => {
 
     let acArray = [], acessibilidade = [], ids = []

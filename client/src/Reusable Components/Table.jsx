@@ -3,19 +3,16 @@ import moment from 'moment'
 
 import ShowFiles from './ShowFiles'
 import downloadFile from '../Utils/downloadFile'
-import { logRoutesConfig } from '../Solicitacoes/logRoutesConfig'
+//import { logRoutesConfig } from '../Solicitacoes/logRoutesConfig'
 
 import Button from '@material-ui/core/Button'
 import InfoIcon from '@material-ui/icons/Info';
 import DoneIcon from '@material-ui/icons/Done';
-import HistoryIcon from '@material-ui/icons/History'
 import FileCopyOutlinedIcon from '@material-ui/icons/FileCopyOutlined';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack'
-import zIndex from '@material-ui/core/styles/zIndex'
-//import DeleteIcon from '@material-ui/icons/Delete';
-
 
 export default function StandardTable({ tableData, staticFields, title, tableStyle, style, showDetails, completed, showInfo, showFiles, setShowFiles, vehicleDocs, close, filesIds }) {
+
 
 
     /* let pathname = logRoutesConfig.find(r => log?.subject.match(r.subject))?.path
@@ -30,40 +27,39 @@ export default function StandardTable({ tableData, staticFields, title, tableSty
     }
 
     const getFile = id => {
-        //if (!files) return
         const file = vehicleDocs.find(f => f.id === id)
         if (file) downloadFile(file.id, file.filename, 'vehicleDocs', file.metadata.fieldName);
     }
 
     const createButton = (action, index, files) => {
         const disable = !tableData[index]?.info ? true : false
+        const dStyle = { cursor: 'default' }
 
         switch (action) {
-            case ('showHistory'):
-                return <Button component='span' title='Ver histórico'>
-                    <HistoryIcon color='primary' />
-                </Button>
-
             case ('info'):
-                if (disable) return <p> - </p>
                 return (
-                    <div style={{ display: 'flex', justifyContent: 'space-evenly' }}>
-                        <Button size='small' component='span' title='Ver informações adicionais' onClick={() => showInfo(index)}>
-                            <InfoIcon color='primary' />
-                        </Button>
+                    <div style={{ display: 'flex', justifyContent: 'flex-start' }}>
+                        <span
+                            className='button'
+                            style={disable ? dStyle : {}}
+                            component='span'
+                            title={!disable ? 'Ver informações adicionais' : 'Nenhuma informação adicional'}
+                            onClick={() => showInfo(index)} >
+                            <InfoIcon color={!disable ? 'primary' : 'disabled'} />
+                        </span>
 
-                        {files &&
-                            <Button component='span' title='Ver arquivos' onClick={() => { setShowFiles(files) }
+                        {files ?
+                            <span className='button' component='span' title='Ver arquivos' onClick={() => { setShowFiles(files) }
                             } >
                                 <FileCopyOutlinedIcon />
-                            </Button>
+                            </span>
+                            :
+                            <span style={{ padding: '2px 10px 0 17px' }}> - </span>
                         }
                     </div >
                 )
-
             case ('completed'):
                 return <DoneIcon style={{ color: 'green' }} />
-
             default: return
         }
     }
@@ -94,7 +90,7 @@ export default function StandardTable({ tableData, staticFields, title, tableSty
         tableHeaders[i] = 'Concluída'
     }
     const tableSpan = arrayOfRows[0]?.length || ''
-    
+
     return (
         showFiles ? <>
             <ShowFiles
@@ -140,12 +136,6 @@ export default function StandardTable({ tableData, staticFields, title, tableSty
                                             key={i}
                                             style={obj?.style ? obj.style : style}
                                             className={obj.type === 'link' && obj.laudoDocId ? 'link2' : 'review'}
-                                            onClick={
-                                                () => obj.field === 'files' ? getFile(obj.files[0]?.id)
-                                                    : obj?.action === 'showHistory' ? showDetails(obj?.id)
-                                                        //: obj.field === 'info' ? showInfo(obj?.index)
-                                                        //: obj?.action === 'delete' ? deleteFunction(laudo[idIndex]?.value)
-                                                        : null}
                                         >
                                             {obj.type === 'date' ? dateFormat(obj.value)
                                                 : obj?.action ? createButton(obj.action, obj?.index, obj?.files)

@@ -23,7 +23,6 @@ function Solicitacoes(props) {
         [filesIds, setFilesId] = useState(),
         { openAlertDialog, customTitle, customMessage } = alertProperties
 
-    console.log(showFiles)
     //*********Effect adds eventListner to Esc key--> back/closes windows ************/
     useEffect(() => {
         function escFunction(e) {

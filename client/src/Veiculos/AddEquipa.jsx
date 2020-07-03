@@ -9,7 +9,7 @@ export default function AddEquipa({ data, equipamentos, handleCheck, close }) {
     
     if (Array.isArray(equipamentos) && equipamentos[0]?.item) equipamentos = equipamentos.sort((a, b) => a.item.localeCompare(b.item))
 
-    return <div className='popUpWindow' style={{ right: '33%', left: '33%' }}>
+    return <div className='popUpWindow' style={{ right: '25%', left: '25%' }}>
         <h4 className='equipaHeader'>Equipamentos</h4> <hr />
         <div className="checkListContainer">
             {

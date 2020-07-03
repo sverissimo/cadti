@@ -84,15 +84,30 @@ h3.selectedEmpresa {
 }
 
 .assessDemandButton {
-    color: #cb975d !important
+    color: #df872d !important
 }
 
 .infoLogHeader {
     padding-top: 5px;
 }
+
 .floatRight {
     display: inline-box;
-    float: right;    
-    margin: 0px 10px 50px 0px;    
+    float: right;
+    margin: 0px 10px 50px 0px;
     font-size: 12px;
+}
+
+.button {
+    cursor: pointer;
+    padding: 2px 10px 0 10px;
+    border-radius: 5px;
+}
+
+.button:first-child {
+    margin-left: 20px;
+}
+
+.button:hover{
+    background-color: #e0e0e0;
 }

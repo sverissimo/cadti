@@ -65,7 +65,7 @@ class AltDados extends Component {
             { redux } = this.props,
             { veiculos, empresas } = redux
 
-        let equipamentos = {}, alteracoes, compartilhado
+        let alteracoes, compartilhado
 
         const
             demand = this.props?.location?.state?.demand,
@@ -99,10 +99,11 @@ class AltDados extends Component {
             await this.setState({ ...selectedVehicle, selectedVehicle, originalVehicle, delegatario, compartilhado, razaoSocial, selectedEmpresa, demand, alteracoes, activeStep: 3 })
         }
 
-        if (redux && redux.equipamentos) {
-            redux.equipamentos.forEach(e => Object.assign(equipamentos, { [e.item]: false }))
-            const equipArray = Object.keys(equipamentos)
-            await this.setState({ equipamentos: equipArray, ...equipamentos })
+        if (redux?.equipamentos) {
+            let equipamentos = {}
+
+            redux.equipamentos.forEach(({ item }) => Object.assign(equipamentos, { [item]: false }))
+            await this.setState({ ...equipamentos })
         }
         document.addEventListener('keydown', this.escFunction, false)
     }
@@ -123,7 +124,7 @@ class AltDados extends Component {
     }
 
     handleInput = async e => {
-        const { veiculos, empresas } = this.props.redux,
+        const { veiculos, empresas, equipamentos } = this.props.redux,
             { name, value } = e.target
 
         if (name === 'razaoSocial') {
@@ -145,7 +146,7 @@ class AltDados extends Component {
 
         if (name === 'placa' && this.state.frota) {
             const vehicle = this.state.frota.find(v => v.placa === value)
-            if (!vehicle) this.state.equipamentos.forEach(e => this.setState({ [e]: false }))
+            if (!vehicle) equipamentos.forEach(e => this.setState({ [e]: false }))
         }
 
         if (name === 'newPlate') {
@@ -226,7 +227,8 @@ class AltDados extends Component {
                     utilizacao = this.capitalize('utilizacao', vehicle?.utilizacao) || null,
                     dominio = this.capitalize('dominio', vehicle?.dominio) || null
 
-                if (vehicle.equipamentosId) this.setEquipa(vehicle)
+                if (vehicle.equipamentos) this.setEquipa(vehicle, 'equipamentos')
+                if (vehicle.acessibilidade) this.setEquipa(vehicle, 'acessibilidade')
 
                 vehicle = Object.assign({}, vehicle, { utilizacao, dominio })
 
@@ -241,7 +243,7 @@ class AltDados extends Component {
 
                     const demandExists = checkDemand(vehicle?.veiculoId, vehicleLogs)
                     if (demandExists) {
-                        this.setState({ customTitle, customMessage, openAlertDialog: true, delegatario: '' })
+                        await this.setState({ customTitle, customMessage, openAlertDialog: true, delegatario: '' })
                         this.reset()
                         return
                     }
@@ -256,38 +258,47 @@ class AltDados extends Component {
             }
         }
     }
-    setEquipa = vehicle => {
-        const
-            { equipamentos } = this.state,
-            currentEquipa = vehicle.equipamentosId
-        let vEquip = []
+    setEquipa = (vehicle, type) => {
 
-        equipamentos.forEach(e => {
-            if (currentEquipa.toLowerCase().match(e.toLowerCase())) vEquip.push(e)
+        if (!type) type = this.state.type
+
+        const
+            collection = this.props.redux[type],
+            currentEquipa = vehicle.equipamentos
+
+        let vEquip = []
+        console.log(type, this.props.redux)
+        collection.forEach(({ item }) => {
+            currentEquipa.forEach(ce => {
+                if (ce.toLowerCase().match(item.toLowerCase())) vEquip.push(item)
+            })
         })
         vEquip.forEach(ve => this.setState({ [ve]: true }))
-        this.setState({ equipamentosId: vEquip })
+        this.setState({ [collection]: vEquip })
+        console.log(this.state[collection])
     }
 
     handleCheck = async item => {
-        const { equipamentos } = this.state
-        let array = []
+        const { equipamentos } = this.props.redux
+        let array = [], ids = []
         await this.setState({ ...this.state, [item]: !this.state[item] })
 
-        equipamentos.forEach(e => {
-            if (this.state[e] === true) {
-                array.push(e)
+        equipamentos.forEach(({ id, item }) => {
+            if (this.state[item] === true) {
+                array.push(item)
+                ids.push(id)
             }
         })
-        if (array[0]) this.setState({ equipamentosId: array })
-        else this.setState({ equipamentosId: [] })
+
+        if (array[0]) this.setState({ equipamentos: array, equipa: ids })
+        else this.setState({ equipamentos: [], equipa: [] })
     }
 
-    handleEquipa = async () => {
+    handleEquipa = async type => {
         const { demand, selectedVehicle } = this.state
-
-        if (demand) await this.setEquipa(selectedVehicle)
-        this.setState({ addEquipa: !this.state.addEquipa })
+        console.log(type, this.state.type)
+        if (demand) await this.setEquipa(selectedVehicle, type)
+        this.setState({ addEquipa: !this.state.addEquipa, type })
     }
 
     showAltPlaca = () => {
@@ -353,9 +364,9 @@ class AltDados extends Component {
 
         const requestObject = humps.decamelizeKeys(camelizedRequest)
 
-      
+
         //******************GenerateLog********************** */
-        let history = { alteracoes: camelizedRequest }        
+        let history = { alteracoes: camelizedRequest }
 
         if (showPendencias && pendencias && pendencias !== '') history.info = pendencias
         else if (justificativa && justificativa !== '') history.info = justificativa
@@ -384,12 +395,11 @@ class AltDados extends Component {
             await axios.put('/api/updateVehicle', { requestObject, table, tablePK, id: veiculoId })
         }
 
-        //******************Clear the state ********************** */
-        //this.setState({ activeStep: 0, razaoSocial: '', selectedEmpresa: undefined })
-        this.reset()
+        //******************Clear the state ********************** */        
+        this.reset(true)
         this.toast()
         await this.setState({ activeStep: 0 })
-        
+
         if (demand) this.props.history.push('/solicitacoes')
     }
 
@@ -433,7 +443,7 @@ class AltDados extends Component {
     toggleDialog = () => this.setState({ altPlaca: !this.state.altPlaca })
     closeAlert = () => this.setState({ openAlertDialog: !this.state.openAlertDialog })
     toast = () => this.setState({ confirmToast: !this.state.confirmToast })
-    reset = () => {
+    reset = resetAll => {
 
         let resetFiles = {}
 
@@ -441,13 +451,14 @@ class AltDados extends Component {
         altDadosFiles.forEach(({ name }) => {
             Object.assign(resetFiles, { [name]: undefined })
         })
-        this.setState({ ...resetFiles, form: undefined, selectedEmpresa: undefined, razaoSocial: undefined })
+        if (resetAll) this.setState({ ...resetFiles, form: undefined, selectedEmpresa: undefined, razaoSocial: undefined })
+        else this.setState({ ...resetFiles, form: undefined })
     }
 
     render() {
 
         const
-            { empresas, equipamentos } = this.props.redux,
+            { empresas, equipamentos, acessibilidade } = this.props.redux,
 
             { confirmToast, toastMsg, stepTitles, activeStep, steps, altPlaca, selectedEmpresa, openAlertDialog, alertType, customTitle, customMessage,
                 dropDisplay, form, title, header, newPlate, demand, showPendencias, pendencias } = this.state
@@ -464,6 +475,7 @@ class AltDados extends Component {
                 data={this.state}
                 empresas={empresas}
                 equipamentos={equipamentos}
+                acessibilidade={acessibilidade}
                 setActiveStep={this.setActiveStep}
                 altPlacaOption={activeStep === 0}
                 handleInput={this.handleInput}

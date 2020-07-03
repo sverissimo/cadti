@@ -37,20 +37,23 @@ const useStyles = makeStyles(theme => ({
         textAlign: 'center',
         color: theme.palette.text.secondary,
         margin: theme.spacing(1)
+    },
+    button: {
+        marginRight: '15px'
     }
-}));
+}))
 
 export default function ({ handleInput, handleBlur, data, handleCheck, handleEquipa,
-    altPlacaOption, showAltPlaca, empresas, equipamentos }) {
-    const { activeStep, subtitle, placa, selectedEmpresa, addEquipa, demand } = data,
+    altPlacaOption, showAltPlaca, empresas, equipamentos, acessibilidade }) {
+    const { activeStep, subtitle, placa, selectedEmpresa, addEquipa, demand, type } = data,
         classes = useStyles(), { paper, container } = classes
 
     let form = altForm[activeStep]
-    /* 
-    role
-    if (demand?.status.match('Pendências')) role = 'empresa'
-    if (demand?.status.match('Aguardando')) role = 'seinfra'
- */
+
+    let eqCollection = equipamentos
+    if (type === 'acessibilidade') eqCollection = acessibilidade
+
+
     return (
         <Fragment>
             <Grid
@@ -85,17 +88,27 @@ export default function ({ handleInput, handleBlur, data, handleCheck, handleEqu
                                 </Paper>}
 
                             {activeStep === 0 &&
-                                <Grid container justify="center">
+                                <Grid container justify="center" style={{ paddingRight: '15px' }}>
                                     <Button
                                         variant="outlined"
                                         size="small"
                                         color="primary"
                                         className={classes.button}
-                                        onClick={handleEquipa}
+                                        onClick={() => handleEquipa('equipamentos')}
                                     >
                                         <AddIcon />
                                         Equipamentos
-                                        </Button>
+                                    </Button>
+                                    <Button
+                                        variant="outlined"
+                                        size="small"
+                                        color="primary"
+                                        className={classes.button}
+                                        onClick={() => handleEquipa('acessibilidade')}
+                                    >
+                                        <AddIcon />
+                                        Acessibilidade
+                                    </Button>
                                 </Grid>}
 
                             {altPlacaOption && placa.match('[a-zA-Z]{3}[-]?\\d{4}') &&
@@ -105,7 +118,7 @@ export default function ({ handleInput, handleBlur, data, handleCheck, handleEqu
                             }
                             {
                                 addEquipa && <AddEquipa
-                                    equipamentos={equipamentos}
+                                    equipamentos={eqCollection}
                                     close={handleEquipa}
                                     handleCheck={handleCheck}
                                     data={data} />
