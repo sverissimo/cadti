@@ -21,14 +21,15 @@ export default function Revisao({ data, parentComponent, form, filesForm, files 
     const
         classes = useStyles(),
         { paper } = classes,
-        { alteracoes } = data
+        { acessibilidade, equipamentos, alteracoes } = data,
+        originalVehicle = data?.originalVehicle
 
     let vehicleDetails = [],
         obj = {},
         newForm = [],
         filledForm = [],
         ultimateData,
-        alteredElements
+        alteredElements = []
 
     form.forEach(f => {
         f.forEach(e => {
@@ -55,6 +56,18 @@ export default function Revisao({ data, parentComponent, form, filesForm, files 
 
     if (alteracoes && typeof alteracoes === 'object') alteredElements = Object.keys(alteracoes)
 
+    if (originalVehicle) {
+        Object.keys(originalVehicle).forEach(key => {
+            if (data[key] && originalVehicle[key]) {
+                if (data[key] !== originalVehicle[key] && !alteredElements.includes(key)) {
+                    console.log(key)
+                    alteredElements.push(key)
+                }
+            }
+        })
+    }
+    console.log(alteredElements)
+
     return (
         <>
             <Paper className={paper}>
@@ -66,7 +79,7 @@ export default function Revisao({ data, parentComponent, form, filesForm, files 
                                     length={form.length}
                                     title={subtitle}
                                     labels={form.map(s => s.label)}
-                                    fields={form.map(el=>el.field)}
+                                    fields={form.map(el => el.field)}
                                     values={Object.values(data)}
                                     alteredElements={alteredElements}
                                 />
@@ -77,19 +90,37 @@ export default function Revisao({ data, parentComponent, form, filesForm, files 
                     <h3> Equipamentos </h3>
                     <p>
                         {
-                            Array.isArray(data.equipamentosId) && data.equipamentosId &&
-                            data.equipamentosId.map((e, i) => <span
+                            Array.isArray(equipamentos) && equipamentos &&
+                            equipamentos.map((e, i) => <span
                                 style={{
                                     fontFamily: 'Segoe UI, Tahoma, Geneva, Verdana',
                                     fontSize: '12px'
                                 }}
                                 key={i}>
-                                {i !== data.equipamentosId.length ? e + ', ' : e
+                                {i !== equipamentos.length ? e + ', ' : e
                                 }
                             </span>)
                         }
                     </p>
                 </section>
+                {/*                <section style={{ margin: '30px 0 0 25px' }}>
+                    <h3> Itens de acessibilidade </h3>
+                    <p>
+                        {
+                            Array.isArray(acessibilidade) && acessibilidade &&
+                            acessibilidade.map((e, i) => <span
+                                style={{
+                                    fontFamily: 'Segoe UI, Tahoma, Geneva, Verdana',
+                                    fontSize: '12px'
+                                }}
+                                key={i}>
+                                {i !== acessibilidade.length ? e + ', ' : e
+                                }
+                            </span>)
+                        }
+                    </p>
+                </section>
+ */}
 
                 <h3 style={{ margin: '30px 0 0 25px' }}> <FileCopyOutlinedIcon style={{ verticalAlign: 'middle', padding: '0 0 0 8px' }} /> Documentos </h3>
                 {files && <ShowLocalFiles form={filesForm} files={files} />}

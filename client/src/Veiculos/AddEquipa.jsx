@@ -5,12 +5,12 @@ import FormControlLabel from '@material-ui/core/FormControlLabel'
 
 import '../Layouts/popUp.css'
 
-export default function AddEquipa({ data, equipamentos, handleCheck, close }) {    
+export default function AddEquipa({ data, type, equipamentos, handleCheck, close }) {    
     
     if (Array.isArray(equipamentos) && equipamentos[0]?.item) equipamentos = equipamentos.sort((a, b) => a.item.localeCompare(b.item))
 
     return <div className='popUpWindow' style={{ right: '25%', left: '25%' }}>
-        <h4 className='equipaHeader'>Equipamentos</h4> <hr />
+        <h4 className='equipaHeader'>{type === 'equipamentos' ? 'Equipamentos' : 'Itens de Acessibilidade'}</h4> <hr />
         <div className="checkListContainer">
             {
                 equipamentos.map((eq, i) =>
@@ -20,7 +20,7 @@ export default function AddEquipa({ data, equipamentos, handleCheck, close }) {
                                 <Checkbox
                                     checked={data[eq.item]}
                                     value={eq.item}
-                                    onChange={() => handleCheck(eq.item)} />
+                                    onChange={() => handleCheck(eq.item, type)} />
                             }
                             label={<p className="checkListLabel">{eq.item}</p>}
                         />

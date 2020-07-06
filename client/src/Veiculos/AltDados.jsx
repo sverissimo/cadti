@@ -22,7 +22,6 @@ import StepperButtons from '../Utils/StepperButtons'
 import FormDialog from '../Reusable Components/FormDialog'
 import AlertDialog from '../Utils/AlertDialog'
 
-
 class AltDados extends Component {
 
     constructor() {
@@ -63,15 +62,13 @@ class AltDados extends Component {
     async componentDidMount() {
         const
             { redux } = this.props,
-            { veiculos, empresas } = redux
+            { veiculos, empresas, equipamentos, acessibilidade } = redux
 
         let alteracoes, compartilhado
 
         const
             demand = this.props?.location?.state?.demand,
             history = demand?.history
-
-        if (Array.isArray(history)) alteracoes = history.reverse().find(el => el.hasOwnProperty('alteracoes')).alteracoes
 
         if (demand) {
             const
@@ -82,8 +79,9 @@ class AltDados extends Component {
                 vehicleData = JSON.parse(JSON.stringify(vehicle)),
                 selectedEmpresa = empresas.find(e => e.razaoSocial === demand?.empresa),
                 razaoSocial = selectedEmpresa?.razaoSocial,
-                delegatario = razaoSocial,
-                selectedVehicle = Object.assign(vehicleData, alteracoes)
+                delegatario = razaoSocial
+
+            let selectedVehicle = { ...vehicle }
 
             if (history) {
                 const
@@ -94,17 +92,24 @@ class AltDados extends Component {
                     compartilhado = empresas.find(e => e.delegatarioId === delCompartilhado)?.razaoSocial
                     if (alteracoes && typeof alteracoes === 'object') alteracoes.compartilhado = compartilhado
                 }
-            }
 
+                if (Array.isArray(history)) alteracoes = history.reverse().find(el => el.hasOwnProperty('alteracoes')).alteracoes
+                if (alteracoes) Object.keys(alteracoes).forEach(key => selectedVehicle[key] = alteracoes[key])
+            }
             await this.setState({ ...selectedVehicle, selectedVehicle, originalVehicle, delegatario, compartilhado, razaoSocial, selectedEmpresa, demand, alteracoes, activeStep: 3 })
         }
 
-        if (redux?.equipamentos) {
-            let equipamentos = {}
+        //*********Create state[key] for each equipamentos/acessibilidade and turn them to false before a vehicle is selected *********/
 
-            redux.equipamentos.forEach(({ item }) => Object.assign(equipamentos, { [item]: false }))
-            await this.setState({ ...equipamentos })
-        }
+        let
+            allEqs = {},
+            allAcs = {}
+
+        equipamentos.forEach(e => Object.assign(allEqs, { [e?.item]: false }))
+        acessibilidade.forEach(e => Object.assign(allAcs, { [e?.item]: false }))
+
+        await this.setState({ ...allEqs, ...allAcs })
+
         document.addEventListener('keydown', this.escFunction, false)
     }
 
@@ -192,7 +197,7 @@ class AltDados extends Component {
 
     handleBlur = async e => {
         const
-            { empresas, vehicleLogs } = this.props.redux,
+            { empresas, vehicleLogs, equipamentos, acessibilidade } = this.props.redux,
             { frota, demand } = this.state,
             { name } = e.target
 
@@ -225,16 +230,19 @@ class AltDados extends Component {
 
                 let
                     utilizacao = this.capitalize('utilizacao', vehicle?.utilizacao) || null,
-                    dominio = this.capitalize('dominio', vehicle?.dominio) || null
+                    dominio = this.capitalize('dominio', vehicle?.dominio) || null,
+                    resetEquips = {}
 
-                if (vehicle.equipamentos) this.setEquipa(vehicle, 'equipamentos')
-                if (vehicle.acessibilidade) this.setEquipa(vehicle, 'acessibilidade')
 
+                //Every time a new vehicle is selected, clear the equips/acessibilidade. Method this.setEquipa() will set it back.
+                const allEquips = equipamentos.concat(acessibilidade)
+                allEquips.forEach(({ item }) => Object.assign(resetEquips, { [item]: false }))
+
+                //Add few mor properties to vehicle and preserve vehicle before changes.
                 vehicle = Object.assign({}, vehicle, { utilizacao, dominio })
-
                 const originalVehicle = Object.freeze(vehicle)
 
-                await this.setState({ ...vehicle, originalVehicle, disable: true })
+                await this.setState({ ...resetEquips, ...vehicle, originalVehicle, disable: true })
                 if (vehicle !== undefined && vehicle.hasOwnProperty('empresa')) this.setState({ delegatario: vehicle.empresa })
 
                 if (!demand) {
@@ -258,46 +266,65 @@ class AltDados extends Component {
             }
         }
     }
-    setEquipa = (vehicle, type) => {
+    setEquipa = async (vehicle, type) => {
 
         if (!type) type = this.state.type
 
         const
             collection = this.props.redux[type],
-            currentEquipa = vehicle.equipamentos
+            { alteracoes } = this.state
 
-        let vEquip = []
-        console.log(type, this.props.redux)
+        if (alteracoes) console.log(alteracoes)
+
+        let vEquip = [], currentEquipa
+        if (vehicle[type]) currentEquipa = vehicle[type]
+
         collection.forEach(({ item }) => {
             currentEquipa.forEach(ce => {
-                if (ce.toLowerCase().match(item.toLowerCase())) vEquip.push(item)
+                if (ce.toLowerCase() === item.toLowerCase()) vEquip.push(item)
             })
         })
         vEquip.forEach(ve => this.setState({ [ve]: true }))
-        this.setState({ [collection]: vEquip })
-        console.log(this.state[collection])
+        await this.setState({ [collection]: vEquip })
     }
 
-    handleCheck = async item => {
-        const { equipamentos } = this.props.redux
-        let array = [], ids = []
+    handleCheck = async (item, type) => {
+        const collection = this.props.redux[type]
+
+        if (!collection) return
+
+        let array = [], ids = [], stateKey
+
+        if (type === 'equipamentos') stateKey = 'equipa'
+        if (type === 'acessibilidade') stateKey = 'acessibilidadeId'
+
         await this.setState({ ...this.state, [item]: !this.state[item] })
 
-        equipamentos.forEach(({ id, item }) => {
+        collection.forEach(({ id, item }) => {
             if (this.state[item] === true) {
                 array.push(item)
                 ids.push(id)
             }
         })
 
-        if (array[0]) this.setState({ equipamentos: array, equipa: ids })
-        else this.setState({ equipamentos: [], equipa: [] })
+        if (array[0]) this.setState({ [type]: array, [stateKey]: ids })
+        else this.setState({ equipamentos: [], acessibilidade: [], [stateKey]: [] })
     }
 
     handleEquipa = async type => {
-        const { demand, selectedVehicle } = this.state
-        console.log(type, this.state.type)
-        if (demand) await this.setEquipa(selectedVehicle, type)
+        const { demand, equipamentos, acessibilidade, selectedVehicle } = this.state
+        let vehicle = {}
+
+        if (equipamentos && type === 'equipamentos') {
+            vehicle.equipamentos = equipamentos
+            this.setEquipa(vehicle, 'equipamentos')
+        }
+        if (acessibilidade && type === 'acessibilidade') {
+            vehicle.acessibilidade = acessibilidade
+            this.setEquipa(vehicle, 'acessibilidade')
+        }
+
+        //if (demand) await this.setEquipa(selectedVehicle)
         this.setState({ addEquipa: !this.state.addEquipa, type })
     }
 
@@ -315,7 +342,7 @@ class AltDados extends Component {
     handleSubmit = async (approved) => {
         const
             { veiculoId, poltronas, pesoDianteiro, pesoTraseiro, delegatarioId, originalVehicle, showPendencias, pendencias,
-                delegatarioCompartilhado, equipamentosId, newPlate, selectedEmpresa, justificativa, demand, form } = this.state,
+                delegatarioCompartilhado, equipamentosId, newPlate, selectedEmpresa, justificativa, demand, form, equipa, acessibilidadeId } = this.state,
 
             oldHistoryLength = demand?.history?.length || 0
 
@@ -335,23 +362,23 @@ class AltDados extends Component {
         let pbt = Number(poltronas) * 93 + (Number(pesoDianteiro) + Number(pesoTraseiro))
         if (isNaN(pbt)) pbt = undefined
 
-        tempObj = Object.assign(tempObj, { delegatarioId, delegatarioCompartilhado, pbt, equipamentosId })
-        console.log(tempObj)
+        tempObj = Object.assign(tempObj, { delegatarioId, delegatarioCompartilhado, pbt, equipamentosId, equipa, acessibilidadeId })
+
 
         //Save only real changes to the request Object
         Object.keys(tempObj).forEach(key => {
             if (tempObj[key] && originalVehicle[key]) {
-                if (key === 'equipamentosId') {
-                    if (typeof tempObj[key] === 'string') tempObj[key] = tempObj[key].split(',')
-                    if (tempObj[key].sort().toString() === originalVehicle[key].toString())
-                        delete tempObj[key]
-                }
-                else if (tempObj[key].toString() === originalVehicle[key].toString()) {
+
+                if (key === 'equipa' || key === 'acessibilidadeId')
+                    tempObj[key].sort((a, b) => a - b)
+
+                if (tempObj[key].toString() === originalVehicle[key].toString())
                     delete tempObj[key]
-                }
             }
             if (tempObj[key] === '' || tempObj[key] === 'null' || !tempObj[key]) delete tempObj[key]
         })
+
+        console.log(tempObj, equipa, originalVehicle.equipa)
 
         let { placa, delegatario, compartilhado, ...camelizedRequest } = tempObj
 
@@ -363,7 +390,6 @@ class AltDados extends Component {
             camelizedRequest.delegatarioCompartilhado = 'NULL'
 
         const requestObject = humps.decamelizeKeys(camelizedRequest)
-
 
         //******************GenerateLog********************** */
         let history = { alteracoes: camelizedRequest }

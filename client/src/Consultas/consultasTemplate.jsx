@@ -6,10 +6,13 @@ import MaterialTable from 'material-table';
 import { tables } from './tables'
 
 export default function ({ tab, collection, showDetails, showFiles, showCertificate, del }) {
-    
+
     const id = ['delegatarioId', 'socioId', 'procuradorId', 'veiculoId', 'apolice'][tab],
         subject = ['empresas', 'sócios', 'procuradores', 'veículos', 'seguros']
+    
     if (!Array.isArray(collection)) collection = []
+    collection = collection.map(obj => ({ ...obj }))
+    
     return (
         <div style={{ margin: '10px 0' }} className='noPrint'>
             <MaterialTable

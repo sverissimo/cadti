@@ -43,16 +43,17 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
-export default function ({ handleInput, handleBlur, data, handleCheck, handleEquipa,
-    altPlacaOption, showAltPlaca, empresas, equipamentos, acessibilidade }) {
-    const { activeStep, subtitle, placa, selectedEmpresa, addEquipa, demand, type } = data,
+export default function ({ handleInput, handleBlur, data, handleCheck, handleEquipa, altPlacaOption, showAltPlaca, empresas, equipamentos, acessibilidade }) {
+
+    const
+        { activeStep, subtitle, placa, selectedEmpresa, addEquipa, demand, type } = data,
         classes = useStyles(), { paper, container } = classes
 
-    let form = altForm[activeStep]
+    let
+        form = altForm[activeStep],
+        eqCollection = equipamentos
 
-    let eqCollection = equipamentos
     if (type === 'acessibilidade') eqCollection = acessibilidade
-
 
     return (
         <Fragment>
@@ -118,6 +119,7 @@ export default function ({ handleInput, handleBlur, data, handleCheck, handleEqu
                             }
                             {
                                 addEquipa && <AddEquipa
+                                    type={type}
                                     equipamentos={eqCollection}
                                     close={handleEquipa}
                                     handleCheck={handleCheck}

@@ -33,49 +33,26 @@ export default function (requestArray, WrappedComponent) {
             if (request[0]) await this.props.getData(request)
 
             if (!socket) socket = socketIO()
-            socket.on('insertVehicle', insertedObjects => {
-                this.props.insertData(insertedObjects, 'veiculos')
-            })
-            socket.on('insertInsurance', insertedObjects => {
-                this.props.insertData(insertedObjects, 'seguros')
-            })
-            socket.on('insertEmpresa', insertedObjects => {
-                this.props.insertData(insertedObjects, 'empresas')
-            })
-            socket.on('insertSocios', insertedObjects => {
-                this.props.insertData(insertedObjects, 'socios')
-            })
-            socket.on('insertProcuradores', insertedObjects => {
-                this.props.insertData(insertedObjects, 'procuradores')
-            })
+            socket.on('insertVehicle', insertedObjects => this.props.insertData(insertedObjects, 'veiculos'))
+            socket.on('insertInsurance', insertedObjects => this.props.insertData(insertedObjects, 'seguros'))
+            socket.on('insertEmpresa', insertedObjects => this.props.insertData(insertedObjects, 'empresas'))
+            socket.on('insertSocios', insertedObjects => this.props.insertData(insertedObjects, 'socios'))
+            socket.on('insertProcuradores', insertedObjects => this.props.insertData(insertedObjects, 'procuradores'))
+            socket.on('insertElements', ({ insertedObjects, collection }) => this.props.insertData(insertedObjects, collection))
+
             socket.on('addElements', ({ insertedObjects, table }) => {
                 const { collection } = configVehicleForm.find(el => el.table === table)
                 this.props.insertData(insertedObjects, collection)
             })
 
-            socket.on('insertElements', ({ insertedObjects, collection }) => {
-                console.log(insertedObjects)
-                this.props.insertData(insertedObjects, collection)
-            })
-
+            socket.on('updateVehicle', updatedObjects => this.props.updateData(updatedObjects, 'veiculos', 'veiculoId'))
+            socket.on('updateInsurance', updatedObjects => this.props.updateCollection(updatedObjects, 'seguros'))
+            socket.on('updateSocios', updatedObjects => this.props.updateCollection(updatedObjects, 'socios'))
             socket.on('updateLogs', updatedObjects => {
+                console.log(updatedObjects)
                 this.props.updateData(updatedObjects, 'vehicleLogs', 'id')
             })
-
-            socket.on('updateElements', ({ collection, updatedCollection }) => {
-                this.props.updateCollection(updatedCollection, collection)
-            })
-
-            socket.on('updateVehicle', updatedObjects => {
-                this.props.updateData(updatedObjects, 'veiculos', 'veiculoId')
-            })
-
-            socket.on('updateInsurance', updatedObjects => {
-                this.props.updateCollection(updatedObjects, 'seguros')
-            })
-            socket.on('updateSocios', updatedObjects => {
-                this.props.updateCollection(updatedObjects, 'socios')
-            })
+            socket.on('updateElements', ({ collection, updatedCollection }) => this.props.updateCollection(updatedCollection, collection))
 
             socket.on('deleteOne', object => {
                 const { id, tablePK, collection } = object
@@ -84,7 +61,6 @@ export default function (requestArray, WrappedComponent) {
 
             socket.on('insertFiles', object => {
                 const { insertedObjects, collection } = object
-                console.log(object)
                 this.props.insertData(insertedObjects, collection)
             })
         }

@@ -27,9 +27,9 @@ export const getData = (collectionsArray = []) => {
         }
 
         if (['acessibilidade', 'equipamentos', 'veiculos'].every(p => returnObj.hasOwnProperty(p))) {
-            const { acessibilidade, equipamentos, veiculos } = returnObj
+            const { acessibilidade, equipamentos, veiculos } = returnObj            
             const updatedFields = idsToString(veiculos, equipamentos, acessibilidade)
-            returnObj.veiculos = updatedFields
+            returnObj.veiculos = updatedFields  
         }
         dispatch({
             type: 'GET_DATA',
