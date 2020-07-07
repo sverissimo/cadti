@@ -12,8 +12,8 @@ import VehicleDocs from './VehicleDocs'
 import Review from './VehicleReview'
 
 import Crumbs from '../Reusable Components/Crumbs'
-import StepperButtons from '../Utils/StepperButtons'
-import CustomStepper from '../Utils/Stepper'
+import StepperButtons from '../Reusable Components/StepperButtons'
+import CustomStepper from '../Reusable Components/Stepper'
 import ReactToast from '../Utils/ReactToast'
 
 import { formatMoney } from '../Utils/formatValues'

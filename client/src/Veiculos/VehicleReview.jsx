@@ -60,14 +60,14 @@ export default function Revisao({ data, parentComponent, form, filesForm, files 
         Object.keys(originalVehicle).forEach(key => {
             if (data[key] && originalVehicle[key]) {
                 if (data[key] !== originalVehicle[key] && !alteredElements.includes(key)) {
-                    console.log(key)
                     alteredElements.push(key)
                 }
             }
         })
     }
-    console.log(alteredElements)
 
+//***************QUANDO DESMARCA EQUIPA N RENDERIZA ACESSIBILIDADE NO ALTDADOS SEM DEMAND... */
+    console.log(equipamentos, acessibilidade)
     return (
         <>
             <Paper className={paper}>
@@ -86,41 +86,36 @@ export default function Revisao({ data, parentComponent, form, filesForm, files 
                             </Fragment>
                         )}
                 </main>
-                <section style={{ margin: '30px 0 0 25px' }}>
-                    <h3> Equipamentos </h3>
-                    <p>
-                        {
-                            Array.isArray(equipamentos) && equipamentos &&
-                            equipamentos.map((e, i) => <span
-                                style={{
-                                    fontFamily: 'Segoe UI, Tahoma, Geneva, Verdana',
-                                    fontSize: '12px'
-                                }}
-                                key={i}>
-                                {i !== equipamentos.length ? e + ', ' : e
-                                }
-                            </span>)
-                        }
-                    </p>
-                </section>
-                {/*                <section style={{ margin: '30px 0 0 25px' }}>
-                    <h3> Itens de acessibilidade </h3>
-                    <p>
-                        {
-                            Array.isArray(acessibilidade) && acessibilidade &&
-                            acessibilidade.map((e, i) => <span
-                                style={{
-                                    fontFamily: 'Segoe UI, Tahoma, Geneva, Verdana',
-                                    fontSize: '12px'
-                                }}
-                                key={i}>
-                                {i !== acessibilidade.length ? e + ', ' : e
-                                }
-                            </span>)
-                        }
-                    </p>
-                </section>
- */}
+                {
+                    equipamentos[0] &&
+                    <section style={{ margin: '30px 0 0 25px' }}>
+                        <h3> Equipamentos </h3>
+                        <p>
+                            {
+                                equipamentos && equipamentos.map((e, i) =>
+                                    <span style={{ fontFamily: 'Segoe UI, Tahoma, Geneva, Verdana', fontSize: '12px' }} key={i}>
+                                        {i !== equipamentos.length - 1 ? e + ', ' : e}
+                                    </span>
+                                )
+                            }
+                        </p>
+                    </section>
+                }
+                {
+                    acessibilidade[0] &&
+                    <section style={{ margin: '30px 0 0 25px' }}>
+                        <h3> Itens de acessibilidade </h3>
+                        <p>
+                            {
+                                acessibilidade.map((e, i) =>
+                                    <span style={{ fontFamily: 'Segoe UI, Tahoma, Geneva, Verdana', fontSize: '12px' }} key={i}>
+                                        {i !== acessibilidade.length - 1 ? e + ', ' : e}
+                                    </span>
+                                )
+                            }
+                        </p>
+                    </section>
+                }
 
                 <h3 style={{ margin: '30px 0 0 25px' }}> <FileCopyOutlinedIcon style={{ verticalAlign: 'middle', padding: '0 0 0 8px' }} /> Documentos </h3>
                 {files && <ShowLocalFiles form={filesForm} files={files} />}

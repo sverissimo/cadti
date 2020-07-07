@@ -69,7 +69,6 @@ function Solicitacoes(props) {
         if (!vehicle) {
             const customTitle = 'Veículo não encontrado',
                 customMessage = `O veículo para o qual a demanda foi informada não foi encontrado. Verifique se o veículo está registrado em "Consultas -> Veículos"`
-
             await setAlertDialog({ openAlertDialog: true, customTitle, customMessage })
             return
         }

@@ -27,9 +27,9 @@ export const getData = (collectionsArray = []) => {
         }
 
         if (['acessibilidade', 'equipamentos', 'veiculos'].every(p => returnObj.hasOwnProperty(p))) {
-            const { acessibilidade, equipamentos, veiculos } = returnObj            
+            const { acessibilidade, equipamentos, veiculos } = returnObj
             const updatedFields = idsToString(veiculos, equipamentos, acessibilidade)
-            returnObj.veiculos = updatedFields  
+            returnObj.veiculos = updatedFields
         }
         dispatch({
             type: 'GET_DATA',
@@ -44,8 +44,7 @@ export const insertData = (dataFromServer, collection) => (dispatch, getState) =
         payload = { collection, data },
         seguradoras = getState().data.seguradoras
 
-    if (!seguradoras) {
-        console.log(payload)
+    if (!seguradoras) {        
         dispatch({ type: 'INSERT_DATA', payload })
         return
     }
@@ -86,10 +85,15 @@ export const insertData = (dataFromServer, collection) => (dispatch, getState) =
 
 }
 
-export const updateData = (dataFromServer, collection, id) => dispatch => {
-    const
-        data = humps.camelizeKeys(dataFromServer),
-        payload = { collection, data, id }
+export const updateData = (dataFromServer, collection, id) => (dispatch, getState) => {
+    let data = humps.camelizeKeys(dataFromServer)
+
+    if (collection === 'veiculos') {
+        const { equipamentos, acessibilidade } = getState().data
+        data = idsToString(data, equipamentos, acessibilidade)
+    }
+
+    const payload = { collection, data, id }
     dispatch({ type: 'UPDATE_DATA', payload })
 }
 

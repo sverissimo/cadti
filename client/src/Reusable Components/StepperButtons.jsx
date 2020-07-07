@@ -31,7 +31,7 @@ export default function StepperButtons({ activeStep, setActiveStep, lastStep, ha
 
     return (
         <div>
-            {!showPendencias && activeStep < lastStep &&
+            {(!showPendencias || activeStep < lastStep) &&
                 <Button
                     variant="contained"
                     className={backButton}
@@ -69,14 +69,14 @@ export default function StepperButtons({ activeStep, setActiveStep, lastStep, ha
                         />
                     }
                     <div style={{ display: 'flex', width: '100%' }}>
-                        <Button
+                        {showPendencias && activeStep === lastStep && <Button
                             variant="contained"
                             className={backButton}
                             onClick={() => setActiveStep('back')}
                             disabled={activeStep === 0}
                         >
                             Voltar
-                        </Button>
+                        </Button>}
                         <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
                             {
                                 !demand || role === 'empresa' ?

@@ -16,8 +16,8 @@ import { empresasForm } from '../Forms/empresasForm'
 import { sociosForm } from '../Forms/sociosForm'
 import Crumbs from '../Reusable Components/Crumbs'
 
-import StepperButtons from '../Utils/StepperButtons'
-import CustomStepper from '../Utils/Stepper'
+import StepperButtons from '../Reusable Components/StepperButtons'
+import CustomStepper from '../Reusable Components/Stepper'
 import AlertDialog from '../Utils/AlertDialog'
 
 class EmpresasContainer extends Component {

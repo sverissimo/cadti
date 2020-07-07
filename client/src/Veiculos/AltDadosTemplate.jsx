@@ -43,7 +43,7 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
-export default function ({ handleInput, handleBlur, data, handleCheck, handleEquipa, altPlacaOption, showAltPlaca, empresas, equipamentos, acessibilidade }) {
+export default function ({ handleInput, handleBlur, data, handleCheck, handleEquipa, altPlacaOption, showAltPlaca, empresas, equipamentos, acessibilidade, close }) {
 
     const
         { activeStep, subtitle, placa, selectedEmpresa, addEquipa, demand, type } = data,
@@ -121,7 +121,7 @@ export default function ({ handleInput, handleBlur, data, handleCheck, handleEqu
                                 addEquipa && <AddEquipa
                                     type={type}
                                     equipamentos={eqCollection}
-                                    close={handleEquipa}
+                                    close={close}
                                     handleCheck={handleCheck}
                                     data={data} />
 

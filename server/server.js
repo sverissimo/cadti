@@ -504,9 +504,11 @@ app.put('/api/updateVehicle', (req, res) => {
 
     const { requestObject, table, tablePK, id } = req.body
     let query = ''
-
+    console.log(requestObject)
     Object.entries(requestObject).forEach(([k, v]) => {
-        if (k === 'delegatario_compartilhado') query += `${k} = NULL, `
+        console.log(k, v)
+        if (k === 'equipa' || k === 'acessibilidade_id') v = '{' + v + '}'
+        if (k === 'delegatario_compartilhado' && v === 'NULL') query += `${k} = NULL, `
         else query += `${k} = '${v}', `
     })
 
