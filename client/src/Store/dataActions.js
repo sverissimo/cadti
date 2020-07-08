@@ -5,8 +5,10 @@ import { idsToString } from '../Utils/idsToString'
 
 export const getData = (collectionsArray = []) => {
     return async (dispatch, getState) => {
+        let
+            promiseArray = [],
+            returnObj = {}
 
-        let promiseArray = [], returnObj = {}
         if (collectionsArray.length > 0) {
             collectionsArray.forEach(collectionName => {
                 promiseArray.push(axios.get(`/api/${collectionName}`))
@@ -26,10 +28,17 @@ export const getData = (collectionsArray = []) => {
                 })
         }
 
-        if (['acessibilidade', 'equipamentos', 'veiculos'].every(p => returnObj.hasOwnProperty(p))) {
-            const { acessibilidade, equipamentos, veiculos } = returnObj
-            const updatedFields = idsToString(veiculos, equipamentos, acessibilidade)
-            returnObj.veiculos = updatedFields
+        if (['acessibilidade', 'equipamentos'].every(p => returnObj.hasOwnProperty(p))) {
+            const { acessibilidade, equipamentos } = returnObj
+            let
+                { veiculos } = returnObj,
+                updatedData
+
+            if (!veiculos) veiculos = getState().data?.veiculos
+            if (veiculos) {
+                updatedData = idsToString(veiculos, equipamentos, acessibilidade)
+                returnObj.veiculos = updatedData
+            }
         }
         dispatch({
             type: 'GET_DATA',
@@ -44,7 +53,7 @@ export const insertData = (dataFromServer, collection) => (dispatch, getState) =
         payload = { collection, data },
         seguradoras = getState().data.seguradoras
 
-    if (!seguradoras) {        
+    if (!seguradoras) {
         dispatch({ type: 'INSERT_DATA', payload })
         return
     }

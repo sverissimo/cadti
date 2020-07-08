@@ -1,6 +1,7 @@
 import React from 'react'
 import GetAppIcon from '@material-ui/icons/GetApp';
 import InsertDriveFileOutlinedIcon from '@material-ui/icons/InsertDriveFileOutlined';
+import downloadFile from './downloadFile';
 
 const divContainer = {
     display: 'flex',
@@ -35,10 +36,8 @@ const fileIcon = {
 
 }
 
-export default function ShowLocalFiles({ form, files }) {
+export default function ShowLocalFiles({ form, files, demand, demandFiles, collection }) {
 
-    /* let doc
-    if (files) doc = contratoSocial.get('contratoSocial') || new FormData() */
 
     const createLink = (key, fileName) => {
 
@@ -60,14 +59,32 @@ export default function ShowLocalFiles({ form, files }) {
 
     let fileArray = []
 
+    if (demand) {
+        demandFiles.forEach(file => {
+            form.forEach(({ name, title }) => {
+                if (file.metadata.fieldName === name)
+                    fileArray.push({ id: file.id, label: title, fieldName: name, fileName: file.filename, storage: 'server' })
+            })
+        })
+    }
+
+    //******LÓGICA PARA Q O PUSH() DO FILEARRAY SOBRESCREVA QQ OUTRO OBJETO COM MESMO FIELDNAME [criada] AGORA FALTA NOVOS FIELDS ANEXADOS NO VEHICLEdOC SEREM RENDERIZADOS AQUI */
     if (files) for (let pair of files.entries()) {
         form.forEach(({ name, title }) => {
             if (name === pair[0]) {
-                if (pair[1] && pair[1].name)
-                    fileArray.push({ label: title, fieldName: name, fileName: pair[1].name })
+                if (pair[1] && pair[1].name) {
+                    const index = fileArray.findIndex(obj => obj?.fieldName === name)
+                    if (index || index === 0) {
+                        fileArray[index] = { label: title, fieldName: name, fileName: pair[1].name, storage: 'local' }
+                        console.log(fileArray, index, fileArray[index])
+                    }
+                    else fileArray.push({ label: title, fieldName: name, fileName: pair[1].name, storage: 'local' })
+                }
             }
         })
-    }    
+    }
+
+    console.log(fileArray)
     return <React.Fragment>
         <div style={divContainer}>
             {fileArray.map((f, i) =>
@@ -77,7 +94,7 @@ export default function ShowLocalFiles({ form, files }) {
                         {' '} {f.label}
                     </span>
                     <GetAppIcon style={icon}
-                        onClick={() => createLink(f.fieldName, f.fileName)} />
+                        onClick={() => f.storage === 'local' ? createLink(f.fieldName, f.fileName) : downloadFile(f.id, f.fileName, collection, f.fieldName)} />
                 </div>
             )}
         </div>

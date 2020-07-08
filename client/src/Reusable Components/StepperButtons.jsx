@@ -28,28 +28,29 @@ export default function StepperButtons({ activeStep, setActiveStep, lastStep, ha
     let role
     if (demand?.status.match('Pendências')) role = 'empresa'
     if (demand?.status.match('Aguardando')) role = 'seinfra'
-
+    
     return (
         <div>
-            {(!showPendencias || activeStep < lastStep) &&
-                <Button
-                    variant="contained"
-                    className={backButton}
-                    onClick={() => setActiveStep('back')}
-                    disabled={activeStep === 0}
-                >
-                    Voltar
-            </Button>}
             {activeStep < lastStep ?
-                <Button
-                    variant="contained"
-                    color="primary"
-                    className={button}
-                    onClick={() => setActiveStep('next')}
-                    disabled={disabled}
-                >
-                    Avançar
+                <>
+                    <Button
+                        variant="contained"
+                        className={backButton}
+                        onClick={() => setActiveStep('back')}
+                        disabled={activeStep === 0}
+                    >
+                        Voltar
                 </Button>
+                    <Button
+                        variant="contained"
+                        color="primary"
+                        className={button}
+                        onClick={() => setActiveStep('next')}
+                        disabled={disabled}
+                    >
+                        Avançar
+                </Button>
+                </>
                 :
                 <div style={{ display: 'flex', flexDirection: 'column' }}>
                     {role === 'seinfra' && !showPendencias ? null
@@ -69,13 +70,14 @@ export default function StepperButtons({ activeStep, setActiveStep, lastStep, ha
                         />
                     }
                     <div style={{ display: 'flex', width: '100%' }}>
-                        {showPendencias && activeStep === lastStep && <Button
-                            variant="contained"
-                            className={backButton}
-                            onClick={() => setActiveStep('back')}
-                            disabled={activeStep === 0}
-                        >
-                            Voltar
+                        {activeStep === lastStep &&
+                            <Button
+                                variant="contained"
+                                className={backButton}
+                                onClick={() => setActiveStep('back')}
+                                disabled={activeStep === 0}
+                            >
+                                Voltar
                         </Button>}
                         <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
                             {

@@ -63,7 +63,7 @@ class AltDados extends Component {
     async componentDidMount() {
         const
             { redux } = this.props,
-            { veiculos, empresas, equipamentos, acessibilidade } = redux
+            { veiculos, empresas, equipamentos, acessibilidade, vehicleDocs } = redux
 
         let alteracoes, compartilhado
 
@@ -83,28 +83,64 @@ class AltDados extends Component {
 
             let selectedVehicle = { ...vehicle }
 
-            if (history) {
-                const
-                    length = history?.length,
-                    delCompartilhado = history[length - 1]?.alteracoes?.delegatarioCompartilhado
+            //Adjust data to handle Delegatário compartilhado 
+            const
+                length = history?.length,
+                delCompartilhado = history[length - 1]?.alteracoes?.delegatarioCompartilhado
 
-                if (delCompartilhado) {
-                    compartilhado = empresas.find(e => e.delegatarioId === delCompartilhado)?.razaoSocial
-                    if (alteracoes && typeof alteracoes === 'object') alteracoes.compartilhado = compartilhado
-                }
-
-                if (Array.isArray(history)) alteracoes = history.reverse().find(el => el.hasOwnProperty('alteracoes')).alteracoes
-                if (alteracoes) {
-                    Object.keys(alteracoes).forEach(key => selectedVehicle[key] = alteracoes[key])
-
-                    const { equipa, acessibilidadeId } = alteracoes
-                    if (equipa) selectedVehicle.equipamentos = setNamesFromIds(equipamentos, equipa)
-                    if (acessibilidadeId) selectedVehicle.acessibilidade = setNamesFromIds(acessibilidade, acessibilidadeId)
-                }
+            if (delCompartilhado) {
+                compartilhado = empresas.find(e => e.delegatarioId === delCompartilhado)?.razaoSocial
+                if (alteracoes && typeof alteracoes === 'object') alteracoes.compartilhado = compartilhado
             }
+
+            //Get the last log updates
+            if (Array.isArray(history)) alteracoes = history.reverse().find(el => el.hasOwnProperty('alteracoes')).alteracoes
+
+            //Set equipa/acessibilidade array of names for each vehicle
+            if (alteracoes) {
+                Object.keys(alteracoes).forEach(key => selectedVehicle[key] = alteracoes[key])
+
+                const { equipa, acessibilidadeId } = alteracoes
+                if (equipa) selectedVehicle.equipamentos = setNamesFromIds(equipamentos, equipa)
+                if (acessibilidadeId) selectedVehicle.acessibilidade = setNamesFromIds(acessibilidade, acessibilidadeId)
+            }
+
+            //Get latest uploaded files per field
+            let fileIds = [], allDemandFiles, latestDocs = [], filesPerFieldName = {}
+            history
+                .filter(el => el.files)
+                .map(el => el.files)
+                .forEach(array => {
+                    array.forEach(id => fileIds.push(id))
+                })
+
+            allDemandFiles = vehicleDocs.filter(doc => fileIds.indexOf(doc.id) !== -1)
+            
+            let fieldExists = []
+            allDemandFiles.forEach(file => {
+                const { fieldName } = file.metadata
+                if (!fieldExists.includes(fieldName)) {
+                    fieldExists.push(fieldName)
+                    filesPerFieldName[fieldName] = [file]
+                }
+                else filesPerFieldName[fieldName].push(file)
+            })
+
+            console.log(filesPerFieldName)
+
+            Object.keys(filesPerFieldName).forEach(field => {
+                const arrayOfFiles = filesPerFieldName[field]
+                let lastDoc
+                lastDoc = arrayOfFiles.reduce((a, b) => new Date(a.uploadDate) > new Date(b.uploadDate) ? a : b)
+                latestDocs.push(lastDoc)
+                lastDoc = []
+            })
+            console.log(latestDocs)
+
+
             await this.setState({
                 ...selectedVehicle, originalVehicle, delegatario, compartilhado, razaoSocial, selectedEmpresa,
-                demand, alteracoes, activeStep: 0
+                demand, demandFiles: latestDocs, alteracoes, activeStep: 3
             });
         }
 
@@ -251,7 +287,7 @@ class AltDados extends Component {
                 const originalVehicle = Object.freeze(vehicle)
 
                 //setState()
-                await this.setState({ ...resetEquips, ...vehicle, originalVehicle, disable: true })                
+                await this.setState({ ...resetEquips, ...vehicle, originalVehicle, disable: true })
 
                 if (vehicle !== undefined && vehicle.hasOwnProperty('empresa')) this.setState({ delegatario: vehicle.empresa })
 
@@ -294,35 +330,8 @@ class AltDados extends Component {
         vEquip.forEach(ve => this.setState({ [ve]: true }))
 
         this.setState({ [collection]: vEquip, addEquipa: !this.state.addEquipa, type })
-
-        //const { equipamentos, acessibilidade } = this.state
-        //await this.setEquipa({ equipamentos, acessibilidade }, type)
-        //this.setState({ addEquipa: !this.state.addEquipa, type })
     }
 
-    /* handleEquipa = async type => {
-        const { equipamentos, acessibilidade } = this.state
-        await this.setEquipa({ equipamentos, acessibilidade }, type)
-        this.setState({ addEquipa: !this.state.addEquipa, type })
-    }
-
-    setEquipa = async (acessorios, type) => {
-        
-        const collection = this.props.redux[type]
-        let vEquip = [], currentEquipa = []
-        if (acessorios[type]) currentEquipa = acessorios[type]
-        
-        
-
-        collection.forEach(({ item }) => {
-            currentEquipa.forEach(ce => {
-                if (ce.toLowerCase() === item.toLowerCase()) vEquip.push(item)
-            })
-        })
-        vEquip.forEach(ve => this.setState({ [ve]: true }))
-        await this.setState({ [collection]: vEquip })
-    }
- */
     handleCheck = async (item, type) => {
         const collection = this.props.redux[type]
 
@@ -343,7 +352,8 @@ class AltDados extends Component {
         })
 
         if (array[0]) this.setState({ [type]: array, [stateKey]: ids })
-        else this.setState({ equipamentos: [], acessibilidade: [], [stateKey]: [] })
+        else if (type === 'equipamentos') this.setState({ equipamentos: [], [stateKey]: [] })
+        else if (type === 'acessibilidade') this.setState({ acessibilidade: [], [stateKey]: [] })
     }
 
     showAltPlaca = () => {
@@ -536,9 +546,11 @@ class AltDados extends Component {
                 formData={form}
             />}
             {activeStep === 3 && <Review
-                parentComponent='altDados' files={this.state.form}
-                filesForm={altDadosFiles} data={this.state}
+                parentComponent='altDados'
+                data={this.state}
                 form={altForm}
+                files={this.state.form}
+                filesForm={altDadosFiles}
             />}
 
             {selectedEmpresa && <StepperButtons
@@ -574,6 +586,6 @@ class AltDados extends Component {
     }
 }
 
-const collections = ['veiculos', 'empresas', 'equipamentos', 'acessibilidade'];
+const collections = ['veiculos', 'empresas', 'equipamentos', 'acessibilidade', 'getFiles/vehicleDocs'];
 
 export default StoreHOC(collections, AltDados)

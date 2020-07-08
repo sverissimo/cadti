@@ -17,13 +17,12 @@ const useStyles = makeStyles(theme => ({
 }))
 
 export default function Revisao({ data, parentComponent, form, filesForm, files }) {
-
     const
         classes = useStyles(),
         { paper } = classes,
-        { acessibilidade, equipamentos, alteracoes } = data,
+        { acessibilidade, equipamentos, alteracoes, demand, demandFiles } = data,
         originalVehicle = data?.originalVehicle
-
+    
     let vehicleDetails = [],
         obj = {},
         newForm = [],
@@ -66,8 +65,6 @@ export default function Revisao({ data, parentComponent, form, filesForm, files 
         })
     }
 
-//***************QUANDO DESMARCA EQUIPA N RENDERIZA ACESSIBILIDADE NO ALTDADOS SEM DEMAND... */
-    console.log(equipamentos, acessibilidade)
     return (
         <>
             <Paper className={paper}>
@@ -118,7 +115,14 @@ export default function Revisao({ data, parentComponent, form, filesForm, files 
                 }
 
                 <h3 style={{ margin: '30px 0 0 25px' }}> <FileCopyOutlinedIcon style={{ verticalAlign: 'middle', padding: '0 0 0 8px' }} /> Documentos </h3>
-                {files && <ShowLocalFiles form={filesForm} files={files} />}
+                {(files || demandFiles) &&
+                    <ShowLocalFiles
+                        demand={demand}
+                        collection='vehicleDocs'
+                        demandFiles={demandFiles}
+                        form={filesForm}
+                        files={files}
+                    />}
             </Paper >
         </>
     )

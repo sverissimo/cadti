@@ -132,28 +132,7 @@ export default function ({ handleInput, handleBlur, data, handleCheck, handleEqu
                             <div className={classes.formHolder}></div>
                         </Grid>
                 }
-            </Grid>
-            {/*    {activeStep === 1 && role === 'empresa' &&
-                <Grid
-                    container
-                    direction="row"
-                    justify="center"
-                    alignItems="center">
-                    <Grid>
-                        <TextField
-                            name='justificativa'
-                            value={justificativa}
-                            label='Justificativa'
-                            type='text'
-                            onChange={handleInput}
-                            InputLabelProps={{ shrink: true, style: { fontWeight: 600, marginBottom: '5%' } }}
-                            inputProps={{ style: { paddingBottom: '2%', width: '900px' }, maxLength: 500 }}
-                            multiline
-                            rows={4}
-                            variant='outlined'
-                        />
-                    </Grid>
-                </Grid>} */}
+            </Grid>          
         </Fragment>
     )
 }   
