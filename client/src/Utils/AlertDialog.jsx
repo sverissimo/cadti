@@ -6,11 +6,14 @@ import DialogContent from '@material-ui/core/DialogContent';
 import DialogContentText from '@material-ui/core/DialogContentText';
 import DialogTitle from '@material-ui/core/DialogTitle';
 
-export default function AlertDialog({ open, alertType, close, confirm, customTitle, customMessage }) {
+export default function AlertDialog({ open, alertType, close, confirm, customTitle, customMessage, tab }) {
 
   const createAlert = type => {
-    let title, message
+    let title, message, subject = ''
+    const subjectOptions = ['a empresa', 'o sócio', 'a procuração', 'o veículo', 'o seguro']
 
+    if (tab || tab === 0) subject = subjectOptions[tab]
+    
     if (customTitle && customMessage) {
       title = customTitle
       message = customMessage
@@ -53,9 +56,8 @@ export default function AlertDialog({ open, alertType, close, confirm, customTit
         message = 'As informações referentes ao seguro do veículo são obrigatórias. Certifique-se de ter informado todas elas.'
         return { title, message }
       case 'filesNotFound':
-        const subject = 'Procuração'
         title = 'Arquivos não encontrados'
-        message = `Não há nenhum arquivo anexado no sistema para a ${subject} selecionada. 
+        message = `Não há nenhum arquivo anexado no sistema para ${subject} selecionad${subject.charAt(0)}. 
           Ao cadastrar ou atualizar a ${subject}, certifique-se de anexar o arquivo correspondente.`
         return { title, message }
 

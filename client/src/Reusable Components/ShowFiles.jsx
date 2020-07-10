@@ -34,14 +34,15 @@ const ShowFiles = ({ filesCollection, close, format, typeId, empresas, filesIds 
             break;
         default: void 0
     }
-    if (filesIds) {
 
+    if (filesIds)
         filesCollection = filesCollection.filter(f => filesIds.indexOf(f.id) !== -1)
-    }
+
     if (filesCollection && filesCollection[0]) {
         filesCollection.forEach(obj => {
             fileLabels.forEach(o => {
-                if (obj.metadata && o.name === obj.metadata.fieldName) files.push({ ...obj, label: o.title })
+                if (obj.metadata && o.name === obj.metadata.fieldName && obj?.metadata?.tempFile === 'false')
+                    files.push({ ...obj, label: o.title })
             })
         })
     }

@@ -2,8 +2,6 @@ import React from 'react'
 import moment from 'moment'
 
 import ShowFiles from './ShowFiles'
-import downloadFile from '../Utils/downloadFile'
-//import { logRoutesConfig } from '../Solicitacoes/logRoutesConfig'
 
 import Button from '@material-ui/core/Button'
 import InfoIcon from '@material-ui/icons/Info';
@@ -13,22 +11,11 @@ import ArrowBackIcon from '@material-ui/icons/ArrowBack'
 
 export default function StandardTable({ tableData, staticFields, title, tableStyle, style, showDetails, completed, showInfo, showFiles, setShowFiles, vehicleDocs, close, filesIds }) {
 
-
-
-    /* let pathname = logRoutesConfig.find(r => log?.subject.match(r.subject))?.path
-    if (!pathname.match('/solicitacoes')) pathname = '/solicitacoes' + pathname
-    props.history.push({ pathname, state: { demand: log } })
-*/
     const dateFormat = value => {
         if (moment(value, 'YYYY-MM-DDTHH:mm:ss.SSSZZ', true).isValid()) {
             return moment(value, moment.ISO_8601, true).format('DD/MM/YYYY, HH:mm[h]')
         }
         else return value
-    }
-
-    const getFile = id => {
-        const file = vehicleDocs.find(f => f.id === id)
-        if (file) downloadFile(file.id, file.filename, 'vehicleDocs', file.metadata.fieldName);
     }
 
     const createButton = (action, index, files) => {

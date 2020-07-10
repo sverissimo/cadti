@@ -91,7 +91,7 @@ class ConsultasContainer extends Component {
             { tab } = this.state,
             { veiculos, socios, empresaDocs, vehicleDocs } = this.props.redux
 
-        let selectedFiles = empresaDocs.filter(f => f.metadata.empresaId === id.toString())
+        let selectedFiles = empresaDocs.filter(f => f.metadata.empresaId === id.toString() && f.metadata?.tempFile === 'false')
         let typeId = 'empresaId'
 
         switch (tab) {
@@ -143,9 +143,9 @@ class ConsultasContainer extends Component {
                 .sort((a, b) => new Date(a['uploadDate']) - new Date(b['uploadDate']))
                 .reverse()
             this.setState({ filesCollection: selectedFiles, showFiles: true, typeId, selectedElement: id })
-            
+
         } else {
-            this.setState({ alertType: 'filesNotFound', openAlertDialog: true })
+            this.setState({ alertType: 'filesNotFound', openAlertDialog: true, subject: typeId })
             this.setState({ filesCollection: [] })
         }
     }
@@ -236,7 +236,10 @@ class ConsultasContainer extends Component {
                     typeId={typeId}
                     empresas={empresas} />
             }
-            {openAlertDialog && <AlertDialog open={openAlertDialog} close={this.closeAlert} alertType={alertType} />}
+            {openAlertDialog &&
+                <AlertDialog
+                    open={openAlertDialog} close={this.closeAlert} alertType={alertType} tab={tab}
+                />}
         </Fragment>
     }
 }

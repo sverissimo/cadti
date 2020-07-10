@@ -40,7 +40,7 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
-export default function VehicleDocs({ handleFiles, parentComponent, dropDisplay, formData, insuranceExists }) {
+export default function VehicleDocs({ handleFiles, parentComponent, dropDisplay, formData, insuranceExists, demandFiles }) {
     const { root, paper, item } = useStyles()
 
     let filesForm
@@ -61,7 +61,8 @@ export default function VehicleDocs({ handleFiles, parentComponent, dropDisplay,
                                     name={name}
                                     formData={formData}
                                     dropDisplay={dropDisplay}
-                                    handleFiles={handleFiles}
+                                    handleFiles={handleFiles}                                    
+                                    demandFiles={demandFiles}
                                 />
                             </Grid>
                         </Fragment>

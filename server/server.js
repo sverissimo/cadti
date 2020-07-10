@@ -31,6 +31,9 @@ const { vehicleLogsModel } = require('./mongo/models/vehicleLogsModel')
 
 const { uploadFS } = require('./upload')
 const { parseRequestBody } = require('./parseRequest')
+const { filesModel } = require('./mongo/models/filesModel')
+const { empresaModel } = require('./mongo/models/empresaModel')
+
 //const { getExpired } = require('./getExpired')
 //const { job } = require('./reportGenerator')
 //job.start()
@@ -77,6 +80,24 @@ app.get('/api/mongoDownload/', (req, res) => mongoDownload(req, res, gfs))
 app.get('/api/getFiles/:collection', (req, res) => getFilesMetadata(req, res, gfs))
 
 app.get('/api/getOneFile/', getOneFileMetadata)
+
+app.put('/api/updateFilesMetadata', async (req, res) => {
+
+    const { collection, ids, tempFile } = req.body
+
+    parsedIds = ids.map(id => new mongoose.mongo.ObjectId(id))
+
+    gfs.collection(collection)
+
+    gfs.files.updateMany(
+        { "_id": { $in: parsedIds } },
+        { $set: { "metadata.tempFile": tempFile } },
+        (err, doc) => {
+            if (err) console.log(err)
+            else res.send(doc)
+        }
+    )
+})
 
 //************************************ LOGS RECORDING ************************** */
 

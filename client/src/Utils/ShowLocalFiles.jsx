@@ -74,17 +74,15 @@ export default function ShowLocalFiles({ form, files, demand, demandFiles, colle
             if (name === pair[0]) {
                 if (pair[1] && pair[1].name) {
                     const index = fileArray.findIndex(obj => obj?.fieldName === name)
-                    if (index || index === 0) {
+                    if (index !== -1)
                         fileArray[index] = { label: title, fieldName: name, fileName: pair[1].name, storage: 'local' }
-                        console.log(fileArray, index, fileArray[index])
-                    }
-                    else fileArray.push({ label: title, fieldName: name, fileName: pair[1].name, storage: 'local' })
+                    else
+                        fileArray.push({ label: title, fieldName: name, fileName: pair[1].name, storage: 'local' })
                 }
             }
         })
     }
-
-    console.log(fileArray)
+    
     return <React.Fragment>
         <div style={divContainer}>
             {fileArray.map((f, i) =>

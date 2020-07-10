@@ -50,19 +50,45 @@ export async function logGenerator(obj) {
         files,
         filesIds = []
 
-    if (objFiles) files = await axios.post('/api/vehicleUpload', objFiles)
+    //If completed, add standard action/status to the log and change files Status*/
+    if (log.completed) {
+        log.history.action = logConfig?.concludedAction || 'Solicitação concluída'
+        log.status = obj?.status || 'Solicitação concluída'
+
+        //If there's any upload from Seinfra, it will overwrite the latestDocs(demandFiles) before approval
+        if (objFiles instanceof FormData) {
+            objFiles.set('tempFile', 'false')
+            if (obj.demandFiles && obj.demandFiles[0]) {
+                let oldFiles = obj.demandFiles
+                for (let pair of objFiles) {
+                    oldFiles.forEach((f, i) => {
+                        if (pair[0] === f?.metadata?.fieldName)
+                            oldFiles.splice(i, 1)
+                    })
+                }
+                const ids = oldFiles.map(f => f.id)
+
+                await axios.put('/api/updateFilesMetadata', { ids, collection: 'vehicleDocs', tempFile: 'false' })
+                    .then(r => console.log(r.data))
+            }
+        }
+    }
+
+    if (objFiles instanceof FormData) {
+        let filesToSend = new FormData()
+        filesToSend.append('tempFile', 'true')
+        for (let pair of objFiles) {
+            filesToSend.append(pair[0], pair[1])
+        }
+        files = await axios.post('/api/vehicleUpload', filesToSend)
+    }
 
     if (files?.data?.file) {
         const filesArray = files.data.file
         filesIds = filesArray.map(f => f.id)
         log.history.files = filesIds
-    }    
-
-    //**********************If completed, add standard action/status to the log**********************  */
-    if (log.completed) {
-        log.history.action = logConfig?.concludedAction || 'Solicitação concluída'
-        log.status = obj?.status || 'Solicitação concluída'
     }
+
     //**********************reestablish path**********************
     logRoutes = JSON.parse(JSON.stringify(logRoutesConfig))
     logConfig = logRoutes.find(e => path.match(e.path))

@@ -4,11 +4,18 @@ import Dropzone from 'react-dropzone'
 import AttachFileIcon from '@material-ui/icons/AttachFile';
 import DescriptionOutlinedIcon from '@material-ui/icons/DescriptionOutlined';
 
-export default function DragAndDrop({ title, name, formData, handleFiles, dropDisplay, single, style }) {
+export default function DragAndDrop({ title, name, formData, handleFiles, dropDisplay, single, style, demandFiles }) {
 
     const [fileName, setFileName] = useState()
 
     useEffect(() => {
+        if (demandFiles && demandFiles[0]) {
+            demandFiles.forEach(({ filename, metadata }) => {
+                if (name === metadata.fieldName) {
+                    setFileName(filename)
+                }
+            })
+        }
         if (formData && typeof formData === 'object') {
             for (let pair of formData.entries()) {
                 if (name === pair[0]) {
@@ -16,8 +23,8 @@ export default function DragAndDrop({ title, name, formData, handleFiles, dropDi
                 }
             }
         }
-        else setFileName(null)
-    }, [formData, name])
+
+    }, [formData, name, demandFiles])
 
     return (
         <div style={style ? style : null}>

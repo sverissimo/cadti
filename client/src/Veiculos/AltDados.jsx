@@ -115,7 +115,7 @@ class AltDados extends Component {
                 })
 
             allDemandFiles = vehicleDocs.filter(doc => fileIds.indexOf(doc.id) !== -1)
-            
+
             let fieldExists = []
             allDemandFiles.forEach(file => {
                 const { fieldName } = file.metadata
@@ -126,8 +126,6 @@ class AltDados extends Component {
                 else filesPerFieldName[fieldName].push(file)
             })
 
-            console.log(filesPerFieldName)
-
             Object.keys(filesPerFieldName).forEach(field => {
                 const arrayOfFiles = filesPerFieldName[field]
                 let lastDoc
@@ -135,13 +133,11 @@ class AltDados extends Component {
                 latestDocs.push(lastDoc)
                 lastDoc = []
             })
-            console.log(latestDocs)
-
 
             await this.setState({
                 ...selectedVehicle, originalVehicle, delegatario, compartilhado, razaoSocial, selectedEmpresa,
                 demand, demandFiles: latestDocs, alteracoes, activeStep: 3
-            });
+            })
         }
 
         //*********Create state[key] for each equipamentos/acessibilidade and turn them to false before a vehicle is selected *********/
@@ -370,7 +366,7 @@ class AltDados extends Component {
     handleSubmit = async (approved) => {
         const
             { veiculoId, poltronas, pesoDianteiro, pesoTraseiro, delegatarioId, originalVehicle, showPendencias, pendencias,
-                delegatarioCompartilhado, newPlate, selectedEmpresa, justificativa, demand, form, equipa, acessibilidadeId } = this.state,
+                delegatarioCompartilhado, newPlate, selectedEmpresa, justificativa, demand, form, equipa, acessibilidadeId, demandFiles } = this.state,
 
             oldHistoryLength = demand?.history?.length || 0
 
@@ -405,17 +401,20 @@ class AltDados extends Component {
             if (tempObj[key] === '' || tempObj[key] === 'null' || !tempObj[key]) delete tempObj[key]
         })
 
-        console.log(tempObj, equipa, originalVehicle.equipa)
-
         let { placa, delegatario, compartilhado, ...camelizedRequest } = tempObj
 
-        if (!camelizedRequest) return
         if (newPlate && newPlate !== '')
             camelizedRequest.placa = newPlate
 
         if ((!this.state.compartilhado || this.state.compartilhado === '') && originalVehicle?.delegatarioCompartilhado)
             camelizedRequest.delegatarioCompartilhado = 'NULL'
 
+
+        if (!approved || Object.keys(camelizedRequest).length === 0) {
+            console.log(camelizedRequest)
+            this.setState({ openAlertDialog: true, customTitle: 'Nenhuma alteração', customMessage: 'Não foi realizada nenhuma alteração na solicitação aberta. Para prosseguir, altere algum dos campos ou adicione uma justificativa.' })
+            return
+        }
         const requestObject = humps.decamelizeKeys(camelizedRequest)
 
         //******************GenerateLog********************** */
@@ -429,13 +428,16 @@ class AltDados extends Component {
             veiculoId,
             history,
             files: form,
+            demandFiles,
             historyLength: oldHistoryLength
         }
 
         if (demand) log.id = demand?.id
         if (approved) log.completed = true
 
-        logGenerator(log).then(r => console.log(r.data))
+        logGenerator(log)
+            .then(r => console.log(r?.data))
+            .catch(err => console.log(err))
 
         //*********************if approved, putRequest to update DB  ********************** */
         if (demand && approved && !showPendencias) {
@@ -459,7 +461,6 @@ class AltDados extends Component {
     handleFiles = async (files, name) => {
 
         if (files && files[0]) {
-            console.log(files, name)
             let formData = new FormData()
             formData.append('veiculoId', this.state.veiculoId)
 
@@ -515,7 +516,7 @@ class AltDados extends Component {
             { empresas, equipamentos, acessibilidade } = this.props.redux,
 
             { confirmToast, toastMsg, stepTitles, activeStep, steps, altPlaca, selectedEmpresa, openAlertDialog, alertType, customTitle, customMessage,
-                dropDisplay, form, title, header, newPlate, demand, showPendencias, pendencias } = this.state
+                dropDisplay, form, title, header, newPlate, demand, showPendencias, pendencias, demandFiles } = this.state
 
         return <Fragment>
             <Crumbs links={['Veículos', '/veiculos']} text='Alteração de dados' demand={demand} />
@@ -544,6 +545,7 @@ class AltDados extends Component {
                 handleFiles={this.handleFiles}
                 dropDisplay={dropDisplay}
                 formData={form}
+                demandFiles={demandFiles}
             />}
             {activeStep === 3 && <Review
                 parentComponent='altDados'
