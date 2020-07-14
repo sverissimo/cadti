@@ -41,7 +41,7 @@ const ShowFiles = ({ filesCollection, close, format, typeId, empresas, filesIds 
     if (filesCollection && filesCollection[0]) {
         filesCollection.forEach(obj => {
             fileLabels.forEach(o => {
-                if (obj.metadata && o.name === obj.metadata.fieldName && obj?.metadata?.tempFile === 'false')
+                if (obj.metadata && o.name === obj.metadata.fieldName)
                     files.push({ ...obj, label: o.title })
             })
         })

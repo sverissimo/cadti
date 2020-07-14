@@ -29,7 +29,7 @@ const dataReducer = (state = initState, action) => {
             if (state[collection] && data) {
                 const update = state[collection].map(v => {
                     data.forEach(el => {
-                        if (v[id] === el[id]) {
+                        if (v[id] === el[id] || v[id].toString() === el[id].toString()) {
                             v = el
                         }
                     })

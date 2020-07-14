@@ -10,7 +10,7 @@ import ReactToast from '../Utils/ReactToast'
 import { altDadosFiles } from '../Forms/altDadosFiles'
 import { altForm } from '../Forms/altForm'
 import { logGenerator } from '../Utils/logGenerator'
-import { setNamesFromIds } from '../Utils/idsToString'
+import { setDemand } from '../Utils/setDemand'
 
 import Crumbs from '../Reusable Components/Crumbs'
 import CustomStepper from '../Reusable Components/Stepper'
@@ -65,80 +65,83 @@ class AltDados extends Component {
             { redux } = this.props,
             { veiculos, empresas, equipamentos, acessibilidade, vehicleDocs } = redux
 
-        let alteracoes, compartilhado
+        //let alteracoes, compartilhado
 
-        const
-            demand = this.props?.location?.state?.demand,
-            history = demand?.history
+        const demand = this.props?.location?.state?.demand
+        //history = demand?.history
 
         if (demand) {
-            const
-                vehicle = veiculos.find(v => v.veiculoId.toString() === demand.veiculoId.toString()),
-                originalVehicle = Object.freeze(vehicle)
-
-            const
-                selectedEmpresa = empresas.find(e => e.razaoSocial === demand?.empresa),
-                razaoSocial = selectedEmpresa?.razaoSocial,
-                delegatario = razaoSocial
-
-            let selectedVehicle = { ...vehicle }
-
-            //Adjust data to handle Delegatário compartilhado 
-            const
-                length = history?.length,
-                delCompartilhado = history[length - 1]?.alteracoes?.delegatarioCompartilhado
-
-            if (delCompartilhado) {
-                compartilhado = empresas.find(e => e.delegatarioId === delCompartilhado)?.razaoSocial
-                if (alteracoes && typeof alteracoes === 'object') alteracoes.compartilhado = compartilhado
-            }
-
-            //Get the last log updates
-            if (Array.isArray(history)) alteracoes = history.reverse().find(el => el.hasOwnProperty('alteracoes')).alteracoes
-
-            //Set equipa/acessibilidade array of names for each vehicle
-            if (alteracoes) {
-                Object.keys(alteracoes).forEach(key => selectedVehicle[key] = alteracoes[key])
-
-                const { equipa, acessibilidadeId } = alteracoes
-                if (equipa) selectedVehicle.equipamentos = setNamesFromIds(equipamentos, equipa)
-                if (acessibilidadeId) selectedVehicle.acessibilidade = setNamesFromIds(acessibilidade, acessibilidadeId)
-            }
-
-            //Get latest uploaded files per field
-            let fileIds = [], allDemandFiles, latestDocs = [], filesPerFieldName = {}
-            history
-                .filter(el => el.files)
-                .map(el => el.files)
-                .forEach(array => {
-                    array.forEach(id => fileIds.push(id))
-                })
-
-            allDemandFiles = vehicleDocs.filter(doc => fileIds.indexOf(doc.id) !== -1)
-
-            let fieldExists = []
-            allDemandFiles.forEach(file => {
-                const { fieldName } = file.metadata
-                if (!fieldExists.includes(fieldName)) {
-                    fieldExists.push(fieldName)
-                    filesPerFieldName[fieldName] = [file]
-                }
-                else filesPerFieldName[fieldName].push(file)
-            })
-
-            Object.keys(filesPerFieldName).forEach(field => {
-                const arrayOfFiles = filesPerFieldName[field]
-                let lastDoc
-                lastDoc = arrayOfFiles.reduce((a, b) => new Date(a.uploadDate) > new Date(b.uploadDate) ? a : b)
-                latestDocs.push(lastDoc)
-                lastDoc = []
-            })
-
-            await this.setState({
-                ...selectedVehicle, originalVehicle, delegatario, compartilhado, razaoSocial, selectedEmpresa,
-                demand, demandFiles: latestDocs, alteracoes, activeStep: 3
-            })
+            const demandState = setDemand(demand, redux)
+            this.setState({ ...demandState })
         }
+        /*     if (demand) {
+                const
+                    vehicle = veiculos.find(v => v.veiculoId.toString() === demand.veiculoId.toString()),
+                    originalVehicle = Object.freeze(vehicle)
+    
+                const
+                    selectedEmpresa = empresas.find(e => e.razaoSocial === demand?.empresa),
+                    razaoSocial = selectedEmpresa?.razaoSocial,
+                    delegatario = razaoSocial
+    
+                let selectedVehicle = { ...vehicle }
+    
+                //Adjust data to handle Delegatário compartilhado 
+                const
+                    length = history?.length,
+                    delCompartilhado = history[length - 1]?.alteracoes?.delegatarioCompartilhado
+    
+                if (delCompartilhado) {
+                    compartilhado = empresas.find(e => e.delegatarioId === delCompartilhado)?.razaoSocial
+                    if (alteracoes && typeof alteracoes === 'object') alteracoes.compartilhado = compartilhado
+                }
+    
+                //Get the last log updates
+                if (Array.isArray(history)) alteracoes = history.reverse().find(el => el.hasOwnProperty('alteracoes')).alteracoes
+    
+                //Set equipa/acessibilidade array of names for each vehicle
+                if (alteracoes) {
+                    Object.keys(alteracoes).forEach(key => selectedVehicle[key] = alteracoes[key])
+    
+                    const { equipa, acessibilidadeId } = alteracoes
+                    if (equipa) selectedVehicle.equipamentos = setNamesFromIds(equipamentos, equipa)
+                    if (acessibilidadeId) selectedVehicle.acessibilidade = setNamesFromIds(acessibilidade, acessibilidadeId)
+                }
+    
+                //Get latest uploaded files per field
+                let fileIds = [], allDemandFiles, latestDocs = [], filesPerFieldName = {}
+                history
+                    .filter(el => el.files)
+                    .map(el => el.files)
+                    .forEach(array => {
+                        array.forEach(id => fileIds.push(id))
+                    })
+    
+                allDemandFiles = vehicleDocs.filter(doc => fileIds.indexOf(doc.id) !== -1)
+    
+                let fieldExists = []
+                allDemandFiles.forEach(file => {
+                    const { fieldName } = file.metadata
+                    if (!fieldExists.includes(fieldName)) {
+                        fieldExists.push(fieldName)
+                        filesPerFieldName[fieldName] = [file]
+                    }
+                    else filesPerFieldName[fieldName].push(file)
+                })
+    
+                Object.keys(filesPerFieldName).forEach(field => {
+                    const arrayOfFiles = filesPerFieldName[field]
+                    let lastDoc
+                    lastDoc = arrayOfFiles.reduce((a, b) => new Date(a.uploadDate) > new Date(b.uploadDate) ? a : b)
+                    latestDocs.push(lastDoc)
+                    lastDoc = []
+                })
+    
+                await this.setState({
+                    ...selectedVehicle, originalVehicle, delegatario, compartilhado, razaoSocial, selectedEmpresa,
+                    demand, demandFiles: latestDocs, alteracoes, activeStep: 3
+                })
+            } */
 
         //*********Create state[key] for each equipamentos/acessibilidade and turn them to false before a vehicle is selected *********/
 
@@ -410,8 +413,7 @@ class AltDados extends Component {
             camelizedRequest.delegatarioCompartilhado = 'NULL'
 
 
-        if (!approved || Object.keys(camelizedRequest).length === 0) {
-            console.log(camelizedRequest)
+        if (!approved && Object.keys(camelizedRequest).length === 0) {            
             this.setState({ openAlertDialog: true, customTitle: 'Nenhuma alteração', customMessage: 'Não foi realizada nenhuma alteração na solicitação aberta. Para prosseguir, altere algum dos campos ou adicione uma justificativa.' })
             return
         }

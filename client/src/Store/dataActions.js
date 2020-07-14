@@ -30,16 +30,12 @@ export const getData = (collectionsArray = []) => {
 
         if (['acessibilidade', 'equipamentos'].every(p => returnObj.hasOwnProperty(p))) {
             const { acessibilidade, equipamentos } = returnObj
-            let
-                { veiculos } = returnObj,
-                updatedData
+            let veiculos = returnObj.veiculos || getState().data?.veiculos
 
-            if (!veiculos) veiculos = getState().data?.veiculos
-            if (veiculos) {
-                updatedData = idsToString(veiculos, equipamentos, acessibilidade)
-                returnObj.veiculos = updatedData
-            }
+            const updatedData = idsToString(veiculos, equipamentos, acessibilidade)
+            returnObj.veiculos = updatedData
         }
+
         dispatch({
             type: 'GET_DATA',
             payload: returnObj
@@ -95,11 +91,30 @@ export const insertData = (dataFromServer, collection) => (dispatch, getState) =
 }
 
 export const updateData = (dataFromServer, collection, id) => (dispatch, getState) => {
+
+    //Se a collection for vehicleDocs, o que vem do servidor são os ids
     let data = humps.camelizeKeys(dataFromServer)
+
+    if (collection === 'vehicleDocs') {
+        const { vehicleDocs } = getState().data
+        let updatedData = vehicleDocs.filter(v => dataFromServer.some(id => id === v.id))
+
+        console.log(updatedData)
+        updatedData.forEach(doc => doc.metadata.tempFile = 'false')
+        data = updatedData
+    }
+
 
     if (collection === 'veiculos') {
         const { equipamentos, acessibilidade } = getState().data
         data = idsToString(data, equipamentos, acessibilidade)
+    }
+
+    if (collection = 'vehicleDocs') {
+        const
+            { vehicleDocs } = getState().data,
+            updatedDocs = vehicleDocs.filter(v => v?.id.toString() === updatedDocs?.id.toString())
+        data = updatedDocs
     }
 
     const payload = { collection, data, id }

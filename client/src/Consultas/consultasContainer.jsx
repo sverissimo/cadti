@@ -137,9 +137,10 @@ class ConsultasContainer extends Component {
                 break
             default: void 0
         }
+        selectedFiles = selectedFiles.filter(file => file?.metadata?.tempFile === 'false')
 
         if (selectedFiles[0]) {
-            selectedFiles = selectedFiles
+            selectedFiles = selectedFiles        
                 .sort((a, b) => new Date(a['uploadDate']) - new Date(b['uploadDate']))
                 .reverse()
             this.setState({ filesCollection: selectedFiles, showFiles: true, typeId, selectedElement: id })

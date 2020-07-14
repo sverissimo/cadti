@@ -9,6 +9,7 @@ const mongoose = require('mongoose')
 const { conn } = require('./mongo/mongoConfig')
 const Grid = require('gridfs-stream')
 Grid.mongo = mongoose.mongo
+const morgan = require('morgan')
 
 const { pool } = require('./config/pgConfig')
 const { setCorsHeader } = require('./config/setCorsHeader')
@@ -31,9 +32,9 @@ const { vehicleLogsModel } = require('./mongo/models/vehicleLogsModel')
 
 const { uploadFS } = require('./upload')
 const { parseRequestBody } = require('./parseRequest')
-const { filesModel } = require('./mongo/models/filesModel')
+/* const { filesModel } = require('./mongo/models/filesModel')
 const { empresaModel } = require('./mongo/models/empresaModel')
-
+ */
 //const { getExpired } = require('./getExpired')
 //const { job } = require('./reportGenerator')
 //job.start()
@@ -44,8 +45,26 @@ app.use(setCorsHeader)
 app.use(bodyParser.json({ limit: '50mb' }))
 app.use(bodyParser.urlencoded())
 app.use(express.static('client/build'))
-
+app.use(morgan('dev'))
 //app.get('/tst', getExpired)
+
+//**********************************ERROR HANDLIONG*********************** */
+/* 
+app.use((req, res, next) => {
+    const error = new Error("Not found");
+    error.status = 404;
+    next(error);
+});
+
+app.use((error, req, res, next) => {
+    res.status(error.status || 500);
+    res.json({
+        error: {
+            message: error.message
+        }
+    });
+});
+ */
 
 //************************************ BINARY DATA *********************** */
 
@@ -94,7 +113,15 @@ app.put('/api/updateFilesMetadata', async (req, res) => {
         { $set: { "metadata.tempFile": tempFile } },
         (err, doc) => {
             if (err) console.log(err)
-            else res.send(doc)
+            if (doc) {
+                io.sockets.emit('updateAny',
+                    {
+                        collection: 'vehicleDocs',
+                        ids,
+                        primaryKey: 'id'
+                    })
+                res.send({ doc, ids })
+            }
         }
     )
 })

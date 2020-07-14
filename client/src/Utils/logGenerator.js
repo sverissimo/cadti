@@ -55,6 +55,8 @@ export async function logGenerator(obj) {
         log.history.action = logConfig?.concludedAction || 'Solicitação concluída'
         log.status = obj?.status || 'Solicitação concluída'
 
+        let ids
+
         //If there's any upload from Seinfra, it will overwrite the latestDocs(demandFiles) before approval
         if (objFiles instanceof FormData) {
             objFiles.set('tempFile', 'false')
@@ -66,12 +68,13 @@ export async function logGenerator(obj) {
                             oldFiles.splice(i, 1)
                     })
                 }
-                const ids = oldFiles.map(f => f.id)
-
-                await axios.put('/api/updateFilesMetadata', { ids, collection: 'vehicleDocs', tempFile: 'false' })
-                    .then(r => console.log(r.data))
+                ids = oldFiles.map(f => f.id)
             }
-        }
+        } else if (obj.demandFiles && obj.demandFiles[0])
+            ids = obj.demandFiles.map(f => f.id)
+
+        await axios.put('/api/updateFilesMetadata', { ids, collection: 'vehicleDocs', tempFile: 'false' })
+            .then(r => console.log(r.data))
     }
 
     if (objFiles instanceof FormData) {

@@ -13,7 +13,7 @@ export default function AlertDialog({ open, alertType, close, confirm, customTit
     const subjectOptions = ['a empresa', 'o sócio', 'a procuração', 'o veículo', 'o seguro']
 
     if (tab || tab === 0) subject = subjectOptions[tab]
-    
+
     if (customTitle && customMessage) {
       title = customTitle
       message = customMessage
@@ -57,8 +57,8 @@ export default function AlertDialog({ open, alertType, close, confirm, customTit
         return { title, message }
       case 'filesNotFound':
         title = 'Arquivos não encontrados'
-        message = `Não há nenhum arquivo anexado no sistema para ${subject} selecionad${subject.charAt(0)}. 
-          Ao cadastrar ou atualizar a ${subject}, certifique-se de anexar o arquivo correspondente.`
+        message = `Não há nenhum documento aprovado no sistema para ${subject} selecionad${subject.charAt(0)}.
+          Caso haja uma solicitação em aberto para ${subject}, acesse a opção "Solicitações" no menu superior para ter acesso aos arquivos.`
         return { title, message }
 
       case 'empresaNotFound':

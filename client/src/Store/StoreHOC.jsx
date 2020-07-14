@@ -52,6 +52,7 @@ export default function (requestArray, WrappedComponent) {
                 console.log(updatedObjects)
                 this.props.updateData(updatedObjects, 'vehicleLogs', 'id')
             })
+            socket.on('updateAny', ({ ids, collection, primaryKey }) => this.props.updateData(ids, collection, primaryKey))
             socket.on('updateElements', ({ collection, updatedCollection }) => this.props.updateCollection(updatedCollection, collection))
 
             socket.on('deleteOne', object => {

@@ -28,7 +28,8 @@ export default function ShowDetails({ data, tab, title, header, close }) {
             formPattern = procuradorForm
             break;
         case 3:
-            let { veiculoId, laudoId, tableData, modeloChassiId, modeloCarroceriaId, delegatarioId, vencimentoContrato, delegatarioCompartilhado, ...vData } = data
+            let { veiculoId, laudoId, tableData, modeloChassiId, modeloCarroceriaId, delegatarioId, vencimentoContrato, delegatarioCompartilhado, 
+                acessibilidadeId, equipa, ...vData } = data
             
             ultimateData = vData
             formPattern = cadForm.concat([vForm])

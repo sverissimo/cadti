@@ -82,6 +82,7 @@ export default function ({ handleInput, handleBlur, data, handleCheck, handleEqu
                                     <TextInput
                                         form={form}
                                         data={data}
+                                        empresas={empresas}
                                         handleBlur={handleBlur}
                                         handleInput={handleInput}
                                         disableSome={demand ? ['placa', 'delegatario'] : ['delegatario']}
@@ -124,7 +125,6 @@ export default function ({ handleInput, handleBlur, data, handleCheck, handleEqu
                                     close={close}
                                     handleCheck={handleCheck}
                                     data={data} />
-
                             }
                         </Grid>
                         :

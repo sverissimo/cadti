@@ -35,7 +35,7 @@ const useStyles = makeStyles(theme => ({
     },
 }))
 
-export default function TextInput({ handleInput, handleBlur, form, data, selectOptions, disableAll, disableSome = [] }) {
+export default function TextInput({ handleInput, handleBlur, form, data, empresas, selectOptions, disableAll, disableSome = [] }) {
 
     const classes = useStyles(),
         { helperText } = classes
@@ -142,6 +142,7 @@ export default function TextInput({ handleInput, handleBlur, form, data, selectO
                         </TextField>
                         {el.autoComplete === true && <AutoComplete
                             collection={data[el.collection]}
+                            empresas={empresas}
                             datalist={el.datalist}
                             value={data[el.field] || ''}
                         />
