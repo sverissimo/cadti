@@ -34,8 +34,7 @@ const dataReducer = (state = initState, action) => {
                         }
                     })
                     return v
-                })
-                console.log(payload)
+                })                
                 return {
                     ...state, [collection]: update
                 }

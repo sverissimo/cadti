@@ -7,7 +7,7 @@ export const getData = (collectionsArray = []) => {
     return async (dispatch, getState) => {
         let
             promiseArray = [],
-            returnObj = {}
+            globalState = {}
 
         if (collectionsArray.length > 0) {
             collectionsArray.forEach(collectionName => {
@@ -23,22 +23,22 @@ export const getData = (collectionsArray = []) => {
                             .replace('lookUpTable/', '')
                             .replace('/logs/', '')
                         key = humps.camelize(key)
-                        Object.assign(returnObj, { [key]: el })
+                        Object.assign(globalState, { [key]: el })
                     })
                 })
         }
 
-        if (['acessibilidade', 'equipamentos'].every(p => returnObj.hasOwnProperty(p))) {
-            const { acessibilidade, equipamentos } = returnObj
-            let veiculos = returnObj.veiculos || getState().data?.veiculos
+        if (['acessibilidade', 'equipamentos'].every(p => globalState.hasOwnProperty(p))) {
+            const { acessibilidade, equipamentos } = globalState
+            let veiculos = globalState.veiculos || getState().data?.veiculos
 
             const updatedData = idsToString(veiculos, equipamentos, acessibilidade)
-            returnObj.veiculos = updatedData
+            globalState.veiculos = updatedData
         }
 
         dispatch({
             type: 'GET_DATA',
-            payload: returnObj
+            payload: globalState
         })
     }
 }
@@ -110,12 +110,12 @@ export const updateData = (dataFromServer, collection, id) => (dispatch, getStat
         data = idsToString(data, equipamentos, acessibilidade)
     }
 
-    if (collection = 'vehicleDocs') {
+    /* if (collection = 'vehicleDocs') {
         const
             { vehicleDocs } = getState().data,
             updatedDocs = vehicleDocs.filter(v => v?.id.toString() === updatedDocs?.id.toString())
         data = updatedDocs
-    }
+    } */
 
     const payload = { collection, data, id }
     dispatch({ type: 'UPDATE_DATA', payload })

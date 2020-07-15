@@ -48,7 +48,7 @@ class AltDados extends Component {
         frota: [],
         toastMsg: 'Dados atualizados!',
         confirmToast: false,
-        activeStep: 0,
+        activeStep: 2,
         files: [],
         fileNames: [],
         openAlertDialog: false,
@@ -63,88 +63,15 @@ class AltDados extends Component {
     async componentDidMount() {
         const
             { redux } = this.props,
-            { veiculos, empresas, equipamentos, acessibilidade, vehicleDocs } = redux
-
-        //let alteracoes, compartilhado
-
-        const demand = this.props?.location?.state?.demand
-        //history = demand?.history
+            { equipamentos, acessibilidade } = redux,
+            demand = this.props?.location?.state?.demand
 
         if (demand) {
             const demandState = setDemand(demand, redux)
             this.setState({ ...demandState })
         }
-        /*     if (demand) {
-                const
-                    vehicle = veiculos.find(v => v.veiculoId.toString() === demand.veiculoId.toString()),
-                    originalVehicle = Object.freeze(vehicle)
-    
-                const
-                    selectedEmpresa = empresas.find(e => e.razaoSocial === demand?.empresa),
-                    razaoSocial = selectedEmpresa?.razaoSocial,
-                    delegatario = razaoSocial
-    
-                let selectedVehicle = { ...vehicle }
-    
-                //Adjust data to handle Delegatário compartilhado 
-                const
-                    length = history?.length,
-                    delCompartilhado = history[length - 1]?.alteracoes?.delegatarioCompartilhado
-    
-                if (delCompartilhado) {
-                    compartilhado = empresas.find(e => e.delegatarioId === delCompartilhado)?.razaoSocial
-                    if (alteracoes && typeof alteracoes === 'object') alteracoes.compartilhado = compartilhado
-                }
-    
-                //Get the last log updates
-                if (Array.isArray(history)) alteracoes = history.reverse().find(el => el.hasOwnProperty('alteracoes')).alteracoes
-    
-                //Set equipa/acessibilidade array of names for each vehicle
-                if (alteracoes) {
-                    Object.keys(alteracoes).forEach(key => selectedVehicle[key] = alteracoes[key])
-    
-                    const { equipa, acessibilidadeId } = alteracoes
-                    if (equipa) selectedVehicle.equipamentos = setNamesFromIds(equipamentos, equipa)
-                    if (acessibilidadeId) selectedVehicle.acessibilidade = setNamesFromIds(acessibilidade, acessibilidadeId)
-                }
-    
-                //Get latest uploaded files per field
-                let fileIds = [], allDemandFiles, latestDocs = [], filesPerFieldName = {}
-                history
-                    .filter(el => el.files)
-                    .map(el => el.files)
-                    .forEach(array => {
-                        array.forEach(id => fileIds.push(id))
-                    })
-    
-                allDemandFiles = vehicleDocs.filter(doc => fileIds.indexOf(doc.id) !== -1)
-    
-                let fieldExists = []
-                allDemandFiles.forEach(file => {
-                    const { fieldName } = file.metadata
-                    if (!fieldExists.includes(fieldName)) {
-                        fieldExists.push(fieldName)
-                        filesPerFieldName[fieldName] = [file]
-                    }
-                    else filesPerFieldName[fieldName].push(file)
-                })
-    
-                Object.keys(filesPerFieldName).forEach(field => {
-                    const arrayOfFiles = filesPerFieldName[field]
-                    let lastDoc
-                    lastDoc = arrayOfFiles.reduce((a, b) => new Date(a.uploadDate) > new Date(b.uploadDate) ? a : b)
-                    latestDocs.push(lastDoc)
-                    lastDoc = []
-                })
-    
-                await this.setState({
-                    ...selectedVehicle, originalVehicle, delegatario, compartilhado, razaoSocial, selectedEmpresa,
-                    demand, demandFiles: latestDocs, alteracoes, activeStep: 3
-                })
-            } */
 
         //*********Create state[key] for each equipamentos/acessibilidade and turn them to false before a vehicle is selected *********/
-
         let
             allEqs = {},
             allAcs = {}
@@ -413,7 +340,7 @@ class AltDados extends Component {
             camelizedRequest.delegatarioCompartilhado = 'NULL'
 
 
-        if (!approved && Object.keys(camelizedRequest).length === 0) {            
+        if (!approved && Object.keys(camelizedRequest).length === 0) {
             this.setState({ openAlertDialog: true, customTitle: 'Nenhuma alteração', customMessage: 'Não foi realizada nenhuma alteração na solicitação aberta. Para prosseguir, altere algum dos campos ou adicione uma justificativa.' })
             return
         }
@@ -460,9 +387,29 @@ class AltDados extends Component {
         if (demand) this.props.history.push('/solicitacoes')
     }
 
-    handleFiles = async (files, name) => {
+    handleFiles = async (files, name, remove) => {
 
-        if (files && files[0]) {
+        if (remove) {
+            const existingFiles = this.state.form
+            if (existingFiles instanceof FormData && this.state.form.has(name)) {
+                await existingFiles.delete(name)
+
+                const i = this.state.fileNames.indexOf({ [name]: this.state[name].name })
+                let fns = this.state.fileNames
+                fns.splice(i, 1)
+
+                let fileToRemove = name
+
+                await this.setState({ fileToRemove, filesNames: fns, form: existingFiles, [name]: undefined })
+
+                for (let pair of this.state.form) {
+                    console.log(pair)
+                }
+            }
+            return
+        }
+        else if (files && files[0]) {
+
             let formData = new FormData()
             formData.append('veiculoId', this.state.veiculoId)
 
@@ -474,6 +421,7 @@ class AltDados extends Component {
                 await this.setState({ filesNames: fn, [name]: files[0] })
 
                 altDadosFiles.forEach(({ name }) => {
+
                     for (let keys in this.state) {
                         if (keys.match(name) && this.state[name]) {
                             formData.append(name, this.state[name])
@@ -548,6 +496,7 @@ class AltDados extends Component {
                 dropDisplay={dropDisplay}
                 formData={form}
                 demandFiles={demandFiles}
+                fileToRemove={this.state.fileToRemove}
             />}
             {activeStep === 3 && <Review
                 parentComponent='altDados'

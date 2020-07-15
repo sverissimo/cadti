@@ -77,12 +77,17 @@ export async function logGenerator(obj) {
             .then(r => console.log(r.data))
     }
 
+    // log.completed or not, upload any new file attached by the user
     if (objFiles instanceof FormData) {
         let filesToSend = new FormData()
-        filesToSend.append('tempFile', 'true')
+        
+        if (!log.completed) filesToSend.set('tempFile', 'true')
+        else filesToSend.set('tempFile', 'false')
+        
         for (let pair of objFiles) {
-            filesToSend.append(pair[0], pair[1])
+            filesToSend.set(pair[0], pair[1])
         }
+        
         files = await axios.post('/api/vehicleUpload', filesToSend)
     }
 

@@ -41,30 +41,15 @@ const { empresaModel } = require('./mongo/models/empresaModel')
 
 dotenv.config()
 
-app.use(setCorsHeader)
+app.use(morgan('dev'))
 app.use(bodyParser.json({ limit: '50mb' }))
 app.use(bodyParser.urlencoded())
+
+
+
 app.use(express.static('client/build'))
-app.use(morgan('dev'))
+app.use(setCorsHeader)
 //app.get('/tst', getExpired)
-
-//**********************************ERROR HANDLIONG*********************** */
-/* 
-app.use((req, res, next) => {
-    const error = new Error("Not found");
-    error.status = 404;
-    next(error);
-});
-
-app.use((error, req, res, next) => {
-    res.status(error.status || 500);
-    res.json({
-        error: {
-            message: error.message
-        }
-    });
-});
- */
 
 //************************************ BINARY DATA *********************** */
 
@@ -639,6 +624,35 @@ if (process.env.NODE_ENV === 'production') {
         res.sendFile(path.resolve(__dirname, '../client', 'build', 'index.html'))
     })
 }
+
+//**********************************ERROR HANDLIONG*********************** */
+app.use((req, res, next) => {
+    const error = new Error("Not found.");
+    error.status = 404;
+    next(error);
+});
+
+app.use((error, req, res, next) => {
+    res.status(error.status || 500);
+
+    const
+        { message, name } = error,
+        errorLines = error.stack.split('\n')
+
+    console.log(
+        '\n******************' +
+        '\nError name: ' + name +
+        '\nError message: ' + message +
+        '\nError line: ' + errorLines[1] +
+        //      '\nError line2: ' + errorLines[2] +
+        '\n*********************\n'
+    )
+
+    res.json({
+        errorStatus: error.status || 500,
+        errorMessage: message,
+    });
+});
 
 server.listen(process.env.PORT || 3001, () => {
     console.log('Running...')

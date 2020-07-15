@@ -246,6 +246,6 @@ class ConsultasContainer extends Component {
 }
 
 const collections = ['veiculos', 'empresas', 'socios', 'procuradores', 'seguros', 'seguradoras',
-    'getFiles/vehicleDocs', 'getFiles/empresaDocs']
+    'getFiles/vehicleDocs', 'getFiles/empresaDocs', 'equipamentos', 'acessibilidade']
 
 export default connect(null, { updateCollection })(StoreHOC(collections, ConsultasContainer))

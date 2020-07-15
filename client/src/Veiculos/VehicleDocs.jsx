@@ -40,13 +40,13 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
-export default function VehicleDocs({ handleFiles, parentComponent, dropDisplay, formData, insuranceExists, demandFiles }) {
+export default function VehicleDocs({ handleFiles, parentComponent, dropDisplay, formData, insuranceExists, demandFiles, fileToRemove }) {
     const { root, paper, item } = useStyles()
 
     let filesForm
     if (parentComponent === 'cadastro') filesForm = cadVehicleFiles
     if (parentComponent === 'altDados') filesForm = altDadosFiles
-    
+
     return (
         <div >
             <Paper className={paper}>
@@ -54,18 +54,19 @@ export default function VehicleDocs({ handleFiles, parentComponent, dropDisplay,
                 <Grid container className={root}>
                     {filesForm.map(({ title, name }, k) =>
                         name === 'apoliceDoc' && insuranceExists ? null :
-                        <Fragment key={k}>
-                            <Grid item xs={10} md={4} className={item}>
-                                <DragAndDrop
-                                    title={title}
-                                    name={name}
-                                    formData={formData}
-                                    dropDisplay={dropDisplay}
-                                    handleFiles={handleFiles}                                    
-                                    demandFiles={demandFiles}
-                                />
-                            </Grid>
-                        </Fragment>
+                            <Fragment key={k}>
+                                <Grid item xs={10} md={4} className={item}>
+                                    <DragAndDrop
+                                        title={title}
+                                        name={name}
+                                        formData={formData}
+                                        dropDisplay={dropDisplay}
+                                        handleFiles={handleFiles}
+                                        demandFiles={demandFiles}
+                                        fileToRemove={fileToRemove}
+                                    />
+                                </Grid>
+                            </Fragment>
                     )}
                 </Grid>
             </Paper>

@@ -28,9 +28,9 @@ export default function ShowDetails({ data, tab, title, header, close }) {
             formPattern = procuradorForm
             break;
         case 3:
-            let { veiculoId, laudoId, tableData, modeloChassiId, modeloCarroceriaId, delegatarioId, vencimentoContrato, delegatarioCompartilhado, 
+            let { veiculoId, laudoId, tableData, modeloChassiId, modeloCarroceriaId, delegatarioId, vencimentoContrato, delegatarioCompartilhado,
                 acessibilidadeId, equipa, ...vData } = data
-            
+
             ultimateData = vData
             formPattern = cadForm.concat([vForm])
             break;
@@ -43,12 +43,12 @@ export default function ShowDetails({ data, tab, title, header, close }) {
     }
 
     let element = []
-    
+
     Object.keys(ultimateData).forEach(key => {
         if (tab === 3) {
             formPattern.forEach(form => {
                 form.forEach(({ field, label, type }) => {
-                    if (key === field) {                        
+                    if (key === field) {
                         let obj = {}
                         Object.assign(obj, { field, label, value: ultimateData[key] })
                         if (type) Object.assign(obj, { type })
@@ -72,8 +72,11 @@ export default function ShowDetails({ data, tab, title, header, close }) {
     })
 
     Object.keys(ultimateData).forEach(key => {
+
         const equal = element.find(el => el.field === key)
-        if (!equal && tab === 3) element.push({ field: key, label: key, value: ultimateData[key] })
+
+        if (!equal && tab === 3)
+            element.push({ field: key, label: key, value: ultimateData[key] })
     })
 
     return (
