@@ -48,9 +48,8 @@ class AltDados extends Component {
         frota: [],
         toastMsg: 'Dados atualizados!',
         confirmToast: false,
-        activeStep: 2,
+        activeStep: 0,
         files: [],
-        fileNames: [],
         openAlertDialog: false,
         altPlaca: false,
         newPlate: '',
@@ -68,7 +67,7 @@ class AltDados extends Component {
 
         if (demand) {
             const demandState = setDemand(demand, redux)
-            this.setState({ ...demandState })
+            this.setState({ ...demandState, activeStep: 2 })
         }
 
         //*********Create state[key] for each equipamentos/acessibilidade and turn them to false before a vehicle is selected *********/
@@ -387,41 +386,50 @@ class AltDados extends Component {
         if (demand) this.props.history.push('/solicitacoes')
     }
 
-    handleFiles = async (files, name, remove) => {
+    handleFiles = async (files, name, remove, fileRemoved) => {
+
+        if (fileRemoved) {
+            this.setState({ fileToRemove: null })
+            return
+        }
 
         if (remove) {
             const existingFiles = this.state.form
             if (existingFiles instanceof FormData && this.state.form.has(name)) {
                 await existingFiles.delete(name)
 
-                const i = this.state.fileNames.indexOf({ [name]: this.state[name].name })
-                let fns = this.state.fileNames
-                fns.splice(i, 1)
-
+                if (name === this.state.fileToRemove) await this.setState({ fileToRemove: null })
                 let fileToRemove = name
 
-                await this.setState({ fileToRemove, filesNames: fns, form: existingFiles, [name]: undefined })
+                await this.setState({ fileToRemove, form: existingFiles, [name]: undefined })
 
-                for (let pair of this.state.form) {
-                    console.log(pair)
+                //********If this.state.form has only 1 key left, remove it from state. */
+                let keyCounter = 0
+                if (this.state.form instanceof FormData)
+                    keyCounter = Array.from(this.state.form.keys(), k => k)
+
+                console.log(keyCounter)
+                keyCounter = keyCounter.length
+                console.log(keyCounter)
+
+                if (keyCounter <= 1) {
+                    await this.setState({ fileToRemove: undefined, form: undefined, [name]: undefined })
+                    console.log(this.state.form)
                 }
-            }
+            }           
             return
         }
+
         else if (files && files[0]) {
 
             let formData = new FormData()
             formData.append('veiculoId', this.state.veiculoId)
 
-            let fn = this.state.fileNames
-
             if (files && files.length > 0) {
 
-                fn.push({ [name]: files[0].name })
-                await this.setState({ filesNames: fn, [name]: files[0] })
+                await this.setState({ [name]: files[0] })
 
                 altDadosFiles.forEach(({ name }) => {
-
                     for (let keys in this.state) {
                         if (keys.match(name) && this.state[name]) {
                             formData.append(name, this.state[name])

@@ -1,6 +1,6 @@
 import React from 'react'
 
-export default function ClosePopUpButton({ close, title = 'Fechar' }) {
+export default function RemoveFileButton({ close, title = 'Fechar', closeFiles, name }) {
     return (
         <div style={{
             position: 'absolute',
@@ -12,9 +12,9 @@ export default function ClosePopUpButton({ close, title = 'Fechar' }) {
                     className="material-icons right"
                     title={title}
                     style={{ cursor: 'pointer', color: 'red' }}
-                    onClick={close} >
+                    onClick={() => close(null, name, closeFiles)}>
                     close
-                </i>
+                        </i>
             </div>
         </div>
     )
