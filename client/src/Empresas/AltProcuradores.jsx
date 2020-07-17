@@ -6,14 +6,14 @@ import StoreHOC from '../Store/StoreHOC'
 
 import valueParser from '../Utils/valueParser'
 import { checkInputErrors } from '../Utils/checkInputErrors'
-import ReactToast from '../Utils/ReactToast'
+import ReactToast from '../Reusable Components/ReactToast'
 import Crumbs from '../Reusable Components/Crumbs'
 
 import AltProcuradoresTemplate from './AltProcuradoresTemplate'
 import download from '../Utils/downloadFile'
 import { procuradorForm } from '../Forms/procuradorForm'
 
-import AlertDialog from '../Utils/AlertDialog'
+import AlertDialog from '../Reusable Components/AlertDialog'
 
 class AltProcuradores extends Component {
 

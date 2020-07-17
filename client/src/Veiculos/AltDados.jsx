@@ -6,7 +6,7 @@ import StoreHOC from '../Store/StoreHOC'
 
 import { checkDemand } from '../Utils/checkDemand'
 import { checkInputErrors } from '../Utils/checkInputErrors'
-import ReactToast from '../Utils/ReactToast'
+import ReactToast from '../Reusable Components/ReactToast'
 import { altDadosFiles } from '../Forms/altDadosFiles'
 import { altForm } from '../Forms/altForm'
 import { logGenerator } from '../Utils/logGenerator'
@@ -21,7 +21,8 @@ import Review from './VehicleReview'
 import StepperButtons from '../Reusable Components/StepperButtons'
 
 import FormDialog from '../Reusable Components/FormDialog'
-import AlertDialog from '../Utils/AlertDialog'
+import AlertDialog from '../Reusable Components/AlertDialog'
+import { handleFiles, removeFile } from '../Utils/handleFiles'
 
 class AltDados extends Component {
 
@@ -48,7 +49,7 @@ class AltDados extends Component {
         frota: [],
         toastMsg: 'Dados atualizados!',
         confirmToast: false,
-        activeStep: 0,
+        activeStep: 2,
         files: [],
         openAlertDialog: false,
         altPlaca: false,
@@ -386,60 +387,40 @@ class AltDados extends Component {
         if (demand) this.props.history.push('/solicitacoes')
     }
 
-    handleFiles = async (files, name, remove, fileRemoved) => {
+    handleFiles = async (files, name) => {
 
-        if (fileRemoved) {
-            this.setState({ fileToRemove: null })
-            return
+        const { veiculoId } = this.state
+
+        let formData = new FormData()
+        formData.append('veiculoId', veiculoId)
+
+        if (files && files[0]) {
+            await this.setState({ [name]: files[0] })
+
+            const newState = handleFiles(files, name, formData, this.state)
+            this.setState({ ...newState })
         }
+    }
 
-        if (remove) {
-            const existingFiles = this.state.form
-            if (existingFiles instanceof FormData && this.state.form.has(name)) {
-                await existingFiles.delete(name)
+    removeFile = async (name) => {
 
-                if (name === this.state.fileToRemove) await this.setState({ fileToRemove: null })
-                let fileToRemove = name
+        const
+            { form } = this.state,
+            newState = removeFile(name, form)
 
-                await this.setState({ fileToRemove, form: existingFiles, [name]: undefined })
+        //clear temp file to remove from state before
+        if (name === this.state.fileToRemove) await this.setState({ fileToRemove: null })
 
-                //********If this.state.form has only 1 key left, remove it from state. */
-                let keyCounter = 0
-                if (this.state.form instanceof FormData)
-                    keyCounter = Array.from(this.state.form.keys(), k => k)
+        //let fileToRemove = name
+        const updatedState = await newState
+        console.log(this.state.fileToRemove)
+        await this.setState({ ...this.state, ...updatedState })
 
-                console.log(keyCounter)
-                keyCounter = keyCounter.length
-                console.log(keyCounter)
+        console.log(this.state.fileToRemove)
+        /* for (let p of this.state.form) {
+            console.log(p[0], p[1])
+        } */
 
-                if (keyCounter <= 1) {
-                    await this.setState({ fileToRemove: undefined, form: undefined, [name]: undefined })
-                    console.log(this.state.form)
-                }
-            }           
-            return
-        }
-
-        else if (files && files[0]) {
-
-            let formData = new FormData()
-            formData.append('veiculoId', this.state.veiculoId)
-
-            if (files && files.length > 0) {
-
-                await this.setState({ [name]: files[0] })
-
-                altDadosFiles.forEach(({ name }) => {
-                    for (let keys in this.state) {
-                        if (keys.match(name) && this.state[name]) {
-                            formData.append(name, this.state[name])
-                        }
-                        else void 0
-                    }
-                })
-                this.setState({ form: formData })
-            }
-        }
     }
 
     submitFiles = () => {
@@ -505,6 +486,7 @@ class AltDados extends Component {
                 formData={form}
                 demandFiles={demandFiles}
                 fileToRemove={this.state.fileToRemove}
+                removeFile={this.removeFile}
             />}
             {activeStep === 3 && <Review
                 parentComponent='altDados'
@@ -550,3 +532,60 @@ class AltDados extends Component {
 const collections = ['veiculos', 'empresas', 'equipamentos', 'acessibilidade', 'getFiles/vehicleDocs'];
 
 export default StoreHOC(collections, AltDados)
+
+
+/*
+if (fileRemoved) {
+    this.setState({ fileToRemove: null })
+    return
+}
+
+if (remove) {
+    const existingFiles = this.state.form
+    if (existingFiles instanceof FormData && this.state.form.has(name)) {
+        await existingFiles.delete(name)
+
+        if (name === this.state.fileToRemove) await this.setState({ fileToRemove: null })
+        let fileToRemove = name
+
+        await this.setState({ fileToRemove, form: existingFiles, [name]: undefined })
+
+
+        let keyCounter = 0
+        if (this.state.form instanceof FormData)
+            keyCounter = Array.from(this.state.form.keys(), k => k)
+
+        console.log(keyCounter)
+        keyCounter = keyCounter.length
+        console.log(keyCounter)
+
+        if (keyCounter <= 1) {
+            await this.setState({ fileToRemove: undefined, form: undefined, [name]: undefined })
+            console.log(this.state.form)
+        }
+    }
+    return
+} */
+
+
+
+/* if (files && files[0]) {
+
+    let formData = new FormData()
+    formData.append('veiculoId', this.state.veiculoId)
+
+    if (files && files.length > 0) {
+
+        await this.setState({ [name]: files[0] })
+
+        altDadosFiles.forEach(({ name }) => {
+            for (let keys in this.state) {
+                if (keys.match(name) && this.state[name]) {
+                    formData.append(name, this.state[name])
+                }
+                else void 0
+            }
+        })
+        this.setState({ form: formData })
+    }
+} */

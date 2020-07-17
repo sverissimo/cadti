@@ -1,7 +1,7 @@
 import React from 'react'
 import GetAppIcon from '@material-ui/icons/GetApp';
 import InsertDriveFileOutlinedIcon from '@material-ui/icons/InsertDriveFileOutlined';
-import downloadFile from './downloadFile';
+import downloadFile from '../Utils/downloadFile';
 
 const divContainer = {
     display: 'flex',

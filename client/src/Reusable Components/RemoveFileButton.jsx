@@ -1,6 +1,6 @@
 import React from 'react'
 
-export default function RemoveFileButton({ close, title = 'Fechar', closeFiles, name }) {
+export default function RemoveFileButton({ name, removeFile }) {
     return (
         <div style={{
             position: 'absolute',
@@ -10,9 +10,9 @@ export default function RemoveFileButton({ close, title = 'Fechar', closeFiles, 
             <div>
                 <i
                     className="material-icons right"
-                    title={title}
+                    title='Remover arquivo'
                     style={{ cursor: 'pointer', color: 'red' }}
-                    onClick={() => close(null, name, closeFiles)}>
+                    onClick={() => removeFile(name)}>
                     close
                         </i>
             </div>

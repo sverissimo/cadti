@@ -3,14 +3,14 @@ import axios from 'axios'
 
 import StoreHOC from '../Store/StoreHOC'
 
-import ReactToast from '../Utils/ReactToast'
+import ReactToast from '../Reusable Components/ReactToast'
 import moment from 'moment'
 
 import AltSeguroTemplate from './AltSeguroTemplate'
 import ShowAllPlates from './ShowAllPlates'
 import ConfigAddDialog from './ConfigAddDialog'
 import { checkInputErrors } from '../Utils/checkInputErrors'
-import AlertDialog from '../Utils/AlertDialog'
+import AlertDialog from '../Reusable Components/AlertDialog'
 import { seguroForm } from '../Forms/seguroForm'
 
 class AltSeguro extends Component {

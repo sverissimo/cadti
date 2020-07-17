@@ -13,7 +13,7 @@ import { TabMenu } from '../Layouts'
 import Certificate from '../Veiculos/Certificate'
 import ShowDetails from '../Reusable Components/ShowDetails'
 import ShowFiles from '../Reusable Components/ShowFiles'
-import AlertDialog from '../Utils/AlertDialog'
+import AlertDialog from '../Reusable Components/AlertDialog'
 
 const format = {
     top: '5%',

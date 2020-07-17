@@ -4,13 +4,13 @@ import axios from 'axios'
 import StoreHOC from '../Store/StoreHOC'
 
 import humps from 'humps'
-import ReactToast from '../Utils/ReactToast'
+import ReactToast from '../Reusable Components/ReactToast'
 import valueParser from '../Utils/valueParser'
 
 import Crumbs from '../Reusable Components/Crumbs'
 import AltSociosTemplate from './AltSociosTemplate'
 import { sociosForm } from '../Forms/sociosForm'
-import AlertDialog from '../Utils/AlertDialog'
+import AlertDialog from '../Reusable Components/AlertDialog'
 
 class AltSocios extends Component {
 

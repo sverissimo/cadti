@@ -5,7 +5,7 @@ import humps from 'humps'
 import StoreHOC from '../Store/StoreHOC'
 
 import ConfigAddDialog from './ConfigAddDialog'
-import ReactToast from '../Utils/ReactToast'
+import ReactToast from '../Reusable Components/ReactToast'
 import ConfigTemplate from './ConfigTemplate'
 import ConfirmDialog from '../Reusable Components/ConfirmDialog'
 

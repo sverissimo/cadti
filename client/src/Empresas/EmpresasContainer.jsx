@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react'
 import axios from 'axios'
 import humps from 'humps'
-import ReactToast from '../Utils/ReactToast'
+import ReactToast from '../Reusable Components/ReactToast'
 
 import StoreHOC from '../Store/StoreHOC'
 
@@ -18,7 +18,7 @@ import Crumbs from '../Reusable Components/Crumbs'
 
 import StepperButtons from '../Reusable Components/StepperButtons'
 import CustomStepper from '../Reusable Components/Stepper'
-import AlertDialog from '../Utils/AlertDialog'
+import AlertDialog from '../Reusable Components/AlertDialog'
 
 class EmpresasContainer extends Component {
 

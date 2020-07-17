@@ -14,13 +14,13 @@ import Review from './VehicleReview'
 import Crumbs from '../Reusable Components/Crumbs'
 import StepperButtons from '../Reusable Components/StepperButtons'
 import CustomStepper from '../Reusable Components/Stepper'
-import ReactToast from '../Utils/ReactToast'
+import ReactToast from '../Reusable Components/ReactToast'
 
 import { formatMoney } from '../Utils/formatValues'
 import { cadVehicleFiles } from '../Forms/cadVehicleFiles'
 import { cadForm } from '../Forms/cadForm'
 
-import AlertDialog from '../Utils/AlertDialog'
+import AlertDialog from '../Reusable Components/AlertDialog'
 
 class VeiculosContainer extends PureComponent {
 

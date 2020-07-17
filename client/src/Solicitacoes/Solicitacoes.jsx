@@ -6,7 +6,7 @@ import SolHistory from './SolHistory'
 import SolicitacoesTemplate from './SolicitacoesTemplate'
 import SolicitacoesTable from './SolicitacoesTable'
 import { logRoutesConfig } from './logRoutesConfig'
-import AlertDialog from '../Utils/AlertDialog'
+import AlertDialog from '../Reusable Components/AlertDialog'
 
 
 function Solicitacoes(props) {

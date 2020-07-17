@@ -6,12 +6,12 @@ import DescriptionOutlinedIcon from '@material-ui/icons/DescriptionOutlined';
 import RemoveFileButton from './RemoveFileButton';
 
 
-export default function DragAndDrop({ title, name, formData, handleFiles, dropDisplay, single, style, demandFiles, fileToRemove }) {
+export default function DragAndDrop({ title, name, formData, handleFiles, dropDisplay, single, style, demandFiles, fileToRemove, removeFile }) {
 
     const [fileName, setFileName] = useState()
     const [fileExists, setFileExistance] = useState()
 
-    
+
 
     //*************Set demandFiles names, if there are any
     useEffect(() => {
@@ -28,7 +28,7 @@ export default function DragAndDrop({ title, name, formData, handleFiles, dropDi
 
     //*************If there's formData from props there's a new file being attached.
     useEffect(() => {
-        if (formData instanceof FormData && fileToRemove !== name) {            
+        if (formData instanceof FormData && fileToRemove !== name) {
             for (let pair of formData.entries()) {
                 if (name === pair[0]) {     //Attach the file if there'no command to remove
                     setFileName(pair[1].name)
@@ -42,9 +42,10 @@ export default function DragAndDrop({ title, name, formData, handleFiles, dropDi
 
     //*****************Remove file name from rendered field *********/
 
+    //console.log(fileToRemove, name)
     useEffect(() => {
         if (fileToRemove === name) {
-            const demandFile = demandFiles.find(f => f?.metadata?.fieldName === fileToRemove)
+            const demandFile = demandFiles?.find(f => f?.metadata?.fieldName === fileToRemove)
 
             if (fileToRemove && demandFile) {
                 setFileName(demandFile.filename)
@@ -57,14 +58,12 @@ export default function DragAndDrop({ title, name, formData, handleFiles, dropDi
         }
     }, [demandFiles, fileToRemove, handleFiles, name])
 
-
-
     return (
         <div style={style ? style : null}>
             <div style={{ position: 'relative', marginRight: '8px' }}>
                 <p className='fileInput'>{title || 'Anexar arquivo'}</p>
                 {fileName && !fileExists &&
-                    <RemoveFileButton title={'Remover arquivo'} close={handleFiles} closeFiles={true} name={name} />
+                    <RemoveFileButton removeFile={removeFile} name={name} />
                 }
             </div>
             <Dropzone onDrop={e => handleFiles(e, name)}>

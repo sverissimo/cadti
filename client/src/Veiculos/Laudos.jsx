@@ -2,8 +2,8 @@ import React, { useState, useEffect, useCallback, Fragment } from 'react'
 import axios from 'axios'
 import StoreHOC from '../Store/StoreHOC'
 
-import AlertDialog from '../Utils/AlertDialog'
-import ReactToast from '../Utils/ReactToast'
+import AlertDialog from '../Reusable Components/AlertDialog'
+import ReactToast from '../Reusable Components/ReactToast'
 import ConfirmDialog from '../Reusable Components/ConfirmDialog'
 
 import { checkInputErrors } from '../Utils/checkInputErrors'

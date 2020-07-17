@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react'
 
-import ShowLocalFiles from '../Utils/ShowLocalFiles'
+import ShowLocalFiles from '../Reusable Components/ShowLocalFiles'
 import StandardTable from '../Reusable Components/StandardTable'
 
 import Paper from '@material-ui/core/Paper'

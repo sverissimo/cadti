@@ -6,8 +6,8 @@ import humps from 'humps'
 import StoreHOC from '../Store/StoreHOC'
 
 import BaixaTemplate from './BaixaTemplate'
-import AlertDialog from '../Utils/AlertDialog'
-import ReactToast from '../Utils/ReactToast'
+import AlertDialog from '../Reusable Components/AlertDialog'
+import ReactToast from '../Reusable Components/ReactToast'
 
 import { logGenerator } from '../Utils/logGenerator'
 import { baixaForm } from '../Forms/baixaForm'
