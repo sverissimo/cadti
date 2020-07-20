@@ -44,14 +44,44 @@ export const getData = (collectionsArray = []) => {
 }
 
 export const insertData = (dataFromServer, collection) => (dispatch, getState) => {
+
+    let data = humps.camelizeKeys(dataFromServer)
     const
-        data = humps.camelizeKeys(dataFromServer),
         payload = { collection, data },
         seguradoras = getState().data.seguradoras
 
     if (!seguradoras) {
         dispatch({ type: 'INSERT_DATA', payload })
         return
+    }
+
+    if (collection === 'veiculos' && data[0]) {
+
+        const { acessibilidade, equipamentos } = getState().data
+
+        let
+            eqNames = [],
+            acNames = []
+
+        if (data[0]?.equipa) {
+            data[0].equipa.forEach(eqId => {
+                equipamentos.forEach(({ id, item }) => {
+                    if (eqId.toString() === id.toString()) eqNames.push(item)
+                })
+            })
+        }
+
+        if (data[0]?.acessibilidadeId) {
+            data[0].acessibilidadeId.forEach(acId => {
+                acessibilidade.forEach(({ id, item }) => {                    
+                    if (acId.toString() === id.toString()) {                    
+                        acNames.push(item)
+                    }
+                })
+            })
+        }        
+        data[0].equipamentos = eqNames
+        data[0].acessibilidade = acNames
     }
 
     if (collection === 'seguros' && data[0].placas && data[0].placas.length === 1) {

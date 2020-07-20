@@ -22,7 +22,7 @@ export default function Revisao({ data, parentComponent, form, filesForm, files 
         { paper } = classes,
         { acessibilidade, equipamentos, alteracoes, demand, demandFiles } = data,
         originalVehicle = data?.originalVehicle
-    
+
     let vehicleDetails = [],
         obj = {},
         newForm = [],
@@ -43,9 +43,9 @@ export default function Revisao({ data, parentComponent, form, filesForm, files 
         newForm = []
     })
     if (parentComponent === 'cadastro') ultimateData = [
-        { subtitle: 'Detalhes do veículo', form: filledForm[0], data: vehicleDetails[0] },
-        { subtitle: 'Detalhes do seguro', form: filledForm[1], data: vehicleDetails[1] },
-        { subtitle: 'Informações sobre a vistoria', form: filledForm[2], data: vehicleDetails[2] },
+        { subtitle: 'Detalhes do veículo', form: filledForm[0] || [], data: vehicleDetails[0] },
+        { subtitle: 'Detalhes do seguro', form: filledForm[1] || [], data: vehicleDetails[1] },
+        { subtitle: 'Informações sobre a vistoria', form: filledForm[2] || [], data: vehicleDetails[2] },
     ]
 
     if (parentComponent === 'altDados') ultimateData = [
@@ -71,9 +71,9 @@ export default function Revisao({ data, parentComponent, form, filesForm, files 
                 <main className='divTable'>
                     {
                         ultimateData.map(({ subtitle, form, data }, y) =>
-                            <Fragment key={y}>
+                            form && data && <Fragment key={y}>
                                 <StandardTable
-                                    length={form.length}
+                                    length={form?.length || 1}
                                     title={subtitle}
                                     labels={form.map(s => s.label)}
                                     fields={form.map(el => el.field)}
@@ -84,7 +84,7 @@ export default function Revisao({ data, parentComponent, form, filesForm, files 
                         )}
                 </main>
                 {
-                    equipamentos[0] &&
+                    equipamentos && equipamentos[0] &&
                     <section style={{ margin: '30px 0 0 25px' }}>
                         <h3> Equipamentos </h3>
                         <p>
@@ -99,7 +99,7 @@ export default function Revisao({ data, parentComponent, form, filesForm, files 
                     </section>
                 }
                 {
-                    acessibilidade[0] &&
+                    acessibilidade && acessibilidade[0] &&
                     <section style={{ margin: '30px 0 0 25px' }}>
                         <h3> Itens de acessibilidade </h3>
                         <p>

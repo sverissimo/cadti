@@ -47,12 +47,10 @@ export default function ({ handleInput, handleBlur, data, handleCheck, handleEqu
 
     const
         { activeStep, subtitle, placa, selectedEmpresa, addEquipa, demand, type } = data,
-        classes = useStyles(), { paper, container } = classes
+        classes = useStyles(), { paper, container } = classes,
+        form = altForm[activeStep]
 
-    let
-        form = altForm[activeStep],
-        eqCollection = equipamentos
-
+    let eqCollection = equipamentos
     if (type === 'acessibilidade') eqCollection = acessibilidade
 
     return (
@@ -90,7 +88,7 @@ export default function ({ handleInput, handleBlur, data, handleCheck, handleEqu
                                 </Paper>}
 
                             {activeStep === 0 &&
-                                <Grid container justify="center" style={{ paddingRight: '15px' }}>
+                                <Grid container justify="center" style={{ marginTop: '15px' }}>
                                     <Button
                                         variant="outlined"
                                         size="small"
@@ -132,7 +130,7 @@ export default function ({ handleInput, handleBlur, data, handleCheck, handleEqu
                             <div className={classes.formHolder}></div>
                         </Grid>
                 }
-            </Grid>          
+            </Grid>
         </Fragment>
     )
 }   

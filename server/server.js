@@ -178,10 +178,16 @@ app.get('/api/lookUpTable/:table', lookup)
 
 app.post('/api/cadastroVeiculo', (req, res) => {
 
-    const { keys, values } = parseRequestBody(req.body)
+    let reqObj = req.body
+
+    Object.entries(reqObj).forEach(([k, v]) => {
+        if (k === 'equipa' || k === 'acessibilidade_id')
+            reqObj[k] = '{' + v + '}'
+    })
+
+    const { keys, values } = parseRequestBody(reqObj)
 
     console.log(`INSERT INTO public.veiculo (${keys}) VALUES (${values}) RETURNING *`)
-
 
     pool.query(
         `INSERT INTO public.veiculo (${keys}) VALUES (${values}) RETURNING veiculo_id`, (err, table) => {
@@ -539,7 +545,6 @@ app.put('/api/updateVehicle', (req, res) => {
     let query = ''
     console.log(requestObject)
     Object.entries(requestObject).forEach(([k, v]) => {
-        console.log(k, v)
         if (k === 'equipa' || k === 'acessibilidade_id') v = '{' + v + '}'
         if (k === 'delegatario_compartilhado' && v === 'NULL') query += `${k} = NULL, `
         else query += `${k} = '${v}', `

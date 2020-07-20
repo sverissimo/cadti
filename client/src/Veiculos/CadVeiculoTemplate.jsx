@@ -44,20 +44,26 @@ const useStyles = makeStyles(theme => ({
         textAlign: 'center',
         color: theme.palette.text.secondary,
         margin: theme.spacing(1)
+    },
+    button: {
+        marginRight: '15px'
     }
 }));
 
-export default function ({ empresas, equipamentos, data, handleInput, handleBlur,
-    handleEquipa, handleCheck }) {
-    const { razaoSocial, activeStep, addEquipa,
-        delegatarioCompartilhado, subtitle, selectedEmpresa } = data,
+export default function ({ empresas, equipamentos, acessibilidade, data, handleInput, handleBlur, handleEquipa, handleCheck }) {
 
-        classes = useStyles(), { paper, container, title, selectEmpresa,
-            button, formHolder } = classes
+    const
+        classes = useStyles(),
+        { paper, container, title, selectEmpresa, button, formHolder } = classes,
 
-    const [shared, setShared] = useState(false)
+        { razaoSocial, activeStep, addEquipa, delegatarioCompartilhado, subtitle, selectedEmpresa, type } = data,
 
-    const form = cadForm[activeStep]
+        form = cadForm[activeStep],
+        [shared, setShared] = useState(false)
+
+    let eqCollection = equipamentos
+    if (type === 'acessibilidade') eqCollection = acessibilidade
+
     return (
         <Grid
             container
@@ -138,8 +144,8 @@ export default function ({ empresas, equipamentos, data, handleInput, handleBlur
 
                 </Paper>
                 {
-                    selectedEmpresa
-                        ?
+                    //selectedEmpresa
+                    true ?
                         <Grid item xs={12}>
                             {activeStep < 3 &&
                                 <Paper className={paper}>
@@ -150,24 +156,34 @@ export default function ({ empresas, equipamentos, data, handleInput, handleBlur
                                         handleBlur={handleBlur}
                                         handleInput={handleInput}
                                     />
-                                    {activeStep === 0 &&
-                                        <Grid container justify="center">
-                                            <Button
-                                                variant="outlined"
-                                                size="small"
-                                                color="primary"
-                                                className={button}
-                                                onClick={handleEquipa}
-                                            >
-                                                <AddIcon />
+                                </Paper>}
+                            {activeStep === 0 &&
+                                <Grid container justify="center" style={{ marginTop: '15px' }}>
+                                    <Button
+                                        variant="outlined"
+                                        size="small"
+                                        color="primary"
+                                        className={button}
+                                        onClick={() => handleEquipa('equipamentos')}
+                                    >
+                                        <AddIcon />
                                                 Equipamentos
                                             </Button>
-                                        </Grid>}
+                                    <Button
+                                        variant="outlined"
+                                        size="small"
+                                        color="primary"
+                                        className={button}
+                                        onClick={() => handleEquipa('acessibilidade')}
+                                    >
+                                        <AddIcon />
+                                        Acessibilidade
+                                    </Button>
+                                </Grid>}
 
-                                </Paper>}
                             {
                                 addEquipa && <AddEquipa
-                                    equipamentos={equipamentos}
+                                    equipamentos={eqCollection}
                                     close={handleEquipa}
                                     handleCheck={handleCheck}
                                     data={data} />
