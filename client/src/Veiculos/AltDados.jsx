@@ -396,9 +396,9 @@ class AltDados extends Component {
 
         if (files && files[0]) {
             await this.setState({ [name]: files[0] })
-            
+
             const newState = handleFiles(files, formData, this.state)
-            this.setState({ ...newState })
+            this.setState({ ...newState, fileToRemove: null })            
         }
     }
 
@@ -406,9 +406,6 @@ class AltDados extends Component {
         const
             { form } = this.state,
             newState = removeFile(name, form)
-
-        if (name === this.state.fileToRemove)               //clear temp file to remove from state before
-            await this.setState({ fileToRemove: null })
 
         this.setState({ ...this.state, ...newState })
     }

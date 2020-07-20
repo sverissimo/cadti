@@ -6,6 +6,7 @@ import moment from 'moment'
 import StoreHOC from '../Store/StoreHOC'
 
 import { setDemand } from '../Utils/setDemand'
+import { handleFiles, removeFile } from '../Utils/handleFiles'
 import { checkInputErrors } from '../Utils/checkInputErrors'
 import { logGenerator } from '../Utils/logGenerator'
 
@@ -59,7 +60,7 @@ class VeiculosContainer extends PureComponent {
             { redux } = this.props,
             { modelosChassi, carrocerias, seguradoras, equipamentos, acessibilidade } = redux,
             demand = this.props?.location?.state?.demand
-        
+
         if (demand) {
             const demandState = setDemand(demand, redux)
             this.setState({ ...demandState, activeStep: 4 })
@@ -376,25 +377,25 @@ class VeiculosContainer extends PureComponent {
 
     handleFiles = async (files, name) => {
 
-        if (files && files.length > 0) {
-            let
-                formData = new FormData(),
-                fn = this.state.fileNames
+        const { veiculoId } = this.state
 
-            fn.push({ [name]: files[0].name })
-            await this.setState({ filesNames: fn, [name]: files[0] })
+        let formData = new FormData()
+        formData.append('veiculoId', veiculoId)
 
-            cadVehicleFiles.forEach(({ name }) => {
-                for (let keys in this.state) {
-                    if (keys.match(name)) {
-                        formData.append(name, this.state[name])
-                        if (!formData.get(keys)) formData.delete(keys)
-                    }
-                    else void 0
-                }
-            })
-            this.setState({ form: formData })
+        if (files && files[0]) {
+            await this.setState({ [name]: files[0] })
+
+            const newState = handleFiles(files, formData, this.state)
+            this.setState({ ...newState, fileToRemove: null })
         }
+    }
+
+    removeFile = async (name) => {
+        const
+            { form } = this.state,
+            newState = removeFile(name, form)
+
+        this.setState({ ...this.state, ...newState })
     }
 
     submitFiles = async veiculoId => {
@@ -541,9 +542,12 @@ class VeiculosContainer extends PureComponent {
             />
             {activeStep === 3 && <VehicleDocs
                 parentComponent='cadastro'
-                handleFiles={this.handleFiles}
                 dropDisplay={dropDisplay}
                 formData={form}
+                handleFiles={this.handleFiles}
+                removeFile={this.removeFile}
+                fileToRemove={this.state.fileToRemove}
+                //demandFiles={demandFiles}
                 insuranceExists={insuranceExists}
             />}
 

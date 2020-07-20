@@ -29,7 +29,7 @@ export default function DragAndDrop({ title, name, formData, handleFiles, dropDi
         if (formData instanceof FormData ) {
             for (let pair of formData.entries()) {
                 if (name === pair[0]) {     //Attach the file if there'no command to remove
-                    setFileName(pair[1].name)
+                    setFileName(pair[1].name)             
                     setFileExistance(false)
                 }
             }
@@ -48,8 +48,7 @@ export default function DragAndDrop({ title, name, formData, handleFiles, dropDi
             }
             else if (fileToRemove && fileToRemove === name) {
                 setFileName(undefined)
-            }
-            handleFiles(null, null, null, 'Clear fileToRemove in local state')
+            }            
         }
     }, [demandFiles, fileToRemove, handleFiles, name])
     
