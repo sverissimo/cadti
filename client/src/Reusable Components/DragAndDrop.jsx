@@ -11,8 +11,6 @@ export default function DragAndDrop({ title, name, formData, handleFiles, dropDi
     const [fileName, setFileName] = useState()
     const [fileExists, setFileExistance] = useState()
 
-
-
     //*************Set demandFiles names, if there are any
     useEffect(() => {
         if (demandFiles && demandFiles[0]) {
@@ -28,21 +26,18 @@ export default function DragAndDrop({ title, name, formData, handleFiles, dropDi
 
     //*************If there's formData from props there's a new file being attached.
     useEffect(() => {
-        if (formData instanceof FormData && fileToRemove !== name) {
+        if (formData instanceof FormData ) {
             for (let pair of formData.entries()) {
                 if (name === pair[0]) {     //Attach the file if there'no command to remove
                     setFileName(pair[1].name)
                     setFileExistance(false)
                 }
             }
-        }
-        //return () => setFileName()
+        }        
     }, [formData, name, demandFiles, fileToRemove])
 
 
-    //*****************Remove file name from rendered field *********/
-
-    //console.log(fileToRemove, name)
+    //*****************Remove file name from rendered field *********/    
     useEffect(() => {
         if (fileToRemove === name) {
             const demandFile = demandFiles?.find(f => f?.metadata?.fieldName === fileToRemove)
@@ -57,7 +52,7 @@ export default function DragAndDrop({ title, name, formData, handleFiles, dropDi
             handleFiles(null, null, null, 'Clear fileToRemove in local state')
         }
     }, [demandFiles, fileToRemove, handleFiles, name])
-
+    
     return (
         <div style={style ? style : null}>
             <div style={{ position: 'relative', marginRight: '8px' }}>

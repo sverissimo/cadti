@@ -71,6 +71,6 @@ export const setDemand = (demand, redux) => {
     //****************** Return the object
     return {
         ...selectedVehicle, originalVehicle, delegatario, compartilhado, razaoSocial, selectedEmpresa,
-        demand, demandFiles: latestDocs, alteracoes, activeStep: 3
+        demand, demandFiles: latestDocs, alteracoes
     }
 }

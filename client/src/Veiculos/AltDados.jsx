@@ -49,7 +49,7 @@ class AltDados extends Component {
         frota: [],
         toastMsg: 'Dados atualizados!',
         confirmToast: false,
-        activeStep: 2,
+        activeStep: 0,
         files: [],
         openAlertDialog: false,
         altPlaca: false,
@@ -68,7 +68,7 @@ class AltDados extends Component {
 
         if (demand) {
             const demandState = setDemand(demand, redux)
-            this.setState({ ...demandState, activeStep: 2 })
+            this.setState({ ...demandState, activeStep: 3 })
         }
 
         //*********Create state[key] for each equipamentos/acessibilidade and turn them to false before a vehicle is selected *********/
@@ -396,31 +396,21 @@ class AltDados extends Component {
 
         if (files && files[0]) {
             await this.setState({ [name]: files[0] })
-
-            const newState = handleFiles(files, name, formData, this.state)
+            
+            const newState = handleFiles(files, formData, this.state)
             this.setState({ ...newState })
         }
     }
 
     removeFile = async (name) => {
-
         const
             { form } = this.state,
             newState = removeFile(name, form)
 
-        //clear temp file to remove from state before
-        if (name === this.state.fileToRemove) await this.setState({ fileToRemove: null })
+        if (name === this.state.fileToRemove)               //clear temp file to remove from state before
+            await this.setState({ fileToRemove: null })
 
-        //let fileToRemove = name
-        const updatedState = await newState
-        console.log(this.state.fileToRemove)
-        await this.setState({ ...this.state, ...updatedState })
-
-        console.log(this.state.fileToRemove)
-        /* for (let p of this.state.form) {
-            console.log(p[0], p[1])
-        } */
-
+        this.setState({ ...this.state, ...newState })
     }
 
     submitFiles = () => {
