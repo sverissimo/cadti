@@ -11,7 +11,7 @@ import Button from '@material-ui/core/Button'
 import AddIcon from '@material-ui/icons/Add'
 import { makeStyles } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
-import { cadForm } from '../Forms/cadForm'
+import { cadVehicleForm } from '../Forms/cadVehicleForm'
 
 import AutoComplete from '../Utils/autoComplete'
 import AddEquipa from './AddEquipa'
@@ -52,13 +52,15 @@ const useStyles = makeStyles(theme => ({
 
 export default function ({ empresas, equipamentos, acessibilidade, data, handleInput, handleBlur, handleEquipa, handleCheck }) {
 
+    
+    
     const
         classes = useStyles(),
         { paper, container, title, selectEmpresa, button, formHolder } = classes,
 
         { razaoSocial, activeStep, addEquipa, delegatarioCompartilhado, subtitle, selectedEmpresa, type } = data,
 
-        form = cadForm[activeStep],
+        form = cadVehicleForm[activeStep],
         [shared, setShared] = useState(false)
 
     let eqCollection = equipamentos
@@ -147,7 +149,7 @@ export default function ({ empresas, equipamentos, acessibilidade, data, handleI
                     //selectedEmpresa
                     true ?
                         <Grid item xs={12}>
-                            {activeStep < 3 &&
+                            {activeStep < 2 &&
                                 <Paper className={paper}>
                                     <div className='formSubtitle'> {subtitle[activeStep]}</div>
                                     <TextInput

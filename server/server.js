@@ -32,6 +32,7 @@ const { vehicleLogsModel } = require('./mongo/models/vehicleLogsModel')
 
 const { uploadFS } = require('./upload')
 const { parseRequestBody } = require('./parseRequest')
+const filesModel = require('./mongo/models/filesModel')
 /* const { filesModel } = require('./mongo/models/filesModel')
 const { empresaModel } = require('./mongo/models/empresaModel')
  */
@@ -593,6 +594,42 @@ app.delete('/api/deleteFile', async (req, res) => {
         }
     })
     io.sockets.emit('deleteOne', { tablePK: '_id', id, collection })
+})
+
+app.get('/api/deleteManyFiles', async (req, res) => {
+    const
+        { id, collection } = req.query
+
+    console.log(id, typeof id)
+    const docsTodelete = { 'metadata.veiculoId': id }
+    
+    gfs.collection('vehicleDocs')
+
+    const getIds = await filesModel.filesModel.find(docsTodelete).select('_ids')
+
+    const ids = getIds.map(e => new mongoose.mongo.ObjectId(e._id))
+
+    let chunks
+    gfs.collection('vehicleDocs')
+    let r
+    ids.forEach(fileId => {
+        gfs.files.deleteOne({ _id: fileId }, (err, result) => {
+            if (err) console.log(err)
+            if (result) { r = result; console.log(r) }
+        })
+
+        //        if (collection === 'empresaDocs') chunks = empresaChunks
+        //      if (collection === 'vehicleDocs') chunks = vehicleChunks
+
+        vehicleChunks.deleteMany({ files_id: fileId }, (err, result) => {
+            if (err) console.log(err)
+            if (result) {
+                console.log('result aaaaaaaaaaaaaaaaaaaa')
+            }
+        })
+    })
+    res.send(r || 'hi, im elfo')
+    //    io.sockets.emit('deleteOne', { tablePK: '_id', id, collection })
 })
 
 app.delete('/api/delete', (req, res) => {

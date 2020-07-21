@@ -128,7 +128,7 @@ class ConsultasContainer extends Component {
                 selectedFiles = vehicleDocs.filter(f => f.metadata.veiculoId === id.toString())
                 const vehicle = veiculos.find(v => v.veiculoId === id)
                 if (vehicle) {
-                    const seguro = empresaDocs.find(f => f.metadata.apolice === vehicle.apolice.toString())
+                    const seguro = empresaDocs.find(f => f?.metadata?.apolice === vehicle?.apolice?.toString())
                     if (seguro) selectedFiles.push(seguro)
                 }
                 break
@@ -140,7 +140,7 @@ class ConsultasContainer extends Component {
         selectedFiles = selectedFiles.filter(file => file?.metadata?.tempFile === 'false')
 
         if (selectedFiles[0]) {
-            selectedFiles = selectedFiles        
+            selectedFiles = selectedFiles
                 .sort((a, b) => new Date(a['uploadDate']) - new Date(b['uploadDate']))
                 .reverse()
             this.setState({ filesCollection: selectedFiles, showFiles: true, typeId, selectedElement: id })

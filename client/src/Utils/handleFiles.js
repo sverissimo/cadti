@@ -1,5 +1,3 @@
-import { altDadosFiles } from "../Forms/altDadosFiles"
-
 export const removeFile = (name, form) => {
 
     const existingFiles = new FormData()
@@ -20,28 +18,21 @@ export const removeFile = (name, form) => {
             return { fileToRemove: undefined, form: undefined, [name]: undefined }
         else
             return returnObj
-    }
-    return
+    }    
 }
 
-export const handleFiles = (files, formData, state) => {
+export const handleFiles = (files, formData, state, filesFormTemplate) => {
 
     if (files && files[0]) {
-
-        altDadosFiles.forEach(obj => {
+        filesFormTemplate.forEach(obj => {
             for (let keys in state) {
-                if (keys.match(obj.name) && state[obj.name]) {
+                if (keys.match(obj.name) && state[obj.name]) {                    
                     formData.append(obj.name, state[obj.name])
                 }
                 else void 0
             }
         })
-/* 
-        for (let p of formData) {
-            console.log(p[0], p[1])
-        }
- */
+        //for (let p of formData) { console.log(p[0], p[1]) }
         return { form: formData }
     }
-
 }

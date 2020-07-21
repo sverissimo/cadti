@@ -24,6 +24,7 @@ import FormDialog from '../Reusable Components/FormDialog'
 import AlertDialog from '../Reusable Components/AlertDialog'
 import { handleFiles, removeFile } from '../Utils/handleFiles'
 
+
 class AltDados extends Component {
 
     constructor() {
@@ -397,7 +398,7 @@ class AltDados extends Component {
         if (files && files[0]) {
             await this.setState({ [name]: files[0] })
 
-            const newState = handleFiles(files, formData, this.state)
+            const newState = handleFiles(files, formData, this.state, altDadosFiles)
             this.setState({ ...newState, fileToRemove: null })            
         }
     }
