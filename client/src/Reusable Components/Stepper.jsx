@@ -24,7 +24,7 @@ export default function CustomStepper({ activeStep, steps }) {
     const classes = useStyles()
 
     return (
-        <div className={classes.root}>
+        <div className='paper' style={{fontFamily: 'Verdana', fontSize: '12px', color:'blue'}}>
             <Stepper activeStep={activeStep}>
                 {steps.map((label, index) => {
                     const stepProps = {};

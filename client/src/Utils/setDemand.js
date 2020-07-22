@@ -70,6 +70,22 @@ export const setDemand = (demand, redux) => {
     //****************** Return the object
     return {
         ...selectedVehicle, originalVehicle, delegatario, compartilhado, razaoSocial, selectedEmpresa,
-        demand, demandFiles: latestDocs, alteracoes
+        demand, demandFiles: latestDocs, alteracoes, getUpdatedValues
     }
+}
+
+function getUpdatedValues(originalObj, newObj) {
+    Object.keys(newObj).forEach(key => {
+        if (newObj[key] && originalObj[key]) {
+
+            if (key === 'equipa' || key === 'acessibilidadeId')
+                newObj[key].sort((a, b) => a - b)
+
+            if (newObj[key].toString() === originalObj[key].toString())
+                delete newObj[key]
+        }
+        if (newObj[key] === '' || newObj[key] === 'null' || !newObj[key]) delete newObj[key]
+    })
+    const updatedFields = newObj
+    return updatedFields
 }

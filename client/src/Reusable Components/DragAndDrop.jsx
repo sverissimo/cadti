@@ -39,6 +39,7 @@ export default function DragAndDrop({ title, name, formData, handleFiles, dropDi
 
     //*****************Remove file name from rendered field *********/    
     useEffect(() => {
+        
         if (fileToRemove === name) {
             const demandFile = demandFiles?.find(f => f?.metadata?.fieldName === fileToRemove)
 

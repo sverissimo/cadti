@@ -24,16 +24,12 @@ import { cadVehicleForm } from '../Forms/cadVehicleForm'
 
 import AlertDialog from '../Reusable Components/AlertDialog'
 
-
-
 class VeiculosContainer extends PureComponent {
-
     constructor() {
         super()
         this.escFunction = (e) => {
-            if (e.keyCode === 27) {
-                if (this.state.addEquipa) this.handleEquipa()
-            }
+            if (e.keyCode === 27 && this.state.addEquipa)
+                this.closeEquipa()
         }
     }
 
@@ -59,8 +55,7 @@ class VeiculosContainer extends PureComponent {
             demand = this.props?.location?.state?.demand
 
         if (demand) {
-            const demandState = setDemand(demand, redux)
-            //console.log(demand, demandState)
+            const demandState = setDemand(demand, redux)            
             this.setState({ ...demandState, activeStep: 3 })
         }
 
@@ -79,7 +74,10 @@ class VeiculosContainer extends PureComponent {
         document.addEventListener('keydown', this.escFunction, false)
     }
 
-    componentWillUnmount() { this.setState({}) }
+    componentWillUnmount() { 
+        this.setState({}) 
+        document.removeEventListener('keydown', this.escFunction, false)
+    }
 
     setActiveStep = async action => {
 
@@ -110,7 +108,7 @@ class VeiculosContainer extends PureComponent {
             { name } = e.target
         let
             { value } = e.target
-        console.log(this.state.info)
+        
         this.setState({ [name]: value })
 
         switch (name) {
@@ -216,9 +214,53 @@ class VeiculosContainer extends PureComponent {
         }
     }
 
+    handleEquipa = type => {
+        const collection = this.props.redux[type]
+        let vEquip = [], currentEquipa = []
+
+        if (this.state[type]) currentEquipa = this.state[type]
+
+
+        collection.forEach(({ item }) => {
+            currentEquipa.forEach(ce => {
+                if (ce.toLowerCase() === item.toLowerCase()) vEquip.push(item)
+            })
+        })
+
+        vEquip.forEach(ve => this.setState({ [ve]: true }))
+
+        this.setState({ [collection]: vEquip, addEquipa: !this.state.addEquipa, type })
+    }
+    
+    handleCheck = async item => {
+        const
+            { type } = this.state,
+            collection = this.props.redux[type]
+
+        if (!collection) return
+
+        let arrayOfEquips = [], ids = [], stateKey
+
+        if (type === 'equipamentos') stateKey = 'equipa'
+        if (type === 'acessibilidade') stateKey = 'acessibilidadeId'
+
+        await this.setState({ ...this.state, [item]: !this.state[item] })
+
+        collection.forEach(({ id, item }) => {
+            if (this.state[item] === true) {
+                arrayOfEquips.push(item)
+                ids.push(id)
+            }
+        })
+
+        if (arrayOfEquips[0]) this.setState({ [type]: arrayOfEquips, [stateKey]: ids })
+        else if (type === 'equipamentos') this.setState({ equipamentos: [], [stateKey]: [] })
+        else if (type === 'acessibilidade') this.setState({ acessibilidade: [], [stateKey]: [] })
+    }
+
     handleCadastro = async (approved) => {
         const
-            { anoCarroceria, pesoDianteiro, pesoTraseiro, poltronas, delegatarioId, compartilhadoId, modeloChassiId, originalVehicle,
+            { anoCarroceria, pesoDianteiro, pesoTraseiro, poltronas, delegatarioId, compartilhadoId, modeloChassiId, originalVehicle, getUpdatedValues,
                 modeloCarroceriaId, selectedEmpresa, equipa, acessibilidadeId, showPendencias, info, form, demand, demandFiles } = this.state,
 
             indicadorIdade = anoCarroceria,
@@ -228,7 +270,7 @@ class VeiculosContainer extends PureComponent {
 
         let
             veiculoId,
-            situacao = 'Solicitação de cadastro em andamento'
+            situacao = 'Cadastro solicitado'
 
         let pbt = Number(poltronas) * 93 + (Number(pesoDianteiro) + Number(pesoTraseiro))
         if (isNaN(pbt)) pbt = undefined
@@ -252,9 +294,8 @@ class VeiculosContainer extends PureComponent {
         })
         vReview.delegatarioCompartilhado = compartilhadoId
 
-        Object.keys(vReview).forEach(key => {
-            if (vReview[key] === '') delete vReview[key]
-        })
+        if (demand && originalVehicle)
+            vReview = getUpdatedValues(originalVehicle, vReview)     //Save only real changes to the request Object (method from setDemand())
 
         const vehicle = humps.decamelizeKeys(vReview)
 
@@ -265,26 +306,9 @@ class VeiculosContainer extends PureComponent {
                 .then(res => {
                     veiculoId = res.data
                     console.log(veiculoId)
-                    //  this.submitFiles(veiculoId)
-                    //logGenerator({ empresa: selectedEmpresa.delegatarioId, veiculoId, content: '' })
                 })
                 .catch(err => console.log(err))
-
         else {
-            //Save only real changes to the request Object
-            Object.keys(vehicle).forEach(key => {
-                if (vehicle[key] && originalVehicle[key]) {
-
-                    if (key === 'equipa' || key === 'acessibilidadeId')
-                        vehicle[key].sort((a, b) => a - b)
-
-                    if (vehicle[key].toString() === originalVehicle[key].toString())
-                        delete vehicle[key]
-                }
-                if (vehicle[key] === '' || vehicle[key] === 'null' || !vehicle[key]) delete vehicle[key]
-            })
-
-
             veiculoId = existingVeiculoId
             if (demand && approved && !showPendencias) situacao = 'Ativo'
 
@@ -344,42 +368,13 @@ class VeiculosContainer extends PureComponent {
         }
     }
 
-    removeFile = async (name) => {
+    removeFile = async (name) => {        
         const
             { form } = this.state,
             newState = removeFile(name, form)
 
         this.setState({ ...this.state, ...newState })
     }
-
-    /* submitFiles = async veiculoId => {
-
-        let newForm = new FormData()        
-        if (veiculoId && this.state.form) {        
-            newForm.append('veiculoId', veiculoId);
-            for (let pair of this.state.form.entries()) {
-                newForm.append(pair[0], pair[1])
-            }
-        }
-
-        const newForm = this.state.form
-
-
-
-        
-                for (let pair of newForm.entries()) {
-                    console.log(pair[0], pair[1])
-                }
-        const formDataLength = Array.from(newForm.keys()).length
-        if (formDataLength <= 1) newForm = null
-
-        if (newForm instanceof FormData) {
-            newForm.set('veiculoId', veiculoId)
-            await axios.post('/api/vehicleUpload', newForm)
-                .then(res => console.log(res.data))
-                .catch(err => console.log(err))
-        }
-    } */
 
     resetState = () => {
         const
@@ -413,34 +408,8 @@ class VeiculosContainer extends PureComponent {
             form: new FormData()
         })
     }
-
-    handleCheck = async item => {
-        const
-            { type } = this.state,
-            collection = this.props.redux[type]
-
-        if (!collection) return
-
-        let arrayOfEquips = [], ids = [], stateKey
-
-        if (type === 'equipamentos') stateKey = 'equipa'
-        if (type === 'acessibilidade') stateKey = 'acessibilidadeId'
-
-        await this.setState({ ...this.state, [item]: !this.state[item] })
-
-        collection.forEach(({ id, item }) => {
-            if (this.state[item] === true) {
-                arrayOfEquips.push(item)
-                ids.push(id)
-            }
-        })
-
-        if (arrayOfEquips[0]) this.setState({ [type]: arrayOfEquips, [stateKey]: ids })
-        else if (type === 'equipamentos') this.setState({ equipamentos: [], [stateKey]: [] })
-        else if (type === 'acessibilidade') this.setState({ acessibilidade: [], [stateKey]: [] })
-    }
-
-    handleEquipa = type => this.setState({ addEquipa: !this.state.addEquipa, type })
+    
+    closeEquipa = () => this.setState({ addEquipa: false })
     setShowPendencias = () => this.setState({ showPendencias: !this.state.showPendencias })
     toggleDialog = () => this.setState({ openAlertDialog: !this.state.openAlertDialog })
     toast = () => this.setState({ confirmToast: !this.state.confirmToast })
@@ -448,7 +417,7 @@ class VeiculosContainer extends PureComponent {
     render() {
         const
             { confirmToast, toastMsg, activeStep, openAlertDialog, alertType, steps, selectedEmpresa,
-                placa, dropDisplay, form, insuranceExists, demand, demandFiles, showPendencias, info } = this.state,
+                placa, dropDisplay, form, demand, demandFiles, showPendencias, info } = this.state,
 
             { empresas, equipamentos, acessibilidade } = this.props.redux
 
@@ -469,6 +438,7 @@ class VeiculosContainer extends PureComponent {
                 handleBlur={this.handleBlur}
                 handleEquipa={this.handleEquipa}
                 handleCheck={this.handleCheck}
+                closeEquipa={this.closeEquipa}
                 match={this.props.match}
             />
             {activeStep === 2 && <VehicleDocs
@@ -476,10 +446,9 @@ class VeiculosContainer extends PureComponent {
                 dropDisplay={dropDisplay}
                 formData={form}
                 handleFiles={this.handleFiles}
-                removeFile={this.removeFile}
+                demandFiles={demandFiles}                
                 fileToRemove={this.state.fileToRemove}
-                demandFiles={demandFiles}
-                insuranceExists={insuranceExists}
+                removeFile={this.removeFile}
             />}
 
             {activeStep === 3 && <Review

@@ -14,7 +14,7 @@ export const removeFile = (name, form) => {
         //********If form has only 1 key left, remove it from state. */
         const keyCounter = Array.from(form.keys(), k => k).length
 
-        if (keyCounter <= 1)
+        if (keyCounter <= 1 && (form.has('veiculoId') || form.has('empresaId')))
             return { fileToRemove: undefined, form: undefined, [name]: undefined }
         else
             return returnObj

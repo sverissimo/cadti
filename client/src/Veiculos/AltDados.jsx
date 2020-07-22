@@ -296,7 +296,7 @@ class AltDados extends Component {
 
     handleSubmit = async (approved) => {
         const
-            { veiculoId, poltronas, pesoDianteiro, pesoTraseiro, delegatarioId, originalVehicle, showPendencias,
+            { veiculoId, poltronas, pesoDianteiro, pesoTraseiro, delegatarioId, originalVehicle, showPendencias, getUpdatedValues,
                 delegatarioCompartilhado, newPlate, selectedEmpresa, equipa, acessibilidadeId, info, demand, form, demandFiles } = this.state,
 
             oldHistoryLength = demand?.history?.length || 0
@@ -318,21 +318,22 @@ class AltDados extends Component {
         if (isNaN(pbt)) pbt = undefined
 
         tempObj = Object.assign(tempObj, { delegatarioId, delegatarioCompartilhado, pbt, equipa, acessibilidadeId })
-
-        //Save only real changes to the request Object
-        Object.keys(tempObj).forEach(key => {
-            if (tempObj[key] && originalVehicle[key]) {
-
-                if (key === 'equipa' || key === 'acessibilidadeId')
-                    tempObj[key].sort((a, b) => a - b)
-
-                if (tempObj[key].toString() === originalVehicle[key].toString())
-                    delete tempObj[key]
-            }
-            if (tempObj[key] === '' || tempObj[key] === 'null' || !tempObj[key]) delete tempObj[key]
-        })
-
-        let { placa, delegatario, compartilhado, ...camelizedRequest } = tempObj
+        
+        /*  Object.keys(tempObj).forEach(key => {
+             if (tempObj[key] && originalVehicle[key]) {
+ 
+                 if (key === 'equipa' || key === 'acessibilidadeId')
+                     tempObj[key].sort((a, b) => a - b)
+ 
+                 if (tempObj[key].toString() === originalVehicle[key].toString())
+                     delete tempObj[key]
+             }
+             if (tempObj[key] === '' || tempObj[key] === 'null' || !tempObj[key]) delete tempObj[key]
+         }) */
+         
+         let { placa, delegatario, compartilhado, ...camelizedRequest } = tempObj
+         
+         tempObj = getUpdatedValues(originalVehicle, tempObj)  //Save only real changes to the request Object (method from setDemand())
 
         if (newPlate && newPlate !== '')
             camelizedRequest.placa = newPlate
@@ -412,16 +413,7 @@ class AltDados extends Component {
             newState = removeFile(name, form)
 
         this.setState({ ...this.state, ...newState })
-    }
-
-    submitFiles = () => {
-        const { form } = this.state
-
-        if (form) axios.post('/api/vehicleUpload', form)
-            .then(res => res.data)
-            .catch(err => console.log(err))
-        else return null
-    }
+    }  
 
     setShowPendencias = () => this.setState({ showPendencias: !this.state.showPendencias })
     toggleDialog = () => this.setState({ altPlaca: !this.state.altPlaca })
@@ -472,9 +464,9 @@ class AltDados extends Component {
             />}
             {activeStep === 2 && <VehicleDocs
                 parentComponent='altDados'
-                handleFiles={this.handleFiles}
                 dropDisplay={dropDisplay}
                 formData={form}
+                handleFiles={this.handleFiles}
                 demandFiles={demandFiles}
                 fileToRemove={this.state.fileToRemove}
                 removeFile={this.removeFile}
@@ -490,7 +482,7 @@ class AltDados extends Component {
                 activeStep={activeStep}
                 lastStep={steps.length - 1}
                 handleSubmit={this.handleSubmit}
-                setActiveStep={this.setActiveStep}                
+                setActiveStep={this.setActiveStep}
                 showPendencias={showPendencias}
                 setShowPendencias={this.setShowPendencias}
                 info={info}
