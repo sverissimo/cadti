@@ -31,14 +31,14 @@ export const setDemand = (demand, redux) => {
     if (Array.isArray(history)) alteracoes = history.reverse().find(el => el.hasOwnProperty('alteracoes'))?.alteracoes
 
     //******************Set Alterações into State and set equipa/acessibilidade array of names for each vehicle
-        
+
     if (alteracoes) {
         Object.keys(alteracoes).forEach(key => selectedVehicle[key] = alteracoes[key])
         const { equipa, acessibilidadeId } = alteracoes
         if (equipa) selectedVehicle.equipamentos = setNamesFromIds(equipamentos, equipa)
         if (acessibilidadeId) selectedVehicle.acessibilidade = setNamesFromIds(acessibilidade, acessibilidadeId)
     }
-    
+
     //******************Get latest uploaded files per field
     let fileIds = [], allDemandFiles, latestDocs = [], filesPerFieldName = {}
     history
@@ -47,7 +47,6 @@ export const setDemand = (demand, redux) => {
         .forEach(array => {
             array.forEach(id => fileIds.push(id))
         })
-
     allDemandFiles = vehicleDocs.filter(doc => fileIds.indexOf(doc.id) !== -1)
 
     let fieldExists = []
@@ -67,7 +66,7 @@ export const setDemand = (demand, redux) => {
         latestDocs.push(lastDoc)
         lastDoc = []
     })
-
+    console.log(filesPerFieldName, latestDocs)
     //****************** Return the object
     return {
         ...selectedVehicle, originalVehicle, delegatario, compartilhado, razaoSocial, selectedEmpresa,

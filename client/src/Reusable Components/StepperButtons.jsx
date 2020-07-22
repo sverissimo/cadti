@@ -21,14 +21,14 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
-export default function StepperButtons({ activeStep, setActiveStep, lastStep, handleSubmit, disabled, demand, setShowPendencias, showPendencias, handleInput, justificativa, pendencias }) {
+export default function StepperButtons({ activeStep, setActiveStep, lastStep, handleSubmit, disabled, demand, setShowPendencias, showPendencias, handleInput, info }) {
 
     const classes = useStyles(), { backButton, button, textField } = classes
 
     let role
     if (demand?.status.match('Pendências')) role = 'empresa'
     if (demand?.status.match('Aguardando')) role = 'seinfra'
-    
+
     return (
         <div>
             {activeStep < lastStep ?
@@ -56,9 +56,9 @@ export default function StepperButtons({ activeStep, setActiveStep, lastStep, ha
                     {role === 'seinfra' && !showPendencias ? null
                         :
                         <TextField
-                            name={!demand || role === 'empresa' ? 'justificativa' : 'pendencias'}
+                            name='info'
                             className={textField}
-                            value={!demand || role === 'empresa' ? justificativa : pendencias}
+                            value={info}
                             label={!demand || role === 'empresa' ? 'Observações/informações complementares' : 'Pendências/irregularidades para a aprovação'}
                             type='text'
                             onChange={handleInput}

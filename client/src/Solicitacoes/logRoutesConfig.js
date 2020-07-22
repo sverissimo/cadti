@@ -1,34 +1,43 @@
+const vehicle = {
+    
+    collection: 'vehicleLogs',
+    docs: 'vehicleDocs',
+    primaryKey: 'veiculoId'
+}
+
+const { collection, docs, primaryKey } = vehicle
+
 export const logRoutesConfig = [
     {
         subject: 'Cadastro de veículo',
-        collection: 'vehicleLogs',        
-        path: '/veiculos/cadastro'        
+        path: '/solicitacoes/cadastro',
+        requestAction: 'Cadastro de veículo solicitado',
+        responseAction: 'Pendências para o cadastro do veículo',
+        concludedAction: 'Veículo cadastrado',
+        collection, docs, primaryKey,
     },
-    {
-        subject: 'Alteração de dados do veículo',                
-        path: '/solicitacoes/altDados',        
-        collection: 'vehicleLogs',  
-        docs: 'vehicleDocs',
-        primaryKey: 'veiculoId',
+    {        
+        subject: 'Alteração de dados do veículo',    
+        path: '/solicitacoes/altDados',
         requestAction: 'Alteração de dados de veículo solicitada',
         responseAction: 'Pendências para a alteração de dados veicular',
-        concludedAction: 'Dados do veículo alterados'            
+        concludedAction: 'Dados do veículo alterados',
+        collection, docs, primaryKey,
     },
     {
         subject: 'Cadastro ou alteração de seguro',
         collection: 'vehicleLogs',
-        path: '/veiculos/altSeguro',        
+        path: '/veiculos/altSeguro',
     },
     {
         subject: 'Cadastro de laudo de segurança veicular',
         collection: 'vehicleLogs',
-        path: '/veiculos/laudos',        
+        path: '/veiculos/laudos',
     },
-    {        
+    {
         subject: 'Baixa de veículo',        
-        collection: 'vehicleLogs',  
-        primaryKey: 'veiculoId',
-        path: '/solicitacoes/baixaVeiculo'        
+        path: '/solicitacoes/baixaVeiculo',
+        collection, docs, primaryKey,
     },
     {
         subject: 'Configurações de Veículo',

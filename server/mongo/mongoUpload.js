@@ -15,7 +15,7 @@ conn.once('open', () => {
 })
 
 const storage = () => {
-    
+
     const vehicleStorage = new GridFsStorage({
 
         url: mongoURI,
@@ -27,7 +27,7 @@ const storage = () => {
             })
 
             metadata.fieldName = file.fieldname
-
+            console.log(metadata)
             const fileInfo = {
                 filename: file.originalname,
                 metadata,
@@ -87,7 +87,7 @@ const storage = () => {
 }
 
 
-const uploadMetadata = (req, res, next) => {    
+const uploadMetadata = (req, res, next) => {
     let filesArray = []
     if (req.files) req.files.forEach(f => {
         filesArray.push({

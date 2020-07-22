@@ -39,8 +39,9 @@ const Routes = () => {
                 <Route path='/relatorios' component={Relatorios} />
                 <Route path='/crv' component={PdfTest} />
                 <Route path='/solicitacoes' exact component={Solicitacoes} />
-                <Route path='/solicitacoes/baixaVeiculo' exact component={BaixaVeiculo} />
+                <Route path='/solicitacoes/cadastro' exact component={CadVeiculos} />
                 <Route path='/solicitacoes/altDados' exact component={AltDados} />
+                <Route path='/solicitacoes/baixaVeiculo' exact component={BaixaVeiculo} />
                 {/* <Route path='/faleConosco' component={UnderConstruction} /> */}            
         </Switch>
     )

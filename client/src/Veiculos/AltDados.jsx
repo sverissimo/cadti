@@ -296,8 +296,8 @@ class AltDados extends Component {
 
     handleSubmit = async (approved) => {
         const
-            { veiculoId, poltronas, pesoDianteiro, pesoTraseiro, delegatarioId, originalVehicle, showPendencias, pendencias,
-                delegatarioCompartilhado, newPlate, selectedEmpresa, justificativa, demand, form, equipa, acessibilidadeId, demandFiles } = this.state,
+            { veiculoId, poltronas, pesoDianteiro, pesoTraseiro, delegatarioId, originalVehicle, showPendencias,
+                delegatarioCompartilhado, newPlate, selectedEmpresa, equipa, acessibilidadeId, info, demand, form, demandFiles } = this.state,
 
             oldHistoryLength = demand?.history?.length || 0
 
@@ -348,11 +348,14 @@ class AltDados extends Component {
         const requestObject = humps.decamelizeKeys(camelizedRequest)
 
         //******************GenerateLog********************** */
-        let history = { alteracoes: camelizedRequest }
+        let history = {
+            alteracoes: camelizedRequest,
+            info
+        }
 
-        if (showPendencias && pendencias && pendencias !== '') history.info = pendencias
+        /* if (showPendencias && pendencias && pendencias !== '') history.info = pendencias
         else if (justificativa && justificativa !== '') history.info = justificativa
-
+ */
         let log = {
             empresaId: selectedEmpresa?.delegatarioId,
             veiculoId,
@@ -399,7 +402,7 @@ class AltDados extends Component {
             await this.setState({ [name]: files[0] })
 
             const newState = handleFiles(files, formData, this.state, altDadosFiles)
-            this.setState({ ...newState, fileToRemove: null })            
+            this.setState({ ...newState, fileToRemove: null })
         }
     }
 
@@ -443,7 +446,7 @@ class AltDados extends Component {
             { empresas, equipamentos, acessibilidade } = this.props.redux,
 
             { confirmToast, toastMsg, stepTitles, activeStep, steps, altPlaca, selectedEmpresa, openAlertDialog, alertType, customTitle, customMessage,
-                dropDisplay, form, title, header, newPlate, demand, showPendencias, pendencias, demandFiles } = this.state
+                dropDisplay, form, title, header, newPlate, demand, showPendencias, info, demandFiles } = this.state
 
         return <Fragment>
             <Crumbs links={['Veículos', '/veiculos']} text='Alteração de dados' demand={demand} />
@@ -483,16 +486,14 @@ class AltDados extends Component {
                 files={this.state.form}
                 filesForm={altDadosFiles}
             />}
-
             {selectedEmpresa && <StepperButtons
                 activeStep={activeStep}
                 lastStep={steps.length - 1}
                 handleSubmit={this.handleSubmit}
-                setActiveStep={this.setActiveStep}
-                rejectDemand={this.rejectDemand}
+                setActiveStep={this.setActiveStep}                
                 showPendencias={showPendencias}
                 setShowPendencias={this.setShowPendencias}
-                pendencias={pendencias}
+                info={info}
                 handleInput={this.handleInput}
                 demand={demand}
             />}

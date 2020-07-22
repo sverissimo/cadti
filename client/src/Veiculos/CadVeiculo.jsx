@@ -20,9 +20,11 @@ import ReactToast from '../Reusable Components/ReactToast'
 
 import { formatMoney } from '../Utils/formatValues'
 import { cadVehicleFiles } from '../Forms/cadVehicleFiles'
-import { cadForm } from '../Forms/cadForm'
+import { cadVehicleForm } from '../Forms/cadVehicleForm'
 
 import AlertDialog from '../Reusable Components/AlertDialog'
+
+
 
 class VeiculosContainer extends PureComponent {
 
@@ -58,7 +60,8 @@ class VeiculosContainer extends PureComponent {
 
         if (demand) {
             const demandState = setDemand(demand, redux)
-            this.setState({ ...demandState, activeStep: 4 })
+            //console.log(demand, demandState)
+            this.setState({ ...demandState, activeStep: 3 })
         }
 
         //*********Create state[key] for each equipamentos/acessibilidade and turn them to false before a vehicle is selected *********/
@@ -107,7 +110,7 @@ class VeiculosContainer extends PureComponent {
             { name } = e.target
         let
             { value } = e.target
-
+        console.log(this.state.info)
         this.setState({ [name]: value })
 
         switch (name) {
@@ -213,12 +216,19 @@ class VeiculosContainer extends PureComponent {
         }
     }
 
-    handleCadastro = async () => {
+    handleCadastro = async (approved) => {
         const
-            { anoCarroceria, pesoDianteiro, pesoTraseiro, poltronas, delegatarioId, compartilhadoId, modeloChassiId,
-                modeloCarroceriaId, selectedEmpresa, equipa, acessibilidadeId } = this.state,
-            situacao = 'Ativo',
-            indicadorIdade = anoCarroceria
+            { anoCarroceria, pesoDianteiro, pesoTraseiro, poltronas, delegatarioId, compartilhadoId, modeloChassiId, originalVehicle,
+                modeloCarroceriaId, selectedEmpresa, equipa, acessibilidadeId, showPendencias, info, form, demand, demandFiles } = this.state,
+
+            indicadorIdade = anoCarroceria,
+
+            existingVeiculoId = demand?.veiculoId,
+            oldHistoryLength = demand?.history?.length || 0
+
+        let
+            veiculoId,
+            situacao = 'Solicitação de cadastro em andamento'
 
         let pbt = Number(poltronas) * 93 + (Number(pesoDianteiro) + Number(pesoTraseiro))
         if (isNaN(pbt)) pbt = undefined
@@ -226,7 +236,7 @@ class VeiculosContainer extends PureComponent {
         //**********Prepare the request Object************* */
         let review = {}
 
-        cadForm.forEach(form => {
+        cadVehicleForm.forEach(form => {
             form.forEach(obj => {
                 for (let k in this.state) {
                     if (k === obj.field) Object.assign(review, { [k]: this.state[k] })
@@ -248,23 +258,83 @@ class VeiculosContainer extends PureComponent {
 
         const vehicle = humps.decamelizeKeys(vReview)
 
+        //***************If it doesnt exist, post the new vehicle Object, else get existing Id and update *********** */
 
-        //***************Post the new vehicle Object *********** */
-        await axios.post('/api/cadastroVeiculo', vehicle)
-            .then(res => {
-                const veiculoId = res.data
-                console.log(veiculoId)
-                this.submitFiles(veiculoId)
-                //logGenerator({ empresa: selectedEmpresa.delegatarioId, veiculoId, content: '' })
+        if (!existingVeiculoId)
+            await axios.post('/api/cadastroVeiculo', vehicle)
+                .then(res => {
+                    veiculoId = res.data
+                    console.log(veiculoId)
+                    //  this.submitFiles(veiculoId)
+                    //logGenerator({ empresa: selectedEmpresa.delegatarioId, veiculoId, content: '' })
+                })
+                .catch(err => console.log(err))
+
+        else {
+            //Save only real changes to the request Object
+            Object.keys(vehicle).forEach(key => {
+                if (vehicle[key] && originalVehicle[key]) {
+
+                    if (key === 'equipa' || key === 'acessibilidadeId')
+                        vehicle[key].sort((a, b) => a - b)
+
+                    if (vehicle[key].toString() === originalVehicle[key].toString())
+                        delete vehicle[key]
+                }
+                if (vehicle[key] === '' || vehicle[key] === 'null' || !vehicle[key]) delete vehicle[key]
             })
+
+
+            veiculoId = existingVeiculoId
+            if (demand && approved && !showPendencias) situacao = 'Ativo'
+
+            const
+                table = 'veiculo',
+                tablePK = 'veiculo_id',
+                requestObject = {
+                    ...vehicle,
+                    situacao
+                }
+
+            await axios.put('/api/updateVehicle', { requestObject, table, tablePK, id: veiculoId })
+        }
+
+        //*****************Generate log ************** */
+        let updatedIdFormData = new FormData()
+
+        if (form instanceof FormData) {
+            updatedIdFormData.set('veiculoId', veiculoId)
+            for (let p of form) {
+                updatedIdFormData.set(p[0], p[1])
+            }
+        } else updatedIdFormData = null
+
+        let log = {
+            empresaId: selectedEmpresa?.delegatarioId,
+            veiculoId,
+            history: {},
+            files: updatedIdFormData,
+            demandFiles,
+            historyLength: oldHistoryLength
+        }
+
+        if (info) log.history = { info }
+        if (demand) log.id = demand?.id
+        if (approved) log.completed = true
+        //        console.log(log, info)
+        logGenerator(log)
+            .then(r => console.log(r?.data))
             .catch(err => console.log(err))
+
+        //*********************if approved, putRequest to update DB  ********************** */
+
         this.resetState()
         this.toast()
     }
 
-    handleFiles = async (files, name) => {        
+    handleFiles = async (files, name) => {
 
-        let formData = new FormData()        
+        let formData = new FormData()
 
         if (files && files[0]) {
             await this.setState({ [name]: files[0] })
@@ -282,27 +352,34 @@ class VeiculosContainer extends PureComponent {
         this.setState({ ...this.state, ...newState })
     }
 
-    submitFiles = async veiculoId => {
+    /* submitFiles = async veiculoId => {
 
-        let newForm = new FormData()
-
-        if (veiculoId && this.state.form) {
+        let newForm = new FormData()        
+        if (veiculoId && this.state.form) {        
             newForm.append('veiculoId', veiculoId);
-            for (let pair of this.state.form.entries()) {                
+            for (let pair of this.state.form.entries()) {
                 newForm.append(pair[0], pair[1])
             }
         }
-/* 
-        for (let pair of newForm.entries()) {
-            console.log(pair[0], pair[1])
-        } */
+
+        const newForm = this.state.form
+
+
+
+        
+                for (let pair of newForm.entries()) {
+                    console.log(pair[0], pair[1])
+                }
         const formDataLength = Array.from(newForm.keys()).length
         if (formDataLength <= 1) newForm = null
 
-        if (newForm) await axios.post('/api/vehicleUpload', newForm)
-            .then(res => console.log(res.data))
-            .catch(err => console.log(err))
-    }
+        if (newForm instanceof FormData) {
+            newForm.set('veiculoId', veiculoId)
+            await axios.post('/api/vehicleUpload', newForm)
+                .then(res => console.log(res.data))
+                .catch(err => console.log(err))
+        }
+    } */
 
     resetState = () => {
         const
@@ -311,7 +388,7 @@ class VeiculosContainer extends PureComponent {
             resetFiles = {},
             resetEquip = {}
 
-        cadForm.forEach(form => {
+        cadVehicleForm.forEach(form => {
             form.forEach(obj => {
                 Object.keys(obj).forEach(key => {
                     if (key === 'field' && this.state[obj[key]]) Object.assign(resetState, { [obj[key]]: undefined })
@@ -364,18 +441,19 @@ class VeiculosContainer extends PureComponent {
     }
 
     handleEquipa = type => this.setState({ addEquipa: !this.state.addEquipa, type })
+    setShowPendencias = () => this.setState({ showPendencias: !this.state.showPendencias })
     toggleDialog = () => this.setState({ openAlertDialog: !this.state.openAlertDialog })
     toast = () => this.setState({ confirmToast: !this.state.confirmToast })
 
     render() {
         const
             { confirmToast, toastMsg, activeStep, openAlertDialog, alertType, steps, selectedEmpresa,
-                placa, dropDisplay, form, insuranceExists } = this.state,
+                placa, dropDisplay, form, insuranceExists, demand, demandFiles, showPendencias, info } = this.state,
 
             { empresas, equipamentos, acessibilidade } = this.props.redux
 
         return <Fragment>
-            <Crumbs links={['Veículos', '/veiculos']} text='Cadastro de veículo' />
+            <Crumbs links={['Veículos', '/veiculos']} text='Cadastro de veículo' demand={demand} />
 
             <CustomStepper
                 activeStep={activeStep}
@@ -400,21 +478,26 @@ class VeiculosContainer extends PureComponent {
                 handleFiles={this.handleFiles}
                 removeFile={this.removeFile}
                 fileToRemove={this.state.fileToRemove}
-                //demandFiles={demandFiles}
+                demandFiles={demandFiles}
                 insuranceExists={insuranceExists}
             />}
 
             {activeStep === 3 && <Review
                 parentComponent='cadastro' files={this.state.form}
                 filesForm={cadVehicleFiles} data={this.state}
-                form={cadForm}
+                form={cadVehicleForm}
             />}
 
             {selectedEmpresa && <StepperButtons
                 activeStep={activeStep}
                 lastStep={steps.length - 1}
-                handleSubmit={this.handleCadastro}
                 setActiveStep={this.setActiveStep}
+                demand={demand}
+                setShowPendencias={this.setShowPendencias}
+                showPendencias={showPendencias}
+                info={info}
+                handleSubmit={this.handleCadastro}
+                handleInput={this.handleInput}
                 disabled={(typeof placa !== 'string' || placa === '')}
             />}
             <ReactToast open={confirmToast} close={this.toast} msg={toastMsg} />
