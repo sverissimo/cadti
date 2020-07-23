@@ -19,7 +19,9 @@ h5 {
 h6 {
     font-size: 1.1em
 }
-
+p {
+margin: 5px 0
+}
 div.loading {
     position: fixed;
     top: 45%;
@@ -63,8 +65,8 @@ div.loading {
     background-color: white;
     width: auto;
     border-radius: 5px;
-    margin-bottom: 25px;
-    padding: 15px 5px;
+    margin-bottom: 10px;
+    padding: 10px 5px;
     color: black;
     box-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14), 0px 1px 3px 0px rgba(0, 0, 0, 0.12);
 }
@@ -76,7 +78,7 @@ div.loading {
     padding: 5px 0 5px 10px;
     cursor: pointer;
     width: 100px;
-    color: rgb(50, 65, 120);
+    color: rgb(50, 65, 120);    
 }
 
 .link2 {
@@ -85,10 +87,6 @@ div.loading {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
     font-size: 13px;
     font-weight: 500;
-}
-
-h3.selectedEmpresa {
-    font-weight: 400;
 }
 
 .assessDemandButton {

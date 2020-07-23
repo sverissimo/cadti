@@ -1,6 +1,7 @@
 import React, { Fragment } from 'react'
 
 import DragAndDrop from '../Reusable Components/DragAndDrop'
+import FormSubtiltle from '../Reusable Components/FormSubtiltle'
 
 import Grid from '@material-ui/core/Grid'
 import Paper from '@material-ui/core/Paper'
@@ -50,7 +51,7 @@ export default function VehicleDocs({ handleFiles, parentComponent, dropDisplay,
     return (
         <div >
             <Paper className={paper}>
-                <div className="formSubtitle"> Anexe os documentos solicitados nos campos abaixo </div>
+                <FormSubtiltle subtitle='Anexe os documentos solicitados nos campos abaixo' />
                 <Grid container className={root}>
                     {filesForm.map(({ title, name }, k) =>
                         name === 'apoliceDoc' && insuranceExists ? null :

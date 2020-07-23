@@ -1,27 +1,21 @@
 import React, { useState } from 'react'
 
+import SelectEmpresa from '../Reusable Components/SelectEmpresa'
 import TextInput from '../Reusable Components/TextInput'
+import FormSubtiltle from '../Reusable Components/FormSubtiltle'
 
 import Checkbox from '@material-ui/core/Checkbox'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
 import Button from '@material-ui/core/Button'
 import AddIcon from '@material-ui/icons/Add'
 import { makeStyles } from '@material-ui/core/styles'
-import TextField from '@material-ui/core/TextField'
 import { cadVehicleForm } from '../Forms/cadVehicleForm'
 
-import AutoComplete from '../Utils/autoComplete'
 import AddEquipa from './AddEquipa'
 
 import './veiculos.css'
 
 const useStyles = makeStyles(theme => ({
-    selectEmpresa: {
-        marginLeft: theme.spacing(1),
-        marginRight: theme.spacing(1),
-        minWidth: 415,
-        fontColor: '#bbb',
-    },
     button: {
         marginRight: '15px'
     }
@@ -30,55 +24,27 @@ const useStyles = makeStyles(theme => ({
 export default function ({ empresas, equipamentos, acessibilidade, data, handleInput, handleBlur, handleEquipa, handleCheck, closeEquipa }) {
 
     const
-        classes = useStyles(),
-        { selectEmpresa, button } = classes,
-
-        { razaoSocial, activeStep, addEquipa, delegatarioCompartilhado, subtitle, selectedEmpresa, type } = data,
-
-        form = cadVehicleForm[activeStep],
-        [shared, setShared] = useState(false)
+        [shared, setShared] = useState(false),
+        { button } = useStyles(),
+        { activeStep, addEquipa, subtitle, selectedEmpresa, type, placa } = data,
+        form = cadVehicleForm[activeStep]
 
     let eqCollection = equipamentos
     if (type === 'acessibilidade') eqCollection = acessibilidade
-    const headerTitles = [
-        { title: 'Selecione a Viação', value: razaoSocial },
-        { title: 'Empresa autorizada a compartilhar', value: delegatarioCompartilhado }
-    ]
 
     return (
         <>
-            <header className='paper flex center' style={{ width: '100%', margin: '10px 0', padding: '5px 0' }}>
-                {activeStep === 0 ?
-                    <section className='flexColumn' style={{ marginBottom: '15px' }}>
-                        <div className='flex center'>
-                            {
-                                headerTitles.map(({ title, value }, i) => ((i === 1 && shared) || i === 0) &&
-                                    <div className='flexColumn' key={i}>
-                                        <h4 style={{ margin: '5px 0', textAlign: 'center' }}>{title}</h4>
-                                        <TextField
-                                            inputProps={{
-                                                list: 'razaoSocial',
-                                                name: i === 0 ? 'razaoSocial' : 'delegatarioCompartilhado',
-                                                style: { textAlign: 'center', fontSize: '0.8rem' }
-                                            }}
-                                            className={selectEmpresa}
-                                            value={value}
-                                            onChange={handleInput}
-                                            onBlur={handleBlur}
-                                        />
-                                        <AutoComplete
-                                            collection={empresas}
-                                            datalist='razaoSocial'
-                                            value={value}
-                                        />
-                                    </div>
-                                )
-                            }
-                        </div>
-                    </section>
-                    :
-                    <div className='formTitle'>Cadastro de Veículo - {razaoSocial}</div>
-                }
+            <header className={activeStep !== 0 ? 'flex center' : 'paper flex center'} style={{ width: '100%' }}>
+                <section className='flexColumn' style={{ marginBottom: '15px' }}>
+                    <SelectEmpresa
+                        data={data}
+                        shared={shared}
+                        empresas={empresas}
+                        headerTitle={placa && selectedEmpresa && `Cadastro de veículo ${placa} - ${selectedEmpresa?.razaoSocial}`}
+                        handleBlur={handleBlur}
+                        handleInput={handleInput}
+                    />
+                </section>
                 {
                     activeStep === 0 &&
                     <section className="flex center" style={{ width: '100%', margin: '-7px 0 -4px 0' }}>
@@ -104,12 +70,7 @@ export default function ({ empresas, equipamentos, acessibilidade, data, handleI
                 <main>
                     {activeStep < 2 &&
                         <section className='paper' style={{ paddingBottom: '25px' }}>
-                            <div className='formSubtitle'>
-                                <i className='material-icons subtitleHelper'>arrow_forward</i>
-                                <span style={{ fontSize: '14.3px' }}>
-                                    {subtitle[activeStep]}
-                                </span>
-                            </div>
+                            <FormSubtiltle subtitle={subtitle[activeStep]} />
                             <TextInput
                                 form={form}
                                 data={data}

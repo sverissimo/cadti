@@ -85,8 +85,8 @@ export default function Revisao({ data, parentComponent, form, filesForm, files 
                 </main>
                 {
                     equipamentos && equipamentos[0] &&
-                    <section style={{ margin: '30px 0 0 25px' }}>
-                        <h3> Equipamentos </h3>
+                    <section style={{ margin: '0 0 13px 20px' }}>
+                        <p style={{ fontWeight: 500, color: '#555' }}> Equipamentos </p>
                         <p>
                             {
                                 equipamentos && equipamentos.map((e, i) =>
@@ -100,8 +100,8 @@ export default function Revisao({ data, parentComponent, form, filesForm, files 
                 }
                 {
                     acessibilidade && acessibilidade[0] &&
-                    <section style={{ margin: '30px 0 0 25px' }}>
-                        <h3> Itens de acessibilidade </h3>
+                    <section style={{ margin: '0 0 13px 20px' }}>
+                        <p style={{ fontWeight: 500, color: '#555' }}> Itens de acessibilidade </p>
                         <p>
                             {
                                 acessibilidade.map((e, i) =>
@@ -113,16 +113,25 @@ export default function Revisao({ data, parentComponent, form, filesForm, files 
                         </p>
                     </section>
                 }
-
-                <h3 style={{ margin: '30px 0 0 25px' }}> <FileCopyOutlinedIcon style={{ verticalAlign: 'middle', padding: '0 0 0 8px' }} /> Documentos </h3>
                 {(files || demandFiles) &&
-                    <ShowLocalFiles
-                        demand={demand}
-                        collection='vehicleDocs'
-                        demandFiles={demandFiles}
-                        form={filesForm}
-                        files={files}
-                    />}
+
+                    //<div style={{ borderTop: '1px solid #ccc', paddingTop:'5px' }}>
+                    <div>
+                        <p style={{ margin: '0 0 13px 11px', fontWeight: '500', color: '#555' }}>
+                            <FileCopyOutlinedIcon style={{ verticalAlign: 'middle', padding: '0 0 0 8px' }} />
+                            {' Documentos'}
+                        </p>
+
+                        <ShowLocalFiles
+                            demand={demand}
+                            collection='vehicleDocs'
+                            demandFiles={demandFiles}
+                            form={filesForm}
+                            files={files}
+                        />
+                    </div>
+
+                }
             </Paper >
         </>
     )

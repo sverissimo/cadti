@@ -17,7 +17,8 @@ const useStyles = makeStyles(theme => ({
         backgroundColor: '#eee'
     },
     textField: {
-        marginTop: '20px'
+        marginTop: '20px',
+        width: '100%'
     }
 }))
 
@@ -52,7 +53,7 @@ export default function StepperButtons({ activeStep, setActiveStep, lastStep, ha
                 </Button>
                 </>
                 :
-                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
                     {role === 'seinfra' && !showPendencias ? null
                         :
                         <TextField
@@ -63,9 +64,9 @@ export default function StepperButtons({ activeStep, setActiveStep, lastStep, ha
                             type='text'
                             onChange={handleInput}
                             InputLabelProps={{ shrink: true, style: { fontWeight: 600, marginBottom: '5%' } }}
-                            inputProps={{ style: { paddingBottom: '2%', width: '900px' }, maxLength: 500 }}
+                            inputProps={{ style: { paddingBottom: '2%'}, maxLength: 600 }}
                             multiline
-                            rows={4}
+                            rows={3}
                             variant='outlined'
                         />
                     }

@@ -9,7 +9,7 @@ const empresas = `
 		LEFT JOIN veiculo v
 			ON v.delegatario_id = d.delegatario_id
 		GROUP BY d.delegatario_id
-		ORDER BY frota DESC
+		ORDER BY frota DESC LIMIT 20
 		`
 
 const veiculos = `
@@ -41,7 +41,7 @@ const veiculos = `
 			ON veiculo.apolice = seguro.apolice
 		LEFT JOIN public.seguradora
 			ON public.seguradora.id = seguro.seguradora_id		
-		ORDER BY veiculo.veiculo_id DESC
+		ORDER BY veiculo.veiculo_id DESC LIMIT 40
 		`
 
 const modeloChassi = `

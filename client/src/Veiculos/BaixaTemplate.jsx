@@ -35,7 +35,6 @@ export default function ({ handleInput, handleBlur, handleCheck, handleSubmit, d
     const { razaoSocial, frota, checked, delegaTransf, justificativa, demand } = data,
         classes = useStyles(), { paper, container, formHolder } = classes
 
-
     return (
         <Fragment>
             <Crumbs links={['Veículos', '/veiculos']} text='Baixa de veículo' demand={demand} />
@@ -43,8 +42,7 @@ export default function ({ handleInput, handleBlur, handleCheck, handleSubmit, d
                 data={data}
                 empresas={empresas}
                 handleInput={handleInput}
-                handleBlur={handleBlur}
-                demand={demand}
+                handleBlur={handleBlur}                
             />
             <Grid
                 container

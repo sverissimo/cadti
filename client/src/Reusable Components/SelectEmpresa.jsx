@@ -1,57 +1,54 @@
 import React from 'react'
-import Paper from '@material-ui/core/Paper'
-import { makeStyles } from '@material-ui/core/styles'
 import AutoComplete from '../Utils/autoComplete'
 
 import './commonStyles.css'
 
-const useStyles = makeStyles(theme => ({
-
-    paper: {
-        padding: theme.spacing(1),
-        textAlign: 'center',
-        color: theme.palette.text.secondary,
-        margin: theme.spacing(1),
-        minWidth: '700px'
-    }
-}));
-
 export default function SelectEmpresa(props) {
 
     const
-        { empresas, handleInput, handleBlur, demand } = props,
-        { razaoSocial } = props.data,
-        classes = useStyles(), { paper } = classes
+        { empresas, handleInput, handleBlur, shared, headerTitle } = props,
+        { razaoSocial, delegatarioCompartilhado, selectedEmpresa, activeStep, demand } = props.data,
+        list = 'razaoSocial'
 
+    //Configure the form. If shared is present in state, another form will be pusshed into the array (CadVehicles)
+    let headerTitles = [{ title: 'Selecione a Viação', list, name: list, value: razaoSocial }]
+    if (shared)
+        headerTitles.push({ title: 'Empresa autorizada a compartilhar', list, name: 'delegatarioCompartilhado', value: delegatarioCompartilhado })
 
+    //Render field or title conditionally
+    let enableSelect = true
 
-    return (
-        <div className='selectEmpresa'>
-            <Paper className={paper} style={{ padding: '0 2% 0 2%' }}>
-                <div className={demand ? 'selectedEmpresa' : 'item  '}>
-                    {!demand ?
-                        <>
-                            <h3>  Selecione a Viação </h3>
+    if (demand) enableSelect = false
+    else if (activeStep && activeStep > 0) enableSelect = false
+    
+    if (enableSelect)
+        return (
+            <div className={props.hasOwnProperty('shared') ? 'flex center' : 'paper flex center'} style={{ width: '100%' }}>
+                {
+                    headerTitles.map(({ title, list, name, value }, i) =>
+                        <div className='flexColumn' key={i}>
+                            <h4 style={{ margin: '5px 0', textAlign: 'center' }}>{title}</h4>
                             <input
-                                list='razaoSocial'
-                                name='razaoSocial'
+                                list={list}
+                                name={name}
                                 className='selectEmpresa'
-                                value={razaoSocial}
+                                value={value}
                                 onChange={handleInput}
                                 onBlur={handleBlur}
                             />
                             <AutoComplete
-                                style={{ textAlign: 'center', width: '500px' }}
                                 collection={empresas}
-                                datalist='razaoSocial'
-                                value={razaoSocial}
+                                datalist={list}
+                                value={value}
                             />
-                        </>
-                        :
-                        <h3 className='selectedEmpresa'> {demand.empresa} </h3>
-                    }
-                </div>
-            </Paper>
-        </div>
+                        </div>
+                    )
+                }
+            </div >
+        )
+    else return (
+        <>
+            <span className='selectedEmpresa'> {headerTitle || demand?.empresa || ''} </span>
+        </>
     )
 }

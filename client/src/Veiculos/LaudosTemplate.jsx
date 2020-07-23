@@ -16,6 +16,7 @@ import Search from '@material-ui/icons/Search'
 import StopIcon from '@material-ui/icons/Stop';
 import Button from '@material-ui/core/Button'
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
+import FormSubtiltle from '../Reusable Components/FormSubtiltle'
 
 const LaudosTemplate = (
     { empresas, razaoSocial, selectedEmpresa, filteredVehicles, selectedVehicle, stateInputs, selectOptions, table,
@@ -36,7 +37,7 @@ const LaudosTemplate = (
     const deleteIconProperties = {
         color: 'secondary',
         title: 'Apagar Laudo',
-        style: { cursor: 'pointer' }        
+        style: { cursor: 'pointer' }
     }
 
     return (
@@ -52,7 +53,7 @@ const LaudosTemplate = (
                     <header className='flex' style={{ marginBottom: '15px' }}>
                         {
                             !selectedVehicle ?
-                                <h5> Selecione o veículo para atualizar consultar ou inserir o laudo de segurança veicular. </h5>
+                                <FormSubtiltle subtitle='Selecione o veículo para atualizar consultar ou inserir o laudo de segurança veicular.' />
                                 :
                                 <Placa
                                     veiculoId={selectedVehicle.veiculoId}
@@ -75,10 +76,14 @@ const LaudosTemplate = (
 
                     {selectedVehicle &&
                         <main className='paper'>
-                            <br />
-                            <h3 style={{ paddingLeft: '15px', marginTop: '-10px' }}>
-                                Para inserir novo laudo, informe o número, a data de vencimento, a empresa que emitiu e anexe o documento referente ao laudo.
-                            </h3>
+                            
+                            <FormSubtiltle
+                                subtitle='Para inserir novo laudo, informe o número, a data de vencimento, a empresa que emitiu e anexe o documento referente ao laudo.'
+                                //stylez={{ paddingLeft: '15px', marginTop: '-10px' }}
+                            />
+                            {/* <h3 style={{ paddingLeft: '15px', marginTop: '-10px' }}>
+                                
+                            </h3> */}
                             <br />
                             <br />
                             <TextInput
@@ -101,7 +106,7 @@ const LaudosTemplate = (
                                 className='saveButton'
                                 variant="contained"
                                 onClick={() => handleSubmit()}
-                             //   disabled={!laudoDoc ? true : false}
+                            //   disabled={!laudoDoc ? true : false}
                             >
                                 Salvar
                             </Button>

@@ -318,22 +318,11 @@ class AltDados extends Component {
         if (isNaN(pbt)) pbt = undefined
 
         tempObj = Object.assign(tempObj, { delegatarioId, delegatarioCompartilhado, pbt, equipa, acessibilidadeId })
-        
-        /*  Object.keys(tempObj).forEach(key => {
-             if (tempObj[key] && originalVehicle[key]) {
- 
-                 if (key === 'equipa' || key === 'acessibilidadeId')
-                     tempObj[key].sort((a, b) => a - b)
- 
-                 if (tempObj[key].toString() === originalVehicle[key].toString())
-                     delete tempObj[key]
-             }
-             if (tempObj[key] === '' || tempObj[key] === 'null' || !tempObj[key]) delete tempObj[key]
-         }) */
-         
-         let { placa, delegatario, compartilhado, ...camelizedRequest } = tempObj
-         
-         tempObj = getUpdatedValues(originalVehicle, tempObj)  //Save only real changes to the request Object (method from setDemand())
+
+
+        let { placa, delegatario, compartilhado, ...camelizedRequest } = tempObj
+
+        tempObj = getUpdatedValues(originalVehicle, tempObj)  //Save only real changes to the request Object (method from setDemand())
 
         if (newPlate && newPlate !== '')
             camelizedRequest.placa = newPlate
@@ -354,9 +343,6 @@ class AltDados extends Component {
             info
         }
 
-        /* if (showPendencias && pendencias && pendencias !== '') history.info = pendencias
-        else if (justificativa && justificativa !== '') history.info = justificativa
- */
         let log = {
             empresaId: selectedEmpresa?.delegatarioId,
             veiculoId,
@@ -413,7 +399,7 @@ class AltDados extends Component {
             newState = removeFile(name, form)
 
         this.setState({ ...this.state, ...newState })
-    }  
+    }
 
     setShowPendencias = () => this.setState({ showPendencias: !this.state.showPendencias })
     toggleDialog = () => this.setState({ altPlaca: !this.state.altPlaca })
@@ -448,7 +434,7 @@ class AltDados extends Component {
                 stepTitles={stepTitles}
                 setActiveStep={this.setActiveStep}
             />
-            {activeStep < 2 && <AltDadosTemplate
+            <AltDadosTemplate
                 data={this.state}
                 empresas={empresas}
                 equipamentos={equipamentos}
@@ -461,7 +447,7 @@ class AltDados extends Component {
                 handleEquipa={this.handleEquipa}
                 handleCheck={this.handleCheck}
                 close={this.closeEquipa}
-            />}
+            />
             {activeStep === 2 && <VehicleDocs
                 parentComponent='altDados'
                 dropDisplay={dropDisplay}

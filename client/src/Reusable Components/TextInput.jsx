@@ -97,7 +97,7 @@ export default function TextInput({ handleInput, handleBlur, form, data, empresa
                             InputLabelProps={{
                                 className: classes.textField,
                                 shrink: el.type === 'date' || undefined,
-                                style: { fontSize: '0.7rem', fontWeight: 400, color: '#888' }
+                                style: { fontSize: '0.7rem', fontWeight: 400, color: '#888',  fontFamily: '\'Segoe UI\', Tahoma, Geneva, Verdana, sans-serif' }
                             }}
                             inputProps={{
                                 style: {

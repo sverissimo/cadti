@@ -57,7 +57,7 @@ class BaixaVeiculo extends Component {
 
         if (name === 'razaoSocial') {
             let selectedEmpresa = empresas.find(e => e.razaoSocial === value)
-
+            console.log(selectedEmpresa)
             if (selectedEmpresa) {
                 await this.setState({ razaoSocial: selectedEmpresa.razaoSocial, selectedEmpresa })
                 if (value !== selectedEmpresa.razaoSocial) this.setState({ selectedEmpresa: undefined })
@@ -113,7 +113,7 @@ class BaixaVeiculo extends Component {
                         customMessage = `Já existe uma demanda aberta para o veículo de placa ${vehicle.placa}. Para acessá-la, clique em "Solicitações" no menu superior.`
 
                     const demandExists = checkDemand(vehicle?.veiculoId, vehicleLogs)
-                    
+
                     if (demandExists) {
                         this.setState({ customTitle, customMessage, openAlertDialog: true, delegatario: '', placa: undefined })
                         return
@@ -121,7 +121,7 @@ class BaixaVeiculo extends Component {
                 }
                 await this.setState({ ...vehicle })
 
-            } else {
+            } else if(this.state.placa !== '' ) {
                 let reset = {}
                 if (frota[0]) Object.keys(frota[0]).forEach(k => reset[k] = '')
                 this.setState({ alertType: 'plateNotFound', openAlertDialog: true, disableSubmit: true })
