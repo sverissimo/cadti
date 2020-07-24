@@ -4,7 +4,6 @@ import DragAndDrop from '../Reusable Components/DragAndDrop'
 import FormSubtiltle from '../Reusable Components/FormSubtiltle'
 
 import Grid from '@material-ui/core/Grid'
-import Paper from '@material-ui/core/Paper'
 import { makeStyles } from '@material-ui/core/styles'
 import { cadVehicleFiles } from '../Forms/cadVehicleFiles'
 import { altDadosFiles } from '../Forms/altDadosFiles'
@@ -16,13 +15,7 @@ const useStyles = makeStyles(theme => ({
         margin: '5px',
         padding: '8px',
     },
-    paper: {
-        color: theme.palette.text.secondary,
-        width: "100%",
-        padding: '8px 0 14px 0',
-        height: 'auto',
-        minHeight: '350px'
-    },
+
     sendButton: {
         margin: '3% 0 3% 0',
         backgroundColor: 'teal',
@@ -36,42 +29,40 @@ const useStyles = makeStyles(theme => ({
         color: '#333'
     },
     item: {
-        marginTop: '10px',
+        margin: '0 0 18px 0',
         padding: '0 5px'
     }
 }))
 
 export default function VehicleDocs({ handleFiles, parentComponent, dropDisplay, formData, insuranceExists, demandFiles, removeFile, fileToRemove }) {
-    const { root, paper, item } = useStyles()
+    const { root, item } = useStyles()
 
     let filesForm
     if (parentComponent === 'cadastro') filesForm = cadVehicleFiles
     if (parentComponent === 'altDados') filesForm = altDadosFiles
 
     return (
-        <div >
-            <Paper className={paper}>
-                <FormSubtiltle subtitle='Anexe os documentos solicitados nos campos abaixo' />
-                <Grid container className={root}>
-                    {filesForm.map(({ title, name }, k) =>
-                        name === 'apoliceDoc' && insuranceExists ? null :
-                            <Fragment key={k}>
-                                <Grid item xs={10} md={4} className={item}>
-                                    <DragAndDrop
-                                        title={title}
-                                        name={name}
-                                        formData={formData}
-                                        dropDisplay={dropDisplay}
-                                        handleFiles={handleFiles}
-                                        demandFiles={demandFiles}
-                                        removeFile={removeFile}
-                                        fileToRemove={fileToRemove}
-                                    />
-                                </Grid>
-                            </Fragment>
-                    )}
-                </Grid>
-            </Paper>
+        <div className='paper' style={{color: '#555'}} >
+            <FormSubtiltle subtitle='Anexe os documentos solicitados nos campos abaixo' />
+            <Grid container className={root}>
+                {filesForm.map(({ title, name }, k) =>
+                    name === 'apoliceDoc' && insuranceExists ? null :
+                        <Fragment key={k}>
+                            <Grid item xs={10} md={4} className={item}>
+                                <DragAndDrop
+                                    title={title}
+                                    name={name}
+                                    formData={formData}
+                                    dropDisplay={dropDisplay}
+                                    handleFiles={handleFiles}
+                                    demandFiles={demandFiles}
+                                    removeFile={removeFile}
+                                    fileToRemove={fileToRemove}
+                                />
+                            </Grid>
+                        </Fragment>
+                )}
+            </Grid>
         </div>
     )
 }

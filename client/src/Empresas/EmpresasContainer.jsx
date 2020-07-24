@@ -306,7 +306,7 @@ class EmpresasContainer extends Component {
 
     render() {
 
-        const { activeStep, confirmToast, toastMsg, steps, openAlertDialog,
+        const { socios, activeStep, confirmToast, toastMsg, steps, openAlertDialog,
             alertType, contratoSocial } = this.state
 
         return <Fragment>
@@ -329,6 +329,7 @@ class EmpresasContainer extends Component {
                     : activeStep === 1 ?
                         <SociosTemplate
                             data={this.state}
+                            socios={socios}
                             handleInput={this.handleInput}
                             handleBlur={this.handleBlur}
                             addSocio={this.addSocio}

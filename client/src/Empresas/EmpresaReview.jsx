@@ -35,7 +35,7 @@ export default function Revisao({ data, empresasForm, sociosForm, filesForm, fil
         { subtitle: 'Detalhes da empresa', form: filledForm, data: empresaDetails },
         { subtitle: 'Informações sobre os sócios', form: sociosForm, data: socios }
     ]
-
+    console.log(ultimateData[1].form)
     return (
         <>
             <Paper className={paper}>
@@ -43,7 +43,7 @@ export default function Revisao({ data, empresasForm, sociosForm, filesForm, fil
                     {
                         ultimateData.map(({ subtitle, form, data }, y) =>
                             <Fragment key={y}>
-                                <table>
+                                <table style={y === 1 ? { tableLayout: 'fixed' } : {}}>
                                     <thead>
                                         <tr>
                                             <th className='tHeader'

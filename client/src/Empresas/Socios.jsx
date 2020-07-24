@@ -1,9 +1,10 @@
 import React, { Component } from 'react'
 import axios from 'axios'
+import humps from 'humps'
 
 import StoreHOC from '../Store/StoreHOC'
 
-import humps from 'humps'
+import SociosTemplate from './SociosTemplate'
 import ReactToast from '../Reusable Components/ReactToast'
 import valueParser from '../Utils/valueParser'
 
@@ -11,6 +12,8 @@ import Crumbs from '../Reusable Components/Crumbs'
 import AltSociosTemplate from './AltSociosTemplate'
 import { sociosForm } from '../Forms/sociosForm'
 import AlertDialog from '../Reusable Components/AlertDialog'
+import { handleFiles, removeFile } from '../Utils/handleFiles'
+
 
 class AltSocios extends Component {
 
@@ -182,7 +185,7 @@ class AltSocios extends Component {
         this.setState({ filteredSocios: fs })
     }
 
-    handleSubmit = async () => {
+    handleSubmit = async approved => {
         const
             { selectedEmpresa, contratoSocial, filteredSocios } = this.state,
             { socios } = this.props.redux
@@ -245,29 +248,33 @@ class AltSocios extends Component {
             .filter(s => s.socioId !== undefined)
             .map(s => s.socioId)
 
-        try {
-            if (oldMembers.length > 0) {
-                await axios.put('/api/editSocios', { requestArray: oldMembers, table, tablePK, keys })
-                    .then(r => console.log(r.data))
-            }
-
-            if (newMembers.length > 0) {
-                await axios.post('/api/cadSocios', { socios: newMembers, table, tablePK })
-                    .then(r => r.data.forEach(newSocio => socioIdsArray.push(newSocio.socio_id)))
-            }
-
-            if (contratoSocial) {
-                contratoFile.append('empresaId', selectedEmpresa.delegatarioId)
-                contratoFile.append('socios', socioIdsArray)
-
-                for (let pair of contratoSocial.entries()) {
-                    contratoFile.append(pair[0], pair[1])
+        if (approved) {
+            try {
+                if (oldMembers.length > 0) {
+                    await axios.put('/api/editSocios', { requestArray: oldMembers, table, tablePK, keys })
+                        .then(r => console.log(r.data))
                 }
-                await axios.post('/api/empresaUpload', contratoFile)
-                    .then(r => console.log(r.data))
+
+                if (newMembers.length > 0) {
+                    await axios.post('/api/cadSocios', { socios: newMembers, table, tablePK })
+                        .then(r => r.data.forEach(newSocio => socioIdsArray.push(newSocio.socio_id)))
+                }
+
+                if (contratoSocial) {
+                    contratoFile.append('empresaId', selectedEmpresa.delegatarioId)
+                    contratoFile.append('socios', socioIdsArray)
+
+                    for (let pair of contratoSocial.entries()) {
+                        contratoFile.append(pair[0], pair[1])
+                    }
+                    await axios.post('/api/empresaUpload', contratoFile)
+                        .then(r => console.log(r.data))
+                }
+            } catch (err) {
+                console.log(err)
             }
-        } catch (err) {
-            console.log(err)
+        } else {
+            
         }
 
         oldMembers = []
@@ -284,27 +291,51 @@ class AltSocios extends Component {
             originals: updatedList
         })
     }
+    /* 
+        handleFiles = (file) => {
+    
+            let formData = new FormData()
+            formData.append('contratoSocial', file[0])
+            this.setState({ dropDisplay: file[0].name, formData })
+        } */
 
-    handleFiles = (file) => {
+    handleFiles = async (files, name) => {
 
         let formData = new FormData()
-        formData.append('contratoSocial', file[0])
-        this.setState({ dropDisplay: file[0].name, contratoSocial: formData })
+
+        if (files && files[0]) {
+            await this.setState({ [name]: files[0] })
+
+            const contratoSocial = [{ name: 'contratoSocial' }]
+
+            const newState = handleFiles(files, formData, this.state, contratoSocial)
+            this.setState({ ...newState, fileToRemove: null })
+        }
     }
+
+    removeFile = async (name) => {
+        const
+            { form } = this.state,
+            newState = removeFile(name, form)
+
+        this.setState({ ...this.state, ...newState })
+    }
+
 
     toggleDialog = () => this.setState({ openDialog: !this.state.openDialog })
     closeAlert = () => this.setState({ openAlertDialog: !this.state.openAlertDialog })
     toast = () => this.setState({ confirmToast: !this.state.confirmToast })
 
     render() {
-        const { openAlertDialog, alertType } = this.state,
+        const { filteredSocios, openAlertDialog, alertType, contratoSocial } = this.state,
             { empresas } = this.props.redux
 
         return (
             <React.Fragment>
                 <Crumbs links={['Empresas', '/empresas']} text='Alteração do quadro societário' />
-                <AltSociosTemplate
+                <SociosTemplate
                     data={this.state}
+                    socios={filteredSocios}
                     empresas={empresas}
                     handleInput={this.handleInput}
                     handleBlur={this.handleBlur}
@@ -314,6 +345,7 @@ class AltSocios extends Component {
                     handleEdit={this.handleEdit}
                     handleFiles={this.handleFiles}
                     handleSubmit={this.handleSubmit}
+                    removeFile={this.removeFile}
                 />
                 <ReactToast open={this.state.confirmToast} close={this.toast} msg={this.state.toastMsg} />
                 {openAlertDialog && <AlertDialog open={openAlertDialog} close={this.closeAlert} alertType={alertType} />}

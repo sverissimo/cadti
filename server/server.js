@@ -68,7 +68,7 @@ app.post('/api/empresaUpload', empresaUpload.any(), uploadMetadata, (req, res) =
     const { filesArray } = req
     if (filesArray && filesArray[0]) {
         io.sockets.emit('insertFiles', { insertedObjects: filesArray, collection: 'empresaDocs' })
-        res.json({ file: filesArray });
+        res.json({ file: filesArray })
     } else res.send('No uploads whatsoever...')
 })
 

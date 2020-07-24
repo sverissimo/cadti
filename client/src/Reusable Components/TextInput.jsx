@@ -102,7 +102,8 @@ export default function TextInput({ handleInput, handleBlur, form, data, empresa
                             inputProps={{
                                 style: {
                                     background: el.disabled && data.disable ? '#fff' : '#fafafa',
-                                    fontSize: '0.9rem', textAlign: 'center', color: '#000', width: el.width || 300, height: '7px'
+                                    fontSize: '0.85rem', textAlign: 'center', color: '#000', width: el.width || 300, height: '7px',
+                                    fontFamily: '\'Segoe UI\', Tahoma, Geneva, Verdana, sans-serif' 
                                 },
                                 value: `${data[el.field] || ''}`,
                                 list: el.datalist || '',

@@ -9,7 +9,7 @@ import { checkInputErrors } from '../Utils/checkInputErrors'
 import ReactToast from '../Reusable Components/ReactToast'
 import Crumbs from '../Reusable Components/Crumbs'
 
-import AltProcuradoresTemplate from './AltProcuradoresTemplate'
+import AltProcuradoresTemplate from './ProcuradoresTemplate'
 import download from '../Utils/downloadFile'
 import { procuradorForm } from '../Forms/procuradorForm'
 

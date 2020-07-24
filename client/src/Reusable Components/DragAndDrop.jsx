@@ -26,20 +26,20 @@ export default function DragAndDrop({ title, name, formData, handleFiles, dropDi
 
     //*************If there's formData from props there's a new file being attached.
     useEffect(() => {
-        if (formData instanceof FormData ) {
+        if (formData instanceof FormData) {
             for (let pair of formData.entries()) {
                 if (name === pair[0]) {     //Attach the file if there'no command to remove
-                    setFileName(pair[1].name)             
+                    setFileName(pair[1].name)
                     setFileExistance(false)
                 }
             }
-        }        
+        }
     }, [formData, name, demandFiles, fileToRemove])
 
 
     //*****************Remove file name from rendered field *********/    
     useEffect(() => {
-        
+
         if (fileToRemove === name) {
             const demandFile = demandFiles?.find(f => f?.metadata?.fieldName === fileToRemove)
 
@@ -49,14 +49,15 @@ export default function DragAndDrop({ title, name, formData, handleFiles, dropDi
             }
             else if (fileToRemove && fileToRemove === name) {
                 setFileName(undefined)
-            }            
+            }
         }
     }, [demandFiles, fileToRemove, handleFiles, name])
-    
+
     return (
         <div style={style ? style : null}>
             <div style={{ position: 'relative', marginRight: '8px' }}>
-                <p className='fileInput'>{title || 'Anexar arquivo'}</p>
+                {title ? <p className='fileInput'>{title || ''}</p>
+                    : <br />}
                 {fileName && !fileExists &&
                     <RemoveFileButton removeFile={removeFile} name={name} />
                 }

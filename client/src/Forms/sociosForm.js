@@ -1,6 +1,6 @@
 import { cpf, email, phone } from './commonFields'
 
-const width = 190
+const width = 195
 
 export const sociosForm = [{
     field: 'nomeSocio',

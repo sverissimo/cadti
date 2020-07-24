@@ -1,4 +1,4 @@
-import { cnpj } from './commonFields'
+import { cnpj, phone, email } from './commonFields'
 
 export const empresasForm = [
     {
@@ -18,16 +18,14 @@ export const empresasForm = [
         pattern: '\\d{13}'
     },
     {
+        ...phone,
         field: 'telefone',
-        label: 'Telefone',
-        maxLength: 20,
-        pattern: '((([+][0-9]{1,3})?[ ]?[-]?[(]?[0-9]{2,3}[)]?[ ]?[-]?[0-9]{4,5}[ ]?[-]?[0-9]{4}))',
+        label: 'Telefone',        
     },
     {
+        ...email,
         field: 'email',
-        label: 'E-mail',
-        type: 'email',
-        maxLength: 60,
+        label: 'E-mail'        
     },
     {
         field: 'cep',

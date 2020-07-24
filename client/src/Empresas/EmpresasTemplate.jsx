@@ -4,24 +4,15 @@ import TextInput from '../Reusable Components/TextInput'
 import Dropzone from 'react-dropzone'
 
 import Grid from '@material-ui/core/Grid'
-import Paper from '@material-ui/core/Paper'
-import Typography from '@material-ui/core/Typography'
 import DescriptionOutlinedIcon from '@material-ui/icons/DescriptionOutlined';
 import { makeStyles } from '@material-ui/core/styles'
+
 import { empresasForm } from '../Forms/empresasForm'
+import FormSubtitle from '../Reusable Components/FormSubtiltle'
+
 
 const useStyles = makeStyles(theme => ({
-    container: {
-        display: 'flex',
-        flexWrap: 'wrap',
-        padding: theme.spacing(1),
-        height: 'auto',
-    },
-    title: {
-        color: '#000',
-        fontWeight: 500,
-        textAlign: 'center'
-    },
+   
     textField: {
         marginLeft: theme.spacing(1),
         marginRight: theme.spacing(1),
@@ -35,12 +26,7 @@ const useStyles = makeStyles(theme => ({
     input: {
         textAlign: 'center'
     },
-    paper: {
-        padding: theme.spacing(1),
-        textAlign: 'center',
-        color: theme.palette.text.secondary,
-        margin: theme.spacing(1)
-    },
+   
     dropBox: {
         margin: '2% 0',
     },
@@ -74,52 +60,32 @@ const useStyles = makeStyles(theme => ({
 
 export default function ({ handleInput, handleBlur, data, handleFiles }) {
     const { activeStep, stepTitles, dropDisplay } = data,
-        classes = useStyles(), { paper, container, title, dropBox, dropBoxItem, dropBoxItem2 } = classes
-
-    
-
+        classes = useStyles(), { dropBox, dropBoxItem, dropBoxItem2 } = classes
 
     return (
-        <Grid
-            container
-            direction="row"
-            className={container}
-            justify="center"
-        >
-            <Grid>
-                {
-                    true
-                        ?
-                        <Grid item xs={12}>
-                            <Paper className={paper}>
-                                <Typography className={title}> {stepTitles[activeStep]}</Typography>
-                                <TextInput
-                                    form={empresasForm}
-                                    data={data}
-                                    handleBlur={handleBlur}
-                                    handleInput={handleInput}
-                                />
-                                <Dropzone onDrop={handleFiles}>
-                                    {({ getRootProps, getInputProps }) => (
-                                        <Grid container justify="center" alignItems='center' className={dropBox} direction='row' {...getRootProps()}>
-                                            <input {...getInputProps()} />
-                                            {
-                                                dropDisplay.match('Clique ou') ?
-                                                    <Grid item xs={6} className={dropBoxItem}> {dropDisplay} </Grid>
-                                                    :
-                                                    <Grid item xs={6} className={dropBoxItem2}> <DescriptionOutlinedIcon />  {dropDisplay} <br /> (clique ou arraste outro arquivo para alterar)</Grid>
-                                            }
-                                        </Grid>
-                                    )}
-                                </Dropzone>
-                            </Paper>
-                        </Grid >
-                        :
-                        <Grid container justify="center">
-                            <div className={classes.formHolder}></div>
+        <div className="flex paper">
+            <FormSubtitle subtitle={stepTitles[activeStep]} />
+            <div>
+                <TextInput
+                    form={empresasForm}
+                    data={data}
+                    handleBlur={handleBlur}
+                    handleInput={handleInput}
+                />
+                <Dropzone onDrop={handleFiles}>
+                    {({ getRootProps, getInputProps }) => (
+                        <Grid container justify="center" alignItems='center' className={dropBox} direction='row' {...getRootProps()}>
+                            <input {...getInputProps()} />
+                            {
+                                dropDisplay.match('Clique ou') ?
+                                    <Grid item xs={6} className={dropBoxItem}> {dropDisplay} </Grid>
+                                    :
+                                    <Grid item xs={6} className={dropBoxItem2}> <DescriptionOutlinedIcon />  {dropDisplay} <br /> (clique ou arraste outro arquivo para alterar)</Grid>
+                            }
                         </Grid>
-                }
-            </Grid>
-        </Grid >
+                    )}
+                </Dropzone>
+            </div>
+        </div>
     )
 }

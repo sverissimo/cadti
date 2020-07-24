@@ -1,8 +1,8 @@
 import React, { Fragment } from 'react'
-import Grid from '@material-ui/core/Grid'
-import Paper from '@material-ui/core/Paper'
-import Typography from '@material-ui/core/Typography'
-import MenuItem from '@material-ui/core/MenuItem'
+
+import SelectEmpresa from '../Reusable Components/SelectEmpresa'
+import FormSubtiltle from '../Reusable Components/FormSubtiltle'
+
 import Button from '@material-ui/core/Button'
 import EditIcon from '@material-ui/icons/Edit';
 import { makeStyles } from '@material-ui/core/styles'
@@ -10,19 +10,12 @@ import TextField from '@material-ui/core/TextField'
 import AddIcon from '@material-ui/icons/Add';
 import DeleteIcon from '@material-ui/icons/Delete';
 
-import { sociosForm as form } from '../Forms/sociosForm'
+import { sociosForm } from '../Forms/sociosForm'
+import TextInput from '../Reusable Components/TextInput'
+import DragAndDrop from '../Reusable Components/DragAndDrop'
+import SaveIcon from '@material-ui/icons/Save'
 
 const useStyles = makeStyles(theme => ({
-    container: {
-        display: 'flex',
-        flexWrap: 'wrap',
-        padding: theme.spacing(1)
-    },
-    title: {
-        color: '#000',
-        fontWeight: 500,
-        textAlign: 'center'
-    },
     textField: {
         marginLeft: theme.spacing(1),
         marginRight: theme.spacing(1),
@@ -37,12 +30,6 @@ const useStyles = makeStyles(theme => ({
     input: {
         textAlign: 'center'
     },
-    paper: {
-        padding: theme.spacing(1),
-        textAlign: 'center',
-        color: theme.palette.text.secondary,
-        margin: theme.spacing(1)
-    },
     list: {
         margin: theme.spacing(1),
         width: 180,
@@ -53,133 +40,124 @@ const useStyles = makeStyles(theme => ({
     iconButton: {
         marginTop: '17px',
         padding: '6px 0px'
-    },
-    addButton: {
-        marginBottom: '1%',
-        padding: '1% 0'
     }
 }));
 
-export default function ({ handleInput, handleBlur, data, addSocio, removeSocio, handleFiles, enableEdit, handleEdit }) {
-    const { activeStep, stepTitles, socios } = data,
-        classes = useStyles(), { paper, container, title, iconButton, list, addButton } = classes
+export default function ({ socios, empresas, handleInput, handleBlur, data, addSocio, enableEdit, handleEdit, removeSocio, handleFiles, removeFile, handleSubmit }) {
+    const { activeStep, stepTitles, filteredSocios, form, selectedEmpresa, dropDisplay, demandFiles, fileToRemove } = data,
+        classes = useStyles(), { iconButton, list } = classes
 
-    const errorHandler = (el) => {
+    let standAlone = true
+    if (stepTitles) standAlone = false
 
-        const value = data[el.field]
-
-        if (el.pattern && value) {
-            return value.match(el.pattern) === null
-        }
-        if (value > el.max || value < el.min) return true
-        else return false
-    }
-
-    const helper = (el) => {
-        const value = data[el.field]
-
-        if (value > el.max || value < el.min) return 'Valor inválido'
-        else if (value && value.match(el.pattern) === null) return '✘'
-        else if (el.pattern && value && value.match(el.pattern) !== null) return '✓'
-        else return undefined
-    }
-    
     return (
-        <Grid
-            container
-            direction="row"
-            className={container}
-            justify="center"
-        >
-            <Grid>
-                <Grid item xs={12}>
-                    <Paper className={paper}>
-                        <Typography className={title}> {stepTitles[activeStep]}</Typography>
-
-                        {
-                            form.map((el, i) =>
-                                <Fragment key={i}>
-                                    <TextField
-                                        name={el.field}
-                                        label={el.label}
-                                        margin='normal'
-                                        className={classes.textField}
-                                        onChange={handleInput}
-                                        onBlur={handleBlur}
-                                        type={el.type || ''}
-                                        error={errorHandler(el)}
-                                        helperText={helper(el)}
-                                        select={el.select || false}
-                                        value={data[el.field] || ''}
-                                        disabled={el.disabled || false}
-                                        InputLabelProps={{
-                                            className: classes.textField,
-                                            shrink: el.type === 'date' || undefined,
-                                            style: { fontSize: '0.75rem', fontWeight: 400, color: '#455a64', marginBottom: '5%' }
-                                        }}
-                                        inputProps={{
-                                            style: { background: el.disabled && data.disable ? '#fff' : '#fafafa',  height: '7px' },
-                                            value: `${data[el.field] || ''}`,
-                                            list: el.datalist || '',
-                                            maxLength: el.maxLength || '',
-                                            minLength: el.minLength || '',
-                                            max: el.max || '',
-                                        }}
-                                        multiline={el.multiline || false}
-                                        rows={el.rows || null}
-                                        variant={el.variant || 'filled'}
-                                        fullWidth={el.fullWidth || false}
-                                    >
-                                        {el.select === true && el.options.map((opt, i) =>
-                                            <MenuItem key={i} value={opt}>
-                                                {opt}
-                                            </MenuItem>)}
-                                    </TextField>
-                                </Fragment>
-                            )}
-                        <Button color='primary' className={addButton} onClick={addSocio}>
-                            <AddIcon /> Adicionar sócio
-                        </Button>
-                    </Paper>
-                </Grid>
+        <>
+            <main className="flex center">
                 {
-                    socios.length > 0 && <Grid container
-                        direction="row"
-                        className={container}
-                        justify="center"
-                        alignItems="center">
-                        <Grid item xs={12}>
-                            <Paper className={paper}>
-                                <p className={title}>{activeStep === 1 ? 'Sócios' : 'Procuradores'} cadastrados</p>
-                                {socios.map((s, i) =>
-                                    <Grid key={i}>
-                                        {form.map((e, k) =>
-                                            <Fragment key={k + 1000}>
-                                                <TextField
-                                                    value={s[e.field] || ''}
-                                                    name={e.field}
-                                                    label={e.label}
-                                                    className={list}
-                                                    disabled={e.field === 'cpfSocio' ? true : s.edit ? false : true}
-                                                    onChange={handleEdit}
-                                                    InputLabelProps={{ shrink: true, style: { fontWeight: 600 } }}
-                                                />
-                                            </Fragment>
-                                        )}
-                                        <Button component='span' className={iconButton} title='editar' onClick={() => enableEdit(i)}>
-                                            <EditIcon />
-                                        </Button>
-
-                                        <Button className={iconButton} color='secondary' title='Remover' onClick={() => removeSocio(i)}>
-                                            <DeleteIcon />
-                                        </Button>
-                                    </Grid>
-                                )}
-                            </Paper>
-                        </Grid>
-                    </Grid>
+                    standAlone &&
+                    <SelectEmpresa
+                        data={data}
+                        empresas={empresas}
+                        handleInput={handleInput}
+                        handleBlur={handleBlur}
+                    />
                 }
-            </Grid>
-        </Grid>
+
+                <section className="flex center paper">
+                    {
+                        standAlone ?
+                            <div className="flexColumn" style={{ alignItems: 'center' }}>
+                                <h6 style={{ fontSize: '14px' }}>Alteração do quadro Societário</h6>
+                                <p style={{ fontSize: '12px', color: '#555' }}> Para adicionar um novo sócio, preencha os campos abaixo e clique em "Adicionar sócio".</p>
+                            </div>
+
+                            :
+                            <FormSubtiltle subtitle={stepTitles[activeStep]} />
+                    }
+                    <div className='flex center' style={{ padding: '10px 0', width: '100%' }}>
+                        <TextInput
+                            form={sociosForm}
+                            data={data}
+                            handleBlur={handleBlur}
+                            handleInput={handleInput}
+                        />
+                    </div>
+                    <div style={{ margin: '5px 0 7px 84.58%', width: '100%' }}>
+                        <Button color='primary' variant='outlined' size='small' onClick={addSocio}>
+                            <AddIcon /> Adicionar sócio
+                    </Button>
+                    </div>
+                </section>
+            </main>
+            {
+                selectedEmpresa && filteredSocios.length === 0 &&
+                <section>
+                    <p>
+                        Nenhum sócio cadastrado para {selectedEmpresa.razaoSocial}
+                    </p>
+                </section>
+            }
+            {
+                socios?.length > 0 &&
+                <>
+                    <section className="flex center paper">
+                        <p > Sócios cadastrados</p>
+                        {socios.map((s, i) =>
+                            <div key={i}>
+                                {sociosForm.map((e, k) =>
+                                    <Fragment key={k + 1000}>
+                                        <TextField
+                                            value={s[e.field] || ''}
+                                            name={e.field}
+                                            label={e.label}
+                                            className={list}
+                                            disabled={e.field === 'cpfSocio' ? true : s.edit ? false : true}
+                                            onChange={handleEdit}
+                                            InputLabelProps={{ shrink: true, style: { fontWeight: 600 } }}
+                                            inputProps={{ style: { fontSize: '13px' } }}
+                                        />
+                                    </Fragment>
+                                )}
+                                <Button component='span' className={iconButton} title='editar' onClick={() => enableEdit(i)}>
+                                    <EditIcon />
+                                </Button>
+
+                                <Button className={iconButton} color='secondary' title='Remover' onClick={() => removeSocio(i)}>
+                                    <DeleteIcon />
+                                </Button>
+                            </div>
+                        )}
+                    </section>
+                    {
+                        standAlone &&
+                        <section>
+                            <div className='flex center'>
+                                <DragAndDrop
+                                    name='contratoSocial'
+                                    formData={form}
+                                    dropDisplay={dropDisplay}
+                                    handleFiles={handleFiles}
+                                    demandFiles={demandFiles}
+                                    removeFile={removeFile}
+                                    fileToRemove={fileToRemove}
+                                    style={{ width: '40%' }}
+                                />
+                            </div>
+                            <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                                <Button
+                                    size="small"
+                                    color="primary"
+                                    variant="contained"
+                                    style={{ margin: '0px 0 10px 0' }}
+                                    onClick={() => handleSubmit()}
+                                >
+                                    Salvar <span>&nbsp;&nbsp; </span> <SaveIcon />
+                                </Button>
+                            </div>
+                        </section>
+                    }
+                </>
+            }
+        </>
     )
 }

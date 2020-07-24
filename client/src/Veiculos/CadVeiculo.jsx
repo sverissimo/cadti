@@ -258,7 +258,7 @@ class VeiculosContainer extends PureComponent {
         else if (type === 'acessibilidade') this.setState({ acessibilidade: [], [stateKey]: [] })
     }
 
-    handleCadastro = async (approved) => {
+    handleCadastro = async approved => {
         const
             { anoCarroceria, pesoDianteiro, pesoTraseiro, poltronas, delegatarioId, compartilhadoId, modeloChassiId, originalVehicle, getUpdatedValues,
                 modeloCarroceriaId, selectedEmpresa, equipa, acessibilidadeId, showPendencias, info, form, demand, demandFiles } = this.state,
