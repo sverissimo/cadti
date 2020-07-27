@@ -51,7 +51,7 @@ class VeiculosContainer extends PureComponent {
 
         const
             { redux } = this.props,
-            { modelosChassi, carrocerias, seguradoras, equipamentos, acessibilidade } = redux,
+            { equipamentos, acessibilidade } = redux,
             demand = this.props?.location?.state?.demand
 
         if (demand) {
@@ -67,9 +67,7 @@ class VeiculosContainer extends PureComponent {
         equipamentos.forEach(e => Object.assign(allEqs, { [e?.item]: false }))
         acessibilidade.forEach(e => Object.assign(allAcs, { [e?.item]: false }))
 
-        await this.setState({
-            ...allEqs, ...allAcs, modelosChassi, carrocerias, seguradoras, allInsurances: this.props.redux['seguros']
-        })
+        await this.setState({ ...allEqs, ...allAcs })
 
         document.addEventListener('keydown', this.escFunction, false)
     }
@@ -169,8 +167,8 @@ class VeiculosContainer extends PureComponent {
 
     handleBlur = async e => {
         const
-            { empresas } = this.props.redux,
-            { frota, modelosChassi, carrocerias } = this.state,
+            { empresas, modelosChassi, carrocerias } = this.props.redux,
+            { frota } = this.state,
             { name } = e.target
         let
             { value } = e.target
@@ -419,7 +417,7 @@ class VeiculosContainer extends PureComponent {
             { confirmToast, toastMsg, activeStep, openAlertDialog, alertType, steps, selectedEmpresa,
                 placa, dropDisplay, form, demand, demandFiles, showPendencias, info } = this.state,
 
-            { empresas, equipamentos, acessibilidade } = this.props.redux            
+            { redux } = this.props
 
         return <Fragment>
             <Crumbs links={['Veículos', '/veiculos']} text='Cadastro de veículo' demand={demand} selectedEmpresa={selectedEmpresa} />
@@ -431,9 +429,7 @@ class VeiculosContainer extends PureComponent {
             />
             <CadVeiculoTemplate
                 data={this.state}
-                empresas={empresas}
-                equipamentos={equipamentos}
-                acessibilidade={acessibilidade}
+                redux={redux}                
                 handleInput={this.handleInput}
                 handleBlur={this.handleBlur}
                 handleEquipa={this.handleEquipa}

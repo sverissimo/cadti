@@ -9,11 +9,11 @@ import ReactToast from '../Reusable Components/ReactToast'
 import valueParser from '../Utils/valueParser'
 
 import Crumbs from '../Reusable Components/Crumbs'
-import AltSociosTemplate from './AltSociosTemplate'
 import { sociosForm } from '../Forms/sociosForm'
 import AlertDialog from '../Reusable Components/AlertDialog'
 import { handleFiles, removeFile } from '../Utils/handleFiles'
-
+import { setEmpresaDemand } from '../Utils/setEmpresaDemand'
+import { logGenerator } from '../Utils/logGenerator'
 
 class AltSocios extends Component {
 
@@ -34,15 +34,26 @@ class AltSocios extends Component {
     }
 
     componentDidMount() {
-        const originals = humps.decamelizeKeys(this.props.redux.socios)
-        this.setState({ originals })
+        const
+            { redux } = this.props,
+            demand = this.props?.location?.state?.demand,
+            originals = humps.decamelizeKeys(redux.socios),
+            //temporary...
+            filteredSocios = redux.socios.filter(s => s.razaoSocial === this.state.razaoSocial)
+
+        if (demand) {
+            const demandState = setEmpresaDemand(demand, redux, filteredSocios)
+
+            this.setState({ ...demandState, originals })
+        }
+        else this.setState({ originals, filteredSocios })
     }
 
     componentWillUnmount() { this.setState({}) }
 
     handleInput = async e => {
         const
-            { empresas, socios } = this.props.redux,
+            { empresas } = this.props.redux,
             { name } = e.target
         let
             { value } = e.target
@@ -51,8 +62,11 @@ class AltSocios extends Component {
         this.setState({ [name]: parsedValue })
 
         if (name === 'razaoSocial') {
-            const filteredSocios = [...socios.filter(s => s.razaoSocial === value)],
+            const
+                originalSocios = humps.camelizeKeys(this.state.originals),
+                filteredSocios = originalSocios.filter(s => s.razaoSocial === value).map(s => s),
                 selectedEmpresa = empresas.find(e => e.razaoSocial === value)
+
             if (filteredSocios.length > 0) {
                 this.setState({ filteredSocios, selectedEmpresa })
             } else this.setState({ filteredSocios: [] })
@@ -141,19 +155,31 @@ class AltSocios extends Component {
     }
 
     removeSocio = async index => {
+        /*
+         const
+            id = socios[index].socioId,
+            originalSocios = this.props.redux.socios
+           registered = originalSocios.find(s => s.socioId === id)
+
+          if (registered) {
+              await axios.delete(`/api/delete?table=socios&tablePK=socio_id&id=${id}`)
+                  .catch(err => console.log(err))
+          }
+                  socios.splice(index, 1)
+          */
 
         let socios = [...this.state.filteredSocios]
-        const
-            id = socios[index].socioId,
-            originalSocios = this.props.redux.socios,
-            registered = originalSocios.find(s => s.socioId === id)
+        const socio = socios[index]
 
-        if (registered) {
-            await axios.delete(`/api/delete?table=socios&tablePK=socio_id&id=${id}`)
-                .catch(err => console.log(err))
+        if (socio.status && socio.status !== 'deleted') {
+            socio.originalStatus = socio.status
+            socio.status = 'deleted'
         }
+        else if (socio?.status === 'deleted')
+            socio.status = socio?.originalStatus
+        else
+            socio.status = 'deleted'
 
-        socios.splice(index, 1)
         this.setState({ filteredSocios: socios })
     }
 
@@ -187,8 +213,10 @@ class AltSocios extends Component {
 
     handleSubmit = async approved => {
         const
-            { selectedEmpresa, contratoSocial, filteredSocios } = this.state,
-            { socios } = this.props.redux
+            { socios } = this.props.redux,
+            { selectedEmpresa, form, filteredSocios, demand, demandFiles } = this.state,
+            { delegatarioId } = selectedEmpresa,
+            oldHistoryLength = demand?.history?.length || 0
 
         //check if totalShare is more than 100
         let updatedShare = filteredSocios.map(s => Number(s.share))
@@ -205,17 +233,21 @@ class AltSocios extends Component {
             keys = sociosForm.map(el => humps.decamelize(el.field))
         keys.splice(1, 1)
 
+        //*************Organize socios into oldMembers and newMembers arrays*/
         filteredSocios.forEach(fs => {
             let { razaoSocial, createdAt, edit, ...rest } = fs
             fs = rest
-            fs.delegatarioId = selectedEmpresa.delegatarioId
+            fs.delegatarioId = delegatarioId
             if (!fs.hasOwnProperty('socioId')) {
                 const gotId = socios.find(s => s.cpfSocio === fs.cpfSocio)
                 if (gotId) {
                     fs.socioId = gotId.socioId
                     oldMembers.push(fs)
                 } else {
-                    newMembers.push(fs)
+                    if (fs?.status !== 'deleted') {
+                        fs.status = 'new'
+                        newMembers.push(fs)
+                    }
                 }
             } else {
                 oldMembers.push(fs)
@@ -224,80 +256,126 @@ class AltSocios extends Component {
         })
 
         const table = 'socios', tablePK = 'socio_id'
-        let realChanges = [], altObj = {}
+        let
+            realChanges = [],
+            altObj = {},
+            shareUpdate
 
+        //*****************Send only real updates of oldMembers and add status = 'modified'
         const originals = humps.camelizeKeys(this.state.originals)
 
         oldMembers.forEach(m => {
-            originals.forEach(s => {
+            originals.forEach(async s => {
                 if (m.socioId === s.socioId) {
                     Object.keys(m).forEach(key => {
-                        if (m[key] !== s[key] || key === 'socioId') {
+                        if (m[key] && m[key] !== '' && (m[key] !== s[key] || key === 'socioId')) {
                             Object.assign(altObj, { [key]: m[key] })
                         }
                     })
-                    if (Object.keys(altObj).length > 1) realChanges.push(altObj)
+                    //if marked as deleted, preserve status to form delete request, else mark as modified
+                    if (Object.keys(altObj).length > 1) {
+                        if (altObj?.status !== 'deleted') altObj.status = 'modified'
+                        realChanges.push(altObj)
+                    }
+                    if (altObj.share) shareUpdate = true
                     altObj = {}
                 }
             })
         })
 
-        oldMembers = humps.decamelizeKeys(realChanges)
-        newMembers = humps.decamelizeKeys(newMembers)
-        let socioIdsArray = filteredSocios
-            .filter(s => s.socioId !== undefined)
-            .map(s => s.socioId)
+        //delete newMembers empty / undefined fields / canceled newMembers
 
-        if (approved) {
+        newMembers = newMembers.filter(({ status }) => status !== 'deleted')
+        newMembers.forEach(m => {
+            Object.keys(m).forEach(key => {
+                if (!m[key] || m[key] === '') delete m[key]
+            })
+        })
+
+        //alert if oldMembers and new members dont exist
+        if (!oldMembers[0] && !newMembers[0]) {
+            alert('stop.')
+            return
+        } else console.log(oldMembers, newMembers)
+
+        //**********If not approved but share was updated, create demand ***************** */
+        if (!approved && (newMembers.length > 0 || shareUpdate)) {
+            const log = {
+                empresaId: delegatarioId,
+                history: {},
+                historyLength: oldHistoryLength
+            }
+
+            if (realChanges.length > 0) log.history.oldMembers = realChanges
+            if (newMembers.length > 0) log.history.newMembers = newMembers
+            if (form) log.files = form
+            if (demandFiles) log.demandFiles = demandFiles
+
+            logGenerator(log)
+                .then(r => {
+                    console.log(r?.data)
+                    this.setState({ toastMsg: 'Alteração estatuária enviada!', confirmToast: true })
+                })
+                .catch(err => console.log(err))
+        }
+        //**********Else if approved and/or no share update, prepare request Object to PG DB */
+        else if (approved || (!approved && !shareUpdate && newMembers.length === 0)) {
+            oldMembers = humps.decamelizeKeys(realChanges)
+            newMembers = humps.decamelizeKeys(newMembers)
+
+            let socioIdsArray = filteredSocios
+                .filter(s => s.socioId !== undefined)
+                .map(s => s.socioId)
+
             try {
                 if (oldMembers.length > 0) {
+                    //remove members marked as 'deleted' from the database
+                    oldMembers.forEach(async (member, i) => {
+                        if (member?.status === 'deleted') {
+                            /* await axios.delete(`/api/delete?table=socios&tablePK=socio_id&id=${member.socioId}`)
+                                .catch(err => console.log(err))
+
+                            let { filteredSocios } = this.state
+                            filteredSocios.splice(i, 1)
+                            this.setState({ filteredSocios }) */
+                        }
+                    })
+                    //update existing member data
+                    oldMembers = oldMembers.filter(({ status }) => status === 'modified')
                     await axios.put('/api/editSocios', { requestArray: oldMembers, table, tablePK, keys })
                         .then(r => console.log(r.data))
                 }
-
+                //insert new members
                 if (newMembers.length > 0) {
                     await axios.post('/api/cadSocios', { socios: newMembers, table, tablePK })
                         .then(r => r.data.forEach(newSocio => socioIdsArray.push(newSocio.socio_id)))
                 }
-
-                if (contratoSocial) {
-                    contratoFile.append('empresaId', selectedEmpresa.delegatarioId)
+                //post files to MongoDB
+                if (form) {
+                    contratoFile.append('empresaId', delegatarioId)
                     contratoFile.append('socios', socioIdsArray)
 
-                    for (let pair of contratoSocial.entries()) {
+                    for (let pair of form.entries()) {
                         contratoFile.append(pair[0], pair[1])
                     }
                     await axios.post('/api/empresaUpload', contratoFile)
                         .then(r => console.log(r.data))
+                    this.toast()
                 }
             } catch (err) {
                 console.log(err)
             }
-        } else {
-            
         }
 
         oldMembers = []
         realChanges = []
         altObj = {}
         newMembers = []
-        this.toast()
 
         const updatedList = humps.decamelizeKeys(this.props.redux.socios)
-        this.setState({
-            razaoSocial: '', selectedEmpresa: undefined, filteredSocios: [],
-            dropDisplay: 'Clique ou arraste para anexar o contrato social atualizado da empresa',
-            contratoSocial: undefined,
-            originals: updatedList
-        })
+        this.setState({ originals: updatedList })
+        this.resetState()
     }
-    /* 
-        handleFiles = (file) => {
-    
-            let formData = new FormData()
-            formData.append('contratoSocial', file[0])
-            this.setState({ dropDisplay: file[0].name, formData })
-        } */
 
     handleFiles = async (files, name) => {
 
@@ -321,13 +399,18 @@ class AltSocios extends Component {
         this.setState({ ...this.state, ...newState })
     }
 
+    resetState = () => this.setState({
+        razaoSocial: '', selectedEmpresa: undefined, filteredSocios: [],
+        dropDisplay: 'Clique ou arraste para anexar o contrato social atualizado da empresa',
+        form: undefined,
+    })
 
     toggleDialog = () => this.setState({ openDialog: !this.state.openDialog })
     closeAlert = () => this.setState({ openAlertDialog: !this.state.openAlertDialog })
     toast = () => this.setState({ confirmToast: !this.state.confirmToast })
 
     render() {
-        const { filteredSocios, openAlertDialog, alertType, contratoSocial } = this.state,
+        const { filteredSocios, openAlertDialog, alertType } = this.state,
             { empresas } = this.props.redux
 
         return (
@@ -354,6 +437,6 @@ class AltSocios extends Component {
     }
 }
 
-const collections = ['empresas', 'socios']
+const collections = ['empresas', 'socios', 'getFiles/empresaDocs']
 
 export default StoreHOC(collections, AltSocios)

@@ -1,4 +1,4 @@
-import { setNamesFromIds } from '../Utils/idsToString'
+import { setNamesFromIds } from './idsToString'
 
 export const setDemand = (demand, redux) => {
     const

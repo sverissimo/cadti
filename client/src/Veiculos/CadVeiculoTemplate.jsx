@@ -21,17 +21,21 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
-export default function ({ empresas, equipamentos, acessibilidade, data, handleInput, handleBlur, handleEquipa, handleCheck, closeEquipa }) {
+export default function ({ redux, data, handleInput, handleBlur, handleEquipa, handleCheck, closeEquipa }) {
 
     const
         [shared, setShared] = useState(false),
         { button } = useStyles(),
+        { empresas, equipamentos, acessibilidade, modelosChassi, carrocerias } = redux,
         { activeStep, addEquipa, subtitle, selectedEmpresa, type, placa } = data,
         form = cadVehicleForm[activeStep]
 
     let eqCollection = equipamentos
     if (type === 'acessibilidade') eqCollection = acessibilidade
-
+    
+    data.modelosChassi = modelosChassi
+    data.carrocerias = carrocerias
+    
     return (
         <>
             <header className={activeStep !== 0 ? 'flex center' : 'paper flex center'} style={{ width: '100%' }}>

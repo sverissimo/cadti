@@ -54,9 +54,14 @@ export const logRoutesConfig = [
         path: '/empresas/cadastro'
     },
     {
-        subject: 'Cadastro ou alteração societária',
-        collection: 'empresaLogs',
-        path: '/empresas/socios'
+        subject: 'Alteração estatutária',
+        requestAction: 'Alteração estatutária solicitada',
+        responseAction: 'Pendências para a alteração estatutária',
+        concludedAction: 'Alteração estatutária cadastrada',        
+        path: '/solicitacoes/socios',
+        docs: 'empresaDocs',
+        primaryKey: 'empresaId',
+        collection
     },
     {
         subject: 'Cadastro de procurações/procuradores',

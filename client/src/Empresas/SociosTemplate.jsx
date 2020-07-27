@@ -34,7 +34,7 @@ const useStyles = makeStyles(theme => ({
         margin: theme.spacing(1),
         width: 180,
         fontSize: '0.7rem',
-        fontColor: '#bbb',
+        fontColor: '#999',
         textAlign: 'center',
     },
     iconButton: {
@@ -44,9 +44,9 @@ const useStyles = makeStyles(theme => ({
 }));
 
 export default function ({ socios, empresas, handleInput, handleBlur, data, addSocio, enableEdit, handleEdit, removeSocio, handleFiles, removeFile, handleSubmit }) {
-    const { activeStep, stepTitles, filteredSocios, form, selectedEmpresa, dropDisplay, demandFiles, fileToRemove } = data,
+    const { activeStep, stepTitles, filteredSocios, form, selectedEmpresa, dropDisplay, demandFiles, fileToRemove, shareUpdate } = data,
         classes = useStyles(), { iconButton, list } = classes
-
+    //console.log(shareUpdate)
     let standAlone = true
     if (stepTitles) standAlone = false
 
@@ -113,8 +113,22 @@ export default function ({ socios, empresas, handleInput, handleBlur, data, addS
                                             className={list}
                                             disabled={e.field === 'cpfSocio' ? true : s.edit ? false : true}
                                             onChange={handleEdit}
-                                            InputLabelProps={{ shrink: true, style: { fontWeight: 600 } }}
-                                            inputProps={{ style: { fontSize: '13px' } }}
+                                            InputLabelProps={
+                                                {
+                                                    shrink: true,
+                                                    style: {
+                                                        fontWeight: 600,
+                                                        fontFamily: '\'Segoe UI\', Tahoma, Geneva, Verdana, sans-serif',
+                                                        color: '#888'
+                                                    }
+                                                }}
+                                            inputProps={{
+                                                style: {
+                                                    fontSize: '13px',
+                                                    color: s.edit === true ? '#000' : s.status === 'new' ? 'green' : s.status === 'modified' ? 'red' : '#888',
+                                                    textDecoration: s.status === 'deleted' && !s.edit ? 'line-through' : ''
+                                                }
+                                            }}
                                         />
                                     </Fragment>
                                 )}
@@ -122,8 +136,11 @@ export default function ({ socios, empresas, handleInput, handleBlur, data, addS
                                     <EditIcon />
                                 </Button>
 
-                                <Button className={iconButton} color='secondary' title='Remover' onClick={() => removeSocio(i)}>
-                                    <DeleteIcon />
+                                <Button className={iconButton}
+                                    color={s.status === 'deleted' ? 'primary' : 'secondary'}
+                                    title={s.status === 'deleted' ? 'Desfazer exclusão' : 'Remover'}
+                                    onClick={() => removeSocio(i)}>
+                                    {s.status === 'deleted' ? <i className='material-icons'>undo</i> : <DeleteIcon />}
                                 </Button>
                             </div>
                         )}
@@ -151,7 +168,7 @@ export default function ({ socios, empresas, handleInput, handleBlur, data, addS
                                     style={{ margin: '0px 0 10px 0' }}
                                     onClick={() => handleSubmit()}
                                 >
-                                    Salvar <span>&nbsp;&nbsp; </span> <SaveIcon />
+                                    {shareUpdate ? 'enviar solicitação' : 'Salvar'}<span>&nbsp;&nbsp; </span> <SaveIcon />
                                 </Button>
                             </div>
                         </section>
