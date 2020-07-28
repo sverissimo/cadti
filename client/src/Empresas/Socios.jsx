@@ -7,6 +7,7 @@ import StoreHOC from '../Store/StoreHOC'
 import SociosTemplate from './SociosTemplate'
 import ReactToast from '../Reusable Components/ReactToast'
 import valueParser from '../Utils/valueParser'
+import { empresaFiles } from '../Forms/empresaFiles';
 
 import Crumbs from '../Reusable Components/Crumbs'
 import { sociosForm } from '../Forms/sociosForm'
@@ -30,7 +31,8 @@ class AltSocios extends Component {
         totalShare: 0,
         filteredSocios: [],
         dropDisplay: 'Clique ou arraste para anexar o contrato social atualizado da empresa',
-        showFiles: false
+        showFiles: false,
+        showPendencias: false
     }
 
     componentDidMount() {
@@ -38,12 +40,12 @@ class AltSocios extends Component {
             { redux } = this.props,
             demand = this.props?.location?.state?.demand,
             originals = humps.decamelizeKeys(redux.socios),
-            //temporary...
-            filteredSocios = redux.socios.filter(s => s.razaoSocial === this.state.razaoSocial)
+            socios = JSON.parse(JSON.stringify(redux.socios)),
+            filteredSocios = socios.filter(s => s.razaoSocial === this.state.razaoSocial)
 
         if (demand) {
             const demandState = setEmpresaDemand(demand, redux, filteredSocios)
-
+            console.log(demandState)
             this.setState({ ...demandState, originals })
         }
         else this.setState({ originals, filteredSocios })
@@ -140,7 +142,7 @@ class AltSocios extends Component {
             this.setState({ openAlertDialog: true, alertType: 'overShared' })
             return null
         }
-        console.log(this.state.totalShare)
+
         sociosForm.forEach(obj => {
             Object.assign(sObject, { [obj.field]: this.state[obj.field] })
         })
@@ -155,19 +157,6 @@ class AltSocios extends Component {
     }
 
     removeSocio = async index => {
-        /*
-         const
-            id = socios[index].socioId,
-            originalSocios = this.props.redux.socios
-           registered = originalSocios.find(s => s.socioId === id)
-
-          if (registered) {
-              await axios.delete(`/api/delete?table=socios&tablePK=socio_id&id=${id}`)
-                  .catch(err => console.log(err))
-          }
-                  socios.splice(index, 1)
-          */
-
         let socios = [...this.state.filteredSocios]
         const socio = socios[index]
 
@@ -192,7 +181,6 @@ class AltSocios extends Component {
             editSocio[index].edit = true
         }
         this.setState({ filteredSocios: editSocio })
-
     }
 
     handleEdit = e => {
@@ -214,7 +202,7 @@ class AltSocios extends Component {
     handleSubmit = async approved => {
         const
             { socios } = this.props.redux,
-            { selectedEmpresa, form, filteredSocios, demand, demandFiles } = this.state,
+            { selectedEmpresa, form, filteredSocios, demand, latestDoc, info } = this.state,
             { delegatarioId } = selectedEmpresa,
             oldHistoryLength = demand?.history?.length || 0
 
@@ -274,7 +262,10 @@ class AltSocios extends Component {
                     })
                     //if marked as deleted, preserve status to form delete request, else mark as modified
                     if (Object.keys(altObj).length > 1) {
-                        if (altObj?.status !== 'deleted') altObj.status = 'modified'
+                        if (altObj?.status !== 'deleted') {
+                            m.status = 'modified'
+                            altObj.status = 'modified'
+                        }
                         realChanges.push(altObj)
                     }
                     if (altObj.share) shareUpdate = true
@@ -292,13 +283,17 @@ class AltSocios extends Component {
             })
         })
 
+        const modifiedMembers = oldMembers.filter(m => m?.status === 'modified')
+
         //alert if oldMembers and new members dont exist
-        if (!oldMembers[0] && !newMembers[0]) {
-            alert('stop.')
+        if (!modifiedMembers[0] && !newMembers[0]) {
+            alert('Nenhuma alteração foi realizada.')
             return
-        } else console.log(oldMembers, newMembers)
+        }
 
         //**********If not approved but share was updated, create demand ***************** */
+        //************AQUI QUE ESTÁ O PULO DO GATO. TEM QUE MANDAR UM LOG SE FOR APROVADO TB!!!!! TO DO PARA AMANHÃ */
+
         if (!approved && (newMembers.length > 0 || shareUpdate)) {
             const log = {
                 empresaId: delegatarioId,
@@ -308,9 +303,12 @@ class AltSocios extends Component {
 
             if (realChanges.length > 0) log.history.oldMembers = realChanges
             if (newMembers.length > 0) log.history.newMembers = newMembers
+            if (info) log.history.info = info
             if (form) log.files = form
-            if (demandFiles) log.demandFiles = demandFiles
-
+            if (latestDoc) log.demandFiles = [latestDoc]
+            if (demand) log.id = demand?.id
+            if (approved === false) log.declined = true
+            console.log(log)
             logGenerator(log)
                 .then(r => {
                     console.log(r?.data)
@@ -318,7 +316,11 @@ class AltSocios extends Component {
                 })
                 .catch(err => console.log(err))
         }
+        
+        
         //**********Else if approved and/or no share update, prepare request Object to PG DB */
+        
+        
         else if (approved || (!approved && !shareUpdate && newMembers.length === 0)) {
             oldMembers = humps.decamelizeKeys(realChanges)
             newMembers = humps.decamelizeKeys(newMembers)
@@ -342,11 +344,13 @@ class AltSocios extends Component {
                     })
                     //update existing member data
                     oldMembers = oldMembers.filter(({ status }) => status === 'modified')
+                    oldMembers.forEach(m => delete m.status)
                     await axios.put('/api/editSocios', { requestArray: oldMembers, table, tablePK, keys })
                         .then(r => console.log(r.data))
                 }
                 //insert new members
                 if (newMembers.length > 0) {
+                    newMembers.forEach(m => delete m.status)
                     await axios.post('/api/cadSocios', { socios: newMembers, table, tablePK })
                         .then(r => r.data.forEach(newSocio => socioIdsArray.push(newSocio.socio_id)))
                 }
@@ -384,7 +388,7 @@ class AltSocios extends Component {
         if (files && files[0]) {
             await this.setState({ [name]: files[0] })
 
-            const contratoSocial = [{ name: 'contratoSocial' }]
+            const contratoSocial = [empresaFiles[0]]
 
             const newState = handleFiles(files, formData, this.state, contratoSocial)
             this.setState({ ...newState, fileToRemove: null })
@@ -399,12 +403,19 @@ class AltSocios extends Component {
         this.setState({ ...this.state, ...newState })
     }
 
-    resetState = () => this.setState({
-        razaoSocial: '', selectedEmpresa: undefined, filteredSocios: [],
-        dropDisplay: 'Clique ou arraste para anexar o contrato social atualizado da empresa',
-        form: undefined,
-    })
+    resetState = () => {
+        const { filteredSocios } = this.state
+        if (filteredSocios)
+            filteredSocios.forEach(s => s.edit = false)
 
+        this.setState({
+            razaoSocial: '', selectedEmpresa: undefined, filteredSocios: [],
+            dropDisplay: 'Clique ou arraste para anexar o contrato social atualizado da empresa',
+            form: undefined,
+        })
+    }
+
+    setShowPendencias = () => this.setState({ showPendencias: !this.state.showPendencias })
     toggleDialog = () => this.setState({ openDialog: !this.state.openDialog })
     closeAlert = () => this.setState({ openAlertDialog: !this.state.openAlertDialog })
     toast = () => this.setState({ confirmToast: !this.state.confirmToast })
@@ -429,6 +440,7 @@ class AltSocios extends Component {
                     handleFiles={this.handleFiles}
                     handleSubmit={this.handleSubmit}
                     removeFile={this.removeFile}
+                    setShowPendencias={this.setShowPendencias}
                 />
                 <ReactToast open={this.state.confirmToast} close={this.toast} msg={this.state.toastMsg} />
                 {openAlertDialog && <AlertDialog open={openAlertDialog} close={this.closeAlert} alertType={alertType} />}

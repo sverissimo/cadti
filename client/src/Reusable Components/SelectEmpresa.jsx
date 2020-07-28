@@ -7,7 +7,7 @@ export default function SelectEmpresa(props) {
 
     const
         { empresas, handleInput, handleBlur, shared, headerTitle } = props,
-        { razaoSocial, delegatarioCompartilhado, selectedEmpresa, activeStep, demand } = props.data,
+        { razaoSocial, delegatarioCompartilhado, activeStep, demand } = props.data,
         list = 'razaoSocial'
 
     //Configure the form. If shared is present in state, another form will be pusshed into the array (CadVehicles)

@@ -7,7 +7,7 @@ import MaterialTable from 'material-table';
 import { solicitacoesTable } from '../Forms/solicitacoesTable'
 
 export default function ({ tableData, title, showDetails, assessDemand, completed, showInfo }) {
-    
+
     let parsedData = JSON.parse(JSON.stringify(tableData))
     parsedData.forEach(obj => delete obj.history)
 
@@ -95,9 +95,18 @@ export default function ({ tableData, title, showDetails, assessDemand, complete
                         onClick: (event, rowData) => showDetails(rowData['id'])
                     },
                     rowData => ({
-                        icon: !completed ? 'assignment_turned_in_outlined' : 'done_icon',
-                        iconProps: { className: !completed ? 'assessDemandButton' : '', color: completed ? 'action' : 'disabled' },
-                        tooltip: rowData?.status.match('Aguardando') ? 'Analisar solicitação' : rowData?.status.match('Pendências') ? 'Abrir solicitação' : 'Concluída',
+                        icon: !completed ? 'assignment_turned_in_outlined' : rowData?.status === 'Solicitação indeferida' ? 'clear' : 'done_icon',
+                        iconProps: {
+                            className: !completed ? 'assessDemandButton' : '',
+                            color: rowData?.status === 'Solicitação indeferida' ? 'secondary' : completed ? 'action' : 'disabled'
+                        },
+                        tooltip: rowData?.status.match('Aguardando')
+                            ? 'Analisar solicitação'
+                            : rowData?.status.match('Pendências')
+                                ? 'Abrir solicitação'
+                                : rowData?.status === 'Solicitação indeferida' ?
+                                    'Indeferida'
+                                    : 'Concluída',
                         onClick: (event, rowData) => !completed ? assessDemand(rowData['id']) : null
                     })
                 ]}

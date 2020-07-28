@@ -8,16 +8,28 @@ import ClosePopUpButton from '../Reusable Components/ClosePopUpButton'
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import Button from '@material-ui/core/Button'
 
-export default function SolHistory({ solicitacao, showInfo, historyLog, setHistoryLog, close, vehicleDocs, showFiles, setShowFiles, filesIds }) {
+export default function SolHistory({ solicitacao, showInfo, historyLog, setHistoryLog, close, vehicleDocs, empresaDocs, showFiles, setShowFiles, filesIds }) {
 
     const
         { history } = solicitacao,
         date = moment(historyLog?.createdAt).format('DD/MM/YYYY, HH:mm[h]')
+    let docSelection = {}
+    if (solicitacao.hasOwnProperty('veiculoId'))
+        docSelection = {
+            primaryKey: 'veiculoId',
+            filesCollection: vehicleDocs
+        }
+    else
+        docSelection = {
+            primaryKey: 'empresaId',
+            filesCollection: empresaDocs
+        }
 
     return (
         <main className="popUpWindow" sytle={{ width: '90%' }}>
             {!historyLog ?
                 <Table
+                    {...docSelection}
                     tableData={history}
                     staticFields={solicitacaoTable}
                     length={solicitacaoTable.length}
@@ -25,8 +37,7 @@ export default function SolHistory({ solicitacao, showInfo, historyLog, setHisto
                     id={solicitacao.id}
                     showInfo={showInfo}
                     style={{ padding: '9px 4px' }}
-                    tableStyle={{ marginTop: '23px' }}
-                    vehicleDocs={vehicleDocs}
+                    tableStyle={{ marginTop: '23px' }}                    
                     showFiles={showFiles}
                     setShowFiles={setShowFiles}
                     close={close}

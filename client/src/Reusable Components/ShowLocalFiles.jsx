@@ -82,7 +82,7 @@ export default function ShowLocalFiles({ form, files, demand, demandFiles, colle
             }
         })
     }
-    
+
     return <React.Fragment>
         <div style={divContainer}>
             {fileArray.map((f, i) =>
@@ -92,7 +92,9 @@ export default function ShowLocalFiles({ form, files, demand, demandFiles, colle
                         {' '} {f.label}
                     </span>
                     <GetAppIcon style={icon}
-                        onClick={() => f.storage === 'local' ? createLink(f.fieldName, f.fileName) : downloadFile(f.id, f.fileName, collection, f.fieldName)} />
+                        onClick={() => f.storage === 'local' ?
+                            createLink(f.fieldName, f.fileName)
+                            : downloadFile(f.id, f.fileName, collection, f.fieldName)} />
                 </div>
             )}
         </div>

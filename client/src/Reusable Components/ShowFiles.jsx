@@ -35,12 +35,14 @@ const ShowFiles = ({ filesCollection, close, format, typeId, empresas, filesIds 
         default: void 0
     }
 
+    console.log(typeId, filesCollection)
     if (filesIds)
         filesCollection = filesCollection.filter(f => filesIds.indexOf(f.id) !== -1)
 
     if (filesCollection && filesCollection[0]) {
         filesCollection.forEach(obj => {
             fileLabels.forEach(o => {
+                console.log(o.name, obj.metadata.fieldName)
                 if (obj.metadata && o.name === obj.metadata.fieldName)
                     files.push({ ...obj, label: o.title })
             })
@@ -62,7 +64,7 @@ const ShowFiles = ({ filesCollection, close, format, typeId, empresas, filesIds 
         }
     }
     const header = ['Arquivo', 'Data de Upload', 'Tamanho']
-    //console.log(filesCollection)
+
 
     if (files[0]) {
         return (

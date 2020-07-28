@@ -22,7 +22,8 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
-export default function StepperButtons({ activeStep, setActiveStep, lastStep, handleSubmit, disabled, demand, setShowPendencias, showPendencias, handleInput, info }) {
+export default function StepperButtons({ activeStep, setActiveStep, lastStep, handleSubmit, disabled, demand, uniqueStep,
+    setShowPendencias, showPendencias, handleInput, info }) {
 
     const classes = useStyles(), { backButton, button, textField } = classes
 
@@ -71,7 +72,7 @@ export default function StepperButtons({ activeStep, setActiveStep, lastStep, ha
                         />
                     }
                     <div style={{ display: 'flex', width: '100%' }}>
-                        {activeStep === lastStep &&
+                        {activeStep === lastStep && !uniqueStep &&
                             <Button
                                 variant="contained"
                                 className={backButton}

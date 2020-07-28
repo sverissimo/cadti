@@ -12,7 +12,7 @@ import AlertDialog from '../Reusable Components/AlertDialog'
 function Solicitacoes(props) {
 
     const
-        { veiculos, empresas, vehicleDocs } = props.redux,
+        { veiculos, empresas, vehicleDocs, empresaDocs } = props.redux,
         [vehicleLogs, setVehicleLogs] = useState([]),
         [showHistory, setShowHistory] = useState(false),
         [selectedLog, selectLog] = useState(),
@@ -132,6 +132,7 @@ function Solicitacoes(props) {
                 historyLog={historyLog}
                 setHistoryLog={setHistoryLog}
                 vehicleDocs={vehicleDocs}
+                empresaDocs={empresaDocs}
                 setShowFiles={renderFiles}
                 showFiles={showFiles}
                 filesIds={filesIds}
@@ -143,6 +144,6 @@ function Solicitacoes(props) {
     )
 }
 
-const collections = ['veiculos', 'empresas', '/logs/vehicleLogs', 'getFiles/vehicleDocs']
+const collections = ['veiculos', 'empresas', '/logs/vehicleLogs', 'getFiles/vehicleDocs', 'getFiles/empresaDocs']
 
 export default StoreHOC(collections, Solicitacoes)
