@@ -44,9 +44,11 @@ class AltSocios extends Component {
             filteredSocios = socios.filter(s => s.razaoSocial === this.state.razaoSocial)
 
         if (demand) {
-            const demandState = setEmpresaDemand(demand, redux, filteredSocios)
-            console.log(demandState)
-            this.setState({ ...demandState, originals })
+            const
+                demandState = setEmpresaDemand(demand, redux, filteredSocios),
+                { latestDoc, ...updatedState } = demandState
+            console.log(latestDoc)
+            this.setState({ ...updatedState, contratoSocial: latestDoc, originals })
         }
         else this.setState({ originals, filteredSocios })
     }
@@ -202,12 +204,16 @@ class AltSocios extends Component {
     handleSubmit = async approved => {
         const
             { socios } = this.props.redux,
-            { selectedEmpresa, form, filteredSocios, demand, latestDoc, info } = this.state,
+            { selectedEmpresa, form, filteredSocios, demand, contratoSocial, info } = this.state,
             { delegatarioId } = selectedEmpresa,
-            oldHistoryLength = demand?.history?.length || 0
+            oldHistoryLength = demand?.history?.length || 0,
+            contratoFile = new FormData()
+
+        let log = {}
 
         //check if totalShare is more than 100
-        let updatedShare = filteredSocios.map(s => Number(s.share))
+        let updatedShare = filteredSocios
+            .map(s => Number(s.share))
             .reduce((a, b) => a + b)
 
         if (updatedShare > 100) {
@@ -216,8 +222,8 @@ class AltSocios extends Component {
         }
 
         let
-            oldMembers = [], newMembers = [],
-            contratoFile = new FormData(),
+            oldMembers = [],
+            newMembers = [],
             keys = sociosForm.map(el => humps.decamelize(el.field))
         keys.splice(1, 1)
 
@@ -286,60 +292,46 @@ class AltSocios extends Component {
         const modifiedMembers = oldMembers.filter(m => m?.status === 'modified')
 
         //alert if oldMembers and new members dont exist
-        if (!modifiedMembers[0] && !newMembers[0]) {
+        if (!modifiedMembers[0] && !newMembers[0] && !form) {
             alert('Nenhuma alteração foi realizada.')
             return
         }
 
-        //**********If not approved but share was updated, create demand ***************** */
-        //************AQUI QUE ESTÁ O PULO DO GATO. TEM QUE MANDAR UM LOG SE FOR APROVADO TB!!!!! TO DO PARA AMANHÃ */
-
-        if (!approved && (newMembers.length > 0 || shareUpdate)) {
-            const log = {
-                empresaId: delegatarioId,
-                history: {},
-                historyLength: oldHistoryLength
-            }
-
-            if (realChanges.length > 0) log.history.oldMembers = realChanges
-            if (newMembers.length > 0) log.history.newMembers = newMembers
-            if (info) log.history.info = info
-            if (form) log.files = form
-            if (latestDoc) log.demandFiles = [latestDoc]
-            if (demand) log.id = demand?.id
-            if (approved === false) log.declined = true
-            console.log(log)
-            logGenerator(log)
-                .then(r => {
-                    console.log(r?.data)
-                    this.setState({ toastMsg: 'Alteração estatuária enviada!', confirmToast: true })
-                })
-                .catch(err => console.log(err))
-        }
-        
-        
-        //**********Else if approved and/or no share update, prepare request Object to PG DB */
-        
-        
-        else if (approved || (!approved && !shareUpdate && newMembers.length === 0)) {
-            oldMembers = humps.decamelizeKeys(realChanges)
-            newMembers = humps.decamelizeKeys(newMembers)
-
-            let socioIdsArray = filteredSocios
+        //Variables to be inserted in files metadata
+        let
+            updateFilesMetadata = false,
+            socioIdsArray = filteredSocios
                 .filter(s => s.socioId !== undefined)
                 .map(s => s.socioId)
+
+        //**********If not approved but share was updated, create demand ***************** */
+
+        if (!approved && (newMembers.length > 0 || shareUpdate)) {
+            if (approved === false) log.declined = true
+            this.setState({ toastMsg: 'Alteração estatuária enviada!' })
+        }
+
+        //**********Else if approved and/or no share update, prepare request Object to PG DB */
+
+        else if ((!shareUpdate && newMembers.length === 0) || approved) {
+            console.log('fuck', shareUpdate)
+            log.completed = true
+
+            oldMembers = humps.decamelizeKeys(realChanges)
+            newMembers = humps.decamelizeKeys(newMembers)
 
             try {
                 if (oldMembers.length > 0) {
                     //remove members marked as 'deleted' from the database
                     oldMembers.forEach(async (member, i) => {
                         if (member?.status === 'deleted') {
-                            /* await axios.delete(`/api/delete?table=socios&tablePK=socio_id&id=${member.socioId}`)
+                            console.log(member)
+                            await axios.delete(`/api/delete?table=socios&tablePK=socio_id&id=${member.socio_id}`)
                                 .catch(err => console.log(err))
 
                             let { filteredSocios } = this.state
                             filteredSocios.splice(i, 1)
-                            this.setState({ filteredSocios }) */
+                            this.setState({ filteredSocios })
                         }
                     })
                     //update existing member data
@@ -353,45 +345,76 @@ class AltSocios extends Component {
                     newMembers.forEach(m => delete m.status)
                     await axios.post('/api/cadSocios', { socios: newMembers, table, tablePK })
                         .then(r => r.data.forEach(newSocio => socioIdsArray.push(newSocio.socio_id)))
-                }
-                //post files to MongoDB
-                if (form) {
-                    contratoFile.append('empresaId', delegatarioId)
-                    contratoFile.append('socios', socioIdsArray)
-
-                    for (let pair of form.entries()) {
-                        contratoFile.append(pair[0], pair[1])
-                    }
-                    await axios.post('/api/empresaUpload', contratoFile)
-                        .then(r => console.log(r.data))
-                    this.toast()
+                    updateFilesMetadata = true
                 }
             } catch (err) {
                 console.log(err)
             }
         }
 
+        //**********Prepare the log object, approved, or not.******************
+        log = {
+            ...log,
+            empresaId: delegatarioId,
+            history: {},
+            historyLength: oldHistoryLength,
+            uniqueStep: true
+        }
+
+        if (realChanges.length > 0) log.history.oldMembers = realChanges
+        if (newMembers.length > 0) log.history.newMembers = newMembers
+        if (info) log.history.info = info
+        if (contratoSocial && demand) log.demandFiles = [contratoSocial]
+        if (demand) log.id = demand?.id
+
+        //If first attempt to send files completed (no share update) or not, handle files
+        if (form && !updateFilesMetadata) {
+            log.history.files = form
+            log.metadata = {
+                fieldName: 'contratoSocial',
+                empresaId: delegatarioId,
+                socios: socioIdsArray
+            }
+        }
+        else if (contratoSocial?.id) {
+            const ids = [contratoSocial.id]
+            await axios.put('/api/updateFilesMetadata', { ids, collection: 'empresaDocs', tempFile: 'false' })
+                .then(r => console.log(r.data))
+        }
+        console.log(log)
+
+        //Generate the demand
+        logGenerator(log)
+            .then(r => {
+                console.log(r?.data)
+                this.toast()
+            })
+            .catch(err => console.log(err))
+
+        //*******************Reset state and variables ************** */
         oldMembers = []
         realChanges = []
         altObj = {}
         newMembers = []
 
         const updatedList = humps.decamelizeKeys(this.props.redux.socios)
-        this.setState({ originals: updatedList })
-        this.resetState()
+        await this.setState({ originals: updatedList })
+        await this.resetState()
+        if (demand) this.props.history.push('/solicitacoes')
     }
 
     handleFiles = async (files, name) => {
 
         let formData = new FormData()
+        formData.append('empresaId', this.state.selectedEmpresa.delegatarioId)
 
         if (files && files[0]) {
             await this.setState({ [name]: files[0] })
 
             const contratoSocial = [empresaFiles[0]]
-
             const newState = handleFiles(files, formData, this.state, contratoSocial)
-            this.setState({ ...newState, fileToRemove: null })
+
+            this.setState({ ...newState, fileToRemove: null, contratoSocial: newState?.form })
         }
     }
 
@@ -421,7 +444,7 @@ class AltSocios extends Component {
     toast = () => this.setState({ confirmToast: !this.state.confirmToast })
 
     render() {
-        const { filteredSocios, openAlertDialog, alertType } = this.state,
+        const { filteredSocios, openAlertDialog, alertType, selectedEmpresa } = this.state,
             { empresas } = this.props.redux
 
         return (

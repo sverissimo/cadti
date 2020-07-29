@@ -169,12 +169,13 @@ export default function ({ socios, empresas, handleInput, handleBlur, data, addS
                                 }
                                 <StepperButtons
                                     uniqueStep={true}
+                                    declineButtonLabel='Indeferir'
                                     demand={demand}
                                     setShowPendencias={setShowPendencias}
                                     showPendencias={showPendencias}
                                     info={info}
                                     handleSubmit={handleSubmit}
-                                    handleInput={handleInput}
+                                    handleInput={handleInput}                                    
                                 />
                             </section>
                             :

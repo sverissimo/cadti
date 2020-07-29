@@ -89,6 +89,11 @@ app.get('/api/getOneFile/', getOneFileMetadata)
 app.put('/api/updateFilesMetadata', async (req, res) => {
 
     const { collection, ids, tempFile } = req.body
+    
+    if (!ids) {
+        res.send('no file sent to the server');
+        return
+     }
 
     parsedIds = ids.map(id => new mongoose.mongo.ObjectId(id))
 
@@ -602,7 +607,7 @@ app.get('/api/deleteManyFiles', async (req, res) => {
 
     console.log(id, typeof id)
     const docsTodelete = { 'metadata.veiculoId': id }
-    
+
     gfs.collection('vehicleDocs')
 
     const getIds = await filesModel.filesModel.find(docsTodelete).select('_ids')

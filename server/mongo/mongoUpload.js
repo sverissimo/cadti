@@ -42,8 +42,13 @@ const storage = () => {
         url: mongoURI,
         file: (req, file) => {
             gfs.collection('empresaDocs')
-            const { fieldName, empresaId, procuracaoId } = req.body
-            let { procuradores, socios } = req.body
+            const
+                { fieldName, empresaId, procuracaoId } = req.body,
+                { ...metadata } = req.body
+
+            let
+                { procuradores } = req.body,
+                { socios } = metadata
 
             if (procuradores) {
                 procuradores = procuradores.split(',')
@@ -52,6 +57,7 @@ const storage = () => {
             if (socios) {
                 socios = socios.split(',')
                 socios = socios.map(id => Number(id))
+                metadata.socios = socios
             }
 
             let fileInfo = {
@@ -65,16 +71,19 @@ const storage = () => {
                 bucketName: 'empresaDocs',
             }
 
-            if (file.fieldname === 'contratoSocial') {
-                fileInfo.metadata = {
-                    'fieldName': file.fieldname,
-                    'empresaId': empresaId,
-                    'socios': socios
-                }
-            } else if (file.fieldname === 'apoliceDoc') {
-                let { ...metadata } = req.body
+            /*             if (file.fieldname === 'contratoSocial') {
+                            fileInfo.metadata = {
+                                'fieldName': file.fieldname,
+                                'empresaId': empresaId,
+                                'socios': socios
+                            }
+                        } 
+                        else {
+             */
+            if (file.fieldname !== 'procuracao') {
                 fileInfo.metadata = metadata
             }
+            //            }
             return fileInfo
         }
     })

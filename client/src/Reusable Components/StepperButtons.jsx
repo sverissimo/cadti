@@ -22,7 +22,7 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
-export default function StepperButtons({ activeStep, setActiveStep, lastStep, handleSubmit, disabled, demand, uniqueStep,
+export default function StepperButtons({ activeStep, setActiveStep, lastStep, handleSubmit, disabled, demand, uniqueStep, declineButtonLabel,
     setShowPendencias, showPendencias, handleInput, info }) {
 
     const classes = useStyles(), { backButton, button, textField } = classes
@@ -100,7 +100,7 @@ export default function StepperButtons({ activeStep, setActiveStep, lastStep, ha
                                             className={button}
                                             onClick={() => setShowPendencias()}
                                         >
-                                            {showPendencias ? 'Cancelar' : 'Registrar pendencias'}
+                                            {showPendencias ? 'Cancelar' : declineButtonLabel || 'Registrar pendencias'}
                                         </Button>
                                         <Button
                                             variant="contained"
