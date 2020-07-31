@@ -147,10 +147,10 @@ app.post('/api/logs', logHandler, (req, res) => {
         { id, doc } = res.locals,
         insertedObjects = [doc],
         insertResponseObj = { insertedObjects, collection }
-    console.log(insertedObjects)
+    
     if (!id) io.sockets.emit('insertElements', insertResponseObj)
     else io.sockets.emit('updateLogs', insertedObjects)
-    res.sendStatus(200)
+    res.sendStatus(200);
 })
 
 app.get('/api/logs/:collection', (req, res) => {

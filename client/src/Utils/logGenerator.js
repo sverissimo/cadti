@@ -53,7 +53,8 @@ export async function logGenerator(obj) {
     //**********************If given by the component which called this fuction, overwrite logRoutesConfig*/
     if (!obj.id || obj.subject) log.subject = obj?.subject || logConfig?.subject
 
-    //If declined, send 
+
+    //*************************IF DECLINED, UPDATE LOG AND RETURN LOG*/    
     if (obj.declined) {
         log.history.action = 'Solicitação indeferida'
         log.status = 'Solicitação indeferida'
@@ -62,37 +63,12 @@ export async function logGenerator(obj) {
         const post = axios.post('/api/logs', { log, collection })
         return post
     }
-
-    //If completed, add standard action/status to the log and change files Status*/
-    else if (log.completed) {
+    if (obj.approved && !obj.declined) {
         log.history.action = logConfig?.concludedAction || 'Solicitação concluída'
         log.status = obj?.status || 'Solicitação concluída'
+        log.completed = true
 
-        if (!obj.oneAtemptDemand) {
-            let ids
-            const objFiles = obj?.files
-
-            //If there's any upload from Seinfra, it will overwrite the latestDocs(demandFiles) before approval
-            if (objFiles instanceof FormData) {
-                objFiles.set('tempFile', 'false')
-                if (obj.demandFiles && obj.demandFiles[0]) {
-                    let oldFiles = obj.demandFiles
-                    for (let pair of objFiles) {
-                        oldFiles.forEach((f, i) => {
-                            if (pair[0] === f?.metadata?.fieldName)
-                                oldFiles.splice(i, 1)
-                        })
-                    }
-                    ids = oldFiles.map(f => f.id)
-                }
-            } else if (obj.demandFiles && obj.demandFiles[0])
-                ids = obj.demandFiles.map(f => f.id)
-
-            const metadata = { tempFile: 'false' }
-
-            await axios.put('/api/updateFilesMetadata', { ids, collection: filesCollection, metadata })
-                .then(r => console.log(r.data))
-        }
+        updateFilesMetadata(obj, filesCollection)
     }
 
     //********************** Upload files and get their Ids***********************/    
@@ -101,17 +77,46 @@ export async function logGenerator(obj) {
     if (filesIds)
         log.history.files = filesIds
 
-    if (log.metadata) delete log.metadata
-    if (log.oneAtemptDemand) delete log.oneAtemptDemand
+    const { metadata, oneAtemptDemand, approved, demandFiles, ...filteredLog } = log
 
     //**********************reestablish path**********************
     logRoutes = JSON.parse(JSON.stringify(logRoutesConfig))
     logConfig = logRoutes.find(e => path.match(e.path))
 
     //**********************request and return promisse**********************
-
-    const post = axios.post('/api/logs', { log, collection })
+    
+    const post = axios.post('/api/logs', { log: filteredLog, collection })
     return post
+}
+
+
+
+
+const updateFilesMetadata = async (obj, filesCollection) => {
+    const { files, demandFiles, oneAtemptDemand } = obj
+    let
+        ids,
+        metadata = { tempFile: 'false' }
+
+    if (demandFiles && demandFiles[0])
+        ids = demandFiles.map(f => f.id)
+    
+    if (oneAtemptDemand)
+        metadata = obj?.metadata || metadata
+    else {
+        if (files instanceof FormData) {             //If there's any upload from Seinfra, it will overwrite the latestDocs(demandFiles) before approval
+            for (let pair of files) {
+                demandFiles.forEach((f, i) => {
+                    if (pair[0] === f?.metadata?.fieldName)
+                        demandFiles.splice(i, 1)
+                })
+            }
+            ids = demandFiles.map(f => f.id)
+        }
+    }
+    
+    await axios.put('/api/updateFilesMetadata', { ids, collection: filesCollection, metadata })
+        .then(r => console.log(r.data))
 }
 
 const postFilesReturnIds = async (formData, metadata, completed, filesEndPoint) => {

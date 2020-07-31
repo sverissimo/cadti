@@ -53,7 +53,11 @@ class AltSocios extends Component {
         else this.setState({ originals, filteredSocios })
     }
 
-    componentWillUnmount() { this.setState({}) }
+
+    componentWillUnmount() {
+        this.setState({})
+        document.removeEventListener('keydown', this.escFunction, false)
+    }
 
     handleInput = async e => {
         const
@@ -201,6 +205,7 @@ class AltSocios extends Component {
             oldHistoryLength = demand?.history?.length || 0
 
         let log = {}
+        log.metadata = {}
 
         //check if totalShare is more than 100
         let updatedShare = filteredSocios
@@ -244,7 +249,8 @@ class AltSocios extends Component {
         let
             realChanges = [],
             altObj = {},
-            shareUpdate
+            shareUpdate,
+            deleted
 
         //*****************Send only real updates of oldMembers and add status = 'modified'
         const originals = humps.camelizeKeys(this.state.originals)
@@ -257,15 +263,16 @@ class AltSocios extends Component {
                             Object.assign(altObj, { [key]: m[key] })
                         }
                     })
-                    //if marked as deleted, preserve status to form delete request, else mark as modified
+                    //if marked as deleted, preserve status to create delete request, else mark as modified. if deleted, demand needs approval
                     if (Object.keys(altObj).length > 1) {
                         if (altObj?.status !== 'deleted') {
                             m.status = 'modified'
                             altObj.status = 'modified'
                         }
+                        else deleted = true
                         realChanges.push(altObj)
                     }
-                    if (altObj.share) shareUpdate = true
+                    if (altObj.share || deleted) shareUpdate = true
                     altObj = {}
                 }
             })
@@ -283,7 +290,7 @@ class AltSocios extends Component {
         const modifiedMembers = oldMembers.filter(m => m?.status === 'modified')
 
         //alert if oldMembers and new members dont exist
-        if (!modifiedMembers[0] && !newMembers[0] && !form) {
+        if (!modifiedMembers[0] && !newMembers[0] && !form && approved !== false && !deleted) {
             alert('Nenhuma alteração foi realizada.')
             return
         }
@@ -296,48 +303,49 @@ class AltSocios extends Component {
                 .map(s => s.socioId)
 
         //**********If not approved but share was updated, create demand ***************** */
+        //console.log(shareUpdate, newMembers)
 
-        if (!approved && (newMembers.length > 0 || shareUpdate)) {
-            if (approved === false) log.declined = true
+        if (!approved && (newMembers.length > 0 || shareUpdate))
             this.setState({ toastMsg: 'Alteração estatuária enviada!' })
-        }
 
         //**********Else if approved and/or no share update, prepare request Object to PG DB */
-
         else if ((!shareUpdate && newMembers.length === 0) || approved) {
+
             log.completed = true
+            log.metadata.tempFile = 'false'
 
             oldMembers = humps.decamelizeKeys(realChanges)
             newMembers = humps.decamelizeKeys(newMembers)
-
+            console.log(newMembers)
             try {
-                if (oldMembers.length > 0) {
-                    //remove members marked as 'deleted' from the database
-                    oldMembers.forEach(async (member, i) => {
-                        if (member?.status === 'deleted') {                            
-                            await axios.delete(`/api/delete?table=socios&tablePK=socio_id&id=${member.socio_id}`)
-                                .catch(err => console.log(err))
-
-                            const index = socioIdsArray.indexOf(member.socio_id)                            
-                            console.log(index, member)
-                            if (index !== -1) {
-                                socioIdsArray.splice(i, 1)
-                                updateFilesMetadata = true                                
-                            }
-                        }
-                    })
-                    //update existing member data
-                    oldMembers = oldMembers.filter(({ status }) => status === 'modified')
-                    oldMembers.forEach(m => delete m.status)
-                    await axios.put('/api/editSocios', { requestArray: oldMembers, table, tablePK, keys })
-                        .then(r => console.log(r.data))
-                }
-                //insert new members
+                //insert new members, if any
                 if (newMembers.length > 0) {
+                    console.log('newbies', newMembers)
                     newMembers.forEach(m => delete m.status)
                     await axios.post('/api/cadSocios', { socios: newMembers, table, tablePK })
                         .then(r => r.data.forEach(newSocio => socioIdsArray.push(newSocio.socio_id)))
                     updateFilesMetadata = true // if new members are inserted, we need to update socioIds array in file metadata.
+                }
+
+                //remove members marked as 'deleted' from the database and update any modified
+                if (oldMembers.length > 0) {
+                    oldMembers.forEach(async (member, i) => {                                           //remove deleted from DB
+                        if (member?.status === 'deleted') {
+                            await axios.delete(`/api/delete?table=socios&tablePK=socio_id&id=${member.socio_id}`)
+                                .catch(err => console.log(err))
+
+                            const index = socioIdsArray.indexOf(member.socio_id)
+                            console.log(index, member)
+                            if (index !== -1) {
+                                socioIdsArray.splice(i, 1)
+                                updateFilesMetadata = true
+                            }
+                        }
+                    })
+                    oldMembers = oldMembers.filter(({ status }) => status === 'modified')               //update existing member data
+                    oldMembers.forEach(m => delete m.status)
+                    await axios.put('/api/editSocios', { requestArray: oldMembers, table, tablePK, keys })
+                        .then(r => console.log(r.data))
                 }
             } catch (err) {
                 console.log(err)
@@ -350,7 +358,8 @@ class AltSocios extends Component {
             empresaId: delegatarioId,
             history: {},
             historyLength: oldHistoryLength,
-            oneAtemptDemand: true
+            oneAtemptDemand: true,
+            approved
         }
 
         if (realChanges.length > 0) log.history.oldMembers = realChanges
@@ -358,28 +367,19 @@ class AltSocios extends Component {
         if (info) log.history.info = info
         if (contratoSocial && demand) log.demandFiles = [contratoSocial]
         if (demand) log.id = demand?.id
+        if (approved === false) log.declined = true
 
         //If first attempt to send files completed (no share update) or not, handle files
         if (form && !updateFilesMetadata) {
             log.history.files = form
             log.metadata = {
                 fieldName: 'contratoSocial',
-                empresaId: delegatarioId,
-                socios: socioIdsArray
+                empresaId: delegatarioId
             }
         }
-        else if (updateFilesMetadata && contratoSocial?.id) {
-            console.log('fuck, updateMetadata should work... \nfile:\n', contratoSocial)
-            const
-                ids = [contratoSocial.id],
-                metadata = { tempFile: 'false', socios: socioIdsArray }
+        log.metadata.socios = socioIdsArray
 
-            await axios.put('/api/updateFilesMetadata', { ids, collection: 'empresaDocs', metadata })
-                .then(r => console.log(r.data))
-        }
-
-        //Generate the demand
-        logGenerator(log)
+        logGenerator(log)                               //Generate the demand
             .then(r => {
                 console.log(r?.data)
                 this.toast()

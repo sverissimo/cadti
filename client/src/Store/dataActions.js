@@ -149,29 +149,26 @@ export const updateData = (dataFromServer, collection, id) => (dispatch, getStat
 export const updateDocs = (ids, metadata, collection, primarykey) => (dispatch, getState) => {
 
     const stateCollection = getState().data[collection]
-    console.log(stateCollection)
-    let updatedDocs
 
     if (ids && ids[0] && metadata) {
-        let selectedDocs = stateCollection.filter(doc => ids.some(id => id === doc[primarykey]))
-        console.log(selectedDocs, ids)
-        updatedDocs = selectedDocs.map(doc => {
-            doc.metadata = { ...doc.metadata, ...metadata }
-            console.log(doc)
-            return doc
+        let selectedDocs = stateCollection.filter(doc => ids.some(id => id === doc[primarykey]))        
+
+        selectedDocs.forEach(doc => {
+            const meta = Object.assign({}, doc.metadata, metadata)
+            doc.metadata = meta
         })
-    }
-    if (updatedDocs) {
-        const payload = { collection, data: updateDocs, id: primarykey }
+
+        const payload = { collection, data: selectedDocs, id: primarykey }        
         dispatch({ type: 'UPDATE_DATA', payload })
     }
+
 }
 
 export const updateCollection = (data, collection) => dispatch => {
-
+    
     data = humps.camelizeKeys(data)
     const payload = { data, collection }
-    console.log(payload)
+
     dispatch({
         type: 'UPDATE_COLLECTION',
         payload
