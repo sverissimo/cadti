@@ -3,7 +3,7 @@ import humps from 'humps'
 
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { getData, insertData, updateData, updateCollection, deleteOne } from './dataActions'
+import { getData, insertData, updateData, updateCollection, deleteOne, updateDocs } from './dataActions'
 
 import Loading from '../Layouts/Loading'
 import { configVehicleForm } from '../Forms/configVehicleForm'
@@ -53,6 +53,7 @@ export default function (requestArray, WrappedComponent) {
                 this.props.updateData(updatedObjects, 'vehicleLogs', 'id')
             })
             socket.on('updateAny', ({ ids, collection, primaryKey }) => this.props.updateData(ids, collection, primaryKey))
+            socket.on('updateDocs', ({ ids, metadata, collection, primaryKey }) => this.props.updateDocs(ids, metadata, collection, primaryKey))
             socket.on('updateElements', ({ collection, updatedCollection }) => this.props.updateCollection(updatedCollection, collection))
 
             socket.on('deleteOne', object => {
@@ -68,7 +69,8 @@ export default function (requestArray, WrappedComponent) {
         componentWillUnmount() {
             if (!socket) socket = socketIO(':3001')
             const clearAll = ['insertVehicle', 'insertInsurance', 'insertEmpresa', 'insertSocios', 'insertFiles',
-                'insertElements', 'insertProcuradores', 'updateVehicle', 'updateInsurance', 'updateSocios', 'updateLogs', 'deleteOne',]
+                'insertElements', 'insertProcuradores', 'updateVehicle', 'updateInsurance', 'updateSocios', 'updateLogs', 'deleteOne', 
+                'updateDocs', 'updateAny']
 
             clearAll.forEach(el => socket.off(el))
         }
@@ -94,7 +96,7 @@ export default function (requestArray, WrappedComponent) {
     }
 
     function mapDispatchToProps(dispatch) {
-        return bindActionCreators({ getData, insertData, updateData, updateCollection, deleteOne }, dispatch)
+        return bindActionCreators({ getData, insertData, updateData, updateCollection, deleteOne, updateDocs }, dispatch)
     }
 
     return connect(mapStateToProps, mapDispatchToProps)(With)

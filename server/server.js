@@ -88,12 +88,20 @@ app.get('/api/getOneFile/', getOneFileMetadata)
 
 app.put('/api/updateFilesMetadata', async (req, res) => {
 
-    const { collection, ids, tempFile } = req.body
-    
+    const
+        { collection, ids, metadata } = req.body,
+        update = {}
+
     if (!ids) {
         res.send('no file sent to the server');
         return
-     }
+    }
+
+    Object.entries(metadata).forEach(([k, v]) => {
+        update['metadata.' + k] = v
+    })
+
+    console.log('this is the fking metadata: ', metadata)
 
     parsedIds = ids.map(id => new mongoose.mongo.ObjectId(id))
 
@@ -101,17 +109,31 @@ app.put('/api/updateFilesMetadata', async (req, res) => {
 
     gfs.files.updateMany(
         { "_id": { $in: parsedIds } },
-        { $set: { "metadata.tempFile": tempFile } },
-        (err, doc) => {
+        { $set: { ...update } },
+        async (err, doc) => {
             if (err) console.log(err)
             if (doc) {
-                io.sockets.emit('updateAny',
-                    {
-                        collection: 'vehicleDocs',
-                        ids,
-                        primaryKey: 'id'
-                    })
-                res.send({ doc, ids })
+                if (collection === 'empresaDocs') {
+                    io.sockets.emit('updateDocs',
+                        {
+                            collection,
+                            ids,
+                            metadata,
+                            primaryKey: 'id'
+                        })
+                    res.send({ doc, ids })
+                    return
+                }
+                else {
+                    io.sockets.emit('updateAny',
+                        {
+                            collection,
+                            ids,
+                            primaryKey: 'id'
+                        })
+                    res.send({ doc, ids })
+                    return
+                }
             }
         }
     )

@@ -19,20 +19,6 @@ import DragAndDrop from '../Reusable Components/DragAndDrop'
 import SaveIcon from '@material-ui/icons/Save'
 
 const useStyles = makeStyles(theme => ({
-    textField: {
-        marginLeft: theme.spacing(1),
-        marginRight: theme.spacing(1),
-        width: 200,
-        fontSize: '0.8rem',
-        fontColor: '#bbb',
-        textAlign: 'center',
-    },
-    formHolder: {
-        width: 900,
-    },
-    input: {
-        textAlign: 'center'
-    },
     list: {
         margin: theme.spacing(1),
         width: 180,
@@ -44,14 +30,13 @@ const useStyles = makeStyles(theme => ({
         marginTop: '17px',
         padding: '6px 0px'
     }
-}));
+}))
 
 export default function ({ socios, empresas, handleInput, handleBlur, data, addSocio, enableEdit, handleEdit, removeSocio,
     handleFiles, removeFile, handleSubmit, setShowPendencias }) {
 
     const
-        { activeStep, stepTitles, filteredSocios, form, selectedEmpresa, dropDisplay, fileToRemove, demand,
-            contratoSocial, showPendencias, info } = data,
+        { activeStep, stepTitles, filteredSocios, form, selectedEmpresa, dropDisplay, fileToRemove, demand, showPendencias, info } = data,
         classes = useStyles(), { iconButton, list } = classes,
         contratoSocialForm = [empresaFiles[0]]
 
@@ -136,7 +121,11 @@ export default function ({ socios, empresas, handleInput, handleBlur, data, addS
                                             inputProps={{
                                                 style: {
                                                     fontSize: '13px',
-                                                    color: s.edit === true ? '#000' : s.status === 'new' ? 'green' : s.status === 'modified' ? 'red' : '#888',
+                                                    color: s.edit === true ? '#000'
+                                                        : s.status === 'new' ? 'green'
+                                                            : s.status === 'modified' ? '#FF2500'
+                                                                : s.status === 'deleted' ? 'red'
+                                                                    : '#888',
                                                     textDecoration: s.status === 'deleted' && !s.edit ? 'line-through' : ''
                                                 }
                                             }}
@@ -175,7 +164,7 @@ export default function ({ socios, empresas, handleInput, handleBlur, data, addS
                                     showPendencias={showPendencias}
                                     info={info}
                                     handleSubmit={handleSubmit}
-                                    handleInput={handleInput}                                    
+                                    handleInput={handleInput}
                                 />
                             </section>
                             :

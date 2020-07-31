@@ -28,7 +28,6 @@ export async function logGenerator(obj) {
         filesEndPoint = 'empresaUpload'
     }
 
-    console.log(obj)
     const history = Object.assign(obj.history, commonFields)
     log.history = history || {}
 
@@ -38,9 +37,6 @@ export async function logGenerator(obj) {
             if (!obj?.history?.action) log.history.action = logConfig?.requestAction
             log.status = 'Aguardando análise'
         }
-        /*     else if (obj.decline === true && historyLength === 1) {
-                log.completed = true
-            } */
         else {
 
             if (!obj?.history?.action) log.history.action = logConfig?.responseAction
@@ -72,7 +68,7 @@ export async function logGenerator(obj) {
         log.history.action = logConfig?.concludedAction || 'Solicitação concluída'
         log.status = obj?.status || 'Solicitação concluída'
 
-        if (!obj.uniqueStep) {            
+        if (!obj.oneAtemptDemand) {
             let ids
             const objFiles = obj?.files
 
@@ -92,40 +88,21 @@ export async function logGenerator(obj) {
             } else if (obj.demandFiles && obj.demandFiles[0])
                 ids = obj.demandFiles.map(f => f.id)
 
-            await axios.put('/api/updateFilesMetadata', { ids, collection: filesCollection, tempFile: 'false' })
+            const metadata = { tempFile: 'false' }
+
+            await axios.put('/api/updateFilesMetadata', { ids, collection: filesCollection, metadata })
                 .then(r => console.log(r.data))
         }
     }
 
-    // log.completed or not, upload any new file attached by the user
-    /* if (objFiles instanceof FormData) {
-        let filesToSend = new FormData()
-
-        if (!log.completed) filesToSend.set('tempFile', 'true')
-        else filesToSend.set('tempFile', 'false')
-
-        for (let pair of objFiles) {
-            filesToSend.set(pair[0], pair[1])
-        }
-
-        files = await axios.post(`/api/${filesEndPoint}`, filesToSend)
-    }
-
-    if (files?.data?.file) {
-        const filesArray = files.data.file
-        filesIds = filesArray.map(f => f.id)
-        log.history.files = filesIds
-    }
- */
-
     //********************** Upload files and get their Ids***********************/    
     const filesIds = await postFilesReturnIds(obj?.history?.files, obj?.metadata, log?.completed, filesEndPoint)
-    
+
     if (filesIds)
         log.history.files = filesIds
-   
+
     if (log.metadata) delete log.metadata
-    if (log.uniqueStep) delete log.uniqueStep
+    if (log.oneAtemptDemand) delete log.oneAtemptDemand
 
     //**********************reestablish path**********************
     logRoutes = JSON.parse(JSON.stringify(logRoutesConfig))
@@ -143,7 +120,7 @@ const postFilesReturnIds = async (formData, metadata, completed, filesEndPoint) 
         files,
         filesIds
     if (formData instanceof FormData) {
-        
+
         let filesToSend = new FormData()
 
         if (metadata instanceof Object)
@@ -158,12 +135,9 @@ const postFilesReturnIds = async (formData, metadata, completed, filesEndPoint) 
             filesToSend.set(pair[0], pair[1])
         }
 
-        //for (let pair of filesToSend) { console.log(pair[0], pair[1]) }
-
         files = await axios.post(`/api/${filesEndPoint}`, filesToSend)
     }
-
-    if (files?.data?.file) {        
+    if (files?.data?.file) {
         const filesArray = files.data.file
         filesIds = filesArray.map(f => f.id)
         return filesIds

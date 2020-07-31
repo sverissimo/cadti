@@ -47,7 +47,7 @@ class AltSocios extends Component {
             const
                 demandState = setEmpresaDemand(demand, redux, filteredSocios),
                 { latestDoc, ...updatedState } = demandState
-            console.log(latestDoc)
+
             this.setState({ ...updatedState, contratoSocial: latestDoc, originals })
         }
         else this.setState({ originals, filteredSocios })
@@ -96,8 +96,6 @@ class AltSocios extends Component {
             case 'share':
 
                 if (value) {
-                    //value = value.replace(',', '.')
-
                     if (value > 100) {
                         await this.setState({ share: '' })
                         value = ''
@@ -106,32 +104,26 @@ class AltSocios extends Component {
                     if (value !== '0' && value !== '00' && !Number(value)) {
 
                         let totalShare = filteredSocios.map(s => Number(s.share) ? Number(s.share) : 0)
-                        console.log(totalShare)
                         totalShare = totalShare.reduce((a, b) => a + b)
 
                         const parsedNumber = Number(value.replace(',', '.'))
 
                         if (typeof totalShare === 'number') totalShare += parsedNumber
                         else totalShare = parsedNumber
-                        console.log(totalShare, parsedNumber)
                         this.setState({ totalShare, share: parsedNumber })
-                        /* 
-                                                await this.setState({ share: '' })
-                                                this.setState({ alertType: 'numberNotValid', openAlertDialog: true })
-                         */
+
                     } else {
                         let totalShare = filteredSocios.map(s => parseFloat(s.share))
                             .reduce((a, b) => a + b)
                         const parsedNumber = parseFloat(value.replace(',', '.'))
 
                         totalShare += parsedNumber
-                        console.log(totalShare, parsedNumber)
+                        //console.log(totalShare, parsedNumber)
                         this.setState({ totalShare, share: parsedNumber })
                     }
                 }
                 break;
-            default:
-                break;
+            default: break;
         }
     }
 
@@ -206,8 +198,7 @@ class AltSocios extends Component {
             { socios } = this.props.redux,
             { selectedEmpresa, form, filteredSocios, demand, contratoSocial, info } = this.state,
             { delegatarioId } = selectedEmpresa,
-            oldHistoryLength = demand?.history?.length || 0,
-            contratoFile = new FormData()
+            oldHistoryLength = demand?.history?.length || 0
 
         let log = {}
 
@@ -314,7 +305,6 @@ class AltSocios extends Component {
         //**********Else if approved and/or no share update, prepare request Object to PG DB */
 
         else if ((!shareUpdate && newMembers.length === 0) || approved) {
-            console.log('fuck', shareUpdate)
             log.completed = true
 
             oldMembers = humps.decamelizeKeys(realChanges)
@@ -324,14 +314,16 @@ class AltSocios extends Component {
                 if (oldMembers.length > 0) {
                     //remove members marked as 'deleted' from the database
                     oldMembers.forEach(async (member, i) => {
-                        if (member?.status === 'deleted') {
-                            console.log(member)
+                        if (member?.status === 'deleted') {                            
                             await axios.delete(`/api/delete?table=socios&tablePK=socio_id&id=${member.socio_id}`)
                                 .catch(err => console.log(err))
 
-                            let { filteredSocios } = this.state
-                            filteredSocios.splice(i, 1)
-                            this.setState({ filteredSocios })
+                            const index = socioIdsArray.indexOf(member.socio_id)                            
+                            console.log(index, member)
+                            if (index !== -1) {
+                                socioIdsArray.splice(i, 1)
+                                updateFilesMetadata = true                                
+                            }
                         }
                     })
                     //update existing member data
@@ -345,7 +337,7 @@ class AltSocios extends Component {
                     newMembers.forEach(m => delete m.status)
                     await axios.post('/api/cadSocios', { socios: newMembers, table, tablePK })
                         .then(r => r.data.forEach(newSocio => socioIdsArray.push(newSocio.socio_id)))
-                    updateFilesMetadata = true
+                    updateFilesMetadata = true // if new members are inserted, we need to update socioIds array in file metadata.
                 }
             } catch (err) {
                 console.log(err)
@@ -358,7 +350,7 @@ class AltSocios extends Component {
             empresaId: delegatarioId,
             history: {},
             historyLength: oldHistoryLength,
-            uniqueStep: true
+            oneAtemptDemand: true
         }
 
         if (realChanges.length > 0) log.history.oldMembers = realChanges
@@ -376,12 +368,15 @@ class AltSocios extends Component {
                 socios: socioIdsArray
             }
         }
-        else if (contratoSocial?.id) {
-            const ids = [contratoSocial.id]
-            await axios.put('/api/updateFilesMetadata', { ids, collection: 'empresaDocs', tempFile: 'false' })
+        else if (updateFilesMetadata && contratoSocial?.id) {
+            console.log('fuck, updateMetadata should work... \nfile:\n', contratoSocial)
+            const
+                ids = [contratoSocial.id],
+                metadata = { tempFile: 'false', socios: socioIdsArray }
+
+            await axios.put('/api/updateFilesMetadata', { ids, collection: 'empresaDocs', metadata })
                 .then(r => console.log(r.data))
         }
-        console.log(log)
 
         //Generate the demand
         logGenerator(log)
@@ -444,7 +439,7 @@ class AltSocios extends Component {
     toast = () => this.setState({ confirmToast: !this.state.confirmToast })
 
     render() {
-        const { filteredSocios, openAlertDialog, alertType, selectedEmpresa } = this.state,
+        const { filteredSocios, openAlertDialog, alertType } = this.state,
             { empresas } = this.props.redux
 
         return (

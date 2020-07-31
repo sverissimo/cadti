@@ -73,13 +73,13 @@ export const insertData = (dataFromServer, collection) => (dispatch, getState) =
 
         if (data[0]?.acessibilidadeId) {
             data[0].acessibilidadeId.forEach(acId => {
-                acessibilidade.forEach(({ id, item }) => {                    
-                    if (acId.toString() === id.toString()) {                    
+                acessibilidade.forEach(({ id, item }) => {
+                    if (acId.toString() === id.toString()) {
                         acNames.push(item)
                     }
                 })
             })
-        }        
+        }
         data[0].equipamentos = eqNames
         data[0].acessibilidade = acNames
     }
@@ -123,13 +123,14 @@ export const insertData = (dataFromServer, collection) => (dispatch, getState) =
 export const updateData = (dataFromServer, collection, id) => (dispatch, getState) => {
 
     //Se a collection for vehicleDocs, o que vem do servidor são os ids
+    let i = 0
+    if (i > 0) return
     let data = humps.camelizeKeys(dataFromServer)
 
     if (collection === 'vehicleDocs') {
         const { vehicleDocs } = getState().data
         let updatedData = vehicleDocs.filter(v => dataFromServer.some(id => id === v.id))
 
-        console.log(updatedData)
         updatedData.forEach(doc => doc.metadata.tempFile = 'false')
         data = updatedData
     }
@@ -140,15 +141,30 @@ export const updateData = (dataFromServer, collection, id) => (dispatch, getStat
         data = idsToString(data, equipamentos, acessibilidade)
     }
 
-    /* if (collection = 'vehicleDocs') {
-        const
-            { vehicleDocs } = getState().data,
-            updatedDocs = vehicleDocs.filter(v => v?.id.toString() === updatedDocs?.id.toString())
-        data = updatedDocs
-    } */
-
     const payload = { collection, data, id }
     dispatch({ type: 'UPDATE_DATA', payload })
+    return
+}
+
+export const updateDocs = (ids, metadata, collection, primarykey) => (dispatch, getState) => {
+
+    const stateCollection = getState().data[collection]
+    console.log(stateCollection)
+    let updatedDocs
+
+    if (ids && ids[0] && metadata) {
+        let selectedDocs = stateCollection.filter(doc => ids.some(id => id === doc[primarykey]))
+        console.log(selectedDocs, ids)
+        updatedDocs = selectedDocs.map(doc => {
+            doc.metadata = { ...doc.metadata, ...metadata }
+            console.log(doc)
+            return doc
+        })
+    }
+    if (updatedDocs) {
+        const payload = { collection, data: updateDocs, id: primarykey }
+        dispatch({ type: 'UPDATE_DATA', payload })
+    }
 }
 
 export const updateCollection = (data, collection) => dispatch => {
