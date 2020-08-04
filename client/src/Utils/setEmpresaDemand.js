@@ -15,7 +15,7 @@ export const setEmpresaDemand = (demand, redux, socios) => {
 
     if (history[0]) lastUpdate = history[length - 1]
 
-    if (lastUpdate) {        
+    if (lastUpdate) {
         newMembers = lastUpdate?.newMembers || []
         oldMembers = lastUpdate?.oldMembers || []
     }
@@ -43,7 +43,10 @@ export const setEmpresaDemand = (demand, redux, socios) => {
     const
         filteredSocios = socios
             .concat(newMembers)
-            .sort((a, b) => a.nomeSocio.localeCompare(b.nomeSocio))
+            .sort((a, b) => {
+                if (a.nomeSocio) return a.nomeSocio.localeCompare(b.nomeSocio)
+                else return a.nomeProcurador.localeCompare(b.nomeProcurador)
+            })
 
     //****************** Return the object
     return {

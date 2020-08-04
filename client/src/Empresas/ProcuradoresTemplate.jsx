@@ -19,6 +19,7 @@ import DeleteOutlinedIcon from '@material-ui/icons/DeleteOutlined';
 import Procurador from './Procurador'
 import DragAndDrop from '../Reusable Components/DragAndDrop'
 import { procuradorForm } from '../Forms/procuradorForm'
+import StepperButtons from '../Reusable Components/StepperButtons'
 
 import GetAppIcon from '@material-ui/icons/GetApp';
 import InsertDriveFileOutlinedIcon from '@material-ui/icons/InsertDriveFileOutlined';
@@ -133,10 +134,10 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-export default function ({ handleInput, redux, data, addProc, removeProc,
-    handleFiles, getFile, plusOne, minusOne, checkExpires }) {
+export default function ({ redux, data, handleInput, addProc, removeProc, handleFiles, getFile, plusOne, minusOne, checkExpires, setShowPendencias }) {
+
     const
-        { dropDisplay, selectedEmpresa, procsToAdd, selectedDocs, procFiles, expires } = data,
+        { dropDisplay, selectedEmpresa, procsToAdd, selectedDocs, procFiles, expires, demand, showPendencias, info } = data,
         { empresas, procuradores } = redux,
 
         classes = useStyles(), { paper, container, title, dropBox, addButton, paper2, containerList } = classes
@@ -267,13 +268,13 @@ export default function ({ handleInput, redux, data, addProc, removeProc,
                     )}
                     <Grid container style={{ position: 'relative', alignItems: 'center' }}>
                         <Grid item xs={6}>
-                            <DragAndDrop                              
+                            <DragAndDrop
                                 style={{ marginTop: '22px', width: '90%' }}
                                 name='procFile'
                                 formData={procFiles}
                                 dropDisplay={dropDisplay}
                                 handleFiles={handleFiles}
-                            />                    
+                            />
                         </Grid>
                         <Grid item xs={6} className={dropBox}>
                             <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginRight: '67px' }}>
@@ -317,23 +318,36 @@ export default function ({ handleInput, redux, data, addProc, removeProc,
                         </Grid>
                     </Grid>
                 </Paper>}
-            <Grid container direction="row" justify='flex-start' style={{ width: '1200px' }}>
-                <Grid item xs={9} style={{ width: '1000px' }}></Grid>
-                <Grid item xs={3} style={{ align: "right" }}>
-                    {selectedEmpresa && <Button
+            <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
+                {selectedEmpresa && !demand ?
+                    <Button
                         className={addButton}
                         size='small'
                         color="secondary"
                         variant="contained"
-                        onClick={addProc}
+                        onClick={() => addProc()}
                     >
                         <AddIcon />Cadastrar procuração
-                        </Button>}
-                </Grid>
-            </Grid>
-            {selectedEmpresa && selectedDocs[0] && <h2 style={{ margin: '25px 0 0 15px' }}>Procurações cadastradas</h2>}
+                        </Button>
+                    : selectedEmpresa && demand ?
+                        <StepperButtons
+                            uniqueStep={true}
+                            declineButtonLabel='Indeferir'
+                            demand={demand}
+                            setShowPendencias={setShowPendencias}
+                            showPendencias={showPendencias}
+                            info={info}
+                            handleSubmit={addProc}
+                            handleInput={handleInput}
+                        />
+                        : null
+                }
+            </div>
+
+            {selectedEmpresa && selectedDocs[0] && <h2 style={{ margin: '25px 0 0 15px' }}>Procurações cadastradas</h2>
+            }
             {
-                selectedEmpresa && !selectedDocs[0] &&
+                selectedEmpresa && !selectedDocs[0] && !demand &&
                 <Grid item xs={12}>
                     <Paper className={paper}>
                         Nenhum procurador cadastrado para {selectedEmpresa.razaoSocial}
@@ -374,7 +388,8 @@ export default function ({ handleInput, redux, data, addProc, removeProc,
                         </Paper>
                     </Grid>
                 </Grid>
-                )}
-        </Grid>
+                )
+            }
+        </Grid >
     )
 }

@@ -65,8 +65,13 @@ export const logRoutesConfig = [
     },
     {
         subject: 'Cadastro de procurações/procuradores',
-        collection: 'empresaLogs',
-        path: '/empresas/procuradores'
+        collection,
+        path: '/solicitacoes/procuradores',
+        docs: 'empresaDocs',
+        primaryKey: 'empresaId',
+        requestAction: 'Cadastro de procuração solicitado',
+        responseAction: 'Procuração indeferida',
+        concludedAction: 'Alteração estatutária cadastrada',        
     },
 ]
 
