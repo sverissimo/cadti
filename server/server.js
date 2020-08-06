@@ -147,7 +147,7 @@ app.post('/api/logs', logHandler, (req, res) => {
         { id, doc } = res.locals,
         insertedObjects = [doc],
         insertResponseObj = { insertedObjects, collection }
-    
+
     if (!id) io.sockets.emit('insertElements', insertResponseObj)
     else io.sockets.emit('updateLogs', insertedObjects)
     res.sendStatus(200);
@@ -556,14 +556,29 @@ app.put('/api/editProc', (req, res) => {
         })
         i = 0
     })
-
-    console.log(queryString)
-
+console.log(queryString)
     pool.query(queryString, (err, t) => {
         if (err) console.log(err)
-        if (t) console.log(t)
-        //res.send(queryString)
-        res.send('Dados atualizados.')
+        if (t) {
+            const ids = requestArray.map(el => el.procurador_id)
+            let query2 = 'SELECT * FROM procurador',
+                condition = ` WHERE procurador_id = ${ids[0]}`
+
+            ids.forEach((id, i) => {
+                if (i > 0)
+                    condition += ` OR procurador_id = ${id}`
+            })
+            query2 += condition
+            
+            pool.query(query2, (error, table) => {
+                if (error) console.log(error)
+                const update = { ids: table.rows, collection: 'procuradores', primaryKey: 'procuradorId' }
+                console.log(update)
+                io.sockets.emit('updateupdateAny', update)
+                res.send('Dados atualizados.')
+            })
+        }
+        else res.send('something went wrong with your update...')
     })
 })
 

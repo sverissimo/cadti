@@ -1,6 +1,14 @@
 export const setEmpresaDemand = (demand, redux, socios) => {
+
+    const { pathname } = document.location
+    let associateKeys = { name: 'nomeSocio', id: 'socioId' }
+
+    if (pathname.match('procurador'))
+        associateKeys = { name: 'nomeProcurador', id: 'procuradorId' }
+
     const
         { empresas, empresaDocs } = redux,
+        { name, id } = associateKeys,
         history = demand?.history || [],
         length = history?.length,
 
@@ -33,7 +41,7 @@ export const setEmpresaDemand = (demand, redux, socios) => {
     if (oldMembers[0])
         socios.forEach(s => {
             oldMembers.forEach(om => {
-                if (s.socioId === om.socioId)
+                if (s[id] === om[id])
                     Object.keys(om).forEach(key => {
                         s[key] = om[key]
                     })
@@ -43,10 +51,7 @@ export const setEmpresaDemand = (demand, redux, socios) => {
     const
         filteredSocios = socios
             .concat(newMembers)
-            .sort((a, b) => {
-                if (a.nomeSocio) return a.nomeSocio.localeCompare(b.nomeSocio)
-                else return a.nomeProcurador.localeCompare(b.nomeProcurador)
-            })
+            .sort((a, b) => a[name].localeCompare(b[name]))
 
     //****************** Return the object
     return {

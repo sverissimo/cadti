@@ -53,17 +53,17 @@ class AltProcuradores extends Component {
             { redux } = this.props,
             demand = this.props?.location?.state?.demand,
             procuracoes = redux.procuracoes.filter(pr => pr.razaoSocial === this.props.redux.empresas[0].razaoSocial),
-            procuradores = redux.procuradores
+            procuradores = this.props.redux.procuradores
 
-            //fetchFiles = await axios.get('/api/getFiles/empresaDocs?fieldName=procuracao'),
-            //files = fetchFiles?.data
+        //fetchFiles = await axios.get('/api/getFiles/empresaDocs?fieldName=procuracao'),
+        //files = fetchFiles?.data
         //*************Set demand if any
         if (demand) {
             const
                 demandState = setEmpresaDemand(demand, redux, procuradores),
                 { latestDoc, ...updatedState } = demandState,
                 { history } = demand,
-                { files, vencimento, expires } = history[0],    
+                { files, vencimento, expires } = history[0],
                 newMembers = history[0].newMembers || [],
                 oldMembers = history[0].oldMembers || []
 
@@ -74,11 +74,11 @@ class AltProcuradores extends Component {
                 allDemandProcs.forEach((p, i) => {
                     procsToAdd.push(i)
                     procuradorForm.forEach(({ field }) => {
-                        this.setState({ [field + i]: p[field] })                        
+                        this.setState({ [field + i]: p[field] })
                     })
                 })
             }
-            //console.log(allDemandProcs, procsToAdd)
+            //console.log(allDemandProcs, procsToAdd)            
             this.setState({ vencimento, expires, procsToAdd })
             this.setState({ ...updatedState, demandFiles: latestDoc })
         }
@@ -107,10 +107,7 @@ class AltProcuradores extends Component {
 
     componentWillUnmount() { this.setState({}) }
 
-
-
     handleInput = async e => {
-
         const
             { name } = e.target,
             procuradores = [...this.props.redux.procuradores]
@@ -221,8 +218,15 @@ class AltProcuradores extends Component {
 
         addedProcs.forEach(addedProc => {
             gotId = procuradores.find(p => p.cpfProcurador === addedProc.cpfProcurador)
-            if (gotId?.procuradorId)
-                oldMembers.push(gotId)
+            if (gotId?.procuradorId) {
+
+                Object.keys(addedProc).forEach(k => {
+                    if (addedProc[k] === gotId[k])
+                        delete addedProc[k]
+                })
+                addedProc.procuradorId = gotId.procuradorId
+                oldMembers.push(addedProc)
+            }
             else
                 newMembers.push(addedProc)
         })
@@ -252,20 +256,22 @@ class AltProcuradores extends Component {
                 .then(r => console.log(r))
         }
         if (approved === true) {
-            //this.approveProc(newMembers, gotId)
+            newMembers = humps.decamelizeKeys(newMembers)
+            oldMembers = humps.decamelizeKeys(oldMembers)
+            this.approveProc(newMembers, oldMembers)
         }
     }
 
     approveProc = async (newMembers, oldMembers) => {
-
+        console.log(oldMembers)
         const
-            { selectedEmpresa, demandFiles, vencimento, expires } = this.state,
-            procIdArray = oldMembers.map(m => m.procuradorId)
+            { selectedEmpresa, demandFiles, vencimento } = this.state,
+            procIdArray = oldMembers.map(m => m.procurador_id)
         let
             selectedDocs = [...this.state.selectedDocs],
             files = [...this.state.files]
 
-        if (newMembers.length > 0) {
+        if (newMembers.length > 0 && false) {
             newMembers = humps.decamelizeKeys(newMembers)
             await axios.post('/api/cadProcuradores', { procuradores: newMembers, table: 'procurador', tablePK: 'procurador_id' })
                 .then(procs => {
@@ -290,19 +296,30 @@ class AltProcuradores extends Component {
             approved: true
         }
 
+        const request = {
+            table: 'procurador',
+            tablePK: 'procurador_id',
+            requestArray: oldMembers,
+            keys: procuradorForm.map(p => humps.decamelize(p.field))
+        }
+
+        console.log(request)
+        axios.put('/api/editProc', { ...request })
+        .then(r=> console.log(r))
+
         Object.entries(novaProcuracao).forEach(([k, v]) => {
             if (!v || v === '') delete novaProcuracao[k]
         })
 
-        let procuracaoId
-
-        await axios.post('/api/cadProcuracao', novaProcuracao)
-            .then(r => procuracaoId = r.data[0].procuracao_id)
-
-        novaProcuracao.procuracaoId = procuracaoId
-
-        logGenerator(novaProcuracao, 'empresaDocs')
-            .then(r => console.log(r))
+        /*      let procuracaoId
+     
+             await axios.post('/api/cadProcuracao', novaProcuracao)
+                 .then(r => procuracaoId = r.data[0].procuracao_id)
+     
+             novaProcuracao.procuracaoId = procuracaoId
+     
+             logGenerator(novaProcuracao, 'empresaDocs')
+                 .then(r => console.log(r)) */
 
         /* 
                 if (procFiles) {

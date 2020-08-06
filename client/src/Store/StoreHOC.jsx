@@ -48,6 +48,7 @@ export default function (requestArray, WrappedComponent) {
             socket.on('updateVehicle', updatedObjects => this.props.updateData(updatedObjects, 'veiculos', 'veiculoId'))
             socket.on('updateInsurance', updatedObjects => this.props.updateCollection(updatedObjects, 'seguros'))
             socket.on('updateSocios', updatedObjects => this.props.updateCollection(updatedObjects, 'socios'))
+            socket.on('updateProcuradores', updatedObjects => this.props.updateCollection(updatedObjects, 'procuradores'))            
             socket.on('updateLogs', updatedObjects => {
                 console.log(updatedObjects)
                 this.props.updateData(updatedObjects, 'vehicleLogs', 'id')

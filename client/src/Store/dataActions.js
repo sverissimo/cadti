@@ -142,6 +142,7 @@ export const updateData = (dataFromServer, collection, id) => (dispatch, getStat
     }
 
     const payload = { collection, data, id }
+    console.log(payload)
     dispatch({ type: 'UPDATE_DATA', payload })
     return
 }
@@ -151,21 +152,21 @@ export const updateDocs = (ids, metadata, collection, primarykey) => (dispatch, 
     const stateCollection = getState().data[collection]
 
     if (ids && ids[0] && metadata) {
-        let selectedDocs = stateCollection.filter(doc => ids.some(id => id === doc[primarykey]))        
+        let selectedDocs = stateCollection.filter(doc => ids.some(id => id === doc[primarykey]))
 
         selectedDocs.forEach(doc => {
             const meta = Object.assign({}, doc.metadata, metadata)
             doc.metadata = meta
         })
 
-        const payload = { collection, data: selectedDocs, id: primarykey }        
+        const payload = { collection, data: selectedDocs, id: primarykey }
         dispatch({ type: 'UPDATE_DATA', payload })
     }
 
 }
 
 export const updateCollection = (data, collection) => dispatch => {
-    
+
     data = humps.camelizeKeys(data)
     const payload = { data, collection }
 
