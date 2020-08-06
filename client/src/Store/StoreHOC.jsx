@@ -48,7 +48,7 @@ export default function (requestArray, WrappedComponent) {
             socket.on('updateVehicle', updatedObjects => this.props.updateData(updatedObjects, 'veiculos', 'veiculoId'))
             socket.on('updateInsurance', updatedObjects => this.props.updateCollection(updatedObjects, 'seguros'))
             socket.on('updateSocios', updatedObjects => this.props.updateCollection(updatedObjects, 'socios'))
-            socket.on('updateProcuradores', updatedObjects => this.props.updateCollection(updatedObjects, 'procuradores'))            
+            socket.on('updateProcuradores', ({ collection, data, primaryKey }) => this.props.updateData(data, collection, primaryKey))
             socket.on('updateLogs', updatedObjects => {
                 console.log(updatedObjects)
                 this.props.updateData(updatedObjects, 'vehicleLogs', 'id')
@@ -70,7 +70,7 @@ export default function (requestArray, WrappedComponent) {
         componentWillUnmount() {
             if (!socket) socket = socketIO(':3001')
             const clearAll = ['insertVehicle', 'insertInsurance', 'insertEmpresa', 'insertSocios', 'insertFiles',
-                'insertElements', 'insertProcuradores', 'updateVehicle', 'updateInsurance', 'updateSocios', 'updateLogs', 'deleteOne', 
+                'insertElements', 'insertProcuradores', 'updateVehicle', 'updateInsurance', 'updateSocios', 'updateLogs', 'deleteOne',
                 'updateDocs', 'updateAny']
 
             clearAll.forEach(el => socket.off(el))

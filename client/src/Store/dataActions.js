@@ -140,9 +140,8 @@ export const updateData = (dataFromServer, collection, id) => (dispatch, getStat
         const { equipamentos, acessibilidade } = getState().data
         data = idsToString(data, equipamentos, acessibilidade)
     }
-
-    const payload = { collection, data, id }
-    console.log(payload)
+    const payload = { collection, data, id }    
+    
     dispatch({ type: 'UPDATE_DATA', payload })
     return
 }
@@ -158,7 +157,7 @@ export const updateDocs = (ids, metadata, collection, primarykey) => (dispatch, 
             const meta = Object.assign({}, doc.metadata, metadata)
             doc.metadata = meta
         })
-
+        
         const payload = { collection, data: selectedDocs, id: primarykey }
         dispatch({ type: 'UPDATE_DATA', payload })
     }
@@ -198,8 +197,7 @@ export const updateInsurance = ({ value, ids }) => (dispatch, getState) => {
 
     seguro.placas = placas
     seguro.veiculos = vehicleIDs
-    seguro = [seguro]
-    console.log(seguro)
+    seguro = [seguro]    
 
     const payload = { collection: 'seguros', data: seguro, id: 'apolice' }
 

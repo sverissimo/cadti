@@ -27,7 +27,7 @@ export async function logGenerator(obj) {
         filesCollection = 'empresaDocs'
         filesEndPoint = 'empresaUpload'
     }
-
+console.log(obj)
     const history = Object.assign(obj.history, commonFields)
     log.history = history || {}
 

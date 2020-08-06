@@ -71,7 +71,7 @@ export const logRoutesConfig = [
         primaryKey: 'empresaId',
         requestAction: 'Cadastro de procuração solicitado',
         responseAction: 'Procuração indeferida',
-        concludedAction: 'Alteração estatutária cadastrada',        
+        concludedAction: 'Procuração cadastrada',        
     },
 ]
 

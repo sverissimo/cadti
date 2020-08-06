@@ -52,15 +52,15 @@ class AltProcuradores extends Component {
         const
             { redux } = this.props,
             demand = this.props?.location?.state?.demand,
-            procuracoes = redux.procuracoes.filter(pr => pr.razaoSocial === this.props.redux.empresas[0].razaoSocial),
-            procuradores = this.props.redux.procuradores
+            procuracoes = redux.procuracoes.filter(pr => pr.razaoSocial === this.props.redux.empresas[0].razaoSocial)
 
         //fetchFiles = await axios.get('/api/getFiles/empresaDocs?fieldName=procuracao'),
         //files = fetchFiles?.data
         //*************Set demand if any
         if (demand) {
             const
-                demandState = setEmpresaDemand(demand, redux, procuradores),
+                originalProcuradores = JSON.parse(JSON.stringify(redux.procuradores)),
+                demandState = setEmpresaDemand(demand, redux, originalProcuradores),
                 { latestDoc, ...updatedState } = demandState,
                 { history } = demand,
                 { files, vencimento, expires } = history[0],
@@ -68,7 +68,20 @@ class AltProcuradores extends Component {
                 oldMembers = history[0].oldMembers || []
 
             let allDemandProcs, procsToAdd = []
+            
+            if (oldMembers[0]) {
+                oldMembers.forEach(m => {
+                    originalProcuradores.forEach(op => {
+                        Object.keys(op).forEach(key => {                            
+                            if (m?.procuradorId === op?.procuradorId && !m[key]) {
+                                m[key] = op[key]
+                            }
+                        })
+                    })
 
+                })
+            }
+            
             if (newMembers[0] || oldMembers[0]) {
                 allDemandProcs = newMembers.concat(oldMembers)
                 allDemandProcs.forEach((p, i) => {
@@ -78,7 +91,7 @@ class AltProcuradores extends Component {
                     })
                 })
             }
-            //console.log(allDemandProcs, procsToAdd)            
+            console.log(updatedState, '**************fk*************', procsToAdd)
             this.setState({ vencimento, expires, procsToAdd })
             this.setState({ ...updatedState, demandFiles: latestDoc })
         }
@@ -224,12 +237,14 @@ class AltProcuradores extends Component {
                     if (addedProc[k] === gotId[k])
                         delete addedProc[k]
                 })
+                console.log(oldMembers)
                 addedProc.procuradorId = gotId.procuradorId
                 oldMembers.push(addedProc)
             }
             else
                 newMembers.push(addedProc)
         })
+        
 
         if (approved === undefined) {
             const
@@ -263,39 +278,26 @@ class AltProcuradores extends Component {
     }
 
     approveProc = async (newMembers, oldMembers) => {
-        console.log(oldMembers)
+
         const
-            { selectedEmpresa, demandFiles, vencimento } = this.state,
+            { selectedEmpresa, demandFiles, vencimento, demand } = this.state,
             procIdArray = oldMembers.map(m => m.procurador_id)
         let
             selectedDocs = [...this.state.selectedDocs],
             files = [...this.state.files]
 
-        if (newMembers.length > 0 && false) {
+        //******************Post newMembers  *****************/
+        if (newMembers.length > 0) {
             newMembers = humps.decamelizeKeys(newMembers)
             await axios.post('/api/cadProcuradores', { procuradores: newMembers, table: 'procurador', tablePK: 'procurador_id' })
                 .then(procs => {
+                    console.log(procs.data)
                     procs.data.forEach(p => procIdArray.push(p.procurador_id))
                 })
-            await axios.get('/api/procuradores')
-                .then(res => {
-                    const procuradores = humps.camelizeKeys(res.data)
-                    this.setState({ procuradores })
-                })
         }
 
-        let novaProcuracao = {
-            delegatario_id: selectedEmpresa.delegatarioId,
-            vencimento,
-            status: 'vigente',
-            procuradores: procIdArray
-        }
-        const log = {
-            ...novaProcuracao,
-            demandFiles,
-            approved: true
-        }
-
+        console.log(procIdArray)
+        //***************Update existing members ****************/
         const request = {
             table: 'procurador',
             tablePK: 'procurador_id',
@@ -303,23 +305,37 @@ class AltProcuradores extends Component {
             keys: procuradorForm.map(p => humps.decamelize(p.field))
         }
 
-        console.log(request)
         axios.put('/api/editProc', { ...request })
-        .then(r=> console.log(r))
+            .then(r => console.log(r))
+
+        //***************Create new Procuracao****************/
+        let novaProcuracao = {
+            delegatario_id: selectedEmpresa.delegatarioId,
+            vencimento,
+            status: 'vigente',
+            procuradores: procIdArray
+        }
 
         Object.entries(novaProcuracao).forEach(([k, v]) => {
             if (!v || v === '') delete novaProcuracao[k]
         })
 
-        /*      let procuracaoId
-     
-             await axios.post('/api/cadProcuracao', novaProcuracao)
-                 .then(r => procuracaoId = r.data[0].procuracao_id)
-     
-             novaProcuracao.procuracaoId = procuracaoId
-     
-             logGenerator(novaProcuracao, 'empresaDocs')
-                 .then(r => console.log(r)) */
+        let procuracaoId
+
+        await axios.post('/api/cadProcuracao', novaProcuracao)
+            .then(r => procuracaoId = r.data[0].procuracao_id)
+
+        novaProcuracao.procuracaoId = procuracaoId
+        const log = {
+            id: demand.id,
+            demandFiles,
+            history: {},
+            approved: true
+        }
+
+        //generate log
+        logGenerator(log)
+            .then(r => console.log(r))
 
         /* 
                 if (procFiles) {

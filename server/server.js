@@ -247,6 +247,7 @@ app.post('/api/cadSocios', cadSocios, (req, res) => {
 
 app.post('/api/cadProcuradores', cadProcuradores, (req, res) => {
     const { data } = req
+    console.log(data)
     io.sockets.emit('insertProcuradores', data)
     res.send(data)
 })
@@ -556,7 +557,7 @@ app.put('/api/editProc', (req, res) => {
         })
         i = 0
     })
-console.log(queryString)
+
     pool.query(queryString, (err, t) => {
         if (err) console.log(err)
         if (t) {
@@ -572,9 +573,9 @@ console.log(queryString)
             
             pool.query(query2, (error, table) => {
                 if (error) console.log(error)
-                const update = { ids: table.rows, collection: 'procuradores', primaryKey: 'procuradorId' }
+                const update = { data: table.rows, collection: 'procuradores', primaryKey: 'procuradorId' }
                 console.log(update)
-                io.sockets.emit('updateupdateAny', update)
+                io.sockets.emit('updateProcuradores', update)
                 res.send('Dados atualizados.')
             })
         }
