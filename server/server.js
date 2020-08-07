@@ -260,12 +260,19 @@ app.post('/api/cadProcuracao', (req, res) => {
 
     const { keys, values } = parseRequestBody(req.body)
 
-    console.log(`INSERT INTO public.procuracao (${keys}) VALUES (${values}) RETURNING procuracao_id`)
+    console.log(`INSERT INTO public.procuracao (${keys}) VALUES (${values}) RETURNING *`)
     pool.query(
-        `INSERT INTO public.procuracao (${keys}) VALUES (${values}) RETURNING procuracao_id`, (err, table) => {
+        `INSERT INTO public.procuracao (${keys}) VALUES (${values}) RETURNING *`, (err, table) => {
             if (err) res.send(err)
             if (table && table.rows && table.rows.length === 0) { res.send(table.rows); return }
-            if (table.rows.length > 0) res.json(table.rows)
+            if (table.rows.length > 0) {
+                const updatedData = {
+                    insertedObjects: table.rows,
+                    collection: 'procuracoes'
+                }
+                io.sockets.emit('insertElements', updatedData)
+                res.json(table.rows)
+            }
             return
         });
 })
@@ -570,7 +577,7 @@ app.put('/api/editProc', (req, res) => {
                     condition += ` OR procurador_id = ${id}`
             })
             query2 += condition
-            
+
             pool.query(query2, (error, table) => {
                 if (error) console.log(error)
                 const update = { data: table.rows, collection: 'procuradores', primaryKey: 'procuradorId' }

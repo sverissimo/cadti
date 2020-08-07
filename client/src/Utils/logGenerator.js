@@ -27,14 +27,15 @@ export async function logGenerator(obj) {
         filesCollection = 'empresaDocs'
         filesEndPoint = 'empresaUpload'
     }
-console.log(obj)
+
     const history = Object.assign(obj.history, commonFields)
     log.history = history || {}
 
     //Se par, a próxima action é a demanda de cada rota caso contrário a resposta. Depois apaga-se o historyLength */
     if (historyLength || historyLength === 0) {
         if (historyLength % 2 === 0 || historyLength === 0) {
-            if (!obj?.history?.action) log.history.action = logConfig?.requestAction
+        
+            if (!obj?.history?.action) log.history.action = logConfig?.requestAction            
             log.status = 'Aguardando análise'
         }
         else {
@@ -84,7 +85,7 @@ console.log(obj)
     logConfig = logRoutes.find(e => path.match(e.path))
 
     //**********************request and return promisse**********************
-    
+
     const post = axios.post('/api/logs', { log: filteredLog, collection })
     return post
 }
@@ -100,7 +101,7 @@ const updateFilesMetadata = async (obj, filesCollection) => {
 
     if (demandFiles && demandFiles[0])
         ids = demandFiles.map(f => f.id)
-    
+
     if (oneAtemptDemand)
         metadata = obj?.metadata || metadata
     else {
@@ -114,7 +115,7 @@ const updateFilesMetadata = async (obj, filesCollection) => {
             ids = demandFiles.map(f => f.id)
         }
     }
-    
+
     await axios.put('/api/updateFilesMetadata', { ids, collection: filesCollection, metadata })
         .then(r => console.log(r.data))
 }

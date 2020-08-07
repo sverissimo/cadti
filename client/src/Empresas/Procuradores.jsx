@@ -31,7 +31,7 @@ class AltProcuradores extends Component {
     state = {
         empresas: [],
         razaoSocial: '',
-        toastMsg: 'Dados atualizados!',
+        toastMsg: 'Procuração cadastrada!',
         confirmToast: false,
         files: [],
         fileNames: [],
@@ -52,7 +52,7 @@ class AltProcuradores extends Component {
         const
             { redux } = this.props,
             demand = this.props?.location?.state?.demand,
-            procuracoes = redux.procuracoes.filter(pr => pr.razaoSocial === this.props.redux.empresas[0].razaoSocial)
+            procuracoes = this.props.redux.procuracoes.filter(pr => pr.delegatarioId === this.props.redux.empresas[0].delegatarioId)
 
         //fetchFiles = await axios.get('/api/getFiles/empresaDocs?fieldName=procuracao'),
         //files = fetchFiles?.data
@@ -68,11 +68,11 @@ class AltProcuradores extends Component {
                 oldMembers = history[0].oldMembers || []
 
             let allDemandProcs, procsToAdd = []
-            
+
             if (oldMembers[0]) {
                 oldMembers.forEach(m => {
                     originalProcuradores.forEach(op => {
-                        Object.keys(op).forEach(key => {                            
+                        Object.keys(op).forEach(key => {
                             if (m?.procuradorId === op?.procuradorId && !m[key]) {
                                 m[key] = op[key]
                             }
@@ -81,7 +81,7 @@ class AltProcuradores extends Component {
 
                 })
             }
-            
+
             if (newMembers[0] || oldMembers[0]) {
                 allDemandProcs = newMembers.concat(oldMembers)
                 allDemandProcs.forEach((p, i) => {
@@ -91,31 +91,36 @@ class AltProcuradores extends Component {
                     })
                 })
             }
-            console.log(updatedState, '**************fk*************', procsToAdd)
+
             this.setState({ vencimento, expires, procsToAdd })
             this.setState({ ...updatedState, demandFiles: latestDoc })
         }
 
         // ********* insert procuradores ass array of Object for each procuracao        
+
+        if (procuracoes[0] && !demand) {
+            const procuracoesArray = this.setProcuracoesList(procuracoes, this.props.redux.procuradores)
+            this.setState({ procuracoesArray, selectedDocs: procuracoes })
+        }
+        console.log(this.props.redux.procuracoes, procuracoes)
+        document.querySelector('.MuiFormControlLabel-root').style = 'padding:15px 15px 0 0'
+        document.addEventListener('keydown', this.escFunction, false)
+    }
+
+    setProcuracoesList(procuracoes, procuradores) {
         let
             procArray = [],
             procuracoesArray = []
 
-        if (procuracoes[0] && !demand) {
-            procuracoes.forEach(pr => {
-                pr.procuradores.forEach(id => {
-                    const pro = this.props.redux.procuradores.find(p => p.procuradorId === id)
-                    if (pro) procArray.push(pro)
-                })
-                procuracoesArray.push(procArray)
-                procArray = []
+        procuracoes.forEach(pr => {
+            pr.procuradores.forEach(id => {
+                const pro = procuradores.find(p => p.procuradorId === id)
+                if (pro) procArray.push(pro)
             })
-
-            this.setState({ procuracoesArray, selectedDocs: procuracoes })
-        }
-
-        document.querySelector('.MuiFormControlLabel-root').style = 'padding:15px 15px 0 0'
-        document.addEventListener('keydown', this.escFunction, false)
+            procuracoesArray.push(procArray)
+            procArray = []
+        })
+        return procuracoesArray
     }
 
     componentWillUnmount() { this.setState({}) }
@@ -244,7 +249,7 @@ class AltProcuradores extends Component {
             else
                 newMembers.push(addedProc)
         })
-        
+
 
         if (approved === undefined) {
             const
@@ -257,24 +262,28 @@ class AltProcuradores extends Component {
                         newMembers,
                         oldMembers,
                         vencimento,
-                        expires
+                        expires                        
                     },
                     metadata: {
                         fieldName: 'procFile',
                         empresaId
                     },
-                    oneAtemptDemand: true,
+                    oneAtemptDemand: true                    
                 }
             Object.entries(log).forEach(([k, v]) => { if (!v) delete log[k] })
             log.approved = approved
+            log.historyLength = 0
+            
             logGenerator(log)
                 .then(r => console.log(r))
+            this.setState({ toastMsg: 'Solicitação de cadastro enviada', confirmToast: true })
         }
         if (approved === true) {
             newMembers = humps.decamelizeKeys(newMembers)
             oldMembers = humps.decamelizeKeys(oldMembers)
             this.approveProc(newMembers, oldMembers)
         }
+
     }
 
     approveProc = async (newMembers, oldMembers) => {
@@ -353,9 +362,13 @@ class AltProcuradores extends Component {
                         .then(r => { if (r.data[0]) files.push(r.data[0]) })
                 } */
 
-        selectedDocs.unshift(novaProcuracao)
-
-        this.setState({
+        //selectedDocs.unshift(novaProcuracao)
+        this.toast()
+        if (demand)
+            setTimeout(() => {
+                this.props.history.push('/solicitacoes')
+            }, 1500);
+        /* this.setState({
             selectedDocs,
             files,
             dropDisplay: 'Clique ou arraste para anexar a procuração referente a este(s) procurador(es).',
@@ -363,8 +376,8 @@ class AltProcuradores extends Component {
             vencimento: undefined,
             procFiles: undefined,
             telProcurador0: undefined
-        })
-        this.toast()
+        }) */
+
     }
 
     removeProc = async proc => {
@@ -434,7 +447,7 @@ class AltProcuradores extends Component {
 
         return (
             <React.Fragment>
-                <Crumbs links={['Empresas', '/empresas']} text='Alteração de procuradores' demand={demand} />
+                <Crumbs links={['Empresas', '/empresas']} text='Cadastro de procurações' demand={demand} />
                 <AltProcuradoresTemplate
                     data={this.state}
                     redux={this.props.redux}
