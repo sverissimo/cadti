@@ -12,7 +12,7 @@ export default function DragAndDrop({ title, name, formData, handleFiles, dropDi
     const [fileExists, setFileExistance] = useState()
 
     //*************Set demandFiles names, if there are any
-    useEffect(() => {
+    useEffect(() => {        
         if (demandFiles && demandFiles[0]) {
             demandFiles.forEach(({ filename, metadata }) => {
                 if (name === metadata.fieldName) {

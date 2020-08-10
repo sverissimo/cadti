@@ -115,7 +115,7 @@ class ConsultasContainer extends Component {
                 let filesToReturn = []
 
                 empresaDocs.forEach(f => {
-                    if (f.metadata.fieldName === 'procuracao') {
+                    if (f.metadata.fieldName === 'procuracao') {                        
                         f.metadata.procuradores.forEach(procId => {
                             if (procId === id) filesToReturn.push(f)
                         })

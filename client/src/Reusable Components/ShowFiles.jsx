@@ -18,7 +18,7 @@ const divRow = {
     justifyItems: 'auto'
 }
 
-const ShowFiles = ({ filesCollection, close, format, typeId, empresas, filesIds }) => {
+const ShowFiles = ({ filesCollection, close, typeId, empresas, filesIds, razaoSocial }) => {
 
     let files = [],
         collection = 'empresaDocs', fileLabels = [...empresaFiles]
@@ -34,13 +34,13 @@ const ShowFiles = ({ filesCollection, close, format, typeId, empresas, filesIds 
             break;
         default: void 0
     }
-    
+
     if (filesIds)
         filesCollection = filesCollection.filter(f => filesIds.indexOf(f.id) !== -1)
 
     if (filesCollection && filesCollection[0]) {
         filesCollection.forEach(obj => {
-            fileLabels.forEach(o => {                
+            fileLabels.forEach(o => {
                 if (obj.metadata && o.name === obj.metadata.fieldName)
                     files.push({ ...obj, label: o.title })
             })
@@ -52,6 +52,8 @@ const ShowFiles = ({ filesCollection, close, format, typeId, empresas, filesIds 
 
         switch (metadata.fieldName) {
             case 'procuracao':
+                if (razaoSocial)
+                    return ' - ' + razaoSocial
                 const emp = empresas.find(e => e.delegatarioId === Number(metadata.empresaId))
                 return ' - ' + emp.razaoSocial
             case 'apoliceDoc':

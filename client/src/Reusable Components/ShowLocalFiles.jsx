@@ -59,10 +59,10 @@ export default function ShowLocalFiles({ form, files, demand, demandFiles, colle
 
     let fileArray = []
 
-    if (demand) {
+    if (demand) {        
         demandFiles.forEach(file => {
             form.forEach(({ name, title }) => {
-                if (file.metadata.fieldName === name)
+                if (file?.metadata?.fieldName === name)
                     fileArray.push({ id: file.id, label: title, fieldName: name, fileName: file.filename, storage: 'server' })
             })
         })

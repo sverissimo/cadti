@@ -35,9 +35,10 @@ export default function SolHistory({ solicitacao, showInfo, historyLog, setHisto
                     length={solicitacaoTable.length}
                     title={`Solicitação nº ${solicitacao?.numero}`}
                     id={solicitacao.id}
+                    razaoSocial={solicitacao?.empresa}
                     showInfo={showInfo}
                     style={{ padding: '9px 4px' }}
-                    tableStyle={{ marginTop: '23px' }}                    
+                    tableStyle={{ marginTop: '23px' }}
                     showFiles={showFiles}
                     setShowFiles={setShowFiles}
                     close={close}

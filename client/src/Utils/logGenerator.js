@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { logRoutesConfig } from '../Solicitacoes/logRoutesConfig'
+import { updateFilesMetadata } from './handleFiles'
 
 export async function logGenerator(obj) {
     const path = window.location.pathname
@@ -34,8 +35,8 @@ export async function logGenerator(obj) {
     //Se par, a próxima action é a demanda de cada rota caso contrário a resposta. Depois apaga-se o historyLength */
     if (historyLength || historyLength === 0) {
         if (historyLength % 2 === 0 || historyLength === 0) {
-        
-            if (!obj?.history?.action) log.history.action = logConfig?.requestAction            
+
+            if (!obj?.history?.action) log.history.action = logConfig?.requestAction
             log.status = 'Aguardando análise'
         }
         else {
@@ -90,38 +91,8 @@ export async function logGenerator(obj) {
     return post
 }
 
-
-
-
-const updateFilesMetadata = async (obj, filesCollection) => {
-    const { files, demandFiles, oneAtemptDemand } = obj
-    let
-        ids,
-        metadata = { tempFile: 'false' }
-
-    if (demandFiles && demandFiles[0])
-        ids = demandFiles.map(f => f.id)
-
-    if (oneAtemptDemand)
-        metadata = obj?.metadata || metadata
-    else {
-        if (files instanceof FormData) {             //If there's any upload from Seinfra, it will overwrite the latestDocs(demandFiles) before approval
-            for (let pair of files) {
-                demandFiles.forEach((f, i) => {
-                    if (pair[0] === f?.metadata?.fieldName)
-                        demandFiles.splice(i, 1)
-                })
-            }
-            ids = demandFiles.map(f => f.id)
-        }
-    }
-
-    await axios.put('/api/updateFilesMetadata', { ids, collection: filesCollection, metadata })
-        .then(r => console.log(r.data))
-}
-
 const postFilesReturnIds = async (formData, metadata, completed, filesEndPoint) => {
-
+        
     let
         files,
         filesIds
@@ -140,7 +111,7 @@ const postFilesReturnIds = async (formData, metadata, completed, filesEndPoint) 
         for (let pair of formData) {
             filesToSend.set(pair[0], pair[1])
         }
-
+        
         files = await axios.post(`/api/${filesEndPoint}`, filesToSend)
     }
     if (files?.data?.file) {

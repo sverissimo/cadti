@@ -16,6 +16,7 @@ import { procuradorForm } from '../Forms/procuradorForm'
 import AlertDialog from '../Reusable Components/AlertDialog'
 import { logGenerator } from '../Utils/logGenerator'
 import { setEmpresaDemand } from '../Utils/setEmpresaDemand'
+import { removeFile } from '../Utils/handleFiles'
 
 class AltProcuradores extends Component {
 
@@ -33,7 +34,6 @@ class AltProcuradores extends Component {
         razaoSocial: '',
         toastMsg: 'Procuração cadastrada!',
         confirmToast: false,
-        files: [],
         fileNames: [],
         openDialog: false,
         expires: false,
@@ -54,8 +54,6 @@ class AltProcuradores extends Component {
             demand = this.props?.location?.state?.demand,
             procuracoes = this.props.redux.procuracoes.filter(pr => pr.delegatarioId === this.props.redux.empresas[0].delegatarioId)
 
-        //fetchFiles = await axios.get('/api/getFiles/empresaDocs?fieldName=procuracao'),
-        //files = fetchFiles?.data
         //*************Set demand if any
         if (demand) {
             const
@@ -63,7 +61,7 @@ class AltProcuradores extends Component {
                 demandState = setEmpresaDemand(demand, redux, originalProcuradores),
                 { latestDoc, ...updatedState } = demandState,
                 { history } = demand,
-                { files, vencimento, expires } = history[0],
+                { vencimento, expires } = history[0],
                 newMembers = history[0].newMembers || [],
                 oldMembers = history[0].oldMembers || []
 
@@ -78,7 +76,6 @@ class AltProcuradores extends Component {
                             }
                         })
                     })
-
                 })
             }
 
@@ -91,9 +88,8 @@ class AltProcuradores extends Component {
                     })
                 })
             }
-
             this.setState({ vencimento, expires, procsToAdd })
-            this.setState({ ...updatedState, demandFiles: latestDoc })
+            this.setState({ ...updatedState, demandFiles: [latestDoc] })
         }
 
         // ********* insert procuradores ass array of Object for each procuracao        
@@ -102,7 +98,7 @@ class AltProcuradores extends Component {
             const procuracoesArray = this.setProcuracoesList(procuracoes, this.props.redux.procuradores)
             this.setState({ procuracoesArray, selectedDocs: procuracoes })
         }
-        console.log(this.props.redux.procuracoes, procuracoes)
+
         document.querySelector('.MuiFormControlLabel-root').style = 'padding:15px 15px 0 0'
         document.addEventListener('keydown', this.escFunction, false)
     }
@@ -188,9 +184,10 @@ class AltProcuradores extends Component {
     }
 
     addProc = async (approved) => {
+        
         const
             { redux } = this.props,
-            { selectedEmpresa, procFiles, vencimento, demand, expires } = this.state,
+            { selectedEmpresa, procFiles, vencimento, expires } = this.state,
             procuradores = JSON.parse(JSON.stringify(redux.procuradores)),
             nProc = [...this.state.procsToAdd]
         let
@@ -199,15 +196,15 @@ class AltProcuradores extends Component {
 
         //***********************Check for errors *********************** */
 
-        let { errors } = checkInputErrors('returnObj', 'Dont check the date, please!') || []
-
-        if (errors && errors[0]) {
-            if (!expires)
-                await this.setState({ ...this.state, ...checkInputErrors('setState', 'dontCheckDate') })
-            else
-                await this.setState({ ...this.state, ...checkInputErrors('setState') })
-            return
-        }
+        /*  let { errors } = checkInputErrors('returnObj', 'Dont check the date, please!') || []
+ 
+         if (errors && errors[0]) {
+             if (!expires)
+                 await this.setState({ ...this.state, ...checkInputErrors('setState', 'dontCheckDate') })
+             else
+                 await this.setState({ ...this.state, ...checkInputErrors('setState') })
+             return
+         } */
 
         //***********Create array of Procs from state***********
         nProc.forEach((n, i) => {
@@ -230,9 +227,7 @@ class AltProcuradores extends Component {
         let
             gotId,
             newMembers = [],
-            oldMembers = [],
-            procIdArray = [],
-            contratoFile = new FormData()
+            oldMembers = []
 
         addedProcs.forEach(addedProc => {
             gotId = procuradores.find(p => p.cpfProcurador === addedProc.cpfProcurador)
@@ -242,14 +237,13 @@ class AltProcuradores extends Component {
                     if (addedProc[k] === gotId[k])
                         delete addedProc[k]
                 })
-                console.log(oldMembers)
+                //console.log(oldMembers)
                 addedProc.procuradorId = gotId.procuradorId
                 oldMembers.push(addedProc)
             }
             else
                 newMembers.push(addedProc)
         })
-
 
         if (approved === undefined) {
             const
@@ -262,28 +256,29 @@ class AltProcuradores extends Component {
                         newMembers,
                         oldMembers,
                         vencimento,
-                        expires                        
+                        expires
                     },
                     metadata: {
-                        fieldName: 'procFile',
+                        fieldName: 'procuracao',
                         empresaId
                     },
-                    oneAtemptDemand: true                    
+                    oneAtemptDemand: true
                 }
             Object.entries(log).forEach(([k, v]) => { if (!v) delete log[k] })
             log.approved = approved
             log.historyLength = 0
-            
+
             logGenerator(log)
                 .then(r => console.log(r))
             this.setState({ toastMsg: 'Solicitação de cadastro enviada', confirmToast: true })
+            this.removeFile('procuracao')
+            this.resetState()
         }
         if (approved === true) {
             newMembers = humps.decamelizeKeys(newMembers)
             oldMembers = humps.decamelizeKeys(oldMembers)
             this.approveProc(newMembers, oldMembers)
         }
-
     }
 
     approveProc = async (newMembers, oldMembers) => {
@@ -291,21 +286,18 @@ class AltProcuradores extends Component {
         const
             { selectedEmpresa, demandFiles, vencimento, demand } = this.state,
             procIdArray = oldMembers.map(m => m.procurador_id)
-        let
-            selectedDocs = [...this.state.selectedDocs],
-            files = [...this.state.files]
+
+        let selectedDocs = [...this.state.selectedDocs]
 
         //******************Post newMembers  *****************/
         if (newMembers.length > 0) {
             newMembers = humps.decamelizeKeys(newMembers)
             await axios.post('/api/cadProcuradores', { procuradores: newMembers, table: 'procurador', tablePK: 'procurador_id' })
                 .then(procs => {
-                    console.log(procs.data)
                     procs.data.forEach(p => procIdArray.push(p.procurador_id))
                 })
         }
 
-        console.log(procIdArray)
         //***************Update existing members ****************/
         const request = {
             table: 'procurador',
@@ -339,28 +331,21 @@ class AltProcuradores extends Component {
             id: demand.id,
             demandFiles,
             history: {},
-            approved: true
+            approved: true,
+            oneAtemptDemand: true
         }
 
+        if (demandFiles)
+            log.metadata = {
+                fieldName: 'procuracao',
+                empresaId: selectedEmpresa.delegatarioId,
+                procuracaoId: procuracaoId,
+                procuradores: procIdArray,
+                tempFile: 'false'
+            }
         //generate log
         logGenerator(log)
             .then(r => console.log(r))
-
-        /* 
-                if (procFiles) {
-                    contratoFile.append('fieldName', 'procuracao')
-                    contratoFile.append('empresaId', selectedEmpresa.delegatarioId)
-                    contratoFile.append('procuracaoId', procuracaoId)
-                    contratoFile.append('procuradores', procIdArray)
-                    for (let pair of procFiles.entries()) {
-                        contratoFile.append(pair[0], pair[1])
-                    }
-                    await axios.post('/api/empresaUpload', contratoFile)
-                        .then(r => console.log(r.data))
-        
-                    await axios.get(`/api/getOneFile?collection=empresaDocs&id=${procuracaoId}`)
-                        .then(r => { if (r.data[0]) files.push(r.data[0]) })
-                } */
 
         //selectedDocs.unshift(novaProcuracao)
         this.toast()
@@ -368,24 +353,14 @@ class AltProcuradores extends Component {
             setTimeout(() => {
                 this.props.history.push('/solicitacoes')
             }, 1500);
-        /* this.setState({
-            selectedDocs,
-            files,
-            dropDisplay: 'Clique ou arraste para anexar a procuração referente a este(s) procurador(es).',
-            procsToAdd: [1],
-            vencimento: undefined,
-            procFiles: undefined,
-            telProcurador0: undefined
-        }) */
-
+        this.resetState()
     }
 
     removeProc = async proc => {
 
-        const { files } = this.state,
+        const
             id = proc.procuracaoId,
-            selectedFile = files.find(f => Number(f.metadata.procuracaoId) === id)
-
+            selectedFile = this.props.redux.empresaDocs.find(f => Number(f.metadata.procuracaoId) === id)
 
         let procs = [...this.state.selectedDocs]
 
@@ -404,18 +379,26 @@ class AltProcuradores extends Component {
 
     handleFiles = (file) => {
         let procFiles = new FormData()
-        procFiles.append('procFile', file[0])
-        this.setState({ procFiles, dropDisplay: file[0].name })
+        procFiles.append('procuracao', file[0])
+        this.setState({ procFiles, fileToRemove: null })
+    }
+
+    removeFile = async (name) => {
+        const
+            { procFiles } = this.state,
+            newState = removeFile(name, procFiles)
+
+        this.setState({ ...this.state, ...newState })
     }
 
     getFile = id => {
-        const { files } = this.state
-
-        const selectedFile = files.find(f => Number(f.metadata.procuracaoId) === id)
+        const
+            { empresaDocs } = this.props.redux,
+            selectedFile = empresaDocs.find(f => Number(f.metadata.procuracaoId) === id)
 
         if (selectedFile) {
-            const { _id, filename } = selectedFile
-            download(_id, filename, 'empresaDocs')
+            const { id, filename } = selectedFile
+            download(id, filename, 'empresaDocs')
         } else {
             this.setState({ alertType: 'filesNotFound', openAlertDialog: true })
         }
@@ -437,6 +420,30 @@ class AltProcuradores extends Component {
         if (this.state.expires === true) this.setState({ vencimento: '' })
         this.setState({ expires: !this.state.expires })
     }
+
+    resetState = () => {
+        const
+            { procsToAdd } = this.state,
+            keys = procuradorForm.map(({ field }) => field),
+            resetedFields = {}
+
+        procsToAdd.forEach((p, i) => {
+            keys.forEach(key => {
+                if (this.state.hasOwnProperty(key + i))
+                    resetedFields[key + i] = undefined
+            })
+        })
+        console.log(keys, resetedFields)
+        this.setState({
+            ...resetedFields,
+            dropDisplay: 'Clique ou arraste para anexar a procuração referente a este(s) procurador(es).',
+            procsToAdd: [1],
+            vencimento: undefined,
+            procFiles: undefined,
+            //telProcurador0: undefined,
+        })
+    }
+
     setShowPendencias = () => this.setState({ showPendencias: !this.state.showPendencias })
     toggleDialog = () => this.setState({ openDialog: !this.state.openDialog })
     closeAlert = () => this.setState({ openAlertDialog: !this.state.openAlertDialog })
@@ -454,6 +461,7 @@ class AltProcuradores extends Component {
                     handleInput={this.handleInput}
                     removeProc={this.removeProc}
                     handleFiles={this.handleFiles}
+                    removeFile={this.removeFile}
                     addProc={this.addProc}
                     handleSubmit={this.handleSubmit}
                     plusOne={this.plusOne}
@@ -469,6 +477,6 @@ class AltProcuradores extends Component {
     }
 }
 
-const collections = ['empresas', 'procuradores', 'procuracoes']
+const collections = ['empresas', 'procuradores', 'procuracoes', 'getFiles/empresaDocs']
 
 export default (StoreHOC(collections, AltProcuradores))

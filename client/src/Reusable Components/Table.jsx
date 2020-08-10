@@ -9,8 +9,8 @@ import DoneIcon from '@material-ui/icons/Done';
 import FileCopyOutlinedIcon from '@material-ui/icons/FileCopyOutlined';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack'
 
-export default function StandardTable({ tableData, staticFields, title, tableStyle, style, showDetails,
-    completed, showInfo, showFiles, setShowFiles, filesCollection, primaryKey, close, filesIds }) {
+export default function StandardTable({ tableData, staticFields, title, tableStyle, style, completed, showInfo, 
+    showFiles, setShowFiles, filesCollection, primaryKey, close, filesIds, razaoSocial }) {
 
     const dateFormat = value => {
         if (moment(value, 'YYYY-MM-DDTHH:mm:ss.SSSZZ', true).isValid()) {
@@ -78,7 +78,7 @@ export default function StandardTable({ tableData, staticFields, title, tableSty
         tableHeaders[i] = 'Concluída'
     }
     const tableSpan = arrayOfRows[0]?.length || ''
-    
+
     return (
         showFiles ? <>
             <ShowFiles
@@ -86,6 +86,7 @@ export default function StandardTable({ tableData, staticFields, title, tableSty
                 close={close}
                 typeId={primaryKey}
                 filesIds={filesIds}
+                razaoSocial={razaoSocial}
             />
             <footer>
                 <div className='voltarDiv' style={{

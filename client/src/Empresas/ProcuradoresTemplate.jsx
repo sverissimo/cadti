@@ -23,6 +23,8 @@ import StepperButtons from '../Reusable Components/StepperButtons'
 
 import GetAppIcon from '@material-ui/icons/GetApp';
 import InsertDriveFileOutlinedIcon from '@material-ui/icons/InsertDriveFileOutlined';
+import ShowLocalFiles from '../Reusable Components/ShowLocalFiles'
+import { empresaFiles } from '../Forms/empresaFiles'
 
 const divContainer = {
     display: 'flex',
@@ -134,10 +136,10 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-export default function ({ redux, data, handleInput, addProc, removeProc, handleFiles, getFile, plusOne, minusOne, checkExpires, setShowPendencias }) {
+export default function ({ redux, data, handleInput, addProc, removeProc, handleFiles, getFile, plusOne, minusOne, checkExpires, setShowPendencias, removeFile }) {
 
     const
-        { dropDisplay, selectedEmpresa, procsToAdd, selectedDocs, procFiles, expires, demand, showPendencias, info } = data,
+        { dropDisplay, selectedEmpresa, procsToAdd, selectedDocs, procFiles, expires, demand, showPendencias, info, demandFiles, fileToRemove } = data,
         { empresas, procuradores } = redux,
 
         classes = useStyles(), { paper, container, title, dropBox, addButton, paper2, containerList } = classes
@@ -178,6 +180,9 @@ export default function ({ redux, data, handleInput, addProc, removeProc, handle
         if (date) return moment(date).format('DD-MM-YYYY')
         else return ''
     }
+
+    //************VER PORQUE O RESETFILES NÃO ESTÁ LIMPANDO O FORMDATA E PORTANTO NÃO SOME O NOME DO ARQUIVO. USAR REMOVEFILES MANUAL()?? */
+    //************CRIAR FUNÇÃO PARA IMPEDIR QUE O PROCURADOR QUE TENHA ALGUMA PROCURAÇÃO SEJA APAGADO NA TELA 'CONSULTAS' */
     return (
         <Grid
             container
@@ -268,13 +273,26 @@ export default function ({ redux, data, handleInput, addProc, removeProc, handle
                     )}
                     <Grid container style={{ position: 'relative', alignItems: 'center' }}>
                         <Grid item xs={6}>
-                            <DragAndDrop
-                                style={{ marginTop: '22px', width: '90%' }}
-                                name='procFile'
-                                formData={procFiles}
-                                dropDisplay={dropDisplay}
-                                handleFiles={handleFiles}
-                            />
+                            {!demand ?
+                                <DragAndDrop
+                                    style={{ marginTop: '22px', width: '90%' }}
+                                    name='procuracao'
+                                    formData={procFiles}
+                                    dropDisplay={dropDisplay}
+                                    handleFiles={handleFiles}
+                                    demandFiles={demandFiles}
+                                    removeFile={removeFile}
+                                    fileToRemove={fileToRemove}                                    
+                                />
+                                :
+                                <ShowLocalFiles
+                                    demand={demand}
+                                    collection='empresaDocs'
+                                    demandFiles={demandFiles}
+                                    form={empresaFiles}
+                                    //files={files}
+                                />
+                            }
                         </Grid>
                         <Grid item xs={6} className={dropBox}>
                             <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginRight: '67px' }}>

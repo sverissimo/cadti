@@ -27,7 +27,7 @@ const storage = () => {
             })
 
             metadata.fieldName = file.fieldname
-            console.log(metadata)
+            
             const fileInfo = {
                 filename: file.originalname,
                 metadata,
@@ -42,18 +42,10 @@ const storage = () => {
         url: mongoURI,
         file: (req, file) => {
             gfs.collection('empresaDocs')
-            const
-                { fieldName, empresaId, procuracaoId } = req.body,
-                { ...metadata } = req.body
 
-            let
-                { procuradores } = req.body,
-                { socios } = metadata
+            const { ...metadata } = req.body
+            let { socios } = metadata
 
-            if (procuradores) {
-                procuradores = procuradores.split(',')
-                procuradores = procuradores.map(id => Number(id))
-            }
             if (socios) {
                 socios = socios.split(',')
                 socios = socios.map(id => Number(id))
@@ -62,28 +54,9 @@ const storage = () => {
 
             let fileInfo = {
                 filename: file.originalname,
-                metadata: {
-                    'fieldName': fieldName,
-                    'empresaId': empresaId,
-                    'procuracaoId': procuracaoId,
-                    'procuradores': procuradores
-                },
+                metadata,
                 bucketName: 'empresaDocs',
-            }
-
-            /*             if (file.fieldname === 'contratoSocial') {
-                            fileInfo.metadata = {
-                                'fieldName': file.fieldname,
-                                'empresaId': empresaId,
-                                'socios': socios
-                            }
-                        } 
-                        else {
-             */
-            if (file.fieldname !== 'procuracao') {
-                fileInfo.metadata = metadata
-            }
-            //            }
+            }            
             return fileInfo
         }
     })
