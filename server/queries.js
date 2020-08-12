@@ -72,6 +72,8 @@ SELECT laudos.*,
 FROM laudos
 LEFT JOIN empresa_laudo emp
 	ON emp.id = laudos.empresa_id
+	
+WHERE laudos.veiculo_id = 4464
 `
 
 const seguros = `

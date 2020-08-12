@@ -101,7 +101,7 @@ app.put('/api/updateFilesMetadata', async (req, res) => {
         update['metadata.' + k] = v
     })
 
-    console.log('this is the fking metadata: ', metadata)
+    //console.log('this is the  metadata: ', metadata, '\n\nAnd this is the update: ', update) 
 
     parsedIds = ids.map(id => new mongoose.mongo.ObjectId(id))
 
@@ -112,8 +112,17 @@ app.put('/api/updateFilesMetadata', async (req, res) => {
         { $set: { ...update } },
         async (err, doc) => {
             if (err) console.log(err)
+            //***************REFACTOR THIS PLEASE! */
+            //Create a obj with collection, ids, primaryKey
+            // if req.query.metadata, obj.metadata = metadata
+            //if (collection.match('Docs')) emitSockt = 'updateDocs'
+            //else emitSocket = 'updateAny'
+            //io.sockets.emit(emitSocket, obj)
+            //*************THERE YOU GO! */
+
+
             if (doc) {
-                if (collection === 'empresaDocs') {
+                if (metadata || collection === 'empresaDocs') {
                     io.sockets.emit('updateDocs',
                         {
                             collection,
@@ -332,7 +341,7 @@ app.post('/api/addElement', (req, res) => {
                     if (t && t.rows) io.sockets.emit('updateElements', { collection: table, updatedCollection: t.rows })
                 })
             }
-            res.send(t.rows)
+            res.json(t.rows)
         }
     })
 })
@@ -683,14 +692,23 @@ app.get('/api/deleteManyFiles', async (req, res) => {
 })
 
 app.delete('/api/delete', (req, res) => {
-    const
-        { table, tablePK, id } = req.query,
-        { collection } = fieldParser.find(f => f.table === table),
-        query = ` DELETE FROM public.${table} WHERE ${tablePK} = ${id}`
 
+    let { id } = req.query
+    const
+        { table, tablePK } = req.query,
+        { collection } = fieldParser.find(f => f.table === table)
+
+    if (collection === 'laudos')
+        id = `'${id}'`
+
+    const query = ` DELETE FROM public.${table} WHERE ${tablePK} = ${id}`
+
+
+    console.log(query)
     pool.query(query, (err, t) => {
         if (err) console.log(err)
         if (id) {
+            id = id.replace(/\'/g, '')
             io.sockets.emit('deleteOne', { id, tablePK, collection })
             res.send(`${id} deleted from ${table}`)
         }

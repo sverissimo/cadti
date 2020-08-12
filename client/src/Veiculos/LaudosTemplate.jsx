@@ -10,21 +10,25 @@ import SelectEmpresa from '../Reusable Components/SelectEmpresa'
 import CustomTable from '../Reusable Components/CustomTable'
 import DragAndDrop from '../Reusable Components/DragAndDrop'
 import OnClickMenu from '../Reusable Components/OnClickMenu'
+import FormSubtiltle from '../Reusable Components/FormSubtiltle'
+import ShowLocalFiles from '../Reusable Components/ShowLocalFiles'
+import StepperButtons from '../Reusable Components/StepperButtons'
 
 import TextField from '@material-ui/core/TextField'
 import Search from '@material-ui/icons/Search'
 import StopIcon from '@material-ui/icons/Stop';
 import Button from '@material-ui/core/Button'
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
-import FormSubtiltle from '../Reusable Components/FormSubtiltle'
-import ShowLocalFiles from '../Reusable Components/ShowLocalFiles'
 
 const LaudosTemplate = (
     { empresas, razaoSocial, selectedEmpresa, filteredVehicles, selectedVehicle, stateInputs, selectOptions, table,
-        anchorEl, laudoDoc, dropDisplay, functions, demand, demandFiles }) => {
+        anchorEl, laudoDoc, dropDisplay, functions, demand, demandFiles, showPendencias, info, fileToRemove }) => {
 
-    const { handleInput, clickOnPlate, showDetails, handleFiles, handleSubmit, closeMenu, clear, deleteLaudo } = functions,
-        { placa } = selectedVehicle
+    const
+        { placa } = selectedVehicle,
+        { handleInput, clickOnPlate, showDetails, handleFiles, handleSubmit, closeMenu, clear,
+            removeFile, deleteLaudo, setShowPendencias } = functions
+
 
     const renderColor = laudos => {
         if (laudos && laudos[0] && laudos[0].validade) {
@@ -41,9 +45,9 @@ const LaudosTemplate = (
         title: 'Apagar Laudo',
         style: { cursor: 'pointer' }
     }
-console.log(demandFiles)
+
     return (
-        <div>
+        <React.Fragment>
             <Crumbs links={['Veículos', '/veiculos']} text='Laudos' demand={demand} selectedEmpresa={selectedEmpresa} />
             <div style={demand ? { marginTop: '15px' } : {}}>
                 <SelectEmpresa
@@ -80,7 +84,7 @@ console.log(demandFiles)
                             </div>
                         </header>
                     }
-                    {selectedVehicle &&
+                    {selectedVehicle && <>
                         <main className='paper' style={demand ? { marginTop: '15px' } : {}}>
                             <FormSubtiltle
                                 subtitle={
@@ -104,6 +108,8 @@ console.log(demandFiles)
                                 formData={laudoDoc}
                                 dropDisplay={dropDisplay}
                                 handleFiles={handleFiles}
+                                removeFile={removeFile}
+                                fileToRemove={fileToRemove}
                                 single={true}
                                 style={{ width: '400px', margin: '15px auto 0 auto' }}
                             />
@@ -112,21 +118,39 @@ console.log(demandFiles)
                                     demand={demand}
                                     collection='vehicleDocs'
                                     demandFiles={demandFiles}
-                                    form={[{title: 'Laudo veicular', name: 'laudoDoc' }]}
+                                    form={[{ title: 'Laudo veicular', name: 'laudoDoc' }]}
                                 //files={files}
                                 />
                             }
-                            <Button
-                                size="small"
-                                color='primary'
-                                className='saveButton'
-                                variant="contained"
-                                onClick={() => handleSubmit()}
-                            //   disabled={!laudoDoc ? true : false}
-                            >
-                                Salvar
-                            </Button>
                         </main>
+                        <section>
+                            {
+                                selectedEmpresa && !demand ?
+                                    <Button
+                                        size="small"
+                                        color='primary'
+                                        className='saveButton'
+                                        variant="contained"
+                                        onClick={() => handleSubmit()}
+                                    //   disabled={!laudoDoc ? true : false}
+                                    >
+                                        Cadastrar Laudo
+                                    </Button>
+                                    : selectedEmpresa && demand ?
+                                        <StepperButtons
+                                            uniqueStep={true}
+                                            declineButtonLabel='Indeferir'
+                                            demand={demand}
+                                            setShowPendencias={() => setShowPendencias(!showPendencias)}
+                                            showPendencias={showPendencias}
+                                            info={info}
+                                            handleSubmit={handleSubmit}
+                                            handleInput={handleInput}
+                                        />
+                                        : null
+                            }
+                        </section>
+                    </>
                     }
 
                     <section>
@@ -208,7 +232,7 @@ console.log(demandFiles)
                     </div>
                 </>
             }
-        </div >
+        </React.Fragment >
     )
 }
 

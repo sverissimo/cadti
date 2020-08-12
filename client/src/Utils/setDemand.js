@@ -66,7 +66,7 @@ export const setDemand = (demand, redux) => {
         latestDocs.push(lastDoc)
         lastDoc = []
     })
-    console.log(filesPerFieldName, latestDocs)
+    
     //****************** Return the object
     return {
         ...selectedVehicle, originalVehicle, delegatario, compartilhado, razaoSocial, selectedEmpresa,

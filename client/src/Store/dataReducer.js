@@ -27,7 +27,7 @@ const dataReducer = (state = initState, action) => {
         case 'UPDATE_DATA': {
             const { collection, data, id } = payload
             if (state[collection] && data) {
-                
+
                 const update = state[collection].map(v => {
                     data.forEach(el => {
                         if (v[id] === el[id] || v[id].toString() === el[id].toString()) {
@@ -35,7 +35,7 @@ const dataReducer = (state = initState, action) => {
                         }
                     })
                     return v
-                })                
+                })
                 return {
                     ...state, [collection]: update
                 }
@@ -73,17 +73,21 @@ const dataReducer = (state = initState, action) => {
 
         case 'DELETE_ONE':
             const { tablePK, collection } = payload
+
             if (state[collection]) {
                 let
                     { id } = payload,
                     updatedData = [...state[collection]]
-                // console.log(id, collection)
-                if (!collection.match('Docs')) id = Number(id)
 
+
+                if (!collection.match('Docs')) id = Number(id)
+                if (collection === 'laudos')
+                    id = id.toString()
+                
                 const
                     element = updatedData.find(el => el[tablePK] === id),
-                    index = updatedData.findIndex(el => el === element)
-
+                    index = updatedData.findIndex(el => el[tablePK] === element[tablePK])
+                console.log(element, index)
                 updatedData.splice(index, 1)
 
                 return {

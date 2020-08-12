@@ -18,16 +18,18 @@ export const handleFiles = (files, formData, state, filesFormTemplate) => {
 
 
 export const updateFilesMetadata = async (obj, filesCollection) => {
-    const { files, demandFiles, oneAtemptDemand } = obj
-    let
-        ids,
-        metadata = { tempFile: 'false' }
+    const
+        { files, demandFiles, oneAtemptDemand } = obj,
+        metadata = obj?.metadata || { tempFile: 'false' }
+
+    let ids
+
 
     if (demandFiles && demandFiles[0])
         ids = demandFiles.map(f => f.id)
 
-    if (oneAtemptDemand)
-        metadata = obj?.metadata || metadata          //If oneAtemptDemand, obj should have metadata as prop. May expand this function to multipleAttempts
+    /* if (oneAtemptDemand)
+        metadata = obj?.metadata || metadata      */     //If oneAtemptDemand, obj should have metadata as prop. May expand this function to multipleAttempts
     else {
         if (files instanceof FormData) {             //If there's any upload from Seinfra, it will overwrite the latestDocs(demandFiles) before approval
             for (let pair of files) {
@@ -39,7 +41,7 @@ export const updateFilesMetadata = async (obj, filesCollection) => {
             ids = demandFiles.map(f => f.id)
         }
     }
-    
+
     await axios.put('/api/updateFilesMetadata', { ids, collection: filesCollection, metadata })
         .then(r => console.log(r.data))
 }

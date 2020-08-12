@@ -69,7 +69,7 @@ export async function logGenerator(obj) {
         log.history.action = logConfig?.concludedAction || 'Solicitação concluída'
         log.status = obj?.status || 'Solicitação concluída'
         log.completed = true
-
+        console.log(obj)
         updateFilesMetadata(obj, filesCollection)
     }
 
@@ -79,7 +79,7 @@ export async function logGenerator(obj) {
     if (filesIds)
         log.history.files = filesIds
 
-    const { metadata, oneAtemptDemand, approved, demandFiles, ...filteredLog } = log
+    const { metadata, oneAtemptDemand, approved, demandFiles, ...filteredLog } = log // REFACTOR THIS! NO NEED TO ONEATTEMPTDEMAND!!!!!!!!!
 
     //**********************reestablish path**********************
     logRoutes = JSON.parse(JSON.stringify(logRoutesConfig))
@@ -92,7 +92,7 @@ export async function logGenerator(obj) {
 }
 
 const postFilesReturnIds = async (formData, metadata, completed, filesEndPoint) => {
-        
+
     let
         files,
         filesIds
@@ -111,7 +111,7 @@ const postFilesReturnIds = async (formData, metadata, completed, filesEndPoint) 
         for (let pair of formData) {
             filesToSend.set(pair[0], pair[1])
         }
-        
+
         files = await axios.post(`/api/${filesEndPoint}`, filesToSend)
     }
     if (files?.data?.file) {

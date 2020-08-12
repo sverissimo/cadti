@@ -39,10 +39,13 @@ const Laudos = props => {
         [anchorEl, setAnchorEl] = useState(null),
         [dropDisplay, setDropDisplay] = useState(initState.dropDisplay),
         [laudoDoc, setLaudoDoc] = useState(),
-        [toast, setToast] = useState(false),
         [stateInputs, changeInputs] = useState({ ...initState.stateInputs }),
+        [toast, setToast] = useState(false),
+        [toastMsg, setToastMsg] = useState('Laudo enviado com sucesso.'),
         [table, setTableData] = useState(),
         [demandFiles, setDemandFiles] = useState(),
+        [fileToRemove, setFileToRemove] = useState(),
+        [showPendencias, setShowPendencias] = useState(false),
         [alertDialog, setAlertDialog] = useState({
             open: false,
             type: 'inputError',
@@ -54,18 +57,17 @@ const Laudos = props => {
             element: undefined,
         })
 
-    useEffect(() => {
+    useEffect(() => {                               //Set esc key to close details window
         const escFunction = e => { if (e.keyCode === 27) setDetails(false); setAnchorEl(null) }
         document.addEventListener('keydown', escFunction)
     }, [])
 
-    useEffect(() => {
+    useEffect(() => {                               //If demand, set state accordingly
         if (demand) {
             const
                 { history } = demand,
                 state = {},
                 fullDemand = setDemand(demand, props.redux),
-                { originalVehicle } = fullDemand,
                 empresa = fullDemand.selectedEmpresa,
                 dFiles = fullDemand.demandFiles
 
@@ -84,13 +86,14 @@ const Laudos = props => {
     useEffect(() => {
         async function insertLaudos() {
             if (selectedEmpresa && selectedEmpresa !== '') {
+                // Estabelece quais são os veículos 15+anos (oldVehicles)
                 const
                     currentYear = new Date().getFullYear(),
                     frota = veiculos.filter(v => v.empresa === selectedEmpresa.razaoSocial),
                     oldVehicles = frota.filter(v => currentYear - v.anoCarroceria > 14 && v.anoCarroceria !== null).sort((a, b) => a.placa.localeCompare(b.placa))
 
                 let vehiclesLaudo = [], laudosTemp = []
-                oldVehicles.forEach(v => {
+                oldVehicles.forEach(v => {                  //Acrescenta os laudos atualizados para cada veículo 15+anos (oldVehicles)
                     laudos.forEach(l => {
                         if (v.veiculoId === l.veiculoId) {
                             laudosTemp.push(l)
@@ -110,7 +113,7 @@ const Laudos = props => {
                 if (selectedVehicle && vehiclesLaudo?.length > 0) {
                     const updatedVehicle = vehiclesLaudo.find(v => v.veiculoId === selectedVehicle.veiculoId)
                     if (updatedVehicle?.laudos?.length !== selectedVehicle?.laudos?.length) {
-                        selectVehicle(updatedVehicle)
+                        await selectVehicle(updatedVehicle)
                     } else return
                 }
             } else {
@@ -120,7 +123,7 @@ const Laudos = props => {
             }
         }
 
-        insertLaudos()
+        insertLaudos()       
     }, [selectedEmpresa, veiculos, laudos, selectedVehicle])
 
     const handleInput = useCallback(e => {
@@ -167,26 +170,34 @@ const Laudos = props => {
     }
 
     useEffect(() => {
+
         if (selectedVehicle) {
             if (selectedVehicle.laudos && selectedVehicle.laudos[0]) {
 
                 const
-                    { laudos } = selectedVehicle,
+                    vehicleLaudos = selectedVehicle?.laudos,
                     laudoDocs = vehicleDocs.filter(d => d.metadata.fieldName === 'laudoDoc')
 
                 let laudosArray = [], tableHeaders = [], tempArray = [], table2 = [...laudosTable]
 
-                laudos.forEach(l => {
+                vehicleLaudos.forEach(l => {
                     table2.forEach(t => {
                         let laudoDocId
-                        const laudoDoc = laudoDocs.find(d => d.metadata.laudoId === l.id)
+                        const laudoDoc = laudoDocs.find(d => d.metadata.laudoId === l.id || d.metadata.laudoId.toString() === l.id.toString())
+                        //console.log(l?.id, laudoDocs)
+                        if (laudoDoc)
+                            laudoDocId = laudoDoc.id
 
-                        if (laudoDoc) laudoDocId = laudoDoc.id
-                        if (!tableHeaders.includes(t.title)) tableHeaders.push(t.title)
+
+                        if (!tableHeaders.includes(t.title))
+                            tableHeaders.push(t.title)
+
                         const { title, ...tableData } = t
 
-                        if (t.field === 'laudoDoc') tempArray.push({ ...tableData, value: l[t.field], laudoDocId })
-                        else tempArray.push({ ...tableData, value: l[t.field] })
+                        if (t.field === 'laudoDoc')
+                            tempArray.push({ ...tableData, value: l[t.field], laudoDocId })
+                        else
+                            tempArray.push({ ...tableData, value: l[t.field] })
                     })
 
                     if (tempArray[4].laudoDocId) tempArray[4].value = 'Clique para visualizar o laudo'
@@ -199,8 +210,7 @@ const Laudos = props => {
                 setTableData({ tableHeaders, laudosArray, laudoDocs })
 
             } else setTableData(`Nenhum laudo cadastrado para o veículo placa ${selectedVehicle.placa}.`)
-        }
-
+        }     
     }, [selectedVehicle, laudos, vehicleDocs])
 
     const clear = () => {
@@ -222,6 +232,10 @@ const Laudos = props => {
     }
 
     const handleSubmit = async approved => {
+
+        const
+            empresaId = selectedEmpresa?.delegatarioId,
+            veiculoId = selectedVehicle?.veiculoId
         let
             { empresaLaudo, ...requestElement } = stateInputs,
             errors = checkInputErrors() || []
@@ -257,12 +271,9 @@ const Laudos = props => {
         //***************************Prepare the Log *********************/
         if (approved === undefined) {
 
-            const
-                empresaId = selectedEmpresa.delegatarioId,
-                veiculoId = selectedVehicle.veiculoId,
-                history = {
-                    ...stateInputs
-                },
+            const history = {
+                ...stateInputs
+            },
                 log = {
                     empresaId,
                     veiculoId,
@@ -279,38 +290,71 @@ const Laudos = props => {
 
             logGenerator(log)
                 .then(r => console.log(r))
+            clearForm('all fields, reset state please!')
+            removeFile('laudoDoc')
+            toggleToast()
+            //console.log(initState.dropDisplay, laudoDoc)
             return
         }
 
-        if (approved === true) {
-            //***************************Prepare the request Object *********************/
-            const empresa = empresasLaudo.find(e => e.empresa === empresaLaudo)
+        if (approved === false) {
+            const log = {
+                id: demand.id,
+                empresaId,
+                history: {
+                    info: stateInputs?.info
+                },
+                declined: true
+            }
+            logGenerator(log)
+                .then(r => console.log(r))
+            setToastMsg('Solicitação indeferida!')
+            toggleToast()
 
+            setTimeout(() => {
+                props.history.push('/solicitacoes')
+            }, 1500);
+        }
+
+        if (approved === true) {
+            //Prepare the request Object
+            const empresa = empresasLaudo.find(e => e.empresa === empresaLaudo)
+            let laudoId
             if (empresa) requestElement.empresa_id = empresa.id
             requestElement.veiculo_id = selectedVehicle.veiculoId
 
             const requestBody = { table: 'laudos', requestElement }
 
-            //*****************************Submit****************************** */
+            //Submit
             await axios.post('/api/addElement', requestBody)
-                .then(() => toggleToast())
+                .then(r => {
+                    laudoId = r?.data[0]?.id
+                    console.log(r.data, laudoId)
+                })
                 .catch(err => console.log(err))
 
-            //      if (laudoDoc) await axios.post('/api/vehicleUpload', laudoDoc)
+            //Record the log
+            const log = {
+                id: demand.id,
+                veiculoId,
+                demandFiles,
+                history: {},
+                oneAtemptDemand: true,
+                metadata: {
+                    laudoId,
+                    tempFile: 'false'
+                },
+                approved
+            }
+
+            logGenerator(log)
+                .then(r => console.log(r.data))
+
+            //Toast cofirmation, clear State and redirect to Solicitacoes
+            setTimeout(() => { props.history.push('/solicitacoes') }, 1500);
+            setToastMsg('Laudo aprovado!')
+            toggleToast()
             clearForm('Clear all Of It!!!')
-        }
-    }
-
-    const handleFiles = (files, name) => {
-
-        if (files && files[0]) {
-            let formData = new FormData()
-            formData.append('fieldName', 'laudoDoc')
-            formData.append('laudoId', stateInputs.id)
-            formData.append('veiculoId', selectedVehicle.veiculoId)
-            formData.append(name, files[0])
-            setLaudoDoc(formData)
-            //  setDropDisplay(files[0].name)
         }
     }
 
@@ -323,15 +367,36 @@ const Laudos = props => {
     }
 
     function deleteLaudo(laudoId) {
+
         if (laudoId) {
             closeConfirmDialog()
-            const laudoDoc = vehicleDocs.find(d => d.metadata.fieldName === 'laudoDoc' && d.metadata.laudoId === laudoId.toString())
-            axios.delete(`/api/delete?table=laudos&tablePK=id&id='${laudoId}'`)
+
+            axios.delete(`/api/delete?table=laudos&tablePK=id&id=${laudoId}`)
                 .then(({ data }) => console.log(data))
 
+            const laudoDoc = vehicleDocs.find(d => d.metadata.fieldName === 'laudoDoc' && d.metadata.laudoId === laudoId.toString())
             if (laudoDoc) axios.delete(`/api/deleteFile?collection=vehicleDocs&id=${laudoDoc?.id}`)
                 .then(({ data }) => console.log(data))
         }
+    }
+
+    const handleFiles = (files, name) => {
+
+        if (files && files[0]) {
+            let formData = new FormData()
+            formData.append('fieldName', 'laudoDoc')
+            formData.append('laudoId', stateInputs.id)
+            formData.append('veiculoId', selectedVehicle.veiculoId)
+            formData.append(name, files[0])
+            setLaudoDoc(formData)
+            setFileToRemove(undefined)
+            //  setDropDisplay(files[0].name)
+        }
+    }
+
+    const removeFile = async name => {
+        setFileToRemove(name)
+        setLaudoDoc(undefined)
     }
 
     const
@@ -353,8 +418,11 @@ const Laudos = props => {
             <LaudosTemplate
                 empresas={empresas} razaoSocial={razaoSocial} selectedEmpresa={selectedEmpresa} filteredVehicles={filteredVehicles} selectedVehicle={selectedVehicle}
                 anchorEl={anchorEl} stateInputs={stateInputs} selectOptions={selectOptions} dropDisplay={dropDisplay} laudoDoc={laudoDoc} table={table}
-                demand={demand} demandFiles={demandFiles}
-                functions={{ handleInput, clickOnPlate, showDetails, handleFiles, handleSubmit, closeMenu, clear, deleteLaudo: confirmDelete }}
+                demand={demand} demandFiles={demandFiles} showPendencias={showPendencias} fileToRemove={fileToRemove}
+                functions={{
+                    handleInput, clickOnPlate, showDetails, handleFiles, handleSubmit, closeMenu, clear, removeFile,
+                    setShowPendencias, deleteLaudo: confirmDelete
+                }}
             />
             {details && <ShowDetails
                 close={showDetails}
@@ -367,7 +435,7 @@ const Laudos = props => {
             {confirmDialogProps.open && <ConfirmDialog {...confirmDialogProps} close={closeConfirmDialog} confirm={deleteLaudo} id={confirmDialogProps.laudoId} />}
 
             {alertDialog.open && <AlertDialog open={alertDialog.open} close={toggleAlert} alertType={alertDialog.type} customMessage={alertDialog.msg} />}
-            <ReactToast open={toast} close={toggleToast} msg='Laudo inserido com sucesso.' />
+            <ReactToast open={toast} close={toggleToast} msg={toastMsg} />
         </Fragment >
     )
 }
