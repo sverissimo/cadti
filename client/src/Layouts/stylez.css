@@ -40,7 +40,8 @@ div.loading {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    justify-content: flex-start !important;
+    align-content: center;
+    /* justify-content: flex-start !important; */
 }
 
 .flexStart {

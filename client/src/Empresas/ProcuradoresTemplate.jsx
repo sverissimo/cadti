@@ -181,7 +181,6 @@ export default function ({ redux, data, handleInput, addProc, removeProc, handle
         else return ''
     }
 
-    //************VER PORQUE O RESETFILES NÃO ESTÁ LIMPANDO O FORMDATA E PORTANTO NÃO SOME O NOME DO ARQUIVO. USAR REMOVEFILES MANUAL()?? */
     //************CRIAR FUNÇÃO PARA IMPEDIR QUE O PROCURADOR QUE TENHA ALGUMA PROCURAÇÃO SEJA APAGADO NA TELA 'CONSULTAS' */
     return (
         <Grid
@@ -195,8 +194,8 @@ export default function ({ redux, data, handleInput, addProc, removeProc, handle
                 empresas={empresas}
                 handleInput={handleInput}
             />
-            {//selectedEmpresa && 
-                true && <Paper className={paper2}>
+            {selectedEmpresa &&
+                <Paper className={paper2}>
                     <Typography className={title}> Cadastrar nova procuração </Typography>
                     <h4 style={{ fontWeight: 400, fontSize: '0.9em' }}> Se a procuração abranger mais de um procurador, clique em "+" para adicionar e anexe apenas 1 vez.</h4>
                     {procsToAdd.map((p, j) =>
@@ -282,16 +281,18 @@ export default function ({ redux, data, handleInput, addProc, removeProc, handle
                                     handleFiles={handleFiles}
                                     demandFiles={demandFiles}
                                     removeFile={removeFile}
-                                    fileToRemove={fileToRemove}                                    
+                                    fileToRemove={fileToRemove}
                                 />
                                 :
-                                <ShowLocalFiles
-                                    demand={demand}
-                                    collection='empresaDocs'
-                                    demandFiles={demandFiles}
-                                    form={empresaFiles}
+                                <div className="flex">
+                                    <ShowLocalFiles
+                                        demand={demand}
+                                        collection='empresaDocs'
+                                        demandFiles={demandFiles}
+                                        form={empresaFiles}
                                     //files={files}
-                                />
+                                    />
+                                </div>
                             }
                         </Grid>
                         <Grid item xs={6} className={dropBox}>

@@ -25,14 +25,20 @@ export const logRoutesConfig = [
         collection, docs, primaryKey,
     },
     {
+        ...vehicle,
         subject: 'Cadastro ou alteração de seguro',
         collection: 'vehicleLogs',
         path: '/veiculos/altSeguro',
+        
     },
     {
+        ...vehicle,
         subject: 'Cadastro de laudo de segurança veicular',
         collection: 'vehicleLogs',
-        path: '/veiculos/laudos',
+        path: '/solicitacoes/laudos',
+        requestAction: 'Cadastro do laudo  solicitado',
+        responseAction: 'Pendências para o cadastro do laudo',
+        concludedAction: 'Laudo veicular cadastrado',
     },
     {
         subject: 'Baixa de veículo',        

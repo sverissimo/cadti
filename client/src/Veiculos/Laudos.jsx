@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, Fragment } from 'react'
 import axios from 'axios'
+
 import StoreHOC from '../Store/StoreHOC'
 
 import AlertDialog from '../Reusable Components/AlertDialog'
@@ -11,11 +12,13 @@ import LaudosTemplate from './LaudosTemplate'
 import ShowDetails from '../Reusable Components/ShowDetails'
 import { laudoForm } from '../Forms/laudoForm'
 import { laudosTable } from '../Forms/laudosTable'
+import { logGenerator } from '../Utils/logGenerator'
+import { setDemand } from '../Utils/setDemand'
 
 const Laudos = props => {
-
     const
-        { veiculos, empresas, empresasLaudo, laudos, vehicleDocs } = props.redux
+        { veiculos, empresas, empresasLaudo, laudos, vehicleDocs } = props.redux,
+        demand = props?.location?.state?.demand
 
     const initState = Object.freeze({
         dropDisplay: 'Clique ou arraste o arquivo para anexar o laudo',
@@ -27,18 +30,19 @@ const Laudos = props => {
     })
 
     const
-        [razaoSocial, empresaInput] = useState(''),
-        [selectedEmpresa, setEmpresa] = useState(),
-        [oldVehicles, setOldVehicles] = useState(),
-        [filteredVehicles, setFilteredVehicles] = useState([]),
+        [razaoSocial, empresaInput] = useState(empresas[0].razaoSocial),
+        [selectedEmpresa, setEmpresa] = useState(empresas[0]),
+        [oldVehicles, setOldVehicles] = useState(veiculos[0]),
+        [filteredVehicles, setFilteredVehicles] = useState([veiculos[0]]),
         [details, setDetails] = useState(false),
-        [selectedVehicle, selectVehicle] = useState(),
+        [selectedVehicle, selectVehicle] = useState(veiculos[0]),
         [anchorEl, setAnchorEl] = useState(null),
         [dropDisplay, setDropDisplay] = useState(initState.dropDisplay),
         [laudoDoc, setLaudoDoc] = useState(),
         [toast, setToast] = useState(false),
         [stateInputs, changeInputs] = useState({ ...initState.stateInputs }),
         [table, setTableData] = useState(),
+        [demandFiles, setDemandFiles] = useState(),
         [alertDialog, setAlertDialog] = useState({
             open: false,
             type: 'inputError',
@@ -54,6 +58,28 @@ const Laudos = props => {
         const escFunction = e => { if (e.keyCode === 27) setDetails(false); setAnchorEl(null) }
         document.addEventListener('keydown', escFunction)
     }, [])
+
+    useEffect(() => {
+        if (demand) {
+            const
+                { history } = demand,
+                state = {},
+                fullDemand = setDemand(demand, props.redux),
+                { originalVehicle } = fullDemand,
+                empresa = fullDemand.selectedEmpresa,
+                dFiles = fullDemand.demandFiles
+
+            Object.entries(history[0]).forEach(([k, v]) => {            // Set state with demandState
+                if (stateInputs.hasOwnProperty(k))
+                    state[k] = v
+            })
+
+            setEmpresa(empresa)
+            empresaInput(empresa.razaoSocial)
+            changeInputs(state)
+            setDemandFiles(dFiles)
+        }
+    }, [empresas, demand, props.redux])
 
     useEffect(() => {
         async function insertLaudos() {
@@ -96,7 +122,6 @@ const Laudos = props => {
 
         insertLaudos()
     }, [selectedEmpresa, veiculos, laudos, selectedVehicle])
-
 
     const handleInput = useCallback(e => {
         const { name } = e.target
@@ -145,7 +170,8 @@ const Laudos = props => {
         if (selectedVehicle) {
             if (selectedVehicle.laudos && selectedVehicle.laudos[0]) {
 
-                const { laudos } = selectedVehicle,
+                const
+                    { laudos } = selectedVehicle,
                     laudoDocs = vehicleDocs.filter(d => d.metadata.fieldName === 'laudoDoc')
 
                 let laudosArray = [], tableHeaders = [], tempArray = [], table2 = [...laudosTable]
@@ -195,7 +221,7 @@ const Laudos = props => {
         }
     }
 
-    const handleSubmit = async () => {
+    const handleSubmit = async approved => {
         let
             { empresaLaudo, ...requestElement } = stateInputs,
             errors = checkInputErrors() || []
@@ -228,20 +254,51 @@ const Laudos = props => {
             return
         }
 
-        //***************************Prepare the request Object*********************/
-        const empresa = empresasLaudo.find(e => e.empresa === empresaLaudo)
-        if (empresa) requestElement.empresa_id = empresa.id
-        requestElement.veiculo_id = selectedVehicle.veiculoId
+        //***************************Prepare the Log *********************/
+        if (approved === undefined) {
 
-        const requestBody = { table: 'laudos', requestElement }
+            const
+                empresaId = selectedEmpresa.delegatarioId,
+                veiculoId = selectedVehicle.veiculoId,
+                history = {
+                    ...stateInputs
+                },
+                log = {
+                    empresaId,
+                    veiculoId,
+                    history,
+                    historyLength: 0,
+                    metadata: {
+                        fieldName: 'laudoDoc',
+                        veiculoId
+                    },
+                }
 
-        //*****************************Submit****************************** */
-        await axios.post('/api/addElement', requestBody)
-            .then(() => toggleToast())
-            .catch(err => console.log(err))
+            if (laudoDoc)
+                log.history.files = laudoDoc
 
-        if (laudoDoc) await axios.post('/api/vehicleUpload', laudoDoc)
-        clearForm('Clear all Of It!!!')
+            logGenerator(log)
+                .then(r => console.log(r))
+            return
+        }
+
+        if (approved === true) {
+            //***************************Prepare the request Object *********************/
+            const empresa = empresasLaudo.find(e => e.empresa === empresaLaudo)
+
+            if (empresa) requestElement.empresa_id = empresa.id
+            requestElement.veiculo_id = selectedVehicle.veiculoId
+
+            const requestBody = { table: 'laudos', requestElement }
+
+            //*****************************Submit****************************** */
+            await axios.post('/api/addElement', requestBody)
+                .then(() => toggleToast())
+                .catch(err => console.log(err))
+
+            //      if (laudoDoc) await axios.post('/api/vehicleUpload', laudoDoc)
+            clearForm('Clear all Of It!!!')
+        }
     }
 
     const handleFiles = (files, name) => {
@@ -253,7 +310,7 @@ const Laudos = props => {
             formData.append('veiculoId', selectedVehicle.veiculoId)
             formData.append(name, files[0])
             setLaudoDoc(formData)
-            setDropDisplay(files[0].name)
+            //  setDropDisplay(files[0].name)
         }
     }
 
@@ -293,10 +350,10 @@ const Laudos = props => {
 
     return (
         <Fragment>
-
             <LaudosTemplate
                 empresas={empresas} razaoSocial={razaoSocial} selectedEmpresa={selectedEmpresa} filteredVehicles={filteredVehicles} selectedVehicle={selectedVehicle}
                 anchorEl={anchorEl} stateInputs={stateInputs} selectOptions={selectOptions} dropDisplay={dropDisplay} laudoDoc={laudoDoc} table={table}
+                demand={demand} demandFiles={demandFiles}
                 functions={{ handleInput, clickOnPlate, showDetails, handleFiles, handleSubmit, closeMenu, clear, deleteLaudo: confirmDelete }}
             />
             {details && <ShowDetails

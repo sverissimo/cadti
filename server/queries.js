@@ -41,7 +41,8 @@ const veiculos = `
 			ON veiculo.apolice = seguro.apolice
 		LEFT JOIN public.seguradora
 			ON public.seguradora.id = seguro.seguradora_id		
-		ORDER BY veiculo.veiculo_id DESC LIMIT 40
+		WHERE indicador_idade < 2004 OR placa = 'DDD-4444'
+		ORDER BY veiculo.veiculo_id DESC LIMIT 50
 		`
 
 const modeloChassi = `

@@ -47,12 +47,9 @@ class AltProcuradores extends Component {
     }
 
     async componentDidMount() {
-        this.setState({ selectedEmpresa: this.props.redux.empresas[0], razaoSocial: this.props.redux.empresas[0].razaoSocial })
-
         const
             { redux } = this.props,
-            demand = this.props?.location?.state?.demand,
-            procuracoes = this.props.redux.procuracoes.filter(pr => pr.delegatarioId === this.props.redux.empresas[0].delegatarioId)
+            demand = this.props?.location?.state?.demand
 
         //*************Set demand if any
         if (demand) {
@@ -78,7 +75,6 @@ class AltProcuradores extends Component {
                     })
                 })
             }
-
             if (newMembers[0] || oldMembers[0]) {
                 allDemandProcs = newMembers.concat(oldMembers)
                 allDemandProcs.forEach((p, i) => {
@@ -92,14 +88,6 @@ class AltProcuradores extends Component {
             this.setState({ ...updatedState, demandFiles: [latestDoc] })
         }
 
-        // ********* insert procuradores ass array of Object for each procuracao        
-
-        if (procuracoes[0] && !demand) {
-            const procuracoesArray = this.setProcuracoesList(procuracoes, this.props.redux.procuradores)
-            this.setState({ procuracoesArray, selectedDocs: procuracoes })
-        }
-
-        document.querySelector('.MuiFormControlLabel-root').style = 'padding:15px 15px 0 0'
         document.addEventListener('keydown', this.escFunction, false)
     }
 
@@ -184,10 +172,11 @@ class AltProcuradores extends Component {
     }
 
     addProc = async (approved) => {
-        
+
         const
             { redux } = this.props,
-            { selectedEmpresa, procFiles, vencimento, expires } = this.state,
+            { selectedEmpresa, demand, procFiles, vencimento, expires, info } = this.state,
+            empresaId = selectedEmpresa.delegatarioId,
             procuradores = JSON.parse(JSON.stringify(redux.procuradores)),
             nProc = [...this.state.procsToAdd]
         let
@@ -195,16 +184,15 @@ class AltProcuradores extends Component {
             sObject = {}
 
         //***********************Check for errors *********************** */
+        let { errors } = checkInputErrors('returnObj', 'Dont check the date, please!') || []
 
-        /*  let { errors } = checkInputErrors('returnObj', 'Dont check the date, please!') || []
- 
-         if (errors && errors[0]) {
-             if (!expires)
-                 await this.setState({ ...this.state, ...checkInputErrors('setState', 'dontCheckDate') })
-             else
-                 await this.setState({ ...this.state, ...checkInputErrors('setState') })
-             return
-         } */
+        if (errors && errors[0]) {
+            if (!expires)
+                await this.setState({ ...this.state, ...checkInputErrors('setState', 'dontCheckDate') })
+            else
+                await this.setState({ ...this.state, ...checkInputErrors('setState') })
+            return
+        }
 
         //***********Create array of Procs from state***********
         nProc.forEach((n, i) => {
@@ -237,7 +225,6 @@ class AltProcuradores extends Component {
                     if (addedProc[k] === gotId[k])
                         delete addedProc[k]
                 })
-                //console.log(oldMembers)
                 addedProc.procuradorId = gotId.procuradorId
                 oldMembers.push(addedProc)
             }
@@ -246,24 +233,23 @@ class AltProcuradores extends Component {
         })
 
         if (approved === undefined) {
-            const
-                empresaId = selectedEmpresa.delegatarioId,
-                log = {
-                    status: 'Aguardando aprovação',
-                    empresaId,
-                    history: {
-                        files: procFiles,
-                        newMembers,
-                        oldMembers,
-                        vencimento,
-                        expires
-                    },
-                    metadata: {
-                        fieldName: 'procuracao',
-                        empresaId
-                    },
-                    oneAtemptDemand: true
-                }
+
+            const log = {
+                status: 'Aguardando aprovação',
+                empresaId,
+                history: {
+                    files: procFiles,
+                    newMembers,
+                    oldMembers,
+                    vencimento,
+                    expires
+                },
+                metadata: {
+                    fieldName: 'procuracao',
+                    empresaId
+                },
+                oneAtemptDemand: true
+            }
             Object.entries(log).forEach(([k, v]) => { if (!v) delete log[k] })
             log.approved = approved
             log.historyLength = 0
@@ -271,8 +257,23 @@ class AltProcuradores extends Component {
             logGenerator(log)
                 .then(r => console.log(r))
             this.setState({ toastMsg: 'Solicitação de cadastro enviada', confirmToast: true })
-            this.removeFile('procuracao')
             this.resetState()
+        }
+        if (approved === false) {
+            const log = {
+                id: demand.id,
+                empresaId,
+                history: {
+                    info
+                },
+                declined: true
+            }
+            logGenerator(log)
+                .then(r => console.log(r))
+            this.setState({ toastMsg: 'Solicitação indeferida!', confirmToast: true })
+            setTimeout(() => {
+                this.props.history.push('/solicitacoes')
+            }, 1500);
         }
         if (approved === true) {
             newMembers = humps.decamelizeKeys(newMembers)
@@ -286,8 +287,6 @@ class AltProcuradores extends Component {
         const
             { selectedEmpresa, demandFiles, vencimento, demand } = this.state,
             procIdArray = oldMembers.map(m => m.procurador_id)
-
-        let selectedDocs = [...this.state.selectedDocs]
 
         //******************Post newMembers  *****************/
         if (newMembers.length > 0) {
@@ -347,7 +346,7 @@ class AltProcuradores extends Component {
         logGenerator(log)
             .then(r => console.log(r))
 
-        //selectedDocs.unshift(novaProcuracao)
+
         this.toast()
         if (demand)
             setTimeout(() => {
@@ -433,7 +432,7 @@ class AltProcuradores extends Component {
                     resetedFields[key + i] = undefined
             })
         })
-        console.log(keys, resetedFields)
+        this.removeFile('procuracao')
         this.setState({
             ...resetedFields,
             dropDisplay: 'Clique ou arraste para anexar a procuração referente a este(s) procurador(es).',

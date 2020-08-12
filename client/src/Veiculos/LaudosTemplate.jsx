@@ -17,12 +17,14 @@ import StopIcon from '@material-ui/icons/Stop';
 import Button from '@material-ui/core/Button'
 import ArrowBackIcon from '@material-ui/icons/ArrowBack';
 import FormSubtiltle from '../Reusable Components/FormSubtiltle'
+import ShowLocalFiles from '../Reusable Components/ShowLocalFiles'
 
 const LaudosTemplate = (
     { empresas, razaoSocial, selectedEmpresa, filteredVehicles, selectedVehicle, stateInputs, selectOptions, table,
-        anchorEl, laudoDoc, dropDisplay, functions }) => {
+        anchorEl, laudoDoc, dropDisplay, functions, demand, demandFiles }) => {
 
-    const { handleInput, clickOnPlate, showDetails, handleFiles, handleSubmit, closeMenu, clear, deleteLaudo } = functions
+    const { handleInput, clickOnPlate, showDetails, handleFiles, handleSubmit, closeMenu, clear, deleteLaudo } = functions,
+        { placa } = selectedVehicle
 
     const renderColor = laudos => {
         if (laudos && laudos[0] && laudos[0].validade) {
@@ -39,51 +41,56 @@ const LaudosTemplate = (
         title: 'Apagar Laudo',
         style: { cursor: 'pointer' }
     }
-
+console.log(demandFiles)
     return (
         <div>
-            <Crumbs links={['Veículos', '/veiculos']} text='Laudos' />
-            <SelectEmpresa
-                empresas={empresas}
-                data={{ razaoSocial }}
-                handleInput={handleInput}
-            />
+            <Crumbs links={['Veículos', '/veiculos']} text='Laudos' demand={demand} selectedEmpresa={selectedEmpresa} />
+            <div style={demand ? { marginTop: '15px' } : {}}>
+                <SelectEmpresa
+                    empresas={empresas}
+                    data={{ razaoSocial, demand }}
+                    headerTitle={placa && selectedEmpresa && `Cadastro de laudo veicular ${placa} - ${selectedEmpresa?.razaoSocial}`}
+                    handleInput={handleInput}
+                />
+            </div>
             {
                 selectedEmpresa && <>
-                    <header className='flex' style={{ marginBottom: '15px' }}>
-                        {
-                            !selectedVehicle ?
-                                <FormSubtiltle subtitle='Selecione o veículo para atualizar consultar ou inserir o laudo de segurança veicular.' />
-                                :
-                                <Placa
-                                    veiculoId={selectedVehicle.veiculoId}
-                                    onClick={clickOnPlate}
-                                    style={{ ...renderColor(selectedVehicle.laudos), marginLeft: 0 }}
-                                    city={selectedEmpresa.cidade}
-                                    placa={selectedVehicle.placa}
+                    {!demand &&
+                        <header className='flex' style={{ marginBottom: '15px', justifyContent: 'space-between' }}>
+                            {
+                                !selectedVehicle ?
+                                    <FormSubtiltle subtitle='Selecione o veículo para atualizar consultar ou inserir o laudo de segurança veicular.' />
+                                    :
+                                    <Placa
+                                        veiculoId={selectedVehicle.veiculoId}
+                                        onClick={clickOnPlate}
+                                        style={{ ...renderColor(selectedVehicle.laudos), marginLeft: 0 }}
+                                        city={selectedEmpresa.cidade}
+                                        placa={selectedVehicle.placa}
+                                    />
+                            }
+                            <div>
+                                <TextField
+                                    inputProps={{ name: 'placa' }}
+                                    InputLabelProps={{ style: { fontSize: '0.8rem' } }}
+                                    label='Filtrar'
+                                    onChange={handleInput}
                                 />
-                        }
-                        <div>
-                            <TextField
-                                inputProps={{ name: 'placa' }}
-                                InputLabelProps={{ style: { fontSize: '0.8rem' } }}
-                                label='Filtrar'
-                                onChange={handleInput}
-                            />
-                            <Search style={{ marginTop: '18px' }} />
-                        </div>
-                    </header>
-
+                                <Search style={{ marginTop: '10px' }} />
+                            </div>
+                        </header>
+                    }
                     {selectedVehicle &&
-                        <main className='paper'>
-                            
+                        <main className='paper' style={demand ? { marginTop: '15px' } : {}}>
                             <FormSubtiltle
-                                subtitle='Para inserir novo laudo, informe o número, a data de vencimento, a empresa que emitiu e anexe o documento referente ao laudo.'
-                                //stylez={{ paddingLeft: '15px', marginTop: '-10px' }}
+                                subtitle={
+                                    !demand ?
+                                        'Para inserir novo laudo, informe o número, a data de vencimento, a empresa que emitiu e anexe o documento referente ao laudo.'
+                                        :
+                                        'Verifique as informações abaixo, confira com o laudo anexo e escolha uma das opções abaixo.'
+                                }
                             />
-                            {/* <h3 style={{ paddingLeft: '15px', marginTop: '-10px' }}>
-                                
-                            </h3> */}
+
                             <br />
                             <br />
                             <TextInput
@@ -92,7 +99,7 @@ const LaudosTemplate = (
                                 handleInput={handleInput}
                                 selectOptions={selectOptions}
                             />
-                            <DragAndDrop
+                            {!demand ? <DragAndDrop
                                 name='laudoDoc'
                                 formData={laudoDoc}
                                 dropDisplay={dropDisplay}
@@ -100,6 +107,15 @@ const LaudosTemplate = (
                                 single={true}
                                 style={{ width: '400px', margin: '15px auto 0 auto' }}
                             />
+                                : demandFiles &&
+                                <ShowLocalFiles
+                                    demand={demand}
+                                    collection='vehicleDocs'
+                                    demandFiles={demandFiles}
+                                    form={[{title: 'Laudo veicular', name: 'laudoDoc' }]}
+                                //files={files}
+                                />
+                            }
                             <Button
                                 size="small"
                                 color='primary'
@@ -116,7 +132,7 @@ const LaudosTemplate = (
                     <section>
                         <h4>
                             {!selectedVehicle ?
-                                <div className='flex'>
+                                <div className='flex' style={{ justifyContent: 'space-between' }}>
                                     <div>
                                         {`Exibindo ${filteredVehicles.length} veículos com mais de 15 anos.`}
                                     </div>
@@ -164,7 +180,8 @@ const LaudosTemplate = (
                     />
                 </>
             }
-            {selectedVehicle && selectedVehicle.laudos &&
+            {
+                selectedVehicle && selectedVehicle.laudos && !demand &&
                 <>
                     {typeof table === 'object' ?
                         <div className="paper" style={{ marginTop: '52px', width: '100%', padding: '0', borderRadius: '5px', overflow: 'hidden' }}>
@@ -191,7 +208,7 @@ const LaudosTemplate = (
                     </div>
                 </>
             }
-        </div>
+        </div >
     )
 }
 

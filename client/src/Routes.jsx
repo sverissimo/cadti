@@ -20,33 +20,34 @@ import Solicitacoes from './Solicitacoes/Solicitacoes'
 //import UnderConstruction from './UnderConstruction'
 import PdfTest from './Veiculos/Certificate'
 
-const Routes = () => {  
+const Routes = () => {
     return (
-        <Switch>            
-                <Route exact path='/' component={HomeTemplate} />
-                <Route path='/veiculos' exact component={VeiculosHome} />
-                <Route path='/veiculos/cadastro' exact component={CadVeiculos} />
-                <Route path='/veiculos/altDados' exact component={AltDados} />
-                <Route path='/veiculos/altSeguro' exact component={AltSeguro} />
-                <Route path='/veiculos/laudos' exact component={Laudos} />
-                <Route path='/veiculos/baixaVeiculo' exact component={BaixaVeiculo} />
-                <Route path='/veiculos/config' exact component={Config} />
-                <Route path='/consultas' component={Consultas} />
-                <Route path='/empresas' exact component={EmpresasHome} />
-                <Route path='/empresas/cadastro' component={Empresas} />
-                <Route path='/empresas/socios' component={Socios} />
-                <Route path='/empresas/procuradores' component={Procuradores} />
-                <Route path='/relatorios' component={Relatorios} />
-                <Route path='/crv' component={PdfTest} />
-                <Route path='/solicitacoes' exact component={Solicitacoes} />
-                <Route path='/solicitacoes/cadastro' exact component={CadVeiculos} />
-                <Route path='/solicitacoes/altDados' exact component={AltDados} />
-                <Route path='/solicitacoes/baixaVeiculo' exact component={BaixaVeiculo} />
-                <Route path='/solicitacoes/socios' exact component={Socios} />
-                <Route path='/solicitacoes/procuradores' exact component={Procuradores} />
+        <Switch>
+            <Route exact path='/' component={HomeTemplate} />
+            <Route path='/veiculos' exact component={VeiculosHome} />
+            <Route path='/veiculos/cadastro' exact component={CadVeiculos} />
+            <Route path='/veiculos/altDados' exact component={AltDados} />
+            <Route path='/veiculos/altSeguro' exact component={AltSeguro} />
+            <Route path='/veiculos/laudos' exact component={Laudos} />
+            <Route path='/veiculos/baixaVeiculo' exact component={BaixaVeiculo} />
+            <Route path='/veiculos/config' exact component={Config} />
+            <Route path='/consultas' component={Consultas} />
+            <Route path='/empresas' exact component={EmpresasHome} />
+            <Route path='/empresas/cadastro' component={Empresas} />
+            <Route path='/empresas/socios' component={Socios} />
+            <Route path='/empresas/procuradores' component={Procuradores} />
+            <Route path='/relatorios' component={Relatorios} />
+            <Route path='/crv' component={PdfTest} />
+            <Route path='/solicitacoes' exact component={Solicitacoes} />
+            <Route path='/solicitacoes/cadastro' exact component={CadVeiculos} />
+            <Route path='/solicitacoes/altDados' exact component={AltDados} />
+            <Route path='/solicitacoes/baixaVeiculo' exact component={BaixaVeiculo} />
+            <Route path='/solicitacoes/laudos' exact component={Laudos} />
+            <Route path='/solicitacoes/socios' exact component={Socios} />
+            <Route path='/solicitacoes/procuradores' exact component={Procuradores} />
 
-                
-                {/* <Route path='/faleConosco' component={UnderConstruction} /> */}            
+
+            {/* <Route path='/faleConosco' component={UnderConstruction} /> */}
         </Switch>
     )
 }

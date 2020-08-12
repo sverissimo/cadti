@@ -38,7 +38,6 @@ const fileIcon = {
 
 export default function ShowLocalFiles({ form, files, demand, demandFiles, collection }) {
 
-
     const createLink = (key, fileName) => {
 
         const file = files.get(key)
@@ -68,7 +67,7 @@ export default function ShowLocalFiles({ form, files, demand, demandFiles, colle
         })
     }
 
-    //******LÓGICA PARA Q O PUSH() DO FILEARRAY SOBRESCREVA QQ OUTRO OBJETO COM MESMO FIELDNAME [criada] AGORA FALTA NOVOS FIELDS ANEXADOS NO VEHICLEdOC SEREM RENDERIZADOS AQUI */
+    //******LÓGICA PARA Q O PUSH() DO FILEARRAY SOBRESCREVA QQ OUTRO OBJETO COM MESMO FIELDNAME [criada]
     if (files) for (let pair of files.entries()) {
         form.forEach(({ name, title }) => {
             if (name === pair[0]) {

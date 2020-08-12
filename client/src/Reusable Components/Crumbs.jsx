@@ -12,7 +12,7 @@ export default function Crumbs({ links, text, demand }) {
     }
     
     return (
-        <Grid style={{ marginTop: '1%', paddingLeft: '1%' }}>
+        <Grid style={{ marginTop: '1%' }}>
             <Breadcrumbs separator="›" aria-label="breadcrumb" >
                 <Link
                     to='/' style={{}}

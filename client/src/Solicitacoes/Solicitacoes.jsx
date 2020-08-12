@@ -61,17 +61,7 @@ function Solicitacoes(props) {
     const assessDemand = async id => {
 
         let log = vehicleLogs.find(l => l.id === id)
-        selectLog(log)
-
-        //Make sure vehicle still exists
-       /*  const vehicle = veiculos.find(v => v.veiculoId.toString() === log.veiculoId.toString())
-
-        if (!vehicle) {
-            const customTitle = 'Veículo não encontrado',
-                customMessage = `O veículo para o qual a demanda foi informada não foi encontrado. Verifique se o veículo está registrado em "Consultas -> Veículos"`
-            await setAlertDialog({ openAlertDialog: true, customTitle, customMessage })
-            return
-        } */
+        selectLog(log)    
 
         let pathname = logRoutesConfig.find(r => log?.subject.match(r.subject))?.path
         if (!pathname.match('/solicitacoes')) pathname = '/solicitacoes' + pathname
@@ -85,7 +75,6 @@ function Solicitacoes(props) {
         const log = vehicleLogs.find(l => l.id === id)
         await selectLog(log)
         setShowHistory(true)
-
     }
 
     const showInfo = index => {
