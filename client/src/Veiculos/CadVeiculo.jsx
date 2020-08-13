@@ -303,7 +303,6 @@ class VeiculosContainer extends PureComponent {
             await axios.post('/api/cadastroVeiculo', vehicle)
                 .then(res => {
                     veiculoId = res.data
-                    console.log(veiculoId)
                 })
                 .catch(err => console.log(err))
         else {
@@ -329,29 +328,39 @@ class VeiculosContainer extends PureComponent {
             for (let p of form) {
                 updatedIdFormData.set(p[0], p[1])
             }
-        } else updatedIdFormData = null
+        } else updatedIdFormData = undefined
 
-        let log = {
+        const log = {
             empresaId: selectedEmpresa?.delegatarioId,
             veiculoId,
-            history: {},
-            files: updatedIdFormData,
+            history: {
+                info,
+                files: updatedIdFormData,
+            },
             demandFiles,
-            historyLength: oldHistoryLength
+            historyLength: oldHistoryLength,
+            approved
         }
 
-        if (info) log.history = { info }
         if (demand) log.id = demand?.id
-        if (approved) log.completed = true
-        //        console.log(log, info)
+
         logGenerator(log)
             .then(r => console.log(r?.data))
             .catch(err => console.log(err))
 
-        //*********************if approved, putRequest to update DB  ********************** */
+        if (!approved) {
+            let toastMsg = 'Solicitação de cadastro enviada.'
+            if (demand && demand.status.match('Aguardando'))
+                toastMsg = 'Pendências para o cadastro registradas.'
+            this.toast(toastMsg)
+        }
+        else
+            this.toast()
 
-        this.resetState()
-        this.toast()
+        if (!demand)
+            this.resetState()
+        else
+            setTimeout(() => { this.props.history.push('/solicitacoes') }, 1500)
     }
 
     handleFiles = async (files, name) => {
@@ -403,19 +412,20 @@ class VeiculosContainer extends PureComponent {
             selectedEmpresa: undefined,
             frota: [],
             delegatarioCompartilhado: '',
-            form: new FormData()
+            form: new FormData(),
+            resetShared: true
         })
     }
 
     closeEquipa = () => this.setState({ addEquipa: false })
     setShowPendencias = () => this.setState({ showPendencias: !this.state.showPendencias })
     toggleDialog = () => this.setState({ openAlertDialog: !this.state.openAlertDialog })
-    toast = () => this.setState({ confirmToast: !this.state.confirmToast })
+    toast = toastMsg => this.setState({ confirmToast: !this.state.confirmToast, toastMsg: toastMsg ? toastMsg : this.state.toastMsg })
 
     render() {
         const
             { confirmToast, toastMsg, activeStep, openAlertDialog, alertType, steps, selectedEmpresa,
-                placa, dropDisplay, form, demand, demandFiles, showPendencias, info } = this.state,
+                placa, dropDisplay, form, demand, demandFiles, showPendencias, info, resetShared } = this.state,
 
             { redux } = this.props
 
@@ -429,13 +439,14 @@ class VeiculosContainer extends PureComponent {
             />
             <CadVeiculoTemplate
                 data={this.state}
-                redux={redux}                
+                redux={redux}
                 handleInput={this.handleInput}
                 handleBlur={this.handleBlur}
                 handleEquipa={this.handleEquipa}
                 handleCheck={this.handleCheck}
                 closeEquipa={this.closeEquipa}
                 match={this.props.match}
+                resetShared={resetShared}
             />
             {activeStep === 2 && <VehicleDocs
                 parentComponent='cadastro'

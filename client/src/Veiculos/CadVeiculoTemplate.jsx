@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 
 import SelectEmpresa from '../Reusable Components/SelectEmpresa'
 import TextInput from '../Reusable Components/TextInput'
@@ -21,7 +21,7 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
-export default function ({ redux, data, handleInput, handleBlur, handleEquipa, handleCheck, closeEquipa }) {
+export default function ({ redux, data, handleInput, handleBlur, handleEquipa, handleCheck, closeEquipa, resetShared }) {
 
     const
         [shared, setShared] = useState(false),
@@ -32,10 +32,15 @@ export default function ({ redux, data, handleInput, handleBlur, handleEquipa, h
 
     let eqCollection = equipamentos
     if (type === 'acessibilidade') eqCollection = acessibilidade
-    
+
     data.modelosChassi = modelosChassi
     data.carrocerias = carrocerias
-    
+
+    useEffect(() => {               //reset shared after submit
+        if (resetShared)
+            setShared(false)
+    }, [resetShared])
+
     return (
         <>
             <header className={activeStep !== 0 ? 'flex center' : 'paper flex center'} style={{ width: '100%' }}>

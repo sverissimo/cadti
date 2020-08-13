@@ -302,8 +302,10 @@ class AltDados extends Component {
             oldHistoryLength = demand?.history?.length || 0
 
         //****************************Prepare the request Object*******************************
-        let tempObj = {}
+        let pbt = Number(poltronas) * 93 + (Number(pesoDianteiro) + Number(pesoTraseiro))
+        if (isNaN(pbt)) pbt = undefined
 
+        let tempObj = {}
         altForm.forEach(form => {
             form.forEach(obj => {
                 for (let k in this.state) {
@@ -313,20 +315,17 @@ class AltDados extends Component {
                 }
             })
         })
-
-        let pbt = Number(poltronas) * 93 + (Number(pesoDianteiro) + Number(pesoTraseiro))
-        if (isNaN(pbt)) pbt = undefined
-
         tempObj = Object.assign(tempObj, { delegatarioId, delegatarioCompartilhado, pbt, equipa, acessibilidadeId })
-
-
-        let { placa, delegatario, compartilhado, ...camelizedRequest } = tempObj
-
-        tempObj = getUpdatedValues(originalVehicle, tempObj)  //Save only real changes to the request Object (method from setDemand())
+        
+        if (demand && getUpdatedValues)
+            tempObj = getUpdatedValues(originalVehicle, tempObj)  //Save only real changes to the request Object (method from setDemand())
+        
+        let { placa, delegatario, compartilhado, ...camelizedRequest } = tempObj //remove invalid fields for update
 
         if (newPlate && newPlate !== '')
             camelizedRequest.placa = newPlate
 
+        //Se existia um delegatário compartilhado e a alteração é de apagar a relação de compartilhamento, deletar o delCompartilhado
         if ((!this.state.compartilhado || this.state.compartilhado === '') && originalVehicle?.delegatarioCompartilhado)
             camelizedRequest.delegatarioCompartilhado = 'NULL'
 
@@ -336,24 +335,23 @@ class AltDados extends Component {
             return
         }
         const requestObject = humps.decamelizeKeys(camelizedRequest)
-
+        
         //******************GenerateLog********************** */
         let history = {
             alteracoes: camelizedRequest,
-            info
+            info,
+            files: form,
         }
 
         let log = {
             empresaId: selectedEmpresa?.delegatarioId,
             veiculoId,
             history,
-            files: form,
             demandFiles,
-            historyLength: oldHistoryLength
+            historyLength: oldHistoryLength,
+            approved
         }
-
         if (demand) log.id = demand?.id
-        if (approved) log.completed = true
 
         logGenerator(log)
             .then(r => console.log(r?.data))
@@ -370,12 +368,22 @@ class AltDados extends Component {
             await axios.put('/api/updateVehicle', { requestObject, table, tablePK, id: veiculoId })
         }
 
-        //******************Clear the state ********************** */        
-        this.reset(true)
-        this.toast()
-        await this.setState({ activeStep: 0 })
+        //******************Clear the state ********************** */
+        if (!approved) {
+            let toastMsg = 'Solicitação de alteração de dados enviada.'
+            if (demand && demand.status.match('Aguardando'))
+                toastMsg = 'Pendências para a alteração de dados registradas.'
+            this.toast(toastMsg)
+        }
+        else
+            this.toast()
 
-        if (demand) this.props.history.push('/solicitacoes')
+        if (!demand) {
+            await this.setState({ activeStep: 0, razaoSocial: undefined })
+            this.reset(true)
+        }
+        else
+            setTimeout(() => { this.props.history.push('/solicitacoes') }, 1500)
     }
 
     handleFiles = async (files, name) => {
@@ -405,7 +413,7 @@ class AltDados extends Component {
     toggleDialog = () => this.setState({ altPlaca: !this.state.altPlaca })
     closeAlert = () => this.setState({ openAlertDialog: !this.state.openAlertDialog })
     closeEquipa = () => this.setState({ addEquipa: false })
-    toast = () => this.setState({ confirmToast: !this.state.confirmToast })
+    toast = toastMsg => this.setState({ confirmToast: !this.state.confirmToast, toastMsg: toastMsg ? toastMsg : this.state.toastMsg })
     reset = resetAll => {
 
         let resetFiles = {}

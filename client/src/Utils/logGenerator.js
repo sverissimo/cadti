@@ -1,6 +1,6 @@
 import axios from 'axios'
 import { logRoutesConfig } from '../Solicitacoes/logRoutesConfig'
-import { updateFilesMetadata } from './handleFiles'
+import { updateFilesMetadata, postFilesReturnIds } from './handleFiles'
 
 export async function logGenerator(obj) {
     const path = window.location.pathname
@@ -67,9 +67,9 @@ export async function logGenerator(obj) {
     }
     if (obj.approved && !obj.declined) {
         log.history.action = logConfig?.concludedAction || 'Solicitação concluída'
-        log.status = obj?.status || 'Solicitação concluída'
+        log.status = 'Solicitação concluída'
         log.completed = true
-        console.log(obj)
+
         updateFilesMetadata(obj, filesCollection)
     }
 
@@ -79,7 +79,7 @@ export async function logGenerator(obj) {
     if (filesIds)
         log.history.files = filesIds
 
-    const { metadata, oneAtemptDemand, approved, demandFiles, ...filteredLog } = log // REFACTOR THIS! NO NEED TO ONEATTEMPTDEMAND!!!!!!!!!
+    const { metadata, approved, demandFiles, ...filteredLog } = log
 
     //**********************reestablish path**********************
     logRoutes = JSON.parse(JSON.stringify(logRoutesConfig))
@@ -89,35 +89,4 @@ export async function logGenerator(obj) {
 
     const post = axios.post('/api/logs', { log: filteredLog, collection })
     return post
-}
-
-const postFilesReturnIds = async (formData, metadata, completed, filesEndPoint) => {
-
-    let
-        files,
-        filesIds
-    if (formData instanceof FormData) {
-
-        let filesToSend = new FormData()
-
-        if (metadata instanceof Object)
-            if (completed) metadata.tempFile = 'false'
-            else metadata.tempFile = 'true'
-
-        Object.entries(metadata).forEach(([k, v]) => {
-            filesToSend.set(k, v)
-        })
-
-        for (let pair of formData) {
-            filesToSend.set(pair[0], pair[1])
-        }
-
-        files = await axios.post(`/api/${filesEndPoint}`, filesToSend)
-    }
-    if (files?.data?.file) {
-        const filesArray = files.data.file
-        filesIds = filesArray.map(f => f.id)
-        return filesIds
-    }
-    else return null
 }

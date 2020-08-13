@@ -247,8 +247,7 @@ class AltProcuradores extends Component {
                 metadata: {
                     fieldName: 'procuracao',
                     empresaId
-                },
-                oneAtemptDemand: true
+                },                
             }
             Object.entries(log).forEach(([k, v]) => { if (!v) delete log[k] })
             log.approved = approved
@@ -330,8 +329,7 @@ class AltProcuradores extends Component {
             id: demand.id,
             demandFiles,
             history: {},
-            approved: true,
-            oneAtemptDemand: true
+            approved: true            
         }
 
         if (demandFiles)

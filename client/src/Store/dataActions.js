@@ -128,23 +128,23 @@ export const updateData = (dataFromServer, collection, id) => (dispatch, getStat
     let data = humps.camelizeKeys(dataFromServer)
 
 
-//*************************REFACTOR THIS PLEASE!!!!!!!!!!!!!**************** */
+    //*************************REFACTOR THIS PLEASE!!!!!!!!!!!!!**************** */
 
-    if (collection === 'vehicleDocs') {
+ /*    if (collection === 'vehicleDocs') {
         const { vehicleDocs } = getState().data
         let updatedData = vehicleDocs.filter(v => dataFromServer.some(id => id === v.id))
 
         updatedData.forEach(doc => doc.metadata.tempFile = 'false')
         data = updatedData
-    }
-//*************************NO NEED FOR THAT SHIT, SINCE METADATA IS SENT TU UPDATEFILES METADATA!!!!!!!**************** */
+    } */
+    //*************************NO NEED FOR THAT SHIT, SINCE METADATA IS SENT TU UPDATEFILES METADATA!!!!!!!**************** */
 
-    if (collection === 'veiculos') {
-        const { equipamentos, acessibilidade } = getState().data
+    const { equipamentos, acessibilidade } = getState().data
+    if (collection === 'veiculos' && equipamentos && acessibilidade)
         data = idsToString(data, equipamentos, acessibilidade)
-    }
-    const payload = { collection, data, id }    
-    
+
+    const payload = { collection, data, id }
+
     dispatch({ type: 'UPDATE_DATA', payload })
     return
 }
@@ -160,7 +160,7 @@ export const updateDocs = (ids, metadata, collection, primarykey) => (dispatch, 
             const meta = Object.assign({}, doc.metadata, metadata)
             doc.metadata = meta
         })
-        
+
         const payload = { collection, data: selectedDocs, id: primarykey }
         dispatch({ type: 'UPDATE_DATA', payload })
     }
@@ -200,7 +200,7 @@ export const updateInsurance = ({ value, ids }) => (dispatch, getState) => {
 
     seguro.placas = placas
     seguro.veiculos = vehicleIDs
-    seguro = [seguro]    
+    seguro = [seguro]
 
     const payload = { collection: 'seguros', data: seguro, id: 'apolice' }
 

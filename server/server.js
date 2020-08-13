@@ -101,7 +101,7 @@ app.put('/api/updateFilesMetadata', async (req, res) => {
         update['metadata.' + k] = v
     })
 
-    //console.log('this is the  metadata: ', metadata, '\n\nAnd this is the update: ', update) 
+    console.log('this is the  metadata: ', metadata, '\n\nAnd this is the update: ', update) 
 
     parsedIds = ids.map(id => new mongoose.mongo.ObjectId(id))
 
@@ -110,39 +110,23 @@ app.put('/api/updateFilesMetadata', async (req, res) => {
     gfs.files.updateMany(
         { "_id": { $in: parsedIds } },
         { $set: { ...update } },
+        
         async (err, doc) => {
             if (err) console.log(err)
-            //***************REFACTOR THIS PLEASE! */
-            //Create a obj with collection, ids, primaryKey
-            // if req.query.metadata, obj.metadata = metadata
-            //if (collection.match('Docs')) emitSockt = 'updateDocs'
-            //else emitSocket = 'updateAny'
-            //io.sockets.emit(emitSocket, obj)
-            //*************THERE YOU GO! */
-
-
             if (doc) {
-                if (metadata || collection === 'empresaDocs') {
-                    io.sockets.emit('updateDocs',
-                        {
-                            collection,
-                            ids,
-                            metadata,
-                            primaryKey: 'id'
-                        })
-                    res.send({ doc, ids })
-                    return
+                let eventName = 'updateAny'
+                if (collection.match('Docs'))
+                    eventName = 'updateDocs'
+
+                const data = {
+                    collection,
+                    metadata,
+                    ids,
+                    primaryKey: 'id'
                 }
-                else {
-                    io.sockets.emit('updateAny',
-                        {
-                            collection,
-                            ids,
-                            primaryKey: 'id'
-                        })
-                    res.send({ doc, ids })
-                    return
-                }
+                io.sockets.emit(eventName, data)
+                res.send({ doc, ids })
+                return
             }
         }
     )

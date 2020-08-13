@@ -28,7 +28,7 @@ class BaixaVeiculo extends Component {
         form: {},
         check: '',
         delegaTransf: '',
-        toastMsg: 'Baixa realizada com sucesso!',
+        toastMsg: 'Solicitação de Baixa Enviada',
         confirmToast: false,
         openDialog: false,
     }
@@ -121,7 +121,7 @@ class BaixaVeiculo extends Component {
                 }
                 await this.setState({ ...vehicle })
 
-            } else if(this.state.placa !== '' ) {
+            } else if (this.state.placa !== '') {
                 let reset = {}
                 if (frota[0]) Object.keys(frota[0]).forEach(k => reset[k] = '')
                 this.setState({ alertType: 'plateNotFound', openAlertDialog: true, disableSubmit: true })
@@ -168,6 +168,7 @@ class BaixaVeiculo extends Component {
 
             case ('pendencias'):
                 history = { action: 'Pendências para a baixa do veículo', info: pendencias }
+                this.setState({ toastMsg: 'Pendências para baixa enviadas.' })
                 break
 
             case ('aprovar'):
@@ -212,20 +213,21 @@ class BaixaVeiculo extends Component {
                 table = 'veiculo',
                 tablePK = 'veiculo_id'
 
-            await axios.put('/api/updateVehicle', { requestObject, table, tablePK, id: this.state.veiculoId })
-                .then(() => this.toast())
+            await axios.put('/api/updateVehicle', { requestObject, table, tablePK, id: this.state.veiculoId })               
                 .catch(err => console.log(err))
+            this.setState({ toastMsg: 'Baixa realizada com sucesso.' })
         }
 
         //***********Clear state****************** */        
-
+        this.toast()
         await this.setState({ selectedEmpresa: undefined, frota: [], razaoSocial: '' })
         this.reset()
 
-
-        //***********if demand, Redirect to /solicitacoes */
-
-        if (demand) this.props.history.push('/solicitacoes')
+        //***********if demand, Redirect to /solicitacoes */        
+        if (demand)
+            setTimeout(() => {
+                this.props.history.push('/solicitacoes')
+            }, 1500)
     }
 
     handleCheck = e => this.setState({ checked: e.target.value })

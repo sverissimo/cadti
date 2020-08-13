@@ -357,8 +357,7 @@ class AltSocios extends Component {
             ...log,
             empresaId: delegatarioId,
             history: {},
-            historyLength: oldHistoryLength,
-            oneAtemptDemand: true,
+            historyLength: oldHistoryLength,            
             approved
         }
 

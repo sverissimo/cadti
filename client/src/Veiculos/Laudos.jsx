@@ -289,7 +289,7 @@ const Laudos = props => {
                 log.history.files = laudoDoc
 
             logGenerator(log)
-                .then(r => console.log(r))
+                .then(r => console.log(r?.data))
             clearForm('all fields, reset state please!')
             removeFile('laudoDoc')
             toggleToast()
@@ -329,7 +329,7 @@ const Laudos = props => {
             await axios.post('/api/addElement', requestBody)
                 .then(r => {
                     laudoId = r?.data[0]?.id
-                    console.log(r.data, laudoId)
+                    console.log(r.data)
                 })
                 .catch(err => console.log(err))
 
@@ -338,8 +338,7 @@ const Laudos = props => {
                 id: demand.id,
                 veiculoId,
                 demandFiles,
-                history: {},
-                oneAtemptDemand: true,
+                history: {},                
                 metadata: {
                     laudoId,
                     tempFile: 'false'
