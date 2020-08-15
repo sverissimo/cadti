@@ -56,6 +56,9 @@ class ConsultasContainer extends Component {
 
     componentDidMount() {
         document.addEventListener('keydown', this.escFunction, false)
+
+        const shit = this.props.redux.vehicleDocs.filter(file => file?.metadata?.tempFile === false)
+        console.log(shit)
     }
 
     componentWillUnmount() { this.setState({}) }
@@ -91,17 +94,17 @@ class ConsultasContainer extends Component {
             { tab } = this.state,
             { veiculos, socios, empresaDocs, vehicleDocs } = this.props.redux
 
-        let selectedFiles = empresaDocs.filter(f => f.metadata.empresaId === id.toString() && f.metadata?.tempFile === 'false')
+        let selectedFiles = empresaDocs.filter(f => f.metadata.empresaId === id.toString() && f.metadata?.tempFile === false)
         let typeId = 'empresaId'
 
         switch (tab) {
             case 1:
-                selectedFiles = empresaDocs.filter(f => f.metadata.empresaId === id.toString())
+                selectedFiles = empresaDocs.filter(f => f.metadata.empresaId === id)
                 const socio = socios.find(v => v.socioId === id)
                 if (socio) {
                     let sociosArray = []
                     selectedFiles = empresaDocs
-                        .filter(f => f.metadata.empresaId === socio.delegatarioId.toString())
+                        .filter(f => f.metadata.empresaId === socio.delegatarioId)
                         .forEach(f => {
                             if (f.metadata.socios && f.metadata.socios.includes(id))
                                 sociosArray.push(f)
@@ -126,7 +129,7 @@ class ConsultasContainer extends Component {
                 break
             case 3:
                 typeId = 'veiculoId'
-                selectedFiles = vehicleDocs.filter(f => f.metadata.veiculoId === id.toString())
+                selectedFiles = vehicleDocs.filter(f => f.metadata.veiculoId === id)
                 const vehicle = veiculos.find(v => v.veiculoId === id)
                 if (vehicle) {
                     const seguro = empresaDocs.find(f => f?.metadata?.apolice === vehicle?.apolice?.toString())
@@ -134,11 +137,12 @@ class ConsultasContainer extends Component {
                 }
                 break
             case 4:
-                selectedFiles = empresaDocs.filter(f => f.metadata.apolice === id.toString())
+                selectedFiles = empresaDocs.filter(f => f.metadata.apolice === id)
                 break
             default: void 0
         }
-        selectedFiles = selectedFiles.filter(file => file?.metadata?.tempFile === 'false')
+
+        selectedFiles = selectedFiles.filter(file => file?.metadata?.tempFile === false)
 
         if (selectedFiles[0]) {
             selectedFiles = selectedFiles

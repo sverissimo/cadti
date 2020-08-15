@@ -5,13 +5,13 @@ export const setDemand = (demand, redux) => {
         { veiculos, empresas, vehicleDocs, equipamentos, acessibilidade } = redux,
         history = demand?.history,
 
-        vehicle = veiculos.find(v => v.veiculoId.toString() === demand.veiculoId.toString()),
+        vehicle = veiculos.find(v => v.veiculoId === demand.veiculoId),
         originalVehicle = Object.freeze(vehicle),
 
         selectedEmpresa = empresas.find(e => e.razaoSocial === demand?.empresa),
         razaoSocial = selectedEmpresa?.razaoSocial,
         delegatario = razaoSocial
-
+    
     let
         selectedVehicle = { ...vehicle } || null,
         alteracoes,
@@ -66,7 +66,7 @@ export const setDemand = (demand, redux) => {
         latestDocs.push(lastDoc)
         lastDoc = []
     })
-    
+
     //****************** Return the object
     return {
         ...selectedVehicle, originalVehicle, delegatario, compartilhado, razaoSocial, selectedEmpresa,

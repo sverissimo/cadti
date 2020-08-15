@@ -44,8 +44,8 @@ function Solicitacoes(props) {
             const originalLogs = [...props.redux.vehicleLogs]
 
             let logs = originalLogs.map(log => {
-                log.empresa = empresas.find(e => e.delegatarioId.toString() === log.empresaId)?.razaoSocial
-                log.veiculo = veiculos.find(v => v.veiculoId.toString() === log.veiculoId)?.placa
+                log.empresa = empresas.find(e => e.delegatarioId === log.empresaId)?.razaoSocial
+                log.veiculo = veiculos.find(v => v.veiculoId === log.veiculoId)?.placa
                 const { __v, ...filtered } = log
                 return filtered
             })

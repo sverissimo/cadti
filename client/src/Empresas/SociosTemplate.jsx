@@ -36,7 +36,7 @@ export default function ({ socios, empresas, handleInput, handleBlur, data, addS
     handleFiles, removeFile, handleSubmit, setShowPendencias }) {
 
     const
-        { activeStep, stepTitles, filteredSocios, form, selectedEmpresa, dropDisplay, fileToRemove, demand, showPendencias, info } = data,
+        { activeStep, stepTitles, filteredSocios, contratoSocial, selectedEmpresa, dropDisplay, fileToRemove, demand, showPendencias, info } = data,
         classes = useStyles(), { iconButton, list } = classes,
         contratoSocialForm = [empresaFiles[0]]
 
@@ -175,7 +175,7 @@ export default function ({ socios, empresas, handleInput, handleBlur, data, addS
                                         <div className='flex center'>
                                             <DragAndDrop
                                                 name='contratoSocial'
-                                                formData={form}
+                                                formData={contratoSocial}
                                                 dropDisplay={dropDisplay}
                                                 handleFiles={handleFiles}
                                                 demandFiles={latestDoc}

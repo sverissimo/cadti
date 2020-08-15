@@ -200,7 +200,7 @@ class AltSocios extends Component {
     handleSubmit = async approved => {
         const
             { socios } = this.props.redux,
-            { selectedEmpresa, form, filteredSocios, demand, contratoSocial, info } = this.state,
+            { selectedEmpresa, filteredSocios, demand, contratoSocial, info } = this.state,
             { delegatarioId } = selectedEmpresa,
             oldHistoryLength = demand?.history?.length || 0
 
@@ -290,7 +290,7 @@ class AltSocios extends Component {
         const modifiedMembers = oldMembers.filter(m => m?.status === 'modified')
 
         //alert if oldMembers and new members dont exist
-        if (!modifiedMembers[0] && !newMembers[0] && !form && approved !== false && !deleted) {
+        if (!modifiedMembers[0] && !newMembers[0] && !contratoSocial && approved !== false && !deleted) {
             alert('Nenhuma alteração foi realizada.')
             return
         }
@@ -303,7 +303,7 @@ class AltSocios extends Component {
                 .map(s => s.socioId)
 
         //**********If not approved but share was updated, create demand ***************** */
-        //console.log(shareUpdate, newMembers)
+        
 
         if (!approved && (newMembers.length > 0 || shareUpdate))
             this.setState({ toastMsg: 'Alteração estatuária enviada!' })
@@ -355,22 +355,23 @@ class AltSocios extends Component {
         //**********Prepare the log object, approved, or not.******************
         log = {
             ...log,
+            id: demand?.id,
             empresaId: delegatarioId,
+            info,
             history: {},
-            historyLength: oldHistoryLength,            
+            historyLength: oldHistoryLength,
             approved
         }
 
         if (realChanges.length > 0) log.history.oldMembers = realChanges
         if (newMembers.length > 0) log.history.newMembers = newMembers
-        if (info) log.history.info = info
         if (contratoSocial && demand) log.demandFiles = [contratoSocial]
-        if (demand) log.id = demand?.id
+        //if (demand) log.id = demand?.id
         if (approved === false) log.declined = true
 
         //If first attempt to send files completed (no share update) or not, handle files
-        if (form && !updateFilesMetadata) {
-            log.history.files = form
+        if (contratoSocial && !updateFilesMetadata && !demand) {
+            log.history.files = contratoSocial
             log.metadata = {
                 fieldName: 'contratoSocial',
                 empresaId: delegatarioId
@@ -397,25 +398,18 @@ class AltSocios extends Component {
         if (demand) this.props.history.push('/solicitacoes')
     }
 
-    handleFiles = async (files, name) => {
-
-        let formData = new FormData()
-        formData.append('empresaId', this.state.selectedEmpresa.delegatarioId)
-
+    handleFiles = files => {
         if (files && files[0]) {
-            await this.setState({ [name]: files[0] })
-
-            const contratoSocial = [empresaFiles[0]]
-            const newState = handleFiles(files, formData, this.state, contratoSocial)
-
-            this.setState({ ...newState, fileToRemove: null, contratoSocial: newState?.form })
+            const contratoSocial = new FormData()
+            contratoSocial.append('contratoSocial', files[0])
+            this.setState({ contratoSocial, fileToRemove: null })
         }
     }
 
     removeFile = async (name) => {
         const
-            { form } = this.state,
-            newState = removeFile(name, form)
+            { contratoSocial } = this.state,
+            newState = removeFile(name, contratoSocial)
 
         this.setState({ ...this.state, ...newState })
     }
@@ -428,7 +422,7 @@ class AltSocios extends Component {
         this.setState({
             razaoSocial: '', selectedEmpresa: undefined, filteredSocios: [],
             dropDisplay: 'Clique ou arraste para anexar o contrato social atualizado da empresa',
-            form: undefined,
+            contratoSocial: undefined,
         })
     }
 
@@ -440,7 +434,7 @@ class AltSocios extends Component {
     render() {
         const { filteredSocios, openAlertDialog, alertType } = this.state,
             { empresas } = this.props.redux
-
+console.log(this.state.contratoSocial)
         return (
             <React.Fragment>
                 <Crumbs links={['Empresas', '/empresas']} text='Alteração do quadro societário' />

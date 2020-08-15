@@ -11,11 +11,11 @@ const VehicleLogsSchema = new mongoose.Schema({
         trim: true
     },
     empresaId: {
-        type: String,
+        type: Number,
         trim: true
     },
     veiculoId: {
-        type: String,
+        type: Number,
         trim: true
     },
     apolice: {

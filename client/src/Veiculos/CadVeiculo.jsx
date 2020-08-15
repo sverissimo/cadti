@@ -265,7 +265,7 @@ class VeiculosContainer extends PureComponent {
 
             existingVeiculoId = demand?.veiculoId,
             oldHistoryLength = demand?.history?.length || 0
-
+        
         let
             veiculoId,
             situacao = 'Cadastro solicitado'
@@ -321,33 +321,28 @@ class VeiculosContainer extends PureComponent {
         }
 
         //*****************Generate log ************** */
-        let updatedIdFormData = new FormData()
-
-        if (form instanceof FormData) {
-            updatedIdFormData.set('veiculoId', veiculoId)
-            for (let p of form) {
-                updatedIdFormData.set(p[0], p[1])
-            }
-        } else updatedIdFormData = undefined
+     
 
         const log = {
             empresaId: selectedEmpresa?.delegatarioId,
             veiculoId,
             history: {
                 info,
-                files: updatedIdFormData,
+                files: form,
             },
+            metadata: { veiculoId },
             demandFiles,
             historyLength: oldHistoryLength,
             approved
         }
 
         if (demand) log.id = demand?.id
-
+        console.log(log)
         logGenerator(log)
             .then(r => console.log(r?.data))
             .catch(err => console.log(err))
 
+        //*************Confirm send and clear State******************* */
         if (!approved) {
             let toastMsg = 'Solicitação de cadastro enviada.'
             if (demand && demand.status.match('Aguardando'))
@@ -365,12 +360,10 @@ class VeiculosContainer extends PureComponent {
 
     handleFiles = async (files, name) => {
 
-        let formData = new FormData()
-
         if (files && files[0]) {
             await this.setState({ [name]: files[0] })
 
-            const newState = handleFiles(files, formData, this.state, cadVehicleFiles)
+            const newState = handleFiles(files, this.state, cadVehicleFiles)
             this.setState({ ...newState, fileToRemove: null })
         }
     }

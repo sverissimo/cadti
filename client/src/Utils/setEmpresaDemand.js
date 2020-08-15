@@ -12,7 +12,7 @@ export const setEmpresaDemand = (demand, redux, socios) => {
         history = demand?.history || [],
         length = history?.length,
 
-        selectedEmpresa = empresas.find(e => e.delegatarioId.toString() === demand?.empresaId),
+        selectedEmpresa = empresas.find(e => e.delegatarioId === demand?.empresaId),
         razaoSocial = selectedEmpresa?.razaoSocial
 
     let

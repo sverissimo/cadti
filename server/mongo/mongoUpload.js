@@ -21,13 +21,16 @@ const storage = () => {
         url: mongoURI,
         file: (req, file) => {
             gfs.collection('vehicleDocs');
-            let metadata = { ...req.body }
+
+            let { metadata } = req.body
+            metadata = JSON.parse(metadata)
+
             Object.keys(metadata).forEach(field => {
                 if (!metadata[field]) delete metadata[field]
             })
 
             metadata.fieldName = file.fieldname
-            
+
             const fileInfo = {
                 filename: file.originalname,
                 metadata,
@@ -43,20 +46,14 @@ const storage = () => {
         file: (req, file) => {
             gfs.collection('empresaDocs')
 
-            const { ...metadata } = req.body
-            let { socios } = metadata
-
-            if (socios) {
-                socios = socios.split(',')
-                socios = socios.map(id => Number(id))
-                metadata.socios = socios
-            }
+            let { metadata } = req.body
+            metadata = JSON.parse(metadata)          
 
             let fileInfo = {
                 filename: file.originalname,
                 metadata,
                 bucketName: 'empresaDocs',
-            }            
+            }
             return fileInfo
         }
     })

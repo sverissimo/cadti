@@ -1,12 +1,14 @@
 import axios from "axios"
 
-export const handleFiles = (files, formData, state, filesFormTemplate) => {
+export const handleFiles = (files, state, filesFormTemplate) => {
+
+    const formData = new FormData()
 
     if (files && files[0]) {
-        filesFormTemplate.forEach(obj => {
+        filesFormTemplate.forEach(obj => {                   //set native file fieldname property for each file attached. Makes sense if multiple files
             for (let keys in state) {
                 if (keys.match(obj.name) && state[obj.name]) {
-                    formData.append(obj.name, state[obj.name])
+                    formData.set(obj.name, state[obj.name])
                 }
                 else void 0
             }
@@ -25,21 +27,23 @@ export const postFilesReturnIds = async (formData, metadata = {}, completed, fil
         let filesToSend = new FormData()
 
         if (completed)                              //Se a demanda for aprovada é considerada completed, e então o arquivo deixa de ser temporário.
-            metadata.tempFile = 'false'
+            metadata.tempFile = false
         else
-            metadata.tempFile = 'true'
+            metadata.tempFile = true
 
-        Object.entries(metadata).forEach(([k, v]) => {
-            filesToSend.set(k, v)
-        })
+        /*   Object.entries(metadata).forEach(([k, v]) => {
+              filesToSend.set(k, v)
+          })
+   */
 
+        filesToSend.append('metadata', JSON.stringify(metadata))
         for (let pair of formData) {
             filesToSend.set(pair[0], pair[1])
         }
 
         files = await axios.post(`/api/${filesEndPoint}`, filesToSend)
     }
-    
+
     if (files?.data?.file) {
         const filesArray = files.data.file
         filesIds = filesArray.map(f => f.id)
@@ -49,10 +53,13 @@ export const postFilesReturnIds = async (formData, metadata = {}, completed, fil
 }
 
 export const updateFilesMetadata = async (obj, filesCollection) => {
-    const
-        { files, demandFiles } = obj,
-        metadata = obj?.metadata || { tempFile: 'false' }
 
+    const { files, demandFiles } = obj
+    let metadata = { tempFile: false }
+
+    if (obj?.metadata instanceof Object)
+        metadata = Object.assign(obj.metadata, metadata)
+    console.log(obj, metadata)
     let ids
 
     if (demandFiles && demandFiles[0])

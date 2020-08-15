@@ -316,10 +316,10 @@ class AltDados extends Component {
             })
         })
         tempObj = Object.assign(tempObj, { delegatarioId, delegatarioCompartilhado, pbt, equipa, acessibilidadeId })
-        
+
         if (demand && getUpdatedValues)
             tempObj = getUpdatedValues(originalVehicle, tempObj)  //Save only real changes to the request Object (method from setDemand())
-        
+
         let { placa, delegatario, compartilhado, ...camelizedRequest } = tempObj //remove invalid fields for update
 
         if (newPlate && newPlate !== '')
@@ -335,22 +335,23 @@ class AltDados extends Component {
             return
         }
         const requestObject = humps.decamelizeKeys(camelizedRequest)
-        
-        //******************GenerateLog********************** */
-        let history = {
-            alteracoes: camelizedRequest,
-            info,
-            files: form,
-        }
 
-        let log = {
-            empresaId: selectedEmpresa?.delegatarioId,
-            veiculoId,
-            history,
-            demandFiles,
-            historyLength: oldHistoryLength,
-            approved
-        }
+        //******************GenerateLog********************** */
+        let
+            history = {
+                alteracoes: camelizedRequest,
+                info,
+                files: form,
+            },
+            log = {
+                empresaId: selectedEmpresa?.delegatarioId,
+                veiculoId,
+                history,
+                demandFiles,
+                metadata: { veiculoId },
+                historyLength: oldHistoryLength,
+                approved
+            }
         if (demand) log.id = demand?.id
 
         logGenerator(log)
@@ -388,15 +389,10 @@ class AltDados extends Component {
 
     handleFiles = async (files, name) => {
 
-        const { veiculoId } = this.state
-
-        let formData = new FormData()
-        formData.append('veiculoId', veiculoId)
-
         if (files && files[0]) {
             await this.setState({ [name]: files[0] })
 
-            const newState = handleFiles(files, formData, this.state, altDadosFiles)
+            const newState = handleFiles(files, this.state, altDadosFiles)
             this.setState({ ...newState, fileToRemove: null })
         }
     }

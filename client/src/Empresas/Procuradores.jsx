@@ -61,7 +61,7 @@ class AltProcuradores extends Component {
                 { vencimento, expires } = history[0],
                 newMembers = history[0].newMembers || [],
                 oldMembers = history[0].oldMembers || []
-
+console.log(demandState)
             let allDemandProcs, procsToAdd = []
 
             if (oldMembers[0]) {
@@ -175,7 +175,7 @@ class AltProcuradores extends Component {
 
         const
             { redux } = this.props,
-            { selectedEmpresa, demand, procFiles, vencimento, expires, info } = this.state,
+            { selectedEmpresa, demand, procuracao, vencimento, expires, info } = this.state,
             empresaId = selectedEmpresa.delegatarioId,
             procuradores = JSON.parse(JSON.stringify(redux.procuradores)),
             nProc = [...this.state.procsToAdd]
@@ -184,15 +184,15 @@ class AltProcuradores extends Component {
             sObject = {}
 
         //***********************Check for errors *********************** */
-        let { errors } = checkInputErrors('returnObj', 'Dont check the date, please!') || []
-
-        if (errors && errors[0]) {
-            if (!expires)
-                await this.setState({ ...this.state, ...checkInputErrors('setState', 'dontCheckDate') })
-            else
-                await this.setState({ ...this.state, ...checkInputErrors('setState') })
-            return
-        }
+        /*     let { errors } = checkInputErrors('returnObj', 'Dont check the date, please!') || []
+    
+            if (errors && errors[0]) {
+                if (!expires)
+                    await this.setState({ ...this.state, ...checkInputErrors('setState', 'dontCheckDate') })
+                else
+                    await this.setState({ ...this.state, ...checkInputErrors('setState') })
+                return
+            } */
 
         //***********Create array of Procs from state***********
         nProc.forEach((n, i) => {
@@ -238,7 +238,7 @@ class AltProcuradores extends Component {
                 status: 'Aguardando aprovação',
                 empresaId,
                 history: {
-                    files: procFiles,
+                    files: procuracao,
                     newMembers,
                     oldMembers,
                     vencimento,
@@ -247,7 +247,7 @@ class AltProcuradores extends Component {
                 metadata: {
                     fieldName: 'procuracao',
                     empresaId
-                },                
+                },
             }
             Object.entries(log).forEach(([k, v]) => { if (!v) delete log[k] })
             log.approved = approved
@@ -329,7 +329,7 @@ class AltProcuradores extends Component {
             id: demand.id,
             demandFiles,
             history: {},
-            approved: true            
+            approved: true
         }
 
         if (demandFiles)
@@ -338,7 +338,6 @@ class AltProcuradores extends Component {
                 empresaId: selectedEmpresa.delegatarioId,
                 procuracaoId: procuracaoId,
                 procuradores: procIdArray,
-                tempFile: 'false'
             }
         //generate log
         logGenerator(log)
@@ -375,15 +374,16 @@ class AltProcuradores extends Component {
     }
 
     handleFiles = (file) => {
-        let procFiles = new FormData()
-        procFiles.append('procuracao', file[0])
-        this.setState({ procFiles, fileToRemove: null })
+
+        let procuracao = new FormData()
+        procuracao.append('procuracao', file[0])
+        this.setState({ procuracao, fileToRemove: null })
     }
 
     removeFile = async (name) => {
         const
-            { procFiles } = this.state,
-            newState = removeFile(name, procFiles)
+            { procuracao } = this.state,
+            newState = removeFile(name, procuracao)
 
         this.setState({ ...this.state, ...newState })
     }
@@ -436,7 +436,7 @@ class AltProcuradores extends Component {
             dropDisplay: 'Clique ou arraste para anexar a procuração referente a este(s) procurador(es).',
             procsToAdd: [1],
             vencimento: undefined,
-            procFiles: undefined,
+            procuracao: undefined,
             //telProcurador0: undefined,
         })
     }
