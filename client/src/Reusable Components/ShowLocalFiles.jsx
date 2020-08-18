@@ -36,7 +36,7 @@ const fileIcon = {
 
 }
 
-export default function ShowLocalFiles({ form, files, demand, demandFiles, collection }) {
+export default function ShowLocalFiles({ form, files, demand, demandFiles, collection, style = {} }) {
 
     const createLink = (key, fileName) => {
 
@@ -58,7 +58,7 @@ export default function ShowLocalFiles({ form, files, demand, demandFiles, colle
 
     let fileArray = []
 
-    if (demand) {        
+    if (demand) {
         demandFiles.forEach(file => {
             form.forEach(({ name, title }) => {
                 if (file?.metadata?.fieldName === name)
@@ -85,7 +85,7 @@ export default function ShowLocalFiles({ form, files, demand, demandFiles, colle
     return <React.Fragment>
         <div style={divContainer}>
             {fileArray.map((f, i) =>
-                <div style={divFiles} key={i}>
+                <div style={{ ...divFiles, ...style }} key={i}>
                     <InsertDriveFileOutlinedIcon style={fileIcon} />
                     <span style={{ verticalAlign: 'middle', }}>
                         {' '} {f.label}

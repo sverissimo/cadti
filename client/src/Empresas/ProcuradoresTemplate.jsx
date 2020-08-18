@@ -139,7 +139,7 @@ const useStyles = makeStyles(theme => ({
 export default function ({ redux, data, handleInput, addProc, removeProc, handleFiles, getFile, plusOne, minusOne, checkExpires, setShowPendencias, removeFile }) {
 
     const
-        { dropDisplay, selectedEmpresa, procsToAdd, selectedDocs, procFiles, expires, demand, showPendencias, info, demandFiles, fileToRemove } = data,
+        { dropDisplay, selectedEmpresa, procsToAdd, selectedDocs, procuracao, expires, demand, showPendencias, info, demandFiles, fileToRemove } = data,
         { empresas, procuradores } = redux,
 
         classes = useStyles(), { paper, container, title, dropBox, addButton, paper2, containerList } = classes
@@ -276,7 +276,7 @@ export default function ({ redux, data, handleInput, addProc, removeProc, handle
                                 <DragAndDrop
                                     style={{ marginTop: '22px', width: '90%' }}
                                     name='procuracao'
-                                    formData={procFiles}
+                                    formData={procuracao}
                                     dropDisplay={dropDisplay}
                                     handleFiles={handleFiles}
                                     demandFiles={demandFiles}
@@ -290,7 +290,7 @@ export default function ({ redux, data, handleInput, addProc, removeProc, handle
                                         collection='empresaDocs'
                                         demandFiles={demandFiles}
                                         form={empresaFiles}
-                                    //files={files}
+                                        style={{ minWidth: '220px' }}
                                     />
                                 </div>
                             }

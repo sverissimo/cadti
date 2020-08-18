@@ -20,6 +20,7 @@ import Search from '@material-ui/icons/Search'
 import { seguroForm } from '../Forms/altSegForm'
 import './veiculos.css'
 import ShowLocalFiles from '../Reusable Components/ShowLocalFiles'
+import { empresaFiles } from '../Forms/empresaFiles'
 
 const useStyles = makeStyles(theme => ({
 
@@ -67,11 +68,11 @@ export default function SegurosTemplate({ empresas, data, enableAddPlaca, handle
             else placas = insurance.placas.filter(p => p.match(placa)).sort()
         }
     }
-    console.log(demandFiles)
+    
     return (
         <Fragment>
             <div style={{ width: '100%', display: 'flex', flexDirection: 'column' }}>
-                <Crumbs links={['Veículos', '/veiculos']} text='Seguros' />
+                <Crumbs links={['Veículos', '/veiculos']} text='Seguros' demand={demand} />
                 <SelectEmpresa
                     data={data}
                     empresas={empresas}
@@ -160,12 +161,13 @@ export default function SegurosTemplate({ empresas, data, enableAddPlaca, handle
                                     style={{ padding: '0 10px', margin: '0 10px', width: '28%', minWidth: '320px' }}
                                 />
                                 : demandFiles[0] &&
-                                <div className="flex">
+                                <div style={{ width: '225px', marginTop: '15px' }}>
                                     <ShowLocalFiles
                                         demand={demand}
                                         collection='empresaDocs'
                                         demandFiles={demandFiles}
-                                        form={seguroForm}
+                                        form={empresaFiles}
+                                        style={{ width: '200px' }}
                                     //files={files}
                                     />
                                 </div>

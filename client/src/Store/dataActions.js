@@ -126,19 +126,7 @@ export const updateData = (dataFromServer, collection, id) => (dispatch, getStat
     let i = 0
     if (i > 0) return
     let data = humps.camelizeKeys(dataFromServer)
-
-
-    //*************************REFACTOR THIS PLEASE!!!!!!!!!!!!!**************** */
-
- /*    if (collection === 'vehicleDocs') {
-        const { vehicleDocs } = getState().data
-        let updatedData = vehicleDocs.filter(v => dataFromServer.some(id => id === v.id))
-
-        updatedData.forEach(doc => doc.metadata.tempFile = 'false')
-        data = updatedData
-    } */
-    //*************************NO NEED FOR THAT SHIT, SINCE METADATA IS SENT TU UPDATEFILES METADATA!!!!!!!**************** */
-
+   
     const { equipamentos, acessibilidade } = getState().data
     if (collection === 'veiculos' && equipamentos && acessibilidade)
         data = idsToString(data, equipamentos, acessibilidade)

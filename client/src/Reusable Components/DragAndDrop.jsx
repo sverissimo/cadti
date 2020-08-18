@@ -33,7 +33,7 @@ export default function DragAndDrop({ title, name, formData, handleFiles, dropDi
                     setFileExistance(false)
                 }
             }
-        }
+        } else if(!formData) setFileName(null)
     }, [formData, name, demandFiles, fileToRemove])
 
 

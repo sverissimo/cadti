@@ -26,7 +26,7 @@ export const logRoutesConfig = [
     },
     {
         ...vehicle,
-        subject: 'Cadastro ou alteração de seguro',        
+        subject: 'Cadastro/alteração de seguro',        
         path: '/solicitacoes/seguros',
         requestAction: 'Cadastro de seguro solicitado',
         responseAction: 'Pendências para o cadastro do seguro',

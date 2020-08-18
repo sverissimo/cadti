@@ -303,7 +303,14 @@ app.post('/api/cadSeguro', (req, res) => {
         `INSERT INTO public.seguro (${keys}) VALUES (${parsed}) RETURNING *`, (err, table) => {
             if (err) res.send(err)
             if (table && table.rows && table.rows.length === 0) { res.send(table.rows); return }
-            if (table && table.rows.length > 0) res.send(table.rows)
+            if (table && table.rows.length > 0) {
+                const updatedData = {
+                    insertedObjects: table.rows,
+                    collection: 'seguros'
+                }
+                io.sockets.emit('insertElements', updatedData)
+                res.send(table.rows)
+            }
         })
 })
 
