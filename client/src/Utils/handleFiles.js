@@ -31,11 +31,6 @@ export const postFilesReturnIds = async (formData, metadata = {}, completed, fil
         else
             metadata.tempFile = true
 
-        /*   Object.entries(metadata).forEach(([k, v]) => {
-              filesToSend.set(k, v)
-          })
-   */
-
         filesToSend.append('metadata', JSON.stringify(metadata))
         for (let pair of formData) {
             filesToSend.set(pair[0], pair[1])
@@ -59,7 +54,7 @@ export const updateFilesMetadata = async (obj, filesCollection) => {
 
     if (obj?.metadata instanceof Object)
         metadata = Object.assign(obj.metadata, metadata)
-    console.log(obj, metadata)
+    //console.log(obj, metadata)
     let ids
 
     if (demandFiles && demandFiles[0])

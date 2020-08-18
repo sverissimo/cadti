@@ -21,9 +21,11 @@ h6 {
     margin: 5px 0;
     font-weight: 500;
 }
+
 p {
-margin: 5px 0
+    margin: 5px 0
 }
+
 div.loading {
     position: fixed;
     top: 45%;
@@ -59,8 +61,13 @@ div.loading {
     justify-content: center !important;
 }
 
+.spaceBetween {        
+    justify-content: space-between;
+    align-items: center;
+}
+
 .spaceBetween:last-child {
-    justify-content: flex-start;
+    justify-content: flex-start;    
 }
 
 .flexColumn {
@@ -88,7 +95,7 @@ div.loading {
     padding: 5px 0 5px 10px;
     cursor: pointer;
     width: 100px;
-    color: rgb(50, 65, 120);    
+    color: rgb(50, 65, 120);
 }
 
 .link2 {

@@ -13,7 +13,7 @@ conn.once('open', () => {
     gfs = Grid(conn.db);
     gfs.collection('vehicleDocs')
 })
-
+//*********************************CREATE STORAGE CLASS AND EXPORT TWO INSTANCES OF IT!!!!********************************  */
 const storage = () => {
 
     const vehicleStorage = new GridFsStorage({

@@ -86,7 +86,7 @@ export async function logGenerator(obj) {
     logConfig = logRoutes.find(e => path.match(e.path))
 
     //**********************request and return promisse**********************
-
+    console.log({ log: filteredLog, collection })
     const post = axios.post('/api/logs', { log: filteredLog, collection })
     return post
 }

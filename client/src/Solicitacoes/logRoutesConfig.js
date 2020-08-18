@@ -26,9 +26,13 @@ export const logRoutesConfig = [
     },
     {
         ...vehicle,
-        subject: 'Cadastro ou alteração de seguro',
-        collection: 'vehicleLogs',
-        path: '/veiculos/altSeguro',
+        subject: 'Cadastro ou alteração de seguro',        
+        path: '/solicitacoes/seguros',
+        requestAction: 'Cadastro de seguro solicitado',
+        responseAction: 'Pendências para o cadastro do seguro',
+        concludedAction: 'Seguro cadastrado',
+        primaryKey: 'id',
+        collection, docs, 
         
     },
     {
@@ -36,7 +40,7 @@ export const logRoutesConfig = [
         subject: 'Cadastro de laudo de segurança veicular',
         collection: 'vehicleLogs',
         path: '/solicitacoes/laudos',
-        requestAction: 'Cadastro do laudo  solicitado',
+        requestAction: 'Cadastro do laudo solicitado',
         responseAction: 'Pendências para o cadastro do laudo',
         concludedAction: 'Laudo veicular cadastrado',
     },

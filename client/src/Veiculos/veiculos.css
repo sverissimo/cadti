@@ -118,21 +118,15 @@ body {
     font-size: 17px;
     margin-right: 8px;
     border-radius: 12px;
-    padding: 2px    
+    padding: 2px
 }
+
 .radio {
     display: inline-block;
     font-size: 0.7rem
 }
 
-/* ************** AltSeguroTemplate elements ******************* */
-
-.addSeguro {
-    display: flex;
-    width: 100%;
-    justify-content: space-between;
-    padding-right: 3px;
-}
+/* ************** SegurosTemplate elements ******************* */
 
 .icon {
     padding-top: 7px;
@@ -158,7 +152,7 @@ table {
     width: 100%;
     margin-top: 5px;
     border-collapse: collapse;
-    border: none;    
+    border: none;
 }
 
 .tHeader {
@@ -169,7 +163,7 @@ table {
     font-size: 14px;
     font-weight: 500;
     border: none;
-    text-align: center;    
+    text-align: center;
 }
 
 h6 {

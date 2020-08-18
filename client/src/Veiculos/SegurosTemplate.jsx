@@ -5,6 +5,7 @@ import SelectEmpresa from '../Reusable Components/SelectEmpresa'
 import TextInput from '../Reusable Components/TextInput'
 import AutoComplete from '../Utils/autoComplete'
 import DragAndDrop from '../Reusable Components/DragAndDrop'
+import StepperButtons from '../Reusable Components/StepperButtons'
 
 import { makeStyles } from '@material-ui/core/styles'
 import Paper from '@material-ui/core/Paper'
@@ -18,6 +19,7 @@ import Search from '@material-ui/icons/Search'
 
 import { seguroForm } from '../Forms/altSegForm'
 import './veiculos.css'
+import ShowLocalFiles from '../Reusable Components/ShowLocalFiles'
 
 const useStyles = makeStyles(theme => ({
 
@@ -37,7 +39,8 @@ const useStyles = makeStyles(theme => ({
     textField: {
         marginLeft: theme.spacing(1),
         marginRight: theme.spacing(1),
-        width: 250,
+        width: '25%',
+        minWidth: 310,
         fontSize: '0.8rem',
         fontColor: '#bbb',
         textAlign: 'center',
@@ -47,11 +50,11 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
-export default function AltSeguro({ empresas, data, enableAddPlaca, handleInput, handleBlur,
-    addPlate, removeFromInsurance, handleFiles, handleSubmit, enableChangeApolice, showAllPlates }) {
+export default function SegurosTemplate({ empresas, data, enableAddPlaca, handleInput, handleBlur,
+    addPlate, removeFromInsurance, handleFiles, handleSubmit, enableChangeApolice, showAllPlates, removeFile, setShowPendencias }) {
 
-    const { selectedEmpresa, placa, apolice, addedPlaca, frota, insuranceExists,
-        insurance, dropDisplay, seguroFile } = data
+    const { selectedEmpresa, placa, apolice, addedPlaca, frota, insuranceExists, demandFiles, fileToRemove, demand,
+        insurance, dropDisplay, apoliceDoc, showPendencias, info } = data
 
     const classes = useStyles(), { paper, textField, chip } = classes
 
@@ -64,7 +67,7 @@ export default function AltSeguro({ empresas, data, enableAddPlaca, handleInput,
             else placas = insurance.placas.filter(p => p.match(placa)).sort()
         }
     }
-    console.log(seguroForm)
+    console.log(demandFiles)
     return (
         <Fragment>
             <div style={{ width: '100%', display: 'flex', flexDirection: 'column' }}>
@@ -91,10 +94,12 @@ export default function AltSeguro({ empresas, data, enableAddPlaca, handleInput,
                         }
                     </Paper>
                 }
-                {selectedEmpresa && insurance && (insurance.placas || enableAddPlaca) &&
+                {
+                    //selectedEmpresa && insurance && (insurance.placas || enableAddPlaca) &&
+                    true &&
                     <Paper className={paper}>
                         <p>Utilize as opções abaixo para filtrar, adicionar ou excluir placas desta apólice</p>
-                        <section className='addSeguro'>
+                        <section className='flex spaceBetween' style={{ paddingTop: '17px' }}>
                             <div>
                                 <TextField
                                     inputProps={{
@@ -142,19 +147,34 @@ export default function AltSeguro({ empresas, data, enableAddPlaca, handleInput,
                                 />
                                 <Search style={{ marginTop: '18px' }} />
                             </div>
-                            <DragAndDrop
-                                name='apoliceDoc'
-                                formData={seguroFile}
-                                dropDisplay={dropDisplay}
-                                handleFiles={handleFiles}
-                                single={true}
-                            />
+
+                            {!demand ?
+                                <DragAndDrop
+                                    name='apoliceDoc'
+                                    formData={apoliceDoc}
+                                    dropDisplay={dropDisplay}
+                                    handleFiles={handleFiles}
+                                    demandFiles={demandFiles}
+                                    removeFile={removeFile}
+                                    fileToRemove={fileToRemove}
+                                    style={{ padding: '0 10px', margin: '0 10px', width: '28%', minWidth: '320px' }}
+                                />
+                                : demandFiles[0] &&
+                                <div className="flex">
+                                    <ShowLocalFiles
+                                        demand={demand}
+                                        collection='empresaDocs'
+                                        demandFiles={demandFiles}
+                                        form={seguroForm}
+                                    //files={files}
+                                    />
+                                </div>
+                            }
 
                         </section>
 
                         <div className='addNewDiv' style={{ justifyContent: 'flex-start', padding: '10px' }}>
                             <span onClick={() => showAllPlates()}>→ Clique aqui para selecionar placas</span>
-
                         </div>
 
                         {/********************************* Lista de placas vinculadas (Chips) ********************************************/}
@@ -179,19 +199,34 @@ export default function AltSeguro({ empresas, data, enableAddPlaca, handleInput,
                         )}
                     </Paper>}
             </div >
-            {apolice && (insurance || enableAddPlaca) &&
-                <div style={{ minHeight: '60px', position: 'flex' }}>
-                    <Button
-                        size="small"
-                        color='primary'
-                        className='saveButton'
-                        variant="contained"
-                        onClick={() => handleSubmit()}
-                    // disabled={!placas[0] || !seguroFile ? true : false}
-                    >
-                        Salvar <span>&nbsp;&nbsp; </span> <SaveIcon />
-                    </Button>
-                </div>}
+            {
+                apolice && (insurance || enableAddPlaca) && !demand ?
+                    <div style={{ minHeight: '60px', position: 'flex' }}>
+                        <Button
+                            size="small"
+                            color='primary'
+                            className='saveButton'
+                            variant="contained"
+                            onClick={() => handleSubmit()}
+                        // disabled={!placas[0] || !apoliceDoc ? true : false}
+                        >
+                            Salvar <span>&nbsp;&nbsp; </span> <SaveIcon />
+                        </Button>
+                    </div>
+                    :
+                    selectedEmpresa && demand ?
+                        <StepperButtons
+                            uniqueStep={true}
+                            declineButtonLabel='Indeferir'
+                            demand={demand}
+                            setShowPendencias={setShowPendencias}
+                            showPendencias={showPendencias}
+                            info={info}
+                            handleSubmit={handleSubmit}
+                            handleInput={handleInput}
+                        />
+                        : null
+            }
         </Fragment >
     )
 }

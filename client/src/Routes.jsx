@@ -5,7 +5,7 @@ import HomeTemplate from './HomeTemplate'
 import VeiculosHome from './Veiculos/VeiculosHome'
 import CadVeiculos from './Veiculos/CadVeiculo'
 import AltDados from './Veiculos/AltDados'
-import AltSeguro from './Veiculos/AltSeguro'
+import Seguros from './Veiculos/Seguros'
 import Laudos from './Veiculos/Laudos'
 import BaixaVeiculo from './Veiculos/BaixaVeiculo'
 import Config from './Veiculos/Config'
@@ -27,7 +27,7 @@ const Routes = () => {
             <Route path='/veiculos' exact component={VeiculosHome} />
             <Route path='/veiculos/cadastro' exact component={CadVeiculos} />
             <Route path='/veiculos/altDados' exact component={AltDados} />
-            <Route path='/veiculos/altSeguro' exact component={AltSeguro} />
+            <Route path='/veiculos/seguros' exact component={Seguros} />
             <Route path='/veiculos/laudos' exact component={Laudos} />
             <Route path='/veiculos/baixaVeiculo' exact component={BaixaVeiculo} />
             <Route path='/veiculos/config' exact component={Config} />
@@ -41,6 +41,7 @@ const Routes = () => {
             <Route path='/solicitacoes' exact component={Solicitacoes} />
             <Route path='/solicitacoes/cadastro' exact component={CadVeiculos} />
             <Route path='/solicitacoes/altDados' exact component={AltDados} />
+            <Route path='/solicitacoes/seguros' exact component={Seguros} />
             <Route path='/solicitacoes/baixaVeiculo' exact component={BaixaVeiculo} />
             <Route path='/solicitacoes/laudos' exact component={Laudos} />
             <Route path='/solicitacoes/socios' exact component={Socios} />

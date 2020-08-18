@@ -9,7 +9,7 @@ import { checkInputErrors } from '../Utils/checkInputErrors'
 import ReactToast from '../Reusable Components/ReactToast'
 import Crumbs from '../Reusable Components/Crumbs'
 
-import AltProcuradoresTemplate from './ProcuradoresTemplate'
+import ProcuradoresTemplate from './ProcuradoresTemplate'
 import download from '../Utils/downloadFile'
 import { procuradorForm } from '../Forms/procuradorForm'
 
@@ -18,7 +18,7 @@ import { logGenerator } from '../Utils/logGenerator'
 import { setEmpresaDemand } from '../Utils/setEmpresaDemand'
 import { removeFile } from '../Utils/handleFiles'
 
-class AltProcuradores extends Component {
+class Procuradores extends Component {
 
     constructor() {
         super()
@@ -61,7 +61,7 @@ class AltProcuradores extends Component {
                 { vencimento, expires } = history[0],
                 newMembers = history[0].newMembers || [],
                 oldMembers = history[0].oldMembers || []
-console.log(demandState)
+
             let allDemandProcs, procsToAdd = []
 
             if (oldMembers[0]) {
@@ -184,7 +184,7 @@ console.log(demandState)
             sObject = {}
 
         //***********************Check for errors *********************** */
-        /*     let { errors } = checkInputErrors('returnObj', 'Dont check the date, please!') || []
+            let { errors } = checkInputErrors('returnObj', 'Dont check the date, please!') || []
     
             if (errors && errors[0]) {
                 if (!expires)
@@ -192,7 +192,7 @@ console.log(demandState)
                 else
                     await this.setState({ ...this.state, ...checkInputErrors('setState') })
                 return
-            } */
+            }
 
         //***********Create array of Procs from state***********
         nProc.forEach((n, i) => {
@@ -452,7 +452,7 @@ console.log(demandState)
         return (
             <React.Fragment>
                 <Crumbs links={['Empresas', '/empresas']} text='Cadastro de procurações' demand={demand} />
-                <AltProcuradoresTemplate
+                <ProcuradoresTemplate
                     data={this.state}
                     redux={this.props.redux}
                     handleInput={this.handleInput}
@@ -476,4 +476,4 @@ console.log(demandState)
 
 const collections = ['empresas', 'procuradores', 'procuracoes', 'getFiles/empresaDocs']
 
-export default (StoreHOC(collections, AltProcuradores))
+export default (StoreHOC(collections, Procuradores))

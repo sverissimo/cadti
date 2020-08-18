@@ -24,7 +24,7 @@ const menuCards = [
         date: '07/Nov',
         description:
             'Atualizar seguros e apólices',
-        link: '/altSeguro',
+        link: '/seguros',
         imageUrl: "/images/car_insurance2.png"
     },
     {
