@@ -31,8 +31,6 @@ class Seguro extends Component {
 
     state = {
         addedPlaca: '',
-        insurance: {},
-        insuranceExists: false,
         razaoSocial: '',
         seguradora: '',
         deletedVehicles: [],
@@ -80,25 +78,7 @@ class Seguro extends Component {
 
             this.filterInsurances()
         }
-        /*   this.setState({
-              seguradoras: this.props.redux['seguradoras'],
-              allInsurances: this.props.redux['seguros'],
-          }) */
         document.addEventListener('keydown', this.escFunction, false)
-    }
-
-    componentDidUpdate(prevProps, prevState) {
-        const
-            { seguros } = this.props.redux,
-            { apolice, insuranceExists, dontUpdateProps } = this.state
-
-        if (prevProps.redux.seguros !== seguros && !dontUpdateProps) {
-            console.log('Props updated. DUProps state is:', dontUpdateProps)
-            if (insuranceExists) {
-                const updatedInsurance = seguros.find(s => s.apolice === apolice)
-                this.setState({ insuranceExists: updatedInsurance })
-            }
-        }
     }
 
     filterInsurances = () => {
@@ -133,10 +113,10 @@ class Seguro extends Component {
                 vencimento = moment(insurance.vencimento).format('YYYY-MM-DD'),
                 { seguradora, seguradoraId } = insurance
 
-            await this.setState({ seguradora, seguradoraId, dataEmissao, vencimento, insurance, insuranceExists })
+            await this.setState({ seguradora, seguradoraId, dataEmissao, vencimento, insurance })
             return
         }
-        else this.setState({ insuranceExists, insurance: {}, dataEmissao: '', vencimento: '', deletedVehicles: [] })
+        else this.setState({ dataEmissao: '', vencimento: '', deletedVehicles: [] })
     }
 
     handleInput = async e => {
@@ -144,8 +124,8 @@ class Seguro extends Component {
         let { value } = e.target
         const
             { name } = e.target,
-            { veiculos, empresas, seguradoras } = this.props.redux,
-            { allInsurances, selectedEmpresa, frota, insurance, apolice, dataEmissao,
+            { empresas, seguradoras } = this.props.redux,
+            { selectedEmpresa, frota, insurance, apolice, dataEmissao,
                 vencimento, newInsurance, seguradora } = this.state
 
         this.setState({ [name]: value })
@@ -185,23 +165,20 @@ class Seguro extends Component {
         }
 
         // *************NEW INSURANCE CHECK / UPDATE STATE****************
-
         const fields = ['seguradora', 'apolice', 'dataEmissao', 'vencimento']
         const checkFields = fields.every(f => this.state[f] && this.state[f] !== '')
 
-        if (name !== 'razaoSocial' && !newInsurance && checkFields && Object.keys(insurance).length === 0) {
-            let newInsurance = {}, seguradoraId
+        if (name !== 'razaoSocial' && !newInsurance && checkFields && !insurance) {
+            let seguradoraId
             const selectedSeguradora = seguradoras.find(sg => sg.seguradora === this.state.seguradora)
             if (selectedSeguradora) seguradoraId = selectedSeguradora.id
 
-            Object.assign(newInsurance,
-                {
-                    empresa: selectedEmpresa.razaoSocial,
-                    delegatarioId: selectedEmpresa.delegatarioId,
-                    apolice, seguradora, seguradoraId, dataEmissao, vencimento, placas: [], veiculos: []
-                })
-
-            await this.setState({ insuranceExists: false, insurance: newInsurance, seguradoraId })
+            const newInsurance = {
+                empresa: selectedEmpresa.razaoSocial,
+                delegatarioId: selectedEmpresa.delegatarioId,
+                apolice, seguradora, seguradoraId, dataEmissao, vencimento, placas: [], veiculos: []
+            }
+            await this.setState({ insurance: newInsurance, seguradoraId })
         }
     }
 
@@ -240,6 +217,7 @@ class Seguro extends Component {
             else this.setState({ errors: undefined })
         }
     }
+
     showAllPlates = () => {
         const { insurance, allPlates } = this.state
         let placas = [], allPlatesObj = {}
@@ -266,10 +244,8 @@ class Seguro extends Component {
     addPlate = async placaInput => {
 
         const
-            { apolice, frota, deletedVehicles } = this.state,
+            { apolice, frota, deletedVehicles, insurance } = this.state,
             vehicleFound = frota.find(v => v.placa === placaInput)
-        let
-            { insuranceExists, insurance } = this.state
 
         if (!placaInput || placaInput === '') return
 
@@ -277,7 +253,7 @@ class Seguro extends Component {
         if (vehicleFound === undefined || vehicleFound.hasOwnProperty('veiculoId') === false) {
             this.setState({ openAlertDialog: true, alertType: 'plateNotFound' })
             return null
-        } else if (insuranceExists === true && insurance.placas && vehicleFound.placa) {
+        } else if (insurance && insurance.placas && vehicleFound.placa) {
             const check = insurance.placas.find(p => p === vehicleFound.placa)
             if (check) {
                 this.setState({ openAlertDialog: true, alertType: 'plateExists' })
@@ -285,8 +261,7 @@ class Seguro extends Component {
             }
         }
         // Add plates to rendered list
-        if (apolice) {
-
+        if (apolice && insurance) {
             const
                 update = { ...insurance },
                 { veiculoId } = vehicleFound
@@ -302,8 +277,6 @@ class Seguro extends Component {
                 const i = deletedVehicles.indexOf(veiculoId)
                 deletedVehicles.splice(i, 1)
             }
-
-
             this.setState({ insurance: update, addedPlaca: '', deletedVehicles })
         }
     }
@@ -330,7 +303,7 @@ class Seguro extends Component {
 
             if (!deletedVehicles.includes(veiculos[k])) {
                 deletedVehicles.push(veiculos[k])
-                console.log(deletedVehicles)
+
                 this.setState({ deletedVehicles })
             }
         }
@@ -352,7 +325,6 @@ class Seguro extends Component {
         const
             { insurance, dataEmissao, vencimento, seguradoraId } = this.state,
             { id, veiculos } = insurance
-
 
         let updates = {}
         const
@@ -383,10 +355,10 @@ class Seguro extends Component {
 
         let vehicleIds = []
 
-        /*   if (errors && errors[0]) {
-              this.setState({ ...this.state, ...checkInputErrors('setState') })
-              return
-          } */
+        if (errors && errors[0]) {
+            this.setState({ ...this.state, ...checkInputErrors('setState') })
+            return
+        }
         if (!seguradora || seguradora === '') {
             this.setState({ openAlertDialog: true, alertType: 'seguradoraNotFound', seguradora: undefined })
             return
@@ -461,8 +433,7 @@ class Seguro extends Component {
             { apolice, insurance, newElement, deletedVehicles, demand, demandFiles } = this.state,
             vehicleIds = insurance.veiculos
 
-        //********************************** CREATE/UPDATE INSURANCE **********************************        
-
+        //********************************** CREATE/UPDATE INSURANCE **********************************
         const insuranceExists = this.props.redux.seguros.some(s => s.apolice === apolice)
         if (insuranceExists)
             await this.updateInsurance()
@@ -527,23 +498,6 @@ class Seguro extends Component {
         await this.setState({ apoliceDoc: formData, fileToRemove: null })
     }
 
-    submitFiles = async () => {
-        const { apolice, selectedEmpresa } = this.state
-
-        let seguroFormData = new FormData()
-
-        if (this.state.apoliceDoc) {
-            seguroFormData.append('fieldName', 'apoliceDoc')
-            seguroFormData.append('apolice', apolice)
-            seguroFormData.append('empresaId', selectedEmpresa.delegatarioId)
-            for (let pair of this.state.apoliceDoc.entries()) {
-                seguroFormData.append(pair[0], pair[1])
-            }
-            await axios.post('/api/empresaUpload', seguroFormData)
-                .then(r => console.log(r.data))
-            this.toast()
-        }
-    }
     removeFile = async (name) => {
         const
             { apoliceDoc } = this.state,
@@ -558,8 +512,7 @@ class Seguro extends Component {
     closeAlert = () => this.setState({ openAlertDialog: !this.state.openAlertDialog })
     clearFields = () => {
         this.setState({
-            insuranceExists: false, seguradora: '', insurance: {},
-            apolice: '', dataEmissao: '', vencimento: '', apoliceDoc: null, deletedVehicles: [],
+            seguradora: '', insurance: undefined, apolice: '', dataEmissao: '', vencimento: '', apoliceDoc: null, deletedVehicles: [],
             dropDisplay: 'Clique ou arraste para anexar a apólice'
         })
     }

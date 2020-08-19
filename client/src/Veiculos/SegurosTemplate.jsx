@@ -96,8 +96,7 @@ export default function SegurosTemplate({ empresas, data, enableAddPlaca, handle
                     </Paper>
                 }
                 {
-                    //selectedEmpresa && insurance && (insurance.placas || enableAddPlaca) &&
-                    true &&
+                    selectedEmpresa && insurance && (insurance.placas || enableAddPlaca) &&                    
                     <Paper className={paper}>
                         <p>Utilize as opções abaixo para filtrar, adicionar ou excluir placas desta apólice</p>
                         <section className='flex spaceBetween' style={{ paddingTop: '17px' }}>

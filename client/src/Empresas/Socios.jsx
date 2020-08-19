@@ -7,12 +7,11 @@ import StoreHOC from '../Store/StoreHOC'
 import SociosTemplate from './SociosTemplate'
 import ReactToast from '../Reusable Components/ReactToast'
 import valueParser from '../Utils/valueParser'
-import { empresaFiles } from '../Forms/empresaFiles';
 
 import Crumbs from '../Reusable Components/Crumbs'
 import { sociosForm } from '../Forms/sociosForm'
 import AlertDialog from '../Reusable Components/AlertDialog'
-import { handleFiles, removeFile } from '../Utils/handleFiles'
+import { removeFile } from '../Utils/handleFiles'
 import { setEmpresaDemand } from '../Utils/setEmpresaDemand'
 import { logGenerator } from '../Utils/logGenerator'
 
@@ -303,7 +302,7 @@ class AltSocios extends Component {
                 .map(s => s.socioId)
 
         //**********If not approved but share was updated, create demand ***************** */
-        
+
 
         if (!approved && (newMembers.length > 0 || shareUpdate))
             this.setState({ toastMsg: 'Alteração estatuária enviada!' })
@@ -434,7 +433,7 @@ class AltSocios extends Component {
     render() {
         const { filteredSocios, openAlertDialog, alertType } = this.state,
             { empresas } = this.props.redux
-console.log(this.state.contratoSocial)
+        console.log(this.state.contratoSocial)
         return (
             <React.Fragment>
                 <Crumbs links={['Empresas', '/empresas']} text='Alteração do quadro societário' />
