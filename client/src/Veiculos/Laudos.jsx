@@ -30,12 +30,12 @@ const Laudos = props => {
     })
 
     const
-        [razaoSocial, empresaInput] = useState(empresas[0].razaoSocial),
-        [selectedEmpresa, setEmpresa] = useState(empresas[0]),
-        [oldVehicles, setOldVehicles] = useState(veiculos[0]),
-        [filteredVehicles, setFilteredVehicles] = useState([veiculos[0]]),
+        [razaoSocial, empresaInput] = useState(''),
+        [selectedEmpresa, setEmpresa] = useState([]),
+        [oldVehicles, setOldVehicles] = useState(),
+        [filteredVehicles, setFilteredVehicles] = useState([]),
         [details, setDetails] = useState(false),
-        [selectedVehicle, selectVehicle] = useState(veiculos[0]),
+        [selectedVehicle, selectVehicle] = useState(),
         [anchorEl, setAnchorEl] = useState(null),
         [dropDisplay, setDropDisplay] = useState(initState.dropDisplay),
         [laudoDoc, setLaudoDoc] = useState(),
@@ -69,7 +69,8 @@ const Laudos = props => {
                 state = {},
                 fullDemand = setDemand(demand, props.redux),
                 empresa = fullDemand.selectedEmpresa,
-                dFiles = fullDemand.demandFiles
+                dFiles = fullDemand.demandFiles,
+                { originalVehicle } = fullDemand
 
             Object.entries(history[0]).forEach(([k, v]) => {            // Set state with demandState
                 if (stateInputs.hasOwnProperty(k))
@@ -80,6 +81,7 @@ const Laudos = props => {
             empresaInput(empresa.razaoSocial)
             changeInputs(state)
             setDemandFiles(dFiles)
+            selectVehicle(originalVehicle)
         }
     }, [empresas, demand, props.redux])
 
@@ -107,6 +109,7 @@ const Laudos = props => {
                     vehiclesLaudo.push({ ...v, laudos: laudosTemp })
                     laudosTemp = []
                 })
+
                 await setOldVehicles(vehiclesLaudo)
                 await setFilteredVehicles(vehiclesLaudo)
 
@@ -123,7 +126,7 @@ const Laudos = props => {
             }
         }
 
-        insertLaudos()       
+        insertLaudos()
     }, [selectedEmpresa, veiculos, laudos, selectedVehicle])
 
     const handleInput = useCallback(e => {
@@ -171,7 +174,7 @@ const Laudos = props => {
 
     useEffect(() => {
 
-        if (selectedVehicle) {
+        if (selectedVehicle && !demand) {
             if (selectedVehicle.laudos && selectedVehicle.laudos[0]) {
 
                 const
@@ -183,11 +186,10 @@ const Laudos = props => {
                 vehicleLaudos.forEach(l => {
                     table2.forEach(t => {
                         let laudoDocId
+                        
                         const laudoDoc = laudoDocs.find(d => d.metadata.laudoId === l.id || d.metadata.laudoId.toString() === l.id.toString())
-                        //console.log(l?.id, laudoDocs)
                         if (laudoDoc)
                             laudoDocId = laudoDoc.id
-
 
                         if (!tableHeaders.includes(t.title))
                             tableHeaders.push(t.title)
@@ -210,8 +212,8 @@ const Laudos = props => {
                 setTableData({ tableHeaders, laudosArray, laudoDocs })
 
             } else setTableData(`Nenhum laudo cadastrado para o veículo placa ${selectedVehicle.placa}.`)
-        }     
-    }, [selectedVehicle, laudos, vehicleDocs])
+        }
+    }, [selectedVehicle, laudos, vehicleDocs, demand])
 
     const clear = () => {
         document.querySelector('[name = "placa"]').value = ''
@@ -338,7 +340,7 @@ const Laudos = props => {
                 id: demand.id,
                 veiculoId,
                 demandFiles,
-                history: {},                
+                history: {},
                 metadata: {
                     laudoId,
                     tempFile: 'false'

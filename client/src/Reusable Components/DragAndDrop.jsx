@@ -12,12 +12,12 @@ export default function DragAndDrop({ title, name, formData, handleFiles, dropDi
     const [fileExists, setFileExistance] = useState()
 
     //*************Set demandFiles names, if there are any
-    useEffect(() => {        
+    useEffect(() => {
         if (demandFiles && demandFiles[0]) {
             demandFiles.forEach(({ filename, metadata }) => {
                 if (name === metadata.fieldName) {
                     setFileName(filename)
-                    setFileExistance(true)
+                    setFileExistance(true)    
                 }
             })
         }
@@ -33,9 +33,8 @@ export default function DragAndDrop({ title, name, formData, handleFiles, dropDi
                     setFileExistance(false)
                 }
             }
-        } else if(!formData) setFileName(null)
-    }, [formData, name, demandFiles, fileToRemove])
-
+        } else if (!formData && !demandFiles) setFileName(null)
+    }, [formData, name, demandFiles, fileToRemove])    
 
     //*****************Remove file name from rendered field *********/    
     useEffect(() => {

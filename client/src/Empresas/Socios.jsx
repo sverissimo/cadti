@@ -47,7 +47,7 @@ class AltSocios extends Component {
                 demandState = setEmpresaDemand(demand, redux, filteredSocios),
                 { latestDoc, ...updatedState } = demandState
 
-            this.setState({ ...updatedState, contratoSocial: latestDoc, originals })
+            this.setState({ ...updatedState, demandFiles: [latestDoc], originals })
         }
         else this.setState({ originals, filteredSocios })
     }
@@ -302,8 +302,6 @@ class AltSocios extends Component {
                 .map(s => s.socioId)
 
         //**********If not approved but share was updated, create demand ***************** */
-
-
         if (!approved && (newMembers.length > 0 || shareUpdate))
             this.setState({ toastMsg: 'Alteração estatuária enviada!' })
 
@@ -315,11 +313,10 @@ class AltSocios extends Component {
 
             oldMembers = humps.decamelizeKeys(realChanges)
             newMembers = humps.decamelizeKeys(newMembers)
-            console.log(newMembers)
+            
             try {
                 //insert new members, if any
-                if (newMembers.length > 0) {
-                    console.log('newbies', newMembers)
+                if (newMembers.length > 0) {                    
                     newMembers.forEach(m => delete m.status)
                     await axios.post('/api/cadSocios', { socios: newMembers, table, tablePK })
                         .then(r => r.data.forEach(newSocio => socioIdsArray.push(newSocio.socio_id)))
@@ -333,8 +330,7 @@ class AltSocios extends Component {
                             await axios.delete(`/api/delete?table=socios&tablePK=socio_id&id=${member.socio_id}`)
                                 .catch(err => console.log(err))
 
-                            const index = socioIdsArray.indexOf(member.socio_id)
-                            console.log(index, member)
+                            const index = socioIdsArray.indexOf(member.socio_id)                            
                             if (index !== -1) {
                                 socioIdsArray.splice(i, 1)
                                 updateFilesMetadata = true
@@ -367,6 +363,7 @@ class AltSocios extends Component {
         if (contratoSocial && demand) log.demandFiles = [contratoSocial]
         //if (demand) log.id = demand?.id
         if (approved === false) log.declined = true
+        if (log.completed) log.approved = true
 
         //If first attempt to send files completed (no share update) or not, handle files
         if (contratoSocial && !updateFilesMetadata && !demand) {
@@ -376,8 +373,8 @@ class AltSocios extends Component {
                 empresaId: delegatarioId
             }
         }
-        log.metadata.socios = socioIdsArray
-
+        log.metadata.socios = socioIdsArray        
+        
         logGenerator(log)                               //Generate the demand
             .then(r => {
                 console.log(r?.data)
@@ -394,7 +391,8 @@ class AltSocios extends Component {
         const updatedList = humps.decamelizeKeys(this.props.redux.socios)
         await this.setState({ originals: updatedList })
         await this.resetState()
-        if (demand) this.props.history.push('/solicitacoes')
+        if (demand)
+            setTimeout(() => { this.props.history.push('/solicitacoes') }, 1500)
     }
 
     handleFiles = files => {
@@ -433,7 +431,7 @@ class AltSocios extends Component {
     render() {
         const { filteredSocios, openAlertDialog, alertType } = this.state,
             { empresas } = this.props.redux
-        console.log(this.state.contratoSocial)
+
         return (
             <React.Fragment>
                 <Crumbs links={['Empresas', '/empresas']} text='Alteração do quadro societário' />

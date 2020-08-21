@@ -19,6 +19,7 @@ import Crumbs from '../Reusable Components/Crumbs'
 import StepperButtons from '../Reusable Components/StepperButtons'
 import CustomStepper from '../Reusable Components/Stepper'
 import AlertDialog from '../Reusable Components/AlertDialog'
+import { removeFile as globalRemoveFile } from '../Utils/handleFiles'
 
 class EmpresasContainer extends Component {
 
@@ -169,7 +170,7 @@ class EmpresasContainer extends Component {
         }
     }
 
-    handleBlur = async  e => {
+    handleBlur = async e => {
         const { empresas } = this.props.redux
         const { name } = e.target
         let { value } = e.target
@@ -210,14 +211,13 @@ class EmpresasContainer extends Component {
     handleFiles = (file) => {
         let formData = new FormData()
         formData.append('contratoSocial', file[0])
-        this.setState({ dropDisplay: file[0].name, contratoSocial: formData })
+        this.setState({ contratoSocial: formData })
     }
 
     handleSubmit = async () => {
 
         let { socios, contratoSocial } = this.state,
             empresa = {},
-            contratoFile = new FormData(),
             empresaId
 
         empresasForm.forEach(e => {
@@ -247,20 +247,39 @@ class EmpresasContainer extends Component {
                 empresaId = delegatarioId.data
             })
 
-        if (contratoSocial) {
-            contratoFile.append('fieldName', 'contratoSocial')
-            contratoFile.append('empresaId', empresaId)
+        this.submitFile(empresaId, contratoSocial)
+        this.toast()
+        this.resetState()
+    }
+
+    submitFile = async (empresaId, contratoSocial) => {
+        if (contratoSocial instanceof FormData) {
+            const contratoFile = new FormData()
+            let metadata = {
+                fieldName: 'contratoSocial',
+                empresaId,
+                tempFile: false
+            }
+
+            metadata = JSON.stringify(metadata)
+            contratoFile.append('metadata', metadata)
+
             for (let pair of contratoSocial.entries()) {
                 contratoFile.append(pair[0], pair[1])
             }
+
             await axios.post('/api/empresaUpload', contratoFile)
                 .then(r => console.log('file ok.'))
         }
-
-        this.toast()
-        this.resetState()
-
     }
+
+    removeFile = async (name) => {
+        const
+            { contratoSocial } = this.state,
+            newState = globalRemoveFile(name, contratoSocial)
+        this.setState({ ...this.state, ...newState })
+    }
+
     resetState = () => {
         let
             resetEmpresa = {},
@@ -305,7 +324,7 @@ class EmpresasContainer extends Component {
     closeFiles = () => this.setState({ showFiles: !this.state.showFiles })
 
     render() {
-
+        
         const { socios, activeStep, confirmToast, toastMsg, steps, openAlertDialog,
             alertType, contratoSocial } = this.state
 
@@ -325,6 +344,7 @@ class EmpresasContainer extends Component {
                         handleInput={this.handleInput}
                         handleBlur={this.handleBlur}
                         handleFiles={this.handleFiles}
+                        removeFile={this.removeFile}
                     />
                     : activeStep === 1 ?
                         <SociosTemplate
@@ -334,7 +354,7 @@ class EmpresasContainer extends Component {
                             handleBlur={this.handleBlur}
                             addSocio={this.addSocio}
                             removeSocio={this.removeSocio}
-                            handleFiles={this.handleFiles}
+                            handleFiles={this.handleFiles}                            
                             enableEdit={this.enableEdit}
                             handleEdit={this.handleEdit}
                         />

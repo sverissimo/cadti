@@ -50,7 +50,7 @@ class Procuradores extends Component {
         const
             { redux } = this.props,
             demand = this.props?.location?.state?.demand
-
+        
         //*************Set demand if any
         if (demand) {
             const
@@ -91,63 +91,34 @@ class Procuradores extends Component {
         document.addEventListener('keydown', this.escFunction, false)
     }
 
-    setProcuracoesList(procuracoes, procuradores) {
-        let
-            procArray = [],
-            procuracoesArray = []
-
-        procuracoes.forEach(pr => {
-            pr.procuradores.forEach(id => {
-                const pro = procuradores.find(p => p.procuradorId === id)
-                if (pro) procArray.push(pro)
-            })
-            procuracoesArray.push(procArray)
-            procArray = []
-        })
-        return procuracoesArray
-    }
-
     componentWillUnmount() { this.setState({}) }
 
     handleInput = async e => {
         const
             { name } = e.target,
-            procuradores = [...this.props.redux.procuradores]
-        let
-            { value } = e.target,
-            procuracoes = [...this.props.redux.procuracoes],
-            procArray = [],
-            procuracoesArray = []
+            { empresas } = this.props.redux,
+            procuradores = [...this.props.redux.procuradores],
+            procuracoes = JSON.parse(JSON.stringify(this.props.redux.procuracoes))
+
+        let { value } = e.target
 
         //***********************Parse values ********************** */
-
         const parsedValue = valueParser(name, value)
         this.setState({ [name]: parsedValue })
 
         //**************************SetState *********************** */
         if (name === 'razaoSocial' && Array.isArray(procuradores)) {
 
-            procuracoes = procuracoes.filter(pr => pr.razaoSocial === value)
-
-            if (procuracoes[0]) procuracoes.forEach(pr => {
-                pr.procuradores.forEach(id => {
-                    const pro = procuradores.find(p => p.procuradorId === id)
-                    if (pro) procArray.push(pro)
-
-                })
-                procuracoesArray.push(procArray)
-                procArray = []
-            })
-
-            this.setState({ procuracoesArray, selectedDocs: procuracoes })
-
-            const selectedEmpresa = this.props.redux.empresas.find(e => e.razaoSocial === value)
+            const selectedEmpresa = empresas.find(e => e.razaoSocial === value)
 
             if (selectedEmpresa) {
-                await this.setState({ razaoSocial: selectedEmpresa.razaoSocial, selectedEmpresa })
+                const selectedDocs = procuracoes.filter(pr => pr.delegatarioId === selectedEmpresa.delegatarioId)
+                await this.setState({ selectedEmpresa, selectedDocs, razaoSocial: selectedEmpresa.razaoSocial })
                 if (value !== selectedEmpresa.razaoSocial) this.setState({ selectedEmpresa: undefined })
+
             } else this.setState({ selectedEmpresa: undefined })
         }
+
         if (name.match('cpfProcurador')) {
 
             const proc = procuradores.find(p => p.cpfProcurador === value)
@@ -184,16 +155,16 @@ class Procuradores extends Component {
             sObject = {}
 
         //***********************Check for errors *********************** */
-            let { errors } = checkInputErrors('returnObj', 'Dont check the date, please!') || []
-    
-            if (errors && errors[0]) {
-                if (!expires)
-                    await this.setState({ ...this.state, ...checkInputErrors('setState', 'dontCheckDate') })
-                else
-                    await this.setState({ ...this.state, ...checkInputErrors('setState') })
-                return
-            }
-
+        /*       let { errors } = checkInputErrors('returnObj', 'Dont check the date, please!') || []
+      
+              if (errors && errors[0]) {
+                  if (!expires)
+                      await this.setState({ ...this.state, ...checkInputErrors('setState', 'dontCheckDate') })
+                  else
+                      await this.setState({ ...this.state, ...checkInputErrors('setState') })
+                  return
+              }
+   */
         //***********Create array of Procs from state***********
         nProc.forEach((n, i) => {
             procuradorForm.forEach(obj => {
@@ -255,8 +226,9 @@ class Procuradores extends Component {
 
             logGenerator(log)
                 .then(r => console.log(r))
+
             this.setState({ toastMsg: 'Solicitação de cadastro enviada', confirmToast: true })
-            this.resetState()
+            setTimeout(() => { this.resetState() }, 1500);
         }
         if (approved === false) {
             const log = {
@@ -342,7 +314,6 @@ class Procuradores extends Component {
         //generate log
         logGenerator(log)
             .then(r => console.log(r))
-
 
         this.toast()
         if (demand)
@@ -437,7 +408,7 @@ class Procuradores extends Component {
             procsToAdd: [1],
             vencimento: undefined,
             procuracao: undefined,
-            //telProcurador0: undefined,
+            expires: false
         })
     }
 

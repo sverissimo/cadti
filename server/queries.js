@@ -8,10 +8,9 @@ const empresas = `
 		FROM public.delegatario d
 		LEFT JOIN veiculo v
 			ON v.delegatario_id = d.delegatario_id
-		GROUP BY d.delegatario_id
-		ORDER BY frota DESC LIMIT 20
+		GROUP BY d.delegatario_id		
 		`
-
+		//ORDER BY frota DESC LIMIT 20
 const veiculos = `
 		SELECT veiculo.*,	
 			marca_chassi.marca as marca_chassi,
@@ -40,7 +39,7 @@ const veiculos = `
 		LEFT JOIN public.seguro
 			ON veiculo.apolice = seguro.apolice
 		LEFT JOIN public.seguradora
-			ON public.seguradora.id = seguro.seguradora_id		
+			ON public.seguradora.id = seguro.seguradora_id				
 		ORDER BY veiculo.veiculo_id DESC LIMIT 50		
 		`
 //WHERE indicador_idade < 2004 OR placa = 'DDD-4444'

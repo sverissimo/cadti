@@ -36,17 +36,13 @@ export default function ({ socios, empresas, handleInput, handleBlur, data, addS
     handleFiles, removeFile, handleSubmit, setShowPendencias }) {
 
     const
-        { activeStep, stepTitles, filteredSocios, contratoSocial, selectedEmpresa, dropDisplay, fileToRemove, demand, showPendencias, info } = data,
+        { activeStep, stepTitles, filteredSocios, contratoSocial, selectedEmpresa, dropDisplay, fileToRemove, demand, demandFiles, showPendencias, info } = data,
         classes = useStyles(), { iconButton, list } = classes,
         contratoSocialForm = [empresaFiles[0]]
 
-    let
-        { latestDoc } = data,
-        standAlone = true
-
+    let standAlone = true
     if (stepTitles) standAlone = false
-    if (latestDoc) latestDoc = [latestDoc] //general components need an array
-
+    
     return (
         <>
             <main className="flex center">
@@ -107,7 +103,7 @@ export default function ({ socios, empresas, handleInput, handleBlur, data, addS
                                             name={e.field}
                                             label={e.label}
                                             className={list}
-                                            disabled={e.field === 'cpfSocio' ? true : s.edit ? false : true}
+                                            disabled={s.edit ? false : true}
                                             onChange={handleEdit}
                                             InputLabelProps={
                                                 {
@@ -148,11 +144,11 @@ export default function ({ socios, empresas, handleInput, handleBlur, data, addS
                     {
                         standAlone && demand ?
                             <section>
-                                {latestDoc &&
+                                {contratoSocial &&
                                     <ShowLocalFiles
                                         demand={demand}
                                         collection='empresaDocs'
-                                        demandFiles={latestDoc}
+                                        demandFiles={[contratoSocial]}
                                         form={contratoSocialForm}
                                     />
                                 }
@@ -178,7 +174,7 @@ export default function ({ socios, empresas, handleInput, handleBlur, data, addS
                                                 formData={contratoSocial}
                                                 dropDisplay={dropDisplay}
                                                 handleFiles={handleFiles}
-                                                demandFiles={latestDoc}
+                                                demandFiles={demandFiles}
                                                 removeFile={removeFile}
                                                 fileToRemove={fileToRemove}
                                                 style={{ width: '40%' }}

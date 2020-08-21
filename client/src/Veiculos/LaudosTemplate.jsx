@@ -25,10 +25,9 @@ const LaudosTemplate = (
         anchorEl, laudoDoc, dropDisplay, functions, demand, demandFiles, showPendencias, info, fileToRemove }) => {
 
     const
-        { placa } = selectedVehicle,
+        placa = selectedVehicle?.placa,
         { handleInput, clickOnPlate, showDetails, handleFiles, handleSubmit, closeMenu, clear,
             removeFile, deleteLaudo, setShowPendencias } = functions
-
 
     const renderColor = laudos => {
         if (laudos && laudos[0] && laudos[0].validade) {
@@ -58,7 +57,7 @@ const LaudosTemplate = (
                 />
             </div>
             {
-                selectedEmpresa && <>
+                selectedEmpresa && !Array.isArray(selectedEmpresa) && <>
                     {!demand &&
                         <header className='flex' style={{ marginBottom: '15px', justifyContent: 'space-between' }}>
                             {

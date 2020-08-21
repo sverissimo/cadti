@@ -9,10 +9,11 @@ import { makeStyles } from '@material-ui/core/styles'
 
 import { empresasForm } from '../Forms/empresasForm'
 import FormSubtitle from '../Reusable Components/FormSubtiltle'
+import DragAndDrop from '../Reusable Components/DragAndDrop'
 
 
 const useStyles = makeStyles(theme => ({
-   
+
     textField: {
         marginLeft: theme.spacing(1),
         marginRight: theme.spacing(1),
@@ -26,7 +27,7 @@ const useStyles = makeStyles(theme => ({
     input: {
         textAlign: 'center'
     },
-   
+
     dropBox: {
         margin: '2% 0',
     },
@@ -58,10 +59,9 @@ const useStyles = makeStyles(theme => ({
     }
 }));
 
-export default function ({ handleInput, handleBlur, data, handleFiles }) {
-    const { activeStep, stepTitles, dropDisplay } = data,
-        classes = useStyles(), { dropBox, dropBoxItem, dropBoxItem2 } = classes
-
+export default function ({ handleInput, handleBlur, data, handleFiles, removeFile }) {
+    const { activeStep, stepTitles, dropDisplay, contratoSocial, fileToRemove} = data
+           
     return (
         <div className="flex paper">
             <FormSubtitle subtitle={stepTitles[activeStep]} />
@@ -72,7 +72,20 @@ export default function ({ handleInput, handleBlur, data, handleFiles }) {
                     handleBlur={handleBlur}
                     handleInput={handleInput}
                 />
-                <Dropzone onDrop={handleFiles}>
+                <div className='flex center'>
+                    <DragAndDrop
+                        name='contratoSocial'
+                        formData={contratoSocial}
+                        dropDisplay={dropDisplay}
+                        handleFiles={handleFiles}                        
+                        removeFile={removeFile}
+                        fileToRemove={fileToRemove}
+                        style={{ width: '40%' }}
+                    />
+                </div>
+
+
+                {/*    <Dropzone onDrop={handleFiles}>
                     {({ getRootProps, getInputProps }) => (
                         <Grid container justify="center" alignItems='center' className={dropBox} direction='row' {...getRootProps()}>
                             <input {...getInputProps()} />
@@ -84,7 +97,7 @@ export default function ({ handleInput, handleBlur, data, handleFiles }) {
                             }
                         </Grid>
                     )}
-                </Dropzone>
+                </Dropzone> */}
             </div>
         </div>
     )

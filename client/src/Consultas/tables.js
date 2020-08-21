@@ -59,6 +59,11 @@ export const sociosTable = [
 
     },
     {
+        field: 'telSocio',
+        title: 'Telefone',
+
+    },
+    {
         field: 'share',
         title: 'Participação Societária (%)',
         filtering: false,

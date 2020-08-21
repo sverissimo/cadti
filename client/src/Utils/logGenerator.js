@@ -69,11 +69,11 @@ export async function logGenerator(obj) {
         log.history.action = logConfig?.concludedAction || 'Solicitação concluída'
         log.status = 'Solicitação concluída'
         log.completed = true
-
         updateFilesMetadata(obj, filesCollection)
     }
 
     //********************** Upload files and get their Ids***********************/    
+    
     const filesIds = await postFilesReturnIds(obj?.history?.files, obj?.metadata, log?.completed, filesEndPoint)
 
     if (filesIds)

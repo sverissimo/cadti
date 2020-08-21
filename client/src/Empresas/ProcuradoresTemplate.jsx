@@ -180,7 +180,7 @@ export default function ({ redux, data, handleInput, addProc, removeProc, handle
         if (date) return moment(date).format('DD-MM-YYYY')
         else return ''
     }
-
+    
     //************CRIAR FUNÇÃO PARA IMPEDIR QUE O PROCURADOR QUE TENHA ALGUMA PROCURAÇÃO SEJA APAGADO NA TELA 'CONSULTAS' */
     return (
         <Grid

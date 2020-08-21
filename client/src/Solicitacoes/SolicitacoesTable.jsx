@@ -64,7 +64,7 @@ export default function ({ tableData, title, showDetails, assessDemand, complete
                 localization={{
                     header: { actions: 'Opções' },
                     body: {
-                        emptyDataSourceMessage: 'Registro não encontrado.',
+                        emptyDataSourceMessage: 'Nenhuma solicitação aberta no momento.',
                         editRow: { deleteText: 'Tem certeza que deseja apagar esse registro ?' },
                         deleteTooltip: 'Apagar',
                         filterRow: { filterTooltip: 'Filtrar' }
