@@ -21,9 +21,9 @@ export const eForm = [
         field: 'oldId',
         label: 'Código no sistema antigo'
     },
-    {
+/*     {
         ...placas
-    },
+    }, */
 
 ]
 

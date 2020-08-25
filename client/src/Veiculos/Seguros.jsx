@@ -38,7 +38,8 @@ class Seguro extends Component {
         confirmToast: false,
         dropDisplay: 'Clique ou arraste para anexar a apólice',
         showAllPlates: false,
-        showPendencias: false
+        showPendencias: false,
+        selectAll: false
     }
 
     async componentDidMount() {
@@ -48,7 +49,7 @@ class Seguro extends Component {
 
         this.setState({
             seguradoras: this.props.redux['seguradoras'],
-            allInsurances: this.props.redux['seguros'],
+            allInsurances: this.props.redux['seguros']
         })
 
         if (demand) {
@@ -116,7 +117,7 @@ class Seguro extends Component {
             await this.setState({ seguradora, seguradoraId, dataEmissao, vencimento, insurance })
             return
         }
-        else this.setState({ dataEmissao: '', vencimento: '', deletedVehicles: [] })
+        else this.setState({ dataEmissao: '', vencimento: '', deletedVehicles: [], insurance: {} })
     }
 
     handleInput = async e => {
@@ -241,7 +242,27 @@ class Seguro extends Component {
         this.setState({ allPlatesObj })
     }
 
-    addPlate = async placaInput => {
+    selectAllPlates = () => {
+        const
+            { allPlates, selectAll } = this.state,
+            updatedState = {}
+
+        if (allPlates) {
+            allPlates.forEach(p => {
+
+                if (selectAll) {
+                    updatedState[p] = false
+                    this.removeFromInsurance(p)
+                } else {
+                    updatedState[p] = true
+                    this.addPlate(p, true)
+                }
+            })
+        }
+        this.setState({ selectAll: !selectAll, allPlatesObj: updatedState })
+    }
+
+    addPlate = async (placaInput, allSelected) => {
 
         const
             { apolice, frota, deletedVehicles, insurance } = this.state,
@@ -253,7 +274,7 @@ class Seguro extends Component {
         if (vehicleFound === undefined || vehicleFound.hasOwnProperty('veiculoId') === false) {
             this.setState({ openAlertDialog: true, alertType: 'plateNotFound' })
             return null
-        } else if (insurance && insurance.placas && vehicleFound.placa) {
+        } else if (insurance && insurance.placas && vehicleFound.placa && !allSelected) {
             const check = insurance.placas.find(p => p === vehicleFound.placa)
             if (check) {
                 this.setState({ openAlertDialog: true, alertType: 'plateExists' })
@@ -269,8 +290,10 @@ class Seguro extends Component {
             if (!update.placas) update.placas = []
             if (!update.veiculos) update.veiculos = []
 
-            update.placas.push(placaInput)
-            update.veiculos.push(veiculoId)
+            if (!update.placas.includes(placaInput))
+                update.placas.push(placaInput)
+            if (!update.veiculos.includes(veiculoId))
+                update.veiculos.push(veiculoId)
 
             //Remove from state.deletedVehicles if its the case
             if (deletedVehicles.includes(veiculoId)) {
@@ -519,12 +542,12 @@ class Seguro extends Component {
 
     render() {
         const
-            { openAlertDialog, alertType, openAddDialog, showAllPlates, allPlates, allPlatesObj } = this.state,
+            { openAlertDialog, alertType, openAddDialog, showAllPlates, allPlates, allPlatesObj, selectAll } = this.state,
             { empresas } = this.props.redux
 
         const enableAddPlaca = seguroForm
             .every(k => this.state.hasOwnProperty(k.field) && this.state[k.field] !== '')
-
+        console.log(this.state.insurance)
         return (
             <Fragment>
                 <SeguroTemplate
@@ -557,7 +580,10 @@ class Seguro extends Component {
                         close={this.showAllPlates}
                         title='Selecione as placas para adicionar à apólice.'
                         handleCheck={this.handleCheck}
-                        data={allPlatesObj} />
+                        data={allPlatesObj}
+                        selectAll={selectAll}
+                        selectAllPlates={this.selectAllPlates}
+                    />
                 }
 
                 {openAlertDialog && <AlertDialog open={openAlertDialog} close={this.closeAlert} alertType={alertType} customMessage={this.state.customMsg} />}

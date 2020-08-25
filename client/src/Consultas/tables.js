@@ -11,7 +11,7 @@ export const delegatarioTable = [
     },
     {
         field: 'vencimentoContrato',
-        title: 'Data de Vencimento',
+        title: 'Vencimento do Cadastro',
         filtering: false,
         render: rowData => formatDate(rowData.vencimentoContrato)
     },
@@ -26,18 +26,7 @@ export const delegatarioTable = [
     {
         field: 'frota',
         title: 'Tamanho da frota'
-    }
-    /*   {
-          field: 'procuradoresList',
-          title: 'Nome do Procurador',
-          fSize: '0.3rem',
-          render: rowData => rowData.procuradoresList
-              ?
-              rowData.procuradoresList.map(s => s.charAt(0).toUpperCase()
-                  .concat(s.slice(1).toLowerCase())).toString().replace(/,/g, ", ")
-              :
-              ''
-      } */
+    }    
 ]
 
 export const sociosTable = [
@@ -95,10 +84,10 @@ export const vehicleTable = [
         field: 'placa',
         title: 'Placa',
     },
-    {
+  /*   {
         field: 'modeloCarroceria',
         title: 'Modelo da Carroceria',
-    },
+    }, */
     {
         field: 'empresa',
         title: 'Delegatário',
@@ -115,6 +104,14 @@ export const vehicleTable = [
         field: 'vencimento',
         title: 'Vencimento Seguro',
         render: rowData => formatDate(rowData.vencimento)
+    },
+    {
+        field: 'situacao',
+        title: 'Situação',
+    },
+    {
+        field: 'compartilhado',
+        title: 'Compartilhado por'
     },
     {
         field: 'indicadorIdade',

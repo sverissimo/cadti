@@ -1,7 +1,7 @@
 import React from 'react'
 import * as FileSaver from 'file-saver';
 import * as XLSX from 'xlsx';
-
+import moment from 'moment'
 import MaterialTable from 'material-table';
 import { tables } from './tables'
 
@@ -9,10 +9,10 @@ export default function ({ tab, collection, showDetails, showFiles, showCertific
 
     const id = ['delegatarioId', 'socioId', 'procuradorId', 'veiculoId', 'apolice'][tab],
         subject = ['empresas', 'sócios', 'procuradores', 'veículos', 'seguros']
-    
+
     if (!Array.isArray(collection)) collection = []
     collection = collection.map(obj => ({ ...obj }))
-    
+
     return (
         <div style={{ margin: '10px 0' }} className='noPrint'>
             <MaterialTable
@@ -37,6 +37,18 @@ export default function ({ tab, collection, showDetails, showFiles, showCertific
                             const data = new Blob([excelBuffer], { type: fileType });
                             FileSaver.saveAs(data, fileName + fileExtension);
                         }
+
+                        if (Array.isArray(data)) {
+                            data.forEach((obj, i) => {
+                                Object.entries(obj).forEach(([key, value]) => {                                    
+                                    if (moment(value, 'YYYY-MM-DDTHH:mm:ss.SSSZZ', true).isValid()) {
+                                        value = moment(value).format('DD/MM/YYYY')
+                                        obj[key] = value                                        
+                                    }
+                                })
+                            })
+                        }
+                        
                         exportToCSV(data, fileName)
                     },
                     actionsColumnIndex: -1,

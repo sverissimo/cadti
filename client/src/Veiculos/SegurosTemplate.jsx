@@ -8,7 +8,6 @@ import DragAndDrop from '../Reusable Components/DragAndDrop'
 import StepperButtons from '../Reusable Components/StepperButtons'
 
 import { makeStyles } from '@material-ui/core/styles'
-import Paper from '@material-ui/core/Paper'
 import TextField from '@material-ui/core/TextField'
 import Button from '@material-ui/core/Button'
 import Chip from '@material-ui/core/Chip'
@@ -24,12 +23,6 @@ import { empresaFiles } from '../Forms/empresaFiles'
 
 const useStyles = makeStyles(theme => ({
 
-    paper: {
-        padding: theme.spacing(1),
-        textAlign: 'center',
-        color: theme.palette.text.secondary,
-        margin: theme.spacing(1)
-    },
     title: {
         color: '#000',
         fontWeight: 400,
@@ -57,7 +50,7 @@ export default function SegurosTemplate({ empresas, data, enableAddPlaca, handle
     const { selectedEmpresa, placa, apolice, addedPlaca, frota, insuranceExists, demandFiles, fileToRemove, demand,
         insurance, dropDisplay, apoliceDoc, showPendencias, info } = data
 
-    const classes = useStyles(), { paper, textField, chip } = classes
+    const classes = useStyles(), { textField, chip } = classes
 
     let placas = []
 
@@ -68,7 +61,7 @@ export default function SegurosTemplate({ empresas, data, enableAddPlaca, handle
             else placas = insurance.placas.filter(p => p.match(placa)).sort()
         }
     }
-    
+
     return (
         <Fragment>
             <div style={{ width: '100%', display: 'flex', flexDirection: 'column' }}>
@@ -80,7 +73,7 @@ export default function SegurosTemplate({ empresas, data, enableAddPlaca, handle
                     handleBlur={handleBlur}
                 />
                 {selectedEmpresa &&
-                    <Paper className={paper}>
+                    <section className="paper">
                         <h3 className='formSubtitle'>Informe os dados do seguro.</h3>
                         <TextInput
                             form={seguroForm}
@@ -93,11 +86,11 @@ export default function SegurosTemplate({ empresas, data, enableAddPlaca, handle
                                 <span onClick={() => enableChangeApolice()}> → Clique aqui para alterar o número da apólice mantendo as placas.</span>
                             </div>
                         }
-                    </Paper>
+                    </section>
                 }
                 {
-                    selectedEmpresa && insurance && (insurance.placas || enableAddPlaca) &&                    
-                    <Paper className={paper}>
+                    selectedEmpresa && enableAddPlaca &&
+                    <main className='paper' style={{ textAlign: 'center', color: '#555' }}>
                         <p>Utilize as opções abaixo para filtrar, adicionar ou excluir placas desta apólice</p>
                         <section className='flex spaceBetween' style={{ paddingTop: '17px' }}>
                             <div>
@@ -188,17 +181,26 @@ export default function SegurosTemplate({ empresas, data, enableAddPlaca, handle
                             :
                             <div style={{ marginTop: '30px' }}></div>
                         }
-                        {insurance && insurance.placas && apolice && apolice.length > 2 && placas[0] && placas.map((placa, i) =>
-                            <Chip
-                                key={i}
-                                label={placa}
-                                onDelete={() => removeFromInsurance(placa)}
-                                className={chip}
-                                color='primary'
-                                variant="outlined"
-                            />
-                        )}
-                    </Paper>}
+                        {insurance && insurance.placas && apolice && apolice.length > 2 && placas[0] &&
+                            <>
+                                {
+                                    placas.map((placa, i) =>
+                                        <Chip
+                                            key={i}
+                                            label={placa}
+                                            onDelete={() => removeFromInsurance(placa)}
+                                            className={chip}
+                                            color='primary'
+                                            variant="outlined"
+                                        />
+                                    )
+                                }
+                                <p style ={{fontSize: '0.7rem', color: '#777'}}>
+                                    Selecionado{placas.length > 1 ? 's' : ''} {placas.length} veículo{placas.length > 1 ? 's' : ''} de {frota?.length} 
+                                    </p>
+                            </>
+                        }
+                    </main>}
             </div >
             {
                 apolice && (insurance || enableAddPlaca) && !demand ?

@@ -5,9 +5,8 @@ import { connect } from 'react-redux';
 
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
-import { Toolbar, Typography, Button, IconButton, Link } from '@material-ui/core'
+import { Toolbar, Typography, Button, Link } from '@material-ui/core'
 import Badge from '@material-ui/core/Badge';
-import SearchIcon from '@material-ui/icons/Search';
 import { withRouter } from 'react-router'
 import './stylez.css'
 
@@ -167,10 +166,7 @@ const Header = props => {
                     className={classes.toolbarTitle}
                 >
                     Seinfra - Subsecretaria de Transportes e Mobilidade - MG
-                    </Typography>
-                <IconButton>
-                    <SearchIcon />
-                </IconButton>
+                </Typography>              
                 <Button variant="outlined" size="small">
                     Fazer login
                     </Button>

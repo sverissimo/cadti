@@ -15,12 +15,7 @@ export const baixaForm = [
         field: 'nChassi',
         label: 'Número do Chassi',        
         maxLength: 17,
-    },
-    {
-        field: 'delegatario',
-        label: 'Delegatário',        
-        disabled: true
-    },
+    },   
     {
         field: 'utilizacao',
         label: 'Utilização',        

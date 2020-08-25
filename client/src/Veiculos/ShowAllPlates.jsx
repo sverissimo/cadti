@@ -2,11 +2,20 @@ import React from 'react'
 import ClosePopUpButton from '../Reusable Components/ClosePopUpButton'
 import '../Layouts/popUp.css'
 
-function ShowAllPlates({ items, title, data, close, handleCheck }) {
+function ShowAllPlates({ items, title, data, close, selectAll, handleCheck, selectAllPlates }) {
     return (
         <div className="popUpWindow row">
-            <h3>{title} Clique em "X" ou pressione 'esc' para voltar</h3>
-            <div className="checkListContainer">
+            <h6>{title} Clique em "X" ou pressione 'esc' para voltar</h6>
+            <div style={{ margin: '10px 0', fontSize: '0.8rem' }}>
+                <input
+                    id='all'
+                    type='checkbox'
+                    checked={selectAll === true}
+                    onChange={() => selectAllPlates()} />
+                <label htmlFor='all'>{selectAll ? 'Desmarcar todas selecionadas' : 'Selecionar todas'}</label>
+            </div>
+
+            <main className="checkListContainer">
                 {
                     items.map((item, i) =>
                         <div className="checkListItem" key={i}>
@@ -19,7 +28,7 @@ function ShowAllPlates({ items, title, data, close, handleCheck }) {
                         </div>
                     )
                 }
-            </div>
+            </main>
             <ClosePopUpButton close={close} />
         </div>
     )
