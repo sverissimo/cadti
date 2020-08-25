@@ -42,7 +42,7 @@ function Solicitacoes(props) {
         async function getVehicleLogs() {
 
             const originalLogs = [...props.redux.vehicleLogs]
-
+            
             let logs = originalLogs.map(log => {
                 log.empresa = empresas.find(e => e.delegatarioId === log.empresaId)?.razaoSocial
                 log.veiculo = veiculos.find(v => v.veiculoId === log.veiculoId)?.placa
@@ -61,7 +61,7 @@ function Solicitacoes(props) {
     const assessDemand = async id => {
 
         let log = vehicleLogs.find(l => l.id === id)
-        selectLog(log)    
+        selectLog(log)
 
         let pathname = logRoutesConfig.find(r => log?.subject.match(r.subject))?.path
         if (!pathname.match('/solicitacoes')) pathname = '/solicitacoes' + pathname
@@ -133,6 +133,6 @@ function Solicitacoes(props) {
     )
 }
 
-const collections = ['veiculos', 'empresas', '/logs/vehicleLogs', 'getFiles/vehicleDocs', 'getFiles/empresaDocs']
+const collections = ['veiculos', 'empresas', 'logs/vehicleLogs', 'getFiles/vehicleDocs', 'getFiles/empresaDocs']
 
 export default StoreHOC(collections, Solicitacoes)

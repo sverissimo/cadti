@@ -21,7 +21,7 @@ export const getData = (collectionsArray = []) => {
                         let key = collectionsArray[i]
                             .replace('getFiles/', '')
                             .replace('lookUpTable/', '')
-                            .replace('/logs/', '')
+                            .replace('logs/', '')
                         key = humps.camelize(key)
                         Object.assign(globalState, { [key]: el })
                     })

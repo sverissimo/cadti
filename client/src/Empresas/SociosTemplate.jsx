@@ -42,7 +42,7 @@ export default function ({ socios, empresas, handleInput, handleBlur, data, addS
 
     let standAlone = true
     if (stepTitles) standAlone = false
-    
+
     return (
         <>
             <main className="flex center">
@@ -55,31 +55,35 @@ export default function ({ socios, empresas, handleInput, handleBlur, data, addS
                         handleBlur={handleBlur}
                     />
                 }
-                <section className="flex center paper">
-                    {
-                        standAlone ?
-                            <div className="flexColumn" style={{ alignItems: 'center' }}>
-                                <h6 style={{ fontSize: '14px' }}>Alteração do quadro Societário</h6>
-                                <p style={{ fontSize: '12px', color: '#555' }}> Para adicionar um novo sócio, preencha os campos abaixo e clique em "Adicionar sócio".</p>
-                            </div>
+                {
+                    (selectedEmpresa || !standAlone) &&
+                    <section className="flex center paper">
+                        {
+                            standAlone ?
+                                <div className="flexColumn" style={{ alignItems: 'center' }}>
+                                    <h6 style={{ fontSize: '14px' }}>Alteração do quadro Societário</h6>
+                                    <p style={{ fontSize: '12px', color: '#555' }}> Para adicionar um novo sócio, preencha os campos abaixo e clique em "Adicionar sócio".</p>
+                                </div>
 
-                            :
-                            <FormSubtiltle subtitle={stepTitles[activeStep]} />
-                    }
-                    <div className='flex center' style={{ padding: '10px 0', width: '100%' }}>
-                        <TextInput
-                            form={sociosForm}
-                            data={data}
-                            handleBlur={handleBlur}
-                            handleInput={handleInput}
-                        />
-                    </div>
-                    <div style={{ margin: '5px 0 7px 84.58%', width: '100%' }}>
-                        <Button color='primary' variant='outlined' size='small' onClick={addSocio}>
-                            <AddIcon /> Adicionar sócio
+                                :
+                                <FormSubtiltle subtitle={stepTitles[activeStep]} />
+                        }
+
+                        <div className='flex center' style={{ padding: '10px 0', width: '100%' }}>
+                            <TextInput
+                                form={sociosForm}
+                                data={data}
+                                handleBlur={handleBlur}
+                                handleInput={handleInput}
+                            />
+                        </div>
+                        <div style={{ margin: '5px 0 7px 84.58%', width: '100%' }}>
+                            <Button color='primary' variant='outlined' size='small' onClick={addSocio}>
+                                <AddIcon /> Adicionar sócio
                     </Button>
-                    </div>
-                </section>
+                        </div>
+                    </section>
+                }
             </main>
             {
                 selectedEmpresa && filteredSocios.length === 0 &&

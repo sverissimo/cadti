@@ -55,10 +55,7 @@ class ConsultasContainer extends Component {
     }
 
     componentDidMount() {
-        document.addEventListener('keydown', this.escFunction, false)
-
-        const shit = this.props.redux.vehicleDocs.filter(file => file?.metadata?.tempFile === false)
-        console.log(shit)
+        document.addEventListener('keydown', this.escFunction, false)        
     }
 
     componentWillUnmount() { this.setState({}) }

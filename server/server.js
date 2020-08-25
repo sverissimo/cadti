@@ -38,7 +38,7 @@ const { empresaModel } = require('./mongo/models/empresaModel')
  */
 //const { getExpired } = require('./getExpired')
 //const { job } = require('./reportGenerator')
-//job.start()
+//job.start();
 
 dotenv.config()
 

@@ -14,22 +14,22 @@ let socket
 export default function (requestArray, WrappedComponent) {
 
     let collections = []
-    if (!requestArray.includes('/logs/vehicleLogs')) requestArray.push('/logs/vehicleLogs')
-    collections = requestArray.map(req => req.replace('getFiles/', '').replace('lookUpTable/', '').replace('/logs/', ''))
+    if (!requestArray.includes('logs/vehicleLogs')) requestArray.push('logs/vehicleLogs')
+    collections = requestArray.map(req => req.replace('getFiles/', '').replace('lookUpTable/', '').replace('logs/', ''))
 
     class With extends React.Component {
 
         async componentDidMount() {
             const { redux } = this.props
             let request = []
-
+            
             requestArray.forEach(req => {
-                const colName = req.replace('getFiles/', '').replace('lookUpTable/', '').replace('/logs/', '')
+                const colName = req.replace('getFiles/', '').replace('lookUpTable/', '').replace('logs/', '')
                 if (!redux[colName] || !redux[colName][0]) {
                     request.push(req)
                 }
             })
-
+            
             if (request[0]) await this.props.getData(request)
 
             if (!socket) socket = socketIO()

@@ -18,8 +18,7 @@ import { logGenerator } from '../Utils/logGenerator'
 class AltSocios extends Component {
 
     state = {
-        razaoSocial: this.props.redux.empresas[0].razaoSocial,
-        selectedEmpresa: this.props.redux.empresas[0],
+        razaoSocial: '',
         toastMsg: 'Dados atualizados!',
         confirmToast: false,
         files: [],
@@ -313,10 +312,10 @@ class AltSocios extends Component {
 
             oldMembers = humps.decamelizeKeys(realChanges)
             newMembers = humps.decamelizeKeys(newMembers)
-            
+
             try {
                 //insert new members, if any
-                if (newMembers.length > 0) {                    
+                if (newMembers.length > 0) {
                     newMembers.forEach(m => delete m.status)
                     await axios.post('/api/cadSocios', { socios: newMembers, table, tablePK })
                         .then(r => r.data.forEach(newSocio => socioIdsArray.push(newSocio.socio_id)))
@@ -330,7 +329,7 @@ class AltSocios extends Component {
                             await axios.delete(`/api/delete?table=socios&tablePK=socio_id&id=${member.socio_id}`)
                                 .catch(err => console.log(err))
 
-                            const index = socioIdsArray.indexOf(member.socio_id)                            
+                            const index = socioIdsArray.indexOf(member.socio_id)
                             if (index !== -1) {
                                 socioIdsArray.splice(i, 1)
                                 updateFilesMetadata = true
@@ -373,8 +372,8 @@ class AltSocios extends Component {
                 empresaId: delegatarioId
             }
         }
-        log.metadata.socios = socioIdsArray        
-        
+        log.metadata.socios = socioIdsArray
+
         logGenerator(log)                               //Generate the demand
             .then(r => {
                 console.log(r?.data)

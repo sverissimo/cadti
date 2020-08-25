@@ -57,7 +57,7 @@ class BaixaVeiculo extends Component {
 
         if (name === 'razaoSocial') {
             let selectedEmpresa = empresas.find(e => e.razaoSocial === value)
-            console.log(selectedEmpresa)
+           
             if (selectedEmpresa) {
                 await this.setState({ razaoSocial: selectedEmpresa.razaoSocial, selectedEmpresa })
                 if (value !== selectedEmpresa.razaoSocial) this.setState({ selectedEmpresa: undefined })

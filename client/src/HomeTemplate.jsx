@@ -86,4 +86,4 @@ const featuredPosts = [
     )
 }
 
-export default StoreHOC(['/logs/vehicleLogs'], Home)
+export default StoreHOC(['logs/vehicleLogs'], Home)
