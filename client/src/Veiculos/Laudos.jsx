@@ -14,6 +14,7 @@ import { laudoForm } from '../Forms/laudoForm'
 import { laudosTable } from '../Forms/laudosTable'
 import { logGenerator } from '../Utils/logGenerator'
 import { setDemand } from '../Utils/setDemand'
+import { sizeExceedsLimit } from '../Utils/handleFiles'
 
 const Laudos = props => {
     const
@@ -186,7 +187,7 @@ const Laudos = props => {
                 vehicleLaudos.forEach(l => {
                     table2.forEach(t => {
                         let laudoDocId
-                        
+
                         const laudoDoc = laudoDocs.find(d => d.metadata.laudoId === l.id || d.metadata.laudoId.toString() === l.id.toString())
                         if (laudoDoc)
                             laudoDocId = laudoDoc.id
@@ -382,6 +383,8 @@ const Laudos = props => {
     }
 
     const handleFiles = (files, name) => {
+        //limit file Size
+        if (sizeExceedsLimit(files)) return
 
         if (files && files[0]) {
             let formData = new FormData()

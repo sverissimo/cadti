@@ -101,7 +101,7 @@ app.put('/api/updateFilesMetadata', async (req, res) => {
         update['metadata.' + k] = v
     })
 
-    console.log('this is the  metadata: ', metadata, '\n\nAnd this is the update: ', update) 
+    console.log('this is the  metadata: ', metadata, '\n\nAnd this is the update: ', update)
 
     parsedIds = ids.map(id => new mongoose.mongo.ObjectId(id))
 
@@ -110,7 +110,7 @@ app.put('/api/updateFilesMetadata', async (req, res) => {
     gfs.files.updateMany(
         { "_id": { $in: parsedIds } },
         { $set: { ...update } },
-        
+
         async (err, doc) => {
             if (err) console.log(err)
             if (doc) {
@@ -282,9 +282,12 @@ app.post('/api/empresaFullCad', cadEmpresa, (req, res, next) => {
     })
 },
     cadSocios, (req, res) => {
-        const { data } = req
+        const
+            { data, delegatario_id } = req,
+            socioIds = data.map(s => s.socio_id)
+        
         io.sockets.emit('insertSocios', data)
-        res.send(req.delegatario_id.toString())
+        res.json({socioIds, delegatario_id})
     })
 
 app.post('/api/cadSeguro', (req, res) => {

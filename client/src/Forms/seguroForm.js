@@ -19,7 +19,7 @@ export const seguroForm = [
     {
         type: 'date',
         field: 'dataEmissao',
-        label: 'Data de Emissão',
+        label: 'Início da vigência',
         width: 225
     },
     {

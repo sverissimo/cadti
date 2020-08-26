@@ -73,9 +73,8 @@ SELECT laudos.*,
 FROM laudos
 LEFT JOIN empresa_laudo emp
 	ON emp.id = laudos.empresa_id
-	
-WHERE laudos.veiculo_id = 4464
 `
+//WHERE laudos.veiculo_id = 4464
 
 const seguros = `
 SELECT seguro.*,
@@ -101,7 +100,7 @@ const socios = `
 			FROM public.socios 
 		LEFT JOIN public.delegatario 
 			ON delegatario.delegatario_id = socios.delegatario_id
-		ORDER BY nome_socio ASC
+		ORDER BY LOWER (nome_socio) ASC
 		`
 
 const procuracoes = `
@@ -115,7 +114,7 @@ const procuracoes = `
 
 const procuradores = `
 	SELECT * FROM public.procurador
-	order by procurador.procurador_id desc
+	ORDER BY LOWER (procurador.nome_procurador) ASC
 	`
 
 const lookup = (req, res) => {

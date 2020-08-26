@@ -39,10 +39,10 @@ const featuredPosts = [
     },
 ]
 
- function Home () {
+function Home() {
 
     return (
-        <React.Fragment>            
+        <React.Fragment>
             <div
                 style={{
                     minHeight: '83vh',
@@ -51,10 +51,10 @@ const featuredPosts = [
                 }}>
                 <main className="homeMainPost">
                     <h1>
-                        SisMob - MG
+                        SGTI - MG
                     </h1>
                     <h2>
-                        Sistema de Gestão da Mobilidade do Estado de Minas Gerais
+                        Sistema de Gestão do Transporte Intermunicipal do Estado de Minas Gerais
                     </h2>
                 </main>
                 <section className='homeCardsContainer'>
@@ -64,13 +64,13 @@ const featuredPosts = [
                             <Link to={link} style={{ textDecoration: 'none' }}>
                                 <div className='homeCard'>
                                     <div className="homeCardText">
-                                        <h6 className="homeCardText" style={{fontWeight: 500}}>
+                                        <h6 className="homeCardText" style={{ fontWeight: 500 }}>
                                             {title}
                                         </h6>
                                         <p className="homeCardText">
                                             {description}
                                         </p>
-                                       
+
                                     </div>
                                     <div className='homeImage'>
                                         <img src={imageUrl} alt={title} className='homeImage' />

@@ -5,7 +5,7 @@ import StoreHOC from '../Store/StoreHOC'
 
 import ReactToast from '../Reusable Components/ReactToast'
 import moment from 'moment'
-
+import { sizeExceedsLimit } from '../Utils/handleFiles'
 import SeguroTemplate from './SegurosTemplate'
 import ShowAllPlates from './ShowAllPlates'
 import ConfigAddDialog from './ConfigAddDialog'
@@ -46,12 +46,7 @@ class Seguro extends Component {
         const
             { redux } = this.props,
             demand = this.props?.location?.state?.demand
-
-        this.setState({
-            seguradoras: this.props.redux['seguradoras'],
-            allInsurances: this.props.redux['seguros']
-        })
-
+        console.log(redux)
         if (demand) {
             const
                 demandState = setEmpresaDemand(demand, redux, []),
@@ -84,10 +79,10 @@ class Seguro extends Component {
 
     filterInsurances = () => {
         const
-            { veiculos } = this.props.redux,
-            { allInsurances, razaoSocial } = this.state,
+            { veiculos, seguros } = this.props.redux,
+            { razaoSocial } = this.state,
             frota = veiculos.filter(v => v.empresa === razaoSocial),
-            filteredInsurances = allInsurances.filter(seguro => seguro.empresa === razaoSocial),
+            filteredInsurances = seguros.filter(seguro => seguro.empresa === razaoSocial),
             allPlates = frota.map(vehicle => vehicle.placa).sort()
         //console.log(frota, filteredInsurances, allPlates)
         this.setState({ frota, seguros: filteredInsurances, allPlates })
@@ -99,7 +94,6 @@ class Seguro extends Component {
             seguros = JSON.parse(JSON.stringify(this.props.redux.seguros)),
             { selectedEmpresa, demand } = this.state,
             s = [...seguros.filter(se => se.delegatarioId === selectedEmpresa.delegatarioId)]
-
 
         let insurance = { ...s.find(s => s[name] === inputValue) }
 
@@ -186,8 +180,8 @@ class Seguro extends Component {
     handleBlur = e => {
 
         const
-            { seguradoras } = this.props.redux,
-            { seguradora, allInsurances, selectedEmpresa } = this.state,
+            { seguradoras, seguros } = this.props.redux,
+            { seguradora, selectedEmpresa } = this.state,
             { name } = e.target
 
         if (name === 'seguradora') {
@@ -198,15 +192,15 @@ class Seguro extends Component {
             if (!valid && seguradora.length > 2) this.setState({ openAlertDialog: true, alertType: 'seguradoraNotFound', seguradora: undefined })
 
             if (selectedEmpresa && !seguradora) {
-                filteredInsurances = allInsurances.filter(seguro => seguro.empresa === selectedEmpresa.razaoSocial)
+                filteredInsurances = seguros.filter(seguro => seguro.empresa === selectedEmpresa.razaoSocial)
                 this.setState({ seguros: filteredInsurances })
             }
             else if (!selectedEmpresa && seguradora !== '') {
-                filteredInsurances = allInsurances.filter(s => s.seguradora === seguradora)
+                filteredInsurances = seguros.filter(s => s.seguradora === seguradora)
                 this.setState({ seguros: filteredInsurances })
             }
             else if (selectedEmpresa && seguradora !== '') {
-                filteredInsurances = allInsurances
+                filteredInsurances = seguros
                     .filter(seg => seg.empresa === selectedEmpresa.razaoSocial)
                     .filter(seg => seg.seguradora === seguradora)
                 this.setState({ seguros: filteredInsurances })
@@ -515,9 +509,12 @@ class Seguro extends Component {
             }, 1500);
     }
 
-    handleFiles = async file => {
+    handleFiles = async files => {
+        //limit files Size
+        if (sizeExceedsLimit(files)) return
+
         let formData = new FormData()
-        formData.append('apoliceDoc', file[0])
+        formData.append('apoliceDoc', files[0])
         await this.setState({ apoliceDoc: formData, fileToRemove: null })
     }
 
@@ -543,16 +540,17 @@ class Seguro extends Component {
     render() {
         const
             { openAlertDialog, alertType, openAddDialog, showAllPlates, allPlates, allPlatesObj, selectAll } = this.state,
-            { empresas } = this.props.redux
+            { empresas, seguradoras } = this.props.redux
 
         const enableAddPlaca = seguroForm
             .every(k => this.state.hasOwnProperty(k.field) && this.state[k.field] !== '')
-        console.log(this.state.insurance)
+
         return (
             <Fragment>
                 <SeguroTemplate
                     data={this.state}
                     empresas={empresas}
+                    seguradoras={seguradoras}
                     enableAddPlaca={enableAddPlaca}
                     handleInput={this.handleInput}
                     handleBlur={this.handleBlur}

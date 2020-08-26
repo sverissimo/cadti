@@ -16,7 +16,7 @@ import { procuradorForm } from '../Forms/procuradorForm'
 import AlertDialog from '../Reusable Components/AlertDialog'
 import { logGenerator } from '../Utils/logGenerator'
 import { setEmpresaDemand } from '../Utils/setEmpresaDemand'
-import { removeFile } from '../Utils/handleFiles'
+import { removeFile, sizeExceedsLimit } from '../Utils/handleFiles'
 
 class Procuradores extends Component {
 
@@ -50,7 +50,7 @@ class Procuradores extends Component {
         const
             { redux } = this.props,
             demand = this.props?.location?.state?.demand
-        
+
         //*************Set demand if any
         if (demand) {
             const
@@ -344,10 +344,12 @@ class Procuradores extends Component {
         this.setState({ selectedDocs: procs })
     }
 
-    handleFiles = (file) => {
+    handleFiles = files => {
+        //limit file Size
+        if (sizeExceedsLimit(files)) return
 
         let procuracao = new FormData()
-        procuracao.append('procuracao', file[0])
+        procuracao.append('procuracao', files[0])
         this.setState({ procuracao, fileToRemove: null })
     }
 

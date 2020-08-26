@@ -17,9 +17,34 @@ export default function ShowDetails({ data, tab, title, header, close }) {
     let { tableData, ...ultimateData } = data,
         formPattern
 
+    //Essa função adiciona novos campos e sobrescreve configurações de design dos formulários utilizados em outras partes do sistema.
+    function createFormPattern(form, jForm) {
+        let
+            updatedForm = [],
+            updatedObj,
+            joinForm = [...jForm]
+
+        form.forEach(f => {
+            joinForm.forEach((jf, i) => {
+                if (f.field === jf.field) {
+                    updatedObj = Object.assign({}, f, jf)
+                    joinForm.splice(i, 1)
+                    updatedForm.push(updatedObj)
+                }
+                else if (!updatedForm.find(el => el.field === f.field)) {
+                    updatedForm.push(f)
+                }
+            })
+        })
+
+        updatedForm = updatedForm.concat(joinForm)
+        
+        return updatedForm
+    }
+
     switch (tab) {
         case 0:
-            formPattern = empresasForm.concat(eForm)
+            formPattern = createFormPattern(empresasForm, eForm)
             break;
         case 1:
             formPattern = sociosForm.concat(sForm)

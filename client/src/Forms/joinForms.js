@@ -1,6 +1,14 @@
-import { razaoSocial, placas, createdAt} from '../Forms/commonFields'
+import { razaoSocial, placas, createdAt } from '../Forms/commonFields'
 
 export const eForm = [
+    {
+        field: 'razaoSocial',
+        width: '540px'
+    },
+    {
+        field: 'rua',
+        width: '530px'
+    },
     {
         field: 'delegatarioStatus',
         label: 'Status'
@@ -11,19 +19,20 @@ export const eForm = [
         type: 'date',
     },
     {
-        ...createdAt
+        ...createdAt,
+        width: '150px',
     },
     {
         field: 'frota',
         label: 'Tamanho da Frota'
     },
-    {
+    /* {
         field: 'oldId',
         label: 'Código no sistema antigo'
-    },
-/*     {
-        ...placas
     }, */
+    /*     {
+            ...placas
+        }, */
 
 ]
 
@@ -84,6 +93,6 @@ export const vForm = [
     },
     {
         field: 'marcaCarroceria',
-        label: 'Marca da Carroceria',                
+        label: 'Marca da Carroceria',
     },
 ]

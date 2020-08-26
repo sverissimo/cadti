@@ -3,8 +3,7 @@ import { cnpj, phone, email } from './commonFields'
 export const empresasForm = [
     {
         field: 'razaoSocial',
-        label: 'Razão Social',
-        width: '340px'
+        label: 'Razão Social'        
     },
     {
         ...cnpj,

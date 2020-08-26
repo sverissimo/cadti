@@ -16,7 +16,7 @@ import Add from '@material-ui/icons/Add'
 import SaveIcon from '@material-ui/icons/Save';
 import Search from '@material-ui/icons/Search'
 
-import { seguroForm } from '../Forms/altSegForm'
+import { seguroForm } from '../Forms/seguroForm'
 import './veiculos.css'
 import ShowLocalFiles from '../Reusable Components/ShowLocalFiles'
 import { empresaFiles } from '../Forms/empresaFiles'
@@ -44,13 +44,15 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
-export default function SegurosTemplate({ empresas, data, enableAddPlaca, handleInput, handleBlur,
+export default function SegurosTemplate({ empresas, data, seguradoras, enableAddPlaca, handleInput, handleBlur,
     addPlate, removeFromInsurance, handleFiles, handleSubmit, enableChangeApolice, showAllPlates, removeFile, setShowPendencias }) {
 
     const { selectedEmpresa, placa, apolice, addedPlaca, frota, insuranceExists, demandFiles, fileToRemove, demand,
         insurance, dropDisplay, apoliceDoc, showPendencias, info } = data
 
     const classes = useStyles(), { textField, chip } = classes
+
+    data.seguradoras = seguradoras
 
     let placas = []
 
@@ -175,7 +177,7 @@ export default function SegurosTemplate({ empresas, data, enableAddPlaca, handle
 
                         {insurance && insurance.placas && insurance.placas[0]
                             ?
-                            <div style={{ margin: '15px' }}>
+                            <div style={{ marginTop: '15px' }}>
                                 Placas vinculadas a apólice {insurance.apolice}
                             </div>
                             :
@@ -183,6 +185,9 @@ export default function SegurosTemplate({ empresas, data, enableAddPlaca, handle
                         }
                         {insurance && insurance.placas && apolice && apolice.length > 2 && placas[0] &&
                             <>
+                                <p style={{ fontSize: '0.7rem', marginBottom: '10px', marginTop: '3px', color: '#787b6e' }} >
+                                    Selecionado{placas.length > 1 ? 's' : ''} {placas.length} veículo{placas.length > 1 ? 's' : ''} de {frota?.length}
+                                </p>
                                 {
                                     placas.map((placa, i) =>
                                         <Chip
@@ -195,9 +200,6 @@ export default function SegurosTemplate({ empresas, data, enableAddPlaca, handle
                                         />
                                     )
                                 }
-                                <p style ={{fontSize: '0.7rem', color: '#777'}}>
-                                    Selecionado{placas.length > 1 ? 's' : ''} {placas.length} veículo{placas.length > 1 ? 's' : ''} de {frota?.length} 
-                                    </p>
                             </>
                         }
                     </main>}

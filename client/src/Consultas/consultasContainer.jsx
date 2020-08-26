@@ -55,7 +55,7 @@ class ConsultasContainer extends Component {
     }
 
     componentDidMount() {
-        document.addEventListener('keydown', this.escFunction, false)        
+        document.addEventListener('keydown', this.escFunction, false)
     }
 
     componentWillUnmount() { this.setState({}) }
@@ -90,14 +90,20 @@ class ConsultasContainer extends Component {
         const
             { tab } = this.state,
             { veiculos, socios, empresaDocs, vehicleDocs } = this.props.redux
-
-        let selectedFiles = empresaDocs.filter(f => f.metadata.empresaId === id.toString() && f.metadata?.tempFile === false)
-        let typeId = 'empresaId'
+        let
+            selectedFiles,
+            typeId
 
         switch (tab) {
+            case 0:
+                selectedFiles = empresaDocs.filter(f => f.metadata.empresaId === id && f.metadata?.tempFile === false)
+                typeId = 'empresaId'
+                break
+
             case 1:
                 selectedFiles = empresaDocs.filter(f => f.metadata.empresaId === id)
                 const socio = socios.find(v => v.socioId === id)
+
                 if (socio) {
                     let sociosArray = []
                     selectedFiles = empresaDocs
@@ -124,6 +130,7 @@ class ConsultasContainer extends Component {
                 })
                 selectedFiles = filesToReturn
                 break
+
             case 3:
                 typeId = 'veiculoId'
                 selectedFiles = vehicleDocs.filter(f => f.metadata.veiculoId === id)
@@ -133,14 +140,15 @@ class ConsultasContainer extends Component {
                     if (seguro) selectedFiles.push(seguro)
                 }
                 break
+
             case 4:
                 selectedFiles = empresaDocs.filter(f => f.metadata.apolice === id)
                 break
             default: void 0
         }
-
+        
         selectedFiles = selectedFiles.filter(file => file?.metadata?.tempFile === false)
-
+        
         if (selectedFiles[0]) {
             selectedFiles = selectedFiles
                 .sort((a, b) => new Date(a['uploadDate']) - new Date(b['uploadDate']))

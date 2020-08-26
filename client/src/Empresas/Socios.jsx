@@ -11,7 +11,7 @@ import valueParser from '../Utils/valueParser'
 import Crumbs from '../Reusable Components/Crumbs'
 import { sociosForm } from '../Forms/sociosForm'
 import AlertDialog from '../Reusable Components/AlertDialog'
-import { removeFile } from '../Utils/handleFiles'
+import { removeFile, sizeExceedsLimit } from '../Utils/handleFiles'
 import { setEmpresaDemand } from '../Utils/setEmpresaDemand'
 import { logGenerator } from '../Utils/logGenerator'
 
@@ -395,6 +395,9 @@ class AltSocios extends Component {
     }
 
     handleFiles = files => {
+        //limit file Size
+        if (sizeExceedsLimit(files)) return
+
         if (files && files[0]) {
             const contratoSocial = new FormData()
             contratoSocial.append('contratoSocial', files[0])

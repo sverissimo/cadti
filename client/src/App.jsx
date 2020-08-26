@@ -11,6 +11,7 @@ import rootReducer from './rootReducer'
 import { Header, Footer } from './Layouts'
 import Container from '@material-ui/core/Container';
 import Routes from './Routes'
+import './Layouts/stylez.css'
 
 function App() {
 
@@ -18,7 +19,7 @@ function App() {
 
   return (
     <Provider store={store(rootReducer)}>
-      <div style={{ backgroundColor: '#fbfbfb' }}>
+      <div className='app'>
         <Container maxWidth="lg" style={{ minHeight: '100vh' }}>
           <BrowserRouter>
             <Header />

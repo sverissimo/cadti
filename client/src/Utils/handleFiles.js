@@ -1,10 +1,20 @@
 import axios from "axios"
 
+export const sizeExceedsLimit = files => {
+    if (files[0].size > 3145728) {
+        alert('Arquivo excedeu o limite permitido (3MB)')
+        return true
+    }
+}
+
 export const handleFiles = (files, state, filesFormTemplate) => {
 
     const formData = new FormData()
 
     if (files && files[0]) {
+
+        if (sizeExceedsLimit(files)) return            //limit file Size
+
         filesFormTemplate.forEach(obj => {                   //set native file fieldname property for each file attached. Makes sense if multiple files
             for (let keys in state) {
                 if (keys.match(obj.name) && state[obj.name]) {

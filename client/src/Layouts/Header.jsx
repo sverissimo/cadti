@@ -101,7 +101,6 @@ const StyledBadge = withStyles((theme) => ({
 
 const Header = props => {
 
-
     const
         vehicleLogs = props?.vehicleLogs,
         classes = useStyles(),
@@ -165,7 +164,7 @@ const Header = props => {
                     noWrap
                     className={classes.toolbarTitle}
                 >
-                    Seinfra - Subsecretaria de Transportes e Mobilidade - MG
+                    SEINFRA – Secretaria de Estado de Infraestrutura e Mobilidade
                 </Typography>              
                 <Button variant="outlined" size="small">
                     Fazer login

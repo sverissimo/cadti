@@ -19,7 +19,7 @@ import Crumbs from '../Reusable Components/Crumbs'
 import StepperButtons from '../Reusable Components/StepperButtons'
 import CustomStepper from '../Reusable Components/Stepper'
 import AlertDialog from '../Reusable Components/AlertDialog'
-import { removeFile as globalRemoveFile } from '../Utils/handleFiles'
+import { removeFile as globalRemoveFile, sizeExceedsLimit } from '../Utils/handleFiles'
 
 class EmpresasContainer extends Component {
 
@@ -117,7 +117,6 @@ class EmpresasContainer extends Component {
         }
     }
 
-
     enableEdit = index => {
 
         let editSocio = this.state.socios
@@ -208,9 +207,12 @@ class EmpresasContainer extends Component {
         }
     }
 
-    handleFiles = (file) => {
+    handleFiles = files => {
+        //limit file Size
+        if (sizeExceedsLimit(files)) return
+
         let formData = new FormData()
-        formData.append('contratoSocial', file[0])
+        formData.append('contratoSocial', files[0])
         this.setState({ contratoSocial: formData })
     }
 
@@ -218,7 +220,8 @@ class EmpresasContainer extends Component {
 
         let { socios, contratoSocial } = this.state,
             empresa = {},
-            empresaId
+            empresaId,
+            socioIds
 
         empresasForm.forEach(e => {
             if (this.state.hasOwnProperty([e.field])) {
@@ -243,21 +246,23 @@ class EmpresasContainer extends Component {
         socios = humps.decamelizeKeys(socios)
 
         await axios.post('/api/empresaFullCad', { empresa, socios })
-            .then(delegatarioId => {
-                empresaId = delegatarioId.data
+            .then(res => {
+                empresaId = res.data.delegatario_id
+                socioIds = res.data.socioIds
             })
 
-        this.submitFile(empresaId, contratoSocial)
+        this.submitFile(empresaId, socioIds, contratoSocial)
         this.toast()
         this.resetState()
     }
 
-    submitFile = async (empresaId, contratoSocial) => {
+    submitFile = async (empresaId, socioIds, contratoSocial) => {
         if (contratoSocial instanceof FormData) {
             const contratoFile = new FormData()
             let metadata = {
                 fieldName: 'contratoSocial',
                 empresaId,
+                socios: socioIds,
                 tempFile: false
             }
 
@@ -324,7 +329,7 @@ class EmpresasContainer extends Component {
     closeFiles = () => this.setState({ showFiles: !this.state.showFiles })
 
     render() {
-        
+
         const { socios, activeStep, confirmToast, toastMsg, steps, openAlertDialog,
             alertType, contratoSocial } = this.state
 
@@ -354,7 +359,7 @@ class EmpresasContainer extends Component {
                             handleBlur={this.handleBlur}
                             addSocio={this.addSocio}
                             removeSocio={this.removeSocio}
-                            handleFiles={this.handleFiles}                            
+                            handleFiles={this.handleFiles}
                             enableEdit={this.enableEdit}
                             handleEdit={this.handleEdit}
                         />
