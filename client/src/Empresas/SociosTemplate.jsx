@@ -17,6 +17,7 @@ import { empresaFiles } from '../Forms/empresaFiles';
 import TextInput from '../Reusable Components/TextInput'
 import DragAndDrop from '../Reusable Components/DragAndDrop'
 import SaveIcon from '@material-ui/icons/Save'
+import { errorHandler, helper } from '../Utils/checkInputErrors';
 
 const useStyles = makeStyles(theme => ({
     list: {
@@ -109,6 +110,9 @@ export default function ({ socios, empresas, handleInput, handleBlur, data, addS
                                             className={list}
                                             disabled={s.edit ? false : true}
                                             onChange={handleEdit}
+                                            error={s.edit ? errorHandler(s[e.field], e) : null}
+                                            helperText={s.edit ? helper(s[e.field], e) : null}
+                                            type={e?.type}
                                             InputLabelProps={
                                                 {
                                                     shrink: true,

@@ -257,7 +257,7 @@ const Laudos = props => {
         }
         Object.keys(stateInputs).forEach(k => {
             if (k !== 'validade' && (!stateInputs[k] || stateInputs[k] === '')) {
-                let errorLabel = laudoForm.find(obj => obj.field === k).label
+                let errorLabel = laudoForm.find(obj => obj.field === k)?.label
                 errors.push(errorLabel)
             }
         })

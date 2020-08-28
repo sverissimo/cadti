@@ -12,12 +12,7 @@ export const eForm = [
     {
         field: 'delegatarioStatus',
         label: 'Status'
-    },
-    {
-        field: 'vencimentoContrato',
-        label: 'Vencimento do Contrato',
-        type: 'date',
-    },
+    },   
     {
         ...createdAt,
         width: '150px',

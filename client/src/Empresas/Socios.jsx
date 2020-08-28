@@ -42,11 +42,15 @@ class AltSocios extends Component {
             filteredSocios = socios.filter(s => s.razaoSocial === this.state.razaoSocial)
 
         if (demand) {
+
+            const filteredSocios = socios.filter(s => s.delegatarioId === demand.empresaId)
+            console.log(filteredSocios)
+
             const
                 demandState = setEmpresaDemand(demand, redux, filteredSocios),
                 { latestDoc, ...updatedState } = demandState
-
-            this.setState({ ...updatedState, demandFiles: [latestDoc], originals })
+            console.log(demandState)
+            this.setState({ ...updatedState, contratoSocial: latestDoc, originals })
         }
         else this.setState({ originals, filteredSocios })
     }
@@ -65,6 +69,7 @@ class AltSocios extends Component {
             { value } = e.target
 
         const parsedValue = valueParser(name, value)
+
         this.setState({ [name]: parsedValue })
 
         if (name === 'razaoSocial') {
@@ -84,7 +89,7 @@ class AltSocios extends Component {
     }
 
     handleBlur = async e => {
-        const { filteredSocios } = this.state
+        const { filteredSocios, share } = this.state
         const { name } = e.target
         let { value } = e.target
         switch (name) {
@@ -97,31 +102,30 @@ class AltSocios extends Component {
                 break;
             case 'share':
 
+                if (share && typeof share !== 'number')
+                    await this.setState({ share: Number(this.state.share) })                         //Garante que o state é um número
+
                 if (value) {
+                    value = this.state.share
                     if (value > 100) {
                         await this.setState({ share: '' })
                         value = ''
                         this.setState({ alertType: 'numberNotValid', openAlertDialog: true })
                     }
-                    if (value !== '0' && value !== '00' && !Number(value)) {
+                    if (value < 0) {
+                        value = value * -1
+                        this.setState({ share: value })
+                    }
+                    if (value > 0) {
+                        let totalShare = 0
+                        const allShares = filteredSocios.map(s => s.share ? Number(s.share) : 0)            //Procura valor share entre os sócios
 
-                        let totalShare = filteredSocios.map(s => Number(s.share) ? Number(s.share) : 0)
-                        totalShare = totalShare.reduce((a, b) => a + b)
+                        if (allShares[0])                                                   // se encontrar, retorna a soma dos valores
+                            totalShare = allShares.reduce((a, b) => a + b)
 
-                        const parsedNumber = Number(value.replace(',', '.'))
-
-                        if (typeof totalShare === 'number') totalShare += parsedNumber
-                        else totalShare = parsedNumber
-                        this.setState({ totalShare, share: parsedNumber })
-
-                    } else {
-                        let totalShare = filteredSocios.map(s => parseFloat(s.share))
-                            .reduce((a, b) => a + b)
-                        const parsedNumber = parseFloat(value.replace(',', '.'))
-
-                        totalShare += parsedNumber
-                        //console.log(totalShare, parsedNumber)
-                        this.setState({ totalShare, share: parsedNumber })
+                        totalShare += value
+                        //console.log(totalShare, typeof totalShare)
+                        this.setState({ totalShare })
                     }
                 }
                 break;
@@ -134,6 +138,7 @@ class AltSocios extends Component {
             sObject = {}
 
         //check if totalShare is more than 100
+
         if (this.state.totalShare > 100) {
             this.setState({ openAlertDialog: true, alertType: 'overShared' })
             return null
@@ -183,7 +188,9 @@ class AltSocios extends Component {
         const { name } = e.target
         let { value } = e.target
 
-        if (name === 'share') value = value.replace(',', '.')
+        value = valueParser(name, value)
+        console.log(value)
+
         let editSocio = this.state.filteredSocios.filter(s => s.edit === true)[0]
         const index = this.state.filteredSocios.indexOf(editSocio)
 
@@ -207,8 +214,16 @@ class AltSocios extends Component {
 
         //check if totalShare is more than 100
         let updatedShare = filteredSocios
-            .map(s => Number(s.share))
+            .map(({ share }) => {
+                if (typeof share === 'string')
+                    share = Number(share)
+                if (share)
+                    return share
+                else return 0
+            })
             .reduce((a, b) => a + b)
+
+        updatedShare = +(updatedShare.toFixed(2))
 
         if (updatedShare > 100) {
             this.setState({ openAlertDialog: true, alertType: 'overShared' })

@@ -93,7 +93,7 @@ const featuredPosts = [
         link: '/empresas/cadastro'
     },
     {
-        title: 'Sócios',
+        title: 'Contrato Social',
         date: '07/Nov',
         description:
             'Gerenciar sócios e alterações de contrato social',

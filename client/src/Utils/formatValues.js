@@ -46,7 +46,7 @@ export const formatCpf = (input) => {
 } */
 
 export function formatCnpj(input) {
-    
+
     const tecla = k => k.keyCode;
     document.addEventListener('keypress', tecla)
 
@@ -90,8 +90,23 @@ export function formatPhone(phone) {
 
 export function formatShare(number) {
     if (!number) return
-    number = number
-        .replace(/(?!\d|[,])./g, '')
-    return number
 
+    /* if ((number.length === 4 && number.charAt(3) === '0')) {
+        console.log(typeof number, number)
+        return number
+    } else if (number.length === 5 && number.charAt(4) === '0') {
+        console.log(typeof number, number, 'ha')
+        return number
+    }
+ */
+
+    /*   if (number.length > 1 && number.search(',') !== -1)
+          return number
+      if (number.length >= 5) {
+          number = Number(number)
+          number = +(number.toPrecision(4))
+      } */
+    if (number.length >= 5)
+        number = number.slice(0, 5)
+    return number
 }

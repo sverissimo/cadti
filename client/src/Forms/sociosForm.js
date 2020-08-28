@@ -25,8 +25,10 @@ export const sociosForm = [{
 {
     field: 'share',
     label: 'Participação Societária (%)',
-    pattern: /(^100(,0{1,2})?$)|(^([1-9]([0-9])?|0)(,[0-9]{1,2})?$)/,
-    maxLength: 5,
+    /* pattern: /(^100(,0{1,2})?$)|(^([1-9]([0-9])?|0)(,[0-9]{1,2})?$)/,
+    maxLength: 5, */
+    type: 'number',
+    max: 100,
     width
 }]
 

@@ -62,5 +62,10 @@ export const empresasForm = [
         label: 'Estado',
         maxLength: 2,
         pattern: '[A-Z]{2}'
+    },
+    {
+        field: 'vencimentoContrato',
+        label: 'Vencimento do Contrato',
+        type: 'date',
     }
 ]

@@ -175,7 +175,7 @@ export default function SegurosTemplate({ empresas, data, seguradoras, enableAdd
 
                         {/********************************* Lista de placas vinculadas (Chips) ********************************************/}
 
-                        {insurance && insurance.placas && insurance.placas[0]
+                        {insurance?.placas && insurance?.placas[0]
                             ?
                             <div style={{ marginTop: '15px' }}>
                                 Placas vinculadas a apólice {insurance.apolice}
@@ -213,7 +213,7 @@ export default function SegurosTemplate({ empresas, data, seguradoras, enableAdd
                             className='saveButton'
                             variant="contained"
                             onClick={() => handleSubmit()}
-                        // disabled={!placas[0] || !apoliceDoc ? true : false}
+                            disabled={!placas[0] || !apoliceDoc ? true : false}
                         >
                             Salvar <span>&nbsp;&nbsp; </span> <SaveIcon />
                         </Button>
