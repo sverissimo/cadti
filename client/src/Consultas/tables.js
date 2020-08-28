@@ -114,7 +114,7 @@ export const vehicleTable = [
         title: 'Compartilhado por'
     },
     {
-        field: 'indicadorIdade',
+        field: 'anoCarroceria',
         title: 'Ano de Fabricação',
         filtering: false
     }

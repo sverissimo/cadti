@@ -150,13 +150,13 @@ class VehicleConfig extends PureComponent {
         let requestElement = { [field]: newElement }
         if (marcaId) requestElement.marcaId = marcaId
         requestElement = humps.decamelizeKeys(requestElement)
-        
+
         await axios.post('/api/addElement', { table, requestElement })
 
         let data = this.props.redux[collection]
         data = this.addCounter(veiculos, staticData, data)
 
-        this.setState({ openAddDialog: false, data })
+        this.setState({ openAddDialog: false, data, marcaId: undefined })
     }
 
     confirmDelete = index => {

@@ -66,7 +66,7 @@ export default function (requestArray, WrappedComponent) {
         }
         componentWillUnmount() {
             if (!socket) socket = socketIO(':3001')
-            const clearAll = ['insertVehicle', 'insertInsurance', 'insertEmpresa', 'insertSocios', 'insertFiles',
+            const clearAll = ['insertVehicle', 'insertInsurance', 'insertEmpresa', 'insertSocios', 'insertFiles', 'addElements',
                 'insertElements', 'insertProcuradores', 'updateVehicle', 'updateInsurance', 'updateSocios', 'updateLogs', 'deleteOne',
                 'updateDocs', 'updateAny']
 

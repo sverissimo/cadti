@@ -57,7 +57,7 @@ class BaixaVeiculo extends Component {
 
         if (name === 'razaoSocial') {
             let selectedEmpresa = empresas.find(e => e.razaoSocial === value)
-           
+
             if (selectedEmpresa) {
                 await this.setState({ razaoSocial: selectedEmpresa.razaoSocial, selectedEmpresa })
                 if (value !== selectedEmpresa.razaoSocial) this.setState({ selectedEmpresa: undefined })
@@ -141,7 +141,7 @@ class BaixaVeiculo extends Component {
             enableSubmit,
             log = {},
             logSubject,
-            obs,
+            info,
             history,
             historyTransfId,
             checkArray = ['selectedEmpresa', 'placa', 'delegatarioId']
@@ -154,8 +154,8 @@ class BaixaVeiculo extends Component {
                 checkArray.push('delegaTransf')
 
                 logSubject = `Baixa de veículo - venda para ${delegaTransf}`
-                obs = `Solicitação de transferência do veículo para ${delegaTransf}`
-                history = { action: 'Solicitação de baixa', info: obs }
+                info = `Solicitação de transferência do veículo para ${delegaTransf}`
+                history = { action: 'Solicitação de baixa', info }
 
                 if (!demand && delegaTransfId) history.delegaTransfId = delegaTransfId
                 if (demand && delegaTransfId && delegaTransfId !== historyTransfId) history.delegaTransfId = delegaTransfId
@@ -173,18 +173,16 @@ class BaixaVeiculo extends Component {
 
             case ('aprovar'):
                 tempObj = { situacao: 'Veículo baixado', apolice: 'Seguro não cadastrado' }
-                history = { action: 'Baixa do veículo aprovada' }
+                history = { action: 'Baixa do veículo aprovada' }                
 
-                if (demand?.subject.match('venda de veículo')) {
+                if (demand?.subject.match('venda')) {
                     const newEmpresaId = demand?.history[0]?.delegaTransfId
                     tempObj.delegatarioId = newEmpresaId
                     tempObj.situacao = 'Ativo'
                 }
                 break
-
             default: return
         }
-
 
         enableSubmit = checkArray.every(k => this.state.hasOwnProperty(k) && this.state[k] !== '')
         if (!enableSubmit) {
@@ -202,7 +200,7 @@ class BaixaVeiculo extends Component {
         }
 
         if (demand) log.id = demand?.id
-        if (checked === 'aprovar') log.completed = true
+        if (checked === 'aprovar') log.approved = true
 
         logGenerator(log).then(r => console.log(r.data))
 
@@ -213,7 +211,7 @@ class BaixaVeiculo extends Component {
                 table = 'veiculo',
                 tablePK = 'veiculo_id'
 
-            await axios.put('/api/updateVehicle', { requestObject, table, tablePK, id: this.state.veiculoId })               
+            await axios.put('/api/updateVehicle', { requestObject, table, tablePK, id: this.state.veiculoId })
                 .catch(err => console.log(err))
             this.setState({ toastMsg: 'Baixa realizada com sucesso.' })
         }

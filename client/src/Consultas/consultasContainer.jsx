@@ -146,9 +146,9 @@ class ConsultasContainer extends Component {
                 break
             default: void 0
         }
-        
+
         selectedFiles = selectedFiles.filter(file => file?.metadata?.tempFile === false)
-        
+
         if (selectedFiles[0]) {
             selectedFiles = selectedFiles
                 .sort((a, b) => new Date(a['uploadDate']) - new Date(b['uploadDate']))
@@ -174,9 +174,26 @@ class ConsultasContainer extends Component {
     showCertificate = async vehicle => {
 
         const
-            { situacao, vencimento, vencimentoContrato } = vehicle,
+            { laudos } = this.props.redux,
+            { veiculoId, anoCarroceria, situacao, vencimento, vencimentoContrato } = vehicle,
             seguroVencido = moment(vencimento).isBefore(),
-            contratoVencido = moment(vencimentoContrato).isBefore()
+            contratoVencido = moment(vencimentoContrato).isBefore(),
+            currentYear = new Date().getFullYear(),
+            isOld = currentYear - anoCarroceria >= 15
+        
+        if (isOld) {
+            const hasLaudo = laudos.find(l => l.veiculoId === veiculoId),
+                validLaudo = moment(hasLaudo?.validade).isAfter(moment())
+
+            if (!validLaudo) {
+                await this.setState({
+                    openAlertDialog: true,
+                    customTitle: 'Certificado de segurança veicular pendente.',
+                    customMessage: 'O laudo de segurança veicular não está registrado no sistema ou se encontra vencido. Para regularizar, acesse Veículos -> Laudos.'
+                })
+                return
+            }
+        }
 
         if (situacao !== 'Ativo') {
             await this.setState({ alertType: 'veiculoPendente', openAlertDialog: true })
@@ -202,8 +219,8 @@ class ConsultasContainer extends Component {
 
     render() {
         const
-            { tab, options, items, showDetails, elementDetails, showFiles, selectedElement, filesCollection,
-                openAlertDialog, alertType, typeId, tablePKs, showCertificate, certified, detailsTitle, detailsHeader } = this.state,
+            { tab, options, items, showDetails, elementDetails, showFiles, selectedElement, filesCollection, typeId, tablePKs, showCertificate, certified,
+                detailsTitle, detailsHeader, openAlertDialog, alertType, customTitle, customMessage } = this.state,
             { redux } = this.props,
             { empresas } = redux,
             primaryKeys = tablePKs.map(pk => humps.camelize(pk))
@@ -249,13 +266,13 @@ class ConsultasContainer extends Component {
             }
             {openAlertDialog &&
                 <AlertDialog
-                    open={openAlertDialog} close={this.closeAlert} alertType={alertType} tab={tab}
+                    open={openAlertDialog} close={this.closeAlert} alertType={alertType} tab={tab} customMessage={customMessage} customTitle={customTitle}
                 />}
         </Fragment>
     }
 }
 
 const collections = ['veiculos', 'empresas', 'socios', 'procuradores', 'seguros', 'seguradoras',
-    'getFiles/vehicleDocs', 'getFiles/empresaDocs', 'equipamentos', 'acessibilidade']
+    'getFiles/vehicleDocs', 'getFiles/empresaDocs', 'equipamentos', 'acessibilidade', 'laudos']
 
 export default connect(null, { updateCollection })(StoreHOC(collections, ConsultasContainer))
