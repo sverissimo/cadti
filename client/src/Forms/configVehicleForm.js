@@ -50,6 +50,13 @@ export const configVehicleForm = [
         table: 'seguradora'
     },
     {
+        collection: 'empresasLaudo',
+        field: 'empresa',
+        label: 'Empresas certificadas INMETRO',
+        name: 'empresa',
+        table: 'empresa_laudo'
+    },
+    {
         collection: 'laudos',        
         table: 'laudos'
     }

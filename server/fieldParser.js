@@ -97,7 +97,14 @@ const fieldParser = [
         label: 'Laudos',
         name: 'laudos',
         table: 'laudos'
-    }
+    },
+    {
+        collection: 'empresasLaudo',
+        column: 'empresa',
+        label: 'Empresas certificadas INMETRO',
+        name: 'empresa',
+        table: 'empresa_laudo'
+    },
 ]
 
 module.exports = { fieldParser }

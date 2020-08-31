@@ -5,14 +5,11 @@ import MenuItem from '@material-ui/core/MenuItem'
 
 import { makeStyles } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
-import Grid from '@material-ui/core/Grid'
 import Button from '@material-ui/core/Button'
 import Add from '@material-ui/icons/Add'
-import SaveIcon from '@material-ui/icons/Save';
 import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 import './config.css'
-
 
 const useStyles = makeStyles(theme => ({
 
@@ -24,16 +21,7 @@ const useStyles = makeStyles(theme => ({
         fontSize: '0.8rem',
         fontColor: '#bbb',
         textAlign: 'center',
-    },
-    select: {
-        marginLeft: theme.spacing(1),
-        marginRight: theme.spacing(1),        
-        marginBottom: '2px',
-        background: '#fafafa',
-        fontSize: '0.8rem',
-        fontColor: '#bbb',
-        textAlign: 'center',
-    }
+    }    
 }))
 
 export default function ConfigTemplate({ collections, collection, data, staticData,
@@ -73,8 +61,7 @@ export default function ConfigTemplate({ collections, collection, data, staticDa
                 <Button
                     size="small"
                     color='primary'
-                    variant='outlined'
-                    //  className={classes.button}
+                    variant='outlined'                    
                     style={{ margin: '10px 0 10px 0' }}
                     onClick={() => openAddDialog()}
                 >
@@ -101,7 +88,6 @@ export default function ConfigTemplate({ collections, collection, data, staticDa
                                 className={textField}
                                 disabled={el.edit === false}
                             />
-
                             <button component='span'
                                 className='configVehicleIcon'
                                 title='Editar'
@@ -117,23 +103,7 @@ export default function ConfigTemplate({ collections, collection, data, staticDa
                             </button>
                         </div>
                     )}
-            </div>
-            {
-                data &&
-                <Grid container direction="row" justify='flex-end' >
-                    <Grid item xs={1} style={{ align: "right", margin: '20px 95px 10px 0' }}>
-                        <Button
-                            size="small"
-                            color="primary"
-                            variant="contained"
-                            title='Salvar'
-                            onClick={() => handleSubmit()}
-                        >
-                            Salvar <span>&nbsp;&nbsp; </span> <SaveIcon />
-                        </Button>
-                    </Grid>
-                </Grid>
-            }
+            </div>           
         </Fragment >
     )
 }

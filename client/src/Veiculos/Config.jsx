@@ -31,15 +31,17 @@ class VehicleConfig extends PureComponent {
 
     componentDidUpdate(prevProps) {
         const
-            { redux } = this.props,
+            redux = JSON.parse(JSON.stringify(this.props.redux)),
             { veiculos } = redux,
-            { staticData, data } = this.state
+            { staticData, data, editIndex } = this.state
 
         if (!staticData || !data) return null
 
         const { collection } = staticData
         if (JSON.stringify(prevProps.redux[collection]) !== JSON.stringify(redux[collection])) {
             const data = this.addCounter(veiculos, staticData, redux[collection])
+            if (editIndex || editIndex === 0)
+                data[editIndex].edit = true
             this.setState({ data })
         }
     }
@@ -85,20 +87,66 @@ class VehicleConfig extends PureComponent {
     }
 
     enableEdit = async index => {
+        let oldIndex
         const
+            redux = JSON.parse(JSON.stringify(this.props.redux)),
             divCell = document.querySelectorAll('.divCell'),
             divWrap = divCell[index].childNodes[0],
-            inputTarget = divWrap.querySelectorAll('input')[0]
-        let
-            data = [...this.state.data]
+            inputTarget = divWrap.querySelectorAll('input')[0],
+            { updatedObj, staticData } = this.state,
+            data = [...this.state.data],
+            selectedObj = data[index],
+            name = this.state?.staticData?.field
 
-        if (data[index].edit === true) data[index].edit = false
-        else {
-            data.forEach(s => s.edit = false)
+        //O index de referência vai variar: se houver um campo em edição e se clicar no enableEdit de outro, o index de refrência é do campo anterior
+        //Inicialmente os objetos originais se baseiam no index que é dado como argumento da função
+        let
+            originalObject = redux[staticData.collection].find(el => el.id === selectedObj.id),
+            noChanges = data[index][name] === originalObject[name]
+
+
+        //Verificar se já havia algum edit === true e se está se checando outro como true ao mesmo tempo q torna o ativo false        
+        const leftOpen = data.some((el, i) => {
+            if (i !== index && el.edit === true) {
+                oldIndex = data.indexOf(el)
+                return el
+            }
+        })
+
+        //desativa a edição de todos os outros campos exceto o escolhido (index)
+        async function select() {
+            data.forEach(el => el.edit = false)
             data[index].edit = true
+            await this.setState({ data, editIndex: index })
+            inputTarget.focus()
         }
-        await this.setState({ data })
-        inputTarget.focus()
+        //Se todos objs estiverem com edição desabilitada:
+        if (!leftOpen) {
+            //So o clicado estiver desabilitad, apenas habilite sua edição
+            if (selectedObj.edit === false) {
+                data[index].edit = true
+                await this.setState({ data })
+                inputTarget.focus()
+            }
+            // Senão, verificar se houve mudança. Caso positivo, request p salvar e depois desabilita edição
+            else {
+                data[index].edit = false
+                if (updatedObj && !noChanges)
+                    this.handleSubmit(updatedObj)
+                this.setState({ data, editIndex: undefined })
+            }
+            return
+        }
+        //Nesse caso, um campo está em ediçao e outro campo foi clicado. Salva-se o em edição caso tenha sido alterado e se habilita a edição do próximo
+        if (leftOpen && !selectedObj.edit) {
+            select.call(this)
+            //Atualização do index para achar o objeto original referente ao último objeto com edit=true
+            originalObject = redux[staticData.collection].find(el => el.id === data[oldIndex]?.id)
+            noChanges = data[oldIndex][name] === originalObject[name]
+
+            if (updatedObj && !noChanges)
+                this.handleSubmit(updatedObj)
+        }
     }
 
     selectMarca = e => {
@@ -119,20 +167,21 @@ class VehicleConfig extends PureComponent {
     handleChange = async e => {
         const
             { value } = e.target,
-            name = this.state.staticData.field
-        //{ collection } = this.state.staticData
+            { staticData, data } = this.state,
+            { field } = staticData,
 
+            changedElement = data.find(el => el.edit === true),
+            index = data.indexOf(changedElement)
 
-        let changedElement = this.state.data.find(el => el.edit === true)
-        const index = this.state.data.indexOf(changedElement)
-
-        //const reduxItem = JSON.parse(JSON.stringify(this.props.redux[collection][index]))
-        changedElement[name] = value
+        changedElement[field] = value
 
         let newData = [...this.state.data]
         newData[index] = changedElement
-
-        await this.setState({ data: newData })
+        const updatedObj = {
+            id: changedElement?.id,
+            [field]: value
+        }
+        this.setState({ data: newData, updatedObj })
     }
 
     handleInput = e => {
@@ -197,56 +246,19 @@ class VehicleConfig extends PureComponent {
 
     }
 
-    handleSubmit = async () => {
-
+    handleSubmit = async updatedObj => {
         const
-            { redux } = this.props,
-            { data, staticData } = this.state,
-            { collection, field, table } = staticData,
-            originalData = JSON.parse(JSON.stringify(redux[collection]))
-
-        let editedElements = []
-
-        data.forEach(el => {
-            if (el.hasOwnProperty('id')) {
-                const { count, edit, ...rest } = el
-                editedElements.push(rest)
-            }
-        })
-
-        let realChanges = [], tempObj = {}
-
-        editedElements.forEach(el => {
-            originalData.forEach(item => {
-                if (el.id === item.id) {
-                    Object.keys(el).forEach(key => {
-                        if (el[key] !== item[key]) {
-                            if (!tempObj.id) tempObj = { ...tempObj, id: el.id }
-                            Object.assign(tempObj, { [key]: el[key] })
-                        }
-                    })
-                    if (Object.keys(tempObj).length > 0) realChanges.push(tempObj)
-                    tempObj = {}
-                }
-            })
-        })
-
-        const
+            { staticData } = this.state,
+            { field, table } = staticData,
             tablePK = 'id',
-            column = humps.decamelize(field)
-
-        editedElements = humps.decamelizeKeys(realChanges)
+            column = humps.decamelize(field),
+            editedElements = [humps.decamelizeKeys(updatedObj)]
 
         await axios.put('/api/editElements', { requestArray: editedElements, table, tablePK, column })
             .then(r => console.log('updated.'))
             .catch(err => console.log(err))
 
-        editedElements = []
-        realChanges = []
-        tempObj = {}
-        this.toast()
-
-        this.setState({ collection: '', staticData: undefined })
+        this.setState({ updatedObj: undefined })
     }
 
     closeConfirmDialog = () => {
@@ -296,6 +308,6 @@ class VehicleConfig extends PureComponent {
 }
 
 const collections = ['seguradoras', 'lookUpTable/marca_chassi', 'modelosChassi', 'lookUpTable/marca_carroceria',
-    'carrocerias', 'equipamentos', 'veiculos', 'acessibilidade']
+    'carrocerias', 'equipamentos', 'veiculos', 'acessibilidade', 'empresasLaudo']
 
 export default StoreHOC(collections, VehicleConfig)

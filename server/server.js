@@ -93,7 +93,7 @@ app.put('/api/updateFilesMetadata', async (req, res) => {
         update = {}
 
     if (!ids) {
-        res.send('no file sent to the server');
+        res.send('no file sent to the server')
         return
     }
 
@@ -114,17 +114,17 @@ app.put('/api/updateFilesMetadata', async (req, res) => {
         async (err, doc) => {
             if (err) console.log(err)
             if (doc) {
-                let eventName = 'updateAny'
-                if (collection.match('Docs'))
-                    eventName = 'updateDocs'
-
+                /*   let eventName = 'updateAny'
+                  if (collection.match('Docs'))
+                      eventName = 'updateDocs'
+   */
                 const data = {
                     collection,
                     metadata,
                     ids,
                     primaryKey: 'id'
                 }
-                io.sockets.emit(eventName, data)
+                io.sockets.emit('updateDocs', data)
                 res.send({ doc, ids })
                 return
             }
@@ -143,7 +143,7 @@ app.post('/api/logs', logHandler, (req, res) => {
 
     if (!id) io.sockets.emit('insertElements', insertResponseObj)
     else io.sockets.emit('updateLogs', insertedObjects)
-    res.sendStatus(200);
+    res.sendStatus(200)
 })
 
 app.get('/api/logs/:collection', (req, res) => {
@@ -285,9 +285,9 @@ app.post('/api/empresaFullCad', cadEmpresa, (req, res, next) => {
         const
             { data, delegatario_id } = req,
             socioIds = data.map(s => s.socio_id)
-        
+
         io.sockets.emit('insertSocios', data)
-        res.json({socioIds, delegatario_id})
+        res.json({ socioIds, delegatario_id })
     })
 
 app.post('/api/cadSeguro', (req, res) => {
@@ -323,7 +323,7 @@ app.post('/api/addElement', (req, res) => {
         { keys, values } = parseRequestBody(requestElement)
 
     let queryString = `INSERT INTO public.${table} (${keys}) VALUES (${values}) RETURNING *`
-
+    
     pool.query(queryString, (err, t) => {
         if (err) console.log(err)
 
@@ -358,13 +358,13 @@ app.put('/api/editElements', (req, res) => {
             WHERE ${tablePK} = ${obj.id};             
             `
     });
-
+    const obj = requestArray[0]
     pool.query(queryString, (err, tb) => {
         if (err) console.log(err)
-        pool.query(`SELECT * FROM ${table}`, (err, t) => {
+        pool.query(`SELECT * FROM ${table} WHERE ${tablePK} = ${obj.id}`, (err, t) => {
             if (err) console.log(err)
             if (t && t.rows) {
-                io.sockets.emit('updateElements', { collection, updatedCollection: t.rows })
+                io.sockets.emit('updateAny', { collection, updatedObjects: t.rows, primaryKey: 'id' })
                 res.send(t.rows)
             } else res.send('Nothing was returned from the dataBase...')
         })

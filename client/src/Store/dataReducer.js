@@ -27,7 +27,7 @@ const dataReducer = (state = initState, action) => {
         case 'UPDATE_DATA': {
             const { collection, data, id } = payload
             if (state[collection] && data) {
-
+                
                 const update = state[collection].map(v => {
                     data.forEach(el => {
                         if (v[id] === el[id] || v[id].toString() === el[id].toString()) {
@@ -83,7 +83,7 @@ const dataReducer = (state = initState, action) => {
                 if (!collection.match('Docs')) id = Number(id)
                 if (collection === 'laudos')
                     id = id.toString()
-                
+
                 const
                     element = updatedData.find(el => el[tablePK] === id),
                     index = updatedData.findIndex(el => el[tablePK] === element[tablePK])
