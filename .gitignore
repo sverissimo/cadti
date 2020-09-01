@@ -2,6 +2,7 @@
 /.vscode
 /database
 /files
+/python
 .env
 sismob.code-workspace
 /.VSCodeCounter

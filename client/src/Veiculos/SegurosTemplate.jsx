@@ -44,11 +44,11 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
-export default function SegurosTemplate({ empresas, data, seguradoras, enableAddPlaca, handleInput, handleBlur,
+export default function SegurosTemplate({ empresas, data, seguros, seguradoras, enableAddPlaca, handleInput, handleBlur,
     addPlate, removeFromInsurance, handleFiles, handleSubmit, enableChangeApolice, showAllPlates, removeFile, setShowPendencias }) {
 
-    const { selectedEmpresa, placa, apolice, addedPlaca, frota, insuranceExists, demandFiles, fileToRemove, demand,
-        insurance, dropDisplay, apoliceDoc, showPendencias, info } = data
+    const { selectedEmpresa, placa, apolice, addedPlaca, frota, demandFiles, fileToRemove, demand, insurance, dropDisplay,
+        apoliceDoc, showPendencias, info } = data
 
     const classes = useStyles(), { textField, chip } = classes
 
@@ -63,7 +63,7 @@ export default function SegurosTemplate({ empresas, data, seguradoras, enableAdd
             else placas = insurance.placas.filter(p => p.match(placa)).sort()
         }
     }
-
+    const insuranceExists = seguros.some(s => s.apolice === apolice)
     return (
         <Fragment>
             <div style={{ width: '100%', display: 'flex', flexDirection: 'column' }}>
@@ -213,7 +213,7 @@ export default function SegurosTemplate({ empresas, data, seguradoras, enableAdd
                             className='saveButton'
                             variant="contained"
                             onClick={() => handleSubmit()}
-                            disabled={!placas[0] || !apoliceDoc ? true : false}
+                            //disabled={!placas[0] || !apoliceDoc ? true : false}
                         >
                             Salvar <span>&nbsp;&nbsp; </span> <SaveIcon />
                         </Button>

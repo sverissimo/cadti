@@ -367,7 +367,7 @@ class Seguro extends Component {
 
     handleSubmit = async approved => {
 
-        const { seguradora, insurance, errors, deletedVehicles, seguradoraId, apolice,
+        const { seguradora, insurance, errors, deletedVehicles, seguradoraId, apolice, newElement,
             dataEmissao, vencimento, selectedEmpresa, demand, demandFiles, apoliceDoc, info } = this.state
 
         let vehicleIds = []
@@ -420,8 +420,17 @@ class Seguro extends Component {
                 historyLength: 0,
                 approved
             }
-            if (deletedVehicles[0])
+            if (deletedVehicles[0])                             //Registrar os veiculos apagados pela demanda
                 log.history.deletedVehicles = deletedVehicles
+
+            if (newElement && insurance)                       //Se foi mudado o número da apólice, registrar que houve mudança e o id
+                log.history = {
+                    ...log.history,
+                    newElement: true,
+                    id: insurance.id
+                }
+            console.log(log)
+            return
             logGenerator(log)
             this.confirmAndResetState('Solicitação de cadastro de seguro enviada')
             return
@@ -447,19 +456,20 @@ class Seguro extends Component {
 
     approveInsurance = async cadSeguro => {
         const
-            { apolice, insurance, newElement, deletedVehicles, demand, demandFiles } = this.state,
-            vehicleIds = insurance.veiculos
+            { apolice, insurance, deletedVehicles, demand, demandFiles } = this.state,
+            vehicleIds = insurance.veiculos,
+            { newElement, id } = demand?.history[0]
 
         //********************************** CREATE/UPDATE INSURANCE **********************************
         const insuranceExists = this.props.redux.seguros.some(s => s.apolice === apolice)
         if (insuranceExists)
             await this.updateInsurance()
-        else
+        else if (!newElement)
             await axios.post('/api/cadSeguro', cadSeguro)
 
         //********************************** UPDATE VEHICLES**********************************
         //Define body and post VehicleUpdate
-        let body = {
+        const body = {
             table: 'veiculo',
             column: 'apolice',
             value: apolice,
@@ -467,9 +477,8 @@ class Seguro extends Component {
             ids: vehicleIds
         }
 
-        if (newElement && insuranceExists && insurance.id) {
-            axios.put('/api/changeApoliceNumber', { id: insurance.id, newApoliceNumber: newElement })
-        }
+        if (newElement && id)
+            axios.put('/api/changeApoliceNumber', { id, newApoliceNumber: apolice })
 
         await axios.put('/api/updateInsurances', body)
             .then(res => {
@@ -540,7 +549,7 @@ class Seguro extends Component {
     render() {
         const
             { openAlertDialog, alertType, openAddDialog, showAllPlates, allPlates, allPlatesObj, selectAll } = this.state,
-            { empresas, seguradoras } = this.props.redux
+            { empresas, seguradoras, seguros } = this.props.redux
 
         const enableAddPlaca = seguroForm
             .every(k => this.state.hasOwnProperty(k.field) && this.state[k.field] !== '')
@@ -550,6 +559,7 @@ class Seguro extends Component {
                 <SeguroTemplate
                     data={this.state}
                     empresas={empresas}
+                    seguros={seguros}
                     seguradoras={seguradoras}
                     enableAddPlaca={enableAddPlaca}
                     handleInput={this.handleInput}

@@ -94,16 +94,21 @@ class VehicleConfig extends PureComponent {
             divWrap = divCell[index].childNodes[0],
             inputTarget = divWrap.querySelectorAll('input')[0],
             { updatedObj, staticData } = this.state,
-            data = [...this.state.data],
+            data = JSON.parse(JSON.stringify(this.state.data)),
             selectedObj = data[index],
             name = this.state?.staticData?.field
 
         //O index de referência vai variar: se houver um campo em edição e se clicar no enableEdit de outro, o index de refrência é do campo anterior
         //Inicialmente os objetos originais se baseiam no index que é dado como argumento da função
-        let
-            originalObject = redux[staticData.collection].find(el => el.id === selectedObj.id),
-            noChanges = data[index][name] === originalObject[name]
+        if (selectedObj?.edit === undefined) selectedObj.edit = false
 
+        let
+            originalObject = redux[staticData.collection].find(el => {
+                if (el.id === selectedObj.id)
+                    return Object.freeze(el)
+                else return {}
+            }),
+            noChanges = data[index][name] === originalObject[name]
 
         //Verificar se já havia algum edit === true e se está se checando outro como true ao mesmo tempo q torna o ativo false        
         const leftOpen = data.some((el, i) => {
@@ -130,7 +135,7 @@ class VehicleConfig extends PureComponent {
             }
             // Senão, verificar se houve mudança. Caso positivo, request p salvar e depois desabilita edição
             else {
-                data[index].edit = false
+                data[index].edit = false                
                 if (updatedObj && !noChanges)
                     this.handleSubmit(updatedObj)
                 this.setState({ data, editIndex: undefined })
@@ -181,7 +186,7 @@ class VehicleConfig extends PureComponent {
             id: changedElement?.id,
             [field]: value
         }
-        this.setState({ data: newData, updatedObj })
+        this.setState({ data: newData, updatedObj })      
     }
 
     handleInput = e => {

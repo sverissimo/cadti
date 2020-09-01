@@ -86,8 +86,7 @@ const dataReducer = (state = initState, action) => {
 
                 const
                     element = updatedData.find(el => el[tablePK] === id),
-                    index = updatedData.findIndex(el => el[tablePK] === element[tablePK])
-                console.log(element, index)
+                    index = updatedData.findIndex(el => el[tablePK] === element[tablePK])                
                 updatedData.splice(index, 1)
 
                 return {
