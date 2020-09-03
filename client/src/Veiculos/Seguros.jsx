@@ -46,7 +46,7 @@ class Seguro extends Component {
         const
             { redux } = this.props,
             demand = this.props?.location?.state?.demand
-        console.log(redux)
+
         if (demand) {
             const
                 demandState = setEmpresaDemand(demand, redux, []),
@@ -429,8 +429,8 @@ class Seguro extends Component {
                     newElement: true,
                     id: insurance.id
                 }
-            console.log(log)
-            return
+            console.log(log, deletedVehicles)
+
             logGenerator(log)
             this.confirmAndResetState('Solicitação de cadastro de seguro enviada')
             return
@@ -468,6 +468,17 @@ class Seguro extends Component {
             await axios.post('/api/cadSeguro', cadSeguro)
 
         //********************************** UPDATE VEHICLES**********************************
+        //Se houver mudança no número da apólice, atualizar o banco de dados
+        if (newElement && id) {
+            const updateApoliceNumber = {
+                table: 'seguro',
+                tablePK: 'id',
+                column: 'apolice',
+                requestArray: [{ id, apolice }]
+            }
+            await axios.put('/api/editElements', { ...updateApoliceNumber })
+        }
+        
         //Define body and post VehicleUpdate
         const body = {
             table: 'veiculo',
@@ -476,10 +487,6 @@ class Seguro extends Component {
             tablePK: 'veiculo_id',
             ids: vehicleIds
         }
-
-        if (newElement && id)
-            axios.put('/api/changeApoliceNumber', { id, newApoliceNumber: apolice })
-
         await axios.put('/api/updateInsurances', body)
             .then(res => {
                 console.log(res.data)

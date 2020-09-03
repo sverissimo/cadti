@@ -113,11 +113,7 @@ app.put('/api/updateFilesMetadata', async (req, res) => {
 
         async (err, doc) => {
             if (err) console.log(err)
-            if (doc) {
-                /*   let eventName = 'updateAny'
-                  if (collection.match('Docs'))
-                      eventName = 'updateDocs'
-   */
+            if (doc) {              
                 const data = {
                     collection,
                     metadata,
@@ -420,28 +416,6 @@ app.put('/api/updateInsurance', async (req, res) => {
         })
         res.send(vehicleIds)
     } else res.send('No changes whatsoever.')
-})
-
-app.put('/api/changeApoliceNumber', async (req, res) => {
-
-    const
-        { id, newApoliceNumber } = req.body,
-        queryString = `
-        UPDATE seguro
-        SET apolice = '${newApoliceNumber}'
-        WHERE id = ${id};
-        `
-
-    await pool.query(queryString, (err, t) => {
-        if (err) console.log(err)
-        if (t && t.rows) {
-            pool.query(seguros, (err, t) => {
-                if (err) console.log(err)
-                if (t && t.rows) io.sockets.emit('updateInsurance', t.rows)
-                res.send('updated. ok.')
-            })
-        }
-    })
 })
 
 app.put('/api/updateInsurances', async (req, res) => {
