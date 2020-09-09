@@ -33,6 +33,8 @@ const { vehicleLogsModel } = require('./mongo/models/vehicleLogsModel')
 const { uploadFS } = require('./upload')
 const { parseRequestBody } = require('./parseRequest')
 const filesModel = require('./mongo/models/filesModel')
+
+const  dbSync = require('./sync/dbSync')
 /* const { filesModel } = require('./mongo/models/filesModel')
 const { empresaModel } = require('./mongo/models/empresaModel')
  */
@@ -113,7 +115,7 @@ app.put('/api/updateFilesMetadata', async (req, res) => {
 
         async (err, doc) => {
             if (err) console.log(err)
-            if (doc) {              
+            if (doc) {
                 const data = {
                     collection,
                     metadata,
@@ -319,7 +321,7 @@ app.post('/api/addElement', (req, res) => {
         { keys, values } = parseRequestBody(requestElement)
 
     let queryString = `INSERT INTO public.${table} (${keys}) VALUES (${values}) RETURNING *`
-    
+
     pool.query(queryString, (err, t) => {
         if (err) console.log(err)
 
@@ -685,7 +687,6 @@ app.delete('/api/delete', (req, res) => {
 })
 
 app.delete('/api/removeProc', (req, res) => {
-
     const { delegatario_id, procurador_id } = req.body
 
     pool.query(`
@@ -696,6 +697,7 @@ app.delete('/api/removeProc', (req, res) => {
     )
 })
 
+app.use('/sync', dbSync)
 
 if (process.env.NODE_ENV === 'production') {
     app.get('/*', (req, res) => {

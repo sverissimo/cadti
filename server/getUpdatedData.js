@@ -20,9 +20,9 @@ const vehicleQuery = condition => `
       ON veiculo.modelo_carroceria_id = public.modelo_carroceria.id
    LEFT JOIN public.marca_carroceria
       ON public.marca_carroceria.id = public.modelo_carroceria.marca_id
-   LEFT JOIN public.delegatario d
+   LEFT JOIN public.empresas d
       ON veiculo.delegatario_id = d.delegatario_id
-   LEFT JOIN public.delegatario d2
+   LEFT JOIN public.empresas d2
       ON veiculo.delegatario_compartilhado = d2.delegatario_id
    LEFT JOIN public.seguro
       ON veiculo.apolice = seguro.apolice
@@ -42,7 +42,7 @@ SELECT seguro.*,
 FROM seguro
 LEFT JOIN veiculo v
 	ON seguro.apolice = v.apolice
-LEFT JOIN delegatario d
+LEFT JOIN empresas d
 	ON d.delegatario_id = seguro.delegatario_id
 LEFT JOIN seguradora s
 	ON s.id = seguro.seguradora_id
@@ -52,10 +52,10 @@ ORDER BY seguro.vencimento ASC
 `
 
 const socioQuery = condition => `
-SELECT public.socios.*, public.delegatario.razao_social
+SELECT public.socios.*, public.empresas.razao_social
    FROM public.socios 
-LEFT JOIN public.delegatario 
-   ON delegatario.delegatario_id = socios.delegatario_id
+LEFT JOIN public.empresas 
+   ON empresas.delegatario_id = socios.delegatario_id
 ${condition}
 ORDER BY nome_socio ASC
 `
@@ -64,7 +64,7 @@ const empresaQuery = condition => `
 SELECT d.*,
 	cardinality (array_agg(v.veiculo_id)) frota,
 	array_to_json(array_agg(v.veiculo_id)) veiculos	
-FROM public.delegatario d
+FROM public.empresas d
 LEFT JOIN veiculo v
 	ON v.delegatario_id = d.delegatario_id
 ${condition}

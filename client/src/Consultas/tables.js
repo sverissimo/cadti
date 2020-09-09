@@ -6,8 +6,8 @@ export const delegatarioTable = [
         title: 'Razão Social',
     },
     {
-        field: 'delegatarioStatus',
-        title: 'Situação',
+        field: 'cnpj',
+        title: 'CNPJ',
     },
     {
         field: 'vencimentoContrato',
@@ -83,11 +83,7 @@ export const vehicleTable = [
     {
         field: 'placa',
         title: 'Placa',
-    },
-  /*   {
-        field: 'modeloCarroceria',
-        title: 'Modelo da Carroceria',
-    }, */
+    },  
     {
         field: 'empresa',
         title: 'Delegatário',

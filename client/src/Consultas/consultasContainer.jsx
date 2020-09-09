@@ -55,7 +55,7 @@ class ConsultasContainer extends Component {
     }
 
     componentDidMount() {
-        document.addEventListener('keydown', this.escFunction, false)
+        document.addEventListener('keydown', this.escFunction, false)        
     }
 
     componentWillUnmount() { this.setState({}) }

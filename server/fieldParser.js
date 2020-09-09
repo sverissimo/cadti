@@ -19,7 +19,7 @@ const fieldParser = [
         label: 'Empresas',
         name: 'delegatarioId',
         column: 'delegatario_id',
-        table: 'delegatario'
+        table: 'empresas'
     },
     {
         collection: 'socios',
