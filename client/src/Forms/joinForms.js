@@ -7,11 +7,11 @@ export const eForm = [
     },
     {
         field: 'rua',
-        width: '530px'
+        width: '540px'
     },
     {
-        field: 'delegatarioStatus',
-        label: 'Status'
+        field: 'situacao',
+        label: 'Situação'
     },   
     {
         ...createdAt,
@@ -21,10 +21,10 @@ export const eForm = [
         field: 'frota',
         label: 'Tamanho da Frota'
     },
-    /* {
+    {
         field: 'oldId',
         label: 'Código no sistema antigo'
-    }, */
+    },
     /*     {
             ...placas
         }, */

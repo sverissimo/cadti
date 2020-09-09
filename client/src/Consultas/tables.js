@@ -26,7 +26,7 @@ export const delegatarioTable = [
     {
         field: 'frota',
         title: 'Tamanho da frota'
-    }    
+    }
 ]
 
 export const sociosTable = [
@@ -83,7 +83,7 @@ export const vehicleTable = [
     {
         field: 'placa',
         title: 'Placa',
-    },  
+    },
     {
         field: 'empresa',
         title: 'Delegatário',
@@ -109,10 +109,20 @@ export const vehicleTable = [
         field: 'compartilhado',
         title: 'Compartilhado por'
     },
+    /*  {
+         field: 'anoCarroceria',
+         title: 'Ano de Fabricação',
+         filtering: false
+     } */
     {
-        field: 'anoCarroceria',
-        title: 'Ano de Fabricação',
-        filtering: false
+        field: 'indicadorIdade',
+        title: 'Indicador de idade',
+        render: rowData => {
+            let timeUnit = ' anos'
+            if (rowData['indicadorIdade'] < 2)
+                timeUnit = ' ano'
+            return rowData['indicadorIdade'].toString() + timeUnit
+        }
     }
 ]
 

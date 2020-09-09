@@ -1,14 +1,15 @@
 import React from 'react'
-import * as FileSaver from 'file-saver';
-import * as XLSX from 'xlsx';
-import moment from 'moment'
 import MaterialTable from 'material-table';
 import { tables } from './tables'
+import exportToXlsx from './exportToXlsx';
+import { setForm } from '../Utils/createFormPattern';
 
 export default function ({ tab, collection, showDetails, showFiles, showCertificate, del }) {
 
-    const id = ['delegatarioId', 'socioId', 'procuradorId', 'veiculoId', 'apolice'][tab],
-        subject = ['empresas', 'sócios', 'procuradores', 'veículos', 'seguros']
+    const
+        id = ['delegatarioId', 'socioId', 'procuradorId', 'veiculoId', 'apolice'][tab],
+        subject = ['empresas', 'sócios', 'procuradores', 'veículos', 'seguros'],
+        form = setForm(tab)
 
     if (!Array.isArray(collection)) collection = []
     collection = collection.map(obj => ({ ...obj }))
@@ -25,31 +26,7 @@ export default function ({ tab, collection, showDetails, showFiles, showCertific
                     exportButton: true,
                     exportFileName: subject[tab],
                     exportCsv: (columns, data) => {
-                        const
-                            fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8',
-                            fileExtension = '.xlsx',
-                            fileName = subject[tab]
-
-                        const exportToCSV = (csvData, fileName) => {
-                            const ws = XLSX.utils.json_to_sheet(csvData);
-                            const wb = { Sheets: { 'data': ws }, SheetNames: ['data'] };
-                            const excelBuffer = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
-                            const data = new Blob([excelBuffer], { type: fileType });
-                            FileSaver.saveAs(data, fileName + fileExtension);
-                        }
-
-                        if (Array.isArray(data)) {
-                            data.forEach((obj, i) => {
-                                Object.entries(obj).forEach(([key, value]) => {                                    
-                                    if (moment(value, 'YYYY-MM-DDTHH:mm:ss.SSSZZ', true).isValid()) {
-                                        value = moment(value).format('DD/MM/YYYY')
-                                        obj[key] = value                                        
-                                    }
-                                })
-                            })
-                        }
-                        
-                        exportToCSV(data, fileName)
+                        exportToXlsx(subject, tab, form, data)
                     },
                     actionsColumnIndex: -1,
                     searchFieldStyle: { color: '#024', fontSize: '14px' },

@@ -13,7 +13,8 @@ const empresas = `
 		`
 		//ORDER BY frota DESC LIMIT 20
 const veiculos = `
-		SELECT veiculo.*,	
+		SELECT veiculo.*,
+			(extract(year from current_date) - ano_carroceria) as indicador_idade,
 			marca_chassi.marca as marca_chassi,
 			modelo_chassi.modelo_chassi,	
 			marca_carroceria.marca as marca_carroceria,
