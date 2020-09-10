@@ -2,9 +2,6 @@ import React, { Fragment } from 'react'
 import moment from 'moment'
 
 import SelectEmpresa from '../Reusable Components/SelectEmpresa'
-import Grid from '@material-ui/core/Grid'
-import Paper from '@material-ui/core/Paper'
-import Typography from '@material-ui/core/Typography'
 import Button from '@material-ui/core/Button'
 import { makeStyles } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
@@ -25,15 +22,6 @@ import GetAppIcon from '@material-ui/icons/GetApp';
 import InsertDriveFileOutlinedIcon from '@material-ui/icons/InsertDriveFileOutlined';
 import ShowLocalFiles from '../Reusable Components/ShowLocalFiles'
 import { empresaFiles } from '../Forms/empresaFiles'
-
-const divContainer = {
-    display: 'flex',
-    justifyContent: 'center',
-    width: '100%',
-    alignContent: 'center',
-    flexWrap: 'wrap',
-    position: 'relative'
-}
 
 const divFiles = {
     textAlign: 'center',
@@ -61,31 +49,6 @@ const fileIcon = {
 }
 
 const useStyles = makeStyles(theme => ({
-    container: {
-        display: 'flex',
-        flexWrap: 'wrap',
-        padding: theme.spacing(1),
-        height: 'auto',
-        backgroundColor: '#fafafa',
-    },
-    containerList: {
-        display: 'flex',
-        flexWrap: 'wrap',
-        padding: theme.spacing(2),
-        height: 'auto',
-    },
-    title: {
-        color: '#000',
-        textAlign: 'center',
-        fontSize: '1.1rem'
-    },
-    selector: {
-        width: '380px',
-        fontSize: '0.8rem',
-        margin: '10px 0',
-        textAlign: 'center'
-
-    },
     textField: {
         marginLeft: theme.spacing(1),
         marginRight: theme.spacing(1),
@@ -93,48 +56,14 @@ const useStyles = makeStyles(theme => ({
         fontColor: '#bbb',
         textAlign: 'center'
     },
-    formHolder: {
-        width: 900,
-    },
-    input: {
-        textAlign: 'center'
-    },
-    paper: {
-        padding: theme.spacing(1),
-        textAlign: 'center',
-        color: theme.palette.text.secondary,
-        margin: theme.spacing(1),
-    },
-    paper2: {
-        padding: theme.spacing(1),
-        textAlign: 'center',
-        color: theme.palette.text.secondary,
-        margin: theme.spacing(1),
-        position: 'relative'
-    },
-
-    list: {
-        margin: theme.spacing(1),
-        width: 180,
-        fontSize: '0.7rem',
-        fontColor: '#bbb',
-        textAlign: 'center',
-    },
-    iconButton: {
-        marginTop: '17px',
-        padding: '6px 0px'
-    },
     addButton: {
         padding: '5px 10px 5px 8px',
         height: '40px',
         margin: '5px',
         float: 'right',
         fontSize: '0.8rem'
-    },
-    dropBox: {
-        margin: '30px 0 15px 0',
     }
-}));
+}))
 
 export default function ({ redux, data, handleInput, addProc, removeProc, handleFiles, getFile, plusOne, minusOne, checkExpires, setShowPendencias, removeFile }) {
 
@@ -142,7 +71,7 @@ export default function ({ redux, data, handleInput, addProc, removeProc, handle
         { dropDisplay, selectedEmpresa, procsToAdd, selectedDocs, procuracao, expires, demand, showPendencias, info, demandFiles, fileToRemove } = data,
         { empresas, procuradores } = redux,
 
-        classes = useStyles(), { paper, container, title, dropBox, addButton, paper2, containerList } = classes
+        classes = useStyles(), { addButton, textField } = classes
 
     const errorHandler = (el, index) => {
 
@@ -180,33 +109,30 @@ export default function ({ redux, data, handleInput, addProc, removeProc, handle
         if (date) return moment(date).format('DD-MM-YYYY')
         else return ''
     }
-    
+
     //************CRIAR FUNÇÃO PARA IMPEDIR QUE O PROCURADOR QUE TENHA ALGUMA PROCURAÇÃO SEJA APAGADO NA TELA 'CONSULTAS' */
     return (
-        <Grid
-            container
-            direction="row"
-            className={container}
-            justify="flex-start"
-        >
+        <div className='flex'>
             <SelectEmpresa
                 data={data}
                 empresas={empresas}
                 handleInput={handleInput}
             />
             {selectedEmpresa &&
-                <Paper className={paper2}>
-                    <Typography className={title}> Cadastrar nova procuração </Typography>
-                    <h4 style={{ fontWeight: 400, fontSize: '0.9em' }}> Se a procuração abranger mais de um procurador, clique em "+" para adicionar e anexe apenas 1 vez.</h4>
+                <section className="paper flexColumn" style={{ position: 'relative', width: '100%' }}>
+                    <div className='flexColumn' style={{ alignItems: 'center' }}>
+                        <h6> Cadastrar nova procuração </h6>
+                        <h4 style={{ fontWeight: 400, fontSize: '0.9em' }}> Se a procuração abranger mais de um procurador, clique em "+" para adicionar e anexe apenas 1 vez.</h4>
+                    </div>
                     {procsToAdd.map((p, j) =>
-                        <Grid item xs={12} key={j} style={{ float: 'left' }}>
+                        <div className="flex" key={j} >
                             {procuradorForm.map((el, i) =>
                                 <Fragment key={i}>
                                     <TextField
                                         name={el.field + j}
                                         label={el.label}
                                         margin='normal'
-                                        className={classes.textField}
+                                        className={textField}
                                         onChange={e => handleInput(e)}
                                         type={el.type || ''}
                                         error={errorHandler(el, j)}
@@ -215,7 +141,7 @@ export default function ({ redux, data, handleInput, addProc, removeProc, handle
                                         value={data[el.field + j] || ''}
                                         disabled={el.disabled || false}
                                         InputLabelProps={{
-                                            className: classes.textField,
+                                            className: textField,
                                             shrink: el.type === 'date' || undefined,
                                             style: { fontSize: '0.7rem', fontWeight: 400, color: '#888' }
                                         }}
@@ -243,8 +169,8 @@ export default function ({ redux, data, handleInput, addProc, removeProc, handle
                                                 style={{
                                                     verticalAlign: 'middle',
                                                     position: 'absolute',
-                                                    bottom: '136px',
-                                                    right: j > 0 ? '15px' : '35px',
+                                                    bottom: '112px',
+                                                    right: j > 0 ? '40px' : '68px',
                                                     color: '#009688',
                                                     fontSize: 30,
                                                     cursor: 'pointer',
@@ -256,8 +182,8 @@ export default function ({ redux, data, handleInput, addProc, removeProc, handle
                                                 style={{
                                                     verticalAlign: 'middle',
                                                     position: 'absolute',
-                                                    bottom: '136px',
-                                                    right: '45px',
+                                                    bottom: '112px',
+                                                    right: '70px',
                                                     color: 'red',
                                                     fontSize: 30,
                                                     cursor: 'pointer',
@@ -268,13 +194,13 @@ export default function ({ redux, data, handleInput, addProc, removeProc, handle
                                     }
                                 </Fragment>
                             )}
-                        </Grid>
+                        </div>
                     )}
-                    <Grid container style={{ position: 'relative', alignItems: 'center' }}>
-                        <Grid item xs={6}>
+
+                    <div className="flex" style={{ alignItems: 'center', padding: '0 20px', width: '100%', margin: '12px 0 6px 0' }}>
+                        <div style={{ width: '50%' }}>
                             {!demand ?
                                 <DragAndDrop
-                                    style={{ marginTop: '22px', width: '90%' }}
                                     name='procuracao'
                                     formData={procuracao}
                                     dropDisplay={dropDisplay}
@@ -294,9 +220,10 @@ export default function ({ redux, data, handleInput, addProc, removeProc, handle
                                     />
                                 </div>
                             }
-                        </Grid>
-                        <Grid item xs={6} className={dropBox}>
-                            <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginRight: '67px' }}>
+                        </div>
+
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', width: '50%', paddingTop: '8px' }}>
+                            <div style={{ marginTop: '12px' }}>
                                 <FormControlLabel
                                     control={
                                         <Checkbox
@@ -312,31 +239,30 @@ export default function ({ redux, data, handleInput, addProc, removeProc, handle
                                     </span>
                                     }
                                 />
-                                <TextField
-                                    name='vencimento'
-                                    label='Vencimento'
-                                    margin='normal'
-                                    className={classes.textField}
-                                    onChange={e => handleInput(e)}
-                                    type='date'
-                                    helper='se indeterminado, deixar em branco'
-                                    value={data.vencimento || ''}
-                                    disabled={expires === false}
-                                    InputLabelProps={{
-                                        className: classes.textField,
-                                        shrink: true,
-                                        style: { fontSize: '0.8rem', color: '#455a64', marginBottom: '5%' }
-                                    }}
-                                    inputProps={{
-                                        style: { background: '#fafafa', fontSize: '0.8rem', textAlign: 'center', color: '#000', height: '9px' },
-                                    }}
-                                    variant={'filled'}
-                                />
-
                             </div>
-                        </Grid>
-                    </Grid>
-                </Paper>}
+                            <TextField
+                                name='vencimento'
+                                label='Vencimento'
+                                margin='normal'
+                                className={textField}
+                                onChange={e => handleInput(e)}
+                                type='date'
+                                helper='se indeterminado, deixar em branco'
+                                value={data.vencimento || ''}
+                                disabled={expires === false}
+                                InputLabelProps={{
+                                    className: textField,
+                                    shrink: true,
+                                    style: { fontSize: '0.8rem', color: '#455a64', marginBottom: '5%' }
+                                }}
+                                inputProps={{
+                                    style: { background: '#fafafa', fontSize: '0.8rem', textAlign: 'center', color: '#000', height: '9px' },
+                                }}
+                                variant={'filled'}
+                            />
+                        </div>
+                    </div>
+                </section>}
             <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
                 {selectedEmpresa && !demand ?
                     <Button
@@ -363,35 +289,33 @@ export default function ({ redux, data, handleInput, addProc, removeProc, handle
                 }
             </div>
 
-            {selectedEmpresa && selectedDocs[0] && <h2 style={{ margin: '25px 0 0 15px' }}>Procurações cadastradas</h2>
-            }
-            {
-                selectedEmpresa && !selectedDocs[0] && !demand &&
-                <Grid item xs={12}>
-                    <Paper className={paper}>
-                        Nenhum procurador cadastrado para {selectedEmpresa.razaoSocial}
-                    </Paper>
-                </Grid>
-            }
-            {
-                selectedDocs.length > 0 && selectedDocs.map((procuracao, z) => <Grid container
-                    key={z * 0.01}
-                    direction="row"
-                    className={containerList}
-                    justify="center"
-                    alignItems="flex-start">
-                    <Grid item xs={12}>
-                        <Paper style={{ padding: '10px 15px 20px 15px' }}>
-                            <p className={title}>Procuração {
-                                !procuracao.vencimento ?
-                                    'por prazo indeterminado'
-                                    :
-                                    'com vencimento em ' + handleDates(procuracao.vencimento)
-                            }</p>
+            <section className="flexColumn" style={{ width: '100%', paddingRight: '0' }}>
+                {
+                    selectedEmpresa && !selectedDocs[0] && !demand ?
+                        <div className="flex paper">
+                            Nenhum procurador cadastrado para {selectedEmpresa.razaoSocial}
+                        </div>
+                        :
+                        selectedEmpresa && selectedDocs[0] &&
+                        <h2 style={{ margin: '25px 0 0 15px' }}>
+                            Procurações cadastradas
+                    </h2>
+                }
+                {
+                    selectedDocs.length > 0 && selectedDocs.map((procuracao, z) =>
+                        <div key={z * 0.01} className='flexColumn paper' style={{ padding: '10px 15px 20px 15px' }}>
+                            <h5>
+                                Procuração {
+                                    !procuracao.vencimento ?
+                                        'por prazo indeterminado'
+                                        :
+                                        'com vencimento em ' + handleDates(procuracao.vencimento)
+                                }
+                            </h5>
 
                             <Procurador procuradores={procuradores} procuracao={procuracao} />
 
-                            <div style={divContainer}>
+                            <div className='flex center' style={{  position: 'relative' }}>
                                 <span style={divFiles}>
                                     <InsertDriveFileOutlinedIcon style={fileIcon} />
                                     <span style={{ verticalAlign: 'middle', }}>
@@ -404,11 +328,10 @@ export default function ({ redux, data, handleInput, addProc, removeProc, handle
                                     Apagar
                                     </span>
                             </div>
-                        </Paper>
-                    </Grid>
-                </Grid>
-                )
-            }
-        </Grid >
+                        </div>
+                    )
+                }
+            </section>
+        </div >
     )
 }

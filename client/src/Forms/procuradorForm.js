@@ -4,20 +4,20 @@ export const procuradorForm = [{
     field: 'nomeProcurador',
     label: 'Nome do Procurador',
     maxLength: 90,
-    width: 235
+    width: 240
 },
 {
     ...cpf,
     field: 'cpfProcurador',
-    width: 235
+    width: 240
 },
 {
     ...phone,
     field: 'telProcurador',    
-    width: 235
+    width: 240
 },
 {
     ...email,
     field: 'emailProcurador',
-    width: 235
+    width: 240
 }]

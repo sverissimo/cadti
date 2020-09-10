@@ -67,7 +67,7 @@ class VeiculosContainer extends PureComponent {
         equipamentos.forEach(e => Object.assign(allEqs, { [e?.item]: false }))
         acessibilidade.forEach(e => Object.assign(allAcs, { [e?.item]: false }))
 
-        await this.setState({ ...allEqs, ...allAcs })
+        await this.setState({ ...allEqs, ...allAcs, selectedEmpresa: redux.empresas[0], razaoSocial: 'whatever' })
 
         document.addEventListener('keydown', this.escFunction, false)
     }
@@ -168,8 +168,11 @@ class VeiculosContainer extends PureComponent {
     handleBlur = async e => {
         const
             { empresas, modelosChassi, carrocerias } = this.props.redux,
-            { frota } = this.state,
-            { name } = e.target
+            { frota, anoCarroceria, anoChassi } = this.state,
+            { name } = e.target,
+            carr = Number(anoCarroceria),
+            chas = Number(anoChassi)
+
         let
             { value } = e.target
 
@@ -180,13 +183,31 @@ class VeiculosContainer extends PureComponent {
         switch (name) {
             case 'modeloChassi':
                 this.getId(name, value, modelosChassi, 'modeloChassiId', 'modeloChassi', 'id', 'chassi')
-                break;
+                break
             case 'modeloCarroceria':
                 this.getId(name, value, carrocerias, 'modeloCarroceriaId', 'modelo', 'id', 'carroceria')
-                break;
+                break
             case 'delegatarioCompartilhado':
                 this.getId(name, value, empresas, 'compartilhadoId', 'razaoSocial', 'delegatarioId')
-                break;
+                break
+            case 'anoChassi':
+                if (anoCarroceria && chas && (carr !== chas && carr !== chas + 1)) {
+                    this.setState({
+                        anoChassi: '',
+                        openAlertDialog: true,
+                        customTitle: 'Ano de chassi inválido.',
+                        customMsg: `Ano de chassi incompatível com o ano de carroceria informado.`
+                    })
+                }
+            case 'anoCarroceria':
+                if (chas && carr && (carr !== chas && carr !== chas + 1)) {
+                    this.setState({
+                        anoCarroceria: '',
+                        openAlertDialog: true,
+                        customTitle: 'Ano de carroceria inválido.',
+                        customMsg: `Ano de carroceria incompatível com o ano de chassi informado.`
+                    })
+                }
             default: void 0
         }
 
@@ -265,7 +286,7 @@ class VeiculosContainer extends PureComponent {
 
             existingVeiculoId = demand?.veiculoId,
             oldHistoryLength = demand?.history?.length || 0
-        
+
         let
             veiculoId,
             situacao = 'Cadastro solicitado'
@@ -321,7 +342,7 @@ class VeiculosContainer extends PureComponent {
         }
 
         //*****************Generate log ************** */
-     
+
 
         const log = {
             empresaId: selectedEmpresa?.delegatarioId,
@@ -418,7 +439,7 @@ class VeiculosContainer extends PureComponent {
     render() {
         const
             { confirmToast, toastMsg, activeStep, openAlertDialog, alertType, steps, selectedEmpresa,
-                placa, dropDisplay, form, demand, demandFiles, showPendencias, info, resetShared } = this.state,
+                placa, dropDisplay, form, demand, demandFiles, showPendencias, info, resetShared, customMsg, customTitle } = this.state,
 
             { redux } = this.props
 
@@ -470,7 +491,7 @@ class VeiculosContainer extends PureComponent {
                 disabled={(typeof placa !== 'string' || placa === '')}
             />}
             <ReactToast open={confirmToast} close={this.toast} msg={toastMsg} />
-            {openAlertDialog && <AlertDialog open={openAlertDialog} close={this.toggleDialog} alertType={alertType} customMessage={this.state.customMsg} />}
+            {openAlertDialog && <AlertDialog open={openAlertDialog} close={this.toggleDialog} alertType={alertType} customMessage={customMsg} customTitle={customTitle} />}
         </Fragment>
     }
 }

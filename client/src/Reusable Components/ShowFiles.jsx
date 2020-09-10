@@ -55,7 +55,7 @@ const ShowFiles = ({ filesCollection, close, typeId, empresas, filesIds, razaoSo
                 if (razaoSocial)
                     return ' - ' + razaoSocial
                 const emp = empresas.find(e => e.delegatarioId === Number(metadata.empresaId))
-                return ' - ' + emp.razaoSocial
+                return ' - ' + emp?.razaoSocial || ''
             case 'apoliceDoc':
                 if (metadata.apolice) return ' número ' + metadata.apolice
                 else return ' '

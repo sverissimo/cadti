@@ -4,11 +4,34 @@ import moment from 'moment'
 import TextField from '@material-ui/core/TextField'
 import ClosePopUpButton from '../Reusable Components/ClosePopUpButton'
 import createFormPattern from '../Utils/createFormPattern'
+import { razaoSocial } from '../Forms/commonFields'
 
-export default function ShowDetails({ data, tab, title, header, close }) {
+export default function ShowDetails({ data, tab, title, header, close, empresas, procuracoes, procuradores }) {
 
     const element = createFormPattern(tab, data) || []
 
+    const additionalInfo = (tab) => {
+        if (tab === 0) {
+            let selectedProcs = []
+            console.log(element)
+
+            const razaoSocial = element.find(el => el.field === 'razaoSocial')?.value
+            const delegatarioId = empresas.find(e => e.razaoSocial === razaoSocial)?.delegatarioId
+            console.log(delegatarioId)
+
+            const selectedDocs = procuracoes.filter(p => p.delegatarioId === delegatarioId)
+            console.log(selectedDocs)
+            
+            procuradores.forEach(pr => {
+                selectedDocs.forEach(doc => {
+                    if (doc.procuradores.some(p => p === pr.procuradorId))
+                        selectedProcs.push(pr)
+                })
+            })
+            console.log(selectedProcs, procuradores)
+        }
+    }
+    additionalInfo(tab)
     return (
         <div className="popUpWindow" style={{ left: '20%', right: '20%' }}>
             <h4 className='equipaHeader'>{title} {data[header]}</h4> <hr />

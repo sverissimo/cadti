@@ -54,7 +54,7 @@ class ConsultasContainer extends Component {
         showCertificate: false
     }
 
-    componentDidMount() {
+    componentDidMount() {        
         document.addEventListener('keydown', this.escFunction, false)        
     }
 
@@ -222,7 +222,7 @@ class ConsultasContainer extends Component {
             { tab, options, items, showDetails, elementDetails, showFiles, selectedElement, filesCollection, typeId, tablePKs, showCertificate, certified,
                 detailsTitle, detailsHeader, openAlertDialog, alertType, customTitle, customMessage } = this.state,
             { redux } = this.props,
-            { empresas } = redux,
+            { empresas, procuracoes, procuradores } = redux,
             primaryKeys = tablePKs.map(pk => humps.camelize(pk))
 
         let updatedElement
@@ -245,9 +245,12 @@ class ConsultasContainer extends Component {
                 <ShowDetails
                     close={this.showDetails}
                     data={updatedElement || elementDetails}
-                    tab={tab}
+                    tab={tab}                    
                     title={detailsTitle[tab]}
                     header={detailsHeader[tab]}
+                    empresas={empresas}
+                    procuracoes={procuracoes}
+                    procuradores={procuradores}
                 />
             }
             {
@@ -272,7 +275,7 @@ class ConsultasContainer extends Component {
     }
 }
 
-const collections = ['veiculos', 'empresas', 'socios', 'procuradores', 'seguros', 'seguradoras',
+const collections = ['veiculos', 'empresas', 'socios', 'procuradores', 'seguros', 'seguradoras', 'procuracoes',
     'getFiles/vehicleDocs', 'getFiles/empresaDocs', 'equipamentos', 'acessibilidade', 'laudos']
 
 export default connect(null, { updateCollection })(StoreHOC(collections, ConsultasContainer))

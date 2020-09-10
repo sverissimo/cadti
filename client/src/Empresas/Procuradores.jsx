@@ -17,6 +17,7 @@ import AlertDialog from '../Reusable Components/AlertDialog'
 import { logGenerator } from '../Utils/logGenerator'
 import { setEmpresaDemand } from '../Utils/setEmpresaDemand'
 import { removeFile, sizeExceedsLimit } from '../Utils/handleFiles'
+import SelectEmpresa from '../Reusable Components/SelectEmpresa'
 
 class Procuradores extends Component {
 
@@ -110,17 +111,17 @@ class Procuradores extends Component {
         if (name === 'razaoSocial' && Array.isArray(procuradores)) {
 
             const selectedEmpresa = empresas.find(e => e.razaoSocial === value)
-
+            
             if (selectedEmpresa) {
                 const selectedDocs = procuracoes.filter(pr => pr.delegatarioId === selectedEmpresa.delegatarioId)
+                
                 await this.setState({ selectedEmpresa, selectedDocs, razaoSocial: selectedEmpresa.razaoSocial })
-                if (value !== selectedEmpresa.razaoSocial) this.setState({ selectedEmpresa: undefined })
+                if (value !== selectedEmpresa.razaoSocial) this.setState({ selectedEmpresa: undefined, selectedDocs: [] })
 
-            } else this.setState({ selectedEmpresa: undefined })
+            } else this.setState({ selectedEmpresa: undefined, selectedDocs: [] })
         }
 
         if (name.match('cpfProcurador')) {
-
             const proc = procuradores.find(p => p.cpfProcurador === value)
             if (proc) {
                 const index = name.charAt(name.length - 1)
@@ -441,7 +442,10 @@ class Procuradores extends Component {
                     setShowPendencias={this.setShowPendencias}
                 />
                 <ReactToast open={this.state.confirmToast} close={this.toast} msg={this.state.toastMsg} />
-                {openAlertDialog && <AlertDialog open={openAlertDialog} close={this.closeAlert} alertType={alertType} customMessage={this.state.customMsg} />}
+                {
+                    openAlertDialog &&
+                    <AlertDialog open={openAlertDialog} close={this.closeAlert} alertType={alertType} customMessage={this.state.customMsg} />
+                }
             </React.Fragment>
         )
     }
