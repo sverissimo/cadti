@@ -10,7 +10,7 @@ router.post('/createTable', (req, res) => {
 
     console.log(query.substring(0, 50))
 
-    pool.query(query).then(() => res.send('alright'))
+    pool.query(query).then(() => res.send('createTable alright'))
 })
 
 router.post('/updateTable', (req, res) => {
@@ -42,7 +42,7 @@ router.post('/updateTable', (req, res) => {
 
     pool.query(query)
         .then(() => pool.query(updateEmpresasPK))
-    res.send('alright')
+    res.send('updated alright')
 })
 
 

@@ -216,6 +216,7 @@ const LaudosTemplate = (
                                 deleteIconProperties={deleteIconProperties}
                                 deleteFunction={deleteLaudo}
                                 idIndex={1}
+                                filePK='laudoDoc'
                             />
                         </div>
                         :

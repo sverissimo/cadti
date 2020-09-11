@@ -38,7 +38,7 @@ class ConsultasContainer extends Component {
         tab: 0,
         items: ['Empresas', 'Sócios', 'Procuradores', 'Veículos', 'Seguros'],
         tablePKs: ['delegatario_id', 'socio_id', 'procurador_id', 'veiculo_id', 'id'],
-        dbTables: ['delegatario', 'socios', 'procurador', 'veiculo', 'seguro'],
+        dbTables: ['empresas', 'socios', 'procurador', 'veiculo', 'seguro'],
         options: ['empresas', 'socios', 'procuradores', 'veiculos', 'seguros'],
         detailsTitle: ['Empresa', 'Sócio', 'Procurador', 'Placa', 'Apólice'],
         detailsHeader: ['razaoSocial', 'nomeSocio', 'nomeProcurador', 'placa', 'apolice'],
@@ -54,8 +54,8 @@ class ConsultasContainer extends Component {
         showCertificate: false
     }
 
-    componentDidMount() {        
-        document.addEventListener('keydown', this.escFunction, false)        
+    componentDidMount() {
+        document.addEventListener('keydown', this.escFunction, false)
     }
 
     componentWillUnmount() { this.setState({}) }
@@ -180,7 +180,7 @@ class ConsultasContainer extends Component {
             contratoVencido = moment(vencimentoContrato).isBefore(),
             currentYear = new Date().getFullYear(),
             isOld = currentYear - anoCarroceria >= 15
-        
+
         if (isOld) {
             const hasLaudo = laudos.find(l => l.veiculoId === veiculoId),
                 validLaudo = moment(hasLaudo?.validade).isAfter(moment())
@@ -222,7 +222,7 @@ class ConsultasContainer extends Component {
             { tab, options, items, showDetails, elementDetails, showFiles, selectedElement, filesCollection, typeId, tablePKs, showCertificate, certified,
                 detailsTitle, detailsHeader, openAlertDialog, alertType, customTitle, customMessage } = this.state,
             { redux } = this.props,
-            { empresas, procuracoes, procuradores } = redux,
+            { empresas, procuracoes, procuradores, empresaDocs } = redux,
             primaryKeys = tablePKs.map(pk => humps.camelize(pk))
 
         let updatedElement
@@ -245,12 +245,13 @@ class ConsultasContainer extends Component {
                 <ShowDetails
                     close={this.showDetails}
                     data={updatedElement || elementDetails}
-                    tab={tab}                    
+                    tab={tab}
                     title={detailsTitle[tab]}
                     header={detailsHeader[tab]}
                     empresas={empresas}
                     procuracoes={procuracoes}
                     procuradores={procuradores}
+                    empresaDocs={empresaDocs}
                 />
             }
             {
@@ -265,7 +266,9 @@ class ConsultasContainer extends Component {
                     close={this.closeFiles}
                     format={format}
                     typeId={typeId}
-                    empresas={empresas} />
+                    empresas={empresas}
+                    empresaDocs={empresaDocs}
+                />
             }
             {openAlertDialog &&
                 <AlertDialog

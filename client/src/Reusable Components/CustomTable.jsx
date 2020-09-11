@@ -3,8 +3,8 @@ import moment from 'moment'
 import downloadFile from '../Utils/downloadFile'
 import DeleteIcon from '@material-ui/icons/Delete';
 
-export default function StandardTable({ table, length, title, style, idIndex = 0, deleteIconProperties = {}, deleteFunction }) {
-    const { tableHeaders, laudosArray, laudoDocs } = table
+export default function StandardTable({ table, length, title, style, idIndex = 0, filePK, deleteIconProperties = {}, deleteFunction }) {
+    const { tableHeaders, arrayOfRows, docs } = table
 
     const dateFormat = value => {
         if (moment(value, 'YYYY-MM-DDTHH:mm:ss.SSSZZ', true).isValid()) {
@@ -16,10 +16,10 @@ export default function StandardTable({ table, length, title, style, idIndex = 0
     }
 
     const getFile = id => {
-        const file = laudoDocs.find(f => f.id === id)
+        const file = docs.find(f => f.id === id)
         if (id && file) downloadFile(file.id, file.filename, 'vehicleDocs', file.metadata.fieldName);
     }
-    
+    console.log(arrayOfRows)
     return (
         <table>
             <thead>
@@ -34,18 +34,18 @@ export default function StandardTable({ table, length, title, style, idIndex = 0
             </thead>
             <tbody>
                 {
-                    laudosArray.map((laudo, j) =>
+                    arrayOfRows.map((el, j) =>
                         <tr key={j}>
                             {
-                                laudo.map((obj, i) =>
-                                    <td key={i} style={style} className={obj.type === 'link' && obj.laudoDocId ? 'link2' : 'review'}
+                                el.map((obj, i) =>
+                                    <td key={i} style={style} className={obj.type === 'link' && obj.fileId ? 'link2' : 'review'}
                                         onClick={
-                                            () => obj.field === 'laudoDoc' && obj.laudoDocId ? getFile(obj.laudoDocId)
-                                                : obj?.action === 'delete' ? deleteFunction(laudo[idIndex]?.value)
+                                            () => obj.field === filePK && obj.fileId ? getFile(obj.fileId)
+                                                : obj?.action === 'delete' ? deleteFunction(el[idIndex]?.value)
                                                     : null}>
                                         {
                                             obj.type === 'date' ? dateFormat(obj.value)
-                                                : obj?.action === 'delete' && laudo[idIndex]?.value ? <DeleteIcon {...deleteIconProperties} />
+                                                : obj?.action === 'delete' && el[idIndex]?.value ? <DeleteIcon {...deleteIconProperties} />
                                                     : obj.value
                                         }
                                     </td>

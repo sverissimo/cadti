@@ -34,7 +34,7 @@ const { uploadFS } = require('./upload')
 const { parseRequestBody } = require('./parseRequest')
 const filesModel = require('./mongo/models/filesModel')
 
-const  dbSync = require('./sync/dbSync')
+const dbSync = require('./sync/dbSync')
 /* const { filesModel } = require('./mongo/models/filesModel')
 const { empresaModel } = require('./mongo/models/empresaModel')
  */
@@ -280,12 +280,14 @@ app.post('/api/empresaFullCad', cadEmpresa, (req, res, next) => {
     })
 },
     cadSocios, (req, res) => {
-        const
-            { data, delegatario_id } = req,
+        const { data, delegatario_id } = req
+        let socioIds
+        if (data && delegatario_id) {
             socioIds = data.map(s => s.socio_id)
-
-        io.sockets.emit('insertSocios', data)
-        res.json({ socioIds, delegatario_id })
+            io.sockets.emit('insertSocios', data)
+            res.json({ socioIds, delegatario_id })
+        }
+        else res.send('No socio added whatsoever.')
     })
 
 app.post('/api/cadSeguro', (req, res) => {
@@ -708,7 +710,7 @@ if (process.env.NODE_ENV === 'production') {
 //**********************************ERROR HANDLIONG*********************** */
 app.use((req, res, next) => {
     const error = new Error("Not found.");
-    error.status = 404;
+    error.status = 404
     next(error);
 });
 

@@ -32,7 +32,7 @@ const Laudos = props => {
 
     const
         [razaoSocial, empresaInput] = useState(''),
-        [selectedEmpresa, setEmpresa] = useState([]),
+        [selectedEmpresa, setEmpresa] = useState(),
         [oldVehicles, setOldVehicles] = useState(),
         [filteredVehicles, setFilteredVehicles] = useState([]),
         [details, setDetails] = useState(false),
@@ -173,8 +173,8 @@ const Laudos = props => {
         }
     }
 
+    //Cria os cabeçalhos, linhas e células da tabela que exibe os laudos
     useEffect(() => {
-
         if (selectedVehicle && !demand) {
             if (selectedVehicle.laudos && selectedVehicle.laudos[0]) {
 
@@ -186,11 +186,11 @@ const Laudos = props => {
 
                 vehicleLaudos.forEach(l => {
                     table2.forEach(t => {
-                        let laudoDocId
+                        let fileId
 
                         const laudoDoc = laudoDocs.find(d => d.metadata.laudoId === l.id || d.metadata.laudoId.toString() === l.id.toString())
                         if (laudoDoc)
-                            laudoDocId = laudoDoc.id
+                            fileId = laudoDoc.id
 
                         if (!tableHeaders.includes(t.title))
                             tableHeaders.push(t.title)
@@ -198,19 +198,19 @@ const Laudos = props => {
                         const { title, ...tableData } = t
 
                         if (t.field === 'laudoDoc')
-                            tempArray.push({ ...tableData, value: l[t.field], laudoDocId })
+                            tempArray.push({ ...tableData, value: l[t.field], fileId })
                         else
                             tempArray.push({ ...tableData, value: l[t.field] })
                     })
 
-                    if (tempArray[4].laudoDocId) tempArray[4].value = 'Clique para visualizar o laudo'
+                    if (tempArray[4].fileId) tempArray[4].value = 'Clique para visualizar o laudo'
                     else tempArray[4].value = 'Nenhum arquivo encontrado'
                     laudosArray.push(tempArray)
                     tempArray = []
                 })
 
                 table2 = [...laudosTable]
-                setTableData({ tableHeaders, laudosArray, laudoDocs })
+                setTableData({ tableHeaders, arrayOfRows: laudosArray, docs: laudoDocs })
 
             } else setTableData(`Nenhum laudo cadastrado para o veículo placa ${selectedVehicle.placa}.`)
         }

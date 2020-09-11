@@ -229,7 +229,7 @@ class EmpresasContainer extends Component {
             }
         })
 
-        empresa.delegatarioStatus = 'Ativo'
+        empresa.situacao = 'Ativo'
 
         Object.entries(empresa).forEach(([k, v]) => {
             if (!v || v === '') delete empresa[k]
