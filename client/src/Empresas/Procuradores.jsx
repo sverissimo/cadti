@@ -17,7 +17,6 @@ import AlertDialog from '../Reusable Components/AlertDialog'
 import { logGenerator } from '../Utils/logGenerator'
 import { setEmpresaDemand } from '../Utils/setEmpresaDemand'
 import { removeFile, sizeExceedsLimit } from '../Utils/handleFiles'
-import SelectEmpresa from '../Reusable Components/SelectEmpresa'
 
 class Procuradores extends Component {
 
@@ -111,10 +110,10 @@ class Procuradores extends Component {
         if (name === 'razaoSocial' && Array.isArray(procuradores)) {
 
             const selectedEmpresa = empresas.find(e => e.razaoSocial === value)
-            
+
             if (selectedEmpresa) {
                 const selectedDocs = procuracoes.filter(pr => pr.delegatarioId === selectedEmpresa.delegatarioId)
-                
+
                 await this.setState({ selectedEmpresa, selectedDocs, razaoSocial: selectedEmpresa.razaoSocial })
                 if (value !== selectedEmpresa.razaoSocial) this.setState({ selectedEmpresa: undefined, selectedDocs: [] })
 

@@ -23,6 +23,7 @@ import { cadVehicleFiles } from '../Forms/cadVehicleFiles'
 import { cadVehicleForm } from '../Forms/cadVehicleForm'
 
 import AlertDialog from '../Reusable Components/AlertDialog'
+import validateDist from '../Utils/validaDistanciaMinima'
 
 class VeiculosContainer extends PureComponent {
     constructor() {
@@ -168,7 +169,7 @@ class VeiculosContainer extends PureComponent {
     handleBlur = async e => {
         const
             { empresas, modelosChassi, carrocerias } = this.props.redux,
-            { frota, anoCarroceria, anoChassi } = this.state,
+            { frota, anoCarroceria, anoChassi, utilizacao, distanciaMinima } = this.state,
             { name } = e.target,
             carr = Number(anoCarroceria),
             chas = Number(anoChassi)
@@ -199,6 +200,7 @@ class VeiculosContainer extends PureComponent {
                         customMsg: `Ano de chassi incompatível com o ano de carroceria informado.`
                     })
                 }
+                break
             case 'anoCarroceria':
                 if (chas && carr && (carr !== chas && carr !== chas + 1)) {
                     this.setState({
@@ -208,6 +210,19 @@ class VeiculosContainer extends PureComponent {
                         customMsg: `Ano de carroceria incompatível com o ano de chassi informado.`
                     })
                 }
+                break
+            case 'distanciaMinima':
+                let errorMsg
+                if (utilizacao)
+                    errorMsg = validateDist(utilizacao, distanciaMinima)
+                if (errorMsg)
+                    this.setState({
+                        openAlertDialog: true,
+                        customTitle: 'Distância mínima inválida.',
+                        customMsg: errorMsg,
+                        distanciaMinima: ''
+                    })
+                break
             default: void 0
         }
 
@@ -488,7 +503,7 @@ class VeiculosContainer extends PureComponent {
                 info={info}
                 handleSubmit={this.handleCadastro}
                 handleInput={this.handleInput}
-                disabled={(typeof placa !== 'string' || placa === '')}
+            //disabled={(typeof placa !== 'string' || placa === '')}
             />}
             <ReactToast open={confirmToast} close={this.toast} msg={toastMsg} />
             {openAlertDialog && <AlertDialog open={openAlertDialog} close={this.toggleDialog} alertType={alertType} customMessage={customMsg} customTitle={customTitle} />}

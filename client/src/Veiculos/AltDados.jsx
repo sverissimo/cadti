@@ -23,6 +23,7 @@ import StepperButtons from '../Reusable Components/StepperButtons'
 import FormDialog from '../Reusable Components/FormDialog'
 import AlertDialog from '../Reusable Components/AlertDialog'
 import { handleFiles, removeFile } from '../Utils/handleFiles'
+import validateDist from '../Utils/validaDistanciaMinima'
 
 
 class AltDados extends Component {
@@ -170,7 +171,7 @@ class AltDados extends Component {
     handleBlur = async e => {
         const
             { empresas, vehicleLogs, equipamentos, acessibilidade } = this.props.redux,
-            { frota, demand } = this.state,
+            { frota, demand, utilizacao, distanciaMinima } = this.state,
             { name } = e.target
 
         let
@@ -188,6 +189,20 @@ class AltDados extends Component {
             case 'delegatario':
                 await this.getId(name, value, empresas, 'delegatarioId', 'razaoSocial', 'delegatarioId')
                 break;
+
+            case 'distanciaMinima':
+                let errorMsg
+                if (utilizacao)
+                    errorMsg = validateDist(utilizacao, distanciaMinima)
+                if (errorMsg) {
+                    this.setState({
+                        openAlertDialog: true,
+                        customTitle: 'Distância mínima inválida.',
+                        customMessage: errorMsg,
+                        distanciaMinima: ''
+                    })
+                }
+                break
             default:
                 void 0
         }
@@ -495,7 +510,8 @@ class AltDados extends Component {
                 dropDisplay={dropDisplay}
                 formData={form}
             />
-            {openAlertDialog && <AlertDialog open={openAlertDialog} close={this.closeAlert} alertType={alertType} customMessage={customMessage} customTitle={customTitle} />}
+            {openAlertDialog &&
+                <AlertDialog open={openAlertDialog} close={this.closeAlert} alertType={alertType} customMessage={customMessage} customTitle={customTitle} />}
         </Fragment>
     }
 }

@@ -84,6 +84,7 @@ const Laudos = props => {
             setDemandFiles(dFiles)
             selectVehicle(originalVehicle)
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [empresas, demand, props.redux])
 
     useEffect(() => {

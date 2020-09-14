@@ -98,7 +98,7 @@ export default function ({ redux, data, handleInput, handleBlur, handleEquipa, h
                             >
                                 <AddIcon />
                                                 Equipamentos
-                                            </Button>
+                            </Button>
                             <Button
                                 variant="outlined"
                                 size="small"
@@ -108,7 +108,7 @@ export default function ({ redux, data, handleInput, handleBlur, handleEquipa, h
                             >
                                 <AddIcon />
                                         Acessibilidade
-                                    </Button>
+                            </Button>
                         </section>}
                     {
                         addEquipa && <AddEquipa

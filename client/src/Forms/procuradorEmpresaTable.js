@@ -18,7 +18,8 @@ export const procuradorEmpresaTable = [
     {
         field: 'vencimento',
         title: 'Validade da procuração',
-        type: 'date'
+        type: 'date',
+        format: value => value ? value : 'Prazo indeterminado'
     },
     {
         field: 'fileId',

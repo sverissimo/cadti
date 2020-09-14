@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react'
 import moment from 'moment'
-
+import CustomTable from './CustomTable'
 import TextField from '@material-ui/core/TextField'
 import ClosePopUpButton from '../Reusable Components/ClosePopUpButton'
 import createFormPattern from '../Utils/createFormPattern'
-import { formatDate } from '../Utils/formatValues'
 import { procuradorEmpresaTable as procTable } from '../Forms/procuradorEmpresaTable'
 
 export default function ShowDetails({ data, tab, title, header, close, empresas, procuracoes, procuradores, empresaDocs }) {
@@ -23,7 +22,8 @@ export default function ShowDetails({ data, tab, title, header, close, empresas,
                 const
                     razaoSocial = element.find(el => el.field === 'razaoSocial')?.value,
                     delegatarioId = empresas.find(e => e.razaoSocial === razaoSocial)?.delegatarioId,
-                    selectedDocs = procuracoes.filter(p => p.delegatarioId === delegatarioId)
+                    selectedDocs = procuracoes.filter(p => p.delegatarioId === delegatarioId),
+                    selectedFiles = empresaDocs.filter(d => d.metadata?.fieldName === 'procuracao' && d.metadata?.empresaId === delegatarioId)
 
                 //Cria uma array de procuradores com base na array de procuradorId disponível na tabela Procuracao do Postgresql
                 procuradores.forEach(pr => {
@@ -37,7 +37,6 @@ export default function ShowDetails({ data, tab, title, header, close, empresas,
                             if (file)
                                 tableRow.fileId = file?.id
                             selectedProcs.push(tableRow)
-                            arrayOfRows.push(tableRow)
                         }
                     })
                 })
@@ -45,12 +44,18 @@ export default function ShowDetails({ data, tab, title, header, close, empresas,
                 selectedProcs.forEach(proc => {
                     procTable.forEach(fieldObj => {
                         const { field } = fieldObj
+                        if (!tableHeaders.some(t => t === fieldObj.title))
+                            tableHeaders.push(fieldObj.title)
                         if (proc.hasOwnProperty(field) && !row.some(o => o.hasOwnProperty(field))) {
-                            if (field === 'procuracao' && proc.fileId)
+                            if (field === 'fileId' && proc.fileId)
                                 rowObj = { ...fieldObj, value: 'Clique para baixar a procuração', fileId: proc.fileId }
                             else
                                 rowObj = { ...fieldObj, value: proc[field] }
-                            console.log(rowObj, proc)
+
+                            if (fieldObj.format) {
+                                const value = fieldObj.format(proc[field])
+                                rowObj = { ...fieldObj, value }
+                            }
                             row.push(rowObj)
                         }
                     })
@@ -58,18 +63,19 @@ export default function ShowDetails({ data, tab, title, header, close, empresas,
                     row = []
                 })
 
-                //Cria uma array de arquivos com base no id de cada procuração
-                console.log(arrayOfRows, procTable)
+                //Cria uma array de arquivos com base no id de cada procuração              
                 if (selectedProcs[0]) {
                     setProcs(selectedProcs)
-                    /* setTable({
-
-                    }) */
+                    setTable({
+                        tableHeaders,
+                        arrayOfRows,
+                        docs: selectedFiles
+                    })
                 }
-
             }
         }
         additionalInfo(tab)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [tab])
 
     return (
@@ -97,20 +103,18 @@ export default function ShowDetails({ data, tab, title, header, close, empresas,
                         </div>
                     )}
             </main>
-            {procs &&
+            {procs && table &&
                 <section>
                     <hr />
-                    <h4>Procuradores cadastrados</h4>
-                    {
-                        procs.map(p =>
-                            <span>{p.nomeProcurador} {
-                                p.vencimento ? `- Procuração com vencimento em ${formatDate(p.vencimento)}`
-                                    : '- Procuração por prazo indeterminado.'
-                            }
-                                {procs.length > 1 ? ' | ' : null}
-                            </span>
-                        )
-                    }
+                    <CustomTable
+                        length={table.tableHeaders.length}
+                        title={`Procuradores cadastrados para ${data?.razaoSocial}`}
+                        table={table}
+                        style={{ textAlign: 'center', padding: '8px 0' }}
+                        idIndex={1}
+                        filePK='fileId'
+                        docsCollection='empresaDocs'
+                    />
                 </section>}
             <ClosePopUpButton close={close} />
         </div>

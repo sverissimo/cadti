@@ -217,6 +217,7 @@ const LaudosTemplate = (
                                 deleteFunction={deleteLaudo}
                                 idIndex={1}
                                 filePK='laudoDoc'
+                                docsCollection='vehicleDocs'
                             />
                         </div>
                         :

@@ -115,7 +115,7 @@ class VehicleConfig extends PureComponent {
             if (i !== index && el.edit === true) {
                 oldIndex = data.indexOf(el)
                 return el
-            }
+            } else return false
         })
 
         //desativa a edição de todos os outros campos exceto o escolhido (index)
@@ -135,7 +135,7 @@ class VehicleConfig extends PureComponent {
             }
             // Senão, verificar se houve mudança. Caso positivo, request p salvar e depois desabilita edição
             else {
-                data[index].edit = false                
+                data[index].edit = false
                 if (updatedObj && !noChanges)
                     this.handleSubmit(updatedObj)
                 this.setState({ data, editIndex: undefined })
@@ -186,7 +186,7 @@ class VehicleConfig extends PureComponent {
             id: changedElement?.id,
             [field]: value
         }
-        this.setState({ data: newData, updatedObj })      
+        this.setState({ data: newData, updatedObj })
     }
 
     handleInput = e => {

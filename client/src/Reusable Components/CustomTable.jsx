@@ -3,23 +3,22 @@ import moment from 'moment'
 import downloadFile from '../Utils/downloadFile'
 import DeleteIcon from '@material-ui/icons/Delete';
 
-export default function StandardTable({ table, length, title, style, idIndex = 0, filePK, deleteIconProperties = {}, deleteFunction }) {
+export default function StandardTable({ table, docsCollection, length, title, style, idIndex = 0, filePK, deleteIconProperties = {}, deleteFunction }) {
     const { tableHeaders, arrayOfRows, docs } = table
 
     const dateFormat = value => {
-        if (moment(value, 'YYYY-MM-DDTHH:mm:ss.SSSZZ', true).isValid()) {
+        if (moment(value, 'YYYY-MM-DDTHH:mm:ss.SSSZZ', true).isValid())
             return moment(value, moment.ISO_8601, true).format('DD/MM/YYYY')
-        }
-        else {
+        else
             return value
-        }
     }
 
     const getFile = id => {
         const file = docs.find(f => f.id === id)
-        if (id && file) downloadFile(file.id, file.filename, 'vehicleDocs', file.metadata.fieldName);
+        if (id && file)
+            downloadFile(file.id, file.filename, docsCollection, file.metadata.fieldName);
     }
-    console.log(arrayOfRows)
+
     return (
         <table>
             <thead>
