@@ -9,13 +9,13 @@ const
     }
 
 const apiGetRouter = (req, res) => {
-    let url = req.url.replace('/api/', '')        
-
+    let url = req.url.replace('/api/', '')
+    console.log(routes[url])
     pool.query(routes[url], (err, table) => {
         if (err) res.send(err)
         if (table.rows.length === 0) { res.send(table.rows); return }
         res.json(table.rows)
-    })    
+    })
 }
 
 module.exports = { apiGetRouter }

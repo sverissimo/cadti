@@ -34,7 +34,7 @@ const { uploadFS } = require('./upload')
 const { parseRequestBody } = require('./parseRequest')
 const filesModel = require('./mongo/models/filesModel')
 
-const dbSync = require('./sync/dbSync')
+const dbSync = require('./sync/dbSyncAPI')
 /* const { filesModel } = require('./mongo/models/filesModel')
 const { empresaModel } = require('./mongo/models/empresaModel')
  */
@@ -423,7 +423,13 @@ app.put('/api/updateInsurance', async (req, res) => {
 })
 
 app.put('/api/updateInsurances', async (req, res) => {
-    const { table, tablePK, column, value, ids } = req.body
+    const { table, column, value, placas } = req.body
+    let { ids, tablePK } = req.body
+
+    if (placas) {
+        tablePK = 'placa'
+        ids = placas
+    }
 
     let
         condition = '',

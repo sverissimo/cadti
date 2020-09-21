@@ -478,8 +478,8 @@ class Seguro extends Component {
             }
             await axios.put('/api/editElements', { ...updateApoliceNumber })
         }
-        
-        //Define body and post VehicleUpdate
+
+        //Define o request com array de Ids dos veiculos para atualizar o(s) campo(s) apólice de cada um. 
         const body = {
             table: 'veiculo',
             column: 'apolice',
@@ -503,6 +503,7 @@ class Seguro extends Component {
             await axios.put('/api/updateInsurances', body)
         }
 
+        //Cria o log de demanda concluída
         const log = {
             id: demand.id,
             demandFiles,

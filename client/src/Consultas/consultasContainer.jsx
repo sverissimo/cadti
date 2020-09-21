@@ -55,6 +55,11 @@ class ConsultasContainer extends Component {
     }
 
     componentDidMount() {
+        const { seguros, veiculos } = this.props.redux
+        veiculos.forEach(v => {
+            if (v.vencimento)
+                console.log(v)
+        })
         document.addEventListener('keydown', this.escFunction, false)
     }
 

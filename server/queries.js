@@ -2,16 +2,17 @@ const { pool } = require('./config/pgConfig')
 
 const empresas = ` 
 		SELECT d.*,
-			cardinality (array_remove(array_agg(v.veiculo_id), null)) frota,
-			array_to_json(array_agg(v.veiculo_id)) veiculos,	
-			array_to_json(array_agg(v.placa)) placas
+			cardinality (array_remove(array_agg(v.veiculo_id), null)) frota		
 		FROM public.empresas d
 		LEFT JOIN veiculo v
 			ON v.delegatario_id = d.delegatario_id
 		GROUP BY d.delegatario_id
 		ORDER BY frota DESC
 		`
-		//ORDER BY frota DESC LIMIT 20
+//ORDER BY frota DESC LIMIT 20
+//array_to_json(array_agg(v.veiculo_id)) veiculos,	
+//array_to_json(array_agg(v.placa)) placas
+
 const veiculos = `
 		SELECT veiculo.*,
 			(extract(year from current_date) - ano_carroceria) as indicador_idade,
@@ -23,8 +24,8 @@ const veiculos = `
 			d.vencimento_contrato,
 			d2.razao_social as compartilhado,
 			seguradora.seguradora,
-			seguro.data_emissao,
-			seguro.vencimento			
+			seguros.data_emissao,
+			seguros.vencimento			
 		FROM veiculo
 		LEFT JOIN public.modelo_chassi
 			ON veiculo.modelo_chassi_id = public.modelo_chassi.id
@@ -38,10 +39,10 @@ const veiculos = `
 			ON veiculo.delegatario_id = d.delegatario_id
 		LEFT JOIN public.empresas d2
 			ON veiculo.delegatario_compartilhado = d2.delegatario_id
-		LEFT JOIN public.seguro
-			ON veiculo.apolice = seguro.apolice
+		LEFT JOIN public.seguros
+			ON veiculo.apolice = seguros.apolice
 		LEFT JOIN public.seguradora
-			ON public.seguradora.id = seguro.seguradora_id				
+			ON public.seguradora.id = seguros.seguradora_id				
 		ORDER BY veiculo.veiculo_id DESC
 		`
 //WHERE indicador_idade < 2004 OR placa = 'DDD-4444'
@@ -78,21 +79,21 @@ LEFT JOIN empresa_laudo emp
 //WHERE laudos.veiculo_id = 4464
 
 const seguros = `
-SELECT seguro.*,
+SELECT seguros.*,
 		s.seguradora,
 		array_to_json(array_agg(v.veiculo_id)) veiculos,
 		array_to_json(array_agg(v.placa)) placas,
 		d.razao_social empresa,
 		cardinality(array_remove(array_agg(v.placa), null)) as segurados
-FROM seguro
+FROM seguros
 LEFT JOIN veiculo v
-	ON seguro.apolice = v.apolice
+	ON seguros.apolice = v.apolice
 LEFT JOIN empresas d
-	ON d.delegatario_id = seguro.delegatario_id
+	ON d.delegatario_id = seguros.delegatario_id
 LEFT JOIN seguradora s
-	ON s.id = seguro.seguradora_id
-GROUP BY seguro.apolice, d.razao_social, s.seguradora, d.delegatario_id, seguro.id
-ORDER BY seguro.vencimento ASC
+	ON s.id = seguros.seguradora_id
+GROUP BY seguros.apolice, d.razao_social, s.seguradora, d.delegatario_id, seguros.id
+ORDER BY seguros.vencimento ASC
 		`
 
 const socios = `
