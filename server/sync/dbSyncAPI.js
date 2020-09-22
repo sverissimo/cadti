@@ -1,3 +1,4 @@
+const { veiculos } = require('../queries')
 const tt = require('./mock_seg_data.json')
 const
     express = require('express'),
@@ -40,8 +41,8 @@ router.post('/updateTable', (req, res) => {
 
     const query = `INSERT INTO public.${table} (${keys}) VALUES ${values}`
 
-    //console.log(query.substring(0, 300))
-    console.log(query)
+    console.log(query.substring(0, 400))
+    //console.log(query)
 
     pool.query(query)
         .then(() => {
@@ -49,6 +50,35 @@ router.post('/updateTable', (req, res) => {
                 pool.query(updateEmpresasPK)
         })
     res.send('updated alright')
+})
+
+router.put('/getIds', (req, res) => {
+    const { foreignKeys } = req
+    let query
+    /* 
+    Ainda não sei se é melhor fazer loop de requests...
+    foreignKeys.forEach(fk => {
+  
+      }) */
+
+    if (table === veiculos) {
+        `
+        UPDATE veiculos
+        SET delegatario_id = e.delegatario_id
+        FROM empresas e
+        WHERE veiculos.delegatario = e.razao_social;
+
+        UPDATE veiculos
+	    SET modelo_chassi_id = m.id
+        FROM modelo_chassi m
+        WHERE veiculos.modelo_chassi = m.modelo_chassi;;
+
+        ALTER TABLE veiculos
+        DROP COLUMN IF EXISTS delegatario,
+                    IF EXISTS delegatario
+        `
+    }
+
 })
 
 router.get('/tst', (req, res) => {
