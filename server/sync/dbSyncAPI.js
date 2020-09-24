@@ -1,11 +1,9 @@
-const { veiculos } = require('../queries')
-const tt = require('./mock_seg_data.json')
 const
     express = require('express'),
     router = express.Router(),
     { pool } = require('../config/pgConfig'),
-    { updateEmpresasPK } = require('./UpdateDBPrimary')
-//    { getIds } = require('./getIds')
+    { updateEmpresasPK, getVehicleFK } = require('./UpdateDBPrimary'),
+    { accessParseDB, equipamentsParseDB } = require('./getEquip')
 
 
 router.post('/createTable', (req, res) => {
@@ -48,94 +46,50 @@ router.post('/updateTable', (req, res) => {
         .then(() => {
             if (table === 'empresas')
                 pool.query(updateEmpresasPK)
+            if (table === 'veiculos')
+                pool.query(getVehicleFK)
         })
     res.send('updated alright')
 })
 
-router.put('/getIds', (req, res) => {
-    const { foreignKeys } = req
-    let query
-    /* 
-    Ainda não sei se é melhor fazer loop de requests...
-    foreignKeys.forEach(fk => {
-  
-      }) */
+router.get('/tst', async (req, res) => {
 
-    if (table === veiculos) {
-        `
-        UPDATE veiculos
-        SET delegatario_id = e.delegatario_id
-        FROM empresas e
-        WHERE veiculos.delegatario = e.razao_social;
+    const
+        veiculos = await pool.query('select * from veiculos'),
+        equipamentos = await pool.query('select * from equipamentos'),
+        acessibilidade = await pool.query('select * from acessibilidade'),
+        eqIds = equipamentsParseDB(veiculos.rows, equipamentos.rows),
+        access = accessParseDB(veiculos.rows, acessibilidade.rows)
 
-        UPDATE veiculos
-	    SET modelo_chassi_id = m.id
-        FROM modelo_chassi m
-        WHERE veiculos.modelo_chassi = m.modelo_chassi;;
 
-        ALTER TABLE veiculos
-        DROP COLUMN IF EXISTS delegatario,
-                    IF EXISTS delegatario
-        `
-    }
+    let query = ` 
+        UPDATE veiculos 
+        SET equipa = CASE veiculo_id      
+    `
+    eqIds.forEach(({ v_id, ids }) => {
+        ids = JSON.parse(ids)
+        if (ids[0]) {
+            query += `WHEN ${v_id} THEN '[${ids}]'::jsonb `
+        }
+    })
+    query += 'END'
 
+    //pool.query(query, (err, t) => { if (err) console.log(err) })
+    query = ` 
+        UPDATE veiculos 
+        SET acessibilidade_id = CASE veiculo_id      
+    `
+
+    access.forEach(({ v_id, ids }) => {
+        ids = JSON.parse(ids)
+        if (ids[0]) {
+            query += `WHEN ${v_id} THEN '[${ids}]'::jsonb `
+        }
+    })
+    query += 'END'
+    pool.query(query, (err, t) => { if (err) console.log(err) })
+    res.send('a!')
 })
 
-router.get('/tst', (req, res) => {
-    const tablesFrom = [{
-        table: 'modelo_chassi',
-        column: 'modelo_chassi',
-        primaryKey: 'id',
-        targetPK: 'modelo_chassi_id'
-    }]
-
-    const getIds = async (targetTable, tablesFrom) => {
-        const queryTable = table => {
-            pool.query(`SELECT * FROM ${table}`, (err, table) => {
-                if (err) console.log(err)
-                else if (table.rows && table.rows.length === 0) return
-                return table.rows
-            })
-        }
-
-        //tablesFrom é um objeto com cada nome de tabela do Postgresql que se vai buscar os ids para inserir na em cada linha da targetTable. Tem também o pk de cada um    
-
-        /* tablesFrom = {
-            table: 'modelo_chassi',
-            column: 'modelo_chassi',
-            primaryKey: 'id',
-            targetPK: 'modelo_chassi_id'
-        }
-     */
-        console.log(pool)
-        const tables = () => {
-            const result = {}
-            tablesFrom.forEach(async ({ table }) => {
-                const content = await queryTable(table)
-                result[table] = content
-            })
-            console.log(result)
-            return result
-        }
-
-        tablesFrom.forEach(({ table, primaryKey, column, targetPK }) => {
-            targetTable.forEach(async obj => {
-
-                let source = await tables(table)
-                if (source) {
-                    match = source.find(el => el[column] == obj[column])
-                    if (match)
-                        obj[targetPK] = match[primaryKey]
-                }
-            })
-        })
-
-        console.log(targetTable[0])
-        res.send(targetTable[0])
-    }
-
-    getIds(tt, tablesFrom)
-
-})
 
 module.exports = router
