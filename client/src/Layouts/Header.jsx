@@ -93,11 +93,11 @@ const sections = [
 
 const StyledBadge = withStyles((theme) => ({
     badge: {
-      right: -8,
-      top: -1,
-      padding: '0 4px',
+        right: -8,
+        top: -1,
+        padding: '0 4px',
     },
-  }))(Badge);
+}))(Badge);
 
 const Header = props => {
 
@@ -116,7 +116,7 @@ const Header = props => {
     useEffect(() => {
         if (vehicleLogs && Array.isArray(vehicleLogs)) {
             const count = vehicleLogs
-                .filter(l => l.completed === false)
+                .filter(l => l?.completed === false)
                 .length
 
             setLogCounter(count)
@@ -149,7 +149,7 @@ const Header = props => {
         }
         return { bgColor, borderB, borderT, fontW }
     }
-    
+
     return (
         <React.Fragment>
             <CssBaseline />
@@ -165,7 +165,7 @@ const Header = props => {
                     className={classes.toolbarTitle}
                 >
                     SEINFRA – Secretaria de Estado de Infraestrutura e Mobilidade
-                </Typography>              
+                </Typography>
                 <Button variant="outlined" size="small">
                     Fazer login
                     </Button>

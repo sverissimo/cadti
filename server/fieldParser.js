@@ -5,7 +5,7 @@ const fieldParser = [
         label: 'Veículos',
         name: 'veiculoId',
         column: 'veiculo_id',
-        table: 'veiculo'
+        table: 'veiculos'
     },
     {
         collection: 'seguros',

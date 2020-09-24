@@ -48,11 +48,12 @@ router.post('/updateTable', (req, res) => {
                 pool.query(updateEmpresasPK)
             if (table === 'veiculos')
                 pool.query(getVehicleFK)
+                    .then(() => getEquipaIds())
         })
     res.send('updated alright')
 })
 
-router.get('/tst', async (req, res) => {
+async function getEquipaIds() {
 
     const
         veiculos = await pool.query('select * from veiculos'),
@@ -61,10 +62,9 @@ router.get('/tst', async (req, res) => {
         eqIds = equipamentsParseDB(veiculos.rows, equipamentos.rows),
         access = accessParseDB(veiculos.rows, acessibilidade.rows)
 
-
     let query = ` 
         UPDATE veiculos 
-        SET equipa = CASE veiculo_id      
+        SET equipamentos_id = CASE veiculo_id 
     `
     eqIds.forEach(({ v_id, ids }) => {
         ids = JSON.parse(ids)
@@ -74,7 +74,7 @@ router.get('/tst', async (req, res) => {
     })
     query += 'END'
 
-    //pool.query(query, (err, t) => { if (err) console.log(err) })
+    pool.query(query, (err, t) => { if (err) console.log(err) })
     query = ` 
         UPDATE veiculos 
         SET acessibilidade_id = CASE veiculo_id      
@@ -86,10 +86,12 @@ router.get('/tst', async (req, res) => {
             query += `WHEN ${v_id} THEN '[${ids}]'::jsonb `
         }
     })
-    query += 'END'
+    query += `
+        END;
+        ALTER TABLE veiculos
+        DROP IF EXISTS equipamentos;
+    `
     pool.query(query, (err, t) => { if (err) console.log(err) })
-    res.send('a!')
-})
-
+}
 
 module.exports = router

@@ -73,7 +73,7 @@ export async function logGenerator(obj) {
     }
 
     //********************** Upload files and get their Ids***********************/    
-    
+
     const filesIds = await postFilesReturnIds(obj?.history?.files, obj?.metadata, log?.completed, filesEndPoint)
 
     if (filesIds)
@@ -86,7 +86,8 @@ export async function logGenerator(obj) {
     logConfig = logRoutes.find(e => path.match(e.path))
 
     //**********************request and return promisse**********************
-    
+
     const post = axios.post('/api/logs', { log: filteredLog, collection })
+    console.log(post)
     return post
 }

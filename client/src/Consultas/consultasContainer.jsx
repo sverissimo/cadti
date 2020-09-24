@@ -38,7 +38,7 @@ class ConsultasContainer extends Component {
         tab: 0,
         items: ['Empresas', 'Sócios', 'Procuradores', 'Veículos', 'Seguros'],
         tablePKs: ['delegatario_id', 'socio_id', 'procurador_id', 'veiculo_id', 'id'],
-        dbTables: ['empresas', 'socios', 'procurador', 'veiculo', 'seguro'],
+        dbTables: ['empresas', 'socios', 'procurador', 'veiculos', 'seguro'],
         options: ['empresas', 'socios', 'procuradores', 'veiculos', 'seguros'],
         detailsTitle: ['Empresa', 'Sócio', 'Procurador', 'Placa', 'Apólice'],
         detailsHeader: ['razaoSocial', 'nomeSocio', 'nomeProcurador', 'placa', 'apolice'],
@@ -55,11 +55,6 @@ class ConsultasContainer extends Component {
     }
 
     componentDidMount() {
-        const { seguros, veiculos } = this.props.redux
-        veiculos.forEach(v => {
-            if (v.vencimento)
-                console.log(v)
-        })
         document.addEventListener('keydown', this.escFunction, false)
     }
 

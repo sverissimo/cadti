@@ -378,7 +378,7 @@ class AltDados extends Component {
             if (selectedEmpresa.delegatarioId !== delegatarioId) requestObject.apolice = 'Seguro não cadastrado'
 
             const
-                table = 'veiculo',
+                table = 'veiculos',
                 tablePK = 'veiculo_id'
 
             await axios.put('/api/updateVehicle', { requestObject, table, tablePK, id: veiculoId })

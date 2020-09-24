@@ -4,7 +4,7 @@ const empresas = `
 		SELECT d.*,
 			cardinality (array_remove(array_agg(v.veiculo_id), null)) frota		
 		FROM public.empresas d
-		LEFT JOIN veiculo v
+		LEFT JOIN veiculos v
 			ON v.delegatario_id = d.delegatario_id
 		GROUP BY d.delegatario_id
 		ORDER BY frota DESC
@@ -14,7 +14,7 @@ const empresas = `
 //array_to_json(array_agg(v.placa)) placas
 
 const veiculos = `
-		SELECT veiculo.*,
+		SELECT veiculos.*,
 			(extract(year from current_date) - ano_carroceria) as indicador_idade,
 			marca_chassi.marca as marca_chassi,
 			modelo_chassi.modelo_chassi,	
@@ -26,27 +26,27 @@ const veiculos = `
 			seguradora.seguradora,
 			seguros.data_emissao,
 			seguros.vencimento			
-		FROM veiculo
+		FROM veiculos
 		LEFT JOIN public.modelo_chassi
-			ON veiculo.modelo_chassi_id = public.modelo_chassi.id
+			ON veiculos.modelo_chassi_id = public.modelo_chassi.id
 		LEFT JOIN public.marca_chassi
 			ON modelo_chassi.marca_id = marca_chassi.id
 		LEFT JOIN public.modelo_carroceria
-			ON veiculo.modelo_carroceria_id = public.modelo_carroceria.id
+			ON veiculos.modelo_carroceria_id = public.modelo_carroceria.id
 		LEFT JOIN public.marca_carroceria
 			ON public.marca_carroceria.id = public.modelo_carroceria.marca_id
 		LEFT JOIN public.empresas d
-			ON veiculo.delegatario_id = d.delegatario_id
+			ON veiculos.delegatario_id = d.delegatario_id
 		LEFT JOIN public.empresas d2
-			ON veiculo.delegatario_compartilhado = d2.delegatario_id
+			ON veiculos.compartilhado_id = d2.delegatario_id
 		LEFT JOIN public.seguros
-			ON veiculo.apolice = seguros.apolice
+			ON veiculos.apolice = seguros.apolice
 		LEFT JOIN public.seguradora
 			ON public.seguradora.id = seguros.seguradora_id				
-		ORDER BY veiculo.veiculo_id DESC
+		ORDER BY veiculos.veiculo_id DESC
 		`
 //WHERE indicador_idade < 2004 OR placa = 'DDD-4444'
-//ORDER BY veiculo.veiculo_id DESC LIMIT 50
+//ORDER BY veiculos.veiculo_id DESC LIMIT 50
 
 const modeloChassi = `
 		SELECT modelo_chassi.id, modelo_chassi,
@@ -86,7 +86,7 @@ SELECT seguros.*,
 		d.razao_social empresa,
 		cardinality(array_remove(array_agg(v.placa), null)) as segurados
 FROM seguros
-LEFT JOIN veiculo v
+LEFT JOIN veiculos v
 	ON seguros.apolice = v.apolice
 LEFT JOIN empresas d
 	ON d.delegatario_id = seguros.delegatario_id

@@ -57,7 +57,8 @@ class VeiculosContainer extends PureComponent {
 
         if (demand) {
             const demandState = setDemand(demand, redux)
-            this.setState({ ...demandState, activeStep: 3 })
+            this.setState({ ...demandState, activeStep: 0 })
+            console.log(demandState)
         }
 
         //*********Create state[key] for each equipamentos/acessibilidade and turn them to false before a vehicle is selected *********/
@@ -68,7 +69,8 @@ class VeiculosContainer extends PureComponent {
         equipamentos.forEach(e => Object.assign(allEqs, { [e?.item]: false }))
         acessibilidade.forEach(e => Object.assign(allAcs, { [e?.item]: false }))
 
-        await this.setState({ ...allEqs, ...allAcs, selectedEmpresa: redux.empresas[0], razaoSocial: 'whatever' })
+        await this.setState({ ...allEqs, ...allAcs })
+        //await this.setState({ ...allEqs, ...allAcs, selectedEmpresa: redux.empresas[0], razaoSocial: 'what' })
 
         document.addEventListener('keydown', this.escFunction, false)
     }
@@ -275,7 +277,7 @@ class VeiculosContainer extends PureComponent {
 
         let arrayOfEquips = [], ids = [], stateKey
 
-        if (type === 'equipamentos') stateKey = 'equipa'
+        if (type === 'equipamentos') stateKey = 'equipamentosId'
         if (type === 'acessibilidade') stateKey = 'acessibilidadeId'
 
         await this.setState({ ...this.state, [item]: !this.state[item] })
@@ -294,10 +296,8 @@ class VeiculosContainer extends PureComponent {
 
     handleCadastro = async approved => {
         const
-            { anoCarroceria, pesoDianteiro, pesoTraseiro, poltronas, delegatarioId, compartilhadoId, modeloChassiId, originalVehicle, getUpdatedValues,
-                modeloCarroceriaId, selectedEmpresa, equipa, acessibilidadeId, showPendencias, info, form, demand, demandFiles } = this.state,
-
-            indicadorIdade = anoCarroceria,
+            { equipamentosId, acessibilidadeId, pesoDianteiro, pesoTraseiro, poltronas, delegatarioId, compartilhadoId, modeloChassiId, originalVehicle, getUpdatedValues,
+                modeloCarroceriaId, selectedEmpresa, showPendencias, info, form, demand, demandFiles } = this.state,
 
             existingVeiculoId = demand?.veiculoId,
             oldHistoryLength = demand?.history?.length || 0
@@ -323,10 +323,10 @@ class VeiculosContainer extends PureComponent {
         let { delegatarioCompartilhado, modeloChassi, modeloCarroceria, ...vReview } = review
 
         Object.assign(vReview, {
-            delegatarioId, situacao, indicadorIdade, pbt, modeloChassiId, modeloCarroceriaId,
-            equipa, acessibilidadeId, apolice: 'Seguro não cadastrado'
+            delegatarioId, situacao, pbt, modeloChassiId, modeloCarroceriaId,
+            equipamentosId, acessibilidadeId, apolice: 'Seguro não cadastrado'
         })
-        vReview.delegatarioCompartilhado = compartilhadoId
+        vReview.compartilhadoId = compartilhadoId
 
         if (demand && originalVehicle)
             vReview = getUpdatedValues(originalVehicle, vReview)     //Save only real changes to the request Object (method from setDemand())
@@ -346,7 +346,7 @@ class VeiculosContainer extends PureComponent {
             if (demand && approved && !showPendencias) situacao = 'Ativo'
 
             const
-                table = 'veiculo',
+                table = 'veiculos',
                 tablePK = 'veiculo_id',
                 requestObject = {
                     ...vehicle,
@@ -454,7 +454,7 @@ class VeiculosContainer extends PureComponent {
     render() {
         const
             { confirmToast, toastMsg, activeStep, openAlertDialog, alertType, steps, selectedEmpresa,
-                placa, dropDisplay, form, demand, demandFiles, showPendencias, info, resetShared, customMsg, customTitle } = this.state,
+                dropDisplay, form, demand, demandFiles, showPendencias, info, resetShared, customMsg, customTitle } = this.state,
 
             { redux } = this.props
 

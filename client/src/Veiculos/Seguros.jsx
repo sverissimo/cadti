@@ -481,7 +481,7 @@ class Seguro extends Component {
 
         //Define o request com array de Ids dos veiculos para atualizar o(s) campo(s) apólice de cada um. 
         const body = {
-            table: 'veiculo',
+            table: 'veiculos',
             column: 'apolice',
             value: apolice,
             tablePK: 'veiculo_id',

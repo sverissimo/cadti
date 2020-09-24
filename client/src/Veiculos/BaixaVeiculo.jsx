@@ -173,7 +173,7 @@ class BaixaVeiculo extends Component {
 
             case ('aprovar'):
                 tempObj = { situacao: 'Veículo baixado', apolice: 'Seguro não cadastrado' }
-                history = { action: 'Baixa do veículo aprovada' }                
+                history = { action: 'Baixa do veículo aprovada' }
 
                 if (demand?.subject.match('venda')) {
                     const newEmpresaId = demand?.history[0]?.delegaTransfId
@@ -208,7 +208,7 @@ class BaixaVeiculo extends Component {
         if (checked === 'aprovar') {
             const
                 requestObject = humps.decamelizeKeys(tempObj),
-                table = 'veiculo',
+                table = 'veiculos',
                 tablePK = 'veiculo_id'
 
             await axios.put('/api/updateVehicle', { requestObject, table, tablePK, id: this.state.veiculoId })

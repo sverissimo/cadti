@@ -42,7 +42,7 @@ function Solicitacoes(props) {
         async function getVehicleLogs() {
 
             const originalLogs = [...props.redux.vehicleLogs]
-            
+
             let logs = originalLogs.map(log => {
                 log.empresa = empresas.find(e => e.delegatarioId === log.empresaId)?.razaoSocial
                 log.veiculo = veiculos.find(v => v.veiculoId === log.veiculoId)?.placa

@@ -1,7 +1,7 @@
 const { pool } = require('./config/pgConfig')
 
 const vehicleQuery = condition => `
-   SELECT veiculo.*,	
+   SELECT veiculos.*,	
       marca_chassi.marca as marca_chassi,
       modelo_chassi.modelo_chassi,	
       marca_carroceria.marca as marca_carroceria,
@@ -11,25 +11,25 @@ const vehicleQuery = condition => `
       seguradora.seguradora,
       seguro.data_emissao,
       seguro.vencimento      
-   FROM veiculo
+   FROM veiculos
    LEFT JOIN public.modelo_chassi
-      ON veiculo.modelo_chassi_id = public.modelo_chassi.id
+      ON veiculos.modelo_chassi_id = public.modelo_chassi.id
    LEFT JOIN public.marca_chassi
       ON modelo_chassi.marca_id = marca_chassi.id
    LEFT JOIN public.modelo_carroceria
-      ON veiculo.modelo_carroceria_id = public.modelo_carroceria.id
+      ON veiculos.modelo_carroceria_id = public.modelo_carroceria.id
    LEFT JOIN public.marca_carroceria
       ON public.marca_carroceria.id = public.modelo_carroceria.marca_id
    LEFT JOIN public.empresas d
-      ON veiculo.delegatario_id = d.delegatario_id
+      ON veiculos.delegatario_id = d.delegatario_id
    LEFT JOIN public.empresas d2
-      ON veiculo.delegatario_compartilhado = d2.delegatario_id
+      ON veiculos.compartilhado_id = d2.delegatario_id
    LEFT JOIN public.seguro
-      ON veiculo.apolice = seguro.apolice
+      ON veiculos.apolice = seguro.apolice
    LEFT JOIN public.seguradora
       ON public.seguradora.id = seguro.seguradora_id   
    WHERE ${condition}
-   ORDER BY veiculo.veiculo_id DESC
+   ORDER BY veiculos.veiculo_id DESC
 `
 
 const seguroQuery = condition => `
@@ -40,7 +40,7 @@ SELECT seguro.*,
 	d.razao_social empresa,	
 	cardinality(array_agg(v.placa)) segurados
 FROM seguro
-LEFT JOIN veiculo v
+LEFT JOIN veiculos v
 	ON seguro.apolice = v.apolice
 LEFT JOIN empresas d
 	ON d.delegatario_id = seguro.delegatario_id
@@ -65,7 +65,7 @@ SELECT d.*,
 	cardinality (array_agg(v.veiculo_id)) frota,
 	array_to_json(array_agg(v.veiculo_id)) veiculos	
 FROM public.empresas d
-LEFT JOIN veiculo v
+LEFT JOIN veiculos v
 	ON v.delegatario_id = d.delegatario_id
 ${condition}
 GROUP BY d.delegatario_id
@@ -81,7 +81,7 @@ order by procurador.procurador_id desc
 const getUpdatedData = async (table, condition) => {
 
    let query
-   if (table === 'veiculo') query = vehicleQuery
+   if (table === 'veiculos') query = vehicleQuery
    if (table === 'seguro') query = seguroQuery
    if (table === 'socio') query = socioQuery
    if (table === 'empresa') query = empresaQuery

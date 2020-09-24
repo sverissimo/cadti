@@ -42,7 +42,7 @@ const { empresaModel } = require('./mongo/models/empresaModel')
 //const { job } = require('./reportGenerator')
 //job.start();
 
-dotenv.config()
+dotenv.config();
 
 app.use(morgan('dev'))
 app.use(bodyParser.json({ limit: '50mb' }))
@@ -178,13 +178,13 @@ app.get('/api/log', (req, res) => {
 
 const routes = 'empresas|socios|veiculos|modelosChassi|carrocerias|equipamentos|seguros|seguradoras|procuradores|procuracoes|empresasLaudo|laudos|acessibilidade'
 
-app.get(`/api/${routes}`, apiGetRouter)
+app.get(`/api/${routes}`, apiGetRouter);
 
 app.get('/api/veiculo/:id', (req, res) => {
     const { id } = req.params
     const { column, filter } = req.query
 
-    pool.query(`SELECT ${column} FROM public.veiculo WHERE ${filter} = $1`, [id], (err, table) => {
+    pool.query(`SELECT ${column} FROM public.veiculos WHERE ${filter} = $1`, [id], (err, table) => {
         if (err) res.send(err)
         if (table.rows.length === 0) { res.send('Veículo não encontrado.'); return }
         res.json(table.rows.map(r => r[column]))
@@ -197,19 +197,14 @@ app.get('/api/lookUpTable/:table', lookup)
 
 app.post('/api/cadastroVeiculo', (req, res) => {
 
-    let reqObj = req.body
+    const
+        reqObj = req.body,
+        { keys, values } = parseRequestBody(reqObj)
 
-    Object.entries(reqObj).forEach(([k, v]) => {
-        if (k === 'equipa' || k === 'acessibilidade_id')
-            reqObj[k] = '{' + v + '}'
-    })
-
-    const { keys, values } = parseRequestBody(reqObj)
-
-    console.log(`INSERT INTO public.veiculo (${keys}) VALUES (${values}) RETURNING *`)
+    console.log(`INSERT INTO public.veiculos (${keys}) VALUES (${values}) RETURNING *`)
 
     pool.query(
-        `INSERT INTO public.veiculo (${keys}) VALUES (${values}) RETURNING veiculo_id`, (err, table) => {
+        `INSERT INTO public.veiculos (${keys}) VALUES (${values}) RETURNING veiculo_id`, (err, table) => {
             if (err) res.send(err)
             if (table && table.rows && table.rows.length === 0) { res.send(table.rows); return }
 
@@ -217,7 +212,7 @@ app.post('/api/cadastroVeiculo', (req, res) => {
                 const
                     id = table.rows[0].veiculo_id,
                     condition = `veiculo_id = '${id}'`,
-                    data = getUpdatedData('veiculo', condition)
+                    data = getUpdatedData('veiculos', condition)
 
                 console.log(id, condition, data)
                 data.then(response => {
@@ -395,12 +390,12 @@ app.put('/api/updateInsurance', async (req, res) => {
     let
         condition = '',
         query = `
-            SELECT * FROM veiculo
+            SELECT * FROM veiculos
             WHERE `
 
     if (vehicleIds && vehicleIds[0]) {
         vehicleIds.forEach(id => {
-            condition = condition + `veiculo.veiculo_id = '${id}' OR `
+            condition = condition + `veiculos.veiculo_id = '${id}' OR `
         })
         condition = condition.slice(0, condition.length - 3)
         query = query + condition
@@ -408,7 +403,7 @@ app.put('/api/updateInsurance', async (req, res) => {
         await pool.query(query, (err, t) => {
             if (err) console.log(err)
             if (t && t.rows) {
-                const data = getUpdatedData('veiculo', condition)
+                const data = getUpdatedData('veiculos', condition)
                 data.then(async res => {
                     await io.sockets.emit('updateVehicle', res)
                     pool.query(seguros, (err, t) => {
@@ -440,7 +435,7 @@ app.put('/api/updateInsurances', async (req, res) => {
 
     if (ids && ids[0]) {
         ids.forEach(id => {
-            condition = condition + `veiculo.${tablePK} = '${id}' OR `
+            condition = condition + `veiculos.${tablePK} = '${id}' OR `
         })
         condition = condition.slice(0, condition.length - 3)
         query = query + condition + ` RETURNING *`
@@ -448,7 +443,7 @@ app.put('/api/updateInsurances', async (req, res) => {
         await pool.query(query, (err, t) => {
             if (err) console.log(err)
             if (t && t.rows) {
-                const data = getUpdatedData('veiculo', condition)
+                const data = getUpdatedData('veiculos', condition)
                 data.then(async res => {
                     await io.sockets.emit('updateVehicle', res)
                     pool.query(seguros, (err, t) => {
@@ -583,8 +578,8 @@ app.put('/api/updateVehicle', (req, res) => {
     let query = ''
     console.log(requestObject)
     Object.entries(requestObject).forEach(([k, v]) => {
-        if (k === 'equipa' || k === 'acessibilidade_id') v = '{' + v + '}'
-        if (k === 'delegatario_compartilhado' && v === 'NULL') query += `${k} = NULL, `
+        if (k === 'equipamentos_id' || k === 'acessibilidade_id') v = `'[${v}]'`
+        if (k === 'compartilhado_id' && v === 'NULL') query += `${k} = NULL, `
         else query += `${k} = '${v}', `
     })
 
@@ -593,12 +588,12 @@ app.put('/api/updateVehicle', (req, res) => {
 
     const condition = `${tablePK} = '${id}'`
 
-    query = query + condition + ` RETURNING veiculo.veiculo_id`
+    query = query + condition + ` RETURNING veiculos.veiculo_id`
     console.log(query)
     pool.query(query, (err, t) => {
         if (err) console.log(err)
         if (t && t.rows) {
-            const data = getUpdatedData('veiculo', condition)
+            const data = getUpdatedData('veiculos', condition)
             data.then(r => {
                 io.sockets.emit('updateVehicle', r)
                 res.send(r)
