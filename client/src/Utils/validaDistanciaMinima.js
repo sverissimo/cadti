@@ -3,7 +3,7 @@ const validaDistanciaMinima = (utilizacao, dist) => {
     const distancias = {
         Convencional: 70,
         Executivo: 79,
-        ['Semi-Leito']: 95,
+        'Semi-Leito': 95,
         Leito: 105,
         Urbano: 65
     }

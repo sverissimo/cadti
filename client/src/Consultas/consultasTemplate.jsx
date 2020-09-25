@@ -32,7 +32,10 @@ export default function ({ tab, collection, showDetails, showFiles, showCertific
                     searchFieldStyle: { color: '#024', fontSize: '14px' },
                     headerStyle: { backgroundColor: '#FAFAFC' },
                     emptyRowsWhenPaging: false,
-                    pageSize: 10,
+                    pageSize: 20,
+                    rowStyle: {
+                        fontSize: '0.5rem',
+                    }
                 }}
 
                 localization={{

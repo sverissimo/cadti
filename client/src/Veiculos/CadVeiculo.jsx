@@ -58,10 +58,10 @@ class VeiculosContainer extends PureComponent {
         if (demand) {
             const demandState = setDemand(demand, redux)
             this.setState({ ...demandState, activeStep: 0 })
-            console.log(demandState)
         }
 
         //*********Create state[key] for each equipamentos/acessibilidade and turn them to false before a vehicle is selected *********/
+        //Se tiver demanda, os equipamentos e acessibilidade são definidos no dataActions para incorporar no estado global
         let
             allEqs = {},
             allAcs = {}
@@ -358,7 +358,6 @@ class VeiculosContainer extends PureComponent {
 
         //*****************Generate log ************** */
 
-
         const log = {
             empresaId: selectedEmpresa?.delegatarioId,
             veiculoId,
@@ -373,7 +372,7 @@ class VeiculosContainer extends PureComponent {
         }
 
         if (demand) log.id = demand?.id
-        console.log(log)
+
         logGenerator(log)
             .then(r => console.log(r?.data))
             .catch(err => console.log(err))

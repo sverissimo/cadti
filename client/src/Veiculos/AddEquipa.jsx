@@ -8,7 +8,7 @@ import '../Layouts/popUp.css'
 export default function AddEquipa({ data, type, equipamentos, handleCheck, close }) {
 
     if (Array.isArray(equipamentos) && equipamentos[0]?.item) equipamentos = equipamentos.sort((a, b) => a.item.localeCompare(b.item))
-    console.log(equipamentos)
+
     return <div className='popUpWindow' style={{ right: '25%', left: '25%' }}>
         <h4 className='equipaHeader'>{type === 'equipamentos' ? 'Equipamentos' : 'Itens de Acessibilidade'}</h4> <hr />
         <div className="checkListContainer">

@@ -40,9 +40,9 @@ const { empresaModel } = require('./mongo/models/empresaModel')
  */
 //const { getExpired } = require('./getExpired')
 //const { job } = require('./reportGenerator')
-//job.start();
+//job.start()
 
-dotenv.config();
+dotenv.config()
 
 app.use(morgan('dev'))
 app.use(bodyParser.json({ limit: '50mb' }))
@@ -578,7 +578,7 @@ app.put('/api/updateVehicle', (req, res) => {
     let query = ''
     console.log(requestObject)
     Object.entries(requestObject).forEach(([k, v]) => {
-        if (k === 'equipamentos_id' || k === 'acessibilidade_id') v = `'[${v}]'`
+        if (k === 'equipamentos_id' || k === 'acessibilidade_id') v = `[${v}]`
         if (k === 'compartilhado_id' && v === 'NULL') query += `${k} = NULL, `
         else query += `${k} = '${v}', `
     })

@@ -28,7 +28,8 @@ export const setDemand = (demand, redux) => {
     }
 
     //******************Get the last log updates
-    if (Array.isArray(history)) alteracoes = history.reverse().find(el => el.hasOwnProperty('alteracoes'))?.alteracoes
+    if (Array.isArray(history))
+        alteracoes = history.reverse().find(el => el.hasOwnProperty('alteracoes'))?.alteracoes
 
     //******************Set Alterações into State and set equipa/acessibilidade array of names for each vehicle
 
@@ -66,7 +67,7 @@ export const setDemand = (demand, redux) => {
         latestDocs.push(lastDoc)
         lastDoc = []
     })
-
+    console.log(selectedVehicle)
     //****************** Return the object
     return {
         ...selectedVehicle, originalVehicle, delegatario, compartilhado, razaoSocial, selectedEmpresa,

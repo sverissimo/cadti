@@ -1,5 +1,5 @@
 .app {
-    background-color: #fbfbfb;    
+    background-color: #fbfbfb;
 }
 
 /* .footer {
@@ -8,6 +8,7 @@
     border-top: 1px solid #444;    
 }
  */
+
 .radio {
     display: inline-block;
     font-size: 0.7rem
@@ -71,13 +72,13 @@ div.loading {
     justify-content: center !important;
 }
 
-.spaceBetween {        
+.spaceBetween {
     justify-content: space-between;
     align-items: center;
 }
 
 .spaceBetween:last-child {
-    justify-content: flex-start;    
+    justify-content: flex-start;
 }
 
 .flexColumn {
@@ -143,4 +144,19 @@ div.loading {
 
 .button:hover {
     background-color: #e0e0e0;
+}
+
+/********************** Material Table **********************/
+
+.MuiTableCell-root.MuiTableCell-body.MuiTableCell-alignLeft {
+    font-size: 8.5pt !important;
+    font-family: Geneva, Verdana, sans-serif !important;
+}
+
+.MuiTableRow-root {
+    height: 15px !important;
+}
+
+.MuiTypography-root.MuiTypography-h6 {
+    font-size: 12pt;
 }

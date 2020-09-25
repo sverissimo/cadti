@@ -118,10 +118,19 @@ export const vehicleTable = [
         field: 'indicadorIdade',
         title: 'Indicador de idade',
         render: rowData => {
-            let timeUnit = ' anos'
-            if (rowData['indicadorIdade'] < 2)
-                timeUnit = ' ano'
-            return rowData['indicadorIdade'].toString() + timeUnit
+            let
+                i = rowData['indicadorIdade'],
+                timeUnit = ' anos',
+                output
+
+            if (i || i === 0) {
+                if (i === -1)
+                    i = 0
+                if (i === 1 || i === 0)
+                    timeUnit = ' ano'
+                output = i.toString() + timeUnit
+                return output
+            }
         }
     }
 ]

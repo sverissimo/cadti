@@ -39,8 +39,8 @@ router.post('/updateTable', (req, res) => {
 
     const query = `INSERT INTO public.${table} (${keys}) VALUES ${values}`
 
-    console.log(query.substring(0, 400))
-    //console.log(query)
+    //console.log(query.substring(0, 400))
+    console.log(query)
 
     pool.query(query)
         .then(() => {

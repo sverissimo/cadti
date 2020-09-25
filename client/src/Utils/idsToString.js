@@ -3,10 +3,10 @@ export const idsToString = (veiculos, equipamentos, acessibilidade) => {
     let equipNames = [], accessNames = []
 
     const equips = veiculos.map(v => {
-        if (!v?.equipa) v.equipa = []
+        if (!v?.equipamentosId) v.equipamentosId = []
         if (!v?.acessibilidadeId) v.acessibilidadeId = []
 
-        v.equipa.forEach(eqId => {
+        v.equipamentosId.forEach(eqId => {
             equipamentos.forEach(({ id, item }) => {
                 if (id === eqId) equipNames.push(item)
             })
