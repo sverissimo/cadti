@@ -49,7 +49,7 @@ const equipamentsParseDB = (veiculos, equipamentos) => {
         eqIdArray = []
     })
 
-    const uniqueEqs = [...new Set(allEqs)]
+    //const uniqueEqs = [...new Set(allEqs)]
     let uniqueExistent = []
 
     eqId.forEach(({ eqArray }) => {
@@ -58,7 +58,7 @@ const equipamentsParseDB = (veiculos, equipamentos) => {
         })
     })
     uniqueExistent = [...new Set(uniqueExistent)]
-    console.log(uniqueExistent)
+    //console.log(uniqueExistent)
     //return { eqId: eqId.reverse(), other: other.sort() }
     return eqId
 }

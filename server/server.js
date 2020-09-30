@@ -435,7 +435,7 @@ app.put('/api/updateInsurances', async (req, res) => {
 
     if (ids && ids[0]) {
         ids.forEach(id => {
-            condition = condition + `veiculos.${tablePK} = '${id}' OR `
+            condition = condition + `${tablePK} = '${id}' OR `
         })
         condition = condition.slice(0, condition.length - 3)
         query = query + condition + ` RETURNING *`
