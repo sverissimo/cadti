@@ -29,19 +29,16 @@ const { fieldParser } = require('./fieldParser')
 const { getUpdatedData } = require('./getUpdatedData')
 const { empresaChunks, vehicleChunks } = require('./mongo/models/chunksModel')
 const { vehicleLogsModel } = require('./mongo/models/vehicleLogsModel')
+const segurosModel = require('./mongo/models/seguros')
 
-const { uploadFS } = require('./upload')
+//const { uploadFS } = require('./upload')
 const { parseRequestBody } = require('./parseRequest')
 const filesModel = require('./mongo/models/filesModel')
 
 const dbSync = require('./sync/dbSyncAPI')
-/* const { filesModel } = require('./mongo/models/filesModel')
-const { empresaModel } = require('./mongo/models/empresaModel')
- */
-//const { getExpired } = require('./getExpired')
-//const { job } = require('./reportGenerator')
-//job.start()
+const dailyTasks = require('./taskManager/taskManager')
 
+dailyTasks.start()
 dotenv.config()
 
 app.use(morgan('dev'))
@@ -260,7 +257,7 @@ app.post('/api/cadProcuracao', (req, res) => {
                 res.json(table.rows)
             }
             return
-        });
+        })
 })
 
 
@@ -576,7 +573,10 @@ app.put('/api/updateVehicle', (req, res) => {
 
     const { requestObject, table, tablePK, id } = req.body
     let query = ''
-    console.log(requestObject)
+    if (Object.keys(requestObject).length < 1) {
+        res.send('Nothing to update...')
+        return
+    }
     Object.entries(requestObject).forEach(([k, v]) => {
         if (k === 'equipamentos_id' || k === 'acessibilidade_id') v = `[${v}]`
         if (k === 'compartilhado_id' && v === 'NULL') query += `${k} = NULL, `

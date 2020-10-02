@@ -17,26 +17,22 @@ export const setDemand = (demand, redux) => {
         alteracoes,
         compartilhado
 
-    //******************Adjust data to handle Delegatário compartilhado 
-    const
-        length = history?.length,
-        delCompartilhado = history[length - 1]?.alteracoes?.delegatarioCompartilhado
-
-    if (delCompartilhado) {
-        compartilhado = empresas.find(e => e.delegatarioId === delCompartilhado)?.razaoSocial
-        if (alteracoes && typeof alteracoes === 'object') alteracoes.compartilhado = compartilhado
-    }
-
     //******************Get the last log updates
     if (Array.isArray(history))
         alteracoes = history.reverse().find(el => el.hasOwnProperty('alteracoes'))?.alteracoes
 
-    //******************Set Alterações into State and set equipa/acessibilidade array of names for each vehicle
-
+    //******************Set Alterações into State and set equipamentosId/acessibilidade array of names for each vehicle
     if (alteracoes) {
         Object.keys(alteracoes).forEach(key => selectedVehicle[key] = alteracoes[key])
-        const { equipa, acessibilidadeId } = alteracoes
-        if (equipa) selectedVehicle.equipamentos = setNamesFromIds(equipamentos, equipa)
+
+        //Pega o ID do delegatario compartilhado se houver
+        compartilhado = empresas.find(e => e.codigoEmpresa === selectedVehicle.compartilhadoId)?.razaoSocial
+        if (compartilhado)
+            selectedVehicle.compartilhado = compartilhado
+
+        //Pega os nomes dos equipamentos e acessórios para renderizar
+        const { equipamentosId, acessibilidadeId } = alteracoes
+        if (equipamentosId) selectedVehicle.equipamentos = setNamesFromIds(equipamentos, equipamentosId)
         if (acessibilidadeId) selectedVehicle.acessibilidade = setNamesFromIds(acessibilidade, acessibilidadeId)
     }
 
@@ -67,8 +63,8 @@ export const setDemand = (demand, redux) => {
         latestDocs.push(lastDoc)
         lastDoc = []
     })
-    console.log(selectedVehicle)
-    //****************** Return the object
+
+    //****************** Return the object    
     return {
         ...selectedVehicle, originalVehicle, delegatario, compartilhado, razaoSocial, selectedEmpresa,
         demand, demandFiles: latestDocs, alteracoes, getUpdatedValues

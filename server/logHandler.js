@@ -1,6 +1,10 @@
 const { vehicleLogsModel } = require('./mongo/models/vehicleLogsModel')
 
 const logHandler = async (req, res, next) => {
+    /* console.dir(vehicleLogsModel)
+    vehicleLogsModel.counterReset('logs_counter', err => {
+        if (err) console.log(err)
+    }) */
 
     const
         { log, collection, } = req.body,

@@ -149,8 +149,18 @@ export const segurosTable = [
         title: 'Segurado',
     },
     {
+        field: 'situacao',
+        title: 'Situação',
+    },
+    {
         field: 'segurados',
         title: 'Número de veículos',
+    },
+    {
+        field: 'dataEmissao',
+        title: 'Início da vigência',
+        filtering: false,
+        render: rowData => formatDate(rowData.dataEmissao)
     },
     {
         field: 'vencimento',

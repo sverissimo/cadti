@@ -2,6 +2,7 @@ const { pool } = require('./config/pgConfig')
 
 const vehicleQuery = condition => `
    SELECT veiculos.*,	
+      (extract(year from current_date) - ano_carroceria) as indicador_idade,   
       marca_chassi.marca as marca_chassi,
       modelo_chassi.modelo_chassi,	
       marca_carroceria.marca as marca_carroceria,
@@ -21,9 +22,9 @@ const vehicleQuery = condition => `
    LEFT JOIN public.marca_carroceria
       ON public.marca_carroceria.id = public.modelo_carroceria.marca_id
    LEFT JOIN public.empresas d
-      ON veiculos.delegatario_id = d.delegatario_id
+      ON veiculos.codigo_empresa = d.codigo_empresa
    LEFT JOIN public.empresas d2
-      ON veiculos.compartilhado_id = d2.delegatario_id
+      ON veiculos.compartilhado_id = d2.codigo_empresa
    LEFT JOIN public.seguro
       ON veiculos.apolice = seguro.apolice
    LEFT JOIN public.seguradora

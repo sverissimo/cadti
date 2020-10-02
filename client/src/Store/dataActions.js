@@ -63,8 +63,8 @@ export const insertData = (dataFromServer, collection) => (dispatch, getState) =
             eqNames = [],
             acNames = []
 
-        if (data[0]?.equipa) {
-            data[0].equipa.forEach(eqId => {
+        if (data[0]?.equipamentosId) {
+            data[0].equipamentosId.forEach(eqId => {
                 equipamentos.forEach(({ id, item }) => {
                     if (eqId.toString() === id.toString()) eqNames.push(item)
                 })
@@ -126,7 +126,7 @@ export const updateData = (dataFromServer, collection, id) => (dispatch, getStat
     let i = 0
     if (i > 0) return
     let data = humps.camelizeKeys(dataFromServer)
-   
+
     const { equipamentos, acessibilidade } = getState().data
     if (collection === 'veiculos' && equipamentos && acessibilidade)
         data = idsToString(data, equipamentos, acessibilidade)

@@ -57,7 +57,8 @@ class VeiculosContainer extends PureComponent {
 
         if (demand) {
             const demandState = setDemand(demand, redux)
-            this.setState({ ...demandState, activeStep: 0 })
+
+            this.setState({ ...demandState, activeStep: 3 })
         }
 
         //*********Create state[key] for each equipamentos/acessibilidade and turn them to false before a vehicle is selected *********/
@@ -118,8 +119,8 @@ class VeiculosContainer extends PureComponent {
                 let selectedEmpresa = empresas.find(e => e.razaoSocial === value)
 
                 if (selectedEmpresa) {
-                    const { razaoSocial, delegatarioId } = selectedEmpresa
-                    await this.setState({ selectedEmpresa, razaoSocial, delegatarioId })
+                    const { razaoSocial, codigoEmpresa } = selectedEmpresa
+                    await this.setState({ selectedEmpresa, razaoSocial, codigoEmpresa })
                     if (value !== selectedEmpresa.razaoSocial) this.setState({ selectedEmpresa: undefined })
 
                     const frota = veiculos.filter(v => v.empresa === this.state.razaoSocial)
@@ -147,7 +148,7 @@ class VeiculosContainer extends PureComponent {
         }
     }
 
-    getId = async (name, value, collection, stateId, dbName, dbId, alertLabel) => {
+    checkValid = async (name, value, collection, stateId, dbName, dbId, alertLabel) => {
 
         const item = collection.filter(el => el[dbName].toLowerCase().match(value.toLowerCase()))
         if (value === '') this.setState({ [name]: '', [stateId]: '' })
@@ -185,13 +186,13 @@ class VeiculosContainer extends PureComponent {
 
         switch (name) {
             case 'modeloChassi':
-                this.getId(name, value, modelosChassi, 'modeloChassiId', 'modeloChassi', 'id', 'chassi')
+                this.checkValid(name, value, modelosChassi, 'modeloChassiId', 'modeloChassi', 'id', 'chassi')
                 break
             case 'modeloCarroceria':
-                this.getId(name, value, carrocerias, 'modeloCarroceriaId', 'modelo', 'id', 'carroceria')
+                this.checkValid(name, value, carrocerias, 'modeloCarroceriaId', 'modelo', 'id', 'carroceria')
                 break
             case 'delegatarioCompartilhado':
-                this.getId(name, value, empresas, 'compartilhadoId', 'razaoSocial', 'delegatarioId')
+                this.checkValid(name, value, empresas, 'compartilhadoId', 'razaoSocial', 'codigoEmpresa')
                 break
             case 'anoChassi':
                 if (anoCarroceria && chas && (carr !== chas && carr !== chas + 1)) {
@@ -250,12 +251,16 @@ class VeiculosContainer extends PureComponent {
         }
     }
 
-    handleEquipa = type => {
+    handleEquipa = async type => {
         const collection = this.props.redux[type]
-        let vEquip = [], currentEquipa = []
+        let vEquip = [], currentEquipa = [], stateKey
+
+        await this.setState({ type })
 
         if (this.state[type]) currentEquipa = this.state[type]
 
+        if (type === 'equipamentos') stateKey = 'equipamentosId'
+        if (type === 'acessibilidade') stateKey = 'acessibilidadeId'
 
         collection.forEach(({ item }) => {
             currentEquipa.forEach(ce => {
@@ -265,7 +270,7 @@ class VeiculosContainer extends PureComponent {
 
         vEquip.forEach(ve => this.setState({ [ve]: true }))
 
-        this.setState({ [collection]: vEquip, addEquipa: !this.state.addEquipa, type })
+        this.setState({ [stateKey]: vEquip, addEquipa: !this.state.addEquipa })
     }
 
     handleCheck = async item => {
@@ -288,7 +293,7 @@ class VeiculosContainer extends PureComponent {
                 ids.push(id)
             }
         })
-
+        console.log(this.state, ids, arrayOfEquips)
         if (arrayOfEquips[0]) this.setState({ [type]: arrayOfEquips, [stateKey]: ids })
         else if (type === 'equipamentos') this.setState({ equipamentos: [], [stateKey]: [] })
         else if (type === 'acessibilidade') this.setState({ acessibilidade: [], [stateKey]: [] })
@@ -296,7 +301,7 @@ class VeiculosContainer extends PureComponent {
 
     handleCadastro = async approved => {
         const
-            { equipamentosId, acessibilidadeId, pesoDianteiro, pesoTraseiro, poltronas, delegatarioId, compartilhadoId, modeloChassiId, originalVehicle, getUpdatedValues,
+            { equipamentosId, acessibilidadeId, pesoDianteiro, pesoTraseiro, poltronas, codigoEmpresa, compartilhadoId, modeloChassiId, originalVehicle, getUpdatedValues,
                 modeloCarroceriaId, selectedEmpresa, showPendencias, info, form, demand, demandFiles } = this.state,
 
             existingVeiculoId = demand?.veiculoId,
@@ -323,7 +328,7 @@ class VeiculosContainer extends PureComponent {
         let { delegatarioCompartilhado, modeloChassi, modeloCarroceria, ...vReview } = review
 
         Object.assign(vReview, {
-            delegatarioId, situacao, pbt, modeloChassiId, modeloCarroceriaId,
+            codigoEmpresa, situacao, pbt, modeloChassiId, modeloCarroceriaId,
             equipamentosId, acessibilidadeId, apolice: 'Seguro não cadastrado'
         })
         vReview.compartilhadoId = compartilhadoId
@@ -359,7 +364,7 @@ class VeiculosContainer extends PureComponent {
         //*****************Generate log ************** */
 
         const log = {
-            empresaId: selectedEmpresa?.delegatarioId,
+            empresaId: selectedEmpresa?.codigoEmpresa,
             veiculoId,
             history: {
                 info,

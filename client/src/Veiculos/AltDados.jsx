@@ -47,7 +47,7 @@ class AltDados extends Component {
             'Anexe os arquivos solicitados', 'Revisão'],
         empresas: [],
         razaoSocial: '',
-        delegatarioCompartilhado: '',
+        compartilhadoId: '',
         frota: [],
         toastMsg: 'Dados atualizados!',
         confirmToast: false,
@@ -70,6 +70,7 @@ class AltDados extends Component {
 
         if (demand) {
             const demandState = setDemand(demand, redux)
+            console.log(demandState)
             this.setState({ ...demandState, activeStep: 3 })
         }
 
@@ -184,10 +185,10 @@ class AltDados extends Component {
         switch (name) {
 
             case 'compartilhado':
-                this.getId(name, value, empresas, 'delegatarioCompartilhado', 'razaoSocial', 'delegatarioId')
+                this.getId(name, value, empresas, 'compartilhadoId', 'razaoSocial', 'codigoEmpresa')
                 break;
             case 'delegatario':
-                await this.getId(name, value, empresas, 'delegatarioId', 'razaoSocial', 'delegatarioId')
+                await this.getId(name, value, empresas, 'codigoEmpresa', 'razaoSocial', 'codigoEmpresa')
                 break;
 
             case 'distanciaMinima':
@@ -281,7 +282,7 @@ class AltDados extends Component {
 
         let array = [], ids = [], stateKey
 
-        if (type === 'equipamentos') stateKey = 'equipa'
+        if (type === 'equipamentos') stateKey = 'equipamentosId'
         if (type === 'acessibilidade') stateKey = 'acessibilidadeId'
 
         await this.setState({ ...this.state, [item]: !this.state[item] })
@@ -311,8 +312,8 @@ class AltDados extends Component {
 
     handleSubmit = async (approved) => {
         const
-            { veiculoId, poltronas, pesoDianteiro, pesoTraseiro, delegatarioId, originalVehicle, showPendencias, getUpdatedValues,
-                delegatarioCompartilhado, newPlate, selectedEmpresa, equipa, acessibilidadeId, info, demand, form, demandFiles } = this.state,
+            { veiculoId, poltronas, pesoDianteiro, pesoTraseiro, codigoEmpresa, originalVehicle, showPendencias, getUpdatedValues,
+                compartilhadoId, newPlate, selectedEmpresa, equipamentosId, acessibilidadeId, info, demand, form, demandFiles } = this.state,
 
             oldHistoryLength = demand?.history?.length || 0
 
@@ -330,7 +331,7 @@ class AltDados extends Component {
                 }
             })
         })
-        tempObj = Object.assign(tempObj, { delegatarioId, delegatarioCompartilhado, pbt, equipa, acessibilidadeId })
+        tempObj = Object.assign(tempObj, { codigoEmpresa, compartilhadoId, pbt, equipamentosId, acessibilidadeId })
 
         if (demand && getUpdatedValues)
             tempObj = getUpdatedValues(originalVehicle, tempObj)  //Save only real changes to the request Object (method from setDemand())
@@ -341,9 +342,8 @@ class AltDados extends Component {
             camelizedRequest.placa = newPlate
 
         //Se existia um delegatário compartilhado e a alteração é de apagar a relação de compartilhamento, deletar o delCompartilhado
-        if ((!this.state.compartilhado || this.state.compartilhado === '') && originalVehicle?.delegatarioCompartilhado)
-            camelizedRequest.delegatarioCompartilhado = 'NULL'
-
+        if ((!this.state.compartilhado || this.state.compartilhado === '') && originalVehicle?.compartilhadoId)
+            camelizedRequest.compartilhadoId = 'NULL'
 
         if (!approved && Object.keys(camelizedRequest).length === 0) {
             this.setState({ openAlertDialog: true, customTitle: 'Nenhuma alteração', customMessage: 'Não foi realizada nenhuma alteração na solicitação aberta. Para prosseguir, altere algum dos campos ou adicione uma justificativa.' })
@@ -359,7 +359,7 @@ class AltDados extends Component {
                 files: form,
             },
             log = {
-                empresaId: selectedEmpresa?.delegatarioId,
+                empresaId: selectedEmpresa?.codigoEmpresa,
                 veiculoId,
                 history,
                 demandFiles,
@@ -375,7 +375,7 @@ class AltDados extends Component {
 
         //*********************if approved, putRequest to update DB  ********************** */
         if (demand && approved && !showPendencias) {
-            if (selectedEmpresa.delegatarioId !== delegatarioId) requestObject.apolice = 'Seguro não cadastrado'
+            if (selectedEmpresa.codigoEmpresa !== codigoEmpresa) requestObject.apolice = 'Seguro não cadastrado'
 
             const
                 table = 'veiculos',

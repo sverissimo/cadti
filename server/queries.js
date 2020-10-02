@@ -36,9 +36,9 @@ const veiculos = `
 		LEFT JOIN public.marca_carroceria
 			ON public.marca_carroceria.id = public.modelo_carroceria.marca_id
 		LEFT JOIN public.empresas d
-			ON veiculos.delegatario_id = d.delegatario_id
+			ON veiculos.codigo_empresa = d.codigo_empresa
 		LEFT JOIN public.empresas d2
-			ON veiculos.compartilhado_id = d2.delegatario_id
+			ON veiculos.compartilhado_id = d2.codigo_empresa
 		LEFT JOIN public.seguros
 			ON veiculos.apolice = seguros.apolice
 		LEFT JOIN public.seguradora

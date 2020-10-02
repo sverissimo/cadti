@@ -15,7 +15,7 @@ import { laudosTable } from '../Forms/laudosTable'
 import { logGenerator } from '../Utils/logGenerator'
 import { setDemand } from '../Utils/setDemand'
 import { sizeExceedsLimit } from '../Utils/handleFiles'
-
+let i = 1
 const Laudos = props => {
     const
         { veiculos, empresas, empresasLaudo, laudos, vehicleDocs } = props.redux,
@@ -63,29 +63,29 @@ const Laudos = props => {
         document.addEventListener('keydown', escFunction)
     }, [])
 
-    useEffect(() => {                               //If demand, set state accordingly
-        if (demand) {
-            const
-                { history } = demand,
-                state = {},
-                fullDemand = setDemand(demand, props.redux),
-                empresa = fullDemand.selectedEmpresa,
-                dFiles = fullDemand.demandFiles,
-                { originalVehicle } = fullDemand
 
-            Object.entries(history[0]).forEach(([k, v]) => {            // Set state with demandState
-                if (stateInputs.hasOwnProperty(k))
-                    state[k] = v
-            })
+    if (demand && i === 1) {
+        i++
+        const
+            { history } = demand,
+            state = {},
+            fullDemand = setDemand(demand, props.redux),
+            empresa = fullDemand.selectedEmpresa,
+            dFiles = fullDemand.demandFiles,
+            { originalVehicle } = fullDemand
 
-            setEmpresa(empresa)
-            empresaInput(empresa.razaoSocial)
-            changeInputs(state)
-            setDemandFiles(dFiles)
-            selectVehicle(originalVehicle)
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [empresas, demand, props.redux])
+        Object.entries(history[0]).forEach(([k, v]) => {            // Set state with demandState
+            if (stateInputs.hasOwnProperty(k))
+                state[k] = v
+        })
+
+        setEmpresa(empresa)
+        empresaInput(empresa.razaoSocial)
+        changeInputs(state)
+        setDemandFiles(dFiles)
+        selectVehicle(originalVehicle)
+
+    }
 
     useEffect(() => {
         async function insertLaudos() {
@@ -217,6 +217,10 @@ const Laudos = props => {
         }
     }, [selectedVehicle, laudos, vehicleDocs, demand])
 
+    useEffect(() => {
+        i = 1
+        void 0
+    }, [])
     const clear = () => {
         document.querySelector('[name = "placa"]').value = ''
         setFilteredVehicles(oldVehicles)
@@ -238,7 +242,7 @@ const Laudos = props => {
     const handleSubmit = async approved => {
 
         const
-            empresaId = selectedEmpresa?.delegatarioId,
+            empresaId = selectedEmpresa?.codigoEmpresa,
             veiculoId = selectedVehicle?.veiculoId
         let
             { empresaLaudo, ...requestElement } = stateInputs,

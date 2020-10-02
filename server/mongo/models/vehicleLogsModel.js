@@ -41,7 +41,7 @@ const VehicleLogsSchema = new mongoose.Schema({
         strict: false
     });
 
-VehicleLogsSchema.plugin(AutoIncrement, { inc_field: 'numero' });
+VehicleLogsSchema.plugin(AutoIncrement, { id: 'logs_counter', inc_field: 'numero' });
 
 const vehicleLogsModel = mongoose.model('vehicleLogs', VehicleLogsSchema, 'vehicleLogs');
 

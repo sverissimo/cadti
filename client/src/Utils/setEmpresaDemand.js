@@ -63,7 +63,7 @@ function getUpdatedValues(originalObj, newObj) {
     Object.keys(newObj).forEach(key => {
         if (newObj[key] && originalObj[key]) {
 
-            if (key === 'equipa' || key === 'acessibilidadeId')
+            if (key === 'equipamentosId' || key === 'acessibilidadeId')
                 newObj[key].sort((a, b) => a - b)
 
             if (newObj[key].toString() === originalObj[key].toString())

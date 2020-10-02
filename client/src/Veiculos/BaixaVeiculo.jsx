@@ -83,14 +83,15 @@ class BaixaVeiculo extends Component {
             if (value.length > 0) {
                 const delegaTransf = empresas.find(e => e.razaoSocial === value)
                 if (delegaTransf) {
-                    const { razaoSocial, delegatarioId } = delegaTransf
+                    const { razaoSocial, codigoEmpresa } = delegaTransf
                     await this.setState(
                         {
                             delegaTransf: razaoSocial,
-                            delegaTransfId: delegatarioId,
+                            delegaTransfId: codigoEmpresa,
                             disableSubmit: true
                         }
                     )
+                    console.log(this.state)
                     void 0
                 } else this.setState({ openAlertDialog: true, alertType: 'empresaNotFound', delegaTransf: '' })
             }
@@ -144,7 +145,7 @@ class BaixaVeiculo extends Component {
             info,
             history,
             historyTransfId,
-            checkArray = ['selectedEmpresa', 'placa', 'delegatarioId']
+            checkArray = ['selectedEmpresa', 'placa', 'codigoEmpresa']
 
         if (demand && demandHistory && Array.isArray(demandHistory))
             historyTransfId = demandHistory.reverse().find(e => e.hasOwnProperty('delegaTransfId')).delegaTransfId
@@ -177,7 +178,7 @@ class BaixaVeiculo extends Component {
 
                 if (demand?.subject.match('venda')) {
                     const newEmpresaId = demand?.history[0]?.delegaTransfId
-                    tempObj.delegatarioId = newEmpresaId
+                    tempObj.codigoEmpresa = newEmpresaId
                     tempObj.situacao = 'Ativo'
                 }
                 break
@@ -193,7 +194,7 @@ class BaixaVeiculo extends Component {
         //**************Create Log****************** */
         log = {
             subject: logSubject,
-            empresaId: selectedEmpresa?.delegatarioId,
+            empresaId: selectedEmpresa?.codigoEmpresa,
             veiculoId,
             history,
             historyLength: oldHistoryLength
