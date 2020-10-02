@@ -59,8 +59,10 @@ export default function SegurosTemplate({ empresas, data, seguros, seguradoras, 
     if (insurance && insurance.placas) {
         if (insurance.placas[0] && insurance.placas[0] !== null) placas = insurance.placas.sort()
         if (placa !== undefined && placa.length > 2 && placas[0]) {
-            if (typeof placa === 'string') placas = insurance.placas.filter(p => p.toLowerCase().match(placa.toLowerCase())).sort()
-            else placas = insurance.placas.filter(p => p.match(placa)).sort()
+            if (typeof placa === 'string')
+                placas = insurance.placas.filter(p => p.toLowerCase().match(placa.toLowerCase())).sort()
+            else
+                placas = insurance.placas.filter(p => p.match(placa)).sort()
         }
     }
     const insuranceExists = seguros.some(s => s.apolice === apolice)
@@ -85,7 +87,7 @@ export default function SegurosTemplate({ empresas, data, seguros, seguradoras, 
                         />
                         {insuranceExists &&
                             <div className='addNewDiv'>
-                                <span onClick={() => enableChangeApolice()}> → Clique aqui para alterar o número da apólice mantendo as placas.</span>
+                                <span onClick={() => enableChangeApolice()}> → Clique aqui para adicionar nova apólice mantendo as placas abaixo selecionadas.</span>
                             </div>
                         }
                     </section>
@@ -213,7 +215,7 @@ export default function SegurosTemplate({ empresas, data, seguros, seguradoras, 
                             className='saveButton'
                             variant="contained"
                             onClick={() => handleSubmit()}
-                            //disabled={!placas[0] || !apoliceDoc ? true : false}
+                        //disabled={!placas[0] || !apoliceDoc ? true : false}
                         >
                             Salvar <span>&nbsp;&nbsp; </span> <SaveIcon />
                         </Button>

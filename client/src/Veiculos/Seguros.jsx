@@ -93,7 +93,7 @@ class Seguro extends Component {
         const
             seguros = JSON.parse(JSON.stringify(this.props.redux.seguros)),
             { selectedEmpresa, demand } = this.state,
-            s = [...seguros.filter(se => se.delegatarioId === selectedEmpresa.delegatarioId)]
+            s = [...seguros.filter(se => se.codigoEmpresa === selectedEmpresa.codigoEmpresa)]
 
         let insurance = { ...s.find(s => s[name] === inputValue) }
 
@@ -107,7 +107,7 @@ class Seguro extends Component {
                 dataEmissao = moment(insurance.dataEmissao).format('YYYY-MM-DD'),
                 vencimento = moment(insurance.vencimento).format('YYYY-MM-DD'),
                 { seguradora, seguradoraId } = insurance
-
+            console.log(seguradoraId)
             await this.setState({ seguradora, seguradoraId, dataEmissao, vencimento, insurance })
             return
         }
@@ -170,7 +170,7 @@ class Seguro extends Component {
 
             const newInsurance = {
                 empresa: selectedEmpresa.razaoSocial,
-                delegatarioId: selectedEmpresa.delegatarioId,
+                codigoEmpresa: selectedEmpresa.codigoEmpresa,
                 apolice, seguradora, seguradoraId, dataEmissao, vencimento, placas: [], veiculos: []
             }
             await this.setState({ insurance: newInsurance, seguradoraId })
@@ -381,18 +381,38 @@ class Seguro extends Component {
             return
         }
 
-        //Create seguro object       
+        //Create seguro object e checar datas
         const
-            validEmissao = moment(dataEmissao, 'YYYY-MM-DD', true).isValid(),
-            validVenc = moment(vencimento, 'YYYY-MM-DD', true).isValid(),
             cadSeguro = {
                 apolice,
                 seguradora_id: seguradoraId,
-                delegatario_id: selectedEmpresa.delegatarioId
-            }
+                codigo_empresa: selectedEmpresa.codigoEmpresa
+            },
+            emis = moment(dataEmissao, 'YYYY-MM-DD', true),
+            venc = moment(vencimento, 'YYYY-MM-DD', true),
+            validEmissao = emis.isValid(),
+            validVenc = venc.isValid(),
+            invalido = venc.isSameOrBefore(emis, 'day'),
+            vencido = venc.isBefore(moment(), 'day'),
+            pendente = emis.isAfter(moment(), 'day'),
+            vigente = emis.isSameOrBefore(moment(), 'day')
 
-        if (validEmissao) cadSeguro.data_emissao = dataEmissao
-        if (validVenc) cadSeguro.vencimento = vencimento
+        if (invalido) {
+            alert('A data de vencimento informada é anterior ao início da vigência.')
+            return
+        }
+        if (vencido) {
+            alert('O seguro informado está vencido.')
+            return
+        }
+        if (pendente)
+            cadSeguro.situacao = 'Pendente'
+        if (vigente)
+            cadSeguro.situacao = 'Vigente'
+        if (validEmissao)
+            cadSeguro.data_emissao = dataEmissao
+        if (validVenc)
+            cadSeguro.vencimento = vencimento
 
         //*******************Create a new demand
         if (!demand) {
@@ -400,12 +420,12 @@ class Seguro extends Component {
             if (insurance)
                 vehicleIds = insurance.veiculos
 
-            let { delegatarioId, ...seguro } = cadSeguro
+            let { codigoEmpresa, ...seguro } = cadSeguro
             seguro.seguradora = seguradora
             seguro = humps.camelizeKeys(seguro)
 
             const log = {
-                empresaId: selectedEmpresa?.delegatarioId,
+                empresaId: selectedEmpresa?.codigoEmpresa,
                 history: {
                     ...seguro,
                     vehicleIds,
@@ -415,27 +435,23 @@ class Seguro extends Component {
                 metadata: {
                     fieldName: 'apoliceDoc',
                     apolice,
-                    empresaId: selectedEmpresa?.delegatarioId,
+                    empresaId: selectedEmpresa?.codigoEmpresa,
                 },
                 historyLength: 0,
                 approved
             }
-            if (deletedVehicles[0])                             //Registrar os veiculos apagados pela demanda
+            //Registrar os veiculos apagados pela demanda
+            if (deletedVehicles[0])
                 log.history.deletedVehicles = deletedVehicles
 
-            if (newElement && insurance)                       //Se foi mudado o número da apólice, registrar que houve mudança e o id
-                log.history = {
-                    ...log.history,
-                    newElement: true,
-                    id: insurance.id
-                }
-            console.log(log, deletedVehicles)
+            //console.log(log, deletedVehicles)
 
             logGenerator(log)
             this.confirmAndResetState('Solicitação de cadastro de seguro enviada')
             return
         }
 
+        //Se a demanda já existe e for indeferida
         if (approved === false) {
             const log = {
                 id: demand.id,
@@ -448,7 +464,7 @@ class Seguro extends Component {
                 .then(r => console.log(r))
             this.confirmAndResetState('Solicitação indeferida!')
         }
-
+        //Aprovar demanda
         if (approved === true) {
             this.approveInsurance(cadSeguro)
         }
@@ -456,30 +472,11 @@ class Seguro extends Component {
 
     approveInsurance = async cadSeguro => {
         const
-            { apolice, insurance, deletedVehicles, demand, demandFiles } = this.state,
-            vehicleIds = insurance.veiculos,
-            { newElement, id } = demand?.history[0]
+            { seguros } = this.props.redux,
+            { apolice, vencimento, dataEmissao, insurance, deletedVehicles, demand, demandFiles } = this.state,
+            vehicleIds = insurance.veiculos
 
-        //********************************** CREATE/UPDATE INSURANCE **********************************
-        const insuranceExists = this.props.redux.seguros.some(s => s.apolice === apolice)
-        if (insuranceExists)
-            await this.updateInsurance()
-        else if (!newElement)
-            await axios.post('/api/cadSeguro', cadSeguro)
-
-        //********************************** UPDATE VEHICLES**********************************
-        //Se houver mudança no número da apólice, atualizar o banco de dados
-        if (newElement && id) {
-            const updateApoliceNumber = {
-                table: 'seguro',
-                tablePK: 'id',
-                column: 'apolice',
-                requestArray: [{ id, apolice }]
-            }
-            await axios.put('/api/editElements', { ...updateApoliceNumber })
-        }
-
-        //Define o request com array de Ids dos veiculos para atualizar o(s) campo(s) apólice de cada um. 
+        //****************************** Cria o body para os requests****************************** */
         const body = {
             table: 'veiculos',
             column: 'apolice',
@@ -487,20 +484,48 @@ class Seguro extends Component {
             tablePK: 'veiculo_id',
             ids: vehicleIds
         }
-        await axios.put('/api/updateInsurances', body)
-            .then(res => {
-                console.log(res.data)
-                this.setState({ dontUpdateProps: true })
-            })
+        //********************************** CREATE/UPDATE INSURANCE **********************************
+        const insuranceExists = seguros.find(s => s.apolice === apolice)
+        let cadSeguroOk
 
-        if (deletedVehicles[0] || demand?.history[0]?.deletedVehicles) {
+        if (insuranceExists) {
             const
-                previouslyDeleted = demand?.history[0]?.deletedVehicles || [],
-                vehiclesToDelete = deletedVehicles.concat(previouslyDeleted)
+                de = moment(insuranceExists.dataEmissao).isSame(moment(dataEmissao)),
+                v = moment(insuranceExists.vencimento).isSame(moment(vencimento)),
+                vExists = JSON.stringify(vehicleIds) === JSON.stringify(insuranceExists.veiculos)
+            console.log(de, v, vehicleIds, insuranceExists.veiculos)
+            //Evitar seguro repetido de ser cadastrado
+            if (de && v && vExists) {
+                this.setState({
+                    openAlertDialog: true,
+                    customTitle: 'Seguro existente',
+                    customMsg: 'O seguro informado já existe no sistema. Para cadastrar um novo seguro, altere o número da apólice, ou as datas de emissão e vencimento.'
+                })
+                return
+            }
+            //Se só mudarem as placas, basta atualizar os veículos pq a tabela seguros não tem id de veículos e sim o contrário
+            else if (de && v) {
+                await axios.put('/api/updateInsurances', body)
+                    .then(res => {
+                        console.log(res.data)
+                        this.setState({ dontUpdateProps: true })
+                    })
+                return
+            }
 
-            body.value = 'Seguro não cadastrado'
-            body.ids = vehiclesToDelete
-            await axios.put('/api/updateInsurances', body)
+            //Se as datas forem diferentes, se trata de cadastrar um novo seguro, ainda que o número da apólice seja o mesmo (caso insuranceExists === true ou false)
+            await axios.post('/api/cadSeguro', cadSeguro)
+                .then(r => {
+                    if (r.status === 200)
+                        cadSeguroOk = true
+                    console.log(r.status, cadSeguroOk)
+                })
+            if (cadSeguroOk)
+                await axios.put('/api/updateInsurances', body)
+                    .then(res => {
+                        console.log(res.data)
+                        this.setState({ dontUpdateProps: true })
+                    })
         }
 
         //Cria o log de demanda concluída
@@ -556,7 +581,7 @@ class Seguro extends Component {
 
     render() {
         const
-            { openAlertDialog, alertType, openAddDialog, showAllPlates, allPlates, allPlatesObj, selectAll } = this.state,
+            { openAlertDialog, alertType, openAddDialog, showAllPlates, allPlates, allPlatesObj, selectAll, customTitle, customMsg } = this.state,
             { empresas, seguradoras, seguros } = this.props.redux
 
         const enableAddPlaca = seguroForm
@@ -602,7 +627,7 @@ class Seguro extends Component {
                     />
                 }
 
-                {openAlertDialog && <AlertDialog open={openAlertDialog} close={this.closeAlert} alertType={alertType} customMessage={this.state.customMsg} />}
+                {openAlertDialog && <AlertDialog open={openAlertDialog} close={this.closeAlert} alertType={alertType} customTitle={customTitle} customMessage={customMsg} />}
                 <ReactToast open={this.state.confirmToast} close={this.toast} msg={this.state.toastMsg} />
             </Fragment>
         )

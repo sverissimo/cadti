@@ -10,8 +10,8 @@ const vehicleQuery = condition => `
       d.razao_social as empresa,
       d2.razao_social as compartilhado,
       seguradora.seguradora,
-      seguro.data_emissao,
-      seguro.vencimento      
+      seguros.data_emissao,
+      seguros.vencimento      
    FROM veiculos
    LEFT JOIN public.modelo_chassi
       ON veiculos.modelo_chassi_id = public.modelo_chassi.id
@@ -25,31 +25,31 @@ const vehicleQuery = condition => `
       ON veiculos.codigo_empresa = d.codigo_empresa
    LEFT JOIN public.empresas d2
       ON veiculos.compartilhado_id = d2.codigo_empresa
-   LEFT JOIN public.seguro
-      ON veiculos.apolice = seguro.apolice
+   LEFT JOIN public.seguros
+      ON veiculos.apolice = seguros.apolice
    LEFT JOIN public.seguradora
-      ON public.seguradora.id = seguro.seguradora_id   
+      ON public.seguradora.id = seguros.seguradora_id   
    WHERE ${condition}
    ORDER BY veiculos.veiculo_id DESC
 `
 
 const seguroQuery = condition => `
-SELECT seguro.*,
+SELECT seguros.*,
 	s.seguradora,
 	array_to_json(array_agg(v.veiculo_id)) veiculos,
 	array_to_json(array_agg(v.placa)) placas,
 	d.razao_social empresa,	
 	cardinality(array_agg(v.placa)) segurados
-FROM seguro
+FROM seguros
 LEFT JOIN veiculos v
-	ON seguro.apolice = v.apolice
+	ON seguros.apolice = v.apolice
 LEFT JOIN empresas d
-	ON d.delegatario_id = seguro.delegatario_id
+	ON d.delegatario_id = seguros.delegatario_id
 LEFT JOIN seguradora s
-	ON s.id = seguro.seguradora_id
+	ON s.id = seguros.seguradora_id
 ${condition}
-GROUP BY seguro.apolice, d.razao_social, s.seguradora, d.delegatario_id
-ORDER BY seguro.vencimento ASC
+GROUP BY seguros.apolice, d.razao_social, s.seguradora, d.delegatario_id
+ORDER BY seguros.vencimento ASC
 `
 
 const socioQuery = condition => `
@@ -83,7 +83,7 @@ const getUpdatedData = async (table, condition) => {
 
    let query
    if (table === 'veiculos') query = vehicleQuery
-   if (table === 'seguro') query = seguroQuery
+   if (table === 'seguros') query = seguroQuery
    if (table === 'socio') query = socioQuery
    if (table === 'empresa') query = empresaQuery
    if (table === 'procurador') query = procuradorQuery

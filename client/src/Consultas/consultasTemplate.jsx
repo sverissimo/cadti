@@ -13,7 +13,7 @@ export default function ({ tab, collection, showDetails, showFiles, showCertific
 
     if (!Array.isArray(collection)) collection = []
     collection = collection.map(obj => ({ ...obj }))
-
+    console.log(collection)
     return (
         <div style={{ margin: '10px 0' }} className='noPrint'>
             <MaterialTable

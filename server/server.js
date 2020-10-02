@@ -29,7 +29,6 @@ const { fieldParser } = require('./fieldParser')
 const { getUpdatedData } = require('./getUpdatedData')
 const { empresaChunks, vehicleChunks } = require('./mongo/models/chunksModel')
 const { vehicleLogsModel } = require('./mongo/models/vehicleLogsModel')
-const segurosModel = require('./mongo/models/seguros')
 
 //const { uploadFS } = require('./upload')
 const { parseRequestBody } = require('./parseRequest')
@@ -293,10 +292,10 @@ app.post('/api/cadSeguro', (req, res) => {
     })
 
     parsed = parsed.toString().replace(/'\['/g, '').replace(/'\]'/g, '')
-    console.log(`INSERT INTO public.seguro (${keys}) VALUES (${parsed}) RETURNING *`)
+    console.log(`INSERT INTO public.seguros (${keys}) VALUES (${parsed}) RETURNING *`)
     pool.query(
-        `INSERT INTO public.seguro (${keys}) VALUES (${parsed}) RETURNING *`, (err, table) => {
-            if (err) res.send(err)
+        `INSERT INTO public.seguros (${keys}) VALUES (${parsed}) RETURNING *`, (err, table) => {
+            if (err) console.log(err)
             if (table && table.rows && table.rows.length === 0) { res.send(table.rows); return }
             if (table && table.rows.length > 0) {
                 const updatedData = {
@@ -362,7 +361,7 @@ app.put('/api/editElements', (req, res) => {
         })
     })
 })
-
+//Atualiza um elemento da tabela 'seguros'
 app.put('/api/updateInsurance', async (req, res) => {
 
     const { columns, updates, id, vehicleIds } = req.body
@@ -370,7 +369,7 @@ app.put('/api/updateInsurance', async (req, res) => {
     let queryString = ''
     columns.forEach(col => {
         queryString += `
-                UPDATE seguro
+                UPDATE seguros
                 SET ${col} = '${updates[col]}'
                 WHERE id = ${id};
         `
@@ -414,20 +413,24 @@ app.put('/api/updateInsurance', async (req, res) => {
     } else res.send('No changes whatsoever.')
 })
 
+//Atualiza um ou mais elementos da taqbela 'veículos
 app.put('/api/updateInsurances', async (req, res) => {
-    const { table, column, value, placas } = req.body
+    const { table, column, value, placas, situacao } = req.body
     let { ids, tablePK } = req.body
 
     if (placas) {
         tablePK = 'placa'
         ids = placas
     }
-
+    let updateStatus = ''
+    if (situacao)
+        updateStatus = `, situacao = ${situacao}`
     let
         condition = '',
         query = `
             UPDATE ${table}
             SET ${column} = '${value}' 
+            ${updateStatus}
             WHERE `
 
     if (ids && ids[0]) {
