@@ -406,7 +406,7 @@ class Seguro extends Component {
             return
         }
         if (pendente)
-            cadSeguro.situacao = 'Pendente'
+            cadSeguro.situacao = 'Aguardando início da vigência'
         if (vigente)
             cadSeguro.situacao = 'Vigente'
         if (validEmissao)
@@ -444,8 +444,6 @@ class Seguro extends Component {
             if (deletedVehicles[0])
                 log.history.deletedVehicles = deletedVehicles
 
-            //console.log(log, deletedVehicles)
-
             logGenerator(log)
             this.confirmAndResetState('Solicitação de cadastro de seguro enviada')
             return
@@ -473,7 +471,7 @@ class Seguro extends Component {
     approveInsurance = async cadSeguro => {
         const
             { seguros } = this.props.redux,
-            { apolice, vencimento, dataEmissao, insurance, deletedVehicles, demand, demandFiles } = this.state,
+            { apolice, vencimento, dataEmissao, seguradoraId, insurance, demand, demandFiles } = this.state,
             vehicleIds = insurance.veiculos
 
         //****************************** Cria o body para os requests****************************** */
@@ -493,7 +491,7 @@ class Seguro extends Component {
                 de = moment(insuranceExists.dataEmissao).isSame(moment(dataEmissao)),
                 v = moment(insuranceExists.vencimento).isSame(moment(vencimento)),
                 vExists = JSON.stringify(vehicleIds) === JSON.stringify(insuranceExists.veiculos)
-            console.log(de, v, vehicleIds, insuranceExists.veiculos)
+
             //Evitar seguro repetido de ser cadastrado
             if (de && v && vExists) {
                 this.setState({
@@ -503,30 +501,45 @@ class Seguro extends Component {
                 })
                 return
             }
-            //Se só mudarem as placas, basta atualizar os veículos pq a tabela seguros não tem id de veículos e sim o contrário
-            else if (de && v) {
-                await axios.put('/api/updateInsurances', body)
-                    .then(res => {
-                        console.log(res.data)
-                        this.setState({ dontUpdateProps: true })
-                    })
-                return
+            //Se o seguro novo tiver o mesmo número de apólice e já estiver vigente, apenas atualiza o registro do Postgresql
+            if (cadSeguro.situacao === 'Vigente') {
+                let updates = { dataEmissao, vencimento, seguradoraId }
+                updates = humps.decamelizeKeys(updates)
+                const
+                    columns = Object.keys(updates),
+                    requestObj = {
+                        id: insuranceExists?.id,
+                        vehicleIds,
+                        columns,
+                        updates,
+                    }
+                axios.put('/api/updateInsurance', { ...requestObj })
             }
+        }
 
-            //Se as datas forem diferentes, se trata de cadastrar um novo seguro, ainda que o número da apólice seja o mesmo (caso insuranceExists === true ou false)
+        //Se as datas forem diferentes, se trata de cadastrar um novo seguro, ainda que o número da apólice seja o mesmo (caso insuranceExists === true ou false)
+        if (cadSeguro.situacao === 'Aguardando início da vigência') {
+            cadSeguro.veiculos = vehicleIds
+            console.log({ ...cadSeguro })
+            await axios.post('/api/cadSeguroMongo', { ...cadSeguro })
+        }
+        //Se o seguro cadastrado já estiver vigente já cadastra direto no Postgrtesql (tabela seguros) e atualiza a tabela de veículos
+        if (cadSeguro.situacao === 'Vigente' && !insuranceExists) {
+            console.log('vigente, ', cadSeguro)
             await axios.post('/api/cadSeguro', cadSeguro)
                 .then(r => {
                     if (r.status === 200)
                         cadSeguroOk = true
                     console.log(r.status, cadSeguroOk)
                 })
-            if (cadSeguroOk)
-                await axios.put('/api/updateInsurances', body)
-                    .then(res => {
-                        console.log(res.data)
-                        this.setState({ dontUpdateProps: true })
-                    })
         }
+        //A atualização dos veículos só ocorre se o seguro for cadastrado com sucesso
+        if ((cadSeguroOk && !insuranceExists) || cadSeguro.situacao === 'Vigente')
+            await axios.put('/api/updateInsurances', body)
+                .then(res => {
+                    console.log(res.data)
+                    this.setState({ dontUpdateProps: true })
+                })
 
         //Cria o log de demanda concluída
         const log = {

@@ -22,7 +22,6 @@ const { logHandler } = require('./logHandler')
 const { cadEmpresa } = require('./cadEmpresa')
 const { cadSocios } = require('./cadSocios')
 const { cadProcuradores } = require('./cadProcuradores')
-
 const { seguros, socios, laudos, lookup } = require('./queries')
 
 const { fieldParser } = require('./fieldParser')
@@ -36,6 +35,9 @@ const filesModel = require('./mongo/models/filesModel')
 
 const dbSync = require('./sync/dbSyncAPI')
 const dailyTasks = require('./taskManager/taskManager')
+const segurosModel = require('./mongo/models/segurosModel')
+const { updateInsurances } = require('./taskManager/checkInsurances')
+
 
 dailyTasks.start()
 dotenv.config()
@@ -49,7 +51,7 @@ app.use(bodyParser.urlencoded())
 app.use(express.static('client/build'))
 app.use(setCorsHeader)
 //app.get('/tst', getExpired)
-
+updateInsurances()
 //************************************ BINARY DATA *********************** */
 
 let gfs
@@ -170,6 +172,20 @@ app.get('/api/log', (req, res) => {
     })
 })
 
+//************************************CADASTRO PROVISÓRIO DE SEGUROS**************** */
+
+app.post('/api/cadSeguroMongo', (req, res) => {
+    const { body } = req
+
+    segModel = new segurosModel(body)
+    segModel.save(function (err, doc) {
+        if (err) console.log(err)
+        if (doc) res.locals = { doc }
+        res.send('saved in mongoDB')
+    })
+})
+
+
 //************************************ GET METHOD ROUTES *********************** */
 
 const routes = 'empresas|socios|veiculos|modelosChassi|carrocerias|equipamentos|seguros|seguradoras|procuradores|procuracoes|empresasLaudo|laudos|acessibilidade'
@@ -187,7 +203,7 @@ app.get('/api/veiculo/:id', (req, res) => {
     })
 });
 
-app.get('/api/lookUpTable/:table', lookup)
+app.get('/api/lookUpTable/:table', lookup);
 
 //************************************ OTHER METHOD ROUTES *********************** */
 
