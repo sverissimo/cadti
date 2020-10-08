@@ -348,7 +348,7 @@ class VeiculosContainer extends PureComponent {
                 .catch(err => console.log(err))
         else {
             veiculoId = existingVeiculoId
-            if (demand && approved && !showPendencias) situacao = 'Ativo'
+            if (demand && approved && !showPendencias) situacao = 'Seguro não cadastrado'
 
             const
                 table = 'veiculos',

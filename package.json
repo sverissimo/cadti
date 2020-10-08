@@ -13,6 +13,7 @@
   "author": "Sandro Veríssimo",
   "license": "ISC",
   "dependencies": {
+    "axios": "^0.20.0",
     "concurrently": "^5.3.0",
     "cron": "^1.8.2",
     "dotenv": "^8.2.0",

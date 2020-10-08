@@ -36,7 +36,7 @@ const filesModel = require('./mongo/models/filesModel')
 const dbSync = require('./sync/dbSyncAPI')
 const dailyTasks = require('./taskManager/taskManager')
 const segurosModel = require('./mongo/models/segurosModel')
-const { updateInsurances } = require('./taskManager/checkInsurances')
+const updateInsurances = require('./taskManager/seguros/updateInsurances')
 
 
 dailyTasks.start()
@@ -431,13 +431,17 @@ app.put('/api/updateInsurance', async (req, res) => {
 
 //Atualiza um ou mais elementos da taqbela 'veículos
 app.put('/api/updateInsurances', async (req, res) => {
-    const { table, column, value, placas, situacao } = req.body
-    let { ids, tablePK } = req.body
+    const { column, value, placas, situacao } = req.body
+    let { table, ids, tablePK } = req.body
 
+    if (!table)
+        table = 'veiculos'
     if (placas) {
         tablePK = 'placa'
         ids = placas
     }
+
+    console.log(table, column, ids)
     let updateStatus = ''
     if (situacao)
         updateStatus = `, situacao = ${situacao}`
