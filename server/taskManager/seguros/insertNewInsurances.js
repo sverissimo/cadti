@@ -1,9 +1,12 @@
 const
+    { pool } = require('../../config/pgConfig'),
     moment = require('moment'),
     segurosModel = require('../../mongo/models/segurosModel'),
+    { seguros } = require('../../queries'),
     newVehicleInsurances = require('../veiculos/newVehicleInsurances'),
     markAsUpdated = require('./markAsUpdated'),
     { parseRequestBody } = require('../../parseRequest')
+
 
 //Checa todos os seguros no MongoDB e insere no Postgresql caso sua vigência tenha começado
 const insertNewInsurances = async () => {
@@ -25,14 +28,14 @@ const insertNewInsurances = async () => {
                 updates.push(s)
         }
     })
-
+    console.log(updates, 'fkkkkkkkk')
     //Inserir novos seguros que passam a viger na data de hoje
     if (updates[0]) {
         updates.forEach(async obj => {
             let d = new Date(obj.data_emissao),
                 v = new Date(obj.vencimento)
-            d = d.toLocaleDateString() + ' ' + d.toLocaleTimeString()
-            v = v.toLocaleDateString() + ' ' + v.toLocaleTimeString()
+            d = moment(d).format('YYYY-MM-DD')
+            v = moment(v).format('YYYY-MM-DD')
             obj.data_emissao = d
             obj.vencimento = v
             obj.situacao = 'Vigente'
@@ -43,7 +46,7 @@ const insertNewInsurances = async () => {
 
             //Pegar a tabela seguros do Postgresql para verificar se uma apólice com o mesmo número já existe. 
             const
-                s = await pool.query(seg),
+                s = await pool.query(seguros),
                 segurosTable = s.rows,
                 updateApolice = segurosTable.find(s => s.apolice === obj.apolice)
 
@@ -70,7 +73,8 @@ const insertNewInsurances = async () => {
                     if (t && t.rows[0]) {
                         const apolice = t.rows[0].apolice
                         if (apolice)
-                            markAsUpdated(apolice)
+                            console.log('ap')
+                        markAsUpdated(apolice)
                     }
                 })
             }
@@ -83,7 +87,7 @@ const insertNewInsurances = async () => {
                         const apolice = (t.rows[0].apolice)
                         if (apolice) {
                             newVehicleInsurances(veiculos, apolice)
-                            markAsUpdated(obj.apolice)
+                            //markAsUpdated(obj.apolice)
                         }
                     }
                 })

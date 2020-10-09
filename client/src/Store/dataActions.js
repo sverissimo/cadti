@@ -121,7 +121,7 @@ export const insertData = (dataFromServer, collection) => (dispatch, getState) =
 }
 
 export const updateData = (dataFromServer, collection, id) => (dispatch, getState) => {
-
+    console.log(dataFromServer)
     //Se a collection for vehicleDocs, o que vem do servidor são os ids
     let i = 0
     if (i > 0) return

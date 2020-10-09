@@ -36,22 +36,30 @@ const filesModel = require('./mongo/models/filesModel')
 const dbSync = require('./sync/dbSyncAPI')
 const dailyTasks = require('./taskManager/taskManager')
 const segurosModel = require('./mongo/models/segurosModel')
-const updateInsurances = require('./taskManager/seguros/updateInsurances')
+const insertNewInsurances = require('./taskManager/seguros/insertNewInsurances')
+//const checkExpiredInsurances = require('./taskManager/seguros/checkExpiredInsurances')
+const updateVehicleStatus = require('./taskManager/veiculos/updateVehicleStatus')
 
 
-dailyTasks.start()
+async function a() {
+    //dailyTasks.start()
+    //await checkExpiredInsurances()
+    //await expiredVehicleInsurances()
+    insertNewInsurances()
+}
+//a()
+
+updateVehicleStatus()
 dotenv.config()
 
 app.use(morgan('dev'))
 app.use(bodyParser.json({ limit: '50mb' }))
 app.use(bodyParser.urlencoded())
 
-
-
 app.use(express.static('client/build'))
 app.use(setCorsHeader)
 //app.get('/tst', getExpired)
-updateInsurances()
+//insertNewInsurances()
 //************************************ BINARY DATA *********************** */
 
 let gfs

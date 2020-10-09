@@ -7,7 +7,7 @@ const markAsUpdated = async apolice => {
         update = { situacao: 'Atualizado' },
         t = await segurosModel.findOneAndUpdate(filter, update, { new: true })
 
-    console.log('markUpdated concluded', apolice, t)
+    console.log('markUpdated concluded', apolice)
 }
 
 module.exports = markAsUpdated 

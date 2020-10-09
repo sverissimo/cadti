@@ -3,14 +3,12 @@ const
     { seguros } = require('../../queries'),
     moment = require('moment')
 
-const seg = seguros
-
 //Determinar os seguros vencidos e atualizar seus status
 const checkExpiredInsurances = async () => {
-
+    console.log(1)
     let idsVencidos = []
     const
-        s = await pool.query(seg),
+        s = await pool.query(seguros),
         segurosTable = s.rows
 
     segurosTable.forEach(s => {
@@ -21,7 +19,7 @@ const checkExpiredInsurances = async () => {
         if (vencido && atualizar)
             idsVencidos.push(s.id)
     })
-    //console.log(idsVencidos)
+    console.log(idsVencidos)
     idsVencidos.forEach(id => {
         const upQuery = `
         UPDATE seguros
