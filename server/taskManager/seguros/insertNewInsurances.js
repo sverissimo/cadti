@@ -1,3 +1,4 @@
+
 const
     { pool } = require('../../config/pgConfig'),
     moment = require('moment'),
@@ -5,7 +6,8 @@ const
     { seguros } = require('../../queries'),
     newVehicleInsurances = require('../veiculos/newVehicleInsurances'),
     markAsUpdated = require('./markAsUpdated'),
-    { parseRequestBody } = require('../../parseRequest')
+    { parseRequestBody } = require('../../parseRequest'),
+    deleteVehiclesInsurance = require('../../deleteVehiclesInsurance')
 
 
 //Checa todos os seguros no MongoDB e insere no Postgresql caso sua vigência tenha começado
@@ -28,7 +30,7 @@ const insertNewInsurances = async () => {
                 updates.push(s)
         }
     })
-    console.log(updates, 'fkkkkkkkk')
+
     //Inserir novos seguros que passam a viger na data de hoje
     if (updates[0]) {
         updates.forEach(async obj => {
@@ -48,10 +50,11 @@ const insertNewInsurances = async () => {
             const
                 s = await pool.query(seguros),
                 segurosTable = s.rows,
-                updateApolice = segurosTable.find(s => s.apolice === obj.apolice)
+                apoliceToUpdate = segurosTable.find(s => s.apolice === obj.apolice)
+
 
             //Se já existe um seguro com o mesmo número de apólice no Postgresql, ele será substituído com os novos dados e mantendo a apólice 
-            if (updateApolice) {
+            if (apoliceToUpdate) {
                 const
                     keysArray = keys.split(','),
                     valuesArray = values.split(',')
@@ -65,7 +68,7 @@ const insertNewInsurances = async () => {
                         ${k} = ${valuesArray[i]}, `
                 })
                 condition = condition.substring(0, condition.length - 2)
-                updateQuery = updateQuery + condition + ` WHERE apolice = '${updateApolice.apolice}' RETURNING apolice`
+                updateQuery = updateQuery + condition + ` WHERE apolice = '${apoliceToUpdate.apolice}' RETURNING apolice`
 
                 pool.query(updateQuery, (err, t) => {
                     if (err) console.log('Update insurance error:', err)
@@ -77,7 +80,19 @@ const insertNewInsurances = async () => {
                         markAsUpdated(apolice)
                     }
                 })
+
+                //Se o número for o mesmo, mas alguns veículos não entraram no novo seguro, atualizar situação(seg.Vencido) e apólice(SegNCadastrado)
+                let vehiclesToDelete = []
+                apoliceToUpdate.veiculos.forEach(v => {
+                    if (!obj.veiculos.includes(v))
+                        vehiclesToDelete.push(v)
+                })
+                console.log('deleted vehicles: ', vehiclesToDelete)
+                if (vehiclesToDelete[0])
+                    deleteVehiclesInsurance(vehiclesToDelete)
             }
+
+
             //Se não houver nenhum seguro com esse número de apólice no Postgresql, inserir novo seguro.
             else {
                 const insertQuery = `INSERT INTO public.seguros (${keys}) VALUES (${values}) RETURNING *`

@@ -1,13 +1,32 @@
 const
     { pool } = require('../../config/pgConfig'),
-    { veiculos, laudos: laudosQuery } = require('../../queries'),
+    { getUpdatedData } = require('../../getUpdatedData'),
+    { laudos: laudosQuery } = require('../../queries'),
     moment = require('moment')
 
-//Checa o seguro e o laudo (se for o caso) da array de ids de veículos que forem passadas ou de todos os veículos caso nenhum argumento seja passado no call
-const updateVehicleStatus = async vehicles => {
+const updateVehicleStatus = async vehicleIds => {
 
-    //*************************RECEBER UMA ARRAY DE VEICULOS OU DE ID DE VEICULOS E SE RECEBER IDS COMO ARGUMENTO FAZER O QUERY COMO WHERE IDS = IDS??? */
-    //*************************GETUPDATED DATA DA P SÓ INSERIR A CONDIÇÃO , MAS VAI TER Q MUDAR POR CAUSA DO VEHICLEQUERY.... */
+    const updates = await getVehicleStatus(vehicleIds)
+    let
+        updateQuery = 'UPDATE public.veiculos SET situacao = CASE veiculo_id',
+        params = ''
+
+    updates.forEach(({ id, situacao }) => {
+        params += ` 
+        WHEN ${id} THEN '${situacao}'`
+    })
+    updateQuery += params + 'END'
+    console.log(updateQuery.substr(0, 800))
+    pool.query(updateQuery, (err, t) => {
+        if (err)
+            console.log(err)
+        if (t)
+            console.log(t)
+    })
+}
+
+//Checa o seguro e o laudo (se for o caso) da array de ids de veículos que forem passadas ou de todos os veículos caso nenhuma array de veiculo_ids seja passado
+const getVehicleStatus = async vehicleIds => {
 
     const
         l = await pool.query(laudosQuery),
@@ -15,23 +34,30 @@ const updateVehicleStatus = async vehicles => {
         currentDate = new Date(),
         updates = []
     let
+        veiculos,
         seguroVencido,
         laudoVencido
 
-    if (!vehicles || !vehicle.instanceof(Array)) {
-        const v = await pool.query(veiculos)
-        vehicles = v.rows
+    if (!vehicleIds || !vehicleIds.instanceof(Array))
+        veiculos = await getUpdatedData('veiculos')
+
+    else {
+        let condition = ''
+        vehicleIds.forEach(id => {
+            condition = condition + `veiculos.veiculo_id = '${id}' OR `
+        })
+        condition = condition.slice(0, condition.length - 3)
+        veiculos = await getUpdatedData('veiculos', `WHERE ${condition}`)
     }
 
-    vehicles.forEach(v => {
+    veiculos.forEach(v => {
         //Checar validade do seguro
         const
             update = { id: v.veiculo_id },
             validDate = v.vencimento && moment(v.vencimento).isValid(),
-            expired = moment(v.vencimento).isBefore(moment(), 'day'),
-            shouldUpdate = v.situacao !== 'Seguro Vencido'
+            expired = moment(v.vencimento).isBefore(moment(), 'day')
 
-        if (validDate && expired && shouldUpdate)
+        if (validDate && expired)
             seguroVencido = true
 
         //Checar laudos vencidos
@@ -46,7 +72,7 @@ const updateVehicleStatus = async vehicles => {
                 }
             })
         }
-
+        //Definir a situacao do veiculo
         if (seguroVencido && laudoVencido)
             update.situacao = 'Seguro e laudo vencidos'
 
@@ -65,48 +91,19 @@ const updateVehicleStatus = async vehicles => {
         seguroVencido = undefined
     })
 
+
     const
         a = updates.filter(u => u.situacao === 'Ativo'),
         b = updates.filter(u => u.situacao === 'Seguro Vencido'),
         c = updates.filter(u => u.situacao === 'Laudo Vencido'),
         d = updates.filter(u => u.situacao === 'Seguro e laudo vencidos')
 
-
     console.log(a.length, b.length, c.length, d.length, updates.length)
+    const x = updates.slice(0, 12)
+
+    return updates
 }
 
-//Checa veículos com seguros vencidos e muda sua situação para "Seguro vencido"
-const expiredVehicleInsurances = veiculos => {
 
-    let segurosVencidos = []
-    pool.query(veiculos, (err, t) => {
-        if (err) console.log(err)
-        if (t && t.rows) {
-            segurosVencidos = t.rows.filter(r => {
-                const
-                    validDate = v.vencimento && moment(v.vencimento).isValid(),
-                    expired = moment(v.vencimento).isBefore(moment()),
-                    shouldUpdate = v.situacao !== 'Seguro Vencido'
-
-                if (validDate && expired && shouldUpdate)
-                    return r
-            })
-            segurosVencidos = segurosVencidos.map(s => s.veiculo_id)
-            return segurosVencidos
-
-            //Atualizar situação do veículo
-            /*         segurosVencidos.forEach(id => {
-                        const updateQuery = `
-                                UPDATE public.veiculos
-                                SET situacao = 'Seguro Vencido'
-                                WHERE veiculo_id = ${id}`
-        
-                        pool.query(updateQuery, (err, t) => {
-                            if (err) console.log(err)
-                        })
-                    }) */
-        }
-    })
-}
 
 module.exports = updateVehicleStatus

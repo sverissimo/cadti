@@ -312,7 +312,8 @@ class Seguro extends Component {
             check
 
         const seg = this.props.redux.seguros.find(s => s.apolice === apolice)
-        if (seg && seg.placas) check = seg.placas.includes(placa)
+        if (seg && seg.placas)
+            check = seg.placas.includes(placa)
 
         if (check) {
             let { veiculos } = insurance
@@ -367,7 +368,7 @@ class Seguro extends Component {
 
     handleSubmit = async approved => {
 
-        const { seguradora, insurance, errors, deletedVehicles, seguradoraId, apolice, newElement,
+        const { seguradora, insurance, errors, deletedVehicles, seguradoraId, apolice,
             dataEmissao, vencimento, selectedEmpresa, demand, demandFiles, apoliceDoc, info } = this.state
 
         let vehicleIds = []
@@ -513,28 +514,34 @@ class Seguro extends Component {
                         columns,
                         updates,
                     }
-                axios.put('/api/updateInsurance', { ...requestObj })
+                await axios.put('/api/updateInsurance', { ...requestObj })
+
+                //Se algum veículo não está no novo seguro de mesmo n de apolice, deve ser excluido o número de apólice dele
+                const deletedVehicles = demand?.history[0]?.deletedVehicles
+                if (deletedVehicles) {
+                    const deleteRequest = { deletedVehicles }
+                    await axios.put('/api/updateInsurances', deleteRequest)
+                }
             }
         }
 
-        //Se as datas forem diferentes, se trata de cadastrar um novo seguro, ainda que o número da apólice seja o mesmo (caso insuranceExists === true ou false)
+        //Se as datas forem diferentes, se trata de cadastrar um novo seguro no MongoDB, ainda que o número da apólice seja o mesmo (caso insuranceExists === true ou false)
         if (cadSeguro.situacao === 'Aguardando início da vigência') {
             cadSeguro.veiculos = vehicleIds
             console.log({ ...cadSeguro })
             await axios.post('/api/cadSeguroMongo', { ...cadSeguro })
         }
         //Se o seguro cadastrado já estiver vigente já cadastra direto no Postgrtesql (tabela seguros) e atualiza a tabela de veículos
-        if (cadSeguro.situacao === 'Vigente' && !insuranceExists) {
-            console.log('vigente, ', cadSeguro)
+        if (cadSeguro.situacao === 'Vigente' && !insuranceExists)
             await axios.post('/api/cadSeguro', cadSeguro)
                 .then(r => {
                     if (r.status === 200)
                         cadSeguroOk = true
                     console.log(r.status, cadSeguroOk)
                 })
-        }
-        //A atualização dos veículos só ocorre se o seguro for cadastrado com sucesso
-        if ((cadSeguroOk && !insuranceExists) || cadSeguro.situacao === 'Vigente')
+
+        //A atualização dos veículos só ocorre se o seguro for cadastrado com sucesso. cadSeguroOk depende de sit = 'vigente' e !insuranceExists
+        if (cadSeguroOk)
             await axios.put('/api/updateInsurances', body)
                 .then(res => {
                     console.log(res.data)

@@ -39,6 +39,7 @@ const segurosModel = require('./mongo/models/segurosModel')
 const insertNewInsurances = require('./taskManager/seguros/insertNewInsurances')
 //const checkExpiredInsurances = require('./taskManager/seguros/checkExpiredInsurances')
 const updateVehicleStatus = require('./taskManager/veiculos/updateVehicleStatus')
+const deleteVehiclesInsurance = require('./deleteVehiclesInsurance')
 
 
 async function a() {
@@ -49,7 +50,7 @@ async function a() {
 }
 //a()
 
-updateVehicleStatus()
+//updateVehicleStatus()
 dotenv.config()
 
 app.use(morgan('dev'))
@@ -231,7 +232,7 @@ app.post('/api/cadastroVeiculo', (req, res) => {
             if (table && table.rows) {
                 const
                     id = table.rows[0].veiculo_id,
-                    condition = `veiculo_id = '${id}'`,
+                    condition = `WHERE veiculo_id = '${id}'`,
                     data = getUpdatedData('veiculos', condition)
 
                 console.log(id, condition, data)
@@ -423,7 +424,7 @@ app.put('/api/updateInsurance', async (req, res) => {
         await pool.query(query, (err, t) => {
             if (err) console.log(err)
             if (t && t.rows) {
-                const data = getUpdatedData('veiculos', condition)
+                const data = getUpdatedData('veiculos', `WHERE ${condition}`)
                 data.then(async res => {
                     await io.sockets.emit('updateVehicle', res)
                     pool.query(seguros, (err, t) => {
@@ -439,7 +440,7 @@ app.put('/api/updateInsurance', async (req, res) => {
 
 //Atualiza um ou mais elementos da taqbela 'veículos
 app.put('/api/updateInsurances', async (req, res) => {
-    const { column, value, placas, situacao } = req.body
+    const { column, value, placas, deletedVehicles } = req.body
     let { table, ids, tablePK } = req.body
 
     if (!table)
@@ -448,17 +449,31 @@ app.put('/api/updateInsurances', async (req, res) => {
         tablePK = 'placa'
         ids = placas
     }
+    //Se houver veículos para apagar, chamar o método para isso
+    if (deletedVehicles) {
+        await deleteVehiclesInsurance(deletedVehicles)
+        //Se não houver nenhum id, a intenção era só apagar o n de apólice do(s) veículo(s). não prosseguir.
+        let condition = ''
+        if (!ids)
+            deletedVehicles.forEach(id => {
+                condition = condition + `veiculo_id = '${id}' OR `
+            })
+        condition = condition.slice(0, condition.length - 3)
+        query = query + condition + ` RETURNING *`
 
-    console.log(table, column, ids)
-    let updateStatus = ''
-    if (situacao)
-        updateStatus = `, situacao = ${situacao}`
+        const data = getUpdatedData('veiculos', `WHERE ${condition}`)
+        data.then(async res => {
+            await io.sockets.emit('updateVehicle', res)
+            res.send('removed ', deletedVehicles)
+            return
+        })
+    }
+
     let
         condition = '',
         query = `
             UPDATE ${table}
-            SET ${column} = '${value}' 
-            ${updateStatus}
+            SET ${column} = '${value}'         
             WHERE `
 
     if (ids && ids[0]) {
@@ -471,7 +486,7 @@ app.put('/api/updateInsurances', async (req, res) => {
         await pool.query(query, (err, t) => {
             if (err) console.log(err)
             if (t && t.rows) {
-                const data = getUpdatedData('veiculos', condition)
+                const data = getUpdatedData('veiculos', `WHERE ${condition}`)
                 data.then(async res => {
                     await io.sockets.emit('updateVehicle', res)
                     pool.query(seguros, (err, t) => {
@@ -617,7 +632,7 @@ app.put('/api/updateVehicle', (req, res) => {
     query = `UPDATE ${table} SET ` +
         query.slice(0, query.length - 2) + ` WHERE `
 
-    const condition = `${tablePK} = '${id}'`
+    const condition = `WHERE ${tablePK} = '${id}'`
 
     query = query + condition + ` RETURNING veiculos.veiculo_id`
     console.log(query)

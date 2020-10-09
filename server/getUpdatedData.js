@@ -1,6 +1,6 @@
 const { pool } = require('./config/pgConfig')
 
-const vehicleQuery = condition => `
+const vehicleQuery = (condition = '') => `
    SELECT veiculos.*,	
       (extract(year from current_date) - ano_carroceria) as indicador_idade,   
       marca_chassi.marca as marca_chassi,
@@ -29,7 +29,7 @@ const vehicleQuery = condition => `
       ON veiculos.apolice = seguros.apolice
    LEFT JOIN public.seguradora
       ON public.seguradora.id = seguros.seguradora_id   
-   WHERE ${condition}
+   ${condition}
    ORDER BY veiculos.veiculo_id DESC
 `
 
@@ -94,9 +94,8 @@ const getUpdatedData = async (table, condition) => {
             console.log(err)
             reject(err)
          }
-         if (t && t.rows) {
+         if (t && t.rows)
             resolve(t.rows)
-         }
       })
    })
    return data()
