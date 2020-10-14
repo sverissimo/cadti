@@ -31,6 +31,8 @@ const checkExpiredInsurances = async () => {
             if (t && t.rows) console.log(t.rows)
         })
     })
+    console.log('checkExpiredInsurances: updated expired insurances')
+    return
 }
 
 module.exports = checkExpiredInsurances

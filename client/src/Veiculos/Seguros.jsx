@@ -485,7 +485,6 @@ class Seguro extends Component {
         }
         //********************************** CREATE/UPDATE INSURANCE **********************************
         const insuranceExists = seguros.find(s => s.apolice === apolice)
-        let cadSeguroOk
 
         if (insuranceExists) {
             const
@@ -504,7 +503,7 @@ class Seguro extends Component {
             }
             //Se o seguro novo tiver o mesmo número de apólice e já estiver vigente, apenas atualiza o registro do Postgresql
             if (cadSeguro.situacao === 'Vigente') {
-                let updates = { dataEmissao, vencimento, seguradoraId }
+                let updates = { dataEmissao, vencimento, seguradoraId, situacao: cadSeguro.situacao }
                 updates = humps.decamelizeKeys(updates)
                 const
                     columns = Object.keys(updates),
@@ -518,10 +517,8 @@ class Seguro extends Component {
 
                 //Se algum veículo não está no novo seguro de mesmo n de apolice, deve ser excluido o número de apólice dele
                 const deletedVehicles = demand?.history[0]?.deletedVehicles
-                if (deletedVehicles) {
-                    const deleteRequest = { deletedVehicles }
-                    await axios.put('/api/updateInsurances', deleteRequest)
-                }
+                if (deletedVehicles)
+                    body.deletedVehicles = deletedVehicles
             }
         }
 
@@ -536,17 +533,17 @@ class Seguro extends Component {
             await axios.post('/api/cadSeguro', cadSeguro)
                 .then(r => {
                     if (r.status === 200)
-                        cadSeguroOk = true
-                    console.log(r.status, cadSeguroOk)
+                        console.log(r.status, 'cadSeguroOk')
                 })
 
-        //A atualização dos veículos só ocorre se o seguro for cadastrado com sucesso. cadSeguroOk depende de sit = 'vigente' e !insuranceExists
-        if (cadSeguroOk)
-            await axios.put('/api/updateInsurances', body)
-                .then(res => {
-                    console.log(res.data)
-                    this.setState({ dontUpdateProps: true })
-                })
+        //A atualização da coluna "apólice" da tabela veículos vai sempre ocorrer. Independente de ser um novo número ou não de apolice, 
+        //novos veículos podem ser adicionados ou excluídos
+
+        await axios.put('/api/updateInsurances', body)
+            .then(res => {
+                console.log(res.data)
+                this.setState({ dontUpdateProps: true })
+            })
 
         //Cria o log de demanda concluída
         const log = {

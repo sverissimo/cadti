@@ -42,13 +42,10 @@ const updateVehicleStatus = require('./taskManager/veiculos/updateVehicleStatus'
 const deleteVehiclesInsurance = require('./deleteVehiclesInsurance')
 
 
-async function a() {
-    //dailyTasks.start()
-    //await checkExpiredInsurances()
-    //await expiredVehicleInsurances()
-    insertNewInsurances()
+async function a(io) {
+    dailyTasks(io)
 }
-//a()
+a(io)
 
 //updateVehicleStatus()
 dotenv.config()
@@ -438,8 +435,9 @@ app.put('/api/updateInsurance', async (req, res) => {
     } else res.send('No changes whatsoever.')
 })
 
-//Atualiza um ou mais elementos da taqbela 'veículos
+//Atualiza um ou mais elementos da tabela 'veículos
 app.put('/api/updateInsurances', async (req, res) => {
+
     const { column, value, placas, deletedVehicles } = req.body
     let { table, ids, tablePK } = req.body
 
@@ -449,43 +447,42 @@ app.put('/api/updateInsurances', async (req, res) => {
         tablePK = 'placa'
         ids = placas
     }
+
+    let condition = '',
+        query = `
+                UPDATE ${table}
+                SET ${column} = '${value}'         
+                WHERE `
+
+    console.log('server/api/updateIns: ', ids, column, value)
     //Se houver veículos para apagar, chamar o método para isso
     if (deletedVehicles) {
         await deleteVehiclesInsurance(deletedVehicles)
-        //Se não houver nenhum id, a intenção era só apagar o n de apólice do(s) veículo(s). não prosseguir.
-        let condition = ''
-        if (!ids)
-            deletedVehicles.forEach(id => {
-                condition = condition + `veiculo_id = '${id}' OR `
-            })
+
+        deletedVehicles.forEach(id => {
+            condition = condition + `veiculo_id = '${id}' OR `
+        })
         condition = condition.slice(0, condition.length - 3)
-        query = query + condition + ` RETURNING *`
+        condition += ` RETURNING *`
 
         const data = getUpdatedData('veiculos', `WHERE ${condition}`)
         data.then(async res => {
             await io.sockets.emit('updateVehicle', res)
             res.send('removed ', deletedVehicles)
-            return
         })
     }
-
-    let
-        condition = '',
-        query = `
-            UPDATE ${table}
-            SET ${column} = '${value}'         
-            WHERE `
-
+    //Se não houver nenhum id, a intenção era só apagar o n de apólice do(s) veículo(s). Nesse caso res = 'no changes'
     if (ids && ids[0]) {
         ids.forEach(id => {
             condition = condition + `${tablePK} = '${id}' OR `
         })
         condition = condition.slice(0, condition.length - 3)
         query = query + condition + ` RETURNING *`
-
-        await pool.query(query, (err, t) => {
+        console.log(query)
+        await pool.query(query, async (err, t) => {
             if (err) console.log(err)
             if (t && t.rows) {
+                await updateVehicleStatus(ids)
                 const data = getUpdatedData('veiculos', `WHERE ${condition}`)
                 data.then(async res => {
                     await io.sockets.emit('updateVehicle', res)
@@ -497,7 +494,7 @@ app.put('/api/updateInsurances', async (req, res) => {
             }
         })
         res.send({ ids, value })
-    } else res.send('No changes whatsoever.')
+    } else res.send('No changes whatsoever.');
 })
 
 app.put('/api/editSocios', (req, res) => {
@@ -646,7 +643,7 @@ app.put('/api/updateVehicle', (req, res) => {
             })
         }
     })
-});
+})
 
 app.delete('/api/deleteFile', async (req, res) => {
     const
