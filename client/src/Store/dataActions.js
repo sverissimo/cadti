@@ -54,7 +54,7 @@ export const insertData = (dataFromServer, collection) => (dispatch, getState) =
         dispatch({ type: 'INSERT_DATA', payload })
         return
     }
-
+    console.log(payload)
     if (collection === 'veiculos' && data[0]) {
 
         const { acessibilidade, equipamentos } = getState().data
@@ -116,7 +116,9 @@ export const insertData = (dataFromServer, collection) => (dispatch, getState) =
             dispatch({ type: 'INSERT_DATA', payload: { data: seguro, collection: 'seguros' } })
             dispatch({ type: 'UPDATE_COLLECTION', payload: collectionPayload })
         })
-    } else dispatch({ type: 'INSERT_DATA', payload })
+    }
+
+    else dispatch({ type: 'INSERT_DATA', payload })
 
 }
 

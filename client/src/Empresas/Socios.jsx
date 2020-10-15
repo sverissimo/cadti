@@ -55,6 +55,15 @@ class AltSocios extends Component {
         else this.setState({ originals, filteredSocios })
     }
 
+    componentDidUpdate(prevProps, prevState) {
+        const
+            { socios } = prevProps.redux,
+            { originals } = prevState,
+            decamSocios = humps.decamelizeKeys(socios)
+
+        if (JSON.stringify(decamSocios) !== JSON.stringify(originals))
+            this.setState({ originals: decamSocios })
+    }
 
     componentWillUnmount() {
         this.setState({})
@@ -189,7 +198,6 @@ class AltSocios extends Component {
         let { value } = e.target
 
         value = valueParser(name, value)
-        console.log(value)
 
         let editSocio = this.state.filteredSocios.filter(s => s.edit === true)[0]
         const index = this.state.filteredSocios.indexOf(editSocio)
@@ -402,9 +410,7 @@ class AltSocios extends Component {
         altObj = {}
         newMembers = []
 
-        const updatedList = humps.decamelizeKeys(this.props.redux.socios)
-        await this.setState({ originals: updatedList })
-        await this.resetState()
+        this.resetState()
         if (demand)
             setTimeout(() => { this.props.history.push('/solicitacoes') }, 1500)
     }
@@ -430,13 +436,14 @@ class AltSocios extends Component {
 
     resetState = () => {
         const { filteredSocios } = this.state
+
         if (filteredSocios)
             filteredSocios.forEach(s => s.edit = false)
 
         this.setState({
             razaoSocial: '', selectedEmpresa: undefined, filteredSocios: [],
             dropDisplay: 'Clique ou arraste para anexar o contrato social atualizado da empresa',
-            contratoSocial: undefined,
+            contratoSocial: undefined
         })
     }
 

@@ -74,9 +74,9 @@ ORDER BY frota DESC
 `
 
 const procuradorQuery = condition => `
-SELECT * FROM public.procurador
+SELECT * FROM public.procuradores
 ${condition}
-order by procurador.procurador_id desc
+order by procuradores.procurador_id desc
 `
 
 const getUpdatedData = async (table, condition) => {
@@ -86,7 +86,7 @@ const getUpdatedData = async (table, condition) => {
    if (table === 'seguros') query = seguroQuery
    if (table === 'socio') query = socioQuery
    if (table === 'empresa') query = empresaQuery
-   if (table === 'procurador') query = procuradorQuery
+   if (table === 'procuradores') query = procuradorQuery
 
    const data = () => new Promise((resolve, reject) => {
       pool.query(query(condition), (err, t) => {

@@ -17,8 +17,8 @@ const fieldParser = [
     {
         collection: 'empresas',
         label: 'Empresas',
-        name: 'delegatarioId',
-        column: 'delegatario_id',
+        name: 'codigoEmpresa',
+        column: 'codigo_empresa',
         table: 'empresas'
     },
     {
@@ -33,14 +33,14 @@ const fieldParser = [
         label: 'Procuradores',
         name: 'procuradorId',
         column: 'procurador_id',
-        table: 'procurador'
+        table: 'procuradores'
     },
     {
         collection: 'procuracoes',
         label: 'Procurações',
         name: 'procuracaoId',
         column: 'procuracao_id',
-        table: 'procuracao'
+        table: 'procuracoes'
     },
     {
         collection: 'equipamentos',

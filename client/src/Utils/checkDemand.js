@@ -34,7 +34,7 @@ export const checkDemand = (id, logsCollection) => {
             subject = component.subject
             primaryKey = 'veiculoId'
         }
-        if (collection === 'empresaLogs') primaryKey = 'delegatarioId'
+        if (collection === 'empresaLogs') primaryKey = 'codigoEmpresa'
 
    const findLog = axios.get(`/api/log?collection=${collection}&subject=${subject}&primaryKey=${primaryKey}&id=${id}`)
         return findLog

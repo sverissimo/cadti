@@ -25,8 +25,8 @@ const average = array => {
     }
 }
 
-const countExpired = vehicles => {        
-    
+const countExpired = vehicles => {
+
     return vehicles
         .filter(r => !r.vencimento || (moment(r.vencimento).isValid() && moment(r.vencimento).isBefore(moment()) && r.veiculoId && r))
         .length
@@ -56,9 +56,9 @@ const Relatorios = props => {
 
     let selectedId, selectedVehicles
     if (selectedEmpresa && selectedEmpresa !== '') {
-        selectedId = selectedEmpresa.delegatarioId
+        selectedId = selectedEmpresa.codigoEmpresa
         selectedVehicles = veiculos
-            .filter(v => v.delegatarioId === selectedId)
+            .filter(v => v.codigoEmpresa === selectedId)
     } else selectedVehicles = veiculos
 
 

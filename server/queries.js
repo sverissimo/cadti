@@ -106,17 +106,17 @@ const socios = `
 		`
 
 const procuracoes = `
-		SELECT public.procuracao.*,
+		SELECT public.procuracoes.*,
 		d.razao_social
-		FROM procuracao
+		FROM procuracoes
 		LEFT JOIN empresas d
-		ON d.delegatario_id = procuracao.delegatario_id
+		ON d.codigo_empresa = procuracoes.codigo_empresa
 		ORDER BY vencimento DESC      
 		`
 
 const procuradores = `
-	SELECT * FROM public.procurador
-	ORDER BY LOWER (procurador.nome_procurador) ASC
+	SELECT * FROM public.procuradores
+	ORDER BY LOWER (procuradores.nome_procurador) ASC
 	`
 
 const lookup = (req, res) => {

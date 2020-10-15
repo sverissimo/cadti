@@ -264,9 +264,9 @@ app.post('/api/cadProcuracao', (req, res) => {
 
     const { keys, values } = parseRequestBody(req.body)
 
-    console.log(`INSERT INTO public.procuracao (${keys}) VALUES (${values}) RETURNING *`)
+    console.log(`INSERT INTO public.procuracoes (${keys}) VALUES (${values}) RETURNING *`)
     pool.query(
-        `INSERT INTO public.procuracao (${keys}) VALUES (${values}) RETURNING *`, (err, table) => {
+        `INSERT INTO public.procuracoes (${keys}) VALUES (${values}) RETURNING *`, (err, table) => {
             if (err) res.send(err)
             if (table && table.rows && table.rows.length === 0) { res.send(table.rows); return }
             if (table.rows.length > 0) {
@@ -517,7 +517,7 @@ app.put('/api/editSocios', (req, res) => {
                     requestArray.forEach(obj => {
                         let value = obj[key]
                         if (value) {
-                            if (key !== 'delegatario_id' && key !== 'share') value = '\'' + value + '\''
+                            if (key !== 'codigo_empresa' && key !== 'share') value = '\'' + value + '\''
                             queryString += `WHEN ${obj.socio_id} THEN ${value} `
 
                             if (ids.split(' ').length <= requestArray.length) ids += obj.socio_id + ', '
@@ -567,7 +567,7 @@ app.put('/api/editProc', (req, res) => {
                     requestArray.forEach(obj => {
                         let value = obj[key]
                         if (value) {
-                            if (key !== 'delegatario_id') value = '\'' + value + '\''
+                            if (key !== 'codigo_empresa') value = '\'' + value + '\''
                             if (key === 'data_fim') value += '::date'
                             queryString += `WHEN ${obj.procurador_id} THEN ${value} `
 
@@ -591,7 +591,7 @@ app.put('/api/editProc', (req, res) => {
         if (err) console.log(err)
         if (t) {
             const ids = requestArray.map(el => el.procurador_id)
-            let query2 = 'SELECT * FROM procurador',
+            let query2 = 'SELECT * FROM procuradores',
                 condition = ` WHERE procurador_id = ${ids[0]}`
 
             ids.forEach((id, i) => {
@@ -733,11 +733,11 @@ app.delete('/api/delete', (req, res) => {
 })
 
 app.delete('/api/removeProc', (req, res) => {
-    const { delegatario_id, procurador_id } = req.body
+    const { codigo_empresa, procurador_id } = req.body
 
     pool.query(`
-    DELETE FROM public.procuracao    
-    WHERE delegatario_id = ${delegatario_id}
+    DELETE FROM public.procuracoes    
+    WHERE codigo_empresa = ${codigo_empresa}
     AND WHERE procurador_id = ${procurador_id}
 `
     )

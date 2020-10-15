@@ -61,7 +61,7 @@ class Procuradores extends Component {
                 { vencimento, expires } = history[0],
                 newMembers = history[0].newMembers || [],
                 oldMembers = history[0].oldMembers || []
-
+            console.log(demandState)
             let allDemandProcs, procsToAdd = []
 
             if (oldMembers[0]) {
@@ -112,7 +112,7 @@ class Procuradores extends Component {
             const selectedEmpresa = empresas.find(e => e.razaoSocial === value)
 
             if (selectedEmpresa) {
-                const selectedDocs = procuracoes.filter(pr => pr.delegatarioId === selectedEmpresa.delegatarioId)
+                const selectedDocs = procuracoes.filter(pr => pr.codigoEmpresa === selectedEmpresa.codigoEmpresa)
 
                 await this.setState({ selectedEmpresa, selectedDocs, razaoSocial: selectedEmpresa.razaoSocial })
                 if (value !== selectedEmpresa.razaoSocial) this.setState({ selectedEmpresa: undefined, selectedDocs: [] })
@@ -147,7 +147,7 @@ class Procuradores extends Component {
         const
             { redux } = this.props,
             { selectedEmpresa, demand, procuracao, vencimento, expires, info } = this.state,
-            empresaId = selectedEmpresa.delegatarioId,
+            empresaId = selectedEmpresa.codigoEmpresa,
             procuradores = JSON.parse(JSON.stringify(redux.procuradores)),
             nProc = [...this.state.procsToAdd]
         let
@@ -257,12 +257,18 @@ class Procuradores extends Component {
 
         const
             { selectedEmpresa, demandFiles, vencimento, demand } = this.state,
+            { codigoEmpresa } = selectedEmpresa,
             procIdArray = oldMembers.map(m => m.procurador_id)
 
         //******************Post newMembers  *****************/
         if (newMembers.length > 0) {
             newMembers = humps.decamelizeKeys(newMembers)
-            await axios.post('/api/cadProcuradores', { procuradores: newMembers, table: 'procurador', tablePK: 'procurador_id' })
+            const cadRequest = {
+                table: 'procuradores', tablePK: 'procurador_id',
+                procuradores: newMembers,
+                empresas: [codigoEmpresa]
+            }
+            await axios.post('/api/cadProcuradores', cadRequest)
                 .then(procs => {
                     procs.data.forEach(p => procIdArray.push(p.procurador_id))
                 })
@@ -270,18 +276,19 @@ class Procuradores extends Component {
 
         //***************Update existing members ****************/
         const request = {
-            table: 'procurador',
+            table: 'procuradores',
             tablePK: 'procurador_id',
             requestArray: oldMembers,
             keys: procuradorForm.map(p => humps.decamelize(p.field))
         }
 
-        axios.put('/api/editProc', { ...request })
-            .then(r => console.log(r))
+        if (oldMembers && oldMembers[0])
+            axios.put('/api/editProc', { ...request })
+                .then(r => console.log(r))
 
         //***************Create new Procuracao****************/
         let novaProcuracao = {
-            delegatario_id: selectedEmpresa.delegatarioId,
+            codigo_empresa: codigoEmpresa,
             vencimento,
             status: 'vigente',
             procuradores: procIdArray
@@ -307,7 +314,7 @@ class Procuradores extends Component {
         if (demandFiles)
             log.metadata = {
                 fieldName: 'procuracao',
-                empresaId: selectedEmpresa.delegatarioId,
+                empresaId: selectedEmpresa.codigoEmpresa,
                 procuracaoId: procuracaoId,
                 procuradores: procIdArray,
             }
@@ -331,11 +338,11 @@ class Procuradores extends Component {
 
         let procs = [...this.state.selectedDocs]
 
-        await axios.delete(`/api/delete?table=procuracao&tablePK=procuracao_id&id=${id}`)
+        await axios.delete(`/api/delete?table=procuracoes&tablePK=procuracao_id&id=${id}`)
             .then(r => console.log(r.data))
 
-        if (selectedFile && selectedFile.hasOwnProperty('_id'))
-            axios.delete(`/api/deleteFile?collection=empresaDocs&id=${selectedFile._id}`)
+        if (selectedFile && selectedFile.hasOwnProperty('id'))
+            axios.delete(`/api/deleteFile?collection=empresaDocs&id=${selectedFile.id}`)
                 .then(({ data }) => console.log(data))
 
         const i = procs.indexOf(proc)

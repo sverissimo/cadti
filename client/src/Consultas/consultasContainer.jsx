@@ -37,8 +37,8 @@ class ConsultasContainer extends Component {
     state = {
         tab: 0,
         items: ['Empresas', 'Sócios', 'Procuradores', 'Veículos', 'Seguros'],
-        tablePKs: ['delegatario_id', 'socio_id', 'procurador_id', 'veiculo_id', 'id'],
-        dbTables: ['empresas', 'socios', 'procurador', 'veiculos', 'seguros'],
+        tablePKs: ['codigo_empresa', 'socio_id', 'procurador_id', 'veiculo_id', 'id'],
+        dbTables: ['empresas', 'socios', 'procuradores', 'veiculos', 'seguros'],
         options: ['empresas', 'socios', 'procuradores', 'veiculos', 'seguros'],
         detailsTitle: ['Empresa', 'Sócio', 'Procurador', 'Placa', 'Apólice'],
         detailsHeader: ['razaoSocial', 'nomeSocio', 'nomeProcurador', 'placa', 'apolice'],
@@ -107,7 +107,7 @@ class ConsultasContainer extends Component {
                 if (socio) {
                     let sociosArray = []
                     selectedFiles = empresaDocs
-                        .filter(f => f.metadata.empresaId === socio.delegatarioId)
+                        .filter(f => f.metadata.empresaId === socio.codigoEmpresa)
                         .forEach(f => {
                             if (f.metadata.socios && f.metadata.socios.includes(id))
                                 sociosArray.push(f)

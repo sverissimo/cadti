@@ -16,7 +16,7 @@ const dataToReturn = (tab, data) => {
 
         Object.keys(data).forEach(key => {
             if (tab === 3) {
-                const { veiculoId, laudoId, tableData, modeloChassiId, modeloCarroceriaId, delegatarioId, vencimentoContrato, delegatarioCompartilhado,
+                const { veiculoId, laudoId, tableData, modeloChassiId, modeloCarroceriaId, codigoEmpresa, vencimentoContrato, delegatarioCompartilhado,
                     acessibilidadeId, equipamentosId, ...vData } = data
                 data = vData
             }

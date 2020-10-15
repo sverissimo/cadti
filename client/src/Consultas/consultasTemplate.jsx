@@ -7,7 +7,7 @@ import { setForm } from '../Utils/createFormPattern';
 export default function ({ tab, collection, showDetails, showFiles, showCertificate, del }) {
 
     const
-        id = ['delegatarioId', 'socioId', 'procuradorId', 'veiculoId', 'apolice'][tab],
+        id = ['codigoEmpresa', 'socioId', 'procuradorId', 'veiculoId', 'apolice'][tab],
         subject = ['empresas', 'sócios', 'procuradores', 'veículos', 'seguros'],
         form = setForm(tab)
 

@@ -21,9 +21,9 @@ export default function ShowDetails({ data, tab, title, header, close, empresas,
 
                 const
                     razaoSocial = element.find(el => el.field === 'razaoSocial')?.value,
-                    delegatarioId = empresas.find(e => e.razaoSocial === razaoSocial)?.delegatarioId,
-                    selectedDocs = procuracoes.filter(p => p.delegatarioId === delegatarioId),
-                    selectedFiles = empresaDocs.filter(d => d.metadata?.fieldName === 'procuracao' && d.metadata?.empresaId === delegatarioId)
+                    codigoEmpresa = empresas.find(e => e.razaoSocial === razaoSocial)?.codigoEmpresa,
+                    selectedDocs = procuracoes.filter(p => p.codigoEmpresa === codigoEmpresa),
+                    selectedFiles = empresaDocs.filter(d => d.metadata?.fieldName === 'procuracao' && d.metadata?.empresaId === codigoEmpresa)
 
                 //Cria uma array de procuradores com base na array de procuradorId disponível na tabela Procuracao do Postgresql
                 procuradores.forEach(pr => {
