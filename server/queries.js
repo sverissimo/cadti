@@ -5,8 +5,8 @@ const empresas = `
 			cardinality (array_remove(array_agg(v.veiculo_id), null)) frota		
 		FROM public.empresas d
 		LEFT JOIN veiculos v
-			ON v.delegatario_id = d.delegatario_id
-		GROUP BY d.delegatario_id
+			ON v.codigo_empresa = d.codigo_empresa
+		GROUP BY d.codigo_empresa, d.delegatario_id
 		ORDER BY frota DESC
 		`
 //ORDER BY frota DESC LIMIT 20
@@ -89,10 +89,10 @@ FROM seguros
 LEFT JOIN veiculos v
 	ON seguros.apolice = v.apolice
 LEFT JOIN empresas d
-	ON d.delegatario_id = seguros.delegatario_id
+	ON d.codigo_empresa = seguros.codigo_empresa
 LEFT JOIN seguradora s
 	ON s.id = seguros.seguradora_id
-GROUP BY seguros.apolice, d.razao_social, s.seguradora, d.delegatario_id, seguros.id
+GROUP BY seguros.apolice, d.razao_social, s.seguradora, d.codigo_empresa, seguros.id
 ORDER BY seguros.vencimento ASC
 		`
 
@@ -101,7 +101,7 @@ const socios = `
 				public.empresas.razao_social
 			FROM public.socios 
 		LEFT JOIN public.empresas 
-			ON empresas.delegatario_id = socios.delegatario_id
+			ON empresas.codigo_empresa = socios.codigo_empresa
 		ORDER BY LOWER (nome_socio) ASC
 		`
 

@@ -44,8 +44,8 @@ router.post('/updateTable', (req, res) => {
 
     pool.query(query)
         .then(() => {
-            if (table === 'empresas')
-                pool.query(updateEmpresasPK)
+            /* if (table === 'empresas')
+                pool.query(updateEmpresasPK) */
             if (table === 'veiculos')
                 pool.query(getVehicleFK)
                     .then(() => getEquipaIds())

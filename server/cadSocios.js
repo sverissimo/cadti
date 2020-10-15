@@ -28,9 +28,10 @@ const cadSocios = (req, res, next) => {
     let condition = '', ids = []
     Promise.all(promisseArray)
         .then(array => {
-            if (array && array[0]) array.forEach(a => {
-                ids.push(a[0].socio_id)
-            })
+            if (array && array[0])
+                array.forEach(a => {
+                    ids.push(a[0].socio_id)
+                })
             if (ids && ids[0]) {
                 ids.forEach(id => {
                     condition = condition + `socio_id = '${id}' OR `

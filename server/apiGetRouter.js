@@ -13,7 +13,7 @@ const apiGetRouter = (req, res) => {
 
     pool.query(routes[url], (err, table) => {
         if (err) res.send(err)
-        if (table.rows.length === 0) { res.send(table.rows); return }
+        if (table && table.rows.length === 0) { res.send(table.rows); return }
         res.json(table.rows)
     })
 }

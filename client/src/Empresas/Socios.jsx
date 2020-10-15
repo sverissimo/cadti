@@ -43,7 +43,7 @@ class AltSocios extends Component {
 
         if (demand) {
 
-            const filteredSocios = socios.filter(s => s.delegatarioId === demand.empresaId)
+            const filteredSocios = socios.filter(s => s.codigoEmpresa === demand.empresaId)
             console.log(filteredSocios)
 
             const
@@ -206,7 +206,7 @@ class AltSocios extends Component {
         const
             { socios } = this.props.redux,
             { selectedEmpresa, filteredSocios, demand, contratoSocial, info } = this.state,
-            { delegatarioId } = selectedEmpresa,
+            { codigoEmpresa } = selectedEmpresa,
             oldHistoryLength = demand?.history?.length || 0
 
         let log = {}
@@ -240,7 +240,7 @@ class AltSocios extends Component {
         filteredSocios.forEach(fs => {
             let { razaoSocial, createdAt, edit, ...rest } = fs
             fs = rest
-            fs.delegatarioId = delegatarioId
+            fs.codigoEmpresa = codigoEmpresa
             if (!fs.hasOwnProperty('socioId')) {
                 const gotId = socios.find(s => s.cpfSocio === fs.cpfSocio)
                 if (gotId) {
@@ -365,7 +365,7 @@ class AltSocios extends Component {
         log = {
             ...log,
             id: demand?.id,
-            empresaId: delegatarioId,
+            empresaId: codigoEmpresa,
             info,
             history: {},
             historyLength: oldHistoryLength,
@@ -384,7 +384,7 @@ class AltSocios extends Component {
             log.history.files = contratoSocial
             log.metadata = {
                 fieldName: 'contratoSocial',
-                empresaId: delegatarioId
+                empresaId: codigoEmpresa
             }
         }
         log.metadata.socios = socioIdsArray

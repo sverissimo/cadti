@@ -45,7 +45,7 @@ const deleteVehiclesInsurance = require('./deleteVehiclesInsurance')
 async function a(io) {
     dailyTasks(io)
 }
-a(io)
+//a(io)
 
 //updateVehicleStatus()
 dotenv.config()
@@ -454,7 +454,7 @@ app.put('/api/updateInsurances', async (req, res) => {
                 SET ${column} = '${value}'         
                 WHERE `
 
-    console.log('server/api/updateIns: ', ids, column, value)
+    //console.log('server/api/updateIns: ', ids, column, value)
     //Se houver veículos para apagar, chamar o método para isso
     if (deletedVehicles) {
         await deleteVehiclesInsurance(deletedVehicles)
@@ -463,26 +463,26 @@ app.put('/api/updateInsurances', async (req, res) => {
             condition = condition + `veiculo_id = '${id}' OR `
         })
         condition = condition.slice(0, condition.length - 3)
-        condition += ` RETURNING *`
 
         const data = getUpdatedData('veiculos', `WHERE ${condition}`)
         data.then(async res => {
             await io.sockets.emit('updateVehicle', res)
-            res.send('removed ', deletedVehicles)
+            console.log('deleted from insurance: ', deletedVehicles)
         })
     }
     //Se não houver nenhum id, a intenção era só apagar o n de apólice do(s) veículo(s). Nesse caso res = 'no changes'
     if (ids && ids[0]) {
+        condition = ''
         ids.forEach(id => {
             condition = condition + `${tablePK} = '${id}' OR `
         })
         condition = condition.slice(0, condition.length - 3)
         query = query + condition + ` RETURNING *`
-        console.log(query)
+        //console.log(query)
         await pool.query(query, async (err, t) => {
             if (err) console.log(err)
             if (t && t.rows) {
-                await updateVehicleStatus(ids)
+                //await updateVehicleStatus(ids)
                 const data = getUpdatedData('veiculos', `WHERE ${condition}`)
                 data.then(async res => {
                     await io.sockets.emit('updateVehicle', res)

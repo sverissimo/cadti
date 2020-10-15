@@ -44,11 +44,11 @@ FROM seguros
 LEFT JOIN veiculos v
 	ON seguros.apolice = v.apolice
 LEFT JOIN empresas d
-	ON d.delegatario_id = seguros.delegatario_id
+	ON d.codigo_empresa = seguros.codigo_empresa
 LEFT JOIN seguradora s
 	ON s.id = seguros.seguradora_id
 ${condition}
-GROUP BY seguros.apolice, d.razao_social, s.seguradora, d.delegatario_id
+GROUP BY seguros.apolice, d.razao_social, s.seguradora, d.codigo_empresa
 ORDER BY seguros.vencimento ASC
 `
 
@@ -56,7 +56,7 @@ const socioQuery = condition => `
 SELECT public.socios.*, public.empresas.razao_social
    FROM public.socios 
 LEFT JOIN public.empresas 
-   ON empresas.delegatario_id = socios.delegatario_id
+   ON empresas.codigo_empresa = socios.codigo_empresa
 ${condition}
 ORDER BY nome_socio ASC
 `

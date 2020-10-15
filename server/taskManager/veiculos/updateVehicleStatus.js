@@ -90,10 +90,10 @@ const getVehicleStatus = async vehicleIds => {
                 update.situacao = 'Seguro e laudo vencidos'
 
             else if (seguroVencido)
-                update.situacao = 'Seguro Vencido'
+                update.situacao = 'Seguro vencido'
 
             else if (laudoVencido)
-                update.situacao = 'Laudo Vencido'
+                update.situacao = 'Laudo vencido'
 
             else
                 update.situacao = 'Ativo'

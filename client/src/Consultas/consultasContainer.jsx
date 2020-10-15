@@ -38,7 +38,7 @@ class ConsultasContainer extends Component {
         tab: 0,
         items: ['Empresas', 'Sócios', 'Procuradores', 'Veículos', 'Seguros'],
         tablePKs: ['delegatario_id', 'socio_id', 'procurador_id', 'veiculo_id', 'id'],
-        dbTables: ['empresas', 'socios', 'procurador', 'veiculos', 'seguro'],
+        dbTables: ['empresas', 'socios', 'procurador', 'veiculos', 'seguros'],
         options: ['empresas', 'socios', 'procuradores', 'veiculos', 'seguros'],
         detailsTitle: ['Empresa', 'Sócio', 'Procurador', 'Placa', 'Apólice'],
         detailsHeader: ['razaoSocial', 'nomeSocio', 'nomeProcurador', 'placa', 'apolice'],

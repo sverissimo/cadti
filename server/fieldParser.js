@@ -12,7 +12,7 @@ const fieldParser = [
         label: 'Seguros',
         name: 'apolice',
         column: 'apolice',
-        table: 'seguro'
+        table: 'seguros'
     },
     {
         collection: 'empresas',
