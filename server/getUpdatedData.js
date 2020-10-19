@@ -67,9 +67,9 @@ SELECT d.*,
 	array_to_json(array_agg(v.veiculo_id)) veiculos	
 FROM public.empresas d
 LEFT JOIN veiculos v
-	ON v.delegatario_id = d.delegatario_id
+	ON v.codigo_empresa = d.codigo_empresa
 ${condition}
-GROUP BY d.delegatario_id
+GROUP BY d.codigo_empresa
 ORDER BY frota DESC
 `
 

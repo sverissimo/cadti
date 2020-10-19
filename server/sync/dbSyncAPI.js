@@ -2,7 +2,7 @@ const
     express = require('express'),
     router = express.Router(),
     { pool } = require('../config/pgConfig'),
-    { updateEmpresasPK, getVehicleFK } = require('./UpdateDBPrimary'),
+    getCompartilhadoId = require('./getCompartilhadoID'),
     { accessParseDB, equipamentsParseDB } = require('./getEquip')
 
 
@@ -39,15 +39,13 @@ router.post('/updateTable', (req, res) => {
 
     const query = `INSERT INTO public.${table} (${keys}) VALUES ${values}`
 
-    //console.log(query.substring(0, 400))
-    console.log(query)
+    console.log(query.substring(0, 400))
+    //console.log(query)
 
     pool.query(query)
         .then(() => {
-            /* if (table === 'empresas')
-                pool.query(updateEmpresasPK) */
             if (table === 'veiculos')
-                pool.query(getVehicleFK)
+                pool.query(getCompartilhadoId)
                     .then(() => getEquipaIds())
         })
     res.send('updated alright')
@@ -74,7 +72,8 @@ async function getEquipaIds() {
     })
     query += 'END'
 
-    pool.query(query, (err, t) => { if (err) console.log(err) })
+    await pool.query(query, (err, t) => { if (err) console.log(err) })
+
     query = ` 
         UPDATE veiculos 
         SET acessibilidade_id = CASE veiculo_id      

@@ -6,7 +6,7 @@ const empresas = `
 		FROM public.empresas d
 		LEFT JOIN veiculos v
 			ON v.codigo_empresa = d.codigo_empresa
-		GROUP BY d.codigo_empresa, d.delegatario_id
+		GROUP BY d.codigo_empresa
 		ORDER BY frota DESC
 		`
 //ORDER BY frota DESC LIMIT 20

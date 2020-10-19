@@ -8,3 +8,4 @@ sismob.code-workspace
 /.VSCodeCounter
 
 ecosystem.config.js
+client/debug.log

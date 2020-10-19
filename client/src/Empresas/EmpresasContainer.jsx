@@ -247,7 +247,7 @@ class EmpresasContainer extends Component {
 
         await axios.post('/api/empresaFullCad', { empresa, socios })
             .then(res => {
-                empresaId = res.data.delegatario_id
+                empresaId = res.data.codigo_empresa
                 socioIds = res.data.socioIds
             })
 

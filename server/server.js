@@ -82,7 +82,7 @@ app.post('/api/vehicleUpload', vehicleUpload.any(), uploadMetadata, (req, res) =
     const { filesArray } = req
     if (filesArray && filesArray[0]) {
         io.sockets.emit('insertFiles', { insertedObjects: filesArray, collection: 'vehicleDocs' })
-        res.json({ file: filesArray });
+        res.json({ file: filesArray })
     } else res.send('No uploads whatsoever...')
 })
 
@@ -155,7 +155,7 @@ app.get('/api/logs/:collection', (req, res) => {
         model = collectionModels[collection]
 
     let oneYearAgo = new Date()
-    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1);
+    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1)
 
     let query = { $or: [{ completed: false }, { completed: true, updatedAt: { $gte: oneYearAgo } }] }
 
@@ -284,8 +284,8 @@ app.post('/api/cadProcuracao', (req, res) => {
 
 app.post('/api/empresaFullCad', cadEmpresa, (req, res, next) => {
     const
-        id = req.delegatario_id,
-        condition = `WHERE d.delegatario_id = ${id}`,
+        id = req.codigo_empresa,
+        condition = `WHERE d.codigo_empresa = ${id}`,
         data = getUpdatedData('empresa', condition)
     data.then(newObject => {
         io.sockets.emit('insertEmpresa', newObject)
@@ -293,12 +293,12 @@ app.post('/api/empresaFullCad', cadEmpresa, (req, res, next) => {
     })
 },
     cadSocios, (req, res) => {
-        const { data, delegatario_id } = req
+        const { data, codigo_empresa } = req
         let socioIds
-        if (data && delegatario_id) {
+        if (data && codigo_empresa) {
             socioIds = data.map(s => s.socio_id)
             io.sockets.emit('insertSocios', data)
-            res.json({ socioIds, delegatario_id })
+            res.json({ socioIds, codigo_empresa })
         }
         else res.send('No socio added whatsoever.')
     })
