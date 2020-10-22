@@ -51,10 +51,10 @@ function Home() {
                 }}>
                 <main className="homeMainPost">
                     <h1>
-                        SGTI - MG
+                        CadTI - MG
                     </h1>
                     <h2>
-                        Sistema de Gestão do Transporte Intermunicipal do Estado de Minas Gerais
+                        Sistema de Cadastro do Transporte Intermunicipal de Minas Gerais
                     </h2>
                 </main>
                 <section className='homeCardsContainer'>
