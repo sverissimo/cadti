@@ -1,53 +1,45 @@
-const express = require('express')
-const app = express()
-const server = require('http').createServer(app)
-const io = require('socket.io').listen(server)
-const bodyParser = require('body-parser')
-const path = require('path')
-const dotenv = require('dotenv')
-const mongoose = require('mongoose')
-const { conn } = require('./mongo/mongoConfig')
-const Grid = require('gridfs-stream')
+//Node modules
+const
+    express = require('express'),
+    app = express(),
+    server = require('http').createServer(app),
+    io = require('socket.io').listen(server),
+    bodyParser = require('body-parser'),
+    path = require('path'),
+    dotenv = require('dotenv'),
+    mongoose = require('mongoose'),
+    { conn } = require('./mongo/mongoConfig'),
+    morgan = require('morgan'),
+    Grid = require('gridfs-stream')
 Grid.mongo = mongoose.mongo
-const morgan = require('morgan')
 
-const { pool } = require('./config/pgConfig')
-const { setCorsHeader } = require('./config/setCorsHeader')
-const { apiGetRouter } = require('./apiGetRouter')
+//Componentes do sistema
+const
+    { pool } = require('./config/pgConfig'),
+    { setCorsHeader } = require('./config/setCorsHeader'),
+    { apiGetRouter } = require('./apiGetRouter'),
+    { storage, uploadMetadata } = require('./mongo/mongoUpload'),
+    { mongoDownload, getFilesMetadata, getOneFileMetadata } = require('./mongo/mongoDownload'),
+    { logHandler } = require('./logHandler'),
+    { cadEmpresa } = require('./cadEmpresa'),
+    { cadSocios } = require('./cadSocios'),
+    { cadProcuradores } = require('./cadProcuradores'),
+    { seguros, socios, laudos, lookup } = require('./queries'),
+    { fieldParser } = require('./fieldParser'),
+    { getUpdatedData } = require('./getUpdatedData'),
+    { empresaChunks, vehicleChunks } = require('./mongo/models/chunksModel'),
+    { vehicleLogsModel } = require('./mongo/models/vehicleLogsModel'),
+    { parseRequestBody } = require('./parseRequest'),
+    filesModel = require('./mongo/models/filesModel'),
 
-const { storage, uploadMetadata } = require('./mongo/mongoUpload')
-const { mongoDownload, getFilesMetadata, getOneFileMetadata } = require('./mongo/mongoDownload')
-const { logHandler } = require('./logHandler')
-
-const { cadEmpresa } = require('./cadEmpresa')
-const { cadSocios } = require('./cadSocios')
-const { cadProcuradores } = require('./cadProcuradores')
-const { seguros, socios, laudos, lookup } = require('./queries')
-
-const { fieldParser } = require('./fieldParser')
-const { getUpdatedData } = require('./getUpdatedData')
-const { empresaChunks, vehicleChunks } = require('./mongo/models/chunksModel')
-const { vehicleLogsModel } = require('./mongo/models/vehicleLogsModel')
-
-//const { uploadFS } = require('./upload')
-const { parseRequestBody } = require('./parseRequest')
-const filesModel = require('./mongo/models/filesModel')
-
-const dbSync = require('./sync/dbSyncAPI')
-const dailyTasks = require('./taskManager/taskManager')
-const segurosModel = require('./mongo/models/segurosModel')
-const insertNewInsurances = require('./taskManager/seguros/insertNewInsurances')
-//const checkExpiredInsurances = require('./taskManager/seguros/checkExpiredInsurances')
-const updateVehicleStatus = require('./taskManager/veiculos/updateVehicleStatus')
-const deleteVehiclesInsurance = require('./deleteVehiclesInsurance')
+    dbSync = require('./sync/dbSyncAPI'),
+    dailyTasks = require('./taskManager/taskManager'),
+    segurosModel = require('./mongo/models/segurosModel'),
+    deleteVehiclesInsurance = require('./deleteVehiclesInsurance'),
+    updateVehicleStatus = require('./taskManager/veiculos/updateVehicleStatus')
 
 
-async function a(io) {
-    dailyTasks(io)
-}
-//a(io)
-
-//updateVehicleStatus()
+dailyTasks.start()
 dotenv.config()
 
 app.use(morgan('dev'))
@@ -482,7 +474,7 @@ app.put('/api/updateInsurances', async (req, res) => {
         await pool.query(query, async (err, t) => {
             if (err) console.log(err)
             if (t && t.rows) {
-                //await updateVehicleStatus(ids)
+                await updateVehicleStatus(ids)
                 const data = getUpdatedData('veiculos', `WHERE ${condition}`)
                 data.then(async res => {
                     await io.sockets.emit('updateVehicle', res)
@@ -494,7 +486,10 @@ app.put('/api/updateInsurances', async (req, res) => {
             }
         })
         res.send({ ids, value })
-    } else res.send('No changes whatsoever.');
+    }
+
+    else
+        res.send('No changes whatsoever.')
 })
 
 app.put('/api/editSocios', (req, res) => {
@@ -627,9 +622,9 @@ app.put('/api/updateVehicle', (req, res) => {
     })
 
     query = `UPDATE ${table} SET ` +
-        query.slice(0, query.length - 2) + ` WHERE `
+        query.slice(0, query.length - 2)
 
-    const condition = `WHERE ${tablePK} = '${id}'`
+    const condition = ` WHERE ${tablePK} = '${id}'`
 
     query = query + condition + ` RETURNING veiculos.veiculo_id`
     console.log(query)

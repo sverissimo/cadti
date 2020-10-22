@@ -57,7 +57,7 @@ class VeiculosContainer extends PureComponent {
 
         if (demand) {
             const demandState = setDemand(demand, redux)
-
+            console.log(demandState)
             this.setState({ ...demandState, activeStep: 3 })
         }
 
@@ -252,25 +252,29 @@ class VeiculosContainer extends PureComponent {
     }
 
     handleEquipa = async type => {
+
         const collection = this.props.redux[type]
-        let vEquip = [], currentEquipa = [], stateKey
+        let
+            vEquip = [],
+            currentEquipa = []
 
         await this.setState({ type })
 
-        if (this.state[type]) currentEquipa = this.state[type]
+        //Só precisa pegar a lista e marcar check na hora de abrir o dialog.
+        if (this.state.addEquipa === false) {
+            if (this.state[type])
+                currentEquipa = this.state[type]
 
-        if (type === 'equipamentos') stateKey = 'equipamentosId'
-        if (type === 'acessibilidade') stateKey = 'acessibilidadeId'
-
-        collection.forEach(({ item }) => {
-            currentEquipa.forEach(ce => {
-                if (ce.toLowerCase() === item.toLowerCase()) vEquip.push(item)
+            collection.forEach(({ item }) => {
+                currentEquipa.forEach(eq => {
+                    if (eq.toLowerCase() === item.toLowerCase())
+                        vEquip.push(item)
+                })
             })
-        })
+            vEquip.forEach(ve => this.setState({ [ve]: true }))
+        }
 
-        vEquip.forEach(ve => this.setState({ [ve]: true }))
-
-        this.setState({ [stateKey]: vEquip, addEquipa: !this.state.addEquipa })
+        this.setState({ addEquipa: !this.state.addEquipa })
     }
 
     handleCheck = async item => {
@@ -348,7 +352,9 @@ class VeiculosContainer extends PureComponent {
                 .catch(err => console.log(err))
         else {
             veiculoId = existingVeiculoId
-            if (demand && approved && !showPendencias) situacao = 'Seguro não cadastrado'
+
+            if (demand && approved && !showPendencias)
+                situacao = 'Seguro não cadastrado'
 
             const
                 table = 'veiculos',
@@ -362,7 +368,6 @@ class VeiculosContainer extends PureComponent {
         }
 
         //*****************Generate log ************** */
-
         const log = {
             empresaId: selectedEmpresa?.codigoEmpresa,
             veiculoId,

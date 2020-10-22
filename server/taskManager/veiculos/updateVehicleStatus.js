@@ -23,15 +23,17 @@ const updateVehicleStatus = async vehicleIds => {
 
         updateQuery += params + ` END
                                   WHERE veiculo_id in (${ids})`
-
         //const tst = updateQuery.substr(0, 500)
-        console.log(updateQuery);
+
         await pool.query(updateQuery, (err, t) => {
             if (err)
                 console.log(err)
             if (t)
                 console.log('Vehicles general update result: ', t)
+            return
         })
+        console.log('updatedVehicleStatus ok.')
+        return
     }
 }
 
@@ -47,7 +49,7 @@ const getVehicleStatus = async vehicleIds => {
         veiculos,
         seguroVencido,
         laudoVencido
-    console.log('task manager: ', typeof vehicleIds, vehicleIds)
+
     if (!vehicleIds) {
         console.log('no veic ids')
         veiculos = await getUpdatedData('veiculos')
@@ -59,8 +61,8 @@ const getVehicleStatus = async vehicleIds => {
         })
         condition = condition.slice(0, condition.length - 3)
         veiculos = await getUpdatedData('veiculos', `WHERE ${condition}`)
-        console.log(condition)
     }
+
     if (veiculos && veiculos[0]) {
         veiculos.forEach(v => {
             //Checar validade do seguro
@@ -76,24 +78,26 @@ const getVehicleStatus = async vehicleIds => {
             //Checar laudos vencidos
             const currentYear = currentDate.getFullYear()
             if (currentYear - v.ano_carroceria >= 15) {
-
+                laudoVencido = true
                 laudos.forEach(l => {
                     if (l.veiculo_id === v.veiculo_id) {
-                        const vencido = moment(l.validade).isBefore(currentDate, 'day')
-                        if (vencido)
-                            laudoVencido = true
+
+                        const vencido = moment(l.validade).isBefore(moment(), 'day')
+                        if (!vencido)
+                            laudoVencido = false
                     }
                 })
             }
             //Definir a situacao do veiculo
-            if (seguroVencido && laudoVencido)
-                update.situacao = 'Seguro e laudo vencidos'
+            if (seguroVencido && laudoVencido) {
+                update.situacao = 'Ambos seguro e laudo vencidos'
+            }
 
             else if (seguroVencido)
                 update.situacao = 'Seguro vencido'
 
             else if (laudoVencido)
-                update.situacao = 'Laudo vencido'
+                update.situacao = 'Laudo inexistente ou vencido'
 
             else
                 update.situacao = 'Ativo'
@@ -107,8 +111,8 @@ const getVehicleStatus = async vehicleIds => {
         const
             a = updates.filter(u => u.situacao === 'Ativo'),
             b = updates.filter(u => u.situacao === 'Seguro Vencido'),
-            c = updates.filter(u => u.situacao === 'Laudo Vencido'),
-            d = updates.filter(u => u.situacao === 'Seguro e laudo vencidos')
+            c = updates.filter(u => u.situacao === 'Laudo inexistente ou vencido'),
+            d = updates.filter(u => u.situacao === 'Ambos seguro e laudo vencidos')
 
         console.log(a.length, b.length, c.length, d.length, updates.length)
         //const x = updates.slice(0, 12)

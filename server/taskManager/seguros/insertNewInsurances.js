@@ -25,7 +25,7 @@ const insertNewInsurances = async () => {
                 checkVencimento = moment(v).isSameOrAfter(today, 'day'),
                 shouldUpdate = checkEmissao && checkVencimento
             //Não inserir seguros que já foram inseridos no Postgresql (situacao === 'Atualizado')
-            if (shouldUpdate && s.situacao !== 'Atualizado')
+            if (s && shouldUpdate && s.situacao !== 'Atualizado')
                 updates.push(s)
         }
     })

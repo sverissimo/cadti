@@ -107,7 +107,7 @@ class Seguro extends Component {
                 dataEmissao = moment(insurance.dataEmissao).format('YYYY-MM-DD'),
                 vencimento = moment(insurance.vencimento).format('YYYY-MM-DD'),
                 { seguradora, seguradoraId } = insurance
-            console.log(seguradoraId)
+
             await this.setState({ seguradora, seguradoraId, dataEmissao, vencimento, insurance })
             return
         }
@@ -373,12 +373,20 @@ class Seguro extends Component {
 
         let vehicleIds = []
 
+        //Checar erros de preenchimento ou campos vazios
         if (errors && errors[0]) {
             this.setState({ ...this.state, ...checkInputErrors('setState') })
             return
         }
         if (!seguradora || seguradora === '') {
             this.setState({ openAlertDialog: true, alertType: 'seguradoraNotFound', seguradora: undefined })
+            return
+        }
+        if (!insurance?.veiculos || !insurance.veiculos[0]) {
+            this.setState({
+                openAlertDialog: true, customTitle: 'Nenhum veículo inserido',
+                customMsg: 'Não foi inserido nenhum veículo para o seguro informado. Para inserir, digite a placa no campo \"Insira a placa\" ou clique para selecionar a(s) placa(s) do(s) veículo(s) coberto(s) por esse seguro.'
+            })
             return
         }
 
@@ -464,9 +472,8 @@ class Seguro extends Component {
             this.confirmAndResetState('Solicitação indeferida!')
         }
         //Aprovar demanda
-        if (approved === true) {
+        if (approved === true)
             this.approveInsurance(cadSeguro)
-        }
     }
 
     approveInsurance = async cadSeguro => {
@@ -644,7 +651,10 @@ class Seguro extends Component {
                     />
                 }
 
-                {openAlertDialog && <AlertDialog open={openAlertDialog} close={this.closeAlert} alertType={alertType} customTitle={customTitle} customMessage={customMsg} />}
+                {
+                    openAlertDialog &&
+                    <AlertDialog open={openAlertDialog} close={this.closeAlert} alertType={alertType} customTitle={customTitle} customMessage={customMsg} />
+                }
                 <ReactToast open={this.state.confirmToast} close={this.toast} msg={this.state.toastMsg} />
             </Fragment>
         )

@@ -257,22 +257,23 @@ class AltDados extends Component {
     }
 
     handleEquipa = type => {
-
         const collection = this.props.redux[type]
         let vEquip = [], currentEquipa = []
 
-        if (this.state[type]) currentEquipa = this.state[type]
+        if (this.state.addEquipa === false) {
 
+            if (this.state[type]) currentEquipa = this.state[type]
 
-        collection.forEach(({ item }) => {
-            currentEquipa.forEach(ce => {
-                if (ce.toLowerCase() === item.toLowerCase()) vEquip.push(item)
+            collection.forEach(({ item }) => {
+                currentEquipa.forEach(ce => {
+                    if (ce.toLowerCase() === item.toLowerCase()) vEquip.push(item)
+                })
             })
-        })
 
-        vEquip.forEach(ve => this.setState({ [ve]: true }))
-
-        this.setState({ [collection]: vEquip, addEquipa: !this.state.addEquipa, type })
+            vEquip.forEach(ve => this.setState({ [ve]: true }))
+            console.log(this.state)
+        }
+        this.setState({ addEquipa: !this.state.addEquipa, type })
     }
 
     handleCheck = async (item, type) => {

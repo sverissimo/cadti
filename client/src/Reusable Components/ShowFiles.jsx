@@ -35,6 +35,7 @@ const ShowFiles = ({ filesCollection, close, typeId, empresas, filesIds, razaoSo
         default: void 0
     }
 
+    //Achar e filtrar na coleção de arquivos do MongoDB qual(is) cujo(s) id está na array filesIds
     if (filesIds)
         filesCollection = filesCollection.filter(f => filesIds.indexOf(f.id) !== -1)
 
@@ -64,7 +65,6 @@ const ShowFiles = ({ filesCollection, close, typeId, empresas, filesIds, razaoSo
         }
     }
     const header = ['Arquivo', 'Data de Upload', 'Tamanho']
-
 
     if (files[0]) {
         return (

@@ -1,11 +1,13 @@
-const { pool } = require("./config/pgConfig")
+const
+    { pool } = require("./config/pgConfig"),
+    updateVehicleStatus = require("./taskManager/veiculos/updateVehicleStatus")
 
-const deleteVehiclesInsurance = vehicleIds => {
+const deleteVehiclesInsurance = async vehicleIds => {
 
     let
         condition = '',
         delQuery = `
-        UPDATE veiculos SET apolice = 'Seguro não cadastrado', situacao = 'Seguro vencido'    
+        UPDATE veiculos SET apolice = 'Seguro não cadastrado'
         `
 
     vehicleIds.forEach(id => {
@@ -16,11 +18,16 @@ const deleteVehiclesInsurance = vehicleIds => {
     delQuery += condition
 
     console.log(delQuery)
-    pool.query(delQuery, (err, t) => {
+    await pool.query(delQuery, (err, t) => {
         if (err) console.log(err)
-        if (t) console.log(t)
+        if (t) {
+            console.log(t)
+        }
     })
 
+    updateVehicleStatus(vehicleIds)
+    console.log('deleted vehicle apolice number')
+    return
 }
 
 module.exports = deleteVehiclesInsurance

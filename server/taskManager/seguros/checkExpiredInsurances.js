@@ -13,7 +13,7 @@ const checkExpiredInsurances = async () => {
 
     segurosTable.forEach(s => {
         const
-            vencido = moment(s.vencimento).isBefore(new Date(), 'day'),
+            vencido = moment(s.vencimento).isBefore(moment(), 'day'),
             atualizar = s.situacao !== 'Vencido'
 
         if (vencido && atualizar)
