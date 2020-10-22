@@ -11,12 +11,15 @@ const dataReducer = (state = initState, action) => {
         case 'INSERT_DATA': {
             const { collection, data } = payload
             console.log(collection, data)
+
             if (state[collection] && data) {
                 let update = [...state[collection]]
+
                 data.forEach(el => {
                     if (collection.match('Logs')) update.push(el)
                     else update.unshift(el)
                 })
+
                 return {
                     ...state, [collection]: update
                 }
@@ -79,6 +82,7 @@ const dataReducer = (state = initState, action) => {
                     { id } = payload,
                     updatedData = [...state[collection]]
 
+                if (!id) return
 
                 if (!collection.match('Docs')) id = Number(id)
                 if (collection === 'laudos')

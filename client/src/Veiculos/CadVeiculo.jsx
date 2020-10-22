@@ -297,7 +297,7 @@ class VeiculosContainer extends PureComponent {
                 ids.push(id)
             }
         })
-        console.log(this.state, ids, arrayOfEquips)
+
         if (arrayOfEquips[0]) this.setState({ [type]: arrayOfEquips, [stateKey]: ids })
         else if (type === 'equipamentos') this.setState({ equipamentos: [], [stateKey]: [] })
         else if (type === 'acessibilidade') this.setState({ acessibilidade: [], [stateKey]: [] })

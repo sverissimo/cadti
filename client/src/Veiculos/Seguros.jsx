@@ -385,7 +385,7 @@ class Seguro extends Component {
         if (!insurance?.veiculos || !insurance.veiculos[0]) {
             this.setState({
                 openAlertDialog: true, customTitle: 'Nenhum veículo inserido',
-                customMsg: 'Não foi inserido nenhum veículo para o seguro informado. Para inserir, digite a placa no campo \"Insira a placa\" ou clique para selecionar a(s) placa(s) do(s) veículo(s) coberto(s) por esse seguro.'
+                customMsg: 'Não foi inserido nenhum veículo para o seguro informado. Para inserir, digite a placa no campo "Insira a placa" ou clique para selecionar a(s) placa(s) do(s) veículo(s) coberto(s) por esse seguro.'
             })
             return
         }

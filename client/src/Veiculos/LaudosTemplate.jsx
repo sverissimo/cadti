@@ -176,6 +176,7 @@ const LaudosTemplate = (
                         </h4>
                     </section>
 
+                    {/* *********************** RENDERIZAÇÃO DAS PLACAS ********************************* */}
                     {!selectedVehicle &&
                         <section className='center flex paper'>
                             {filteredVehicles.map((v, i) => (

@@ -38,7 +38,6 @@ const
     deleteVehiclesInsurance = require('./deleteVehiclesInsurance'),
     updateVehicleStatus = require('./taskManager/veiculos/updateVehicleStatus')
 
-
 dailyTasks.start()
 dotenv.config()
 
@@ -333,11 +332,20 @@ app.post('/api/addElement', (req, res) => {
         if (err) console.log(err)
 
         if (t && t.rows) {
-            if (table !== 'laudos') io.sockets.emit('addElements', { insertedObjects: t.rows, table })
+            if (table !== 'laudos')
+                io.sockets.emit('addElements', { insertedObjects: t.rows, table })
+
             else {
+                //Após atualizar a tabela laudos, faze um query com join de empresas_laudo e com o resultado atualiza o socket
                 pool.query(laudos, (err, t) => {
-                    if (err) console.log(err)
-                    if (t && t.rows) io.sockets.emit('updateElements', { collection: table, updatedCollection: t.rows })
+                    if (err)
+                        console.log(err)
+                    if (t && t.rows) {
+                        io.sockets.emit('updateElements', { collection: table, updatedCollection: t.rows })
+                        const { veiculo_id } = requestElement
+                        if (veiculo_id)
+                            updateVehicleStatus([veiculo_id], io)
+                    }
                 })
             }
             res.json(t.rows)
@@ -375,6 +383,7 @@ app.put('/api/editElements', (req, res) => {
         })
     })
 })
+
 //Atualiza um elemento da tabela 'seguros'
 app.put('/api/updateInsurance', async (req, res) => {
 
@@ -440,13 +449,8 @@ app.put('/api/updateInsurances', async (req, res) => {
         ids = placas
     }
 
-    let condition = '',
-        query = `
-                UPDATE ${table}
-                SET ${column} = '${value}'         
-                WHERE `
+    let condition = ''
 
-    //console.log('server/api/updateIns: ', ids, column, value)
     //Se houver veículos para apagar, chamar o método para isso
     if (deletedVehicles) {
         await deleteVehiclesInsurance(deletedVehicles)
@@ -462,19 +466,27 @@ app.put('/api/updateInsurances', async (req, res) => {
             console.log('deleted from insurance: ', deletedVehicles)
         })
     }
+
     //Se não houver nenhum id, a intenção era só apagar o n de apólice do(s) veículo(s). Nesse caso res = 'no changes'
     if (ids && ids[0]) {
+        let query = `
+                UPDATE ${table}
+                SET ${column} = '${value}'         
+                WHERE `
+
         condition = ''
         ids.forEach(id => {
             condition = condition + `${tablePK} = '${id}' OR `
         })
+
         condition = condition.slice(0, condition.length - 3)
+
         query = query + condition + ` RETURNING *`
         //console.log(query)
         await pool.query(query, async (err, t) => {
             if (err) console.log(err)
             if (t && t.rows) {
-                await updateVehicleStatus(ids)
+                updateVehicleStatus(ids, io)
                 const data = getUpdatedData('veiculos', `WHERE ${condition}`)
                 data.then(async res => {
                     await io.sockets.emit('updateVehicle', res)
@@ -706,20 +718,22 @@ app.delete('/api/delete', (req, res) => {
 
     let { id } = req.query
     const
-        { table, tablePK } = req.query,
+        { table, tablePK, veiculoId } = req.query,
         { collection } = fieldParser.find(f => f.table === table)
 
     if (collection === 'laudos')
         id = `'${id}'`
 
     const query = ` DELETE FROM public.${table} WHERE ${tablePK} = ${id}`
+    console.log(query, '\n\n', req.query)
 
-
-    console.log(query)
-    pool.query(query, (err, t) => {
+    pool.query(query, async (err, t) => {
         if (err) console.log(err)
         if (id) {
             id = id.replace(/\'/g, '')
+            if (veiculoId)
+                updateVehicleStatus([veiculoId], io)
+
             io.sockets.emit('deleteOne', { id, tablePK, collection })
             res.send(`${id} deleted from ${table}`)
         }

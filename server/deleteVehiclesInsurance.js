@@ -7,7 +7,7 @@ const deleteVehiclesInsurance = async vehicleIds => {
     let
         condition = '',
         delQuery = `
-        UPDATE veiculos SET apolice = 'Seguro não cadastrado'
+        UPDATE veiculos SET apolice = 'Seguro não cadastrado', situacao = 'Seguro vencido!!!'
         `
 
     vehicleIds.forEach(id => {
@@ -21,11 +21,11 @@ const deleteVehiclesInsurance = async vehicleIds => {
     await pool.query(delQuery, (err, t) => {
         if (err) console.log(err)
         if (t) {
-            console.log(t)
+            console.log('deleteVehicleInsurance: seg n cadastrado registered.', t)
         }
     })
 
-    updateVehicleStatus(vehicleIds)
+    await updateVehicleStatus(vehicleIds)
     console.log('deleted vehicle apolice number')
     return
 }

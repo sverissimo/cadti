@@ -375,10 +375,12 @@ const Laudos = props => {
 
     function deleteLaudo(laudoId) {
 
+        const { veiculoId } = selectedVehicle
+
         if (laudoId) {
             closeConfirmDialog()
 
-            axios.delete(`/api/delete?table=laudos&tablePK=id&id=${laudoId}`)
+            axios.delete(`/api/delete?table=laudos&tablePK=id&id=${laudoId}&veiculoId=${veiculoId}`)
                 .then(({ data }) => console.log(data))
 
             const laudoDoc = vehicleDocs.find(d => d.metadata.fieldName === 'laudoDoc' && d.metadata.laudoId === laudoId.toString())
@@ -418,6 +420,8 @@ const Laudos = props => {
             if (allFields) changeInputs({ ...initState.stateInputs })
             setLaudoDoc()
             setDropDisplay(initState.dropDisplay)
+            setOldVehicles()
+            setFilteredVehicles()
         }
 
     const selectOptions = props.redux.empresasLaudo.map(e => e.empresa)
