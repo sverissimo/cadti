@@ -13,7 +13,7 @@ import { logGenerator } from '../Utils/logGenerator'
 import { baixaForm } from '../Forms/baixaForm'
 import { checkDemand } from '../Utils/checkDemand'
 
-import './veiculos.css'
+import './veiculos.scss'
 
 
 class BaixaVeiculo extends Component {

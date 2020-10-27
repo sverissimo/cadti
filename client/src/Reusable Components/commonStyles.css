@@ -11,7 +11,7 @@ div.selectEmpresa {
   width: 100%;
   display: flex;
   justify-content: center;
-  min-width: 600px;
+  min-width: 600px;  
 }
 
 div.item {
@@ -30,6 +30,10 @@ h3 {
 .selectedEmpresa {
   margin: 5px 0 0 0;
   font-family: inherit;
+}
+
+span.selectedEmpresa {
+  margin: 10px 0 15px 0;
 }
 
 input.selectEmpresa {

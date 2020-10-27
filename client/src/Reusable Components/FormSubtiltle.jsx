@@ -1,10 +1,10 @@
 import React from 'react'
 
-export default function FormSubtiltle({subtitle}) {
+export default function FormSubtiltle({ subtitle, style = {} }) {
     return (
-        <div className='formSubtitle'>
-            <i className='material-icons subtitleHelper'>arrow_forward</i>
-            <span style={{ fontSize: '14.3px' }}>
+        <div className='subtitle' style={style}>
+            <i className='material-icons subtitle__helper'>arrow_forward</i>
+            <span className='subtitle__text'>
                 {subtitle}
             </span>
         </div>

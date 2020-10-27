@@ -13,7 +13,7 @@ import { cadVehicleForm } from '../Forms/cadVehicleForm'
 
 import AddEquipa from './AddEquipa'
 
-import './veiculos.css'
+import './veiculos.scss'
 
 const useStyles = makeStyles(theme => ({
     button: {

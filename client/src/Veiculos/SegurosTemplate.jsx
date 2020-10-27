@@ -17,9 +17,10 @@ import SaveIcon from '@material-ui/icons/Save';
 import Search from '@material-ui/icons/Search'
 
 import { seguroForm } from '../Forms/seguroForm'
-import './veiculos.css'
+import './veiculos.scss'
 import ShowLocalFiles from '../Reusable Components/ShowLocalFiles'
 import { empresaFiles } from '../Forms/empresaFiles'
+import FormSubtiltle from '../Reusable Components/FormSubtiltle'
 
 const useStyles = makeStyles(theme => ({
 
@@ -78,7 +79,7 @@ export default function SegurosTemplate({ empresas, data, seguros, seguradoras, 
                 />
                 {selectedEmpresa &&
                     <section className="paper">
-                        <h3 className='formSubtitle'>Informe os dados do seguro.</h3>
+                        <FormSubtiltle subtitle='Informe os dados do seguro.' />
                         <TextInput
                             form={seguroForm}
                             data={data}

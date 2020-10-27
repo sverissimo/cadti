@@ -37,7 +37,7 @@ class VeiculosContainer extends PureComponent {
     state = {
         activeStep: 0,
         steps: ['Dados do Veículo', 'Vistoria e laudos', 'Documentos', 'Revisão'],
-        subtitle: ['Informe os dados do Veículo', 'Preencha os campos abaixo conforme a vistoria realizada'],
+        subtitle: ['Informe os dados do veículo.', 'Preencha os campos abaixo conforme a vistoria realizada'],
         razaoSocial: '',
         frota: [],
         delegatarioCompartilhado: '',

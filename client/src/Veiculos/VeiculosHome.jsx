@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-import './veiculos.css'
+import './veiculos.scss'
 
 const menuCards = [
     {
@@ -57,23 +57,23 @@ export default function VeiculosHome(props) {
     const { match } = props
     return (
         <div>
-            <div className="jumbotron">
+            <section className="jumbotron">
                 <h1>
                     Veículos
                 </h1>
                 <p>
                     Selecione uma das opções abaixo.
                 </p>
-            </div>
-            <section className="cardSection">
+            </section>
+            <section className="card">
                 {
                     menuCards.map(({ title, link, imageUrl, description }, i) =>
-                        <Link to={match.url + link} key={i} className="card">                            
-                                <span className="cardImage"> <img src={imageUrl} alt={title} /> </span>
-                                <div className="cardText">
-                                    <h3 >{title}</h3>
-                                    <p > {description}</p>
-                                </div>                            
+                        <Link to={match.url + link} key={i} className="card__container">
+                            <span className="card__image"> <img src={imageUrl} alt={title} /> </span>
+                            <div className="card__text">
+                                <h3 >{title}</h3>
+                                <p > {description}</p>
+                            </div>
                         </Link>
                     )}
             </section>

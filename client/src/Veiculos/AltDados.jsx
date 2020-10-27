@@ -43,7 +43,7 @@ class AltDados extends Component {
             'Revisão das informações e deferimento'],
         steps: ['Alterar dados do Veículo', 'Alterar dados adicionais', 'Documentos', 'Revisão'],
 
-        subtitle: ['Dados do Veículo', 'Informações adicionais',
+        subtitle: ['Informe os dados do veículo.', 'Informações adicionais',
             'Anexe os arquivos solicitados', 'Revisão'],
         empresas: [],
         razaoSocial: '',

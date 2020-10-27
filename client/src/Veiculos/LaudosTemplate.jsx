@@ -62,7 +62,10 @@ const LaudosTemplate = (
                         <header className='flex' style={{ marginBottom: '15px', justifyContent: 'space-between' }}>
                             {
                                 !selectedVehicle ?
-                                    <FormSubtiltle subtitle='Selecione o veículo para atualizar consultar ou inserir o laudo de segurança veicular.' />
+                                    <FormSubtiltle
+                                        subtitle='Selecione o veículo para atualizar consultar ou inserir o laudo de segurança veicular.'
+                                        style={{ marginTop: '25px' }}
+                                    />
                                     :
                                     <Placa
                                         veiculoId={selectedVehicle.veiculoId}

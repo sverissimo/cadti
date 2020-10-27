@@ -12,7 +12,7 @@ import Grid from '@material-ui/core/Grid'
 import Paper from '@material-ui/core/Paper'
 import { makeStyles } from '@material-ui/core/styles'
 
-import './veiculos.css'
+import './veiculos.scss'
 
 const useStyles = makeStyles(theme => ({
     container: {
@@ -42,7 +42,7 @@ export default function ({ handleInput, handleBlur, handleCheck, handleSubmit, d
                 data={data}
                 empresas={empresas}
                 handleInput={handleInput}
-                handleBlur={handleBlur}                
+                handleBlur={handleBlur}
             />
             <Grid
                 container

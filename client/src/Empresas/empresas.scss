@@ -1,0 +1,78 @@
+.jumbo {
+    filter: brightness("50%") !important;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    color: black;
+    margin-bottom: 20px;
+    background: {
+        image: url("/images/empresasBg2.jpg");
+        size: 100% 100%;
+        repeat: no-repeat;
+    }
+    height: 250px;
+    width: 100%;
+    padding-left: 25px;
+    &__title {
+        color: white;
+        font: {
+            size: 2.125rem;
+            weight: 400;
+        }
+    }
+    &__description {
+        color: white;
+        font: {
+            weight: 400;
+        }
+    }
+    &__image {
+        height: auto;
+        margin: 0 !important;
+        width: 100%;
+    }
+}
+.cardContainer {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.cardE {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    //border: 1px solid grey;
+    padding: 15px 0 0 0;
+    border-radius: 10%;
+    width: 280px;
+    text-decoration: none;
+    margin-top: 20px;
+    box-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.1), 0px 1px 1px 0px rgba(0, 0, 0, 0.08),
+        0px 1px 3px 0px rgba(0, 0, 0, 0.07);
+
+    &:not(:last-of-type) {
+        margin-right: 33px;
+    }
+    &:hover {
+        background-color: #fafaff;
+    }
+
+    &__image {
+        margin: 0;
+    }
+    &__image img {
+        height: 120px;
+        width: 120px;
+    }
+    &__text {
+        width: 150px;
+        padding-left: 20px;
+        & p {
+            margin-top: 12px;
+            font-size: 0.75rem;
+        }
+    }
+}
