@@ -1,87 +1,67 @@
 import React, { Fragment } from 'react'
-
 import ShowLocalFiles from '../Reusable Components/ShowLocalFiles'
-
-import Paper from '@material-ui/core/Paper'
 import FileCopyOutlinedIcon from '@material-ui/icons/FileCopyOutlined';
-import { makeStyles } from '@material-ui/core/styles';
+import moment from 'moment'
 
-const useStyles = makeStyles(theme => ({
-    paper: {
-        color: theme.palette.text.secondary,
-        width: "100%",
-        padding: '8px 0 5px 0',
-        height: 'auto'
-    }
-}))
+export default function Revisao({ data, forms, filesForm, files }) {
 
-export default function Revisao({ data, empresasForm, sociosForm, filesForm, files }) {
-
-    const { socios } = data,
-        classes = useStyles(),
-        { paper } = classes
-
-    let empresaDetails = [], obj = {}, filledForm = [], ultimateData
-
-    empresasForm.forEach(e => {
-        if (data.hasOwnProperty([e.field])) {
-            Object.assign(obj, { [e.field]: data[e.field] })
-            filledForm.push(e)
-        }
+    //Para cada formulário, roda o State do componente(container) e atribui a propriedade value em cada campo 
+    forms.forEach(form => {
+        form.forEach(objField => {
+            Object.entries(data).forEach(([k, v]) => {
+                if (objField.field === k)
+                    objField.value = v
+            })
+        })
     })
-    empresaDetails.push(obj)
 
-    ultimateData = [
-        { subtitle: 'Detalhes da empresa', form: filledForm, data: empresaDetails },
-        { subtitle: 'Informações sobre os sócios', form: sociosForm, data: socios }
-    ]
-    
+    //Consertando a data - (campo 'Vencimento do contrato')
+    const i = forms[0].findIndex(el => el.field === 'vencimentoContrato')
+    if (i !== -1) {
+        let venc = forms[0][i].value
+        if (venc && moment(venc).isValid()) {
+            venc = moment(venc).format('DD/MM/YYYY')
+            forms[0][i].value = venc
+        }
+    }
+
+    const tablesSubtitles = ['Dados da empresa', 'Informações sobre a alteração do contrato social']
+
     return (
         <>
-            <Paper className={paper}>
+            <section className='flex'>
                 <div className='divTable'>
                     {
-                        ultimateData.map(({ subtitle, form, data }, y) =>
+                        forms.map((form, y) =>
                             <Fragment key={y}>
                                 <table style={y === 1 ? { tableLayout: 'fixed' } : {}}>
                                     <thead>
                                         <tr>
                                             <th className='tHeader'
-                                                colSpan={form.length}>{subtitle}</th>
+                                                colSpan={form.length}>{tablesSubtitles[y]}
+                                            </th>
                                         </tr>
                                         <tr>
-                                            {form.map((s, i) => <th key={i}>{s.label}</th>)}
+                                            {form.map(({ label }, i) => <th key={i}>{label}</th>)}
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {y === 0 && <tr>
-                                            {data.map((obj, j) =>
-                                                Object.values(obj).map((el, k) =>
-                                                    <td className='review' key={k}>
-                                                        {el}
-                                                    </td>
-                                                )
+                                        <tr>
+                                            {form.map(({ value }, k) =>
+                                                <td className='review' key={k}>
+                                                    {value}
+                                                </td>
                                             )}
-                                        </tr>}
-                                        {y !== 0 && data.map((obj, j) =>
-                                            <tr>
-                                                {Object.values(obj).map((el, k) =>
-                                                    <td className='review' key={k}>
-                                                        {el}
-                                                    </td>
-                                                )}
-                                            </tr>
-                                        )}
+                                        </tr>
                                     </tbody>
                                 </table>
-
                             </Fragment>
                         )}
                 </div>
 
                 <h3 style={{ margin: '30px 0 0 25px' }}> <FileCopyOutlinedIcon style={{ verticalAlign: 'middle', padding: '0 0 0 8px' }} /> Documentos </h3>
                 {files && <ShowLocalFiles form={filesForm} files={files} />}
-            </Paper >
+            </section >
         </>
     )
 }

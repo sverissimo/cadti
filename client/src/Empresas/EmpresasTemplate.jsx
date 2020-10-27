@@ -7,12 +7,12 @@ import FormSubtitle from '../Reusable Components/FormSubtiltle'
 import DragAndDrop from '../Reusable Components/DragAndDrop'
 
 export default function ({ handleInput, handleBlur, data, handleFiles, removeFile }) {
-    const { activeStep, stepTitles, dropDisplay, contratoSocial, fileToRemove} = data
-           
+    const { activeStep, stepTitles, dropDisplay, contratoSocial, fileToRemove } = data
+
     return (
         <div className="flex paper">
             <FormSubtitle subtitle={stepTitles[activeStep]} />
-            <div>
+            <main>
                 <TextInput
                     form={empresasForm}
                     data={data}
@@ -24,13 +24,13 @@ export default function ({ handleInput, handleBlur, data, handleFiles, removeFil
                         name='contratoSocial'
                         formData={contratoSocial}
                         dropDisplay={dropDisplay}
-                        handleFiles={handleFiles}                        
+                        handleFiles={handleFiles}
                         removeFile={removeFile}
                         fileToRemove={fileToRemove}
                         style={{ width: '40%' }}
                     />
-                </div>             
-            </div>
+                </div>
+            </main>
         </div>
     )
 }

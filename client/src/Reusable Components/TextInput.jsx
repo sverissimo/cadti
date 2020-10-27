@@ -35,7 +35,7 @@ const useStyles = makeStyles(theme => ({
     },
 }))
 
-export default function TextInput({ handleInput, handleBlur, form, data, empresas, selectOptions, disableAll, disableSome = [] }) {
+export default function TextInput({ handleInput, handleBlur, form, data, empresas, selectOptions, disableAll, style = {}, disableSome = [] }) {
 
     const classes = useStyles(),
         { helperText } = classes
@@ -76,7 +76,7 @@ export default function TextInput({ handleInput, handleBlur, form, data, empresa
     }
 
     return (
-        <div className='flex center'>
+        <div className='flex center' style={{ ...style }}>
             {
                 form.map((el, i) => (
                     <Fragment key={i}>
@@ -97,13 +97,13 @@ export default function TextInput({ handleInput, handleBlur, form, data, empresa
                             InputLabelProps={{
                                 className: classes.textField,
                                 shrink: el.type === 'date' || undefined,
-                                style: { fontSize: '0.7rem', fontWeight: 400, color: '#888',  fontFamily: '\'Segoe UI\', Tahoma, Geneva, Verdana, sans-serif' }
+                                style: { fontSize: '0.7rem', fontWeight: 400, color: '#888', fontFamily: '\'Segoe UI\', Tahoma, Geneva, Verdana, sans-serif' }
                             }}
                             inputProps={{
                                 style: {
                                     background: el.disabled && data.disable ? '#fff' : '#fafafa',
                                     fontSize: '0.85rem', textAlign: 'center', color: '#000', width: el.width || 300, height: '7px',
-                                    fontFamily: '\'Segoe UI\', Tahoma, Geneva, Verdana, sans-serif' 
+                                    fontFamily: '\'Segoe UI\', Tahoma, Geneva, Verdana, sans-serif'
                                 },
                                 value: `${data[el.field] || ''}`,
                                 list: el.datalist || '',

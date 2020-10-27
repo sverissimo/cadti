@@ -19,6 +19,7 @@ import Relatorios from './Relatorios/Relatorios'
 import Solicitacoes from './Solicitacoes/Solicitacoes'
 //import UnderConstruction from './UnderConstruction'
 import PdfTest from './Veiculos/Certificate'
+import AltContrato from './Empresas/AltContrato'
 
 const Routes = () => {
     return (
@@ -33,6 +34,7 @@ const Routes = () => {
             <Route path='/veiculos/config' exact component={Config} />
             <Route path='/consultas' component={Consultas} />
             <Route path='/empresas' exact component={EmpresasHome} />
+            <Route path='/altContrato' exact component={AltContrato} />
             <Route path='/empresas/cadastro' component={Empresas} />
             <Route path='/empresas/socios' component={Socios} />
             <Route path='/empresas/procuradores' component={Procuradores} />

@@ -19,7 +19,7 @@ if (process.env.NODE_ENV !== 'production') {
             //await checkExpiredInsurances()
             //console.log('updated expired insurances alright')
 
-            //updateVehicleStatus()    
+            //updateVehicleStatus()
             //console.log('updated vehicle data alright')
         }
     }

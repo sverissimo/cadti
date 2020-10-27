@@ -20,10 +20,10 @@ export default function SelectEmpresa(props) {
 
     if (demand) enableSelect = false
     else if (activeStep && activeStep > 0) enableSelect = false
-    
+
     if (enableSelect)
         return (
-            <div className={props.hasOwnProperty('shared') ? 'flex center' : 'paper flex center'} style={{ width: '100%' }}>
+            <div className={props.hasOwnProperty('shared') ? 'flex center' : 'paper flex center'} style={{ width: '100%', marginBottom: 0 }}>
                 {
                     headerTitles.map(({ title, list, name, value }, i) =>
                         <div className='flexColumn' key={i}>

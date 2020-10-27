@@ -16,8 +16,8 @@ const featuredPosts = [
         title: 'Alteração do Contrato Social',
         date: '07/Nov',
         description:
-            'Alteração de dados ou de contrato social',
-        link: '/empresas/socios',
+            'Alteração de dados da empresa ou contrato social',
+        link: '/altContrato',
         imageUrl: '/images/pen2.png'
     },
     {
