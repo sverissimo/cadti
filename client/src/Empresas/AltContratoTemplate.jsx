@@ -12,7 +12,7 @@ import StepperButtons from '../Reusable Components/StepperButtons'
 import DragAndDrop from '../Reusable Components/DragAndDrop'
 
 
-const AltContratoTemplate = ({ empresas, data, handleInput, setActiveStep }) => {
+const AltContratoTemplate = ({ empresas, data, handleInput, handleSubmit, setActiveStep }) => {
 
     const
         { selectedEmpresa, activeStep, steps, subtitles, dropDisplay } = data,
@@ -22,7 +22,7 @@ const AltContratoTemplate = ({ empresas, data, handleInput, setActiveStep }) => 
     return (
         <main>
             <header>
-                <Crumbs links={['Empresas', '/altContrato']} text='Alteração de dados e contrato social' />
+                <Crumbs links={['Empresas', '/empresas']} text='Alteração de dados e contrato social' />
                 {/*--------------------- Steppers ------------------------------*/}
                 <section>
                     <CustomStepper
@@ -82,8 +82,8 @@ const AltContratoTemplate = ({ empresas, data, handleInput, setActiveStep }) => 
                             activeStep={activeStep}
                             lastStep={steps.length - 1}
                             setActiveStep={setActiveStep}
-                        //handleInput={handleInput}
-                        //handleSubmit={this.handleCadastro}
+                            handleInput={handleInput}
+                            handleSubmit={handleSubmit}
                         />
                     </footer>
                 </>

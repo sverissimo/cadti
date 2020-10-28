@@ -35,8 +35,10 @@ const
     dbSync = require('./sync/dbSyncAPI'),
     dailyTasks = require('./taskManager/taskManager'),
     segurosModel = require('./mongo/models/segurosModel'),
+    altContratoModel = require('./mongo/models/altContratoModel'),
     deleteVehiclesInsurance = require('./deleteVehiclesInsurance'),
     updateVehicleStatus = require('./taskManager/veiculos/updateVehicleStatus')
+
 
 dailyTasks.start()
 dotenv.config()
@@ -145,12 +147,7 @@ app.get('/api/logs/:collection', (req, res) => {
         collectionModels = { vehicleLogs: vehicleLogsModel },
         model = collectionModels[collection]
 
-    let oneYearAgo = new Date()
-    oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1)
-
-    let query = { $or: [{ completed: false }, { completed: true, updatedAt: { $gte: oneYearAgo } }] }
-
-    model.find(query)
+    model.find()
         .then(doc => res.send(doc))
         .catch(err => console.log(err))
 })
@@ -182,6 +179,18 @@ app.post('/api/cadSeguroMongo', (req, res) => {
     })
 })
 
+
+//***************************  CADASTRO DE ALTERAÇÕES DE CONTRATO SOCIAL**************** */
+
+app.post('/api/altContrato', (req, res) => {
+
+    const { body } = req
+    const newDoc = new altContratoModel(body)
+    newDoc.save((err, doc) => {
+        if (err) console.log(err)
+        res.json({ doc })
+    })
+})
 
 //************************************ GET METHOD ROUTES *********************** */
 
@@ -383,6 +392,34 @@ app.put('/api/editElements', (req, res) => {
         })
     })
 })
+
+//Edita um ou mais colunas de uma única linha da tabela
+app.put('/api/editTableRow', async (req, res) => {
+
+    const
+        { id, table, updates, tablePK } = req.body,
+        columns = Object.keys(updates)
+
+    let query = `UPDATE ${table} SET `
+
+    columns.forEach(col => {
+        query += `${col} = '${updates[col]}', `
+    })
+
+    query = query.slice(0, query.length - 2)
+    query +=
+        ` WHERE ${tablePK} = ${id} 
+              RETURNING * `
+
+    const pgQuery = pool.query(query)
+
+    pgQuery
+        .then(r => res.send(r.rows))
+        .catch(e => console.log(e))
+
+    //res.json({ query, columns, updates })
+})
+
 
 //Atualiza um elemento da tabela 'seguros'
 app.put('/api/updateInsurance', async (req, res) => {

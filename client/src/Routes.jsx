@@ -46,6 +46,7 @@ const Routes = () => {
             <Route path='/solicitacoes/seguros' exact component={Seguros} />
             <Route path='/solicitacoes/baixaVeiculo' exact component={BaixaVeiculo} />
             <Route path='/solicitacoes/laudos' exact component={Laudos} />
+            <Route path='/solicitacoes/altContrato' exact component={AltContrato} />
             <Route path='/solicitacoes/socios' exact component={Socios} />
             <Route path='/solicitacoes/procuradores' exact component={Procuradores} />
 

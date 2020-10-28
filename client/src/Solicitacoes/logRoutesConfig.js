@@ -1,5 +1,5 @@
 const vehicle = {
-    
+
     collection: 'vehicleLogs',
     docs: 'vehicleDocs',
     primaryKey: 'veiculoId'
@@ -16,8 +16,8 @@ export const logRoutesConfig = [
         concludedAction: 'Veículo cadastrado',
         collection, docs, primaryKey,
     },
-    {        
-        subject: 'Alteração de dados do veículo',    
+    {
+        subject: 'Alteração de dados do veículo',
         path: '/solicitacoes/altDados',
         requestAction: 'Alteração de dados de veículo solicitada',
         responseAction: 'Pendências para a alteração de dados veicular',
@@ -26,14 +26,14 @@ export const logRoutesConfig = [
     },
     {
         ...vehicle,
-        subject: 'Cadastro/alteração de seguro',        
+        subject: 'Cadastro/alteração de seguro',
         path: '/solicitacoes/seguros',
         requestAction: 'Cadastro de seguro solicitado',
         responseAction: 'Pendências para o cadastro do seguro',
         concludedAction: 'Seguro cadastrado',
         primaryKey: 'id',
-        collection, docs, 
-        
+        collection, docs,
+
     },
     {
         ...vehicle,
@@ -45,7 +45,7 @@ export const logRoutesConfig = [
         concludedAction: 'Laudo veicular cadastrado',
     },
     {
-        subject: 'Baixa de veículo',        
+        subject: 'Baixa de veículo',
         path: '/solicitacoes/baixaVeiculo',
         collection, docs, primaryKey,
     },
@@ -64,11 +64,20 @@ export const logRoutesConfig = [
         path: '/empresas/cadastro'
     },
     {
+        subject: 'Alteração no quadro/dados de sócios',
+        requestAction: 'Alteração no quadro/dados de sócios solicitada',
+        concludedAction: 'Alteração de sócios cadastrada',
+        path: '/solicitacoes/socios',
+        docs: 'empresaDocs',
+        primaryKey: 'empresaId',
+        collection
+    },
+    {
         subject: 'Alteração estatutária',
         requestAction: 'Alteração estatutária solicitada',
         responseAction: 'Pendências para a alteração estatutária',
-        concludedAction: 'Alteração estatutária cadastrada',        
-        path: '/solicitacoes/socios',
+        concludedAction: 'Alteração estatutária cadastrada',
+        path: '/solicitacoes/altCadastro',
         docs: 'empresaDocs',
         primaryKey: 'empresaId',
         collection
@@ -81,7 +90,7 @@ export const logRoutesConfig = [
         primaryKey: 'empresaId',
         requestAction: 'Cadastro de procuração solicitado',
         responseAction: 'Procuração indeferida',
-        concludedAction: 'Procuração cadastrada',        
+        concludedAction: 'Procuração cadastrada',
     },
 ]
 
