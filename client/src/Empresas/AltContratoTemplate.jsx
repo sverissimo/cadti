@@ -10,12 +10,16 @@ import CustomStepper from '../Reusable Components/Stepper'
 import TextInput from '../Reusable Components/TextInput'
 import StepperButtons from '../Reusable Components/StepperButtons'
 import DragAndDrop from '../Reusable Components/DragAndDrop'
+import SociosTemplate from './SociosTemplate'
+import AltSociosTemplate from './AltSociosTemplate'
 
 
-const AltContratoTemplate = ({ empresas, data, setActiveStep, handleInput, handleSubmit, handleFiles, removeFile }) => {
+const AltContratoTemplate = (
+    { empresas, data, setActiveStep, enableEdit, handleEdit, addSocio, removeSocio, handleInput, handleSubmit, handleFiles, removeFile,
+        setShowPendencias }) => {
 
     const
-        { selectedEmpresa, activeStep, steps, subtitles, dropDisplay, altContratoDoc, fileToRemove } = data,
+        { selectedEmpresa, demand, activeStep, stepTitles, subtitles, dropDisplay, altContratoDoc, fileToRemove, info, showPendencias } = data,
         headerTitle = `Alteração de contrato social - ${selectedEmpresa?.razaoSocial}`,
         forms = [empresasForm, altContratoForm]
 
@@ -27,7 +31,7 @@ const AltContratoTemplate = ({ empresas, data, setActiveStep, handleInput, handl
                 <section>
                     <CustomStepper
                         activeStep={activeStep}
-                        steps={steps}
+                        steps={stepTitles}
                         setActiveStep={setActiveStep}
                     />
                 </section>
@@ -40,50 +44,71 @@ const AltContratoTemplate = ({ empresas, data, setActiveStep, handleInput, handl
                     />
                 </div>
             </header>
-
             {
                 selectedEmpresa?.cnpj &&
                 <>
                     {/*--------------------- Form / inputs -------------------------*/}
-                    <section className="flex paper">
-                        <FormSubtiltle subtitle={subtitles[activeStep]} />
-                        {
-                            activeStep < 2
-                                ?
-                                <>
-                                    <TextInput
-                                        form={forms[activeStep]}
-                                        data={data}
-                                        handleInput={handleInput}
-                                        style={{ width: '100%' }}
-                                    />
-                                    {
-                                        activeStep === 1 &&
-                                        <div className='flex center' style={{ width: '100%' }}>
-                                            <DragAndDrop
-                                                name='altContratoDoc'
-                                                style={{ width: '440px' }}
-                                                dropDisplay={dropDisplay}
-                                                formData={altContratoDoc}
-                                                handleFiles={handleFiles}
-                                                //demandFiles={demandFiles}
-                                                removeFile={removeFile}
-                                                fileToRemove={fileToRemove}
+                    {
+                        activeStep !== 2 ?
+                            <section className="flex paper">
+                                <FormSubtiltle subtitle={subtitles[activeStep]} />
+                                {
+                                    activeStep < 2
+                                        ?
+                                        <>
+                                            <TextInput
+                                                form={forms[activeStep]}
+                                                data={data}
+                                                handleInput={handleInput}
+                                                style={{ width: '100%' }}
                                             />
-                                        </div>
-                                    }
-                                </>
-                                :
-                                <EmpresaReview
-                                    forms={forms}
+                                            {
+                                                activeStep === 1 &&
+                                                <div className='flex center' style={{ width: '100%' }}>
+                                                    <DragAndDrop
+                                                        name='altContratoDoc'
+                                                        style={{ width: '440px' }}
+                                                        dropDisplay={dropDisplay}
+                                                        formData={altContratoDoc}
+                                                        handleFiles={handleFiles}
+                                                        //demandFiles={demandFiles}
+                                                        removeFile={removeFile}
+                                                        fileToRemove={fileToRemove}
+                                                    />
+                                                </div>
+                                            }
+                                        </>
+                                        :
+                                        <EmpresaReview
+                                            forms={forms}
+                                            data={data}
+                                        />
+                                }
+                            </section>
+                            :
+                            <section>
+
+                                <AltSociosTemplate
                                     data={data}
+                                    handleInput={handleInput}
+                                    //  handleBlur={handleBlur}
+                                    addSocio={addSocio}
+                                    removeSocio={removeSocio}
+                                    handleFiles={handleFiles}
+                                    enableEdit={enableEdit}
+                                    handleEdit={handleEdit}
                                 />
-                        }
-                    </section>
+                            </section>
+                    }
                     <footer>
                         <StepperButtons
+                            demand={demand}
+                            declineButtonLabel='Indeferir'
+                            setShowPendencias={setShowPendencias}
+                            showPendencias={showPendencias}
+                            info={info}
                             activeStep={activeStep}
-                            lastStep={steps.length - 1}
+                            lastStep={stepTitles.length - 1}
                             setActiveStep={setActiveStep}
                             handleInput={handleInput}
                             handleSubmit={handleSubmit}

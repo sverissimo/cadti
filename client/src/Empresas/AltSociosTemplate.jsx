@@ -1,9 +1,6 @@
 import React, { Fragment } from 'react'
 
-import SelectEmpresa from '../Reusable Components/SelectEmpresa'
 import FormSubtiltle from '../Reusable Components/FormSubtiltle'
-import ShowLocalFiles from '../Reusable Components/ShowLocalFiles';
-import StepperButtons from '../Reusable Components/StepperButtons';
 
 import Button from '@material-ui/core/Button'
 import EditIcon from '@material-ui/icons/Edit';
@@ -15,8 +12,6 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import { sociosForm } from '../Forms/sociosForm'
 import { empresaFiles } from '../Forms/empresaFiles';
 import TextInput from '../Reusable Components/TextInput'
-import DragAndDrop from '../Reusable Components/DragAndDrop'
-import SaveIcon from '@material-ui/icons/Save'
 import { errorHandler, helper } from '../Utils/checkInputErrors';
 
 const useStyles = makeStyles(theme => ({
@@ -33,44 +28,20 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
-export default function ({ socios, empresas, handleInput, handleBlur, data, addSocio, enableEdit, handleEdit, removeSocio,
-    handleFiles, removeFile, handleSubmit, setShowPendencias }) {
+export default function ({ handleInput, handleBlur, data, addSocio, enableEdit, handleEdit, removeSocio }) {
 
     const
-        { activeStep, stepTitles, filteredSocios, contratoSocial, selectedEmpresa, dropDisplay, fileToRemove, demand, demandFiles, showPendencias, info } = data,
-        classes = useStyles(), { iconButton, list } = classes,
-        contratoSocialForm = [empresaFiles[0]]
-
-    let standAlone = true
-    if (stepTitles) standAlone = false
+        { selectedEmpresa, subtitles, activeStep, filteredSocios, demand } = data,
+        classes = useStyles(), { iconButton, list } = classes
 
     return (
         <>
-            <main className="flex center">
-                {
-                    standAlone &&
-                    <SelectEmpresa
-                        data={data}
-                        empresas={empresas}
-                        handleInput={handleInput}
-                        handleBlur={handleBlur}
-                    />
-                }
-                {
-                    (selectedEmpresa || !standAlone) &&
-                    <section className="flex center paper">
-                        {
-                            standAlone ?
-                                <div className="flexColumn" style={{ alignItems: 'center' }}>
-                                    <h6 style={{ fontSize: '14px' }}>Alteração do quadro Societário</h6>
-                                    <p style={{ fontSize: '12px', color: '#555' }}> Para adicionar um novo sócio, preencha os campos abaixo e clique em "Adicionar sócio".</p>
-                                </div>
-
-                                :
-                                <FormSubtiltle subtitle={stepTitles[activeStep]} />
-                        }
-
-                        <div className='flex center' style={{ padding: '10px 0', width: '100%' }}>
+            {
+                selectedEmpresa &&
+                <section className="flex paper">
+                    <FormSubtiltle subtitle={subtitles[activeStep]} />
+                    <div className="flex center">
+                        <div style={{ padding: '10px 0', width: '100%' }}>
                             <TextInput
                                 form={sociosForm}
                                 data={data}
@@ -81,11 +52,12 @@ export default function ({ socios, empresas, handleInput, handleBlur, data, addS
                         <div style={{ margin: '5px 0 7px 84.58%', width: '100%' }}>
                             <Button color='primary' variant='outlined' size='small' onClick={addSocio}>
                                 <AddIcon /> Adicionar sócio
-                    </Button>
+                            </Button>
                         </div>
-                    </section>
-                }
-            </main>
+                    </div>
+                </section>
+            }
+
             {
                 selectedEmpresa && filteredSocios.length === 0 &&
                 <section>
@@ -95,11 +67,11 @@ export default function ({ socios, empresas, handleInput, handleBlur, data, addS
                 </section>
             }
             {
-                socios?.length > 0 &&
+                filteredSocios?.length > 0 &&
                 <>
                     <section className="flex center paper">
                         <p > Sócios cadastrados</p>
-                        {socios.map((s, i) =>
+                        {filteredSocios.map((s, i) =>
                             <div key={i}>
                                 {sociosForm.map((e, k) =>
                                     <Fragment key={k + 1000}>
@@ -149,60 +121,6 @@ export default function ({ socios, empresas, handleInput, handleBlur, data, addS
                             </div>
                         )}
                     </section>
-                    {
-                        standAlone && demand ?
-                            <section>
-                                {contratoSocial &&
-                                    <ShowLocalFiles
-                                        demand={demand}
-                                        collection='empresaDocs'
-                                        demandFiles={[contratoSocial]}
-                                        form={contratoSocialForm}
-                                    />
-                                }
-                                <StepperButtons
-                                    uniqueStep={true}
-                                    declineButtonLabel='Indeferir'
-                                    demand={demand}
-                                    setShowPendencias={setShowPendencias}
-                                    showPendencias={showPendencias}
-                                    info={info}
-                                    handleSubmit={handleSubmit}
-                                    handleInput={handleInput}
-                                />
-                            </section>
-                            :
-                            standAlone
-                                ?
-                                <section>
-                                    {!demand &&
-                                        <div className='flex center'>
-                                            <DragAndDrop
-                                                name='contratoSocial'
-                                                formData={contratoSocial}
-                                                dropDisplay={dropDisplay}
-                                                handleFiles={handleFiles}
-                                                demandFiles={demandFiles}
-                                                removeFile={removeFile}
-                                                fileToRemove={fileToRemove}
-                                                style={{ width: '40%' }}
-                                            />
-                                        </div>}
-                                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                                        <Button
-                                            size="small"
-                                            color="primary"
-                                            variant="contained"
-                                            style={{ margin: '0px 0 10px 0' }}
-                                            onClick={() => handleSubmit()}
-                                        >
-                                            Enviar <span>&nbsp;&nbsp; </span> <SaveIcon />
-                                        </Button>
-                                    </div>
-                                </section>
-                                :
-                                null
-                    }
                 </>
             }
         </>
