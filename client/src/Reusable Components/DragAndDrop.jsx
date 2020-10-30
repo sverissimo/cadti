@@ -17,7 +17,7 @@ export default function DragAndDrop({ title, name, formData, handleFiles, dropDi
             demandFiles.forEach(({ filename, metadata }) => {
                 if (name === metadata.fieldName) {
                     setFileName(filename)
-                    setFileExistance(true)    
+                    setFileExistance(true)
                 }
             })
         }
@@ -31,10 +31,11 @@ export default function DragAndDrop({ title, name, formData, handleFiles, dropDi
                 if (name === pair[0]) {     //Attach the file if there'no command to remove
                     setFileName(pair[1].name)
                     setFileExistance(false)
+                    console.log(pair[0], pair[1])
                 }
             }
         } else if (!formData && !demandFiles) setFileName(null)
-    }, [formData, name, demandFiles, fileToRemove])    
+    }, [formData, name, demandFiles, fileToRemove])
 
     //*****************Remove file name from rendered field *********/    
     useEffect(() => {

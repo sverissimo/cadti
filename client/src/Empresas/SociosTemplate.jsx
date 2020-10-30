@@ -37,7 +37,7 @@ export default function ({ socios, empresas, handleInput, handleBlur, data, addS
     handleFiles, removeFile, handleSubmit, setShowPendencias }) {
 
     const
-        { activeStep, stepTitles, filteredSocios, contratoSocial, selectedEmpresa, dropDisplay, fileToRemove, demand, demandFiles, showPendencias, info } = data,
+        { activeStep, stepTitles, filteredSocios, contratoSocial, selectedEmpresa, dropDisplay, fileToRemove, demand, demandFiles, showPendencias, info, noUpload } = data,
         classes = useStyles(), { iconButton, list } = classes,
         contratoSocialForm = [empresaFiles[0]]
 
@@ -172,7 +172,7 @@ export default function ({ socios, empresas, handleInput, handleBlur, data, addS
                                 />
                             </section>
                             :
-                            standAlone
+                            standAlone && !noUpload
                                 ?
                                 <section>
                                     {!demand &&

@@ -46,11 +46,10 @@ export async function logGenerator(obj) {
         }
     }
 
-    delete log.historyLength
-
     //**********************if log already exists, no need to inform veiculoId and empresaId**********************
     if (obj?.id && log.empresaId) delete log.empresaId
     if (obj?.id && log.veiculoId) delete log.veiculoId
+    delete log.historyLength
 
     //**********************If given by the component which called this fuction, overwrite logRoutesConfig*/
     if (!obj.id || obj.subject) log.subject = obj?.subject || logConfig?.subject
@@ -65,6 +64,7 @@ export async function logGenerator(obj) {
         const post = axios.post('/api/logs', { log, collection })
         return post
     }
+
     if (obj.approved && !obj.declined) {
         log.history.action = logConfig?.concludedAction || 'Solicitação concluída'
         log.status = 'Solicitação concluída'
@@ -86,7 +86,8 @@ export async function logGenerator(obj) {
 
     //**********************request and return promisse**********************
 
-    //    const post = axios.post('/api/logs', { log: filteredLog, collection })
-    //return post
-    return filteredLog
+    console.log(filteredLog)
+    const post = axios.post('/api/logs', { log: filteredLog, collection })
+    return post
+
 }

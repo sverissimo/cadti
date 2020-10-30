@@ -12,10 +12,10 @@ import StepperButtons from '../Reusable Components/StepperButtons'
 import DragAndDrop from '../Reusable Components/DragAndDrop'
 
 
-const AltContratoTemplate = ({ empresas, data, handleInput, handleSubmit, setActiveStep }) => {
+const AltContratoTemplate = ({ empresas, data, setActiveStep, handleInput, handleSubmit, handleFiles, removeFile }) => {
 
     const
-        { selectedEmpresa, activeStep, steps, subtitles, dropDisplay } = data,
+        { selectedEmpresa, activeStep, steps, subtitles, dropDisplay, altContratoDoc, fileToRemove } = data,
         headerTitle = `Alteração de contrato social - ${selectedEmpresa?.razaoSocial}`,
         forms = [empresasForm, altContratoForm]
 
@@ -47,34 +47,37 @@ const AltContratoTemplate = ({ empresas, data, handleInput, handleSubmit, setAct
                     {/*--------------------- Form / inputs -------------------------*/}
                     <section className="flex paper">
                         <FormSubtiltle subtitle={subtitles[activeStep]} />
-                        {activeStep < 2 ?
-                            <>
-                                <TextInput
-                                    form={forms[activeStep]}
+                        {
+                            activeStep < 2
+                                ?
+                                <>
+                                    <TextInput
+                                        form={forms[activeStep]}
+                                        data={data}
+                                        handleInput={handleInput}
+                                        style={{ width: '100%' }}
+                                    />
+                                    {
+                                        activeStep === 1 &&
+                                        <div className='flex center' style={{ width: '100%' }}>
+                                            <DragAndDrop
+                                                name='altContratoDoc'
+                                                style={{ width: '440px' }}
+                                                dropDisplay={dropDisplay}
+                                                formData={altContratoDoc}
+                                                handleFiles={handleFiles}
+                                                //demandFiles={demandFiles}
+                                                removeFile={removeFile}
+                                                fileToRemove={fileToRemove}
+                                            />
+                                        </div>
+                                    }
+                                </>
+                                :
+                                <EmpresaReview
+                                    forms={forms}
                                     data={data}
-                                    handleInput={handleInput}
-                                    style={{ width: '100%' }}
                                 />
-                                {
-                                    activeStep === 1 &&
-                                    <div className='flex center' style={{ width: '100%' }}>
-                                        <DragAndDrop
-                                            name='contratoSocial'
-                                            dropDisplay={dropDisplay}
-                                        /* formData={contratoSocial}
-                                        handleFiles={handleFiles}
-                                        demandFiles={demandFiles}
-                                        removeFile={removeFile}
-                                        fileToRemove={fileToRemove} */
-                                        />
-                                    </div>
-                                }
-                            </>
-                            :
-                            <EmpresaReview
-                                forms={forms}
-                                data={data}
-                            />
                         }
                     </section>
                     <footer>

@@ -37,7 +37,8 @@ const
     segurosModel = require('./mongo/models/segurosModel'),
     altContratoModel = require('./mongo/models/altContratoModel'),
     deleteVehiclesInsurance = require('./deleteVehiclesInsurance'),
-    updateVehicleStatus = require('./taskManager/veiculos/updateVehicleStatus')
+    updateVehicleStatus = require('./taskManager/veiculos/updateVehicleStatus'),
+    emitSocket = require('./emitSocket')
 
 
 dailyTasks.start()
@@ -407,17 +408,20 @@ app.put('/api/editTableRow', async (req, res) => {
     })
 
     query = query.slice(0, query.length - 2)
-    query +=
-        ` WHERE ${tablePK} = ${id} 
-              RETURNING * `
+    const condition = ` WHERE ${table}.${tablePK} = ${id} `
 
-    const pgQuery = pool.query(query)
+    query += condition
+
+    const
+        socketEvent = 'updateAny',
+        pgQuery = pool.query(query)
 
     pgQuery
-        .then(r => res.send(r.rows))
+        .then(async () => {
+            await emitSocket({ table, io, socketEvent, condition, primaryKey: tablePK })
+            res.send(`${table} updated.`)
+        })
         .catch(e => console.log(e))
-
-    //res.json({ query, columns, updates })
 })
 
 

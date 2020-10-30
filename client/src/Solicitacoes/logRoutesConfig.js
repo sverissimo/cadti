@@ -77,7 +77,7 @@ export const logRoutesConfig = [
         requestAction: 'Alteração estatutária solicitada',
         responseAction: 'Pendências para a alteração estatutária',
         concludedAction: 'Alteração estatutária cadastrada',
-        path: '/solicitacoes/altCadastro',
+        path: '/solicitacoes/altContrato',
         docs: 'empresaDocs',
         primaryKey: 'empresaId',
         collection

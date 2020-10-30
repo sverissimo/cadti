@@ -62,14 +62,14 @@ ORDER BY nome_socio ASC
 `
 
 const empresaQuery = condition => ` 
-SELECT d.*,
+SELECT empresas.*,
 	cardinality (array_agg(v.veiculo_id)) frota,
 	array_to_json(array_agg(v.veiculo_id)) veiculos	
-FROM public.empresas d
+FROM public.empresas
 LEFT JOIN veiculos v
-	ON v.codigo_empresa = d.codigo_empresa
+	ON v.codigo_empresa = empresas.codigo_empresa
 ${condition}
-GROUP BY d.codigo_empresa
+GROUP BY empresas.codigo_empresa
 ORDER BY frota DESC
 `
 
@@ -84,10 +84,10 @@ const getUpdatedData = async (table, condition) => {
    let query
    if (table === 'veiculos') query = vehicleQuery
    if (table === 'seguros') query = seguroQuery
-   if (table === 'socio') query = socioQuery
-   if (table === 'empresa') query = empresaQuery
+   if (table === 'socios') query = socioQuery
+   if (table === 'empresas') query = empresaQuery
    if (table === 'procuradores') query = procuradorQuery
-
+   console.log('***********************************fky*************************', query(condition))
    const data = () => new Promise((resolve, reject) => {
       pool.query(query(condition), (err, t) => {
          if (err) {

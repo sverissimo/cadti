@@ -20,6 +20,5 @@ export default function valueParser(name, value) {
         return parsed
     }
 
-
     else return value
 }
