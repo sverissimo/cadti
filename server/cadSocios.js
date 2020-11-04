@@ -39,7 +39,7 @@ const cadSocios = (req, res, next) => {
                 condition = condition.slice(0, condition.length - 3)
                 condition = 'WHERE ' + condition
 
-                const data = getUpdatedData('socio', condition)
+                const data = getUpdatedData('socios', condition)
                 data.then(res => {
                     req.data = res
                     next()

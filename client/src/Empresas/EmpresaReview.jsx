@@ -3,7 +3,7 @@ import ShowLocalFiles from '../Reusable Components/ShowLocalFiles'
 import FileCopyOutlinedIcon from '@material-ui/icons/FileCopyOutlined';
 import moment from 'moment'
 
-export default function Revisao({ data, forms, filesForm, files }) {
+export default function Revisao({ data, forms, filesForm, files, demandFiles }) {
 
     //Para cada formulário, roda o State do componente(container) e atribui a propriedade value em cada campo 
     forms.forEach(form => {
@@ -60,7 +60,14 @@ export default function Revisao({ data, forms, filesForm, files }) {
                 </div>
 
                 <h3 style={{ margin: '30px 0 0 25px' }}> <FileCopyOutlinedIcon style={{ verticalAlign: 'middle', padding: '0 0 0 8px' }} /> Documentos </h3>
-                {files && <ShowLocalFiles form={filesForm} files={files} />}
+                {(files || demandFiles) &&
+                    <ShowLocalFiles
+                        demandFiles={demandFiles}
+                        form={filesForm}
+                        files={files}
+                        collection='empresaDocs'
+                    />
+                }
             </section >
         </>
     )

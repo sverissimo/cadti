@@ -80,7 +80,7 @@ export default function ({ handleInput, handleBlur, data, addSocio, enableEdit, 
                                             name={e.field}
                                             label={e.label}
                                             className={list}
-                                            disabled={s.edit ? false : true}
+                                            disabled={s.edit && e.field !== 'cpfSocio' ? false : true}
                                             onChange={handleEdit}
                                             error={s.edit ? errorHandler(s[e.field], e) : null}
                                             helperText={s.edit ? helper(s[e.field], e) : null}

@@ -10,7 +10,7 @@ export async function logGenerator(obj) {
 
     const
         collection = 'vehicleLogs',
-        historyLength = obj.historyLength,
+        historyLength = obj?.historyLength,
         commonFields = {
             user: 'Joe Dimaggio',
             createdAt: new Date(),
@@ -86,8 +86,7 @@ export async function logGenerator(obj) {
 
     //**********************request and return promisse**********************
 
-    console.log(JSON.stringify(filteredLog))
+    //console.log(JSON.stringify(filteredLog))
     const post = axios.post('/api/logs', { log: filteredLog, collection })
     return post
-
 }

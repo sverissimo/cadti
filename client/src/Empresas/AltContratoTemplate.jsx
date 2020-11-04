@@ -12,6 +12,7 @@ import StepperButtons from '../Reusable Components/StepperButtons'
 import DragAndDrop from '../Reusable Components/DragAndDrop'
 import SociosTemplate from './SociosTemplate'
 import AltSociosTemplate from './AltSociosTemplate'
+import { empresaFiles } from '../Forms/empresaFiles'
 
 
 const AltContratoTemplate = (
@@ -19,7 +20,7 @@ const AltContratoTemplate = (
         setShowPendencias }) => {
 
     const
-        { selectedEmpresa, demand, activeStep, stepTitles, subtitles, dropDisplay, altContratoDoc, fileToRemove, info, showPendencias } = data,
+        { selectedEmpresa, demand, demandFiles, activeStep, stepTitles, subtitles, dropDisplay, altContratoDoc, fileToRemove, info, showPendencias } = data,
         headerTitle = `Alteração de contrato social - ${selectedEmpresa?.razaoSocial}`,
         forms = [empresasForm, altContratoForm]
 
@@ -71,7 +72,7 @@ const AltContratoTemplate = (
                                                         dropDisplay={dropDisplay}
                                                         formData={altContratoDoc}
                                                         handleFiles={handleFiles}
-                                                        //demandFiles={demandFiles}
+                                                        demandFiles={demandFiles}
                                                         removeFile={removeFile}
                                                         fileToRemove={fileToRemove}
                                                     />
@@ -80,8 +81,10 @@ const AltContratoTemplate = (
                                         </>
                                         :
                                         <EmpresaReview
-                                            forms={forms}
                                             data={data}
+                                            demandFiles={demandFiles}
+                                            forms={forms}
+                                            filesForm={empresaFiles}
                                         />
                                 }
                             </section>
@@ -91,7 +94,6 @@ const AltContratoTemplate = (
                                 <AltSociosTemplate
                                     data={data}
                                     handleInput={handleInput}
-                                    //  handleBlur={handleBlur}
                                     addSocio={addSocio}
                                     removeSocio={removeSocio}
                                     handleFiles={handleFiles}

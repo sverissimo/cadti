@@ -46,6 +46,7 @@ export default function ShowLocalFiles({ form, files, demand, demandFiles, colle
         const link = document.createElement('a');
         link.href = url;
 
+        //Se for imagem ou pdf, abrir em outra aba
         if (file && (file.type === 'application/pdf' || file.type.match('image/'))) {
             link.setAttribute('rel', "noopener")
             link.setAttribute('target', "_blank")
@@ -58,7 +59,8 @@ export default function ShowLocalFiles({ form, files, demand, demandFiles, colle
 
     let fileArray = []
 
-    if (demand) {
+    //Se tiver demanda, pegar os dados do
+    if (demandFiles) {
         demandFiles.forEach(file => {
             form.forEach(({ name, title }) => {
                 if (file?.metadata?.fieldName === name)

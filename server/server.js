@@ -547,41 +547,39 @@ app.put('/api/updateInsurances', async (req, res) => {
 
 app.put('/api/editSocios', (req, res) => {
 
-    const { requestArray, table, tablePK, keys } = req.body
+    const { requestArray, table, tablePK } = req.body
     let queryString = '',
-        ids = '',
-        i = 0
+        ids = ''
 
-    keys.forEach(key => {
-        requestArray.forEach(o => {
-            if (o.hasOwnProperty(key)) {
-                i++
-                if (key !== 'socio_id' && i < 2) {
-                    ids = ''
-                    queryString += `
+    requestArray.forEach(o => {
+        const keys = Object.keys(o)
+        keys.forEach(key => {
+            if (key !== 'socio_id') {
+                ids = ''
+                queryString += `
                     UPDATE ${table} 
                     SET ${key} = CASE ${tablePK} 
                     `
-                    requestArray.forEach(obj => {
-                        let value = obj[key]
-                        if (value) {
-                            if (key !== 'codigo_empresa' && key !== 'share') value = '\'' + value + '\''
-                            queryString += `WHEN ${obj.socio_id} THEN ${value} `
+                requestArray.forEach(obj => {
+                    let value = obj[key]
+                    if (value) {
+                        if (key !== 'codigo_empresa' && key !== 'share')
+                            value = '\'' + value + '\''
+                        queryString += `WHEN ${obj.socio_id} THEN ${value} `
 
-                            if (ids.split(' ').length <= requestArray.length) ids += obj.socio_id + ', '
-                        }
+                        if (ids.split(' ').length <= requestArray.length)
+                            ids += obj.socio_id + ', '
+                    }
+                })
 
-                    })
-                    ids = ids.slice(0, ids.length - 2)
-                    queryString += `
+                ids = ids.slice(0, ids.length - 2)
+                queryString += `
                     END
                     WHERE ${tablePK} IN (${ids});
                     `
-                    ids = ids + ', '
-                }
+                ids = ids + ', '
             }
         })
-        i = 0
     })
 
     pool.query(queryString, (err, t) => {

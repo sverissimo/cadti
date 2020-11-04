@@ -12,7 +12,7 @@ import valueParser from '../Utils/valueParser'
 import { altContratoForm } from '../Forms/altContratoForm'
 import { empresasForm } from '../Forms/empresasForm'
 import { sociosForm } from '../Forms/sociosForm'
-import { setEmpresaDemand } from '../Utils/setEmpresaDemand'
+import AlertDialog from '../Reusable Components/AlertDialog'
 
 const AltContrato = props => {
 
@@ -31,7 +31,8 @@ const AltContrato = props => {
             demand: undefined,
             confirmToast: false,
             filteredSocios: [],
-            showPendencias: false
+            showPendencias: false,
+            openAlertDialog: false
             //selectedEmpresa: empresas[0],
             //filteredSocios: [socios[0], socios[1]],
         })
@@ -40,19 +41,22 @@ const AltContrato = props => {
     useEffect(() => {
         const
             demand = props?.location?.state?.demand,
-            altContratoFields = {},
-            { altContrato, socioUpdates, files } = demand?.history[0]
+            { empresaDocs } = props.redux
+        if (demand && demand.history[0]) {
 
+            const
+                selectedEmpresa = empresas.find(e => e.empresaId === demand.codigoEmpresa),
+                { altContrato, socioUpdates, files } = demand?.history[0],
+                altContratoFields = {}
 
-        if (demand) {
-            const selectedEmpresa = empresas.find(e => e.empresaId === demand.codigoEmpresa)
-            let filteredSocios = JSON.parse(JSON.stringify(socios.filter(s => s.codigoEmpresa === selectedEmpresa.codigoEmpresa)))
+            let
+                filteredSocios = JSON.parse(JSON.stringify(socios.filter(s => s.codigoEmpresa === selectedEmpresa.codigoEmpresa))),
+                demandFiles
 
-            if (altContrato) {
+            if (altContrato)
                 altContratoForm.forEach(({ field }) => altContratoFields[field] = altContrato[field])
-                console.log(demand, altContratoFields, selectedEmpresa)
-            }
-            if (socioUpdates) {
+
+            if (socioUpdates[0]) {
                 const newSocios = []
                 filteredSocios.forEach(fs => {
                     socioUpdates.forEach(us => {
@@ -66,9 +70,11 @@ const AltContrato = props => {
                     })
                 })
                 filteredSocios = filteredSocios.concat(newSocios)
-                console.log(filteredSocios)
             }
-            setState({ ...state, ...altContrato, ...selectedEmpresa, demand, selectedEmpresa, filteredSocios, activeStep: 3 })
+            if (files)
+                demandFiles = empresaDocs.filter(d => files.includes(d.id))
+
+            setState({ ...state, ...altContrato, ...selectedEmpresa, selectedEmpresa, demand, demandFiles, filteredSocios, activeStep: 3 })
         }
     }, [])
 
@@ -80,7 +86,6 @@ const AltContrato = props => {
                 originalSocios = JSON.parse(JSON.stringify(socios.filter(s => s.codigoEmpresa === codigoEmpresa))) || []
 
             setState({ ...state, originalSocios })
-            console.log(originalSocios)
         }
     }, [state.selectedEmpresa])
 
@@ -177,6 +182,7 @@ const AltContrato = props => {
             })
             sObject.status = 'new'
             socios.push(sObject)
+            socios.sort((a, b) => a.nomeSocio.localeCompare(b.nomeSocio))
 
             //Verifica se a soma das participações passou 100%
             socios.forEach(s => {
@@ -184,15 +190,18 @@ const AltContrato = props => {
             })
             if (totalShare > 100) {
                 socios.pop()
-                setState({ ...state, alertType: 'overShared', openAlertDialog: true })
+                await setState({ ...state, alertType: 'overShared', openAlertDialog: true })
+                return
             }
-            else {
-                await setState({ ...state, filteredSocios: socios, totalShare })
-                sociosForm.forEach(obj => {
-                    setState({ ...state, [obj.field]: '' })
-                })
+
+            const clearForm = {}
+            sociosForm.forEach(obj => clearForm[obj.field] = '')
+
+            await setState({ ...state, ...clearForm, filteredSocios: socios, totalShare })
+            setTimeout(() => {
+                console.log(state)
                 document.getElementsByName('nomeSocio')[0].focus()
-            }
+            }, 200);
         }
     }
 
@@ -221,38 +230,85 @@ const AltContrato = props => {
 
     }
 
-    const handleSubmit = approved => {
+    const handleSubmit = async approved => {
         const
             { demand } = state,
             altContrato = createRequestObj(altContratoForm),
-            altEmpresa = createRequestObj(empresasForm)
-
-        const
-            socioUpdates = checkSocioUpdates(),
+            altEmpresa = createRequestObj(empresasForm),
             empresaUpdates = updateEmpresa(altEmpresa),
+            socioUpdates = checkSocioUpdates(),
             log = createLog({ demand, altContrato, socioUpdates, approved })
 
-        console.log({ socioUpdates, empresaUpdates })
-        /* 
-                if (empresaUpdates)
-                    axios.put('/api/editTableRow', empresaUpdates)
-                if (socioUpdates)
-                    console.log(socioUpdates)
-                //axios.put('/api/editSocios', socioUpdates) 
-        
-                logGenerator(log)                               //Generate the demand
-                    .then(r => {
-                        console.log(r?.data)                        
+        let
+            socioIds = [],
+            toastMsg = 'Solicitação de alteração contratual enviada.'
+
+        //console.log({ socioUpdates, empresaUpdates })
+        if (empresaUpdates) {
+            axios.put('/api/editTableRow', empresaUpdates)
+            toastMsg = 'Dados da empresa alterados com sucesso.'
+        }
+
+        if (demand && approved) {
+            if (altContrato)
+                axios.post('/api/altContrato', altContrato)
+            if (socioUpdates) {
+                const
+                    { newSocios, oldSocios, deletedSocios } = socioUpdates,
+                    requestInfo = {
+                        table: 'socios',
+                        tablePK: 'socio_id'
+                    }
+                //console.log(newSocios, oldSocios, deletedSocios)
+                //console.log(JSON.stringify({ requestArray: oldSocios, ...requestInfo }))
+                //console.log(JSON.stringify({ socios: newSocios }))
+
+                if (newSocios[0])
+                    await axios.post('/api/cadSocios', { socios: newSocios })
+                        .then(async r => {
+                            const ids = r?.data.map(s => s.socio_id)
+                            if (ids[0])
+                                socioIds = socioIds.concat(ids)
+                        })
+                if (oldSocios[0]) {
+                    await axios.put('/api/editSocios', { requestArray: oldSocios, ...requestInfo })
+                    const ids = oldSocios.map(s => s.socio_id)
+                    socioIds = socioIds.concat(ids)
+                    console.log(socioIds, oldSocios, ids)
+                }
+                if (deletedSocios[0])
+                    deletedSocios.forEach(s => {
+                        axios.delete(`/api/delete?table=socios&tablePK=socio_id&id=${s.socio_id}`)
                     })
-                    .catch(err => console.log(err)) */
+                toastMsg = 'Alteração de contrato social aprovada.'
+                console.log(socioIds)
+            }
+        }
+        if (approved === false)
+            toastMsg = 'Solicitação indeferida.'
 
-        toast('Solicitação de alteração contratual enviada.')
-        setTimeout(() => { resetState() }, 900);
+        if (socioIds[0])
+            log.metadata.socios = socioIds
+        console.log(socioIds)
+        logGenerator(log)                               //Generate the demand
+            .then(r => {
+                console.log(r?.data)
+            })
+            .catch(err => console.log(err))
 
+        if (demand)
+            setTimeout(() => {
+                props.history.push('/solicitacoes')
+            }, 1500);
+        else
+            setTimeout(() => { resetState() }, 900);
+        toast(toastMsg)
     }
 
     const checkSocioUpdates = () => {
-        const { originalSocios, filteredSocios, demand } = state
+        const
+            { originalSocios, filteredSocios, selectedEmpresa, demand } = state,
+            { codigoEmpresa } = selectedEmpresa
         let
             socioUpdates = [],
             altObj = {}
@@ -281,19 +337,36 @@ const AltContrato = props => {
                                 m.status = undefined
                                 altObj.status = undefined
                             }
-
                         }
                         altObj = {}
                     }
                 })
             }
-            else
+            //Se o(s) sócio(s) não possuem ID, se trata de um novo sócio, assim, todo o objeto é inserido no socioUpdates
+            else {
+                m.codigoEmpresa = codigoEmpresa
                 socioUpdates.push(m)
+            }
         })
-        if (!socioUpdates[0])
-            socioUpdates = undefined
-        console.log(socioUpdates)
-        return socioUpdates
+        if (!demand)
+            return socioUpdates
+
+        //Separa os sócios modificados em novos, alterados e excluídos para que cada o respectivo request seja feito
+        if (socioUpdates[0]) {
+            socioUpdates = humps.decamelizeKeys(socioUpdates)
+            const
+                newSocios = socioUpdates.filter(s => s.status === 'new'),
+                oldSocios = socioUpdates.filter(s => s.status === 'modified'),
+                deletedSocios = socioUpdates.filter(s => s.status === 'deleted')
+
+            //Apaga a prop 'status' de cada sócio antes do request
+            newSocios.forEach(s => delete s.status)
+            oldSocios.forEach(s => delete s.status)
+            deletedSocios.forEach(s => delete s.status)
+
+            return { newSocios, oldSocios, deletedSocios }
+        }
+        else return null
     }
 
     const updateEmpresa = altEmpresa => {
@@ -323,9 +396,11 @@ const AltContrato = props => {
         const
             { selectedEmpresa, info, altContratoDoc, numeroAlteracao } = state,
             { codigoEmpresa } = selectedEmpresa
+        let log
 
+        //Se não houver demanda, criar demanda/log
         if (!demand) {
-            const log = {
+            log = {
                 history: {
                     altContrato,
                     info,
@@ -346,8 +421,36 @@ const AltContrato = props => {
                     numeroAlteracao
                 }
             }
-            return log
         }
+        //Se houver demand, mas for rejeitada, indeferir demanda
+        if (demand && approved === false) {
+            const { id, empresaId } = demand
+            log = {
+                id,
+                empresaId,
+                history: {
+                    info
+                },
+                declined: true
+            }
+        }
+        //Se aprovado
+        if (demand && approved === true) {
+            const
+                { id } = demand,
+                { demandFiles, numeroAlteracao, numeroRegistro } = state
+            log = {
+                id,
+                demandFiles,
+                history: {},
+                metadata: {
+                    numeroAlteracao,
+                    numeroRegistro,
+                },
+                approved
+            }
+        }
+        return log
     }
 
     //Prepara os objetos para o request
@@ -390,17 +493,15 @@ const AltContrato = props => {
 
     const resetState = () => {
 
-        const resetForms = {},
+        const
+            resetForms = {},
             forms = [altContratoForm, sociosForm]
-
-
 
         forms.forEach(form => {
             form.forEach(({ field }) => {
                 Object.assign(resetForms, { [field]: '' })
             })
         })
-        console.log(resetForms)
 
         setState({
 
@@ -411,7 +512,8 @@ const AltContrato = props => {
     const
         toast = toastMsg => setState({ ...state, confirmToast: !state.confirmToast, toastMsg }),
         setShowPendencias = () => setState({ ...state, showPendencias: !state.showPendencias }),
-        { filteredSocios, confirmToast, toastMsg } = state
+        closeAlert = () => setState({ ...state, openAlertDialog: !state.openAlertDialog }),
+        { filteredSocios, confirmToast, toastMsg, openAlertDialog, alertType, customMessage, customTitle } = state
 
     return (
         <>
@@ -431,8 +533,12 @@ const AltContrato = props => {
                 setShowPendencias={setShowPendencias}
             />
             <ReactToast open={confirmToast} close={toast} msg={toastMsg} />
+            {
+                openAlertDialog &&
+                <AlertDialog open={openAlertDialog} alertType={alertType} close={closeAlert} customMessage={customMessage} customTitle={customTitle} />
+            }
         </>
     )
 }
-const collections = ['empresas', 'socios']
+const collections = ['empresas', 'socios', 'getFiles/empresaDocs']
 export default (StoreHOC(collections, AltContrato))
