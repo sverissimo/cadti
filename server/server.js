@@ -28,17 +28,17 @@ const
     { fieldParser } = require('./fieldParser'),
     { getUpdatedData } = require('./getUpdatedData'),
     { empresaChunks, vehicleChunks } = require('./mongo/models/chunksModel'),
-    { vehicleLogsModel } = require('./mongo/models/vehicleLogsModel'),
     { parseRequestBody } = require('./parseRequest'),
     filesModel = require('./mongo/models/filesModel'),
-
-    dbSync = require('./sync/dbSyncAPI'),
-    dailyTasks = require('./taskManager/taskManager'),
+    logsModel = require('./mongo/models/logsModel'),
     segurosModel = require('./mongo/models/segurosModel'),
     altContratoModel = require('./mongo/models/altContratoModel'),
+    dbSync = require('./sync/dbSyncAPI'),
+    dailyTasks = require('./taskManager/taskManager'),
     deleteVehiclesInsurance = require('./deleteVehiclesInsurance'),
     updateVehicleStatus = require('./taskManager/veiculos/updateVehicleStatus'),
     emitSocket = require('./emitSocket')
+
 
 
 dailyTasks.start()
@@ -142,24 +142,16 @@ app.post('/api/logs', logHandler, (req, res) => {
     res.sendStatus(200)
 })
 
-app.get('/api/logs/:collection', (req, res) => {
-    const
-        { collection } = req.params,
-        collectionModels = { vehicleLogs: vehicleLogsModel },
-        model = collectionModels[collection]
-
-    model.find()
+app.get('/api/logs', (req, res) => {
+    logsModel.find()
         .then(doc => res.send(doc))
         .catch(err => console.log(err))
 })
 
 app.get('/api/log', (req, res) => {
-    const
-        { collection, subject, primaryKey, id } = req.query,
-        collectionModels = { vehicleLogs: vehicleLogsModel },
-        model = collectionModels[collection]
-    console.log(subject, typeof subject)
-    model.find({ [primaryKey]: id, completed: false, subject: { $regex: subject } }, (err, doc) => {
+    const { subject, primaryKey, id } = req.query
+
+    logsModel.find({ [primaryKey]: id, completed: false, subject: { $regex: subject } }, (err, doc) => {
         if (err) console.log(err)
         console.log(doc)
         if (!doc || doc.length === 0) res.send(false)
@@ -180,8 +172,13 @@ app.post('/api/cadSeguroMongo', (req, res) => {
     })
 })
 
-
 //***************************  CADASTRO DE ALTERAÇÕES DE CONTRATO SOCIAL**************** */
+
+app.get('/api/altContrato', (req, res) => {
+    altContratoModel.find()
+        .then(doc => res.send(doc))
+        .catch(err => console.log(err))
+})
 
 app.post('/api/altContrato', (req, res) => {
 
@@ -719,7 +716,7 @@ app.delete('/api/deleteFile', async (req, res) => {
 
 app.get('/api/deleteManyFiles', async (req, res) => {
     const
-        { id, collection } = req.query
+        { id } = req.query
 
     console.log(id, typeof id)
     const docsTodelete = { 'metadata.veiculoId': id }

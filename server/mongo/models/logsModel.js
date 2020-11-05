@@ -2,7 +2,7 @@ const
     mongoose = require('mongoose'),
     AutoIncrement = require('mongoose-sequence')(mongoose)
 
-const VehicleLogsSchema = new mongoose.Schema({
+const LogsSchema = new mongoose.Schema({
     numero: {
         type: Number
     },
@@ -41,8 +41,8 @@ const VehicleLogsSchema = new mongoose.Schema({
         strict: false
     });
 
-VehicleLogsSchema.plugin(AutoIncrement, { id: 'logs_counter', inc_field: 'numero' });
+LogsSchema.plugin(AutoIncrement, { id: 'log_counter', inc_field: 'numero' });
 
-const vehicleLogsModel = mongoose.model('vehicleLogs', VehicleLogsSchema, 'vehicleLogs');
+const logsModel = mongoose.model('logs', LogsSchema, 'logs');
 
-module.exports = { vehicleLogsModel }
+module.exports = logsModel

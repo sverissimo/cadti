@@ -74,7 +74,7 @@ class BaixaVeiculo extends Component {
 
     handleBlur = async e => {
         const
-            { empresas, vehicleLogs } = this.props.redux,
+            { empresas, logs } = this.props.redux,
             { frota, demand } = this.state,
             { name } = e.target
         let { value } = e.target
@@ -113,7 +113,7 @@ class BaixaVeiculo extends Component {
                         customTitle = 'Solicitação já cadastrada',
                         customMessage = `Já existe uma demanda aberta para o veículo de placa ${vehicle.placa}. Para acessá-la, clique em "Solicitações" no menu superior.`
 
-                    const demandExists = checkDemand(vehicle?.veiculoId, vehicleLogs)
+                    const demandExists = checkDemand(vehicle?.veiculoId, logs)
 
                     if (demandExists) {
                         this.setState({ customTitle, customMessage, openAlertDialog: true, delegatario: '', placa: undefined })

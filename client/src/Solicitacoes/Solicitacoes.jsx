@@ -13,7 +13,7 @@ function Solicitacoes(props) {
 
     const
         { veiculos, empresas, vehicleDocs, empresaDocs } = props.redux,
-        [vehicleLogs, setVehicleLogs] = useState([]),
+        [logs, setLogs] = useState([]),
         [showHistory, setShowHistory] = useState(false),
         [selectedLog, selectLog] = useState(),
         [completed, showCompleted] = useState(false),
@@ -39,9 +39,9 @@ function Solicitacoes(props) {
     //********Prepares the Logs ArrayofObjects from the DB to be displayed with additional and filtered fields************/
     useEffect(() => {
 
-        async function getVehicleLogs() {
+        async function getLogs() {
 
-            const originalLogs = [...props.redux.vehicleLogs]
+            const originalLogs = [...props.redux.logs]
 
             let logs = originalLogs.map(log => {
                 log.empresa = empresas.find(e => e.codigoEmpresa === log.empresaId)?.razaoSocial
@@ -52,15 +52,15 @@ function Solicitacoes(props) {
 
             if (completed) logs = logs.filter(l => l.completed === true)
             else logs = logs.filter(l => l.completed === false)
-            setVehicleLogs(logs)
+            setLogs(logs)
         }
-        getVehicleLogs()
+        getLogs()
 
-    }, [veiculos, empresas, completed, props.redux.vehicleLogs])
+    }, [veiculos, empresas, completed, props.redux.logs])
 
     const assessDemand = async id => {
 
-        let log = vehicleLogs.find(l => l.id === id)
+        let log = logs.find(l => l.id === id)
         selectLog(log)
 
         let pathname = logRoutesConfig.find(r => log?.subject.match(r.subject))?.path
@@ -72,7 +72,7 @@ function Solicitacoes(props) {
         setHistoryLog(false)
         setShowFiles(false)
 
-        const log = vehicleLogs.find(l => l.id === id)
+        const log = logs.find(l => l.id === id)
         await selectLog(log)
         setShowHistory(true)
     }
@@ -107,7 +107,7 @@ function Solicitacoes(props) {
                 showCompleted={showCompleted}
             />
             <SolicitacoesTable
-                tableData={vehicleLogs}
+                tableData={logs}
                 title={!completed ? 'Solicitações em andamento' : 'Solicitações concluídas'}
                 showDetails={showDetails}
                 assessDemand={assessDemand}
@@ -133,6 +133,6 @@ function Solicitacoes(props) {
     )
 }
 
-const collections = ['veiculos', 'empresas', 'logs/vehicleLogs', 'getFiles/vehicleDocs', 'getFiles/empresaDocs']
+const collections = ['veiculos', 'empresas', 'logs', 'getFiles/vehicleDocs', 'getFiles/empresaDocs']
 
 export default StoreHOC(collections, Solicitacoes)

@@ -30,7 +30,7 @@ export const checkDemand = (id, logsCollection) => {
         collection = component?.collection
 
     if (collection) {
-        if (collection === 'vehicleLogs') {
+        if (collection === 'logs') {
             subject = component.subject
             primaryKey = 'veiculoId'
         }

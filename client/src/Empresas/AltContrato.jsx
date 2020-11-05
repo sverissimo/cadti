@@ -39,14 +39,13 @@ const AltContrato = props => {
 
     //ComponentDidMount para carregar demand, se houver
     useEffect(() => {
-        const
-            demand = props?.location?.state?.demand,
-            { empresaDocs } = props.redux
-        if (demand && demand.history[0]) {
+        const demand = props?.location?.state?.demand
 
+        if (demand && demand.history[0]) {
             const
-                selectedEmpresa = empresas.find(e => e.empresaId === demand.codigoEmpresa),
+                { empresaDocs } = props.redux,
                 { altContrato, socioUpdates, files } = demand?.history[0],
+                selectedEmpresa = empresas.find(e => e.empresaId === demand.codigoEmpresa),
                 altContratoFields = {}
 
             let
@@ -76,6 +75,7 @@ const AltContrato = props => {
 
             setState({ ...state, ...altContrato, ...selectedEmpresa, selectedEmpresa, demand, demandFiles, filteredSocios, activeStep: 3 })
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     useEffect(() => {
@@ -87,6 +87,7 @@ const AltContrato = props => {
 
             setState({ ...state, originalSocios })
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [state.selectedEmpresa])
 
     const setActiveStep = action => {

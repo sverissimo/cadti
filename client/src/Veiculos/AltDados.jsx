@@ -171,7 +171,7 @@ class AltDados extends Component {
 
     handleBlur = async e => {
         const
-            { empresas, vehicleLogs, equipamentos, acessibilidade } = this.props.redux,
+            { empresas, logs, equipamentos, acessibilidade } = this.props.redux,
             { frota, demand, utilizacao, distanciaMinima } = this.state,
             { name } = e.target
 
@@ -238,7 +238,7 @@ class AltDados extends Component {
                     const customTitle = 'Solicitação já cadastrada',
                         customMessage = `Já existe uma demanda aberta para o veículo de placa ${vehicle.placa}. Para acessá-la, clique em "Solicitações" no menu superior.`
 
-                    const demandExists = checkDemand(vehicle?.veiculoId, vehicleLogs)
+                    const demandExists = checkDemand(vehicle?.veiculoId, logs)
                     if (demandExists) {
                         await this.setState({ customTitle, customMessage, openAlertDialog: true, delegatario: '' })
                         this.reset()

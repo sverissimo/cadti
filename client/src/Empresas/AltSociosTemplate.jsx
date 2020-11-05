@@ -10,7 +10,6 @@ import AddIcon from '@material-ui/icons/Add';
 import DeleteIcon from '@material-ui/icons/Delete';
 
 import { sociosForm } from '../Forms/sociosForm'
-import { empresaFiles } from '../Forms/empresaFiles';
 import TextInput from '../Reusable Components/TextInput'
 import { errorHandler, helper } from '../Utils/checkInputErrors';
 
@@ -31,7 +30,7 @@ const useStyles = makeStyles(theme => ({
 export default function ({ handleInput, handleBlur, data, addSocio, enableEdit, handleEdit, removeSocio }) {
 
     const
-        { selectedEmpresa, subtitles, activeStep, filteredSocios, demand } = data,
+        { selectedEmpresa, subtitles, activeStep, filteredSocios } = data,
         classes = useStyles(), { iconButton, list } = classes
 
     return (

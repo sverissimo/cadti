@@ -48,20 +48,30 @@ const ShowFiles = ({ filesCollection, close, typeId, empresas, filesIds, razaoSo
         })
     }
 
-    const getMoreInfo = file => {
-        const { metadata } = file
+    const getLabel = file => {
+        const { metadata, label } = file
 
         switch (metadata.fieldName) {
             case 'procuracao':
                 if (razaoSocial)
-                    return ' - ' + razaoSocial
+                    return label + ' - ' + razaoSocial
                 const emp = empresas.find(e => e.codigoEmpresa === Number(metadata.empresaId))
-                return ' - ' + emp?.razaoSocial || ''
+                return label + ' - ' + emp?.razaoSocial || ''
+
             case 'apoliceDoc':
-                if (metadata.apolice) return ' número ' + metadata.apolice
-                else return ' '
+                if (metadata.apolice)
+                    return label + ' número ' + metadata.apolice
+                else
+                    return label
+
+            case 'altContratoDoc':
+                if (metadata.numeroAlteracao)
+                    return `${metadata.numeroAlteracao}ª ` + label
+                else
+                    return label
+
             default:
-                return ''
+                return label
         }
     }
     const header = ['Arquivo', 'Data de Upload', 'Tamanho']
@@ -97,7 +107,7 @@ const ShowFiles = ({ filesCollection, close, typeId, empresas, filesIds, razaoSo
                                     <span
                                         style={{ textDecoration: 'underline', cursor: 'pointer', color: 'blue' }}
                                         onClick={() => download(file.id, file.filename, collection, file.metadata.fieldName)}>
-                                        {file.label + getMoreInfo(file)}
+                                        {getLabel(file)}
                                     </span>
                                 </div>
 

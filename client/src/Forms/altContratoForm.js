@@ -3,13 +3,14 @@ export const altContratoForm = [
     {
         field: 'numeroAlteracao',
         label: 'Número da alteração',
-        maxLength: 50,
+        maxLength: 3,
+        pattern: '^\\d{1,3}$',
         width
     },
     {
         field: 'numeroRegistro',
-        label: 'Número do registro na junta comercial',
-        maxLength: 30,
+        label: 'Registro na junta comercial',
+        maxLength: 40,
         width
     },
     {

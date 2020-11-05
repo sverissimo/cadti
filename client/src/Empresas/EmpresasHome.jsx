@@ -21,10 +21,10 @@ const featuredPosts = [
         imageUrl: '/images/pen2.png'
     },
     {
-        title: 'Contrato Social',
+        title: 'Sócios',
         date: '07/Nov',
         description:
-            'Gerenciar sócios e alterações de contrato social',
+            'Visualizar ou editar dados dos sócios',
         link: '/empresas/socios',
         imageUrl: '/images/socios3.png'
     },

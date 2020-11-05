@@ -40,20 +40,17 @@ const useStyles = makeStyles(theme => ({
         fontColor: '#bbb',
         textAlign: 'center',
     },
-    chip: {
-        margin: theme.spacing(0.5),
-    }
 }))
 
 export default function SegurosTemplate({ empresas, data, seguros, seguradoras, enableAddPlaca, handleInput, handleBlur,
     addPlate, removeFromInsurance, handleFiles, handleSubmit, enableChangeApolice, showAllPlates, removeFile, setShowPendencias }) {
 
-    const { selectedEmpresa, placa, apolice, addedPlaca, frota, demandFiles, fileToRemove, demand, insurance, dropDisplay,
-        apoliceDoc, showPendencias, info } = data
-
-    const classes = useStyles(), { textField, chip } = classes
+    const { selectedEmpresa, placa, apolice, addedPlaca, frota, allPlates, demandFiles, fileToRemove, demand, insurance, dropDisplay, apoliceDoc,
+        showPendencias, info } = data
 
     data.seguradoras = seguradoras
+
+    const classes = useStyles(), { textField } = classes
 
     let placas = []
 
@@ -66,6 +63,23 @@ export default function SegurosTemplate({ empresas, data, seguros, seguradoras, 
                 placas = insurance.placas.filter(p => p.match(placa)).sort()
         }
     }
+
+    //Marca as placas que possuem compartilhamento por outra empresa
+    let renderedPlacas = []
+    placas.forEach(p => {
+        if (!allPlates.includes(p))
+            renderedPlacas.push({ placa: p, outsider: true })
+
+        frota.forEach(v => {
+            if (v.placa === p) {
+                if (v.compartilhadoId)
+                    renderedPlacas.push({ placa: p, compartilhado: true })
+                else
+                    renderedPlacas.push(p = { placa: p, compartilhado: false })
+            }
+        })
+    })
+
     const insuranceExists = seguros.some(s => s.apolice === apolice)
     return (
         <Fragment>
@@ -186,23 +200,24 @@ export default function SegurosTemplate({ empresas, data, seguros, seguradoras, 
                             :
                             <div style={{ marginTop: '30px' }}></div>
                         }
-                        {insurance && insurance.placas && apolice && apolice.length > 2 && placas[0] &&
+                        {insurance && insurance.placas && apolice && apolice.length > 2 && renderedPlacas[0] &&
                             <>
                                 <p style={{ fontSize: '0.7rem', marginBottom: '10px', marginTop: '3px', color: '#787b6e' }} >
                                     Selecionado{placas.length > 1 ? 's' : ''} {placas.length} veículo{placas.length > 1 ? 's' : ''} de {frota?.length}
                                 </p>
-                                {
-                                    placas.map((placa, i) =>
-                                        <Chip
-                                            key={i}
-                                            label={placa}
-                                            onDelete={() => removeFromInsurance(placa)}
-                                            className={chip}
-                                            color='primary'
-                                            variant="outlined"
-                                        />
-                                    )
-                                }
+                                <div className="placasChipContainer">
+                                    {
+                                        renderedPlacas.map(({ placa, compartilhado, outsider }, i) =>
+                                            <Chip
+                                                key={i}
+                                                label={placa}
+                                                onDelete={() => removeFromInsurance(placa)}
+                                                className={compartilhado ? 'chip-compartilhado' : outsider ? 'chip-outsider' : 'chip'}
+                                                variant="outlined"
+                                            />
+                                        )
+                                    }
+                                </div>
                             </>
                         }
                     </main>}

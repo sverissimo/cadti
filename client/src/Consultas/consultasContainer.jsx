@@ -222,7 +222,7 @@ class ConsultasContainer extends Component {
             { tab, options, items, showDetails, elementDetails, showFiles, selectedElement, filesCollection, typeId, tablePKs, showCertificate, certified,
                 detailsTitle, detailsHeader, openAlertDialog, alertType, customTitle, customMessage } = this.state,
             { redux } = this.props,
-            { empresas, procuracoes, procuradores, empresaDocs } = redux,
+            { empresas, procuracoes, procuradores, empresaDocs, altContrato } = redux,
             primaryKeys = tablePKs.map(pk => humps.camelize(pk))
 
         let updatedElement
@@ -252,6 +252,7 @@ class ConsultasContainer extends Component {
                     procuracoes={procuracoes}
                     procuradores={procuradores}
                     empresaDocs={empresaDocs}
+                    altContrato={altContrato}
                 />
             }
             {
@@ -279,6 +280,6 @@ class ConsultasContainer extends Component {
 }
 
 const collections = ['veiculos', 'empresas', 'socios', 'procuradores', 'seguros', 'seguradoras', 'procuracoes',
-    'getFiles/vehicleDocs', 'getFiles/empresaDocs', 'equipamentos', 'acessibilidade', 'laudos']
+    'getFiles/vehicleDocs', 'getFiles/empresaDocs', 'equipamentos', 'acessibilidade', 'laudos', 'altContrato']
 
 export default connect(null, { updateCollection })(StoreHOC(collections, ConsultasContainer))

@@ -1,19 +1,12 @@
-const { vehicleLogsModel } = require('./mongo/models/vehicleLogsModel')
+const logsModel = require('./mongo/models/logsModel')
+
 
 const logHandler = async (req, res, next) => {
-    /* console.dir(vehicleLogsModel)
-    vehicleLogsModel.counterReset('logs_counter', err => {
-        if (err) console.log(err)
-    }) */
 
     const
-        { log, collection, } = req.body,
+        { log } = req.body,
         { id, subject, history, status, completed } = log,
-        logsModel = { vehicleLogs: vehicleLogsModel }
-
-    const
-        logObject = new logsModel[collection](log),
-        model = logsModel[collection]
+        logObject = new logsModel(log)
 
     if (!id) {
         logObject.save(function (err, doc) {
@@ -27,7 +20,7 @@ const logHandler = async (req, res, next) => {
         if (!subject) delete updatedObject.subject
 
         res.locals.id = id
-        res.locals.doc = await model.findOneAndUpdate(
+        res.locals.doc = await logsModel.findOneAndUpdate(
             { '_id': id },
             {
                 $push: { 'history': history },

@@ -1,6 +1,6 @@
 const vehicle = {
 
-    collection: 'vehicleLogs',
+    collection: 'logs',
     docs: 'vehicleDocs',
     primaryKey: 'veiculoId'
 }
@@ -38,7 +38,7 @@ export const logRoutesConfig = [
     {
         ...vehicle,
         subject: 'Cadastro de laudo de segurança veicular',
-        collection: 'vehicleLogs',
+        collection: 'logs',
         path: '/solicitacoes/laudos',
         requestAction: 'Cadastro do laudo solicitado',
         responseAction: 'Pendências para o cadastro do laudo',
@@ -51,7 +51,7 @@ export const logRoutesConfig = [
     },
     {
         subject: 'Configurações de Veículo',
-        collection: 'vehicleLogs',
+        collection: 'logs',
         path: '/veiculos/config'
     },
     {

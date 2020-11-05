@@ -10,7 +10,6 @@ import CustomStepper from '../Reusable Components/Stepper'
 import TextInput from '../Reusable Components/TextInput'
 import StepperButtons from '../Reusable Components/StepperButtons'
 import DragAndDrop from '../Reusable Components/DragAndDrop'
-import SociosTemplate from './SociosTemplate'
 import AltSociosTemplate from './AltSociosTemplate'
 import { empresaFiles } from '../Forms/empresaFiles'
 
@@ -90,7 +89,6 @@ const AltContratoTemplate = (
                             </section>
                             :
                             <section>
-
                                 <AltSociosTemplate
                                     data={data}
                                     handleInput={handleInput}

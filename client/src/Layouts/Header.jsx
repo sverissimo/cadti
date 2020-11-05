@@ -102,7 +102,7 @@ const StyledBadge = withStyles((theme) => ({
 const Header = props => {
 
     const
-        vehicleLogs = props?.vehicleLogs,
+        logs = props?.logs,
         classes = useStyles(),
         { pathname } = props.location,
         demand = localStorage.getItem('demand')
@@ -114,15 +114,15 @@ const Header = props => {
 
 
     useEffect(() => {
-        if (vehicleLogs && Array.isArray(vehicleLogs)) {
-            const count = vehicleLogs
+        if (logs && Array.isArray(logs)) {
+            const count = logs
                 .filter(l => l?.completed === false)
                 .length
 
             setLogCounter(count)
         }
         setSelected(pathname)
-    }, [pathname, logCounter, vehicleLogs])
+    }, [pathname, logCounter, logs])
 
     const selected = link => {
         let
@@ -211,7 +211,7 @@ const Header = props => {
 
 function mapStateToProps(state) {
     return {
-        vehicleLogs: state.data.vehicleLogs,
+        logs: state.data.logs,
     }
 }
 

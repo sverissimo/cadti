@@ -9,7 +9,7 @@ export async function logGenerator(obj) {
     logRoutes.forEach((el, i) => el.path = logRoutesConfig[i].path.replace('/veiculos', '').replace('/solicitacoes', '').replace('/empresas', ''))
 
     const
-        collection = 'vehicleLogs',
+        collection = 'logs',
         historyLength = obj?.historyLength,
         commonFields = {
             user: 'Joe Dimaggio',
