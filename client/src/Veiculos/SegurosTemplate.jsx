@@ -23,14 +23,6 @@ import { empresaFiles } from '../Forms/empresaFiles'
 import FormSubtiltle from '../Reusable Components/FormSubtiltle'
 
 const useStyles = makeStyles(theme => ({
-
-    title: {
-        color: '#000',
-        fontWeight: 400,
-        fontSize: '0.9rem',
-        textAlign: 'center',
-        marginBottom: '20px'
-    },
     textField: {
         marginLeft: theme.spacing(1),
         marginRight: theme.spacing(1),
@@ -45,41 +37,18 @@ const useStyles = makeStyles(theme => ({
 export default function SegurosTemplate({ empresas, data, seguros, seguradoras, enableAddPlaca, handleInput, handleBlur,
     addPlate, removeFromInsurance, handleFiles, handleSubmit, enableChangeApolice, showAllPlates, removeFile, setShowPendencias }) {
 
-    const { selectedEmpresa, placa, apolice, addedPlaca, frota, allPlates, demandFiles, fileToRemove, demand, insurance, dropDisplay, apoliceDoc,
-        showPendencias, info } = data
+    const { selectedEmpresa, placa, apolice, addedPlaca, frota, demandFiles, fileToRemove, demand, insurance, dropDisplay, apoliceDoc,
+        showPendencias, info, renderedPlacas } = data
 
     data.seguradoras = seguradoras
 
     const classes = useStyles(), { textField } = classes
 
-    let placas = []
-
-    if (insurance && insurance.placas) {
-        if (insurance.placas[0] && insurance.placas[0] !== null) placas = insurance.placas.sort()
-        if (placa !== undefined && placa.length > 2 && placas[0]) {
-            if (typeof placa === 'string')
-                placas = insurance.placas.filter(p => p.toLowerCase().match(placa.toLowerCase())).sort()
-            else
-                placas = insurance.placas.filter(p => p.match(placa)).sort()
-        }
+    const getOwner = (value, e) => {
+        if (value)
+            e.target.title = `Compartilhado por: ${value}`
     }
-
-    //Marca as placas que possuem compartilhamento por outra empresa
-    let renderedPlacas = []
-    placas.forEach(p => {
-        if (!allPlates.includes(p))
-            renderedPlacas.push({ placa: p, outsider: true })
-
-        frota.forEach(v => {
-            if (v.placa === p) {
-                if (v.compartilhadoId)
-                    renderedPlacas.push({ placa: p, compartilhado: true })
-                else
-                    renderedPlacas.push(p = { placa: p, compartilhado: false })
-            }
-        })
-    })
-
+    console.log(renderedPlacas)
     const insuranceExists = seguros.some(s => s.apolice === apolice)
     return (
         <Fragment>
@@ -200,21 +169,27 @@ export default function SegurosTemplate({ empresas, data, seguros, seguradoras, 
                             :
                             <div style={{ marginTop: '30px' }}></div>
                         }
-                        {insurance && insurance.placas && apolice && apolice.length > 2 && renderedPlacas[0] &&
+                        {insurance && insurance.placas && apolice && apolice.length > 2 && renderedPlacas && renderedPlacas[0] &&
                             <>
                                 <p style={{ fontSize: '0.7rem', marginBottom: '10px', marginTop: '3px', color: '#787b6e' }} >
-                                    Selecionado{placas.length > 1 ? 's' : ''} {placas.length} veículo{placas.length > 1 ? 's' : ''} de {frota?.length}
+                                    Selecionado{renderedPlacas.length > 1 ? 's' : ''} {renderedPlacas.length} veículo{renderedPlacas.length > 1 ? 's' : ''} de {frota?.length}
                                 </p>
                                 <div className="placasChipContainer">
                                     {
-                                        renderedPlacas.map(({ placa, compartilhado, outsider }, i) =>
-                                            <Chip
-                                                key={i}
-                                                label={placa}
-                                                onDelete={() => removeFromInsurance(placa)}
-                                                className={compartilhado ? 'chip-compartilhado' : outsider ? 'chip-outsider' : 'chip'}
-                                                variant="outlined"
-                                            />
+                                        renderedPlacas.map(({ placa, compartilhado, outsider, irregular, delCompartilhado }, i) =>
+                                            <div onMouseOver={e => getOwner(delCompartilhado, e)} key={i}>
+                                                <Chip
+                                                    key={i}
+                                                    label={placa}
+                                                    onDelete={() => removeFromInsurance(placa)}
+                                                    className={
+                                                        compartilhado ? 'chip-compartilhado'
+                                                            : outsider ? 'chip-outsider'
+                                                                : irregular ? 'chip-irregular'
+                                                                    : 'chip'}
+                                                    variant="outlined"
+                                                />
+                                            </div>
                                         )
                                     }
                                 </div>
@@ -231,7 +206,7 @@ export default function SegurosTemplate({ empresas, data, seguros, seguradoras, 
                             className='saveButton'
                             variant="contained"
                             onClick={() => handleSubmit()}
-                        //disabled={!placas[0] || !apoliceDoc ? true : false}
+                        //disabled={!renderedPlacas[0] || !apoliceDoc ? true : false}
                         >
                             Salvar <span>&nbsp;&nbsp; </span> <SaveIcon />
                         </Button>

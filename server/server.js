@@ -196,6 +196,17 @@ const routes = 'empresas|socios|veiculos|modelosChassi|carrocerias|equipamentos|
 
 app.get(`/api/${routes}`, apiGetRouter);
 
+//Busca os veículos de uma empresa incluindo todos os de outras empresas que lhe são compartilhados
+app.get('/api/allVehicles', (req, res) => {
+    const
+        { codigoEmpresa } = req.body,
+        condition = `WHERE veiculos.codigo_empresa = ${codigoEmpresa} OR veiculos.compartilhado_id = ${codigoEmpresa}`,
+        data = getUpdatedData('veiculos', condition)
+
+    data.then(r => res.send(r))
+})
+
+//get one vehicle
 app.get('/api/veiculo/:id', (req, res) => {
     const { id } = req.params
     const { column, filter } = req.query

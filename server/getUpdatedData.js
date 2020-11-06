@@ -87,7 +87,7 @@ const getUpdatedData = async (table, condition) => {
    if (table === 'socios') query = socioQuery
    if (table === 'empresas') query = empresaQuery
    if (table === 'procuradores') query = procuradorQuery
-   console.log('***********************************fky*************************', query(condition))
+
    const data = () => new Promise((resolve, reject) => {
       pool.query(query(condition), (err, t) => {
          if (err) {
