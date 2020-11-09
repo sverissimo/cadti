@@ -119,8 +119,8 @@ class Seguro extends Component {
     //Marca as placas que possuem compartilhamento por outra empresa    
     renderPlacas = placas => {
         const
-            { empresas } = this.props.redux,
-            { allVehicles, allPlates, insurance, ownedPlacas, selectedEmpresa } = this.state
+            { veiculos } = this.props.redux,
+            { allPlates, insurance, ownedPlacas } = this.state
 
         if (insurance) {
             //Se passar as placas como argumento se trata do filtro do searchBar. Senão é a renderização depois de preencher a apólice
@@ -129,27 +129,30 @@ class Seguro extends Component {
             let renderedPlacas = []
             placas.forEach(p => {
 
-                //allPlates são todos as placas de uma viação mais as que não pertencem a ela mas ela está autorizada a compartilhar
+                const
+                    veiculo = veiculos.find(v => v.placa === p),
+                    { placa, empresa, compartilhado, ...vehicle } = veiculo,
+                    vehicleDetails = { placa, owner: empresa, delCompartilhado: compartilhado }
+
+                //allPlates são todos as placas de uma viação mais as que não pertencem a ela mas ela está autorizada a compartilhar. 
+                //Se a placa não tiver em allPlates, o seguro pode estar irregular                        
                 if (!allPlates.includes(p))
-                    renderedPlacas.push({ placa: p, irregular: true })
+                    Object.assign(vehicleDetails, { irregular: true })
 
-                //ownedPlates são as placas pertencentes a uma viação
-                else if (!ownedPlacas.includes(p))
-                    renderedPlacas.push({ placa: p, outsider: true })
 
-                allVehicles.forEach(v => {
-                    if (v.placa === p) {
-                        if (v.compartilhadoId) {
-                            const delCompartilhado = v.compartilhado
-                            renderedPlacas.push({ placa: p, compartilhado: true, delCompartilhado })
-                        }
+                //Apesar de não pertencer à viação, o veículo é compartilhado e está assegurado por ela
+                if (allPlates.includes(p) && !ownedPlacas.includes(p))
+                    Object.assign(vehicleDetails, { outsider: true })
 
-                        else
-                            renderedPlacas.push({ placa: p, compartilhado: false })
-                    }
-                })
+                if (ownedPlacas.includes(p)) {
+                    if (compartilhado)
+                        vehicleDetails.compartilhado = true
+                    else
+                        vehicleDetails.compartilhado = false
+                }
+                renderedPlacas.push(vehicleDetails)
             })
-            console.log(placas, renderedPlacas)
+
             this.setState({ renderedPlacas })
         }
     }

@@ -44,11 +44,17 @@ export default function SegurosTemplate({ empresas, data, seguros, seguradoras, 
 
     const classes = useStyles(), { textField } = classes
 
-    const getOwner = (value, e) => {
-        if (value)
-            e.target.title = `Compartilhado por: ${value}`
+    const getOwner = ({ compartilhado, outsider, irregular, delCompartilhado, owner }, e) => {
+
+        if (compartilhado)
+            e.target.title = `Compartilhado por: ${delCompartilhado}`
+        if (outsider)
+            e.target.title = `Autorizado compartilhamento. Proprietário: ${owner}`
+        if (irregular)
+            e.target.title = `NÃO autorizado compartilhamento!! Proprietário: ${owner}`
     }
-    console.log(renderedPlacas)
+
+    //console.log(renderedPlacas)
     const insuranceExists = seguros.some(s => s.apolice === apolice)
     return (
         <Fragment>
@@ -176,8 +182,9 @@ export default function SegurosTemplate({ empresas, data, seguros, seguradoras, 
                                 </p>
                                 <div className="placasChipContainer">
                                     {
-                                        renderedPlacas.map(({ placa, compartilhado, outsider, irregular, delCompartilhado }, i) =>
-                                            <div onMouseOver={e => getOwner(delCompartilhado, e)} key={i}>
+                                        renderedPlacas.map(({ placa, compartilhado, outsider, irregular, delCompartilhado, owner }, i,) =>
+
+                                            <div onMouseOver={e => getOwner({ compartilhado, outsider, irregular, delCompartilhado, owner }, e)} key={i}>
                                                 <Chip
                                                     key={i}
                                                     label={placa}
