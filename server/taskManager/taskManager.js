@@ -12,15 +12,15 @@ let
 //DEVELOPMENT ==> 
 if (process.env.NODE_ENV !== 'production') {
     dailyTasks = {
-        start: () => {
+        start: async () => {
             //await insertNewInsurances()
             //console.log('new insurances alright')   
 
-            //await checkExpiredInsurances()
-            //console.log('updated expired insurances alright')
-
-            //updateVehicleStatus()
-            //console.log('updated vehicle data alright')
+            /*   await checkExpiredInsurances()
+              console.log('updated expired insurances alright')
+  
+              updateVehicleStatus()
+              console.log('updated vehicle data alright') */
         }
     }
 }

@@ -39,8 +39,6 @@ const
     updateVehicleStatus = require('./taskManager/veiculos/updateVehicleStatus'),
     emitSocket = require('./emitSocket')
 
-
-
 dailyTasks.start()
 dotenv.config()
 
@@ -101,7 +99,6 @@ app.put('/api/updateFilesMetadata', async (req, res) => {
         update['metadata.' + k] = v
     })
 
-    console.log('this is the  metadata: ', metadata, '\n\nAnd this is the update: ', update)
 
     parsedIds = ids.map(id => new mongoose.mongo.ObjectId(id))
 
@@ -196,14 +193,43 @@ const routes = 'empresas|socios|veiculos|modelosChassi|carrocerias|equipamentos|
 
 app.get(`/api/${routes}`, apiGetRouter);
 
-//Busca os veículos de uma empresa incluindo todos os de outras empresas que lhe são compartilhados
-app.get('/api/allVehicles', (req, res) => {
+//Busca os veículos de uma empresa incluindo todos os de outras empresas que lhe são compartilhados ou que estão em sua apolice apesar d n ser compartilhado
+app.get('/api/allVehicles', async (req, res) => {
     const
-        { codigoEmpresa } = req.body,
-        condition = `WHERE veiculos.codigo_empresa = ${codigoEmpresa} OR veiculos.compartilhado_id = ${codigoEmpresa}`,
-        data = getUpdatedData('veiculos', condition)
+        { codigoEmpresa } = req.query,
+        segCondition = `WHERE seguros.codigo_empresa = ${codigoEmpresa} `,
+        seguros = await getUpdatedData('seguros', segCondition) || []
 
-    data.then(r => res.send(r))
+    let vehicleIds = []
+
+    //Pega todos os veículos assegurados, pertencentes ou não à frota, com compartilhamento ou não(irregulares)
+    seguros.forEach(s => {
+        if (s.veiculos) {
+            vehicleIds.push(...s.veiculos)
+        }
+    })
+    if (!vehicleIds[0])
+        vehicleIds = 0
+
+    const vQuery = `
+    SELECT veiculos.veiculo_id, veiculos.placa, veiculos.codigo_empresa, e.razao_social as empresa, e2.razao_social as compartilhado
+    FROM veiculos
+    LEFT JOIN empresas e
+        ON veiculos.codigo_empresa = e.codigo_empresa
+    LEFT JOIN empresas e2
+        ON veiculos.compartilhado_id = e2.codigo_empresa
+    WHERE veiculos.codigo_empresa = ${codigoEmpresa} 
+        OR veiculos.compartilhado_id = ${codigoEmpresa}
+        OR veiculos.veiculo_id IN (${vehicleIds})
+            `
+    console.log("vQuery", vQuery)
+
+    pool.query(vQuery, (err, t) => {
+        if (err) console.log(err)
+        if (t && t.rows)
+            res.send(t.rows)
+        else res.send([])
+    })
 })
 
 //get one vehicle
@@ -228,7 +254,6 @@ app.post('/api/cadastroVeiculo', (req, res) => {
         reqObj = req.body,
         { keys, values } = parseRequestBody(reqObj)
 
-    console.log(`INSERT INTO public.veiculos (${keys}) VALUES (${values}) RETURNING *`)
 
     pool.query(
         `INSERT INTO public.veiculos (${keys}) VALUES (${values}) RETURNING veiculo_id`, (err, table) => {
@@ -273,12 +298,11 @@ app.post('/api/cadProcuracao', (req, res) => {
 
     const { keys, values } = parseRequestBody(req.body)
 
-    console.log(`INSERT INTO public.procuracoes (${keys}) VALUES (${values}) RETURNING *`)
     pool.query(
         `INSERT INTO public.procuracoes (${keys}) VALUES (${values}) RETURNING *`, (err, table) => {
             if (err) res.send(err)
             if (table && table.rows && table.rows.length === 0) { res.send(table.rows); return }
-            if (table.rows.length > 0) {
+            else if (table.rows.length > 0) {
                 const updatedData = {
                     insertedObjects: table.rows,
                     collection: 'procuracoes'
@@ -294,8 +318,8 @@ app.post('/api/cadProcuracao', (req, res) => {
 app.post('/api/empresaFullCad', cadEmpresa, (req, res, next) => {
     const
         id = req.codigo_empresa,
-        condition = `WHERE d.codigo_empresa = ${id}`,
-        data = getUpdatedData('empresa', condition)
+        condition = `WHERE empresas.codigo_empresa = ${id}`,
+        data = getUpdatedData('empresas', condition)
     data.then(newObject => {
         io.sockets.emit('insertEmpresa', newObject)
         next()
@@ -323,7 +347,6 @@ app.post('/api/cadSeguro', (req, res) => {
     })
 
     parsed = parsed.toString().replace(/'\['/g, '').replace(/'\]'/g, '')
-    console.log(`INSERT INTO public.seguros (${keys}) VALUES (${parsed}) RETURNING *`)
     pool.query(
         `INSERT INTO public.seguros (${keys}) VALUES (${parsed}) RETURNING *`, (err, table) => {
             if (err) console.log(err)
@@ -512,7 +535,6 @@ app.put('/api/updateInsurances', async (req, res) => {
         const data = getUpdatedData('veiculos', `WHERE ${condition}`)
         data.then(async res => {
             await io.sockets.emit('updateVehicle', res)
-            console.log('deleted from insurance: ', deletedVehicles)
         })
     }
 
@@ -753,7 +775,6 @@ app.get('/api/deleteManyFiles', async (req, res) => {
         vehicleChunks.deleteMany({ files_id: fileId }, (err, result) => {
             if (err) console.log(err)
             if (result) {
-                console.log('result aaaaaaaaaaaaaaaaaaaa')
             }
         })
     })
@@ -837,5 +858,4 @@ app.use((error, req, res, next) => {
 });
 
 server.listen(process.env.PORT || 3001, () => {
-    console.log('Running...')
 })

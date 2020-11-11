@@ -12,7 +12,7 @@ import TextField from '@material-ui/core/TextField'
 import AddIcon from '@material-ui/icons/Add';
 import DeleteIcon from '@material-ui/icons/Delete';
 
-import { sociosForm } from '../Forms/sociosForm'
+import { sociosForm } from '../Forms/dadosSociosForm'
 import { empresaFiles } from '../Forms/empresaFiles';
 import TextInput from '../Reusable Components/TextInput'
 import DragAndDrop from '../Reusable Components/DragAndDrop'

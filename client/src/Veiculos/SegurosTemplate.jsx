@@ -37,7 +37,7 @@ const useStyles = makeStyles(theme => ({
 export default function SegurosTemplate({ empresas, data, seguros, seguradoras, enableAddPlaca, handleInput, handleBlur,
     addPlate, removeFromInsurance, handleFiles, handleSubmit, enableChangeApolice, showAllPlates, removeFile, setShowPendencias }) {
 
-    const { selectedEmpresa, placa, apolice, addedPlaca, frota, demandFiles, fileToRemove, demand, insurance, dropDisplay, apoliceDoc,
+    const { selectedEmpresa, placa, apolice, addedPlaca, allVehicles, frota, demandFiles, fileToRemove, demand, insurance, dropDisplay, apoliceDoc,
         showPendencias, info, renderedPlacas } = data
 
     data.seguradoras = seguradoras
@@ -46,15 +46,15 @@ export default function SegurosTemplate({ empresas, data, seguros, seguradoras, 
 
     const getOwner = ({ compartilhado, outsider, irregular, delCompartilhado, owner }, e) => {
 
+        e.target.title = 'Veículo próprio'
         if (compartilhado)
-            e.target.title = `Compartilhado por: ${delCompartilhado}`
+            e.target.title = `Veículo próprio. Compartilhado por: ${delCompartilhado}`
         if (outsider)
             e.target.title = `Autorizado compartilhamento. Proprietário: ${owner}`
         if (irregular)
-            e.target.title = `NÃO autorizado compartilhamento!! Proprietário: ${owner}`
+            e.target.title = `NÃO autorizado compartilhamento! Proprietário: ${owner}`
     }
 
-    //console.log(renderedPlacas)
     const insuranceExists = seguros.some(s => s.apolice === apolice)
     return (
         <Fragment>
@@ -103,7 +103,7 @@ export default function SegurosTemplate({ empresas, data, seguros, seguradoras, 
                                     onBlur={handleBlur}
                                 />
                                 <AutoComplete
-                                    collection={frota}
+                                    collection={allVehicles}
                                     datalist='placa'
                                     value={addedPlaca}
                                 />

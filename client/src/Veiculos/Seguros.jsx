@@ -69,22 +69,25 @@ class Seguro extends Component {
 
             await this.setState({ ...this.state, ...filteredState, ...insurance, insurance, demand, seguradoraId, demandFiles: [latestDoc] })
 
-            this.filterInsurances()
+            await this.filterInsurances()
+            this.renderPlacas()
         }
         document.addEventListener('keydown', this.escFunction, false)
     }
     //Se uma viação válida estiver selecionada, filtra sua frota e os veículos que apesar de não possuir os tem na apólice de seguro
-    filterInsurances = () => {
+    filterInsurances = async () => {
         const
-            { veiculos, seguros } = this.props.redux,
+            { seguros } = this.props.redux,
             { selectedEmpresa } = this.state,
             { codigoEmpresa } = selectedEmpresa,
             filteredInsurances = seguros.filter(seguro => seguro.codigoEmpresa === codigoEmpresa),
-            allVehicles = veiculos.filter(v => v.codigoEmpresa === codigoEmpresa || v.compartilhadoId === codigoEmpresa),
+            dataFromServer = await axios.get(`/api/allVehicles?codigoEmpresa=${codigoEmpresa}`),
+            allVehicles = humps.camelizeKeys(dataFromServer?.data) || [],
             allPlates = allVehicles.map(vehicle => vehicle.placa).sort(),
             frota = allVehicles.filter(v => v.codigoEmpresa === codigoEmpresa),
             ownedPlacas = frota.map(v => v.placa)
 
+        //console.log("Seguro -> componentDidMount -> allVehicles", allVehicles, allPlates, ownedPlacas)
         this.setState({ seguros: filteredInsurances, allVehicles, frota, ownedPlacas, allPlates })
     }
 
@@ -116,11 +119,10 @@ class Seguro extends Component {
         else this.setState({ dataEmissao: '', vencimento: '', deletedVehicles: [], insurance: {} })
     }
 
-    //Marca as placas que possuem compartilhamento por outra empresa    
+    //Marca as placas que possuem compartilhamento por outra empresa. Acionado ao se informar a apólice (caso já exista)   
     renderPlacas = placas => {
-        const
-            { veiculos } = this.props.redux,
-            { allPlates, insurance, ownedPlacas } = this.state
+        const { allVehicles, insurance, ownedPlacas } = this.state
+        //console.log("allVehicles", allVehicles)
 
         if (insurance) {
             //Se passar as placas como argumento se trata do filtro do searchBar. Senão é a renderização depois de preencher a apólice
@@ -128,23 +130,21 @@ class Seguro extends Component {
 
             let renderedPlacas = []
             placas.forEach(p => {
-
                 const
-                    veiculo = veiculos.find(v => v.placa === p),
-                    { placa, empresa, compartilhado, ...vehicle } = veiculo,
+                    veiculo = allVehicles.find(v => v.placa === p),
+                    { placa, empresa, compartilhado } = veiculo,
                     vehicleDetails = { placa, owner: empresa, delCompartilhado: compartilhado }
 
-                //allPlates são todos as placas de uma viação mais as que não pertencem a ela mas ela está autorizada a compartilhar. 
-                //Se a placa não tiver em allPlates, o seguro pode estar irregular                        
-                if (!allPlates.includes(p))
-                    Object.assign(vehicleDetails, { irregular: true })
-
-
-                //Apesar de não pertencer à viação, o veículo é compartilhado e está assegurado por ela
-                if (allPlates.includes(p) && !ownedPlacas.includes(p))
-                    Object.assign(vehicleDetails, { outsider: true })
-
-                if (ownedPlacas.includes(p)) {
+                //Se o veículo não for próprio
+                if (!ownedPlacas.includes(placa)) {
+                    //Se constar com compartilhado de outra viação, está fora da frota da empresa, senão pode estar irregular
+                    if (compartilhado)
+                        Object.assign(vehicleDetails, { outsider: true })
+                    else
+                        Object.assign(vehicleDetails, { irregular: true })
+                }
+                //Se o veículo for próprio:
+                else {
                     if (compartilhado)
                         vehicleDetails.compartilhado = true
                     else
@@ -152,7 +152,6 @@ class Seguro extends Component {
                 }
                 renderedPlacas.push(vehicleDetails)
             })
-
             this.setState({ renderedPlacas })
         }
     }
@@ -163,7 +162,7 @@ class Seguro extends Component {
         const
             { name } = e.target,
             { empresas, seguradoras } = this.props.redux,
-            { selectedEmpresa, frota, insurance, apolice, dataEmissao, vencimento, newInsurance, seguradora } = this.state
+            { selectedEmpresa, allVehicles, insurance, apolice, dataEmissao, vencimento, newInsurance, seguradora } = this.state
 
         this.setState({ [name]: value })
 
@@ -209,7 +208,7 @@ class Seguro extends Component {
                 }
                 break
             case 'addedPlaca':
-                const vehicleFound = frota.find(v => v.placa === value)
+                const vehicleFound = allVehicles.find(v => v.placa === value)
                 if (vehicleFound) this.setState({ vehicleFound })
                 break;
             default:
@@ -320,8 +319,8 @@ class Seguro extends Component {
     addPlate = async (placaInput, allSelected) => {
 
         const
-            { apolice, frota, deletedVehicles, insurance } = this.state,
-            vehicleFound = frota.find(v => v.placa === placaInput)
+            { apolice, allVehicles, deletedVehicles, insurance } = this.state,
+            vehicleFound = allVehicles.find(v => v.placa === placaInput)
 
         if (!placaInput || placaInput === '') return
 
@@ -355,6 +354,7 @@ class Seguro extends Component {
                 const i = deletedVehicles.indexOf(veiculoId)
                 deletedVehicles.splice(i, 1)
             }
+            this.renderPlacas(update?.placas)
             this.setState({ insurance: update, addedPlaca: '', deletedVehicles })
         }
     }
@@ -362,14 +362,15 @@ class Seguro extends Component {
     removeFromInsurance = async placaInput => {
 
         const
-            { apolice, frota } = this.state,
-            vehicleFound = frota.find(v => v.placa === placaInput),
+            { apolice, allVehicles } = this.state,
+            vehicleFound = allVehicles.find(v => v.placa === placaInput),
             { veiculoId, placa } = vehicleFound
 
         let
             insurance = { ...this.state.insurance },
             deletedVehicles = [...this.state.deletedVehicles],
-            placas = [], veiculos = [],
+            placas = [],
+            veiculos = [],
             check
 
         const seg = this.props.redux.seguros.find(s => s.apolice === apolice)
@@ -382,7 +383,6 @@ class Seguro extends Component {
 
             if (!deletedVehicles.includes(veiculos[k])) {
                 deletedVehicles.push(veiculos[k])
-
                 this.setState({ deletedVehicles })
             }
         }
@@ -397,7 +397,8 @@ class Seguro extends Component {
         insurance.placas.splice(i, 1)
         insurance.veiculos.splice(k, 1)
 
-        this.setState({ insurance })
+        await this.setState({ insurance })
+        this.renderPlacas()
     }
 
     updateInsurance = () => {

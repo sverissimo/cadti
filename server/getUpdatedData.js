@@ -35,11 +35,11 @@ const vehicleQuery = (condition = '') => `
 
 const seguroQuery = condition => `
 SELECT seguros.*,
-	s.seguradora,
-	array_to_json(array_agg(v.veiculo_id)) veiculos,
-	array_to_json(array_agg(v.placa)) placas,
-	d.razao_social empresa,	
-	cardinality(array_agg(v.placa)) segurados
+		s.seguradora,
+		array_to_json(array_agg(v.veiculo_id)) veiculos,
+		array_to_json(array_agg(v.placa)) placas,
+		d.razao_social empresa,
+		cardinality(array_remove(array_agg(v.placa), null)) as segurados
 FROM seguros
 LEFT JOIN veiculos v
 	ON seguros.apolice = v.apolice
@@ -47,8 +47,8 @@ LEFT JOIN empresas d
 	ON d.codigo_empresa = seguros.codigo_empresa
 LEFT JOIN seguradora s
 	ON s.id = seguros.seguradora_id
-${condition}
-GROUP BY seguros.apolice, d.razao_social, s.seguradora, d.codigo_empresa
+   ${condition}
+GROUP BY seguros.apolice, d.razao_social, s.seguradora, d.codigo_empresa, seguros.id
 ORDER BY seguros.vencimento ASC
 `
 
@@ -63,8 +63,7 @@ ORDER BY nome_socio ASC
 
 const empresaQuery = condition => ` 
 SELECT empresas.*,
-	cardinality (array_agg(v.veiculo_id)) frota,
-	array_to_json(array_agg(v.veiculo_id)) veiculos	
+   cardinality (array_remove(array_agg(v.veiculo_id), null)) frota			
 FROM public.empresas
 LEFT JOIN veiculos v
 	ON v.codigo_empresa = empresas.codigo_empresa

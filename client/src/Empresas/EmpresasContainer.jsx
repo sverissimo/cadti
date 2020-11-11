@@ -8,7 +8,7 @@ import StoreHOC from '../Store/StoreHOC'
 import { checkInputErrors } from '../Utils/checkInputErrors'
 import EmpresasTemplate from './EmpresasTemplate'
 import SociosTemplate from './SociosTemplate'
-import Review from './EmpresaReview'
+import EmpresaCadReview from './EmpresaCadReview'
 
 import valueParser from '../Utils/valueParser'
 import { empresaFiles } from '../Forms/empresaFiles'
@@ -143,7 +143,6 @@ class EmpresasContainer extends Component {
         fs[index] = editSocio
 
         this.setState({ filteredSocios: fs })
-
     }
 
     removeSocio = index => {
@@ -364,10 +363,13 @@ class EmpresasContainer extends Component {
                             handleEdit={this.handleEdit}
                         />
                         :
-                        activeStep === 2 && <Review
+                        activeStep === 2 &&
+                        <EmpresaCadReview
+                            data={this.state}
                             files={contratoSocial}
-                            filesForm={empresaFiles} data={this.state}
-                            sociosForm={sociosForm} empresasForm={empresasForm}
+                            filesForm={empresaFiles}
+                            empresasForm={empresasForm}
+                            sociosForm={sociosForm}
                         />
             }
             <StepperButtons

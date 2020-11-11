@@ -3,6 +3,7 @@ import ClosePopUpButton from '../Reusable Components/ClosePopUpButton'
 import '../Layouts/popUp.css'
 
 function ShowAllPlates({ items, title, data, close, selectAll, handleCheck, selectAllPlates }) {
+
     return (
         <div className="popUpWindow row">
             <h6>{title} Clique em "X" ou pressione 'esc' para voltar</h6>

@@ -128,19 +128,22 @@ body {
         width: 118px;
     }
 }
-
-.chip {
+@mixin chipMargin {
     margin: 5px 2.5px;
+}
+.chip {
+    @include chipMargin;
     &-compartilhado {
-        margin: 5px 2.5px;
+        @include chipMargin;
         color: green !important;
     }
     &-outsider {
-        margin: 5px 2.5px;
+        @include chipMargin;
         font-weight: 500;
         color: #572154 !important;
     }
     &-irregular {
+        @include chipMargin;
         color: red !important;
         font-weight: 500;
     }

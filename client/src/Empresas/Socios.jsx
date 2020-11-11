@@ -9,7 +9,7 @@ import ReactToast from '../Reusable Components/ReactToast'
 import valueParser from '../Utils/valueParser'
 
 import Crumbs from '../Reusable Components/Crumbs'
-import { sociosForm } from '../Forms/sociosForm'
+import { sociosForm } from '../Forms/dadosSociosForm'
 import AlertDialog from '../Reusable Components/AlertDialog'
 import { removeFile, sizeExceedsLimit } from '../Utils/handleFiles'
 import { setEmpresaDemand } from '../Utils/setEmpresaDemand'

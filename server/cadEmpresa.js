@@ -2,7 +2,8 @@ const { pool } = require('./config/pgConfig')
 const { parseRequestBody } = require('./parseRequest')
 
 const cadEmpresa = (req, res, next) => {
-    const { empresa } = req.body,
+    const
+        { empresa } = req.body,
         { keys, values } = parseRequestBody(empresa)
 
     console.log(`INSERT INTO public.empresas(${keys}) VALUES(${values}) RETURNING codigo_empresa`)
@@ -14,10 +15,6 @@ const cadEmpresa = (req, res, next) => {
             if (table && table.rows[0].hasOwnProperty('codigo_empresa')) {
 
                 req.body.socios.forEach(obj => {
-                    Object.assign(obj, { codigo_empresa: table.rows[0].codigo_empresa })
-                })
-
-                if (req.body.procuradores) req.body.procuradores.forEach(obj => {
                     Object.assign(obj, { codigo_empresa: table.rows[0].codigo_empresa })
                 })
 
