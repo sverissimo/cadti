@@ -14,7 +14,7 @@ export default function Revisao({ data, forms, filesForm, files, demandFiles }) 
             })
         })
     })
-    console.log(forms)
+
     //Consertando a data - (campo 'Vencimento do contrato')
     const i = forms[0].findIndex(el => el.field === 'vencimentoContrato')
     if (i !== -1) {

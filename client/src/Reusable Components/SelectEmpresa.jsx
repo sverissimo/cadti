@@ -1,6 +1,5 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import AutoComplete from '../Utils/autoComplete'
-
 import './commonStyles.css'
 
 export default function SelectEmpresa(props) {
@@ -17,11 +16,21 @@ export default function SelectEmpresa(props) {
 
     //Render field or title conditionally
     let enableSelect = true
+    if (demand)
+        enableSelect = false
+    else if (activeStep && activeStep > 0)
+        enableSelect = false
 
-    if (demand) enableSelect = false
-    else if (activeStep && activeStep > 0) enableSelect = false
+    useEffect(() => {
+        if (!enableSelect)
+            setTimeout(() => {
+                document.getElementsByName('razaoSocial')[0].focus()
+            }, 300);
+    }, [])
 
-    if (enableSelect)
+    if (enableSelect) {
+
+
         return (
             <div className={props.hasOwnProperty('shared') ? 'flex center' : 'paper flex center'} style={{ width: '100%', marginBottom: 0 }}>
                 {
@@ -46,6 +55,7 @@ export default function SelectEmpresa(props) {
                 }
             </div >
         )
+    }
     else return (
         <>
             <span className='selectedEmpresa'> {headerTitle || demand?.empresa || ''} </span>

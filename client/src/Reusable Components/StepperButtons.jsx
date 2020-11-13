@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { makeStyles } from '@material-ui/core/styles'
 import Button from '@material-ui/core/Button'
 import TextField from '@material-ui/core/TextField'
@@ -31,6 +31,21 @@ export default function StepperButtons({ activeStep, setActiveStep, lastStep, ha
     if (demand?.status.match('Pendências')) role = 'empresa'
     if (demand?.status.match('Aguardando')) role = 'seinfra'
 
+    useEffect(() => {
+        function nextShortcut(e) {
+            if (e.keyCode === 37 && e.ctrlKey)
+                setActiveStep('back')
+            if (e.keyCode === 39 && e.ctrlKey)
+                setActiveStep('next')
+            if (e.keyCode === 13 && e.ctrlKey)
+                handleSubmit()
+        }
+        document.addEventListener('keydown', nextShortcut)
+        return () => document.removeEventListener('keydown', nextShortcut)
+    })
+
+
+
     return (
         <div style={{ width: '100%' }}>
             {activeStep < lastStep ?
@@ -38,6 +53,7 @@ export default function StepperButtons({ activeStep, setActiveStep, lastStep, ha
                     <Button
                         variant="contained"
                         className={backButton}
+                        title={activeStep !== 0 ? 'Ctrl + ←' : null}
                         onClick={() => setActiveStep('back')}
                         disabled={activeStep === 0}
                     >
@@ -46,6 +62,7 @@ export default function StepperButtons({ activeStep, setActiveStep, lastStep, ha
                     <Button
                         variant="contained"
                         color="primary"
+                        title={!disabled ? 'Ctrl + →' : null}
                         className={button}
                         onClick={() => setActiveStep('next')}
                         disabled={disabled}
@@ -76,6 +93,7 @@ export default function StepperButtons({ activeStep, setActiveStep, lastStep, ha
                             <Button
                                 variant="contained"
                                 className={backButton}
+                                title={activeStep !== 0 ? 'Ctrl + ←' : null}
                                 onClick={() => setActiveStep('back')}
                                 disabled={activeStep === 0}
                             >

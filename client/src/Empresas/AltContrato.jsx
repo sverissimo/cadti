@@ -233,7 +233,7 @@ const AltContrato = props => {
 
     const handleSubmit = async approved => {
         const
-            { demand } = state,
+            { demand, altContratoDoc } = state,
             altContrato = createRequestObj(altContratoForm),
             altEmpresa = createRequestObj(empresasForm),
             empresaUpdates = updateEmpresa(altEmpresa),
@@ -243,16 +243,27 @@ const AltContrato = props => {
         let
             socioIds = [],
             toastMsg = 'Solicitação de alteração contratual enviada.'
-
-        //console.log({ socioUpdates, empresaUpdates })
+        //Se não houver nenhuma altreração, alerta e retorna
+        if (!demand && !altContrato && !empresaUpdates && !altContratoDoc && !socioUpdates && !socioUpdates[0]) {
+            alert('Nenhuma modificação registrada!')
+            return
+        }
+        //A alteração de dados da empresa não precisa de aprovação. Se for só isso, não gera demanda
         if (empresaUpdates) {
             axios.put('/api/editTableRow', empresaUpdates)
             toastMsg = 'Dados da empresa alterados com sucesso.'
+            if (!socioUpdates[0] && !altContrato && !altContratoDoc) {
+                toast('Dados da empresa atualizados!')
+                setTimeout(() => { resetState() }, 750);
+                return
+            }
         }
-
+        //Ao aprovar a solicitação(demanda)
         if (demand && approved) {
+            //Registrar as alterações contratuais
             if (altContrato)
                 axios.post('/api/altContrato', altContrato)
+            //Atualizar os sócios: existentes, novos e a excluir
             if (socioUpdates) {
                 const
                     { newSocios, oldSocios, deletedSocios } = socioUpdates,
@@ -260,10 +271,6 @@ const AltContrato = props => {
                         table: 'socios',
                         tablePK: 'socio_id'
                     }
-                //console.log(newSocios, oldSocios, deletedSocios)
-                //console.log(JSON.stringify({ requestArray: oldSocios, ...requestInfo }))
-                //console.log(JSON.stringify({ socios: newSocios }))
-
                 if (newSocios[0])
                     await axios.post('/api/cadSocios', { socios: newSocios })
                         .then(async r => {
@@ -493,7 +500,6 @@ const AltContrato = props => {
     }
 
     const resetState = () => {
-
         const
             resetForms = {},
             forms = [altContratoForm, sociosForm]

@@ -31,7 +31,7 @@ export default function DragAndDrop({ title, name, formData, handleFiles, dropDi
                 if (name === pair[0]) {     //Attach the file if there'no command to remove
                     setFileName(pair[1].name)
                     setFileExistance(false)
-                    console.log(pair[0], pair[1])
+                    //console.log(pair[0], pair[1])
                 }
             }
         } else if (!formData && !demandFiles) setFileName(null)

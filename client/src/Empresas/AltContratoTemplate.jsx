@@ -45,7 +45,8 @@ const AltContratoTemplate = (
                 </div>
             </header>
             {
-                selectedEmpresa?.cnpj &&
+                //   selectedEmpresa?.cnpj &&
+                selectedEmpresa &&
                 <>
                     {/*--------------------- Form / inputs -------------------------*/}
                     {
@@ -81,8 +82,9 @@ const AltContratoTemplate = (
                                         :
                                         <EmpresaReview
                                             data={data}
-                                            demandFiles={demandFiles}
                                             forms={forms}
+                                            files={altContratoDoc}
+                                            demandFiles={demandFiles}
                                             filesForm={empresaFiles}
                                         />
                                 }
