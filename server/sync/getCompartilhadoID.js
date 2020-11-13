@@ -1,6 +1,6 @@
 const getCompartilhadoId =
     `
-        UPDATE veiculos
+    UPDATE veiculos
         SET compartilhado_id = e.codigo_empresa
         FROM empresas e
         WHERE veiculos.delegatario_compartilhado LIKE '%' || e.razao_social || '%';

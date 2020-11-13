@@ -67,7 +67,7 @@ const carrocerias = `
 const acessibilidade = `SELECT * FROM acessibilidade`
 const equipamentos = `SELECT * FROM equipamentos`
 const seguradoras = `SELECT * FROM seguradora`
-const empresasLaudo = `SELECT * from empresa_laudo`
+const empresasLaudo = `SELECT * from empresa_laudo ORDER BY id ASC`
 
 const laudos = `
 SELECT laudos.*,

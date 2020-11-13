@@ -27,7 +27,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 //PRODUCTION
 else
-    dailyTasks = new CronJob('1 * 0 * * *', async function () {
+    dailyTasks = new CronJob('* * 0 * * *', async function () {
 
         // checa se um seguro registrado com início de vigência futura iniciou sua vigência. Caso positivo, resgata o seguro do MongoDB e insere no Postgresql 
         await insertNewInsurances()

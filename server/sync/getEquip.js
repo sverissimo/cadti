@@ -19,6 +19,7 @@ const accessParseDB = (veiculos, access) => {
         acArray = []
         ids = []
     })
+
     return acessibilidade.reverse()
 }
 
