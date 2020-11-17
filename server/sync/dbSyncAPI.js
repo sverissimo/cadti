@@ -74,10 +74,7 @@ async function getEquipaIds() {
             equipQuery += `WHEN ${v_id} THEN '[${ids}]'::jsonb `
         }
     })
-    equipQuery += 'END'
-    //fs.writeFile(`equipIdUpdate.txt`, equipQuery, 'utf8', (err) => console.log(err))
-
-    await pool.query(equipQuery, (err, t) => { if (err) console.log(err) })
+    equipQuery += 'END; '
 
     let accessQuery = ` 
         UPDATE veiculos 
@@ -95,8 +92,10 @@ async function getEquipaIds() {
         ALTER TABLE veiculos
         DROP IF EXISTS equipamentos;
     `
-    //fs.writeFile(`accessUpdate.txt`, accessQuery, 'utf8', (err) => console.log(err), (err) => console.log(err))
-    pool.query(accessQuery, (err, t) => { if (err) console.log(err) })
+    const updateQuery = equipQuery + accessQuery
+    fs.writeFile(`equipAccessQuery.txt`, updateQuery, 'utf8', (err) => console.log(err), (err) => console.log(err))
+
+    pool.query(updateQuery, (err, t) => { if (err) console.log('********************Equip/AccessQuerry ERROR!!!!! ********\n\n', err) })
 }
 
 module.exports = router

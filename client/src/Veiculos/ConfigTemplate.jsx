@@ -3,7 +3,6 @@ import React, { Fragment } from 'react'
 import Crumbs from '../Reusable Components/Crumbs'
 import MenuItem from '@material-ui/core/MenuItem'
 
-import { makeStyles } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
 import Button from '@material-ui/core/Button'
 import Add from '@material-ui/icons/Add'
@@ -11,35 +10,18 @@ import EditIcon from '@material-ui/icons/Edit';
 import DeleteIcon from '@material-ui/icons/Delete';
 import './config.css'
 
-const useStyles = makeStyles(theme => ({
-
-    textField: {
-        marginLeft: theme.spacing(1),
-        marginRight: theme.spacing(1),
-        marginTop: '2px',        
-        width: '275px',
-        fontSize: '0.8rem',
-        fontColor: '#bbb',
-        textAlign: 'center',
-    }    
-}))
-
 export default function ConfigTemplate({ collections, collection, data, staticData,
     selectCollection, handleChange, enableEdit, confirmDelete, handleSubmit, openAddDialog }) {
 
-    const
-        classes = useStyles(),
-        { textField } = classes
-
     return (
         <Fragment>
-           <Crumbs links={['Veículos', '/veiculos']} text='Alterar configurações de veículos' />
+            <Crumbs links={['Veículos', '/veiculos']} text='Alterar configurações de veículos' />
             <center>
                 <h4>Selecione uma das opções abaixo.</h4>
             </center>
-            <div className="selectHeader">
+            <header className="selectHeader">
                 <TextField
-                    className={textField}
+                    className='config__selector'
                     onChange={selectCollection}
                     value={collection}
                     select={true}
@@ -56,12 +38,12 @@ export default function ConfigTemplate({ collections, collection, data, staticDa
                         </MenuItem>
                     )}
                 </TextField>
-            </div>
-           {staticData && collection && <div className='divHeader'>
+            </header>
+            {staticData && collection && <div className='divHeader'>
                 <Button
                     size="small"
                     color='primary'
-                    variant='outlined'                    
+                    variant='outlined'
                     style={{ margin: '10px 0 10px 0' }}
                     onClick={() => openAddDialog()}
                 >
@@ -83,9 +65,9 @@ export default function ConfigTemplate({ collections, collection, data, staticDa
                                     style: {
                                         fontSize: '0.8rem',
                                         color: el.edit === true ? '#000' : '#999'
-                                    },                                    
+                                    },
                                 }}
-                                className={textField}
+                                className='config__textField'
                                 disabled={el.edit === false}
                             />
                             <button component='span'
@@ -103,7 +85,7 @@ export default function ConfigTemplate({ collections, collection, data, staticDa
                             </button>
                         </div>
                     )}
-            </div>           
+            </div>
         </Fragment >
     )
 }

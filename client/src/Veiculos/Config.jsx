@@ -26,7 +26,6 @@ class VehicleConfig extends PureComponent {
         let options = []
         configVehicleForm.forEach(col => { options.push(col.label) })
         this.setState({ options })
-
     }
 
     componentDidUpdate(prevProps) {
@@ -50,16 +49,15 @@ class VehicleConfig extends PureComponent {
         const { name, field, label } = staticData
 
         data.forEach(el => {
-            const vehicles = veiculos.filter(v => {
-                if (label === 'Itens de acessibilidade' && v[name]) {
-                    const vehicleAccessItems = v[name]
-                    const hasItem = vehicleAccessItems.find(ac => ac === el.id)
-                    return hasItem
-                }
-
-                if (label === 'Equipamentos' && v[name]) return v[name].toLowerCase().match(el[field].toLowerCase())
-                return v[name] === el[field]
-            }),
+            const
+                vehicles = veiculos.filter(v => {
+                    if (v.hasOwnProperty(name) && (label === 'Itens de acessibilidade' || label === 'Equipamentos')) {
+                        const vehicleItems = v[name]
+                        const hasItem = vehicleItems.find(ac => ac === el.id)
+                        return hasItem
+                    }
+                    return v[name] === el[field]
+                }),
                 count = vehicles.length
             Object.assign(el, { count })
         })
@@ -260,7 +258,6 @@ class VehicleConfig extends PureComponent {
             editedElements = [humps.decamelizeKeys(updatedObj)]
 
         await axios.put('/api/editElements', { requestArray: editedElements, table, tablePK, column })
-            .then(r => console.log('updated.'))
             .catch(err => console.log(err))
 
         this.setState({ updatedObj: undefined })
@@ -312,7 +309,6 @@ class VehicleConfig extends PureComponent {
     }
 }
 
-const collections = ['seguradoras', 'lookUpTable/marca_chassi', 'modelosChassi', 'lookUpTable/marca_carroceria',
-    'carrocerias', 'equipamentos', 'veiculos', 'acessibilidade', 'empresasLaudo']
+const collections = ['lookUpTable/marca_chassi', 'modelosChassi', 'lookUpTable/marca_carroceria', 'carrocerias', 'equipamentos', 'veiculos', 'acessibilidade']
 
 export default StoreHOC(collections, VehicleConfig)

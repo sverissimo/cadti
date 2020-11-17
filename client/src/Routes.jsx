@@ -17,9 +17,11 @@ import Procuradores from './Empresas/Procuradores'
 import Socios from './Empresas/Socios'
 import Relatorios from './Relatorios/Relatorios'
 import Solicitacoes from './Solicitacoes/Solicitacoes'
-//import UnderConstruction from './UnderConstruction'
 import PdfTest from './Veiculos/Certificate'
 import AltContrato from './Empresas/AltContrato'
+import Configuracoes from './Configuracoes/Configuracoes'
+
+//import UnderConstruction from './UnderConstruction'
 
 const Routes = () => {
     return (
@@ -49,7 +51,7 @@ const Routes = () => {
             <Route path='/solicitacoes/altContrato' exact component={AltContrato} />
             <Route path='/solicitacoes/socios' exact component={Socios} />
             <Route path='/solicitacoes/procuradores' exact component={Procuradores} />
-
+            <Route path='/configuracoes' exact component={Configuracoes} />
 
             {/* <Route path='/faleConosco' component={UnderConstruction} /> */}
         </Switch>

@@ -5,7 +5,7 @@ export const configVehicleForm = [
         field: 'item',
         label: 'Equipamentos',
         name: 'equipamentosId',
-        table: 'equipamentos'
+        table: 'equipamentosId'
     },
     {
         collection: 'acessibilidade',
@@ -15,17 +15,17 @@ export const configVehicleForm = [
         table: 'acessibilidade'
     },
     {
-        collection:'marcaCarroceria',
+        collection: 'marcaCarroceria',
         field: 'marca',
         label: 'Marcas de Carroceria',
-        name:'marcaCarroceria',
+        name: 'marcaCarroceria',
         table: 'marca_carroceria'
     },
     {
         collection: 'carrocerias',
         field: 'modelo',
         label: 'Modelos de Carroceria',
-        name:'modeloCarroceria',
+        name: 'modeloCarroceria',
         table: 'modelo_carroceria'
     },
     {
@@ -41,24 +41,5 @@ export const configVehicleForm = [
         label: 'Modelos de Chassi',
         name: 'modeloChassi',
         table: 'modelo_chassi'
-    },
-    {
-        collection: 'seguradoras',
-        field: 'seguradora',
-        label: 'Seguradoras',
-        name: 'seguradora',
-        table: 'seguradora'
-    },
-    {
-        collection: 'empresasLaudo',
-        field: 'empresa',
-        label: 'Empresas certificadas INMETRO',
-        name: 'empresa',
-        table: 'empresa_laudo'
-    },
-    {
-        collection: 'laudos',        
-        table: 'laudos'
     }
-
 ]

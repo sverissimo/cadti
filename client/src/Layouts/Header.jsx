@@ -204,6 +204,18 @@ const Header = props => {
                         }
                     </Link>
                 ))}
+                <Link
+                    component={RouterLink}
+                    to='/configuracoes'
+                >
+                    <span
+                        className="material-icons"
+                        style={{ color: 'white', cursor: 'pointer' }}
+                        title='Alterar parâmetros do sistema'
+                    >
+                        settings
+                    </span>
+                </Link>
             </Toolbar>
         </React.Fragment >
     )
