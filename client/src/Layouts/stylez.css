@@ -160,3 +160,9 @@ div.loading {
 .MuiTypography-root.MuiTypography-h6 {
     font-size: 12pt;
 }
+
+/*******************Material input Helper **********************/
+.MuiFormHelperText-root.MuiFormHelperText-contained.makeStyles-helperText-23 {
+    line-height: 1 !important;
+    margin: 1.5px 0 !important
+}

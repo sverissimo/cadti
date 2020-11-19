@@ -309,6 +309,7 @@ class VehicleConfig extends PureComponent {
     }
 }
 
-const collections = ['lookUpTable/marca_chassi', 'modelosChassi', 'lookUpTable/marca_carroceria', 'carrocerias', 'equipamentos', 'veiculos', 'acessibilidade']
+const collections = ['seguradoras', 'lookUpTable/marca_chassi', 'modelosChassi', 'lookUpTable/marca_carroceria',
+    'carrocerias', 'equipamentos', 'veiculos', 'acessibilidade', 'empresasLaudo']
 
 export default StoreHOC(collections, VehicleConfig)

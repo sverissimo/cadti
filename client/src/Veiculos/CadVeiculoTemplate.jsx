@@ -44,7 +44,7 @@ export default function ({ redux, data, handleInput, handleBlur, handleEquipa, h
     return (
         <>
             <header className={activeStep !== 0 ? 'flex center' : 'paper flex center'} style={{ width: '100%' }}>
-                <section className='flexColumn' style={{ marginBottom: '15px' }}>
+                <section className='flexColumn' style={{ marginBottom: '10px' }}>
                     <SelectEmpresa
                         data={data}
                         shared={shared}

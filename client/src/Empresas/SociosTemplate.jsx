@@ -49,12 +49,14 @@ export default function ({ socios, empresas, handleInput, handleBlur, data, addS
             <main className="flex center">
                 {
                     standAlone &&
-                    <SelectEmpresa
-                        data={data}
-                        empresas={empresas}
-                        handleInput={handleInput}
-                        handleBlur={handleBlur}
-                    />
+                    <header style={{ marginBottom: '10px', width: '100%' }}>
+                        <SelectEmpresa
+                            data={data}
+                            empresas={empresas}
+                            handleInput={handleInput}
+                            handleBlur={handleBlur}
+                        />
+                    </header>
                 }
                 {
                     (selectedEmpresa || !standAlone) &&

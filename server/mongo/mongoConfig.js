@@ -1,7 +1,15 @@
-const mongoose = require('mongoose')
-const mongoURI = (process.env.MONGODB_URI || 'mongodb://localhost:27017/sismob_db')
+const
+    mongoose = require('mongoose'),
+    mongoURI = (process.env.MONGODB_URI || 'mongodb://localhost:27017/sismob_db'),
+    options = {
+        useNewUrlParser: true,
+        useCreateIndex: true,
+        useFindAndModify: false,
+        debug: true
+    }
 
-mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true, debug: true })
+mongoose.connect(mongoURI, options)
+mongoose.set('useUnifiedTopology', true)
 
 const conn = mongoose.connection
 

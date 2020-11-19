@@ -28,13 +28,15 @@ export default function ({ handleInput, handleBlur, data, handleCheck, handleEqu
 
     return (
         <div className='flex center'>
-            <SelectEmpresa
-                data={data}
-                empresas={empresas}
-                headerTitle={selectedEmpresa && `Alteração de dados ${placa || ''} - ${selectedEmpresa?.razaoSocial}`}
-                handleInput={handleInput}
-                handleBlur={handleBlur}
-            />
+            <header className='flex center' style={{ marginBottom: '10px', width: '100%' }}>
+                <SelectEmpresa
+                    data={data}
+                    empresas={empresas}
+                    headerTitle={selectedEmpresa && `Alteração de dados ${placa || ''} - ${selectedEmpresa?.razaoSocial}`}
+                    handleInput={handleInput}
+                    handleBlur={handleBlur}
+                />
+            </header>
             {
                 selectedEmpresa &&
                 <main>

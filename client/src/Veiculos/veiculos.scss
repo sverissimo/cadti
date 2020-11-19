@@ -87,14 +87,14 @@ body {
 
 .subtitle {
     padding-bottom: 5px;
-    margin-bottom: 10px;
+    margin: 5px 0 10px 0;
     display: inline-flex;
     &__text {
-        margin-top: 0.5px;
+        margin-top: 1.9px;
         font: {
             family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-            size: 14.3px;
-            weight: 400;
+            size: 13px;
+            weight: 500;
         }
         text-align: left !important;
         color: #333;
@@ -286,13 +286,4 @@ td.MuiTableCell-root {
 .placasCaption > span {
     display: flex;
     align-items: center;
-}
-
-//**************************** CONFIG Selector ****************************
-.config__selector {
-    text-align: center;
-}
-
-.config__textField {
-    width: 275px;
 }

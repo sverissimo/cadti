@@ -33,11 +33,14 @@ const
     logsModel = require('./mongo/models/logsModel'),
     segurosModel = require('./mongo/models/segurosModel'),
     altContratoModel = require('./mongo/models/altContratoModel'),
+    parametrosModel = require('./mongo/models/parametrosModel'),
     dbSync = require('./sync/dbSyncAPI'),
     dailyTasks = require('./taskManager/taskManager'),
     deleteVehiclesInsurance = require('./deleteVehiclesInsurance'),
     updateVehicleStatus = require('./taskManager/veiculos/updateVehicleStatus'),
     emitSocket = require('./emitSocket')
+
+
 
 dailyTasks.start()
 dotenv.config()
@@ -184,6 +187,41 @@ app.post('/api/altContrato', (req, res) => {
     newDoc.save((err, doc) => {
         if (err) console.log(err)
         res.json({ doc })
+    })
+})
+
+//********************************** PARÂMETROS DO SISTEMA ********************************* */
+
+app.get('/api/parametros', async (req, res) => {
+    const data = await parametrosModel.find()
+    res.send(data)
+})
+
+app.put('/api/parametros', async (req, res) => {
+
+    const
+        update = req.body,
+        query = {},
+        options = {
+            new: true,
+            upsert: true,
+            omitUndefined: true
+        }
+
+    //Checa se já existe
+    if (update.id)
+        query._id = update.id
+    //Apaga o campo id do update, se não existir vai criar um novo, senão não mexe no ID
+    delete update.id
+
+    console.log("query, update", query, update)
+
+    parametrosModel.findOneAndUpdate(query, update, options, (err, doc) => {
+        if (err) console.log(err)
+        console.log("doc", doc)
+
+        io.sockets.emit('updateAny', { updatedObjects: [doc], collection: 'parametros', primaryKey: 'id' })
+        res.send(doc)
     })
 })
 

@@ -12,8 +12,8 @@ const useStyles = makeStyles(theme => ({
     textField: {
         marginLeft: theme.spacing(1),
         marginRight: theme.spacing(1),
-        marginTop: '2px',
-        marginBottom: '2px',
+        marginTop: '1px',
+        marginBottom: '1px',
 
         fontSize: '0.8rem',
         fontColor: '#bbb',
@@ -61,7 +61,7 @@ export default function TextInput({ handleInput, handleBlur, form, data, empresa
 
     const helper = (el) => {
         let value = data[el.field]
-        if (!value) return
+        if (!value) return ' '
         if (el.errorHandler && el.errorHandler(value)) return '✓'
         else if (value && el.errorHandler && !el.errorHandler(value)) return '✘'
 

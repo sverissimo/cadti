@@ -113,11 +113,13 @@ export default function ({ redux, data, handleInput, addProc, removeProc, handle
     //************CRIAR FUNÇÃO PARA IMPEDIR QUE O PROCURADOR QUE TENHA ALGUMA PROCURAÇÃO SEJA APAGADO NA TELA 'CONSULTAS' */
     return (
         <div className='flex'>
-            <SelectEmpresa
-                data={data}
-                empresas={empresas}
-                handleInput={handleInput}
-            />
+            <header className='flex center' style={{ marginBottom: '10px', width: '100%' }}>
+                <SelectEmpresa
+                    data={data}
+                    empresas={empresas}
+                    handleInput={handleInput}
+                />
+            </header>
             {selectedEmpresa &&
                 <section className="paper flexColumn" style={{ position: 'relative', width: '100%' }}>
                     <div className='flexColumn' style={{ alignItems: 'center' }}>
@@ -315,7 +317,7 @@ export default function ({ redux, data, handleInput, addProc, removeProc, handle
 
                             <Procurador procuradores={procuradores} procuracao={procuracao} />
 
-                            <div className='flex center' style={{  position: 'relative' }}>
+                            <div className='flex center' style={{ position: 'relative' }}>
                                 <span style={divFiles}>
                                     <InsertDriveFileOutlinedIcon style={fileIcon} />
                                     <span style={{ verticalAlign: 'middle', }}>

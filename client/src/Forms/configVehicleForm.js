@@ -41,5 +41,23 @@ export const configVehicleForm = [
         label: 'Modelos de Chassi',
         name: 'modeloChassi',
         table: 'modelo_chassi'
+    },
+    {
+        collection: 'seguradoras',
+        field: 'seguradora',
+        label: 'Seguradoras',
+        name: 'seguradora',
+        table: 'seguradora'
+    },
+    {
+        collection: 'empresasLaudo',
+        field: 'empresa',
+        label: 'Empresas certificadas INMETRO',
+        name: 'empresa',
+        table: 'empresa_laudo'
+    },
+    {
+        collection: 'laudos',
+        table: 'laudos'
     }
 ]
