@@ -18,7 +18,8 @@ function App() {
   const store = applyMiddleware(promise, multi, thunk)(createStore)
 
   return (
-    <Provider store={store(rootReducer)}>
+    <Provider store={store(rootReducer, /* preloadedState, */
+      window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__())}>
       <div className='app'>
         <Container maxWidth="lg" style={{ minHeight: '100vh' }}>
           <BrowserRouter>

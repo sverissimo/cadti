@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import axios from 'axios'
 
 import StoreHOC from '../Store/StoreHOC'
 
 import ConfiguracoesTemplate from './ConfiguracoesTemplate'
-import defaultParams from './defaultParams'
 import { distancias, parametrosIdade } from '../Forms/configSysForm'
 
 const Configuracoes = props => {
@@ -14,19 +13,8 @@ const Configuracoes = props => {
             options: ['Idade e prazos para baixa', 'Distância mínima entre poltronas'],
             params: ['idadeBaixa', 'distanciaPoltronas'],
             forms: [parametrosIdade, distancias]
-        }),
-        { parametros } = props.redux
-
-    //ComponentDidMount - Se não tiver coleção no MongoDB, usa os padrões do arquivo configSysForm    
-    useEffect(() => {
-        //Salva a prop initParams para depois avaliar se houve mudança no handleInput
-        if (!parametros[0])
-            setState({ ...state, ...defaultParams })
-        else
-            setState({ ...state, ...defaultParams, ...parametros[0] })
-    }, [parametros])
-
-
+        })
+    console.log(props.redux)
     document.addEventListener('keypress', e => {
         let event
         if (e.key === 'p') {
@@ -41,12 +29,15 @@ const Configuracoes = props => {
 
     //Seleciona o conjunto de parâmetros p editar
     const selectOption = e => {
+
         const
             { name, value } = e.target,
+            { parametros } = props.redux,
             { options, forms, params } = state,
             tab = options.indexOf(value),
             form = forms[tab],
-            data = state[params[tab]]
+            data = parametros[0][params[tab]]
+        console.log("data", data, tab, params, parametros)
 
         if (data && parametros[0]?.id)
             data.id = parametros[0].id
@@ -84,7 +75,6 @@ const Configuracoes = props => {
             keys = form.map(f => f.field),
             requestObj = {},
             parametro = params[tab]
-        console.log("handleSubmit -> form", form)
 
         //Prepara o objeto para request
         keys.forEach(k => Object.assign(requestObj, { [k]: state[k] }))
@@ -95,7 +85,7 @@ const Configuracoes = props => {
             id = initState.id
 
         axios.put('/api/parametros', { [parametro]: requestObj, id })
-            .then(r => console.log(r))
+            .then(r => console.log(r.data))
             .catch(err => console.log(err))
         setState({ ...state, modified: false })
     }
@@ -115,3 +105,4 @@ const Configuracoes = props => {
 const collections = ['parametros']
 
 export default (StoreHOC(collections, Configuracoes))
+

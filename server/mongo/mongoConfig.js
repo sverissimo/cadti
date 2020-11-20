@@ -10,6 +10,12 @@ const
     }
 
 mongoose.connect(mongoURI, options)
+mongoose.set('toJSON', {
+    virtuals: true,
+    transform: (doc, converted) => {
+        delete converted._id;
+    }
+});
 const conn = mongoose.connection
 
 module.exports = { conn, mongoURI }

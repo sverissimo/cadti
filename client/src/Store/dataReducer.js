@@ -10,7 +10,6 @@ const dataReducer = (state = initState, action) => {
 
         case 'INSERT_DATA': {
             const { collection, data } = payload
-            console.log(collection, data)
 
             if (state[collection] && data) {
                 let update = [...state[collection]]
@@ -29,7 +28,7 @@ const dataReducer = (state = initState, action) => {
 
         case 'UPDATE_DATA': {
             const { collection, data, id } = payload
-
+            console.log(data, state[collection])
             if (state[collection] && data) {
                 const update = state[collection].map(v => {
                     data.forEach(el => {
@@ -46,7 +45,6 @@ const dataReducer = (state = initState, action) => {
             }
             return state
         }
-
 
         case 'UPDATE_COLLECTION': {
             const { data, collection } = payload

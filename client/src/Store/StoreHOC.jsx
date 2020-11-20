@@ -14,6 +14,7 @@ let socket
 export default function (requestArray, WrappedComponent) {
 
     let collections = []
+
     if (!requestArray.includes('logs')) requestArray.push('logs')
     collections = requestArray.map(req => req.replace('getFiles/', '').replace('lookUpTable/', ''))
 

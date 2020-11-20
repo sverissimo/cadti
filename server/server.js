@@ -212,7 +212,8 @@ app.put('/api/parametros', async (req, res) => {
         }
     let
         socketEvent = 'insertElements',
-        socketProp = 'insertedObjects'
+        socketProp = 'insertedObjects',
+        preventSocket
 
     //Checa se já existe
     if (update.id) {
@@ -222,14 +223,22 @@ app.put('/api/parametros', async (req, res) => {
         //Apaga o campo id do update, senão não mexe no ID
         delete update.id
     }
-    console.log("query, update", query, update)
+    if (update.preventSocket) {
+        preventSocket = true
+        console.log("preventSocket", preventSocket)
+    }
+    delete update.preventSocket
 
     parametrosModel.findOneAndUpdate(query, update, options, (err, doc) => {
         if (err) console.log(err)
+        doc.id = doc._id
+        delete doc._id
         console.log("doc", doc)
-
-        io.sockets.emit(socketEvent, { [socketProp]: [doc], collection: 'parametros', primaryKey: 'id' })
-        res.send(doc)
+        if (!preventSocket) {
+            console.log("shouldnt have preventsocekt", preventSocket)
+            io.sockets.emit(socketEvent, { [socketProp]: [doc], collection: 'parametros', primaryKey: 'id' })
+        }
+        res.send([doc])
     })
 })
 
