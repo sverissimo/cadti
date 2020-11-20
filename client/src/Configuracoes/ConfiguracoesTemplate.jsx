@@ -11,7 +11,7 @@ import TextInput from '../Reusable Components/TextInput'
 import './configuracoes.scss'
 
 const ConfiguracoesTemplate = ({ data, selectOption, handleInput, handleSubmit }) => {
-    const { options, selectedOption, form } = data
+    const { options, selectedOption, form, modified } = data
 
     return (
         <div className='paper'>
@@ -55,7 +55,7 @@ const ConfiguracoesTemplate = ({ data, selectOption, handleInput, handleSubmit }
                             className='saveButton'
                             variant="contained"
                             onClick={() => handleSubmit()}
-                        //disabled={!renderedPlacas[0] || !apoliceDoc ? true : false}
+                            disabled={!modified}
                         >
                             Salvar <span>&nbsp;&nbsp; </span> <SaveIcon />
                         </Button>

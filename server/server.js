@@ -15,6 +15,7 @@ Grid.mongo = mongoose.mongo
 
 //Componentes do sistema
 const
+    counter = require('./config/counter'),
     { pool } = require('./config/pgConfig'),
     { setCorsHeader } = require('./config/setCorsHeader'),
     { apiGetRouter } = require('./apiGetRouter'),
@@ -40,8 +41,6 @@ const
     updateVehicleStatus = require('./taskManager/veiculos/updateVehicleStatus'),
     emitSocket = require('./emitSocket')
 
-
-
 dailyTasks.start()
 dotenv.config()
 
@@ -53,6 +52,10 @@ app.use(express.static('client/build'))
 app.use(setCorsHeader)
 //app.get('/tst', getExpired)
 //insertNewInsurances()
+
+//**********************************    Counter ****************************/
+let i = 0
+app.use(counter(i))
 //************************************ BINARY DATA *********************** */
 
 let gfs
@@ -207,20 +210,25 @@ app.put('/api/parametros', async (req, res) => {
             upsert: true,
             omitUndefined: true
         }
+    let
+        socketEvent = 'insertElements',
+        socketProp = 'insertedObjects'
 
     //Checa se já existe
-    if (update.id)
+    if (update.id) {
         query._id = update.id
-    //Apaga o campo id do update, se não existir vai criar um novo, senão não mexe no ID
-    delete update.id
-
+        socketEvent = 'updateAny'
+        socketProp = 'updatedObjects'
+        //Apaga o campo id do update, senão não mexe no ID
+        delete update.id
+    }
     console.log("query, update", query, update)
 
     parametrosModel.findOneAndUpdate(query, update, options, (err, doc) => {
         if (err) console.log(err)
         console.log("doc", doc)
 
-        io.sockets.emit('updateAny', { updatedObjects: [doc], collection: 'parametros', primaryKey: 'id' })
+        io.sockets.emit(socketEvent, { [socketProp]: [doc], collection: 'parametros', primaryKey: 'id' })
         res.send(doc)
     })
 })

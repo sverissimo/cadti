@@ -1,4 +1,7 @@
-const mongoose = require('mongoose');
+const
+    mongoose = require('mongoose'),
+    distanciaSchema = require('./parametros/distanciaSchema'),
+    idadeBaixaSchema = require('./parametros/idadeBaixaSchema')
 
 const parametrosSchema = new mongoose.Schema({
     idadeMaxCad: {
@@ -21,7 +24,8 @@ const parametrosSchema = new mongoose.Schema({
         type: Number,
         trim: true
     },
-    distanciasPoltrona: { type: Object },
+    distanciaPoltronas: { type: distanciaSchema },
+    idadeBaixa: { type: idadeBaixaSchema }
 },
     {
         timestamps: true,

@@ -33,9 +33,9 @@ export default function StepperButtons({ activeStep, setActiveStep, lastStep, ha
 
     useEffect(() => {
         function nextShortcut(e) {
-            if (e.keyCode === 37 && e.ctrlKey)
+            if (e.keyCode === 37 && e.ctrlKey && activeStep !== 0)
                 setActiveStep('back')
-            if (e.keyCode === 39 && e.ctrlKey)
+            if (e.keyCode === 39 && e.ctrlKey && activeStep !== lastStep)
                 setActiveStep('next')
             if (e.keyCode === 13 && e.ctrlKey)
                 handleSubmit()
