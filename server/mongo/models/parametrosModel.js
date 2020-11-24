@@ -6,9 +6,8 @@ const
 const parametrosSchema = new mongoose.Schema({
 
     distanciaPoltronas: { type: distanciaSchema },
-
-    idadeBaixa: { type: idadeBaixaSchema }
-
+    idadeBaixa: { type: idadeBaixaSchema },
+    motivosBaixa: { type: [] }
 },
     {
         timestamps: true,

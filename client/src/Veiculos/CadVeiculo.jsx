@@ -55,6 +55,8 @@ class VeiculosContainer extends PureComponent {
             { equipamentos, acessibilidade } = redux,
             demand = this.props?.location?.state?.demand
 
+        console.log("VeiculosContainer -> componentDidMount -> redux", redux)
+
         if (demand) {
             const demandState = setDemand(demand, redux)
             console.log(demandState)
@@ -171,7 +173,8 @@ class VeiculosContainer extends PureComponent {
 
     handleBlur = async e => {
         const
-            { empresas, modelosChassi, carrocerias } = this.props.redux,
+            { empresas, modelosChassi, carrocerias, parametros } = this.props.redux,
+            { distanciaPoltronas } = parametros[0],
             { frota, anoCarroceria, anoChassi, utilizacao, distanciaMinima } = this.state,
             { name } = e.target,
             carr = Number(anoCarroceria),
@@ -217,7 +220,7 @@ class VeiculosContainer extends PureComponent {
             case 'distanciaMinima':
                 let errorMsg
                 if (utilizacao)
-                    errorMsg = validateDist(utilizacao, distanciaMinima)
+                    errorMsg = validateDist(utilizacao, distanciaMinima, distanciaPoltronas)
                 if (errorMsg)
                     this.setState({
                         openAlertDialog: true,
@@ -519,6 +522,6 @@ class VeiculosContainer extends PureComponent {
         </Fragment>
     }
 }
-const collections = ['veiculos', 'empresas', 'modelosChassi', 'carrocerias', 'equipamentos', 'acessibilidade', 'getFiles/vehicleDocs']
+const collections = ['veiculos', 'empresas', 'modelosChassi', 'carrocerias', 'equipamentos', 'acessibilidade', 'getFiles/vehicleDocs', 'parametros']
 
 export default StoreHOC(collections, VeiculosContainer)

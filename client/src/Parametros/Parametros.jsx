@@ -3,10 +3,10 @@ import axios from 'axios'
 
 import StoreHOC from '../Store/StoreHOC'
 
-import ConfiguracoesTemplate from './ConfiguracoesTemplate'
-import { distancias, parametrosIdade } from '../Forms/configSysForm'
+import ParametrosTemplate from './ParametrosTemplate'
+import { distancias, parametrosIdade } from '../Forms/parametrosForm'
 
-const Configuracoes = props => {
+const Parametros = props => {
     //A prop 'params' são os nomes das propriedades do objeto do estado inicial, seja o nome de uma prop do DB seja do arquivo ./defaultParams.js
     const
         [state, setState] = useState({
@@ -14,18 +14,22 @@ const Configuracoes = props => {
             params: ['idadeBaixa', 'distanciaPoltronas'],
             forms: [parametrosIdade, distancias]
         })
-    console.log(props.redux)
-    document.addEventListener('keypress', e => {
-        let event
-        if (e.key === 'p') {
-            event = { target: { name: 'selectedOption', value: 'Distância mínima entre poltronas' } }
-            selectOption(event)
+
+    useEffect(() => {
+        const pressKeyFnc = e => {
+            let event
+            if (e.key === 'p') {
+                event = { target: { name: 'selectedOption', value: 'Distância mínima entre poltronas' } }
+                selectOption(event)
+            }
+            if (e.key === 'q') {
+                event = { target: { name: 'selectedOption', value: 'Idade e prazos para baixa' } }
+                selectOption(event)
+            }
         }
-        if (e.key === 'q') {
-            event = { target: { name: 'selectedOption', value: 'Idade e prazos para baixa' } }
-            selectOption(event)
-        }
-    })
+        document.addEventListener('keypress', pressKeyFnc)
+        return () => document.removeEventListener('keypress', pressKeyFnc)
+    }, [])
 
     //Seleciona o conjunto de parâmetros p editar
     const selectOption = e => {
@@ -37,7 +41,6 @@ const Configuracoes = props => {
             tab = options.indexOf(value),
             form = forms[tab],
             data = parametros[0][params[tab]]
-        console.log("data", data, tab, params, parametros)
 
         if (data && parametros[0]?.id)
             data.id = parametros[0].id
@@ -92,7 +95,7 @@ const Configuracoes = props => {
 
     return (
         <>
-            <ConfiguracoesTemplate
+            <ParametrosTemplate
                 data={state}
                 selectOption={selectOption}
                 handleInput={handleInput}
@@ -104,5 +107,5 @@ const Configuracoes = props => {
 
 const collections = ['parametros']
 
-export default (StoreHOC(collections, Configuracoes))
+export default (StoreHOC(collections, Parametros))
 

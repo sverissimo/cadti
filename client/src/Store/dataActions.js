@@ -2,31 +2,6 @@ import axios from 'axios'
 import humps from 'humps'
 import { batch } from 'react-redux'
 import { idsToString } from '../Utils/idsToString'
-import defaultParams from './defaultParams'
-
-export const getParams = () => async dispatch => {
-    const
-        req = await axios.get('/api/parametros'),
-        { data } = req
-
-    if (data[0]) {
-        console.log(data)
-        /* dispatch({
-            type: 'GET_DATA',
-            payload: data
-        }) */
-    }
-    else {
-        const
-            populateMongoDb = { ...defaultParams },
-            dataFromDB = await axios.put('/api/parametros', populateMongoDb),
-            payload = dataFromDB[0]
-        dispatch({
-            type: 'GET_DATA',
-            payload: data
-        })
-    }
-}
 
 export const getData = (collectionsArray = []) => {
     return async (dispatch, getState) => {
@@ -59,15 +34,6 @@ export const getData = (collectionsArray = []) => {
             let veiculos = globalState.veiculos || getState().data?.veiculos
             const updatedData = idsToString(veiculos, equipamentos, acessibilidade)
             globalState.veiculos = updatedData
-        }
-        //Se não tiver parâmetros cadastrados no MongoDB, popula o DB com o defaultParams.js
-        if (!globalState?.parametros[0]) {
-            const
-                populateMongoDb = { ...defaultParams, preventSocket: true },
-                dataFromDB = await axios.put('/api/parametros', populateMongoDb),
-                parametros = dataFromDB.data
-
-            globalState.parametros = parametros
         }
 
         dispatch({

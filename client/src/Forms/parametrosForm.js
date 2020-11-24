@@ -29,7 +29,6 @@ export const parametrosIdade = [
         maxLength: 5,
         pattern: /^(0[1-9]|[12][0-9]|30(?!\/02)|31(?!\/(0[2469]|11)))\/(0[1-9]|1[0-2])$/,
         variant,
-
     },
     {
         field: 'prazoAvisoBaixa',
@@ -38,9 +37,7 @@ export const parametrosIdade = [
         maxLength: 3
     }
 ]
-
 export const distancias = [
-
     {
         field: 'convencional',
         label: 'Convencional',

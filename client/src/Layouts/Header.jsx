@@ -206,7 +206,7 @@ const Header = props => {
                 ))}
                 <Link
                     component={RouterLink}
-                    to='/configuracoes'
+                    to='/parametros'
                 >
                     <span
                         className="material-icons"

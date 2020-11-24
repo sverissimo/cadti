@@ -13,6 +13,7 @@ const
     Grid = require('gridfs-stream')
 Grid.mongo = mongoose.mongo
 
+
 //Componentes do sistema
 const
     counter = require('./config/counter'),
@@ -39,7 +40,8 @@ const
     dailyTasks = require('./taskManager/taskManager'),
     deleteVehiclesInsurance = require('./deleteVehiclesInsurance'),
     updateVehicleStatus = require('./taskManager/veiculos/updateVehicleStatus'),
-    emitSocket = require('./emitSocket')
+    emitSocket = require('./emitSocket'),
+    defaultParams = require('./mongo/models/parametros/defaultParams')
 
 dailyTasks.start()
 dotenv.config()
@@ -197,7 +199,20 @@ app.post('/api/altContrato', (req, res) => {
 
 app.get('/api/parametros', async (req, res) => {
     const data = await parametrosModel.find()
-    res.send(data)
+    //Se não tiver nada no MongoDB, populate com valores padrão do defaultParams.js
+    if (!data[0]) {
+        console.log('needed to populate')
+        const initiateDB = new parametrosModel(defaultParams)
+        initiateDB.save((err, doc) => {
+            if (err) console.log(err)
+            console.log(doc)
+            res.send([doc])
+        })
+    }
+    else {
+        console.log('NOOO needed to populate!@!!!!!!!!!!!')
+        res.send(data)
+    }
 })
 
 app.put('/api/parametros', async (req, res) => {

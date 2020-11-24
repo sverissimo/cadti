@@ -171,7 +171,8 @@ class AltDados extends Component {
 
     handleBlur = async e => {
         const
-            { empresas, logs, equipamentos, acessibilidade } = this.props.redux,
+            { empresas, logs, equipamentos, acessibilidade, parametros } = this.props.redux,
+            { distanciaPoltronas } = parametros[0],
             { frota, demand, utilizacao, distanciaMinima } = this.state,
             { name } = e.target
 
@@ -194,7 +195,7 @@ class AltDados extends Component {
             case 'distanciaMinima':
                 let errorMsg
                 if (utilizacao)
-                    errorMsg = validateDist(utilizacao, distanciaMinima)
+                    errorMsg = validateDist(utilizacao, distanciaMinima, distanciaPoltronas)
                 if (errorMsg) {
                     this.setState({
                         openAlertDialog: true,
@@ -517,6 +518,6 @@ class AltDados extends Component {
     }
 }
 
-const collections = ['veiculos', 'empresas', 'equipamentos', 'acessibilidade', 'getFiles/vehicleDocs'];
+const collections = ['veiculos', 'empresas', 'equipamentos', 'acessibilidade', 'getFiles/vehicleDocs', 'parametros'];
 
 export default StoreHOC(collections, AltDados)

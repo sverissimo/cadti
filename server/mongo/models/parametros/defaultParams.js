@@ -16,4 +16,4 @@ const defaultParams =
     }
 }
 
-export default defaultParams
+module.exports = defaultParams;

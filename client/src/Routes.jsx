@@ -19,7 +19,7 @@ import Relatorios from './Relatorios/Relatorios'
 import Solicitacoes from './Solicitacoes/Solicitacoes'
 import PdfTest from './Veiculos/Certificate'
 import AltContrato from './Empresas/AltContrato'
-import Configuracoes from './Configuracoes/Configuracoes'
+import Parametros from './Parametros/Parametros'
 
 //import UnderConstruction from './UnderConstruction'
 
@@ -51,7 +51,7 @@ const Routes = () => {
             <Route path='/solicitacoes/altContrato' exact component={AltContrato} />
             <Route path='/solicitacoes/socios' exact component={Socios} />
             <Route path='/solicitacoes/procuradores' exact component={Procuradores} />
-            <Route path='/configuracoes' exact component={Configuracoes} />
+            <Route path='/parametros' exact component={Parametros} />
 
             {/* <Route path='/faleConosco' component={UnderConstruction} /> */}
         </Switch>

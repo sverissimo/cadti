@@ -8,14 +8,14 @@ import Button from '@material-ui/core/Button'
 import SaveIcon from '@material-ui/icons/Save';
 
 import TextInput from '../Reusable Components/TextInput'
-import './configuracoes.scss'
+import './parametros.scss'
 
-const ConfiguracoesTemplate = ({ data, selectOption, handleInput, handleSubmit }) => {
+const ParametrosTemplate = ({ data, selectOption, handleInput, handleSubmit }) => {
     const { options, selectedOption, form, modified } = data
 
     return (
         <div className='paper'>
-            <Crumbs links={['Configuracoes', '/Configuracoes']} text='Alterar parâmetros do sistema' />
+            <Crumbs links={['Parâmetros', '/parametros']} text='Alterar parâmetros do sistema' />
             <header className="selectHeader">
                 <h4 className='parametrosTitle'>Alterar parâmetros do sistema - Selecione uma das opções abaixo.</h4>
                 {/* ******************Select box ******************** */}
@@ -25,6 +25,7 @@ const ConfiguracoesTemplate = ({ data, selectOption, handleInput, handleSubmit }
                     name='selectedOption'
                     value={selectedOption || ''}
                     select={true}
+                    placeholder='Clique para selecionar...'
                     SelectProps={{
                         style: {
                             fontSize: '0.9rem', color: '#555', fontWeight: 400,
@@ -66,4 +67,4 @@ const ConfiguracoesTemplate = ({ data, selectOption, handleInput, handleSubmit }
     )
 }
 
-export default ConfiguracoesTemplate
+export default ParametrosTemplate

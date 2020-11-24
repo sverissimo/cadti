@@ -1,12 +1,7 @@
-const validaDistanciaMinima = (utilizacao, dist) => {
+import humps from 'humps'
+const validaDistanciaMinima = (utilizacao, dist, distancias) => {
 
-    const distancias = {
-        Convencional: 70,
-        Executivo: 79,
-        'Semi-Leito': 95,
-        Leito: 105,
-        Urbano: 65
-    }
+    utilizacao = humps.camelize(utilizacao)
 
     let validDistance, d
 
