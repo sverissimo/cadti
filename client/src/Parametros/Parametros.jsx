@@ -1,39 +1,22 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import axios from 'axios'
 
 import StoreHOC from '../Store/StoreHOC'
 
 import ParametrosTemplate from './ParametrosTemplate'
-import { distancias, parametrosIdade } from '../Forms/parametrosForm'
+import { distancias, nomes, parametrosIdade } from '../Forms/parametrosForm'
 
 const Parametros = props => {
     //A prop 'params' são os nomes das propriedades do objeto do estado inicial, seja o nome de uma prop do DB seja do arquivo ./defaultParams.js
     const
         [state, setState] = useState({
-            options: ['Idade e prazos para baixa', 'Distância mínima entre poltronas'],
-            params: ['idadeBaixa', 'distanciaPoltronas'],
-            forms: [parametrosIdade, distancias]
+            options: ['Idade e prazos para baixa', 'Distância mínima entre poltronas', 'Nomenclaturas'],
+            params: ['idadeBaixa', 'distanciaPoltronas', 'nomes'],
+            forms: [parametrosIdade, distancias, nomes]
         })
 
-    useEffect(() => {
-        const pressKeyFnc = e => {
-            let event
-            if (e.key === 'p') {
-                event = { target: { name: 'selectedOption', value: 'Distância mínima entre poltronas' } }
-                selectOption(event)
-            }
-            if (e.key === 'q') {
-                event = { target: { name: 'selectedOption', value: 'Idade e prazos para baixa' } }
-                selectOption(event)
-            }
-        }
-        document.addEventListener('keypress', pressKeyFnc)
-        return () => document.removeEventListener('keypress', pressKeyFnc)
-    }, [])
-
     //Seleciona o conjunto de parâmetros p editar
-    const selectOption = e => {
-
+    const selectOption = useCallback(e => {
         const
             { name, value } = e.target,
             { parametros } = props.redux,
@@ -46,7 +29,27 @@ const Parametros = props => {
             data.id = parametros[0].id
 
         setState({ ...state, ...data, initState: data, [name]: value, tab, form, modified: false })
-    }
+    }, [props.redux, state])
+
+    useEffect(() => {
+        const pressKeyFnc = e => {
+            let event
+            if (e.key === 'p') {
+                event = { target: { name: 'selectedOption', value: 'Distância mínima entre poltronas' } }
+                selectOption(event)
+            }
+            if (e.key === 'o') {
+                event = { target: { name: 'selectedOption', value: 'Nomenclaturas' } }
+                selectOption(event)
+            }
+            if (e.key === 'q') {
+                event = { target: { name: 'selectedOption', value: 'Idade e prazos para baixa' } }
+                selectOption(event)
+            }
+        }
+        document.addEventListener('keypress', pressKeyFnc)
+        return () => document.removeEventListener('keypress', pressKeyFnc)
+    }, [selectOption])
 
     //Detecta se houve mudança e salva o input do usuário no state
     const handleInput = e => {
@@ -86,6 +89,7 @@ const Parametros = props => {
         let id
         if (initState?.id)
             id = initState.id
+        console.log({ [parametro]: requestObj, id })
 
         axios.put('/api/parametros', { [parametro]: requestObj, id })
             .then(r => console.log(r.data))

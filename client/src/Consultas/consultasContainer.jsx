@@ -35,7 +35,7 @@ class ConsultasContainer extends Component {
     }
 
     state = {
-        tab: 0,
+        tab: 3,
         items: ['Empresas', 'Sócios', 'Procuradores', 'Veículos', 'Seguros'],
         tablePKs: ['codigo_empresa', 'socio_id', 'procurador_id', 'veiculo_id', 'id'],
         dbTables: ['empresas', 'socios', 'procuradores', 'veiculos', 'seguros'],
@@ -174,7 +174,7 @@ class ConsultasContainer extends Component {
     showCertificate = async vehicle => {
 
         const
-            { laudos } = this.props.redux,
+            { laudos, parametros } = this.props.redux,
             { veiculoId, anoCarroceria, situacao, vencimento, vencimentoContrato } = vehicle,
             seguroVencido = moment(vencimento).isBefore(),
             contratoVencido = moment(vencimentoContrato).isBefore(),
@@ -210,6 +210,14 @@ class ConsultasContainer extends Component {
 
         const url = window.location.origin + '/crv'
         localStorage.setItem('vehicle', JSON.stringify(vehicle))
+
+        //Envia os nomes da Secretaria, sub, etc para o certificado com base no DB>GlobalState
+        if (parametros && parametros[0]) {
+            const
+                { nomes } = parametros[0]
+            localStorage.setItem('nomes', JSON.stringify(nomes))
+
+        }
         window.open(url, 'noopener')
     }
 
@@ -280,6 +288,6 @@ class ConsultasContainer extends Component {
 }
 
 const collections = ['veiculos', 'empresas', 'socios', 'procuradores', 'seguros', 'seguradoras', 'procuracoes',
-    'getFiles/vehicleDocs', 'getFiles/empresaDocs', 'equipamentos', 'acessibilidade', 'laudos', 'altContrato']
+    'getFiles/vehicleDocs', 'getFiles/empresaDocs', 'equipamentos', 'acessibilidade', 'laudos', 'altContrato', 'parametros']
 
 export default connect(null, { updateCollection })(StoreHOC(collections, ConsultasContainer))

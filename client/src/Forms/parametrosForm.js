@@ -59,3 +59,34 @@ export const distancias = [
         label: 'Urbano',
     }
 ]
+
+export const nomes = [
+    {
+        field: 'secretaria',
+        label: 'Nome da Secretaria',
+    },
+    {
+        field: 'subsecretaria',
+        label: 'Nome da Subsecretaria',
+    },
+    {
+        field: 'superintendencia',
+        label: 'Nome da Superintendencia',
+    },
+    {
+        field: 'diretoria',
+        label: 'Nome da diretoria',
+    },
+    {
+        field: 'sistema',
+        label: 'Nome do sistema',
+    },
+    {
+        field: 'siglaSecretaria',
+        label: 'Sigla da Secretaria',
+    },
+    {
+        field: 'siglaSistema',
+        label: 'Sigla do Sistema',
+    }
+]

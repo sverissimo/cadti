@@ -39,8 +39,21 @@ const featuredPosts = [
     },
 ]
 
-function Home() {
+const namesToRender = {
+    nomeSistema: 'Sistema de Cadastro do Transporte Intermunicipal de Minas Gerais',
+    siglaSistema: 'CadTI - MG',
+}
 
+function Home(props) {
+    const
+        { parametros } = props.redux,
+        { nomes } = parametros[0]
+
+    if (nomes) {
+        namesToRender.nomeSistema = nomes?.sistema
+        namesToRender.siglaSistema = nomes?.siglaSistema
+    }
+    const { nomeSistema, siglaSistema } = namesToRender
     return (
         <React.Fragment>
             <div
@@ -51,10 +64,10 @@ function Home() {
                 }}>
                 <main className="homeMainPost">
                     <h1>
-                        CadTI - MG
+                        {siglaSistema}
                     </h1>
                     <h2>
-                        Sistema de Cadastro do Transporte Intermunicipal de Minas Gerais
+                        {nomeSistema}
                     </h2>
                 </main>
                 <section className='homeCardsContainer'>
@@ -86,4 +99,4 @@ function Home() {
     )
 }
 
-export default StoreHOC(['logs'], Home)
+export default StoreHOC(['logs', 'parametros'], Home)

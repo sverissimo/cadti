@@ -24,61 +24,7 @@ const useStyles = makeStyles(theme => ({
     toolbarLink: {
         padding: '12px 55px 13px 55px',
         flexShrink: 0,
-    },
-    mainFeaturedPost: {
-        position: 'relative',
-        backgroundColor: theme.palette.grey[800],
-        color: theme.palette.common.white,
-        marginBottom: theme.spacing(4),
-        backgroundImage: '/images/bus_wallpaper.jpg',
-        backgroundSize: 'cover',
-        backgroundRepeat: 'no-repeat',
-        backgroundPosition: 'center',
-    },
-    overlay: {
-        position: 'absolute',
-        top: 0,
-        bottom: 0,
-        right: 0,
-        left: 0,
-        backgroundColor: 'rgba(0,0,0,.3)',
-    },
-    mainFeaturedPostContent: {
-        position: 'relative',
-        padding: theme.spacing(3),
-        [theme.breakpoints.up('md')]: {
-            padding: theme.spacing(6),
-            paddingRight: 0,
-        },
-    },
-    mainGrid: {
-        marginTop: theme.spacing(3),
-    },
-    card: {
-        display: 'flex',
-    },
-    cardDetails: {
-        flex: 1,
-    },
-    cardMedia: {
-        width: 160,
-    },
-    markdown: {
-        ...theme.typography.body2,
-        padding: theme.spacing(3, 0),
-    },
-    sidebarAboutBox: {
-        padding: theme.spacing(2),
-        backgroundColor: theme.palette.grey[200],
-    },
-    sidebarSection: {
-        marginTop: theme.spacing(3),
-    },
-    footer: {
-        backgroundColor: theme.palette.background.paper,
-        marginTop: theme.spacing(8),
-        padding: theme.spacing(6, 0),
-    },
+    }
 }));
 
 const sections = [
@@ -103,15 +49,15 @@ const Header = props => {
 
     const
         logs = props?.logs,
-        classes = useStyles(),
+        { parametros } = props,
         { pathname } = props.location,
-        demand = localStorage.getItem('demand')
+        demand = localStorage.getItem('demand'),
+        classes = useStyles(),
+        { toolbarTitle, toolbarSecondary, toolbarLink } = classes
 
     const
         [path, setSelected] = useState(document.location.pathname),
         [logCounter, setLogCounter] = useState()
-
-
 
     useEffect(() => {
         if (logs && Array.isArray(logs)) {
@@ -149,7 +95,18 @@ const Header = props => {
         }
         return { bgColor, borderB, borderT, fontW }
     }
+    //Pega o nome e a sigla da Secretaria do DB, editáveis na opção "Parâmetros" do sistema.
+    let
+        nomeSecretaria = '',
+        siglaSecretaria = ''
 
+    if (parametros && parametros[0]) {
+        const { nomes } = parametros[0]
+        nomeSecretaria = nomes.secretaria
+        siglaSecretaria = nomes.siglaSecretaria
+    }
+
+    //console.log("🚀 ", nomeSecretaria, siglaSecretaria)
     return (
         <React.Fragment>
             <CssBaseline />
@@ -162,15 +119,15 @@ const Header = props => {
                     color="inherit"
                     align="center"
                     noWrap
-                    className={classes.toolbarTitle}
+                    className={toolbarTitle}
                 >
-                    SEINFRA – Secretaria de Estado de Infraestrutura e Mobilidade
+                    {siglaSecretaria} - {nomeSecretaria}
                 </Typography>
                 <Button variant="outlined" size="small">
                     Fazer login
                     </Button>
             </Toolbar>
-            <Toolbar component="nav" variant="dense" className={classes.toolbarSecondary}>
+            <Toolbar component="nav" variant="dense" className={toolbarSecondary}>
                 {sections.map(({ link, title }, i) => (
                     <Link
                         component={RouterLink}
@@ -188,7 +145,7 @@ const Header = props => {
                             fontWeight: selected(link).fontW,
                             borderTop: selected(link).borderT
                         }}
-                        className={classes.toolbarLink}
+                        className={toolbarLink}
                         onClick={() => setSelected(link)}
                     >
                         {
@@ -223,7 +180,8 @@ const Header = props => {
 
 function mapStateToProps(state) {
     return {
-        logs: state.data.logs,
+        logs: state.data?.logs,
+        parametros: state.data?.parametros
     }
 }
 

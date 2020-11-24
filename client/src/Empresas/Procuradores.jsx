@@ -5,7 +5,7 @@ import humps from 'humps'
 import StoreHOC from '../Store/StoreHOC'
 
 import valueParser from '../Utils/valueParser'
-import { checkInputErrors } from '../Utils/checkInputErrors'
+//import { checkInputErrors } from '../Utils/checkInputErrors'
 import ReactToast from '../Reusable Components/ReactToast'
 import Crumbs from '../Reusable Components/Crumbs'
 

@@ -10,7 +10,7 @@ import altContratoTable from '../Forms/altContratoTable'
 export default function ShowDetails({ data, tab, title, header, close, empresas, procuracoes, procuradores, empresaDocs, altContrato }) {
     //data é o objeto (row) do campo de dados de uma determinada tabela
     const
-        [procs, setProcs] = useState(),
+        //    [procs, setProcs] = useState(),
         [table, setTable] = useState(),
         [table2, setTable2] = useState(),
         [tables, setTables] = useState([]),
@@ -73,7 +73,7 @@ export default function ShowDetails({ data, tab, title, header, close, empresas,
 
                 //Cria uma array de arquivos com base no id de cada procuração              
                 if (selectedProcs[0]) {
-                    setProcs(selectedProcs)
+                    //setProcs(selectedProcs)
                     setTable({
                         mainTitle: `Procuradores cadastrados para ${data?.razaoSocial}`,
                         tableHeaders,
@@ -124,7 +124,7 @@ export default function ShowDetails({ data, tab, title, header, close, empresas,
                 row = []
             })
             if (alteracoes[0]) {
-                setProcs(true)
+                //setProcs(true)
                 setTable2({
                     mainTitle: `Alterações do contrato social - ${data?.razaoSocial}`,
                     tableHeaders,

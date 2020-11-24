@@ -35,13 +35,12 @@ const
     logsModel = require('./mongo/models/logsModel'),
     segurosModel = require('./mongo/models/segurosModel'),
     altContratoModel = require('./mongo/models/altContratoModel'),
-    parametrosModel = require('./mongo/models/parametrosModel'),
     dbSync = require('./sync/dbSyncAPI'),
     dailyTasks = require('./taskManager/taskManager'),
     deleteVehiclesInsurance = require('./deleteVehiclesInsurance'),
     updateVehicleStatus = require('./taskManager/veiculos/updateVehicleStatus'),
     emitSocket = require('./emitSocket'),
-    defaultParams = require('./mongo/models/parametros/defaultParams')
+    parametros = require('./parametros/parametros')
 
 dailyTasks.start()
 dotenv.config()
@@ -106,7 +105,6 @@ app.put('/api/updateFilesMetadata', async (req, res) => {
     Object.entries(metadata).forEach(([k, v]) => {
         update['metadata.' + k] = v
     })
-
 
     parsedIds = ids.map(id => new mongoose.mongo.ObjectId(id))
 
@@ -197,65 +195,8 @@ app.post('/api/altContrato', (req, res) => {
 
 //********************************** PARÂMETROS DO SISTEMA ********************************* */
 
-app.get('/api/parametros', async (req, res) => {
-    const data = await parametrosModel.find()
-    //Se não tiver nada no MongoDB, populate com valores padrão do defaultParams.js
-    if (!data[0]) {
-        console.log('needed to populate')
-        const initiateDB = new parametrosModel(defaultParams)
-        initiateDB.save((err, doc) => {
-            if (err) console.log(err)
-            console.log(doc)
-            res.send([doc])
-        })
-    }
-    else {
-        console.log('NOOO needed to populate!@!!!!!!!!!!!')
-        res.send(data)
-    }
-})
-
-app.put('/api/parametros', async (req, res) => {
-
-    const
-        update = req.body,
-        query = {},
-        options = {
-            new: true,
-            upsert: true,
-            omitUndefined: true
-        }
-    let
-        socketEvent = 'insertElements',
-        socketProp = 'insertedObjects',
-        preventSocket
-
-    //Checa se já existe
-    if (update.id) {
-        query._id = update.id
-        socketEvent = 'updateAny'
-        socketProp = 'updatedObjects'
-        //Apaga o campo id do update, senão não mexe no ID
-        delete update.id
-    }
-    if (update.preventSocket) {
-        preventSocket = true
-        console.log("preventSocket", preventSocket)
-    }
-    delete update.preventSocket
-
-    parametrosModel.findOneAndUpdate(query, update, options, (err, doc) => {
-        if (err) console.log(err)
-        doc.id = doc._id
-        delete doc._id
-        console.log("doc", doc)
-        if (!preventSocket) {
-            console.log("shouldnt have preventsocekt", preventSocket)
-            io.sockets.emit(socketEvent, { [socketProp]: [doc], collection: 'parametros', primaryKey: 'id' })
-        }
-        res.send([doc])
-    })
-})
+app.set('io', io)
+app.use('/api/parametros', parametros)
 
 //************************************ GET METHOD ROUTES *********************** */
 

@@ -1,9 +1,9 @@
 .A4 {
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif !important;
     background: white;
     width: 21cm;
-    height: 29.7cm;    
-    margin: 0 auto;   
+    height: 29.7cm;
+    margin: 0 auto;
     padding: 0 6mm;
     margin-bottom: 0.5cm;
     box-shadow: 0 0 0.5cm rgba(0, 0, 0, 0.5);
@@ -16,7 +16,7 @@
     border: 1px solid #333;
     border-radius: 3mm;
     position: relative;
-    margin-bottom: 2.5mm
+    margin-bottom: 2.5mm;
 }
 
 .firstBox {
@@ -43,7 +43,7 @@
 
 .firstDivLine {
     margin: 3mm !important;
-    top: 0
+    top: 0;
 }
 
 @media print {
@@ -58,7 +58,10 @@
         margin: 0;
         padding: 0;
     }
-    nav, .MuiToolbar-root, .MuiTabs-flexContainer, .noPrint {
+    nav,
+    .MuiToolbar-root,
+    .MuiTabs-flexContainer,
+    .noPrint {
         display: none !important;
     }
     .A4 {
@@ -76,7 +79,11 @@
         width: 100%;
         padding: 0 2mm 0 6mm;
     }
-    .MuiToolbar-root, .MuiToolbar-regular, .MuiToolbar-gutters, .noprint, .printButton {
+    .MuiToolbar-root,
+    .MuiToolbar-regular,
+    .MuiToolbar-gutters,
+    .noprint,
+    .printButton {
         display: none;
     }
 }
@@ -85,16 +92,17 @@
     border-radius: 0% !important;
     padding-top: 2mm !important;
     height: 15px !important;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif !important;
     font-size: 13px !important;
     font-weight: 500 !important;
     vertical-align: middle;
     text-align: center !important;
 }
 
-.MuiInputBase-multiline.MuiInput-multiline, .MuiOutlinedInput-multiline {
+.MuiInputBase-multiline.MuiInput-multiline,
+.MuiOutlinedInput-multiline {
     height: auto;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif !important;
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif !important;
     text-align: justify !important;
 }
 
@@ -105,7 +113,7 @@
 
 .printButton {
     cursor: pointer;
-    color: rgb(161, 161, 180);    
+    color: rgb(161, 161, 180);
     position: -webkit-sticky; /* Safari */
     position: sticky;
     bottom: 17px;
@@ -115,6 +123,32 @@
 .link {
     cursor: pointer;
     color: blue;
-    
+
     text-decoration: underline;
+}
+
+.certHeader {
+    &__container {
+        margin-top: 5px;
+        border: 1px #333 solid;
+        border-radius: 15px;
+        display: grid;
+        grid-template-columns: 12% auto;
+        align-items: center;
+    }
+    &__brasao {
+        display: flex;
+        justify-content: center;
+        background-image: "/images/brasao.png";
+    }
+    &__text {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        align-items: center;
+    }
+    &__text > p {
+        margin: 0 !important;
+    }
 }
