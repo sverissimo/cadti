@@ -71,21 +71,16 @@ export default function PdfCertificate() {
         return null
     }
     return (
-        true ?
-            <CertificateHeader
-                nomes={names}
-            />
-            :
-            <CertificateTemplate
-                names={names}
-                checkMulti={checkMulti}
-                redirect={redirect}
-                carac={carac}
-                delega={delega}
-                seg={seg}
-                peso={peso}
-                info={info}
-                obs={obs}
-            />
+        <CertificateTemplate
+            nomes={names}
+            checkMulti={checkMulti}
+            redirect={redirect}
+            carac={carac}
+            delega={delega}
+            seg={seg}
+            peso={peso}
+            info={info}
+            obs={obs}
+        />
     )
 }

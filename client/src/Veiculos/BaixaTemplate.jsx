@@ -4,36 +4,15 @@ import Crumbs from '../Reusable Components/Crumbs'
 import SelectEmpresa from '../Reusable Components/SelectEmpresa'
 import TextInput from '../Reusable Components/TextInput'
 
+import BaixaMotivo from './BaixaMotivo'
 import BaixaOptions from './BaixaOptions'
 
 import { baixaForm } from '../Forms/baixaForm'
 
-import Grid from '@material-ui/core/Grid'
-import Paper from '@material-ui/core/Paper'
-import { makeStyles } from '@material-ui/core/styles'
-
 import './veiculos.scss'
 
-const useStyles = makeStyles(theme => ({
-    container: {
-        display: 'flex',
-        flexWrap: 'wrap',
-        padding: theme.spacing(1),
-    },
-    formHolder: {
-        width: 900,
-    },
-    paper: {
-        padding: theme.spacing(1),
-        textAlign: 'center',
-        color: theme.palette.text.secondary,
-        margin: theme.spacing(1)
-    }
-}));
-
-export default function ({ handleInput, handleBlur, handleCheck, handleSubmit, data, empresas }) {
-    const { razaoSocial, frota, checked, delegaTransf, justificativa, demand } = data,
-        classes = useStyles(), { paper, container, formHolder } = classes
+export default function ({ selectOption, handleInput, handleBlur, handleCheck, handleSubmit, selectMotivo, data, empresas, motivosBaixa }) {
+    const { razaoSocial, selectedOption, checked, delegaTransf, justificativa, selectedMotivo, demand } = data
 
     return (
         <Fragment>
@@ -44,46 +23,55 @@ export default function ({ handleInput, handleBlur, handleCheck, handleSubmit, d
                 handleInput={handleInput}
                 handleBlur={handleBlur}
             />
-            <Grid
-                container
-                direction="row"
-                className={container}
-                justify="center"
-            >
-                {razaoSocial && frota[0] &&
-                    <Grid item xs={12}>
-                        <Paper className={paper}>
-                            <h3 style={{ marginBottom: '7px' }}>
-                                {!demand ? 'Informe os dados para a baixa' : `Solicitação nº${demand?.numero} - ${demand?.subject}`}
-                            </h3>
-                            {demand && <h4>Situação: {demand?.status}</h4>}
-                            <TextInput
-                                form={baixaForm}
-                                data={data}
-                                handleBlur={handleBlur}
-                                handleInput={handleInput}
-                                disableAll={demand ? true : false}
-                            />
-                        </Paper>
-
+            <div className="flex center">
+                {//razaoSocial && frota[0] &&
+                    razaoSocial &&
+                    <>
                         <BaixaOptions
                             demand={demand}
                             checked={checked}
                             delegaTransf={delegaTransf}
                             justificativa={justificativa}
                             empresas={empresas}
+                            selectOption={selectOption}
                             handleInput={handleInput}
                             handleBlur={handleBlur}
                             handleCheck={handleCheck}
                             handleSubmit={handleSubmit}
                         />
-                    </Grid>
+                        {selectedOption !== 'gerenciar' &&
+                            <div className="flex">
+                                <section className="paper">
+                                    <h3 style={{ marginBottom: '7px' }}>
+                                        {!demand ? 'Informe os dados para a baixa' : `Solicitação nº${demand?.numero} - ${demand?.subject}`}
+                                    </h3>
+                                    {demand && <h4>Situação: {demand?.status}</h4>}
+                                    <TextInput
+                                        form={baixaForm}
+                                        data={data}
+                                        handleBlur={handleBlur}
+                                        handleInput={handleInput}
+                                        disableAll={demand ? true : false}
+                                    />
+                                </section>
+
+                                <BaixaMotivo
+                                    demand={demand}
+                                    delegaTransf={delegaTransf}
+                                    motivosBaixa={motivosBaixa}
+                                    selectMotivo={selectMotivo}
+                                    selectedMotivo={selectedMotivo}
+                                    justificativa={justificativa}
+                                    empresas={empresas}
+                                    handleInput={handleInput}
+                                    handleBlur={handleBlur}
+                                    handleSubmit={handleSubmit}
+                                />
+                            </div>
+                        }                    </>
                 }
-                {!razaoSocial && !frota[0] &&
-                    <Grid container justify="center">
-                        <div className={formHolder}></div>
-                    </Grid>}
-            </Grid>
+
+            </div>
         </Fragment>
     )
 }

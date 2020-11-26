@@ -13,11 +13,9 @@ const CertificateHeader = ({ nomes }) => {
                     <p>{secretaria}</p>
                     <p>{subsecretaria}</p>
                     <p>{superintendencia}</p>
-                    <h2>Certificate</h2>
+                    <h2>Certificado de Registro e Seguro</h2>
                 </div>
-
             </div>
-
         </>
     )
 }

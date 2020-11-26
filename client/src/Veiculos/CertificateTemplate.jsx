@@ -5,6 +5,7 @@ import TextField from '@material-ui/core/TextField'
 import PrintTwoToneIcon from '@material-ui/icons/PrintTwoTone';
 
 import './certificate.scss'
+import CertificateHeader from './CertificateHeader';
 
 const useStyles = makeStyles(theme => ({
 
@@ -16,12 +17,11 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
-const CertificateTemplate = ({ names, checkMulti, redirect, carac, delega, seg, peso, info, obs }) => {
+const CertificateTemplate = ({ nomes, checkMulti, redirect, carac, delega, seg, peso, info, obs }) => {
 
     const
         classes = useStyles(),
-        { textField } = classes,
-        { secretaria, subsecretaria, superintendencia } = names
+        { textField } = classes
 
     const ultimateForm = [
         { title: 'Delegatário', form: delega },
@@ -34,14 +34,17 @@ const CertificateTemplate = ({ names, checkMulti, redirect, carac, delega, seg, 
     return (
         <Fragment>
             <div id='pdfPage' className='A4'>
-                <div className='header'>
-                    <img src='/images/certficateHeader.png' height='100%' width='100%' alt="header" />
-                </div>
+                <header className='header'>
+                    {/* <img src='/images/certficateHeader.png' height='100%' width='100%' alt="header" /> */}
+                    <CertificateHeader
+                        nomes={nomes}
+                    />
+                </header>
                 {ultimateForm.map(({ title, form }, y) =>
-                    <div className={title !== 'Delegatário' ? 'box' : 'firstBox'} key={y}>
+                    <section className={title !== 'Delegatário' ? 'box' : 'firstBox'} key={y}>
                         {title !== 'Delegatário' && <span className='boxTitle'>{title}</span>}
                         {form.map((line, i) =>
-                            <div key={i} className={title !== 'Delegatário' ? 'divLine' : 'firstDivLine'} style={{ marginTop: i === 0 && '11mm' }}>
+                            <div key={i} className={title !== 'Delegatário' ? 'divLine' : 'firstDivLine'}>
                                 {line.map((el, k) =>
                                     <TextField
                                         disabled
@@ -85,15 +88,17 @@ const CertificateTemplate = ({ names, checkMulti, redirect, carac, delega, seg, 
                                 )}
                             </div>
                         )}
-                    </div>
+                    </section>
                 )}
-                <div className='porteObrigatorio'>
-                    <img src="/images/porteObrigatorio.png" height='100%' width='100%' alt="porte obrigatório" />
-                    <br />
-                Este certificado pode ser verificado em <span className='link' onClick={() => redirect()}> http://www.sismob.mg.gov.br </span>
-                </div>
+                <footer className='certFooter'>
+                    <h1 className="certFooter__title">
+                        PORTE OBRIGATÓRIO
+                    </h1>
+                    <p className="certFooter__text">
+                        Este certificado pode ser verificado em <span className='link' onClick={() => redirect()}> http://www.cadti.mg.gov.br </span>
+                    </p>
+                </footer>
             </div>
-            <br />
             <button title='Imprimir / salvar PDF' className='noprint printButton' onClick={() => window.print()}>
                 <PrintTwoToneIcon style={{
                     cursor: 'pointer',

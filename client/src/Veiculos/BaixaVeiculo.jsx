@@ -22,7 +22,7 @@ class BaixaVeiculo extends Component {
 
     state = {
         empresas: [],
-        razaoSocial: '',
+        razaoSocial: this.props.redux.empresas[0].razaoSocial,
         frota: [],
         placa: '',
         form: {},
@@ -31,6 +31,7 @@ class BaixaVeiculo extends Component {
         toastMsg: 'Solicitação de Baixa Enviada',
         confirmToast: false,
         openDialog: false,
+        selectedEmpresa: this.props.redux.empresas[0]
     }
 
     async componentDidMount() {
@@ -47,6 +48,8 @@ class BaixaVeiculo extends Component {
             await this.setState({ razaoSocial: empresa, selectedEmpresa, placa: veiculo, frota, ...selectedVehicle, demand })
         }
     }
+    selectOption = e => this.setState({ selectedOption: e.target.value })
+    selectMotivo = e => this.setState({ selectedMotivo: e.target.value })
 
     handleInput = async e => {
         const
@@ -238,13 +241,19 @@ class BaixaVeiculo extends Component {
     toast = () => this.setState({ confirmToast: !this.state.confirmToast })
 
     render() {
-        const { delegaTransf, confirmToast, toastMsg, checked, openAlertDialog, customTitle, customMessage, alertType } = this.state
+        const
+            { empresas, parametros } = this.props.redux,
+            { motivosBaixa } = parametros[0],
+            { delegaTransf, confirmToast, toastMsg, checked, openAlertDialog, customTitle, customMessage, alertType } = this.state
 
         return <Fragment>
             <BaixaTemplate
                 data={this.state}
-                empresas={this.props.redux.empresas}
+                empresas={empresas}
+                motivosBaixa={motivosBaixa}
                 checked={checked}
+                selectOption={this.selectOption}
+                selectMotivo={this.selectMotivo}
                 delegaTransf={delegaTransf}
                 handleInput={this.handleInput}
                 handleBlur={this.handleBlur}
@@ -257,6 +266,6 @@ class BaixaVeiculo extends Component {
     }
 }
 
-const collections = ['veiculos', 'empresas']
+const collections = ['veiculos', 'empresas', 'parametros']
 
 export default StoreHOC(collections, BaixaVeiculo)

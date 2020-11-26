@@ -195,14 +195,14 @@ export const informacoesGerais = [[
 
 export const other = [[
     {
-        field: 'compartilhado', 
+        field: 'compartilhado',
         label: 'Empresas autorizadas a compartilhar',
         width: '120mm',
         left: '20mm'
     },
     {
-        field: 'observacoes', 
+        field: 'observacoes',
         label: 'Observações',
-        width: '80mm',        
+        width: '80mm',
     }
 ]]

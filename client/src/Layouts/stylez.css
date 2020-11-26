@@ -64,6 +64,13 @@ div.loading {
     justify-content: flex-start !important;
 }
 
+.flexEnd {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-end !important;
+    width: 100%;
+}
 .flex:last-child:not(:first-child) {
     justify-content: flex-start;
 }

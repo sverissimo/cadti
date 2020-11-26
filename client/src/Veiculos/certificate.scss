@@ -2,7 +2,7 @@
     font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif !important;
     background: white;
     width: 21cm;
-    height: 29.7cm;
+    height: 29cm;
     margin: 0 auto;
     padding: 0 6mm;
     margin-bottom: 0.5cm;
@@ -30,13 +30,13 @@
     position: absolute;
     top: 1mm;
     left: 2mm;
-    font-size: 4mm;
-    font-weight: 500;
+    font-size: 9pt;
+    font-weight: 600;
 }
 
 .divLine {
     display: flex;
-    margin: 8mm 0 4.5mm 0;
+    margin: 9mm 0 4.5mm 0;
     width: 100%;
     padding: 0 2mm 0 6mm;
 }
@@ -49,14 +49,16 @@
 @media print {
     .page-break {
         display: block;
-        page-break-before: always;
+        page-break-inside: avoid;
+        page-break-after: avoid;
     }
 }
 
 @media print {
+    html,
     body {
-        margin: 0;
-        padding: 0;
+        margin: 0 !important;
+        padding: 0 !important;
     }
     nav,
     .MuiToolbar-root,
@@ -66,12 +68,13 @@
     }
     .A4 {
         box-shadow: none;
-        margin: 1mm !important;
-        padding: 0;
+        margin: 0 !important;
+        padding: 0 !important;
         width: 200mm;
-        height: auto;
+        height: 26cm;
         display: block !important;
         overflow-x: hidden;
+        page-break-after: avoid;
     }
     .divLine {
         display: flex;
@@ -79,6 +82,10 @@
         width: 100%;
         padding: 0 2mm 0 6mm;
     }
+    .certFooter {
+        page-break-after: avoid;
+    }
+
     .MuiToolbar-root,
     .MuiToolbar-regular,
     .MuiToolbar-gutters,
@@ -106,11 +113,6 @@
     text-align: justify !important;
 }
 
-.porteObrigatorio {
-    margin-top: 10mm;
-    text-align: center;
-}
-
 .printButton {
     cursor: pointer;
     color: rgb(161, 161, 180);
@@ -126,10 +128,15 @@
 
     text-decoration: underline;
 }
+img {
+    width: 85px;
+    height: 75px;
+    margin: 3mm 0 1.5mm 5mm;
+}
 
 .certHeader {
     &__container {
-        margin-top: 5px;
+        margin: 0 0 2.5mm 0;
         border: 1px #333 solid;
         border-radius: 15px;
         display: grid;
@@ -149,6 +156,34 @@
         align-items: center;
     }
     &__text > p {
-        margin: 0 !important;
+        font-size: 7pt;
+        margin: 0 75px 0 0 !important;
+        line-height: 0.9rem;
+        text-transform: uppercase;
+    }
+    &__text > h2 {
+        margin: 10px 75px 8px 0 !important;
+        font-weight: 700;
+    }
+}
+
+.certFooter {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+
+    &__title {
+        font: {
+            weight: 700;
+            size: 23pt;
+        }
+        margin: 2mm 0 0mm 0;
+        letter-spacing: 2.2mm;
+        text-shadow: 2px 2px #aaa;
+    }
+    &__text {
+        font-size: 8.5pt;
     }
 }
