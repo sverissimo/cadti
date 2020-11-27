@@ -1,10 +1,11 @@
-import React, { useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import AutoComplete from '../Utils/autoComplete'
 import './commonStyles.css'
 
 export default function SelectEmpresa(props) {
 
     const
+        [enableSelect, setEnabled] = useState(true),
         { empresas, handleInput, handleBlur, shared, headerTitle } = props,
         { razaoSocial, delegatarioCompartilhado, activeStep, demand } = props.data,
         list = 'razaoSocial'
@@ -15,18 +16,18 @@ export default function SelectEmpresa(props) {
         headerTitles.push({ title: 'Empresa autorizada a compartilhar', list, name: 'delegatarioCompartilhado', value: delegatarioCompartilhado })
 
     //Render field or title conditionally
-    let enableSelect = true
-    if (demand)
-        enableSelect = false
-    else if (activeStep && activeStep > 0)
-        enableSelect = false
-
     useEffect(() => {
-        if (!enableSelect)
-            setTimeout(() => {
-                document.getElementsByName('razaoSocial')[0].focus()
-            }, 300);
-    }, [])
+        if (demand || activeStep > 0)
+            setEnabled(false)
+        else if (activeStep === 0)
+            setEnabled(true)
+
+        //focus no campo de preencher o nome da empresa
+        const selectInput = document.getElementsByName('razaoSocial')
+        if (enableSelect && selectInput[0])
+            selectInput[0].focus()
+
+    }, [demand, activeStep, enableSelect])
 
     if (enableSelect) {
 

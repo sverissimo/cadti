@@ -7,7 +7,7 @@ const CertificateHeader = ({ nomes }) => {
         <>
             <div className="certHeader__container">
                 <div className="certHeader__brasao">
-                    <img src="/images/brasao.png" alt="Brasão de Minas Gerais" width="135" height="120" />
+                    <img src="/images/brasao.png" alt="Brasão de Minas Gerais" className='certHeader__img' />
                 </div>
                 <div className="certHeader__text">
                     <p>{secretaria}</p>

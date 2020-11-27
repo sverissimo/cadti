@@ -183,7 +183,7 @@ class VeiculosContainer extends PureComponent {
 
         let
             { value } = e.target,
-            customTitle, customMsg, openAlertDialog
+            customTitle, customMsg
 
         const errors = checkInputErrors()
         if (errors) this.setState({ errors })

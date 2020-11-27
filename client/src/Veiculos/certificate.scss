@@ -128,11 +128,6 @@
 
     text-decoration: underline;
 }
-img {
-    width: 85px;
-    height: 75px;
-    margin: 3mm 0 1.5mm 5mm;
-}
 
 .certHeader {
     &__container {
@@ -164,6 +159,11 @@ img {
     &__text > h2 {
         margin: 10px 75px 8px 0 !important;
         font-weight: 700;
+    }
+    &__img {
+        width: 85px;
+        height: 75px;
+        margin: 3mm 0 1.5mm 5mm;
     }
 }
 
