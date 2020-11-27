@@ -55,8 +55,6 @@ class VeiculosContainer extends PureComponent {
             { equipamentos, acessibilidade } = redux,
             demand = this.props?.location?.state?.demand
 
-        console.log("VeiculosContainer -> componentDidMount -> redux", redux)
-
         if (demand) {
             const demandState = setDemand(demand, redux)
             console.log(demandState)
@@ -174,14 +172,18 @@ class VeiculosContainer extends PureComponent {
     handleBlur = async e => {
         const
             { empresas, modelosChassi, carrocerias, parametros } = this.props.redux,
-            { distanciaPoltronas } = parametros[0],
+            { distanciaPoltronas, idadeBaixa } = parametros[0],
+            { idadeMaxCad, difIdade } = idadeBaixa,
             { frota, anoCarroceria, anoChassi, utilizacao, distanciaMinima } = this.state,
             { name } = e.target,
             carr = Number(anoCarroceria),
-            chas = Number(anoChassi)
+            chas = Number(anoChassi),
+            currentYear = new Date().getFullYear(),
+            maxAge = currentYear - idadeMaxCad
 
         let
-            { value } = e.target
+            { value } = e.target,
+            customTitle, customMsg, openAlertDialog
 
         const errors = checkInputErrors()
         if (errors) this.setState({ errors })
@@ -198,23 +200,25 @@ class VeiculosContainer extends PureComponent {
                 this.checkValid(name, value, empresas, 'compartilhadoId', 'razaoSocial', 'codigoEmpresa')
                 break
             case 'anoChassi':
-                if (anoCarroceria && chas && (carr !== chas && carr !== chas + 1)) {
-                    this.setState({
-                        anoChassi: '',
-                        openAlertDialog: true,
-                        customTitle: 'Ano de chassi inválido.',
-                        customMsg: `Ano de chassi incompatível com o ano de carroceria informado.`
-                    })
+                customTitle = 'Ano de chassi inválido.'
+                if (chas && chas < maxAge - 1)
+                    customMsg = `O ano de fabricação do chassi informado é anterior à idade máxima permitida - ${idadeMaxCad} anos.`
+                if ((carr && chas && (carr < chas || carr > chas + difIdade)))
+                    customMsg = 'O ano de chassi é incompatível com o ano da carroceria informado.'
+
+                if (customMsg) {
+                    this.setState({ anoChassi: '', openAlertDialog: true, customTitle, customMsg })
                 }
                 break
             case 'anoCarroceria':
-                if (chas && carr && (carr !== chas && carr !== chas + 1)) {
-                    this.setState({
-                        anoCarroceria: '',
-                        openAlertDialog: true,
-                        customTitle: 'Ano de carroceria inválido.',
-                        customMsg: `Ano de carroceria incompatível com o ano de chassi informado.`
-                    })
+                customTitle = 'Ano de carroceria inválido.'
+                if (carr && carr < maxAge)
+                    customMsg = `O ano de fabricação do carroceria informado é anterior à idade máxima permitida - ${idadeMaxCad} anos.`
+                if ((carr && chas && (carr < chas || carr > chas + difIdade)))
+                    customMsg = 'O ano de fabricação carroceria é incompatível com o ano do chassi informado.'
+
+                if (customMsg) {
+                    this.setState({ anoCarroceria: '', openAlertDialog: true, customTitle, customMsg })
                 }
                 break
             case 'distanciaMinima':
@@ -276,7 +280,6 @@ class VeiculosContainer extends PureComponent {
             })
             vEquip.forEach(ve => this.setState({ [ve]: true }))
         }
-
         this.setState({ addEquipa: !this.state.addEquipa })
     }
 

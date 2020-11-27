@@ -35,11 +35,9 @@ const CertificateTemplate = ({ nomes, checkMulti, redirect, carac, delega, seg, 
         <Fragment>
             <div id='pdfPage' className='A4'>
                 <header className='header'>
-                    {/* <img src='/images/certficateHeader.png' height='100%' width='100%' alt="header" /> */}
-                    <CertificateHeader
-                        nomes={nomes}
-                    />
+                    <CertificateHeader nomes={nomes} />
                 </header>
+
                 {ultimateForm.map(({ title, form }, y) =>
                     <section className={title !== 'Delegatário' ? 'box' : 'firstBox'} key={y}>
                         {title !== 'Delegatário' && <span className='boxTitle'>{title}</span>}

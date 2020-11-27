@@ -41,15 +41,14 @@ export const cadVehicleForm = [[{
     margin: 'normal',
     type: 'number',
     max: Number(new Date().getFullYear()),
-    min: Number(new Date().getFullYear()) - 10
 },
-{ 
+{
     field: 'valorChassi',
     label: 'Valor do Chassi (R$)',
     margin: 'normal',
     zero: true,
     pattern: '^.{9,12}$',
-    minLength: 8,    
+    minLength: 8,
     maxLength: 11
 },
 {
@@ -65,16 +64,15 @@ export const cadVehicleForm = [[{
     field: 'anoCarroceria',
     label: 'Ano da Carroceria',
     margin: 'normal',
-    max: Number(new Date().getFullYear() + 1),
-    min: Number(new Date().getFullYear()) - 10
+    max: Number(new Date().getFullYear() + 1)
 },
-{    
+{
     field: 'valorCarroceria',
     label: 'Valor da Carroceria (R$)',
     margin: 'normal',
-    zero: true,    
+    zero: true,
     pattern: '^.{9,12}$',
-    minLength: 8,    
+    minLength: 8,
     maxLength: 11
 },
 {
@@ -90,5 +88,5 @@ export const cadVehicleForm = [[{
     margin: 'normal',
     maxLength: 50
 }
-]]    
+]]
     .concat([vistoriaForm])    

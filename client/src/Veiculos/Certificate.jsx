@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react'
 import { delegatario, caracteristicas, seguro, pesagem, informacoesGerais, other } from '../Forms/certificate'
-import CertificateHeader from './CertificateHeader'
 import CertificateTemplate from './CertificateTemplate'
 
 export default function PdfCertificate() {

@@ -90,3 +90,10 @@ export const nomes = [
         label: 'Sigla do Sistema',
     }
 ]
+
+export const motivosBaixa = [
+    {
+        field: 'motivoBaixa',
+        label: 'Inserir novo motivo',
+    }
+]

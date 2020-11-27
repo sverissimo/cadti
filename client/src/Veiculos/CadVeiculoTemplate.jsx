@@ -68,7 +68,7 @@ export default function ({ redux, data, handleInput, handleBlur, handleEquipa, h
                             label={
                                 <h4 style={{ color: '#2979ff', fontSize: '0.7rem' }}>
                                     Veículo Compartilhado?
-                            </h4>
+                                </h4>
                             }
                         />
                     </section>

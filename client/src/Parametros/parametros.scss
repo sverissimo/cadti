@@ -6,10 +6,59 @@
     margin-top: 22px;
 }
 
-.config__selector {
-    text-align: center;
+.config {
+    &__selector {
+        text-align: center;
+    }
+    &__textField {
+        width: 275px;
+    }
 }
 
-.config__textField {
-    width: 275px;
+.singleParams {
+    &__container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    &__title {
+        text-align: center;
+        margin: 25px 0;
+    }
+    &__rowContainer {
+        display: flex;
+        align-items: center;
+    }
+    &__deleteIcon {
+        margin-left: 7px;
+        padding-top: 5px;
+        color: rgb(156, 10, 34);
+        cursor: pointer;
+    }
+}
+
+.addIcon {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+
+    &__container {
+        display: flex;
+        padding: 5px;
+        align-items: center;
+        width: auto;
+        margin: 20px 0;
+        border: 1px #009688 solid;
+        border-radius: 5px;
+        color: #009688;
+        cursor: pointer;
+        z-index: 1;
+    }
+    &__text {
+        margin-right: 5px;
+        font-weight: 500;
+    }
+    &__icon {
+        font-size: 30;
+    }
 }

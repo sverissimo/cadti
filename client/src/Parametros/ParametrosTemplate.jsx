@@ -1,20 +1,18 @@
 import React from 'react'
+import TextInput from '../Reusable Components/TextInput'
+import SimpleParams from './SimpleParams'
+import CustomButton from '../Reusable Components/CustomButton'
 
 import Crumbs from '../Reusable Components/Crumbs'
 import MenuItem from '@material-ui/core/MenuItem'
-
 import TextField from '@material-ui/core/TextField'
-import Button from '@material-ui/core/Button'
-import SaveIcon from '@material-ui/icons/Save';
-
-import TextInput from '../Reusable Components/TextInput'
 import './parametros.scss'
 
-const ParametrosTemplate = ({ data, selectOption, handleInput, handleSubmit }) => {
-    const { options, selectedOption, form, modified } = data
+const ParametrosTemplate = ({ data, selectOption, handleInput, handleSubmit, plusOne, removeOne }) => {
+    const { tab, options, selectedOption, form, modified } = data
 
     return (
-        <div className='paper'>
+        <>
             <Crumbs links={['Parâmetros', '/parametros']} text='Alterar parâmetros do sistema' />
             <header className="selectHeader">
                 <h4 className='parametrosTitle'>Alterar parâmetros do sistema - Selecione uma das opções abaixo.</h4>
@@ -41,7 +39,7 @@ const ParametrosTemplate = ({ data, selectOption, handleInput, handleSubmit }) =
                 </TextField>
             </header>
             {
-                form &&
+                form && tab < 3 &&
                 <main className='configForm'>
                     <TextInput
                         form={form}
@@ -49,21 +47,32 @@ const ParametrosTemplate = ({ data, selectOption, handleInput, handleSubmit }) =
                         handleInput={handleInput}
                         style={{ width: '100%', flexDirection: 'column' }}
                     />
-                    <div style={{ minHeight: '60px', position: 'flex' }}>
-                        <Button
-                            size="small"
-                            color='primary'
-                            className='saveButton'
-                            variant="contained"
-                            onClick={() => handleSubmit()}
-                            disabled={!modified}
-                        >
-                            Salvar <span>&nbsp;&nbsp; </span> <SaveIcon />
-                        </Button>
-                    </div>
                 </main>
             }
-        </div>
+            {/* Formulário simples que representa uma array de strings no DB / estado local  */}
+            {
+                tab === 3 &&
+                <SimpleParams
+                    form={form}
+                    data={data}
+                    plusOne={plusOne}
+                    removeOne={removeOne}
+                    handleInput={handleInput}
+                    style={{ width: '100%', flexDirection: 'column' }}
+                />
+            }
+            {/* Botão de salvar independe do formulário renderizado, desde que alguma opção tenha sido selecionada */}
+            {
+                selectedOption &&
+                <div style={{ minHeight: '60px', position: 'flex' }}>
+                    <CustomButton
+                        action='save'
+                        onClick={handleSubmit}
+                        disabled={!modified}
+                    />
+                </div>
+            }
+        </>
     )
 }
 
