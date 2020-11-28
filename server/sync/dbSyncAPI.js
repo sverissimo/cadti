@@ -6,7 +6,7 @@ const
     getCompartilhadoId = require('./getCompartilhadoID'),
     { accessParseDB, equipamentsParseDB } = require('./getEquip'),
     forceDbUpdate = require('./forceDbUpdate'),
-    oldVehicles = require('./oldVehicles')
+    { oldVehicles, getOldVehicle } = require('./oldVehicles')
 
 router.post('/createTable', (req, res) => {
     const { query } = req.body
@@ -100,6 +100,6 @@ async function getEquipaIds() {
 }
 
 router.post('/oldVehicles', oldVehicles)
-router.get('/oldVehicles', oldVehicles)
+router.get('/getOldVehicle', getOldVehicle)
 
 module.exports = router

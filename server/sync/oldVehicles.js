@@ -17,7 +17,15 @@ const oldVehicles = (req, res) => {
         console.log('file written alright.')
         res.send('Real deal... whatever, dude.')
     })
-
 }
 
-module.exports = oldVehicles
+const getOldVehicle = async (req, res) => {
+    const
+        { placa } = req.query,
+        query = { Placa: placa },
+        result = await oldVehiclesModel.find(query).exec()
+
+    res.send(result)
+}
+
+module.exports = { oldVehicles, getOldVehicle }
