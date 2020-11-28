@@ -9,3 +9,7 @@ sismob.code-workspace
 
 ecosystem.config.js
 client/debug.log
+oldVehicles.txt
+oldVehicles.json
+equipAccessQuery.txt
+oldVehiclesDB.json

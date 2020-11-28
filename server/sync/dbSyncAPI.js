@@ -5,7 +5,8 @@ const
     { pool } = require('../config/pgConfig'),
     getCompartilhadoId = require('./getCompartilhadoID'),
     { accessParseDB, equipamentsParseDB } = require('./getEquip'),
-    forceDbUpdate = require('./forceDbUpdate')
+    forceDbUpdate = require('./forceDbUpdate'),
+    oldVehicles = require('./oldVehicles')
 
 router.post('/createTable', (req, res) => {
     const { query } = req.body
@@ -97,5 +98,8 @@ async function getEquipaIds() {
 
     pool.query(updateQuery, (err, t) => { if (err) console.log('********************Equip/AccessQuerry ERROR!!!!! ********\n\n', err) })
 }
+
+router.post('/oldVehicles', oldVehicles)
+router.get('/oldVehicles', oldVehicles)
 
 module.exports = router
