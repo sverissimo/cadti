@@ -240,9 +240,9 @@ class BaixaVeiculo extends Component {
             query = await axios.get(`/api/getOldVehicles?placa=${placaBaixada}`),
             result = query?.data
         if (result[0])
-            this.setState({ dischargedFound: result[0] })
+            this.setState({ dischargedFound: result[0], notFound: false })
         else
-            this.setState({ notFound: true })
+            this.setState({ notFound: true, dischargedFound: undefined })
     }
     handleCheck = e => this.setState({ checked: e.target.value })
     reset = () => {

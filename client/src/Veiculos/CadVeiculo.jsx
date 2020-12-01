@@ -248,7 +248,13 @@ class VeiculosContainer extends PureComponent {
                 await this.setState({ placa: x })
                 value = x
             }
-            const matchPlaca = frota.find(v => v.placa === value)
+            const
+                matchPlaca = frota.find(v => v.placa === value),
+                checkExistance = await axios.get(`/api/alreadyExists?table=veiculos&column=placa&value=${value}`),
+                matchPlaca2 = checkExistance?.data
+
+            console.log("🚀 ~ file: CadVeiculo.jsx ~ line 257 ~ VeiculosContainer ~ alreadyExists", matchPlaca2)
+
             if (matchPlaca) {
                 await this.setState({ placa: null });
                 value = ''

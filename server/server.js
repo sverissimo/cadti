@@ -6,13 +6,14 @@ const
     io = require('socket.io').listen(server),
     bodyParser = require('body-parser'),
     path = require('path'),
+    fs = require('fs'),
     dotenv = require('dotenv'),
     mongoose = require('mongoose'),
     { conn } = require('./mongo/mongoConfig'),
     morgan = require('morgan'),
+    xlsx = require('xlsx'),
     Grid = require('gridfs-stream')
 Grid.mongo = mongoose.mongo
-
 
 //Componentes do sistema
 const
@@ -34,8 +35,8 @@ const
     altContratoModel = require('./mongo/models/altContratoModel'),
     filesModel = require('./mongo/models/filesModel'),
     logsModel = require('./mongo/models/logsModel'),
-    oldVehiclesModel = require('./mongo/models/oldVehiclesModel')
-segurosModel = require('./mongo/models/segurosModel'),
+    oldVehiclesModel = require('./mongo/models/oldVehiclesModel'),
+    segurosModel = require('./mongo/models/segurosModel'),
     dbSync = require('./sync/dbSyncAPI'),
     dailyTasks = require('./taskManager/taskManager'),
     deleteVehiclesInsurance = require('./deleteVehiclesInsurance'),
@@ -53,8 +54,6 @@ app.use(bodyParser.urlencoded())
 
 app.use(express.static('client/build'))
 app.use(setCorsHeader)
-//app.get('/tst', getExpired)
-//insertNewInsurances()
 
 //**********************************    Counter ****************************/
 let i = 0
@@ -257,6 +256,7 @@ app.get('/api/veiculo/:id', (req, res) => {
     })
 });
 
+//get one dischargedVehicle
 app.get('/api/getOldVehicles', async (req, res) => {
     const
         { placa } = req.query,
@@ -264,6 +264,64 @@ app.get('/api/getOldVehicles', async (req, res) => {
         result = await oldVehiclesModel.find(query).exec()
     console.log(placa)
     res.send(result)
+})
+
+//get all dischargedVehicles and download excel spreadsheet
+app.get('/api/oldVehiclesXls', async (req, res) => {
+    const
+        dischargedVehicles = await oldVehiclesModel.find().select('-__v -_id').lean(),
+        dateObj = new Date(),
+        day = dateObj.getDate(),
+        month = dateObj.getMonth(),
+        year = dateObj.getFullYear(),
+        fileName = `Veículos baixados - ${day}_${month}_${year}.xlsx`,
+
+        wb = xlsx.utils.book_new(),
+        wb_opts = { bookType: 'xlsx', type: 'binary' },
+        ws = xlsx.utils.json_to_sheet(dischargedVehicles)
+
+    xlsx.utils.book_append_sheet(wb, ws, 'Veículos baixados')
+    xlsx.writeFile(wb, fileName, wb_opts);
+
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader("Content-Disposition", "attachment; filename=" + fileName);
+
+    const stream = fs.createReadStream(fileName);
+    stream.on('end', () => res.end());
+    stream.pipe(res)
+})
+
+app.get('/api/alreadyExists', async (req, res) => {
+    const { table, column, value } = req.query
+    let
+        query = `SELECT ${column} FROM ${table} WHERE ${column} = '${value}'`,
+        mongoQuery = { 'Placa': value },
+        response = false,
+        vehicleExists,
+        oldVehicleExists,
+        foundOne = []
+
+    if (table === 'veiculos') {
+        vehicleExists = pool.query(query)
+        oldVehicleExists = oldVehiclesModel.find(mongoQuery)
+            .select(['Placa', 'Delegatário', 'Data baixa'])
+            .lean()
+
+        await Promise.allSettled([vehicleExists, oldVehicleExists])
+            .then(([v, old]) => [v.value, old.value])
+            .then(([v, old]) => {
+                if (v.rows && v.rows[0])
+                    foundOne.push({ vehicleFound: v.rows })
+                if (old.length > 0)
+                    foundOne.push({ dischargedFound: old })
+            })
+
+        if (foundOne.length > 0)
+            response = true
+
+        //console.log(query, vehicleExists, oldVehicleExists, response)
+        res.send({ foundOne, query, mongoQuery, response })
+    }
 
 })
 
@@ -280,6 +338,7 @@ app.post('/api/cadastroVeiculo', (req, res) => {
 
     pool.query(
         `INSERT INTO public.veiculos (${keys}) VALUES (${values}) RETURNING veiculo_id`, (err, table) => {
+
             if (err) res.send(err)
             if (table && table.rows && table.rows.length === 0) { res.send(table.rows); return }
 

@@ -35,7 +35,7 @@ export default function BaixaOptions({ empresas, selectOption, parametros, deman
                                     className='radio'
                                     value={value}
                                     label={<span className='radio__legend'> {label} </span>}
-                                    control={<Radio color="primary" />}
+                                    control={<Radio color="primary" size='small' />}
                                 />
                             )
                         }

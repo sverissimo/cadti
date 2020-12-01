@@ -2,10 +2,18 @@ import React from 'react'
 import TextField from '@material-ui/core/TextField'
 import SearchIcon from '@material-ui/icons/Search';
 import CustomButton from '../Reusable Components/CustomButton';
-import dischargedForm from '../Forms/dischargedForm';
+import dischargedForm, { allBaixadoFields } from '../Forms/dischargedForm';
 
 const BaixaGerenciar = ({ data, handleInput, searchDischarged }) => {
     const { placaBaixada, dischargedFound, notFound } = data
+
+    //Retira o campo observações, ques erá renderizado como blockElement fora do dischargedForm.map()
+    const
+        obs = dischargedForm.find(f => f.label === 'Observação'),
+        index = dischargedForm.indexOf(obs)
+
+    dischargedForm.splice(index, 1)
+    console.log(dischargedForm)
 
     return (
         <>
@@ -45,6 +53,16 @@ const BaixaGerenciar = ({ data, handleInput, searchDischarged }) => {
                                     />
                                 )
                             }
+                        </section>
+                        <section className='obs'>
+                            <label htmlFor="obs" className='obs__label'>Observações:</label>
+                            <textarea
+                                name="obs"
+                                id="obs"
+                                className='obs__textArea'
+                                defaultValue={dischargedFound['Observação']}
+                                cols="30"
+                                rows="6" />
                         </section>
                         <footer className='reactivate'>
                             <CustomButton
