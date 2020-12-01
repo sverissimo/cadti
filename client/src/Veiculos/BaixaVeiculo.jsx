@@ -55,6 +55,7 @@ class BaixaVeiculo extends Component {
         const
             { name, value } = e.target,
             { veiculos, empresas } = this.props.redux
+        console.log("🚀 ~ file: BaixaVeiculo.jsx ~ line 57 ~ BaixaVeiculo ~ name, value", name, value)
 
         this.setState({ [name]: value })
 
@@ -232,6 +233,17 @@ class BaixaVeiculo extends Component {
             }, 1500)
     }
 
+    searchDischarged = async e => {
+        e.preventDefault()
+        const
+            { placaBaixada } = this.state,
+            query = await axios.get(`/api/getOldVehicles?placa=${placaBaixada}`),
+            result = query?.data
+        if (result[0])
+            this.setState({ dischargedFound: result[0] })
+        else
+            this.setState({ notFound: true })
+    }
     handleCheck = e => this.setState({ checked: e.target.value })
     reset = () => {
         baixaForm.forEach(el => this.setState({ [el.field]: '' }))
@@ -259,6 +271,7 @@ class BaixaVeiculo extends Component {
                 handleBlur={this.handleBlur}
                 handleCheck={this.handleCheck}
                 handleSubmit={this.handleSubmit}
+                searchDischarged={this.searchDischarged}
             />
             {openAlertDialog && <AlertDialog open={openAlertDialog} close={this.closeAlert} alertType={alertType} customTitle={customTitle} customMessage={customMessage} />}
             <ReactToast open={confirmToast} close={this.toast} msg={toastMsg} />

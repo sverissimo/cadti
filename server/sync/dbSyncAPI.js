@@ -100,6 +100,5 @@ async function getEquipaIds() {
 }
 
 router.post('/oldVehicles', oldVehicles)
-router.get('/getOldVehicle', getOldVehicle)
 
 module.exports = router

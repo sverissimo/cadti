@@ -10,8 +10,9 @@ import BaixaOptions from './BaixaOptions'
 import { baixaForm } from '../Forms/baixaForm'
 
 import './veiculos.scss'
+import BaixaGerenciar from './BaixaGerenciar'
 
-export default function ({ selectOption, handleInput, handleBlur, handleCheck, handleSubmit, selectMotivo, data, empresas, motivosBaixa }) {
+export default function ({ selectOption, handleInput, handleBlur, handleCheck, handleSubmit, selectMotivo, data, empresas, motivosBaixa, searchDischarged }) {
     const { razaoSocial, selectedOption, checked, delegaTransf, justificativa, selectedMotivo, demand } = data
 
     return (
@@ -23,7 +24,7 @@ export default function ({ selectOption, handleInput, handleBlur, handleCheck, h
                 handleInput={handleInput}
                 handleBlur={handleBlur}
             />
-            <div className="flex center">
+            <div className="flexColumn">
                 {//razaoSocial && frota[0] &&
                     razaoSocial &&
                     <>
@@ -39,36 +40,43 @@ export default function ({ selectOption, handleInput, handleBlur, handleCheck, h
                             handleCheck={handleCheck}
                             handleSubmit={handleSubmit}
                         />
-                        {selectedOption !== 'gerenciar' &&
-                            <div className="flex">
-                                <section className="paper">
-                                    <h3 style={{ marginBottom: '7px' }}>
-                                        {!demand ? 'Informe os dados para a baixa' : `Solicitação nº${demand?.numero} - ${demand?.subject}`}
-                                    </h3>
-                                    {demand && <h4>Situação: {demand?.status}</h4>}
-                                    <TextInput
-                                        form={baixaForm}
-                                        data={data}
-                                        handleBlur={handleBlur}
+                        {
+                            selectedOption === 'baixar' ?
+                                <div className="flex">
+                                    <section className="paper">
+                                        <h3 style={{ marginBottom: '7px' }}>
+                                            {!demand ? 'Informe os dados para a baixa' : `Solicitação nº${demand?.numero} - ${demand?.subject}`}
+                                        </h3>
+                                        {demand && <h4>Situação: {demand?.status}</h4>}
+                                        <TextInput
+                                            form={baixaForm}
+                                            data={data}
+                                            handleBlur={handleBlur}
+                                            handleInput={handleInput}
+                                            disableAll={demand ? true : false}
+                                        />
+                                    </section>
+                                    <BaixaMotivo
+                                        demand={demand}
+                                        delegaTransf={delegaTransf}
+                                        motivosBaixa={motivosBaixa}
+                                        selectMotivo={selectMotivo}
+                                        selectedMotivo={selectedMotivo}
+                                        justificativa={justificativa}
+                                        empresas={empresas}
                                         handleInput={handleInput}
-                                        disableAll={demand ? true : false}
+                                        handleBlur={handleBlur}
+                                        handleSubmit={handleSubmit}
                                     />
-                                </section>
-
-                                <BaixaMotivo
-                                    demand={demand}
-                                    delegaTransf={delegaTransf}
-                                    motivosBaixa={motivosBaixa}
-                                    selectMotivo={selectMotivo}
-                                    selectedMotivo={selectedMotivo}
-                                    justificativa={justificativa}
-                                    empresas={empresas}
+                                </div>
+                                :
+                                <BaixaGerenciar
+                                    data={data}
                                     handleInput={handleInput}
-                                    handleBlur={handleBlur}
-                                    handleSubmit={handleSubmit}
+                                    searchDischarged={searchDischarged}
                                 />
-                            </div>
-                        }                    </>
+                        }
+                    </>
                 }
 
             </div>

@@ -31,16 +31,18 @@ const
     { getUpdatedData } = require('./getUpdatedData'),
     { empresaChunks, vehicleChunks } = require('./mongo/models/chunksModel'),
     { parseRequestBody } = require('./parseRequest'),
+    altContratoModel = require('./mongo/models/altContratoModel'),
     filesModel = require('./mongo/models/filesModel'),
     logsModel = require('./mongo/models/logsModel'),
-    segurosModel = require('./mongo/models/segurosModel'),
-    altContratoModel = require('./mongo/models/altContratoModel'),
+    oldVehiclesModel = require('./mongo/models/oldVehiclesModel')
+segurosModel = require('./mongo/models/segurosModel'),
     dbSync = require('./sync/dbSyncAPI'),
     dailyTasks = require('./taskManager/taskManager'),
     deleteVehiclesInsurance = require('./deleteVehiclesInsurance'),
     updateVehicleStatus = require('./taskManager/veiculos/updateVehicleStatus'),
     emitSocket = require('./emitSocket'),
     parametros = require('./parametros/parametros')
+
 
 dailyTasks.start()
 dotenv.config()
@@ -254,6 +256,16 @@ app.get('/api/veiculo/:id', (req, res) => {
         res.json(table.rows.map(r => r[column]))
     })
 });
+
+app.get('/api/getOldVehicles', async (req, res) => {
+    const
+        { placa } = req.query,
+        query = { Placa: placa },
+        result = await oldVehiclesModel.find(query).exec()
+    console.log(placa)
+    res.send(result)
+
+})
 
 app.get('/api/lookUpTable/:table', lookup);
 

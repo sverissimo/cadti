@@ -19,13 +19,4 @@ const oldVehicles = (req, res) => {
     })
 }
 
-const getOldVehicle = async (req, res) => {
-    const
-        { placa } = req.query,
-        query = { Placa: placa },
-        result = await oldVehiclesModel.find(query).exec()
-
-    res.send(result)
-}
-
-module.exports = { oldVehicles, getOldVehicle }
+module.exports = { oldVehicles }

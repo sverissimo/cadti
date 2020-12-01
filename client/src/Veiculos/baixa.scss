@@ -8,3 +8,15 @@
         font-weight: 500;
     }
 }
+
+.dischargedContainer {
+    display: flex;
+    flex-wrap: wrap;
+    margin: 25px 0 0 7%;
+}
+
+.reactivate {
+    display: flex;
+    justify-content: flex-end;
+    width: 100%;
+}

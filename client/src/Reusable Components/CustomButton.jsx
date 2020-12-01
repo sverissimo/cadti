@@ -12,7 +12,6 @@ const CustomButton = props => {
         icon = () => <SaveIcon />
         label = 'Salvar'
     }
-
     return (
         <Button
             size="small"
@@ -22,7 +21,7 @@ const CustomButton = props => {
             onClick={() => onClick()}
             disabled={disabled}
         >
-            {label} <span>&nbsp;&nbsp; </span> {icon()}
+            {props.label || label} <span>&nbsp;&nbsp; </span> {icon()}
         </Button>
     )
 }
