@@ -20,12 +20,6 @@ export default function AlertDialog({ open, alertType, close, confirm, customTit
       return { title, message }
     }
 
-    if (typeof type === 'object') {
-      title = 'Empresa já cadastrada'
-      message = `A empresa ${type.razaoSocial} já está cadastrada no sistema com o CNPJ ${type.cnpj}.`
-      return { title, message }
-    }
-
     switch (type) {
       case 'plateNotFound':
         title = 'Placa não encontrada'

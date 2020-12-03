@@ -38,3 +38,42 @@
         font-family: inherit;
     }
 }
+
+.searchDischarged {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    padding-right: 20px;
+    &__header {
+        width: 100%;
+    }
+    & > div:first-child {
+        grid-column-start: 2;
+        display: flex;
+        justify-content: center;
+    }
+    & > div:last-child {
+        margin: 11px 0 0 auto;
+    }
+}
+.downloadXls {
+    font-size: 0.7rem;
+    margin: 0 0 0 10px;
+    font-weight: 500;
+    padding: 3px;
+    cursor: pointer;
+    display: flex;
+
+    &::before {
+        content: "Todos os veículos";
+        color: rgb(6, 70, 6);
+        margin-top: 3px;
+    }
+    &__icon {
+        width: 22px;
+        height: 20px;
+        margin-left: 5px;
+    }
+}

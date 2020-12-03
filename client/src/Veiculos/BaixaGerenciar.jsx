@@ -2,10 +2,10 @@ import React from 'react'
 import TextField from '@material-ui/core/TextField'
 import SearchIcon from '@material-ui/icons/Search';
 import CustomButton from '../Reusable Components/CustomButton';
-import dischargedForm, { allBaixadoFields } from '../Forms/dischargedForm';
+import dischargedForm from '../Forms/dischargedForm';
 
-const BaixaGerenciar = ({ data, handleInput, searchDischarged }) => {
-    const { placaBaixada, dischargedFound, notFound } = data
+const BaixaGerenciar = ({ data, handleInput, searchDischarged, downloadXls }) => {
+    const { placaBaixada, dischargedFound, notFound, reactivate } = data
 
     //Retira o campo observações, ques erá renderizado como blockElement fora do dischargedForm.map()
     const
@@ -13,30 +13,44 @@ const BaixaGerenciar = ({ data, handleInput, searchDischarged }) => {
         index = dischargedForm.indexOf(obs)
 
     dischargedForm.splice(index, 1)
-    console.log(dischargedForm)
 
     return (
         <>
             <div className='flex center paper'>
-                <form onSubmit={searchDischarged}>
-                    <TextField
-                        type="text"
-                        name='placaBaixada'
-                        label='Informe a placa do veículo'
-                        value={placaBaixada || ''}
-                        onChange={handleInput}
-                        placeholder='Digite a placa'
-                        InputLabelProps={{ style: { fontSize: '0.7rem' } }}
-                        InputProps={{ style: { width: '250px', marginRight: '10px', fontSize: '0.9rem', textAlign: 'center' } }}
-                    />
-                </form>
-                <span
-                    action='search'
-                    onClick={searchDischarged}
-                    style={{ marginTop: '18px' }}
-                >
-                    <SearchIcon />
-                </span>
+                <header className='searchDischarged__header'>
+
+                    <div className='searchDischarged'>
+                        <div>
+                            <form onSubmit={searchDischarged}>
+                                <TextField
+                                    type="text"
+                                    name='placaBaixada'
+                                    label='Pesquisar pela placa do veículo'
+                                    value={placaBaixada || ''}
+                                    onChange={handleInput}
+                                    placeholder='Digite a placa'
+                                    InputLabelProps={{ style: { fontSize: '0.7rem' } }}
+                                    InputProps={{ style: { width: '250px', marginRight: '10px', fontSize: '0.9rem', textAlign: 'center' } }}
+                                />
+                            </form>
+                            <span
+                                action='search'
+                                onClick={searchDischarged}
+                                style={{ marginTop: '18px' }}
+                            >
+                                <SearchIcon className='pointer' />
+                            </span>
+                        </div>
+                        <div className='downloadXls' onClick={downloadXls}>
+                            <img
+                                className='downloadXls__icon'
+                                src="/images/excel.png"
+                                alt="Fazer o download do arquivo xlsx"
+                                title='Arquivo xlsx com todos os veículos baixados'
+                            />
+                        </div>
+                    </div>
+                </header>
                 {
                     dischargedFound &&
                     <>
@@ -64,12 +78,15 @@ const BaixaGerenciar = ({ data, handleInput, searchDischarged }) => {
                                 cols="30"
                                 rows="6" />
                         </section>
-                        <footer className='reactivate'>
-                            <CustomButton
-                                action='save'
-                                label='Reativar'
-                            />
-                        </footer>
+                        {
+                            reactivate &&
+                            <footer className='reactivate'>
+                                <CustomButton
+                                    action='save'
+                                    label='Reativar'
+                                />
+                            </footer>
+                        }
                     </>
                 }
             </div>

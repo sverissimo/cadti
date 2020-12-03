@@ -174,7 +174,7 @@ class VeiculosContainer extends PureComponent {
             { empresas, modelosChassi, carrocerias, parametros } = this.props.redux,
             { distanciaPoltronas, idadeBaixa } = parametros[0],
             { idadeMaxCad, difIdade } = idadeBaixa,
-            { frota, anoCarroceria, anoChassi, utilizacao, distanciaMinima } = this.state,
+            { anoCarroceria, anoChassi, utilizacao, distanciaMinima } = this.state,
             { name } = e.target,
             carr = Number(anoCarroceria),
             chas = Number(anoChassi),
@@ -249,16 +249,25 @@ class VeiculosContainer extends PureComponent {
                 value = x
             }
             const
-                matchPlaca = frota.find(v => v.placa === value),
                 checkExistance = await axios.get(`/api/alreadyExists?table=veiculos&column=placa&value=${value}`),
-                matchPlaca2 = checkExistance?.data
+                placaMatch = checkExistance?.data
 
-            console.log("🚀 ~ file: CadVeiculo.jsx ~ line 257 ~ VeiculosContainer ~ alreadyExists", matchPlaca2)
+            let customTitle, customMsg
 
-            if (matchPlaca) {
+            if (placaMatch) {
+                const { status } = placaMatch
                 await this.setState({ placa: null });
                 value = ''
-                this.setState({ alertType: 'plateExists', openAlertDialog: true })
+                if (status === 'existing') {
+                    customTitle = 'Veículo já cadastrado.'
+                    customMsg = 'A placa informada corresponde a um veículo já cadastrado. Para alterar o cadastro, vá para Veículos -> \'Alteração de dados\'.'
+                    this.setState({ customTitle, customMsg, openAlertDialog: true })
+                }
+                if (status === 'discharged') {
+                    customTitle = 'Veículo baixado.'
+                    customMsg = 'A placa informada corresponde a um veículo baixado. Para reativar seu cadastro, vá para Veículos -> Baixa -> \'Gerenciar Veículos Baixados\'.'
+                    this.setState({ customTitle, customMsg, openAlertDialog: true })
+                }
                 document.getElementsByName('placa')[0].focus()
             }
         }

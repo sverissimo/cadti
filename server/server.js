@@ -42,7 +42,8 @@ const
     deleteVehiclesInsurance = require('./deleteVehiclesInsurance'),
     updateVehicleStatus = require('./taskManager/veiculos/updateVehicleStatus'),
     emitSocket = require('./emitSocket'),
-    parametros = require('./parametros/parametros')
+    parametros = require('./parametros/parametros'),
+    getFormatedDate = require('./getDate')
 
 
 dailyTasks.start()
@@ -270,11 +271,9 @@ app.get('/api/getOldVehicles', async (req, res) => {
 app.get('/api/oldVehiclesXls', async (req, res) => {
     const
         dischargedVehicles = await oldVehiclesModel.find().select('-__v -_id').lean(),
-        dateObj = new Date(),
-        day = dateObj.getDate(),
-        month = dateObj.getMonth(),
-        year = dateObj.getFullYear(),
-        fileName = `Veículos baixados - ${day}_${month}_${year}.xlsx`,
+        currentDate = getFormatedDate(),
+
+        fileName = `Veículos baixados - ${currentDate}.xlsx`,
 
         wb = xlsx.utils.book_new(),
         wb_opts = { bookType: 'xlsx', type: 'binary' },
@@ -296,33 +295,38 @@ app.get('/api/alreadyExists', async (req, res) => {
     let
         query = `SELECT ${column} FROM ${table} WHERE ${column} = '${value}'`,
         mongoQuery = { 'Placa': value },
-        response = false,
         vehicleExists,
         oldVehicleExists,
-        foundOne = []
+        foundOne
 
     if (table === 'veiculos') {
         vehicleExists = pool.query(query)
         oldVehicleExists = oldVehiclesModel.find(mongoQuery)
-            .select(['Placa', 'Delegatário', 'Data baixa'])
+            .select(['Placa', 'Delegatário', 'Data baixa', '-_id'])
             .lean()
 
         await Promise.allSettled([vehicleExists, oldVehicleExists])
             .then(([v, old]) => [v.value, old.value])
             .then(([v, old]) => {
                 if (v.rows && v.rows[0])
-                    foundOne.push({ vehicleFound: v.rows })
+                    foundOne = { vehicleFound: v.rows[0], status: 'existing' }
                 if (old.length > 0)
-                    foundOne.push({ dischargedFound: old })
+                    foundOne = { vehicleFound: old[0], status: 'discharged' }
             })
-
-        if (foundOne.length > 0)
-            response = true
-
-        //console.log(query, vehicleExists, oldVehicleExists, response)
-        res.send({ foundOne, query, mongoQuery, response })
+        if (foundOne)
+            res.send(foundOne)
+        else
+            res.send(false)
     }
-
+    else {
+        const exists = await pool.query(query)
+        if (exists.rows && exists.rows[0])
+            foundOne = exists.rows[0]
+        if (foundOne)
+            res.send(true)
+        else
+            res.send(false)
+    }
 })
 
 app.get('/api/lookUpTable/:table', lookup);

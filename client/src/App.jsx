@@ -11,7 +11,7 @@ import rootReducer from './rootReducer'
 import { Header, Footer } from './Layouts'
 import Container from '@material-ui/core/Container';
 import Routes from './Routes'
-import './Layouts/stylez.css'
+import './Layouts/stylez.scss'
 
 function App() {
 

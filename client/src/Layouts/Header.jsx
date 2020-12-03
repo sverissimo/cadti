@@ -8,7 +8,7 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import { Toolbar, Typography, Button, Link } from '@material-ui/core'
 import Badge from '@material-ui/core/Badge';
 import { withRouter } from 'react-router'
-import './stylez.css'
+import './stylez.scss'
 
 const useStyles = makeStyles(theme => ({
     toolbarTitle: {

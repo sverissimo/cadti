@@ -94,7 +94,8 @@ class EmpresasContainer extends Component {
         if (invalid === 100) {
             this.setState({ alertType: 'fieldsMissing', openAlertDialog: true })
             return null
-        } else {
+        }
+        else {
             sociosForm.forEach(obj => {
                 Object.assign(sObject, { [obj.field]: this.state[obj.field] })
             })
@@ -169,7 +170,6 @@ class EmpresasContainer extends Component {
     }
 
     handleBlur = async e => {
-        const { empresas } = this.props.redux
         const { name } = e.target
         let { value } = e.target
 
@@ -179,10 +179,15 @@ class EmpresasContainer extends Component {
 
         switch (name) {
             case 'cnpj':
-                const alreadyExists = empresas.filter(e => e.cnpj === value)
-                if (alreadyExists[0]) {
-                    this.setState({ cnpj: '' })
-                    this.setState({ alertType: alreadyExists[0], openAlertDialog: true })
+                const
+                    query = await axios.get(`/api/alreadyExists?table=empresas&column=cnpj&value=${value}`),
+                    alreadyExists = query?.data  //Retorna true ou false
+
+                if (alreadyExists) {
+                    const
+                        customTitle = 'Empresa já cadastrada.',
+                        customMsg = `O CNPJ informado corresponde a uma empresa já está cadastrada no sistema. Para alterar os dados da empresa, vá para Empresas -> Alteração de dados.`
+                    this.setState({ cnpj: '', customTitle, customMsg, openAlertDialog: true })
                 }
                 break;
             case 'share':
@@ -330,7 +335,7 @@ class EmpresasContainer extends Component {
     render() {
 
         const { socios, activeStep, confirmToast, toastMsg, steps, openAlertDialog,
-            alertType, contratoSocial } = this.state
+            alertType, contratoSocial, customMsg, customTitle } = this.state
 
         return <Fragment>
 
@@ -379,7 +384,10 @@ class EmpresasContainer extends Component {
                 setActiveStep={this.setActiveStep}
             />
             <ReactToast open={confirmToast} close={this.toast} msg={toastMsg} />
-            {openAlertDialog && <AlertDialog open={openAlertDialog} close={this.closeAlert} alertType={alertType} customMessage={this.state.customMsg} />}
+            {
+                openAlertDialog &&
+                <AlertDialog open={openAlertDialog} close={this.closeAlert} alertType={alertType} customMessage={customMsg} customTitle={customTitle} />
+            }
         </Fragment>
     }
 }

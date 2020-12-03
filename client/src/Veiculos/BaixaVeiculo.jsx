@@ -14,6 +14,7 @@ import { baixaForm } from '../Forms/baixaForm'
 import { checkDemand } from '../Utils/checkDemand'
 
 import './veiculos.scss'
+import Loading from '../Layouts/Loading'
 
 
 class BaixaVeiculo extends Component {
@@ -55,7 +56,6 @@ class BaixaVeiculo extends Component {
         const
             { name, value } = e.target,
             { veiculos, empresas } = this.props.redux
-        console.log("🚀 ~ file: BaixaVeiculo.jsx ~ line 57 ~ BaixaVeiculo ~ name, value", name, value)
 
         this.setState({ [name]: value })
 
@@ -237,18 +237,64 @@ class BaixaVeiculo extends Component {
         e.preventDefault()
         const
             { placaBaixada } = this.state,
+            { parametros } = this.props.redux,
+            { idadeBaixaAut } = parametros[0]?.idadeBaixa,
             query = await axios.get(`/api/getOldVehicles?placa=${placaBaixada}`),
             result = query?.data
-        if (result[0])
-            this.setState({ dischargedFound: result[0], notFound: false })
+
+        if (result[0]) {
+            const
+                currentYear = new Date().getFullYear(),
+                year = +result[0]['Ano carroceria'],
+                age = currentYear - year
+            let reactivate = true
+
+            if (age > idadeBaixaAut)
+                reactivate = false
+            console.log(age, idadeBaixaAut, reactivate)
+
+            this.setState({ dischargedFound: result[0], notFound: false, reactivate })
+        }
+
         else
             this.setState({ notFound: true, dischargedFound: undefined })
     }
-    handleCheck = e => this.setState({ checked: e.target.value })
+
     reset = () => {
         baixaForm.forEach(el => this.setState({ [el.field]: '' }))
         this.setState({ delegaTransf: '', check: '', justificativa: '', checked: false, demand: undefined })
     }
+
+    downloadXls = () => {
+        this.setState({ loading: true })
+        axios({
+            url: `/api/oldVehiclesXls`,
+            method: 'GET',
+            responseType: 'blob', // important
+            onDownloadProgress: (progressEvent) => {
+                Math.round((progressEvent.loaded))
+            }
+
+        }).then((response) => {
+            const
+                content = response.headers['content-disposition'],
+                i = content.indexOf('=') + 1,
+                fileName = content.slice(i)
+
+            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const link = document.createElement('a');
+            link.href = url;
+            link.setAttribute('download', fileName);
+            document.body.appendChild(link);
+            link.click();
+            this.setState({ loading: false })
+        })
+            .catch(err => {
+                console.log(err)
+            })
+    }
+
+    handleCheck = e => this.setState({ checked: e.target.value })
     closeAlert = () => this.setState({ openAlertDialog: !this.state.openAlertDialog })
     toast = () => this.setState({ confirmToast: !this.state.confirmToast })
 
@@ -256,7 +302,7 @@ class BaixaVeiculo extends Component {
         const
             { empresas, parametros } = this.props.redux,
             { motivosBaixa } = parametros[0],
-            { delegaTransf, confirmToast, toastMsg, checked, openAlertDialog, customTitle, customMessage, alertType } = this.state
+            { delegaTransf, confirmToast, toastMsg, checked, openAlertDialog, customTitle, customMessage, alertType, loading } = this.state
 
         return <Fragment>
             <BaixaTemplate
@@ -272,9 +318,11 @@ class BaixaVeiculo extends Component {
                 handleCheck={this.handleCheck}
                 handleSubmit={this.handleSubmit}
                 searchDischarged={this.searchDischarged}
+                downloadXls={this.downloadXls}
             />
             {openAlertDialog && <AlertDialog open={openAlertDialog} close={this.closeAlert} alertType={alertType} customTitle={customTitle} customMessage={customMessage} />}
             <ReactToast open={confirmToast} close={this.toast} msg={toastMsg} />
+            {loading && <Loading />}
         </Fragment >
     }
 }

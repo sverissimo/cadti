@@ -6,13 +6,13 @@ import TextInput from '../Reusable Components/TextInput'
 
 import BaixaMotivo from './BaixaMotivo'
 import BaixaOptions from './BaixaOptions'
-
-import { baixaForm } from '../Forms/baixaForm'
-
-import './veiculos.scss'
 import BaixaGerenciar from './BaixaGerenciar'
 
-export default function ({ selectOption, handleInput, handleBlur, handleCheck, handleSubmit, selectMotivo, data, empresas, motivosBaixa, searchDischarged }) {
+import { baixaForm } from '../Forms/baixaForm'
+import './veiculos.scss'
+
+export default function ({ selectOption, handleInput, handleBlur, handleCheck, handleSubmit, selectMotivo,
+    data, empresas, motivosBaixa, searchDischarged, downloadXls }) {
     const { razaoSocial, selectedOption, checked, delegaTransf, justificativa, selectedMotivo, demand } = data
 
     return (
@@ -74,6 +74,7 @@ export default function ({ selectOption, handleInput, handleBlur, handleCheck, h
                                     data={data}
                                     handleInput={handleInput}
                                     searchDischarged={searchDischarged}
+                                    downloadXls={downloadXls}
                                 />
                         }
                     </>
