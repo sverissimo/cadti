@@ -24,6 +24,7 @@ import { cadVehicleForm } from '../Forms/cadVehicleForm'
 
 import AlertDialog from '../Reusable Components/AlertDialog'
 import validateDist from '../Utils/validaDistanciaMinima'
+import dischargedForm from '../Forms/dischargedForm'
 
 class VeiculosContainer extends PureComponent {
     constructor() {
@@ -54,7 +55,7 @@ class VeiculosContainer extends PureComponent {
             { redux } = this.props,
             { equipamentos, acessibilidade } = redux,
             demand = this.props?.location?.state?.demand
-
+        this.setState({ selectedEmpresa: this.props.redux.empresas[0] })
         if (demand) {
             const demandState = setDemand(demand, redux)
             console.log(demandState)
@@ -163,6 +164,7 @@ class VeiculosContainer extends PureComponent {
             await this.setState({ [name]: '', [stateId]: '' })
             this.setState({
                 alertType: 'invalidModel', openAlertDialog: true,
+                customTitle: 'Modelo inválido.',
                 customMsg: `O modelo de ${alertLabel} não está cadastrado no sistema.`
             })
             document.getElementsByName(name)[0].focus()
@@ -173,17 +175,22 @@ class VeiculosContainer extends PureComponent {
         const
             { empresas, modelosChassi, carrocerias, parametros } = this.props.redux,
             { distanciaPoltronas, idadeBaixa } = parametros[0],
-            { idadeMaxCad, difIdade } = idadeBaixa,
-            { anoCarroceria, anoChassi, utilizacao, distanciaMinima } = this.state,
+            { idadeMaxCad, difIdade, idadeBaixaAut } = idadeBaixa,
+            { anoCarroceria, anoChassi, utilizacao, distanciaMinima, situacao } = this.state,
             { name } = e.target,
             carr = Number(anoCarroceria),
             chas = Number(anoChassi),
-            currentYear = new Date().getFullYear(),
-            maxAge = currentYear - idadeMaxCad
+            currentYear = new Date().getFullYear()
 
         let
             { value } = e.target,
-            customTitle, customMsg
+            customTitle,
+            customMsg,
+            maxYear = currentYear - idadeMaxCad
+
+        //Se o veículo for reativado, o ano de fabricação de referência para cadastro é o da baixa automática, não a idadeMaxCad
+        if (situacao && situacao.match('Reativação'))
+            maxYear = currentYear - idadeBaixaAut
 
         const errors = checkInputErrors()
         if (errors) this.setState({ errors })
@@ -201,8 +208,8 @@ class VeiculosContainer extends PureComponent {
                 break
             case 'anoChassi':
                 customTitle = 'Ano de chassi inválido.'
-                if (chas && chas < maxAge - 1)
-                    customMsg = `O ano de fabricação do chassi informado é anterior à idade máxima permitida - ${idadeMaxCad} anos.`
+                if (chas && chas < maxYear - 1)
+                    customMsg = `O ano de fabricação do chassi informado é anterior à idade máxima permitida para cadastro.`
                 if ((carr && chas && (carr < chas || carr > chas + difIdade)))
                     customMsg = 'O ano de chassi é incompatível com o ano da carroceria informado.'
 
@@ -212,8 +219,8 @@ class VeiculosContainer extends PureComponent {
                 break
             case 'anoCarroceria':
                 customTitle = 'Ano de carroceria inválido.'
-                if (carr && carr < maxAge)
-                    customMsg = `O ano de fabricação do carroceria informado é anterior à idade máxima permitida - ${idadeMaxCad} anos.`
+                if (carr && carr < maxYear)
+                    customMsg = `O ano de fabricação do carroceria informado é anterior à idade máxima permitida.`
                 if ((carr && chas && (carr < chas || carr > chas + difIdade)))
                     customMsg = 'O ano de fabricação carroceria é incompatível com o ano do chassi informado.'
 
@@ -240,35 +247,59 @@ class VeiculosContainer extends PureComponent {
 
             if (value.length === 7) {
                 const x = value.replace(/(\w{3})/, '$1-')
-                await this.setState({ placa: x })
+                await this.setState({ placa: x, reactivated: false })
                 value = x
             }
             if (value.length === 8) {
                 const x = value.replace(' ', '-')
-                await this.setState({ placa: x })
+                await this.setState({ placa: x, reactivated: false })
                 value = x
             }
-            const
-                checkExistance = await axios.get(`/api/alreadyExists?table=veiculos&column=placa&value=${value}`),
-                placaMatch = checkExistance?.data
+            this.checkPlateConflict(value)
+        }
+    }
 
-            let customTitle, customMsg
+    checkPlateConflict = async value => {
+        const
+            checkExistance = await axios.get(`/api/alreadyExists?table=veiculos&column=placa&value=${value}`),
+            placaMatch = checkExistance?.data,
+            vehicle = placaMatch?.vehicleFound
 
-            if (placaMatch) {
-                const { status } = placaMatch
-                await this.setState({ placa: null });
-                value = ''
-                if (status === 'existing') {
+        let customTitle, customMsg
+
+        if (placaMatch) {
+            const { status } = placaMatch
+            if (status === 'existing') {
+                if (vehicle?.situacao.match(/Cadastro|Reativação/g)) {
+                    customTitle = 'Solicitação aberta.'
+                    customMsg = 'Já existe uma solicitação de cadastro ou reativação para a placa informada. Para acompanhar, acesse \'Solicitações\' e filtre pela placa do veículo. '
+                }
+                else {
                     customTitle = 'Veículo já cadastrado.'
                     customMsg = 'A placa informada corresponde a um veículo já cadastrado. Para alterar o cadastro, vá para Veículos -> \'Alteração de dados\'.'
-                    this.setState({ customTitle, customMsg, openAlertDialog: true })
                 }
-                if (status === 'discharged') {
-                    customTitle = 'Veículo baixado.'
-                    customMsg = 'A placa informada corresponde a um veículo baixado. Para reativar seu cadastro, vá para Veículos -> Baixa -> \'Gerenciar Veículos Baixados\'.'
-                    this.setState({ customTitle, customMsg, openAlertDialog: true })
+                this.setState({ customTitle, customMsg, openAlertDialog: true, placa: null, reactivated: false })
+                value = ''
+                return
+            }
+            else if (vehicle['Situação'] === 'Reativado') {
+                let reactivatedVehicle = {}
+                for (let k in vehicle) {
+                    dischargedForm.forEach(({ field, label }) => {
+                        if (k === label && ['renavam', 'nChassi', 'anoChassi', 'anoCarroceria'].includes(field))
+                            reactivatedVehicle[field] = vehicle[k]
+                    })
                 }
-                document.getElementsByName('placa')[0].focus()
+                reactivatedVehicle.situacao = "Reativação solicitada"
+                await this.setState({ ...reactivatedVehicle, reactivated: true })
+                return
+            }
+
+            else if (status === 'discharged') {
+                customTitle = 'Veículo baixado.'
+                customMsg = 'A placa informada corresponde a um veículo baixado. Para reativar seu cadastro, vá para Veículos -> Baixa -> \'Gerenciar Veículos Baixados\'.'
+                this.setState({ customTitle, customMsg, openAlertDialog: true, placa: null, reactivated: false })
+                value = ''
             }
         }
     }
@@ -327,7 +358,7 @@ class VeiculosContainer extends PureComponent {
     handleCadastro = async approved => {
         const
             { equipamentosId, acessibilidadeId, pesoDianteiro, pesoTraseiro, poltronas, codigoEmpresa, compartilhadoId, modeloChassiId, originalVehicle, getUpdatedValues,
-                modeloCarroceriaId, selectedEmpresa, showPendencias, info, form, demand, demandFiles } = this.state,
+                modeloCarroceriaId, selectedEmpresa, showPendencias, info, form, demand, demandFiles, reactivated } = this.state,
 
             existingVeiculoId = demand?.veiculoId,
             oldHistoryLength = demand?.history?.length || 0
@@ -403,7 +434,7 @@ class VeiculosContainer extends PureComponent {
         }
 
         if (demand) log.id = demand?.id
-
+        if (reactivated) log.subject = 'Reativação de veículo'
         logGenerator(log)
             .then(r => console.log(r?.data))
             .catch(err => console.log(err))

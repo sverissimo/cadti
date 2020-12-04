@@ -290,34 +290,58 @@ app.get('/api/oldVehiclesXls', async (req, res) => {
     stream.pipe(res)
 })
 
+//reactivate discharged vehicle status in MongoDB
+app.patch('/api/reactivateVehicle', async (req, res) => {
+    const
+        { body } = req,
+        { placa, ...update } = body,
+        query = { Placa: placa }
+
+    oldVehiclesModel.findOneAndUpdate(query, update, (err, doc) => {
+        if (err)
+            console.log(err)
+        else
+            res.send('Veículo reativado.')
+    })
+})
+
+//Verifica tentativas de cadastro duplicado no DB
 app.get('/api/alreadyExists', async (req, res) => {
-    const { table, column, value } = req.query
+    const
+        { table, column, value } = req.query,
+        query = `SELECT * FROM ${table} WHERE ${column} = '${value}'`,
+        mongoQuery = { 'Placa': value }
     let
-        query = `SELECT ${column} FROM ${table} WHERE ${column} = '${value}'`,
-        mongoQuery = { 'Placa': value },
-        vehicleExists,
-        oldVehicleExists,
+        v,
+        old,
         foundOne
 
+    //Pesquisa entre veículos ativos e baixados
     if (table === 'veiculos') {
-        vehicleExists = pool.query(query)
-        oldVehicleExists = oldVehiclesModel.find(mongoQuery)
-            .select(['Placa', 'Delegatário', 'Data baixa', '-_id'])
-            .lean()
+        v = await pool.query(query)
+        //Se ativo
+        if (v.rows && v.rows[0]) {
+            const
+                { veiculo_id, placa, situacao } = v.rows[0],
+                vehicleFound = { veiculoId: veiculo_id, placa, situacao }
+            foundOne = { vehicleFound, status: 'existing' }
+        }
+        //Se baixado
+        else {
+            old = await oldVehiclesModel.find(mongoQuery).lean()
+            console.log(old)
+            if (old.length > 0)
+                foundOne = { vehicleFound: old[0], status: 'discharged' }
+        }
 
-        await Promise.allSettled([vehicleExists, oldVehicleExists])
-            .then(([v, old]) => [v.value, old.value])
-            .then(([v, old]) => {
-                if (v.rows && v.rows[0])
-                    foundOne = { vehicleFound: v.rows[0], status: 'existing' }
-                if (old.length > 0)
-                    foundOne = { vehicleFound: old[0], status: 'discharged' }
-            })
+        //Retorna o veículo ou não impõe restrição
         if (foundOne)
             res.send(foundOne)
         else
             res.send(false)
     }
+
+    //Se a tabela for outra, apenas verifica se existe conforme o critério passado pelo frontEnd
     else {
         const exists = await pool.query(query)
         if (exists.rows && exists.rows[0])

@@ -8,6 +8,7 @@ export async function logGenerator(obj) {
     let logRoutes = JSON.parse(JSON.stringify(logRoutesConfig))
     logRoutes.forEach((el, i) => el.path = logRoutesConfig[i].path.replace('/veiculos', '').replace('/solicitacoes', '').replace('/empresas', ''))
 
+    //Cria props padrão para todos os logs
     const
         collection = 'logs',
         historyLength = obj?.historyLength,
@@ -19,6 +20,10 @@ export async function logGenerator(obj) {
     let
         logConfig = logRoutes.find(e => path.match(e.path)),
         log = JSON.parse(JSON.stringify(obj))
+
+    //Em caso de reativação de veículo, o path é o mesmo, aí o find tem q ser por subject
+    if (obj.subject.match('Reativação'))
+        logConfig = logRoutes.find(e => e.subject === obj.subject)
 
     // if !veiculoId, update to empresaDocs
     let

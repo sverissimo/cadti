@@ -12,7 +12,7 @@ import { baixaForm } from '../Forms/baixaForm'
 import './veiculos.scss'
 
 export default function ({ selectOption, handleInput, handleBlur, handleCheck, handleSubmit, selectMotivo,
-    data, empresas, motivosBaixa, searchDischarged, downloadXls }) {
+    data, empresas, motivosBaixa, searchDischarged, downloadXls, reactivateVehicle }) {
     const { razaoSocial, selectedOption, checked, delegaTransf, justificativa, selectedMotivo, demand } = data
 
     return (
@@ -75,6 +75,7 @@ export default function ({ selectOption, handleInput, handleBlur, handleCheck, h
                                     handleInput={handleInput}
                                     searchDischarged={searchDischarged}
                                     downloadXls={downloadXls}
+                                    reactivateVehicle={reactivateVehicle}
                                 />
                         }
                     </>

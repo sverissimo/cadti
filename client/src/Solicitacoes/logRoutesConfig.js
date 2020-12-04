@@ -17,6 +17,14 @@ export const logRoutesConfig = [
         collection, docs, primaryKey,
     },
     {
+        subject: 'Reativação de veículo',
+        path: '/solicitacoes/cadastro',
+        requestAction: 'Reativação de veículo solicitada',
+        responseAction: 'Pendências para a reativação do veículo',
+        concludedAction: 'Veículo reativado',
+        collection, docs, primaryKey,
+    },
+    {
         subject: 'Alteração de dados do veículo',
         path: '/solicitacoes/altDados',
         requestAction: 'Alteração de dados de veículo solicitada',

@@ -4,7 +4,7 @@ import SearchIcon from '@material-ui/icons/Search';
 import CustomButton from '../Reusable Components/CustomButton';
 import dischargedForm from '../Forms/dischargedForm';
 
-const BaixaGerenciar = ({ data, handleInput, searchDischarged, downloadXls }) => {
+const BaixaGerenciar = ({ data, handleInput, searchDischarged, downloadXls, reactivateVehicle }) => {
     const { placaBaixada, dischargedFound, notFound, reactivate } = data
 
     //Retira o campo observações, ques erá renderizado como blockElement fora do dischargedForm.map()
@@ -63,7 +63,12 @@ const BaixaGerenciar = ({ data, handleInput, searchDischarged, downloadXls }) =>
                                         value={dischargedFound[label]}
                                         disabled={true}
                                         InputLabelProps={{ style: { fontSize: '0.7rem' }, shrink: true }}
-                                        InputProps={{ style: { width: '250px', margin: '8px 10px 0 0', fontSize: '0.7rem', color: '#444' } }}
+                                        InputProps={{
+                                            style: {
+                                                width: '250px', margin: '8px 10px 0 0', fontSize: '0.7rem',
+                                                color: label === 'Situação' && dischargedFound[label] === 'Reativado' ? 'red' : '#444'
+                                            }
+                                        }}
                                     />
                                 )
                             }
@@ -84,6 +89,7 @@ const BaixaGerenciar = ({ data, handleInput, searchDischarged, downloadXls }) =>
                                 <CustomButton
                                     action='save'
                                     label='Reativar'
+                                    onClick={() => reactivateVehicle()}
                                 />
                             </footer>
                         }

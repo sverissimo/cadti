@@ -27,7 +27,7 @@ export default function ({ redux, data, handleInput, handleBlur, handleEquipa, h
         [shared, setShared] = useState(false),
         { button } = useStyles(),
         { empresas, equipamentos, acessibilidade, modelosChassi, carrocerias } = redux,
-        { activeStep, addEquipa, subtitle, selectedEmpresa, type, placa } = data,
+        { activeStep, addEquipa, subtitle, selectedEmpresa, type, placa, reactivated } = data,
         form = cadVehicleForm[activeStep]
 
     let eqCollection = equipamentos
@@ -37,9 +37,12 @@ export default function ({ redux, data, handleInput, handleBlur, handleEquipa, h
     data.carrocerias = carrocerias
 
     useEffect(() => {               //reset shared after submit
-        if (resetShared)
-            setShared(false)
+        if (resetShared) setShared(false)
     }, [resetShared])
+
+    let conditionalSubtitle = subtitle[activeStep]
+    if (reactivated)
+        conditionalSubtitle += ' (reativação de veículo)'
 
     return (
         <>
@@ -79,7 +82,7 @@ export default function ({ redux, data, handleInput, handleBlur, handleEquipa, h
                 <main>
                     {activeStep < 2 &&
                         <section className='paper' style={{ paddingBottom: '25px' }}>
-                            <FormSubtiltle subtitle={subtitle[activeStep]} />
+                            <FormSubtiltle subtitle={conditionalSubtitle} />
                             <TextInput
                                 form={form}
                                 data={data}

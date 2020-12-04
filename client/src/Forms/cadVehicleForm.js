@@ -12,7 +12,7 @@ export const cadVehicleForm = [[{
     label: 'Renavam',
     margin: 'normal',
     maxLength: 11,
-    pattern: '\\d{11}'
+    pattern: /^(\d{9}|\d{11})$/
 },
 {
     field: 'utilizacao',

@@ -13,7 +13,7 @@ export const cadForm = [[{
     label: 'Renavam',
     margin: 'normal',
     maxLength: 11,
-    pattern: '\\d{11}'
+    pattern: /^(\d{9}|\d{11})$/
 },
 {
     field: 'utilizacao',
@@ -44,13 +44,13 @@ export const cadForm = [[{
     max: Number(new Date().getFullYear()),
     min: Number(new Date().getFullYear()) - 10
 },
-{ 
+{
     field: 'valorChassi',
     label: 'Valor do Chassi (R$)',
     margin: 'normal',
     zero: true,
     pattern: '^.{9,12}$',
-    minLength: 8,    
+    minLength: 8,
     maxLength: 11
 },
 {
@@ -69,13 +69,13 @@ export const cadForm = [[{
     max: Number(new Date().getFullYear() + 1),
     min: Number(new Date().getFullYear()) - 10
 },
-{    
+{
     field: 'valorCarroceria',
     label: 'Valor da Carroceria (R$)',
     margin: 'normal',
-    zero: true,    
+    zero: true,
     pattern: '^.{9,12}$',
-    minLength: 8,    
+    minLength: 8,
     maxLength: 11
 },
 {

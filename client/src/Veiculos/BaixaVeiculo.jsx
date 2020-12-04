@@ -15,6 +15,7 @@ import { checkDemand } from '../Utils/checkDemand'
 
 import './veiculos.scss'
 import Loading from '../Layouts/Loading'
+import dischargedForm from '../Forms/dischargedForm'
 
 
 class BaixaVeiculo extends Component {
@@ -244,20 +245,38 @@ class BaixaVeiculo extends Component {
 
         if (result[0]) {
             const
+                found = result[0],
                 currentYear = new Date().getFullYear(),
-                year = +result[0]['Ano carroceria'],
+                year = +found['Ano carroceria'],
                 age = currentYear - year
+
             let reactivate = true
 
-            if (age > idadeBaixaAut)
+            if (age > idadeBaixaAut || found['Situação'] === 'Reativado')
                 reactivate = false
-            console.log(age, idadeBaixaAut, reactivate)
 
             this.setState({ dischargedFound: result[0], notFound: false, reactivate })
         }
-
         else
             this.setState({ notFound: true, dischargedFound: undefined })
+    }
+
+    reactivateVehicle = () => {
+        const
+            { dischargedFound } = this.state,
+            reqBody = {
+                placa: dischargedFound?.Placa,
+                'Situação': 'Reativado'
+            },
+            customTitle = 'Veículo reativado.',
+            customMessage = `O veículo de placa ${dischargedFound?.Placa} poderá ser recadastrado no sistema acessando as opções Veículos -> Cadastro de Veículos.`
+
+        axios.patch('/api/reactivateVehicle', reqBody)
+            .then(r => {
+                if (r.status === 200)
+                    this.setState({ customMessage, customTitle, openAlertDialog: true, placaBaixada: '', dischargedFound: undefined })
+                console.log(r.data)
+            })
     }
 
     reset = () => {
@@ -296,7 +315,7 @@ class BaixaVeiculo extends Component {
 
     handleCheck = e => this.setState({ checked: e.target.value })
     closeAlert = () => this.setState({ openAlertDialog: !this.state.openAlertDialog })
-    toast = () => this.setState({ confirmToast: !this.state.confirmToast })
+    toast = toastMsg => this.setState({ confirmToast: !this.state.confirmToast, toastMsg: toastMsg ? toastMsg : this.state.toastMsg })
 
     render() {
         const
@@ -319,6 +338,7 @@ class BaixaVeiculo extends Component {
                 handleSubmit={this.handleSubmit}
                 searchDischarged={this.searchDischarged}
                 downloadXls={this.downloadXls}
+                reactivateVehicle={this.reactivateVehicle}
             />
             {openAlertDialog && <AlertDialog open={openAlertDialog} close={this.closeAlert} alertType={alertType} customTitle={customTitle} customMessage={customMessage} />}
             <ReactToast open={confirmToast} close={this.toast} msg={toastMsg} />
