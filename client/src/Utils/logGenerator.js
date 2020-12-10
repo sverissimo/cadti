@@ -39,14 +39,16 @@ export async function logGenerator(obj) {
 
     //Se par, a próxima action é a demanda de cada rota caso contrário a resposta. Depois apaga-se o historyLength */
     if (historyLength || historyLength === 0) {
+
         if (historyLength % 2 === 0 || historyLength === 0) {
 
-            if (!obj?.history?.action) log.history.action = logConfig?.requestAction
+            if (!obj?.history?.action)
+                log.history.action = logConfig?.requestAction
             log.status = 'Aguardando análise'
         }
         else {
-
-            if (!obj?.history?.action) log.history.action = logConfig?.responseAction
+            if (!obj?.history?.action)
+                log.history.action = logConfig?.responseAction
             log.status = 'Pendências'
         }
     }
@@ -58,7 +60,7 @@ export async function logGenerator(obj) {
 
     //**********************If given by the component which called this fuction, overwrite logRoutesConfig*/
     if (!obj.id || obj.subject) log.subject = obj?.subject || logConfig?.subject
-    console.log(log)
+
     //*************************IF DECLINED, UPDATE LOG AND RETURN LOG*/    
     if (obj.declined) {
         log.history.action = 'Solicitação indeferida'
@@ -84,7 +86,6 @@ export async function logGenerator(obj) {
         log.history.files = filesIds
 
     const { metadata, approved, demandFiles, ...filteredLog } = log
-    console.log(log)
     //**********************reestablish path**********************
     logRoutes = JSON.parse(JSON.stringify(logRoutesConfig))
     logConfig = logRoutes.find(e => path.match(e.path))

@@ -8,12 +8,16 @@ import BaixaMotivo from './BaixaMotivo'
 import BaixaOptions from './BaixaOptions'
 import BaixaGerenciar from './BaixaGerenciar'
 
+import StepperButtons from '../Reusable Components/StepperButtons'
+import Button from '@material-ui/core/Button'
+import Send from '@material-ui/icons/Send'
+
 import { baixaForm } from '../Forms/baixaForm'
 import './veiculos.scss'
 
 export default function ({ selectOption, handleInput, handleBlur, handleCheck, handleSubmit, selectMotivo,
-    data, empresas, motivosBaixa, searchDischarged, downloadXls, reactivateVehicle }) {
-    const { selectedEmpresa, selectedOption, checked, delegaTransf, justificativa, selectedMotivo, demand } = data
+    data, empresas, motivosBaixa, searchDischarged, downloadXls, reactivateVehicle, setShowPendencias }) {
+    const { selectedEmpresa, selectedOption, checked, delegaTransf, justificativa, selectedMotivo, demand, info, motivo, showPendencias } = data
 
     return (
         <Fragment>
@@ -28,18 +32,21 @@ export default function ({ selectOption, handleInput, handleBlur, handleCheck, h
                 {//razaoSocial && frota[0] &&
                     selectedEmpresa &&
                     <>
-                        <BaixaOptions
-                            demand={demand}
-                            checked={checked}
-                            delegaTransf={delegaTransf}
-                            justificativa={justificativa}
-                            empresas={empresas}
-                            selectOption={selectOption}
-                            handleInput={handleInput}
-                            handleBlur={handleBlur}
-                            handleCheck={handleCheck}
-                            handleSubmit={handleSubmit}
-                        />
+                        {
+                            !demand &&
+                            <BaixaOptions
+                                demand={demand}
+                                checked={checked}
+                                delegaTransf={delegaTransf}
+                                justificativa={justificativa}
+                                empresas={empresas}
+                                selectOption={selectOption}
+                                handleInput={handleInput}
+                                handleBlur={handleBlur}
+                                handleCheck={handleCheck}
+                                handleSubmit={handleSubmit}
+                            />
+                        }
                         {
                             selectedOption === 'baixar' ?
                                 <div className="flex">
@@ -47,7 +54,14 @@ export default function ({ selectOption, handleInput, handleBlur, handleCheck, h
                                         <h3 style={{ marginBottom: '7px' }}>
                                             {!demand ? 'Informe os dados para a baixa' : `Solicitação nº${demand?.numero} - ${demand?.subject}`}
                                         </h3>
-                                        {demand && <h4>Situação: {demand?.status}</h4>}
+                                        {demand &&
+                                            <h4>
+                                                {motivo}
+                                            </h4>
+                                        }
+                                        {demand &&
+                                            <h4>Situação: {demand?.status}</h4>
+                                        }
                                         <TextInput
                                             form={baixaForm}
                                             data={data}
@@ -59,15 +73,17 @@ export default function ({ selectOption, handleInput, handleBlur, handleCheck, h
                                     <BaixaMotivo
                                         demand={demand}
                                         selectedOption={selectedOption}
-                                        delegaTransf={delegaTransf}
+                                        //delegaTransf={delegaTransf}
                                         motivosBaixa={motivosBaixa}
                                         selectMotivo={selectMotivo}
                                         selectedMotivo={selectedMotivo}
-                                        justificativa={justificativa}
+                                        info={info}
                                         empresas={empresas}
                                         handleInput={handleInput}
                                         handleBlur={handleBlur}
                                         handleSubmit={handleSubmit}
+                                        setShowPendencias={setShowPendencias}
+                                        showPendencias={showPendencias}
                                     />
                                 </div>
                                 :
@@ -78,6 +94,32 @@ export default function ({ selectOption, handleInput, handleBlur, handleCheck, h
                                         searchDischarged={searchDischarged}
                                         downloadXls={downloadXls}
                                         reactivateVehicle={reactivateVehicle}
+                                    />
+                                    : null
+                        }
+                        {
+                            !demand && selectedOption === 'baixar' ?
+                                <div className="flexEnd">
+                                    <Button
+                                        size="small"
+                                        color="primary"
+                                        variant="outlined"
+                                        style={{ margin: '10px 0 10px 0' }}
+                                        onClick={() => handleSubmit()}
+                                    >
+                                        Confirmar <span>&nbsp;&nbsp; </span> <Send />
+                                    </Button>
+                                </div>
+                                : demand ?
+                                    <StepperButtons
+                                        uniqueStep={true}
+                                        declineButtonLabel='Indeferir'
+                                        demand={demand}
+                                        setShowPendencias={setShowPendencias}
+                                        showPendencias={showPendencias}
+                                        info={info}
+                                        handleSubmit={handleSubmit}
+                                        handleInput={handleInput}
                                     />
                                     : null
                         }

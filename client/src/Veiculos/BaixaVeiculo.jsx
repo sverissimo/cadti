@@ -32,6 +32,7 @@ class BaixaVeiculo extends Component {
         toastMsg: 'Solicitação de Baixa Enviada',
         confirmToast: false,
         openDialog: false,
+        showPendencias: false
     }
 
     async componentDidMount() {
@@ -43,9 +44,10 @@ class BaixaVeiculo extends Component {
                 { empresa, veiculo } = demand,
                 selectedEmpresa = empresas.find(e => e.razaoSocial === empresa),
                 frota = veiculos.filter(v => v.placa === veiculo),
-                selectedVehicle = frota.find(v => v.placa === veiculo)
+                selectedVehicle = frota.find(v => v.placa === veiculo),
+                motivo = demand?.history[0]?.info
 
-            await this.setState({ razaoSocial: empresa, selectedEmpresa, placa: veiculo, frota, ...selectedVehicle, demand })
+            await this.setState({ razaoSocial: empresa, selectedEmpresa, placa: veiculo, frota, ...selectedVehicle, selectedVehicle, demand, selectedOption: 'baixar', motivo })
         }
     }
     selectOption = e => this.setState({ selectedOption: e.target.value })
@@ -137,25 +139,29 @@ class BaixaVeiculo extends Component {
 
     handleSubmit = async (approved) => {
         const
-            { selectedEmpresa, veiculoId, selectedMotivo, demand, selectedVehicle } = this.state,
-            { dataEmissao, vencimento, dataRegistro, equipamentos, acessibilidade } = selectedVehicle,
-            oldHistoryLength = demand?.history?.length || 0
+            { selectedEmpresa, veiculoId, selectedMotivo, demand, selectedVehicle, info, motivo } = this.state,
+            { dataEmissao, vencimento, dataRegistro, equipamentos, acessibilidade } = selectedVehicle
 
         //**************Create Log****************** */
         const log = {
             empresaId: selectedEmpresa?.codigoEmpresa,
             veiculoId,
-            info: selectedMotivo,
-            history: {},
-            historyLength: oldHistoryLength,
+            history: { info: selectedMotivo ? `Motivo da baixa: ${selectedMotivo}` : motivo },
+            historyLength: 0,
             approved
         }
         if (demand)
             log.id = demand?.id
-        //logGenerator(log).then(r => console.log(r.data))
+        //Caso indeferida, registrar o motivo (info) e alterar a mensagem do toast
+        if (approved === false) {
+            log.declined = true
+            log.history.info = info
+            await this.setState({ toastMsg: 'Baixa de veículo indeferida.' })
+        }
+        logGenerator(log).then(r => console.log(r.data))
 
         //*************If approved, submit request to update Postgres DB **************** */
-        if (true) {
+        if (approved) {
             const
                 table = 'veiculos',
                 tablePK = 'veiculo_id',
@@ -174,13 +180,14 @@ class BaixaVeiculo extends Component {
                 'Observação': `Motivo da baixa: ${selectedMotivo}`
             })
             console.log(discharged)
+            //Salva o veículo baixado no MongoDB
             axios.post('/api/baixaVeiculo', discharged)
-            /*   await axios.delete(`/api/delete?table=${table}&tablePK=${tablePK}&veiculoId=${veiculoId}`)
-                  .then(r => console.log(r))
-                  .catch(err => console.log(err)) */
+            //Apaga o veículo baixado do Postgresql
+            await axios.delete(`/api/delete?table=${table}&tablePK=${tablePK}&id=${veiculoId}`)
+                .then(r => console.log(r))
+                .catch(err => console.log(err))
 
             await this.setState({ toastMsg: 'Baixa realizada com sucesso.' })
-
         }
 
         //***********Clear state****************** */        
@@ -193,15 +200,6 @@ class BaixaVeiculo extends Component {
             setTimeout(() => {
                 this.props.history.push('/solicitacoes')
             }, 1500)
-
-
-        /*
-        checkArray = ['selectedEmpresa', 'placa', 'codigoEmpresa']        
-        enableSubmit = checkArray.every(k => this.state.hasOwnProperty(k) && this.state[k] !== '')
-        if (!enableSubmit) {            
-            await this.setState({ openAlertDialog: true, alertType: 'fieldsMissing' })
-            return null
-        } */
     }
 
     searchDischarged = async e => {
@@ -283,6 +281,7 @@ class BaixaVeiculo extends Component {
             })
     }
 
+    setShowPendencias = () => this.setState({ showPendencias: !this.state.showPendencias })
     handleCheck = e => this.setState({ checked: e.target.value })
     closeAlert = () => this.setState({ openAlertDialog: !this.state.openAlertDialog })
     toast = toastMsg => this.setState({ confirmToast: !this.state.confirmToast, toastMsg: toastMsg ? toastMsg : this.state.toastMsg })
@@ -309,6 +308,7 @@ class BaixaVeiculo extends Component {
                 searchDischarged={this.searchDischarged}
                 downloadXls={this.downloadXls}
                 reactivateVehicle={this.reactivateVehicle}
+                setShowPendencias={this.setShowPendencias}
             />
             {openAlertDialog && <AlertDialog open={openAlertDialog} close={this.closeAlert} alertType={alertType} customTitle={customTitle} customMessage={customMessage} />}
             <ReactToast open={confirmToast} close={this.toast} msg={toastMsg} />

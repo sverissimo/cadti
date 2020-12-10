@@ -45,7 +45,6 @@ const
     parametros = require('./parametros/parametros'),
     getFormatedDate = require('./getDate')
 
-
 dailyTasks.start()
 dotenv.config()
 
@@ -908,7 +907,7 @@ app.delete('/api/delete', (req, res) => {
 
     let { id } = req.query
     const
-        { table, tablePK, veiculoId } = req.query,
+        { table, tablePK } = req.query,
         { collection } = fieldParser.find(f => f.table === table)
 
     if (collection === 'laudos')
@@ -921,8 +920,6 @@ app.delete('/api/delete', (req, res) => {
         if (err) console.log(err)
         if (id) {
             id = id.replace(/\'/g, '')
-            if (veiculoId)
-                updateVehicleStatus([veiculoId], io)
 
             io.sockets.emit('deleteOne', { id, tablePK, collection })
             res.send(`${id} deleted from ${table}`)

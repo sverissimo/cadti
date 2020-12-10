@@ -398,6 +398,7 @@ class VeiculosContainer extends PureComponent {
 
         //***************If it doesnt exist, post the new vehicle Object, else get existing Id and update *********** */
 
+        console.log(vehicle)
         if (!existingVeiculoId)
             await axios.post('/api/cadastroVeiculo', vehicle)
                 .then(res => {

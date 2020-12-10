@@ -55,6 +55,7 @@ export const logRoutesConfig = [
     {
         subject: 'Baixa de veículo',
         path: '/solicitacoes/baixaVeiculo',
+        requestAction: 'Baixa de veículo solicitada',
         collection, docs, primaryKey,
     },
     {

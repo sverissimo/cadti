@@ -44,8 +44,6 @@ export default function StepperButtons({ activeStep, setActiveStep, lastStep, ha
         return () => document.removeEventListener('keydown', nextShortcut)
     })
 
-
-
     return (
         <div style={{ width: '100%' }}>
             {activeStep < lastStep ?
@@ -78,7 +76,12 @@ export default function StepperButtons({ activeStep, setActiveStep, lastStep, ha
                             name='info'
                             className={textField}
                             value={info}
-                            label={!demand || role === 'empresa' ? 'Observações/informações complementares' : 'Pendências/irregularidades para a aprovação'}
+                            label={
+                                !demand || role === 'empresa' ? 'Observações/informações complementares'
+                                    :
+                                    demand && uniqueStep ? 'Motivos para o indeferimento'
+                                        :
+                                        'Pendências/irregularidades para a aprovação'}
                             type='text'
                             onChange={handleInput}
                             InputLabelProps={{ shrink: true, style: { fontWeight: 600, marginBottom: '5%' } }}
