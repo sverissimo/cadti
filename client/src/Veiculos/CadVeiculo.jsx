@@ -24,7 +24,7 @@ import { cadVehicleForm } from '../Forms/cadVehicleForm'
 
 import AlertDialog from '../Reusable Components/AlertDialog'
 import validateDist from '../Utils/validaDistanciaMinima'
-import dischargedForm from '../Forms/dischargedForm'
+import { dischargedForm } from '../Forms/dischargedForm'
 
 class VeiculosContainer extends PureComponent {
     constructor() {
@@ -57,12 +57,14 @@ class VeiculosContainer extends PureComponent {
             demand = this.props?.location?.state?.demand
         this.setState({ selectedEmpresa: this.props.redux.empresas[0] })
         if (demand) {
+            let reactivated = false
             const demandState = setDemand(demand, redux)
-            console.log(demandState)
-            this.setState({ ...demandState, activeStep: 3 })
+            if (demandState.situacao.match('Reativação'))
+                reactivated = true
+            this.setState({ ...demandState, activeStep: 3, reactivated })
         }
 
-        //*********Create state[key] for each equipamentos/acessibilidade and turn them to false before a vehicle is selected *********/
+        //*********Create state[equipamento] for each equipamentos/acessibilidade and turn them to false before a vehicle is selected *********/
         //Se tiver demanda, os equipamentos e acessibilidade são definidos no dataActions para incorporar no estado global
         let
             allEqs = {},

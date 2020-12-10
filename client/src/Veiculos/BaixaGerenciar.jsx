@@ -2,13 +2,14 @@ import React from 'react'
 import TextField from '@material-ui/core/TextField'
 import SearchIcon from '@material-ui/icons/Search';
 import CustomButton from '../Reusable Components/CustomButton';
-import dischargedForm from '../Forms/dischargedForm';
+import { dischargedForm as df } from '../Forms/dischargedForm';
 
 const BaixaGerenciar = ({ data, handleInput, searchDischarged, downloadXls, reactivateVehicle }) => {
-    const { placaBaixada, dischargedFound, notFound, reactivate } = data
+    const { placaBaixada, dischargedFound, notFound, reactivate, selectedOption } = data
 
-    //Retira o campo observações, ques erá renderizado como blockElement fora do dischargedForm.map()
+    //Retira o campo observações, que será renderizado como blockElement fora do dischargedForm.map()
     const
+        dischargedForm = JSON.parse(JSON.stringify(df)),
         obs = dischargedForm.find(f => f.label === 'Observação'),
         index = dischargedForm.indexOf(obs)
 
@@ -44,7 +45,7 @@ const BaixaGerenciar = ({ data, handleInput, searchDischarged, downloadXls, reac
                         <div className='downloadXls' onClick={downloadXls}>
                             <img
                                 className='downloadXls__icon'
-                                src="/images/excel.png"
+                                src={selectedOption === 'baixar' ? '' : "/images/excel.png"}
                                 alt="Fazer o download do arquivo xlsx"
                                 title='Arquivo xlsx com todos os veículos baixados'
                             />

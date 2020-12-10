@@ -15,8 +15,7 @@ import { checkDemand } from '../Utils/checkDemand'
 
 import './veiculos.scss'
 import Loading from '../Layouts/Loading'
-import dischargedForm from '../Forms/dischargedForm'
-
+import { dischargedForm } from '../Forms/dischargedForm'
 
 class BaixaVeiculo extends Component {
 
@@ -24,7 +23,7 @@ class BaixaVeiculo extends Component {
 
     state = {
         empresas: [],
-        razaoSocial: this.props.redux.empresas[0].razaoSocial,
+        razaoSocial: '',
         frota: [],
         placa: '',
         form: {},
@@ -33,7 +32,6 @@ class BaixaVeiculo extends Component {
         toastMsg: 'Solicitação de Baixa Enviada',
         confirmToast: false,
         openDialog: false,
-        selectedEmpresa: this.props.redux.empresas[0]
     }
 
     async componentDidMount() {
@@ -60,7 +58,7 @@ class BaixaVeiculo extends Component {
 
         this.setState({ [name]: value })
 
-        if (name === 'razaoSocial') {
+        if (name === 'razaoSocial' && value.length > 2) {
             let selectedEmpresa = empresas.find(e => e.razaoSocial === value)
 
             if (selectedEmpresa) {
@@ -119,13 +117,14 @@ class BaixaVeiculo extends Component {
                         customMessage = `Já existe uma demanda aberta para o veículo de placa ${vehicle.placa}. Para acessá-la, clique em "Solicitações" no menu superior.`
 
                     const demandExists = checkDemand(vehicle?.veiculoId, logs)
-
+                    console.log(vehicle)
                     if (demandExists) {
                         this.setState({ customTitle, customMessage, openAlertDialog: true, delegatario: '', placa: undefined })
                         return
                     }
                 }
-                await this.setState({ ...vehicle })
+
+                await this.setState({ ...vehicle, selectedVehicle: vehicle })
 
             } else if (this.state.placa !== '') {
                 let reset = {}
@@ -136,90 +135,52 @@ class BaixaVeiculo extends Component {
         }
     }
 
-    handleSubmit = async () => {
-
+    handleSubmit = async (approved) => {
         const
-            { selectedEmpresa, checked, veiculoId, justificativa, pendencias, delegaTransf, delegaTransfId, demand } = this.state,
-            oldHistoryLength = demand?.history?.length || 0,
-            demandHistory = demand?.history.some(el => el.hasOwnProperty('delegaTransfId'))
-        let
-            tempObj,
-            enableSubmit,
-            log = {},
-            logSubject,
-            info,
-            history,
-            historyTransfId,
-            checkArray = ['selectedEmpresa', 'placa', 'codigoEmpresa']
-
-        if (demand && demandHistory && Array.isArray(demandHistory))
-            historyTransfId = demandHistory.reverse().find(e => e.hasOwnProperty('delegaTransfId')).delegaTransfId
-
-        switch (checked) {
-            case ('venda'):
-                checkArray.push('delegaTransf')
-
-                logSubject = `Baixa de veículo - venda para ${delegaTransf}`
-                info = `Solicitação de transferência do veículo para ${delegaTransf}`
-                history = { action: 'Solicitação de baixa', info }
-
-                if (!demand && delegaTransfId) history.delegaTransfId = delegaTransfId
-                if (demand && delegaTransfId && delegaTransfId !== historyTransfId) history.delegaTransfId = delegaTransfId
-                break
-
-            case ('outro'):
-                checkArray.push('justificativa')
-                history = { action: 'Solicitação de baixa', info: justificativa }
-                break
-
-            case ('pendencias'):
-                history = { action: 'Pendências para a baixa do veículo', info: pendencias }
-                this.setState({ toastMsg: 'Pendências para baixa enviadas.' })
-                break
-
-            case ('aprovar'):
-                tempObj = { situacao: 'Veículo baixado', apolice: 'Seguro não cadastrado' }
-                history = { action: 'Baixa do veículo aprovada' }
-
-                if (demand?.subject.match('venda')) {
-                    const newEmpresaId = demand?.history[0]?.delegaTransfId
-                    tempObj.codigoEmpresa = newEmpresaId
-                    tempObj.situacao = 'Ativo'
-                }
-                break
-            default: return
-        }
-
-        enableSubmit = checkArray.every(k => this.state.hasOwnProperty(k) && this.state[k] !== '')
-        if (!enableSubmit) {
-            await this.setState({ openAlertDialog: true, alertType: 'fieldsMissing' })
-            return null
-        }
+            { selectedEmpresa, veiculoId, selectedMotivo, demand, selectedVehicle } = this.state,
+            { dataEmissao, vencimento, dataRegistro, equipamentos, acessibilidade } = selectedVehicle,
+            oldHistoryLength = demand?.history?.length || 0
 
         //**************Create Log****************** */
-        log = {
-            subject: logSubject,
+        const log = {
             empresaId: selectedEmpresa?.codigoEmpresa,
             veiculoId,
-            history,
-            historyLength: oldHistoryLength
+            info: selectedMotivo,
+            history: {},
+            historyLength: oldHistoryLength,
+            approved
         }
-
-        if (demand) log.id = demand?.id
-        if (checked === 'aprovar') log.approved = true
-
-        logGenerator(log).then(r => console.log(r.data))
+        if (demand)
+            log.id = demand?.id
+        //logGenerator(log).then(r => console.log(r.data))
 
         //*************If approved, submit request to update Postgres DB **************** */
-        if (checked === 'aprovar') {
+        if (true) {
             const
-                requestObject = humps.decamelizeKeys(tempObj),
                 table = 'veiculos',
-                tablePK = 'veiculo_id'
+                tablePK = 'veiculo_id',
+                discharged = {}
 
-            await axios.put('/api/updateVehicle', { requestObject, table, tablePK, id: this.state.veiculoId })
-                .catch(err => console.log(err))
-            this.setState({ toastMsg: 'Baixa realizada com sucesso.' })
+            dischargedForm.forEach(({ field, label }) => {
+                if (selectedVehicle[field])
+                    discharged[label] = selectedVehicle[field].toString()
+            })
+            Object.assign(discharged, {
+                'Situação': 'Baixado',
+                'Data de Registro': new Date(dataRegistro).toLocaleDateString(),
+                'Data baixa': new Date().toLocaleDateString(),
+                'Data Inicio': new Date(dataEmissao).toLocaleDateString(),
+                'Data Fim': new Date(vencimento).toLocaleDateString(),
+                'Observação': `Motivo da baixa: ${selectedMotivo}`
+            })
+            console.log(discharged)
+            axios.post('/api/baixaVeiculo', discharged)
+            /*   await axios.delete(`/api/delete?table=${table}&tablePK=${tablePK}&veiculoId=${veiculoId}`)
+                  .then(r => console.log(r))
+                  .catch(err => console.log(err)) */
+
+            await this.setState({ toastMsg: 'Baixa realizada com sucesso.' })
+
         }
 
         //***********Clear state****************** */        
@@ -232,6 +193,15 @@ class BaixaVeiculo extends Component {
             setTimeout(() => {
                 this.props.history.push('/solicitacoes')
             }, 1500)
+
+
+        /*
+        checkArray = ['selectedEmpresa', 'placa', 'codigoEmpresa']        
+        enableSubmit = checkArray.every(k => this.state.hasOwnProperty(k) && this.state[k] !== '')
+        if (!enableSubmit) {            
+            await this.setState({ openAlertDialog: true, alertType: 'fieldsMissing' })
+            return null
+        } */
     }
 
     searchDischarged = async e => {
@@ -347,6 +317,6 @@ class BaixaVeiculo extends Component {
     }
 }
 
-const collections = ['veiculos', 'empresas', 'parametros']
+const collections = ['veiculos', 'empresas', 'parametros', 'equipamentos', 'acessibilidade']
 
 export default StoreHOC(collections, BaixaVeiculo)

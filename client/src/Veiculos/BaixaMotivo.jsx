@@ -8,7 +8,8 @@ import Button from '@material-ui/core/Button'
 import { Send } from '@material-ui/icons'
 import { MenuItem } from '@material-ui/core'
 
-export default function BaixaOptions({ motivosBaixa, empresas, selectMotivo, selectedMotivo, demand, checked, delegaTransf, justificativa, pendencias, handleInput, handleBlur, handleCheck, handleSubmit }) {
+export default function BaixaOptions({ motivosBaixa, empresas, selectMotivo, selectedMotivo, demand, delegaTransf,
+    handleInput, handleBlur, handleSubmit }) {
 
     return (
         <>

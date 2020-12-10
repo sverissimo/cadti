@@ -1,8 +1,10 @@
-const dischargedForm = [
+export const dischargedForm = [
+    { field: "veiculoId", label: "Número" },
     { field: "placa", label: "Placa" },
     { field: "renavam", label: "RENAVAM" },
     { field: "utilizacao", label: "Utilização" },
-    { field: "delegatario", label: "Delegatário" },
+    { field: "codigoEmpresa", label: "Código" },
+    { field: "empresa", label: "Delegatário" },
     { field: "dataRegistro", label: "Data de Registro" },
     { field: "situacao", label: "Situação" },
     { field: "dataBaixa", label: "Data baixa" },
@@ -14,6 +16,7 @@ const dischargedForm = [
     { field: "marcaCarroceria", label: "Marca carroceria" },
     { field: "modeloCarroceria", label: "Modelo carroceria" },
     { field: "anoCarroceria", label: "Ano carroceria" },
+    { field: "indicadorIdade", label: "Indicador de Idade" },
     { field: "valorCarroceria", label: "Valor carroceria" },
     { field: "dominio", label: "Leasing" },
     { field: "delegatarioCompartilhado", label: "Empresas autorizadas a compartilhar" },
@@ -31,10 +34,13 @@ const dischargedForm = [
     { field: "pneumaticos", label: "Pneumáticos" },
     { field: "pesoDianteiro", label: "Peso Dianteiro" },
     { field: "pesoTraseiro", label: "Peso Traseiro" },
+    { field: "pbt", label: "PBT" },
     { field: "poltronas", label: "Poltronas" },
     { field: "piquesPoltrona", label: "Piques Poltrona" },
     { field: "distanciaMinima", label: "Distância Mínima" },
     { field: "distanciaMaxima", label: "Distância Máxima" },
+    { field: "equipamentos", label: "Equipamentos" },
+    { field: "acessibilidade", label: "Acessibilidade" },
     { field: "sipro", label: "SIPRO" },
     { field: "obs", label: "Observação" }
 ]
@@ -46,5 +52,3 @@ export const allBaixadoFields = [
     "Ano carroceria", "Valor carroceria", "Piques Poltrona", "Peso Dianteiro", "Peso Traseiro", "Cores", "Equipamentos", "Observação", "Indicador de Idade",
     "Distância Mínima", "Distância Máxima", "__v", "id"
 ]
-
-export default dischargedForm

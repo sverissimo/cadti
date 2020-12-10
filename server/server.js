@@ -167,9 +167,10 @@ app.get('/api/log', (req, res) => {
 //************************************CADASTRO PROVISÓRIO DE SEGUROS**************** */
 
 app.post('/api/cadSeguroMongo', (req, res) => {
-    const { body } = req
+    const
+        { body } = req,
+        segModel = new segurosModel(body)
 
-    segModel = new segurosModel(body)
     segModel.save(function (err, doc) {
         if (err) console.log(err)
         if (doc) res.locals = { doc }
@@ -205,7 +206,9 @@ app.use('/api/parametros', parametros)
 const routes = 'empresas|socios|veiculos|modelosChassi|carrocerias|equipamentos|seguros|seguradoras|procuradores|procuracoes|empresasLaudo|laudos|acessibilidade'
 
 app.get(`/api/${routes}`, apiGetRouter);
+app.get('/api/lookUpTable/:table', lookup);
 
+//************************************ SPECIAL VEHICLE ROUTES *********************** */
 //Busca os veículos de uma empresa incluindo todos os de outras empresas que lhe são compartilhados ou que estão em sua apolice apesar d n ser compartilhado
 app.get('/api/allVehicles', async (req, res) => {
     const
@@ -353,7 +356,15 @@ app.get('/api/alreadyExists', async (req, res) => {
     }
 })
 
-app.get('/api/lookUpTable/:table', lookup);
+app.post('/api/baixaVeiculo', async (req, res) => {
+
+    const discharged = new oldVehiclesModel(req.body)
+
+    discharged.save((err, doc) => {
+        if (err) console.log(err)
+        if (doc) res.send(doc)
+    })
+})
 
 //************************************ OTHER METHOD ROUTES *********************** */
 
@@ -363,6 +374,7 @@ app.post('/api/cadastroVeiculo', (req, res) => {
         reqObj = req.body,
         { keys, values } = parseRequestBody(reqObj)
 
+    console.log(`INSERT INTO public.veiculos(${keys}) VALUES(${values}) RETURNING veiculo_id`)
 
     pool.query(
         `INSERT INTO public.veiculos (${keys}) VALUES (${values}) RETURNING veiculo_id`, (err, table) => {

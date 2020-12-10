@@ -13,7 +13,7 @@ import './veiculos.scss'
 
 export default function ({ selectOption, handleInput, handleBlur, handleCheck, handleSubmit, selectMotivo,
     data, empresas, motivosBaixa, searchDischarged, downloadXls, reactivateVehicle }) {
-    const { razaoSocial, selectedOption, checked, delegaTransf, justificativa, selectedMotivo, demand } = data
+    const { selectedEmpresa, selectedOption, checked, delegaTransf, justificativa, selectedMotivo, demand } = data
 
     return (
         <Fragment>
@@ -26,7 +26,7 @@ export default function ({ selectOption, handleInput, handleBlur, handleCheck, h
             />
             <div className="flexColumn">
                 {//razaoSocial && frota[0] &&
-                    razaoSocial &&
+                    selectedEmpresa &&
                     <>
                         <BaixaOptions
                             demand={demand}
@@ -58,6 +58,7 @@ export default function ({ selectOption, handleInput, handleBlur, handleCheck, h
                                     </section>
                                     <BaixaMotivo
                                         demand={demand}
+                                        selectedOption={selectedOption}
                                         delegaTransf={delegaTransf}
                                         motivosBaixa={motivosBaixa}
                                         selectMotivo={selectMotivo}
@@ -70,17 +71,18 @@ export default function ({ selectOption, handleInput, handleBlur, handleCheck, h
                                     />
                                 </div>
                                 :
-                                <BaixaGerenciar
-                                    data={data}
-                                    handleInput={handleInput}
-                                    searchDischarged={searchDischarged}
-                                    downloadXls={downloadXls}
-                                    reactivateVehicle={reactivateVehicle}
-                                />
+                                selectedOption === 'gerenciar' ?
+                                    <BaixaGerenciar
+                                        data={data}
+                                        handleInput={handleInput}
+                                        searchDischarged={searchDischarged}
+                                        downloadXls={downloadXls}
+                                        reactivateVehicle={reactivateVehicle}
+                                    />
+                                    : null
                         }
                     </>
                 }
-
             </div>
         </Fragment>
     )

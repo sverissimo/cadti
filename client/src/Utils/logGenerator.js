@@ -22,7 +22,7 @@ export async function logGenerator(obj) {
         log = JSON.parse(JSON.stringify(obj))
 
     //Em caso de reativação de veículo, o path é o mesmo, aí o find tem q ser por subject
-    if (obj.subject.match('Reativação'))
+    if (obj.subject && obj.subject.match('Reativação'))
         logConfig = logRoutes.find(e => e.subject === obj.subject)
 
     // if !veiculoId, update to empresaDocs
@@ -58,8 +58,7 @@ export async function logGenerator(obj) {
 
     //**********************If given by the component which called this fuction, overwrite logRoutesConfig*/
     if (!obj.id || obj.subject) log.subject = obj?.subject || logConfig?.subject
-
-
+    console.log(log)
     //*************************IF DECLINED, UPDATE LOG AND RETURN LOG*/    
     if (obj.declined) {
         log.history.action = 'Solicitação indeferida'
@@ -70,6 +69,7 @@ export async function logGenerator(obj) {
         return post
     }
 
+    //*************************CASO APROVADO, CONCLUI A SOLICITAÇÃO E ALTERA METADADOS DOS ARQUIVOS PARA TEMP:FALSE*/    
     if (obj.approved && !obj.declined) {
         log.history.action = logConfig?.concludedAction || 'Solicitação concluída'
         log.status = 'Solicitação concluída'
@@ -84,7 +84,7 @@ export async function logGenerator(obj) {
         log.history.files = filesIds
 
     const { metadata, approved, demandFiles, ...filteredLog } = log
-
+    console.log(log)
     //**********************reestablish path**********************
     logRoutes = JSON.parse(JSON.stringify(logRoutesConfig))
     logConfig = logRoutes.find(e => path.match(e.path))
