@@ -1,7 +1,6 @@
 import React, { Component, Fragment } from 'react'
 import { ReactContext } from '../Store/ReactContext'
 import axios from 'axios'
-import humps from 'humps'
 
 import StoreHOC from '../Store/StoreHOC'
 
@@ -140,7 +139,7 @@ class BaixaVeiculo extends Component {
     handleSubmit = async (approved) => {
         const
             { selectedEmpresa, veiculoId, selectedMotivo, demand, selectedVehicle, info, motivo } = this.state,
-            { dataEmissao, vencimento, dataRegistro, equipamentos, acessibilidade } = selectedVehicle
+            { dataEmissao, vencimento, dataRegistro } = selectedVehicle
 
         //**************Create Log****************** */
         const log = {

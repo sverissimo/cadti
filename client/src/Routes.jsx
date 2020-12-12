@@ -20,6 +20,8 @@ import Solicitacoes from './Solicitacoes/Solicitacoes'
 import PdfTest from './Veiculos/Certificate'
 import AltContrato from './Empresas/AltContrato'
 import Parametros from './Parametros/Parametros'
+import UserAuth from './Auth/UserAuth'
+
 
 //import UnderConstruction from './UnderConstruction'
 
@@ -52,6 +54,7 @@ const Routes = () => {
             <Route path='/solicitacoes/socios' exact component={Socios} />
             <Route path='/solicitacoes/procuradores' exact component={Procuradores} />
             <Route path='/parametros' exact component={Parametros} />
+            <Route path='/userAuth' exact component={UserAuth} />
 
             {/* <Route path='/faleConosco' component={UnderConstruction} /> */}
         </Switch>

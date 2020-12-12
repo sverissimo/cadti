@@ -43,7 +43,8 @@ const
     updateVehicleStatus = require('./taskManager/veiculos/updateVehicleStatus'),
     emitSocket = require('./emitSocket'),
     parametros = require('./parametros/parametros'),
-    getFormatedDate = require('./getDate')
+    getFormatedDate = require('./getDate'),
+    authRouter = require('./auth/authRouter')
 
 dailyTasks.start()
 dotenv.config()
@@ -58,6 +59,11 @@ app.use(setCorsHeader)
 //**********************************    Counter ****************************/
 let i = 0
 app.use(counter(i))
+
+//************************************ AUTH AND USERS  *********************** */
+//app.use('/auth', authRouter)
+app.use('/auth', authRouter)
+
 //************************************ BINARY DATA *********************** */
 
 let gfs
