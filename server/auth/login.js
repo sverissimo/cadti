@@ -1,6 +1,7 @@
 const
     bcrypt = require('bcrypt'),
-    UserModel = require('../mongo/models/userModel')
+    UserModel = require('../mongo/models/userModel'),
+    jwt = require('jsonwebtoken')
 
 //Cria um hash para a password e salva o usuário
 const login = async (req, res) => {
@@ -16,7 +17,10 @@ const login = async (req, res) => {
     if (!user.verified)
         return res.status(403).send('Aguardando aprovação do usuário.')
 
-    return res.send({ password, userFound })
+    const
+        accessToken = jwt.sign({ email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15s' }),
+        refreshToken = jwt.sign({ email }, process.env.REFRESH_TOKEN_SECRET)
+    res.json({ accessToken, refreshToken })
 }
 
 module.exports = login

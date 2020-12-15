@@ -1,20 +1,19 @@
-import React, { Fragment } from 'react';
-import signUpForm from './signUpForm'
-import UserAuth from './UserAuth';
+import React from 'react';
 import TextField from '@material-ui/core/TextField';
 import './userAuth.scss'
 import CustomButton from '../Reusable Components/CustomButton';
 import MenuItem from '@material-ui/core/MenuItem';
 
 const signupTemplate = ({ data, handleInput, handleSubmit }) => {
+    const { title, form, buttonLabel, errorMessage } = data
 
     return (
         <>
             <header>
-                <h4 className="header2">Cadastro de usuário</h4>
+                <h4 className="header2">{title}</h4>
             </header>
             <section className="flexColumn form paper">
-                {signUpForm.map(({ name, label, options }, i) => (
+                {form.map(({ name, label, options, type }, i) => (
                     <div className="input" key={i}>
                         <TextField
                             type="text"
@@ -22,8 +21,7 @@ const signupTemplate = ({ data, handleInput, handleSubmit }) => {
                             label={label}
                             value={data[name] || ''}
                             onChange={handleInput}
-                            //variant='outlined'
-                            //inputProps={{ className: 'tst' }}
+                            type={type || 'text'}
                             InputProps={{ style: { width: '400px' } }}
                             InputLabelProps={{ style: { fontSize: '10pt', color: '#223' } }}
                             select={options ? true : false}
@@ -38,7 +36,11 @@ const signupTemplate = ({ data, handleInput, handleSubmit }) => {
                         </TextField>
                     </div>
                 ))}
-                <CustomButton label='Cadastrar' onClick={handleSubmit} />
+                <CustomButton label={buttonLabel} onClick={handleSubmit} />
+                {
+                    errorMessage &&
+                    <h3>{errorMessage}</h3>
+                }
             </section>
         </>
     );
