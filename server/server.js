@@ -44,7 +44,9 @@ const
     emitSocket = require('./emitSocket'),
     parametros = require('./parametros/parametros'),
     getFormatedDate = require('./getDate'),
-    authRouter = require('./auth/authRouter')
+    authRouter = require('./auth/authRouter'),
+    authToken = require('./auth/authToken'),
+    getUser = require('./auth/getUser')
 
 dailyTasks.start()
 dotenv.config()
@@ -63,6 +65,8 @@ app.use(counter(i))
 //************************************ AUTH AND USERS  *********************** */
 //app.use('/auth', authRouter)
 app.use('/auth', authRouter)
+app.use(authToken)
+app.get('/getUser', getUser)
 
 //************************************ BINARY DATA *********************** */
 
@@ -153,6 +157,7 @@ app.post('/api/logs', logHandler, (req, res) => {
 })
 
 app.get('/api/logs', (req, res) => {
+    console.log(req.user)
     logsModel.find()
         .then(doc => res.send(doc))
         .catch(err => console.log(err))

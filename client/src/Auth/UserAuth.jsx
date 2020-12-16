@@ -15,14 +15,22 @@ const UserAuth = () => {
 
   const handleSubmit = () => {
 
-    const { endPoint, toastMsg } = state
+    const { endPoint, toastMsg, tab } = state
 
     axios.post(endPoint, state)
       .then(r => {
         if (r.status === 200) {
+          //se for login, não precisa de toast e precisa salvar o token e redirecionar
+          if (tab === 0) {
+            //const tst = document.cookies.get({ name: 'atoken' })
+            const shit = decodeURIComponent(document.cookie)
+            console.log(shit)
+
+            console.log(r)
+          }
           if (toastMsg)
             toast(toastMsg)
-          setTimeout(() => { setState({...state, ...userAuthForms[0]}) }, 1200)
+          setTimeout(() => { setState({ ...state, ...userAuthForms[0] }) }, 1200)
         }
       })
       .catch(err => setState({ ...state, errorMessage: err?.response?.data }))
@@ -39,7 +47,8 @@ const UserAuth = () => {
         handleInput={handleInput}
         handleSubmit={handleSubmit}
       />
-      <ReactToast open={confirmToast} close={toast} msg={toastMsg} />    </>
+      <ReactToast open={confirmToast} close={toast} msg={toastMsg} />
+    </>
   )
 }
 

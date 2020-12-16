@@ -1,4 +1,5 @@
 import React from 'react'
+import axios from 'axios'
 import humps from 'humps'
 
 import { bindActionCreators } from 'redux'
@@ -7,6 +8,7 @@ import { getData, insertData, updateData, updateCollection, deleteOne, updateDoc
 
 import Loading from '../Layouts/Loading'
 import { configVehicleForm } from '../Forms/configVehicleForm'
+import ReactToast from '../Reusable Components/ReactToast'
 
 const socketIO = require('socket.io-client')
 let socket
@@ -20,8 +22,17 @@ export default function (requestArray, WrappedComponent) {
 
     class With extends React.Component {
 
+        state = { user: undefined }
+
         async componentDidMount() {
+            const
+                getUser = await axios.get('/getUser'),
+                user = getUser?.data
+            if (!user)
+                this.setState({ notAuthorized: true, confirmToast: true, toastMsg: 'Favor realizar o login para acessar o site.' })
+
             const { redux } = this.props
+            console.log(this.props)
             let request = []
 
             requestArray.forEach(req => {
@@ -31,7 +42,8 @@ export default function (requestArray, WrappedComponent) {
                 }
             })
 
-            if (request[0]) await this.props.getData(request)
+            if (request[0])
+                await this.props.getData(request)
 
             if (!socket) socket = socketIO('http://localhost:3001')
             socket.on('insertVehicle', insertedObjects => this.props.insertData(insertedObjects, 'veiculos'))
@@ -73,9 +85,13 @@ export default function (requestArray, WrappedComponent) {
 
             clearAll.forEach(el => socket.off(el))
         }
+        toast = () => this.setState({ confirmToast: !this.state.confirmToast })
         render() {
-
+            const { notAuthorized, confirmToast, toastMsg } = this.state
             collections = collections.map(c => humps.camelize(c))
+            if (notAuthorized) {
+                return <ReactToast open={confirmToast} close={this.toast} msg={toastMsg} />
+            }
 
             if (collections.length === 0 || !collections.every(col => this.props.redux.hasOwnProperty(col))) {
                 return <Loading />

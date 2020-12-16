@@ -7,20 +7,29 @@ const
 const login = async (req, res) => {
 
     const
-        { password, email } = req.body,
-        result = await UserModel.find({ email }),
-        user = result[0],
-        validPass = await bcrypt.compare(password, user.password)
+        { email } = req.body,
+        result = await UserModel.find({ email }).lean(),
+        userFound = result[0]
 
-    if (!user || !validPass)
+    if (!userFound)
         return res.status(401).send('Usuário ou senha inválidos.')
-    if (!user.verified)
+
+    const validPass = await bcrypt.compare(req.body.password, userFound.password)
+    if (!validPass)
+        return res.status(401).send('Usuário ou senha inválidos.')
+
+    if (!userFound.verified)
         return res.status(403).send('Aguardando aprovação do usuário.')
 
     const
-        accessToken = jwt.sign({ email }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '15s' }),
-        refreshToken = jwt.sign({ email }, process.env.REFRESH_TOKEN_SECRET)
-    res.json({ accessToken, refreshToken })
+        { password, __v, ...user } = userFound,
+        accessToken = jwt.sign({ user }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '20m' })
+
+    res.cookie('aToken', accessToken, { maxAge: 1000 * 60 * 20, httpOnly: true })
+    res.status(200).json({ accessToken })
+
+    //refreshToken = jwt.sign({ user }, process.env.REFRESH_TOKEN_SECRET)
+    //res.cookie('rToken', refreshToken, { maxAge: 1000 * 60 * 60 * 2, httpOnly: true })
 }
 
 module.exports = login
