@@ -1,5 +1,4 @@
 import React from 'react'
-import axios from 'axios'
 import humps from 'humps'
 
 import { bindActionCreators } from 'redux'
@@ -22,17 +21,9 @@ export default function (requestArray, WrappedComponent) {
 
     class With extends React.Component {
 
-        state = { user: undefined }
-
         async componentDidMount() {
-            const
-                getUser = await axios.get('/getUser'),
-                user = getUser?.data
-            if (!user)
-                this.setState({ notAuthorized: true, confirmToast: true, toastMsg: 'Favor realizar o login para acessar o site.' })
 
             const { redux } = this.props
-            console.log(this.props)
             let request = []
 
             requestArray.forEach(req => {
@@ -77,6 +68,7 @@ export default function (requestArray, WrappedComponent) {
                 this.props.insertData(insertedObjects, collection)
             })
         }
+
         componentWillUnmount() {
             if (!socket) socket = socketIO(':3001')
             const clearAll = ['insertVehicle', 'insertInsurance', 'insertEmpresa', 'insertSocios', 'insertFiles', 'addElements',
@@ -87,12 +79,8 @@ export default function (requestArray, WrappedComponent) {
         }
         toast = () => this.setState({ confirmToast: !this.state.confirmToast })
         render() {
-            const { notAuthorized, confirmToast, toastMsg } = this.state
-            collections = collections.map(c => humps.camelize(c))
-            if (notAuthorized) {
-                return <ReactToast open={confirmToast} close={this.toast} msg={toastMsg} />
-            }
 
+            collections = collections.map(c => humps.camelize(c))
             if (collections.length === 0 || !collections.every(col => this.props.redux.hasOwnProperty(col))) {
                 return <Loading />
             }
@@ -106,6 +94,7 @@ export default function (requestArray, WrappedComponent) {
         return {
             redux: {
                 ...state.data,
+                ...state.user
             }
         }
     }

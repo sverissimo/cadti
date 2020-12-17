@@ -66,7 +66,7 @@ app.use(counter(i))
 //app.use('/auth', authRouter)
 app.use('/auth', authRouter)
 app.use(authToken)
-app.get('/getUser', getUser)
+app.get('/getUser', getUser);
 
 //************************************ BINARY DATA *********************** */
 

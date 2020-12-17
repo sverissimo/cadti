@@ -4,17 +4,16 @@ const authToken = (req, res, next) => {
     const tokens = req.headers.cookie.split(';')
 
     let token = tokens.find(el => el.match('aToken'))
-    console.log(token)
+
     if (!token)
-        console.log('Noooooooooooooooo toooooooooookeeeeeeeeeeeeeeennnnnnnnnn!!!!!!!!!!!!!!')
-    //return res.sendStatus(401)
+        return res.status(401).send('No cadTI token provided...')
     else
-        token = token.replace('aToken=', '')
-    console.log(token)
+        token = token.replace('aToken=', '').trim()
+
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
-        if (err) console.log('fkkkkkkkkkkkkkk', err)
-        //if (err) return res.sendStatus(403)
-        req.user = user
+        if (err) return res.status(403).send(err)
+        if (user && user.user)
+            req.user = user.user
         next()
     })
 }

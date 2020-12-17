@@ -1,5 +1,4 @@
 import React from 'react';
-import { BrowserRouter } from 'react-router-dom'
 
 import { createStore, applyMiddleware } from 'redux';
 import { Provider } from 'react-redux';
@@ -7,28 +6,16 @@ import promise from 'redux-promise';
 import multi from 'redux-multi';
 import thunk from 'redux-thunk';
 import rootReducer from './rootReducer'
+import Authentication from './Authentication';
 
-import { Header, Footer } from './Layouts'
-import Container from '@material-ui/core/Container';
-import Routes from './Routes'
 import './Layouts/stylez.scss'
 
 function App() {
-
   const store = applyMiddleware(promise, multi, thunk)(createStore)
-
   return (
     <Provider store={store(rootReducer, /* preloadedState, */
       window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__())}>
-      <div className='app'>
-        <Container maxWidth="lg" style={{ minHeight: '100vh' }}>
-          <BrowserRouter>
-            <Header />
-            <Routes />
-          </BrowserRouter>
-          <Footer />
-        </Container>
-      </div>
+      <Authentication />
     </Provider>
   )
 }

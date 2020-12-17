@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { Link as RouterLink } from 'react-router-dom'
 
 import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import { logUserOut } from '../Store/userActions';
 
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import CssBaseline from '@material-ui/core/CssBaseline';
@@ -9,6 +11,7 @@ import { Toolbar, Typography, Button, Link } from '@material-ui/core'
 import Badge from '@material-ui/core/Badge';
 import { withRouter } from 'react-router'
 import './stylez.scss'
+import clearToken from '../Auth/logout'
 
 const useStyles = makeStyles(theme => ({
     toolbarTitle: {
@@ -105,8 +108,12 @@ const Header = props => {
         nomeSecretaria = nomes.secretaria
         siglaSecretaria = nomes.siglaSecretaria
     }
-
-    //console.log("🚀 ", nomeSecretaria, siglaSecretaria)
+    const logout = async () => {
+        await clearToken()
+        props.logUserOut()
+        //props.history.push({ pathname: '/' })
+        console.log(props)
+    }
     return (
         <React.Fragment>
             <CssBaseline />
@@ -123,9 +130,9 @@ const Header = props => {
                 >
                     {siglaSecretaria} - {nomeSecretaria}
                 </Typography>
-                <Button variant="outlined" size="small">
-                    Fazer login
-                    </Button>
+                <Button variant="outlined" size="small" onClick={() => logout()}>
+                    Sair
+                </Button>
             </Toolbar>
             <Toolbar component="nav" variant="dense" className={toolbarSecondary}>
                 {sections.map(({ link, title }, i) => (
@@ -185,4 +192,8 @@ function mapStateToProps(state) {
     }
 }
 
-export default connect(mapStateToProps)(withRouter(Header))
+function mapDispatchToProps(dispatch) {
+    return bindActionCreators({ logUserOut }, dispatch)
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(withRouter(Header))

@@ -1,11 +1,19 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import TextField from '@material-ui/core/TextField';
 import './userAuth.scss'
 import CustomButton from '../Reusable Components/CustomButton';
 import MenuItem from '@material-ui/core/MenuItem';
 
-const signupTemplate = ({ data, handleInput, handleSubmit }) => {
+const SignupTemplate = ({ data, handleInput, handleSubmit }) => {
     const { title, form, buttonLabel, errorMessage } = data
+
+    useEffect(() => {
+        setTimeout(() => {
+            const x = document.getElementById('email')
+            if (x)
+                x.focus()
+        }, 600);
+    }, [])
 
     return (
         <>
@@ -17,6 +25,7 @@ const signupTemplate = ({ data, handleInput, handleSubmit }) => {
                     <div className="input" key={i}>
                         <TextField
                             type="text"
+                            id={name}
                             name={name}
                             label={label}
                             value={data[name] || ''}
@@ -46,4 +55,4 @@ const signupTemplate = ({ data, handleInput, handleSubmit }) => {
     );
 };
 
-export default signupTemplate;
+export default SignupTemplate;
