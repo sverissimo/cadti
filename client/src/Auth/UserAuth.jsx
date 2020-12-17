@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import SignupTemplate from "./SignUpTemplate";
+import UserAuthTemplate from "./UserAuthTemplate";
 import ReactToast from '../Reusable Components/ReactToast'
 import userAuthForms from "./userAuthForms";
 import { logUser } from "../Store/userActions";
@@ -19,22 +19,21 @@ const UserAuth = (props) => {
     setState({ ...state, [name]: value })
   }
 
-  const login = () => {
-    let getUser, userFound
-
-    axios.post(endPoint, state)
-      .then(async r => {
-        if (r.status === 200) {
-          getUser = await axios.get('/getUser')
-          userFound = getUser?.data
-
-          if (userFound) {
-            setCookie('loggedIn', true)
-            props.logUser(userFound)
-          }
-        }
-      })
-      .catch(err => setState({ ...state, errorMessage: err?.response?.data }))
+  const login = async () => {
+    //Efetua o login com as informações preencidas pelo usuário
+    try {
+      await axios.post(endPoint, state)
+      //caso as credenciais (usuário/senha) estejam certas, um token foi armazenado. Faz-se então uma requisição GET dos dados do usuário
+      const
+        getUser = await axios.get('/getUser'),
+        userFound = getUser?.data
+      //Ao se descodificar o token, se as credenciais estiverem certas e o token válido, retorna o usuárui, armazena na globalStore e cria cookie local.      
+      setCookie('loggedIn', true)
+      props.logUser(userFound)
+    }
+    catch (err) {
+      toast(err?.response?.data)
+    }
   }
 
   const handleSubmit = () => {
@@ -56,12 +55,12 @@ const UserAuth = (props) => {
 
   return (
     <>
-      <SignupTemplate
+      <UserAuthTemplate
         data={state}
         handleInput={handleInput}
         handleSubmit={handleSubmit}
       />
-      <ReactToast open={confirmToast} close={toast} msg={toastMsg} />
+      <ReactToast open={confirmToast} close={toast} msg={toastMsg} status={tab === 0 ? 'error' : 'success'} />
     </>
   )
 }

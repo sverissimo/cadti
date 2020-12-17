@@ -11,7 +11,6 @@ import { Toolbar, Typography, Button, Link } from '@material-ui/core'
 import Badge from '@material-ui/core/Badge';
 import { withRouter } from 'react-router'
 import './stylez.scss'
-import clearToken from '../Auth/logout'
 
 const useStyles = makeStyles(theme => ({
     toolbarTitle: {
@@ -108,12 +107,9 @@ const Header = props => {
         nomeSecretaria = nomes.secretaria
         siglaSecretaria = nomes.siglaSecretaria
     }
-    const logout = async () => {
-        await clearToken()
-        props.logUserOut()
-        //props.history.push({ pathname: '/' })
-        console.log(props)
-    }
+    
+    const logout = async () => props.logUserOut()
+
     return (
         <React.Fragment>
             <CssBaseline />

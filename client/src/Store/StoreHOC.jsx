@@ -8,6 +8,8 @@ import { getData, insertData, updateData, updateCollection, deleteOne, updateDoc
 import Loading from '../Layouts/Loading'
 import { configVehicleForm } from '../Forms/configVehicleForm'
 import ReactToast from '../Reusable Components/ReactToast'
+import { getCookie } from '../Utils/documentCookies'
+import { logUserOut } from './userActions'
 
 const socketIO = require('socket.io-client')
 let socket
@@ -21,7 +23,11 @@ export default function (requestArray, WrappedComponent) {
 
     class With extends React.Component {
 
+        state = { confirmToast: false }
+
         async componentDidMount() {
+
+            document.addEventListener('click', e => this.validadeClick(e))
 
             const { redux } = this.props
             let request = []
@@ -77,16 +83,40 @@ export default function (requestArray, WrappedComponent) {
 
             clearAll.forEach(el => socket.off(el))
         }
-        toast = () => this.setState({ confirmToast: !this.state.confirmToast })
-        render() {
 
+        validadeClick = async e => {
+            const
+                lastChild = e?.target?.lastChild,
+                isButton = lastChild?.tagName === 'BUTTON'
+
+            if (lastChild && isButton) {
+                const shouldLogout = getCookie('loggedIn').length === 0
+                console.log(isButton, shouldLogout)
+                if (shouldLogout)
+                    await this.props.logUserOut()
+                    return null
+            }
+        }
+
+        toast = () => this.setState({ confirmToast: !this.state.confirmToast })
+
+        render() {
+            //Todo novo render verifica o localCookie. Se tiver expirado, faz o logout do usuário.
+            const validSession = getCookie('loggedIn').length > 0;
+            if (!validSession) {
+                setTimeout(() => {
+                    this.props.logUserOut()
+                }, 1200)
+                return <ReactToast open={true} close={this.toast} msg='Sessão expirada.' status='error' />
+            }
+            //Enquanto não tiver carregado todas as collections de um determinado componente, renderiza Loading...
             collections = collections.map(c => humps.camelize(c))
             if (collections.length === 0 || !collections.every(col => this.props.redux.hasOwnProperty(col))) {
                 return <Loading />
             }
-            else {
+            //Carregadas as collections com a devida autenticação, renderiza o componente
+            else
                 return <WrappedComponent {...this.props} />
-            }
         }
     }
 
@@ -100,7 +130,7 @@ export default function (requestArray, WrappedComponent) {
     }
 
     function mapDispatchToProps(dispatch) {
-        return bindActionCreators({ getData, insertData, updateData, updateCollection, deleteOne, updateDocs }, dispatch)
+        return bindActionCreators({ getData, insertData, updateData, updateCollection, deleteOne, updateDocs, logUserOut }, dispatch)
     }
 
     return connect(mapStateToProps, mapDispatchToProps)(With)

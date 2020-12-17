@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import clsx from 'clsx';
 //import { ErrorIcon, InfoIcon, Close, WarningIcon } from '@material-ui/icons/';
 import { amber, green } from '@material-ui/core/colors';
@@ -18,35 +18,26 @@ const useStyles1 = makeStyles(theme => ({
     },
     warning: {
         backgroundColor: amber[700],
-    },
-    icon: {
-        fontSize: 20,
-    },
-    iconVariant: {
-        opacity: 0.9,
-        marginRight: theme.spacing(1),
-    },
+    },    
     message: {
         display: 'flex',
-        alignItems: 'center'        
+        alignItems: 'center'
     },
 }));
 
 function MySnackbarContentWrapper(props) {
     const classes = useStyles1();
     const { className, message, onClose, variant, ...other } = props;
-
-
+    
     return (
         <SnackbarContent
             className={clsx(classes[variant], className)}
             aria-describedby="client-snackbar"
             message={
-                <Fragment>
-                    <span id="client-snackbar" className={classes.message}>
-                        <Icon>check</Icon>    {message}
-                    </span>
-                </Fragment>
+                message &&
+                <span id="client-snackbar" className={classes.message}>
+                    <Icon>{props.variant === 'error' ? 'close' : 'check'}</Icon>    {message}
+                </span>
             }
             {...other}
         />
@@ -54,7 +45,7 @@ function MySnackbarContentWrapper(props) {
 }
 
 export default function CustomizedSnackbars(props) {
-    
+
     return (
         <div>
             <Snackbar
@@ -63,12 +54,12 @@ export default function CustomizedSnackbars(props) {
                     horizontal: 'right',
                 }}
                 open={props.open}
-                autoHideDuration={2000}
+                autoHideDuration={1500}
                 onClose={props.close}
             >
                 <MySnackbarContentWrapper
-                    variant="success"
-                    message={props.msg}                    
+                    variant={props.status || "success"}
+                    message={props.msg}
                 />
             </Snackbar>
         </div>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useEffect } from 'react'
 //import axios from 'axios'
 import { BrowserRouter } from 'react-router-dom'
 import Routes from './Routes'
@@ -21,7 +21,7 @@ const Authentication = (props) => {
             console.log(loggedIn)
     }, [user, loggedIn])
 
-    if (!user || !loggedIn)
+    if (!loggedIn)
         return <UserAuth />
     else
         return (

@@ -1,3 +1,5 @@
+import { deleteCookie } from "../Utils/documentCookies"
+
 export const logUser = user => {
     return dispatch => {
         dispatch({
@@ -8,10 +10,17 @@ export const logUser = user => {
 }
 
 export const logUserOut = () => {
-    return dispatch => {
+    return async dispatch => {
+        await fetch('/auth/logout', { method: 'GET', credentials: 'same-origin' })
+            .then(r => {
+                console.log(r.json())
+                deleteCookie('loggedIn')
+                return
+            })
+            .catch(err => console.log(err))
+
         dispatch({
-            type: 'LOG_USER_OUT',
-            payload: undefined
+            type: 'LOG_USER_OUT'            
         })
     }
 }

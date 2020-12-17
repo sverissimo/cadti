@@ -1,6 +1,4 @@
-const initState = {}
-
-const dataReducer = (state = initState, action) => {
+const dataReducer = (state = {}, action) => {
     const { type, payload } = action
 
     switch (type) {
