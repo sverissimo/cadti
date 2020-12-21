@@ -55,7 +55,7 @@ class VeiculosContainer extends PureComponent {
             { redux } = this.props,
             { equipamentos, acessibilidade } = redux,
             demand = this.props?.location?.state?.demand
-        this.setState({ selectedEmpresa: this.props.redux.empresas[0] })
+
         if (demand) {
             let reactivated = false
             const demandState = setDemand(demand, redux)

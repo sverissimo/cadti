@@ -26,7 +26,7 @@ const dataReducer = (state = {}, action) => {
 
         case 'UPDATE_DATA': {
             const { collection, data, id } = payload
-            console.log(data, state[collection])
+
             if (state[collection] && data) {
                 const update = state[collection].map(v => {
                     data.forEach(el => {
@@ -36,7 +36,7 @@ const dataReducer = (state = {}, action) => {
                     })
                     return v
                 })
-                console.log("dataReducer -> update", update)
+
                 return {
                     ...state, [collection]: update
                 }

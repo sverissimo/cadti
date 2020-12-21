@@ -3,7 +3,7 @@ const userReducer = (state = {}, action) => {
     switch (type) {
         case ('LOG_USER'):
             return {
-                ...state, user: payload
+                ...state, ...payload
             }
         case ('LOG_USER_OUT'):
             return {

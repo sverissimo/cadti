@@ -46,8 +46,7 @@ const
     getFormatedDate = require('./getDate'),
     authRouter = require('./auth/authRouter'),
     authToken = require('./auth/authToken'),
-    getUser = require('./auth/getUser'),
-    setUserPermitions = require('./auth/userPermitions')
+    getUser = require('./auth/getUser')
 
 dailyTasks.start()
 dotenv.config()
@@ -67,8 +66,7 @@ app.use(counter(i))
 
 app.use('/auth', authRouter)
 app.use(authToken)
-app.get('/getUser', getUser);
-app.use(setUserPermitions)
+app.get('/getUser', getUser)
 
 //************************************ BINARY DATA *********************** */
 
@@ -158,7 +156,8 @@ app.post('/api/logs', logHandler, (req, res) => {
     res.sendStatus(200)
 })
 
-app.get('/api/logs', (req, res) => {    
+app.get('/api/logs', (req, res) => {
+    console.log(req.user)
     logsModel.find()
         .then(doc => res.send(doc))
         .catch(err => console.log(err))
@@ -249,7 +248,7 @@ app.get('/api/allVehicles', async (req, res) => {
         OR veiculos.compartilhado_id = ${codigoEmpresa}
         OR veiculos.veiculo_id IN (${vehicleIds})
             `
-    console.log("vQuery", vQuery)
+    //console.log("vQuery", vQuery)
 
     pool.query(vQuery, (err, t) => {
         if (err) console.log(err)

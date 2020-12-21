@@ -15,11 +15,6 @@ const Authentication = (props) => {
         user = props?.redux?.user,
         loggedIn = getCookie('loggedIn').length > 0 // Se deixar como estado inicial do store.user desse jeito, será q n atualiza o componente qdo apagar??
 
-    useEffect(() => {
-        if (user)
-            console.log(loggedIn)            
-    }, [user, loggedIn])
-
     if (!loggedIn)
         return <UserAuth />
     else

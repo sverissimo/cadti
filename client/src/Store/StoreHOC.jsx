@@ -1,5 +1,6 @@
 import React from 'react'
 import humps from 'humps'
+import Axios from 'axios'
 
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
@@ -9,7 +10,7 @@ import Loading from '../Layouts/Loading'
 import { configVehicleForm } from '../Forms/configVehicleForm'
 import ReactToast from '../Reusable Components/ReactToast'
 import { getCookie } from '../Utils/documentCookies'
-import { logUserOut } from './userActions'
+import { logUser, logUserOut } from './userActions'
 
 const socketIO = require('socket.io-client')
 let socket
@@ -81,7 +82,15 @@ export default function (requestArray, WrappedComponent) {
 
             clearAll.forEach(el => socket.off(el))
         }
-        
+
+        getUser = async () => {
+            const
+                request = await Axios.get('/getUser'),
+                user = request?.data
+            if (user)
+                this.props.logUser(user)
+        }
+
         toast = () => this.setState({ confirmToast: !this.state.confirmToast })
 
         render() {
@@ -93,6 +102,10 @@ export default function (requestArray, WrappedComponent) {
                 }, 1200)
                 return <ReactToast open={true} close={this.toast} msg='Sessão expirada.' status='error' />
             }
+            else if (!this.props.user.name) {
+                this.getUser()
+            }
+
             //Enquanto não tiver carregado todas as collections de um determinado componente, renderiza Loading...
             collections = collections.map(c => humps.camelize(c))
             if (collections.length === 0 || !collections.every(col => this.props.redux.hasOwnProperty(col))) {
@@ -108,13 +121,13 @@ export default function (requestArray, WrappedComponent) {
         return {
             redux: {
                 ...state.data,
-                ...state.user
-            }
+            },
+            user: state.user
         }
     }
 
     function mapDispatchToProps(dispatch) {
-        return bindActionCreators({ getData, insertData, updateData, updateCollection, deleteOne, updateDocs, logUserOut }, dispatch)
+        return bindActionCreators({ getData, insertData, updateData, updateCollection, deleteOne, updateDocs, logUser, logUserOut }, dispatch)
     }
 
     return connect(mapStateToProps, mapDispatchToProps)(With)
