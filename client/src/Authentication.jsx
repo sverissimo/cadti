@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react'
-//import axios from 'axios'
 import { BrowserRouter } from 'react-router-dom'
 import Routes from './Routes'
 import { connect } from 'react-redux'
@@ -18,7 +17,7 @@ const Authentication = (props) => {
 
     useEffect(() => {
         if (user)
-            console.log(loggedIn)
+            console.log(loggedIn)            
     }, [user, loggedIn])
 
     if (!loggedIn)

@@ -14,7 +14,11 @@ const UserAuth = (props) => {
     [state, setState] = useState({ tab: 0, ...userAuthForms[0] }),
     { endPoint, toastMsg, tab } = state
 
-  const handleInput = e => {
+    useEffect(() => {
+      return () => setState()
+    }, [])
+    
+    const handleInput = e => {
     const { name, value } = e.target
     setState({ ...state, [name]: value })
   }
@@ -47,11 +51,7 @@ const UserAuth = (props) => {
 
   const
     toast = toastMsg => setState({ ...state, confirmToast: !state.confirmToast, toastMsg }),
-    { confirmToast } = state
-
-  useEffect(() => {
-    return () => setState()
-  }, [])
+    { confirmToast } = state  
 
   return (
     <>

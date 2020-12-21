@@ -46,7 +46,8 @@ const
     getFormatedDate = require('./getDate'),
     authRouter = require('./auth/authRouter'),
     authToken = require('./auth/authToken'),
-    getUser = require('./auth/getUser')
+    getUser = require('./auth/getUser'),
+    setUserPermitions = require('./auth/userPermitions')
 
 dailyTasks.start()
 dotenv.config()
@@ -63,10 +64,11 @@ let i = 0
 app.use(counter(i))
 
 //************************************ AUTH AND USERS  *********************** */
-//app.use('/auth', authRouter)
+
 app.use('/auth', authRouter)
 app.use(authToken)
 app.get('/getUser', getUser);
+app.use(setUserPermitions)
 
 //************************************ BINARY DATA *********************** */
 
@@ -156,8 +158,7 @@ app.post('/api/logs', logHandler, (req, res) => {
     res.sendStatus(200)
 })
 
-app.get('/api/logs', (req, res) => {
-    console.log(req.user)
+app.get('/api/logs', (req, res) => {    
     logsModel.find()
         .then(doc => res.send(doc))
         .catch(err => console.log(err))

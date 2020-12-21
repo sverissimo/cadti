@@ -23,7 +23,8 @@ const userSchema = new mongoose.Schema({
     verified: {
         type: Boolean,
         default: false
-    }
+    },
+    empresas: { type: [] }
 })
 
 const UserModel = mongoose.model('users', userSchema, 'users')

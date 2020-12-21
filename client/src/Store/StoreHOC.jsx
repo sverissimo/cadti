@@ -27,8 +27,6 @@ export default function (requestArray, WrappedComponent) {
 
         async componentDidMount() {
 
-            document.addEventListener('click', e => this.validadeClick(e))
-
             const { redux } = this.props
             let request = []
 
@@ -83,21 +81,7 @@ export default function (requestArray, WrappedComponent) {
 
             clearAll.forEach(el => socket.off(el))
         }
-
-        validadeClick = async e => {
-            const
-                lastChild = e?.target?.lastChild,
-                isButton = lastChild?.tagName === 'BUTTON'
-
-            if (lastChild && isButton) {
-                const shouldLogout = getCookie('loggedIn').length === 0
-                console.log(isButton, shouldLogout)
-                if (shouldLogout)
-                    await this.props.logUserOut()
-                    return null
-            }
-        }
-
+        
         toast = () => this.setState({ confirmToast: !this.state.confirmToast })
 
         render() {

@@ -11,16 +11,15 @@ export const logUser = user => {
 
 export const logUserOut = () => {
     return async dispatch => {
-        await fetch('/auth/logout', { method: 'GET', credentials: 'same-origin' })
-            .then(r => {
-                console.log(r.json())
+        await fetch('/auth/logout', { method: 'GET', credentials: 'same-origin' })            
+            .then(r => {                
                 deleteCookie('loggedIn')
                 return
             })
             .catch(err => console.log(err))
 
         dispatch({
-            type: 'LOG_USER_OUT'            
+            type: 'LOG_USER_OUT'
         })
     }
 }
