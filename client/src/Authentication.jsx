@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { BrowserRouter } from 'react-router-dom'
 import Routes from './Routes'
 import { connect } from 'react-redux'
@@ -9,11 +9,9 @@ import Container from '@material-ui/core/Container';
 
 import { getCookie } from './Utils/documentCookies'
 
-const Authentication = (props) => {
+const Authentication = () => {
 
-    const
-        user = props?.redux?.user,
-        loggedIn = getCookie('loggedIn').length > 0 // Se deixar como estado inicial do store.user desse jeito, será q n atualiza o componente qdo apagar??
+    const loggedIn = getCookie('loggedIn').length > 0 // Se deixar como estado inicial do store.user desse jeito, será q n atualiza o componente qdo apagar??
 
     if (!loggedIn)
         return <UserAuth />

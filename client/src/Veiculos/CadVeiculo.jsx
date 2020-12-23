@@ -395,16 +395,16 @@ class VeiculosContainer extends PureComponent {
             vReview = getUpdatedValues(originalVehicle, vReview)     //Save only real changes to the request Object (method from setDemand())
 
         const vehicle = humps.decamelizeKeys(vReview)
-
-        //***************If it doesnt exist, post the new vehicle Object, else get existing Id and update *********** */
-
         console.log(vehicle)
+
+        //***************If it doesnt exist, post the new vehicle Object **************** */
         if (!existingVeiculoId)
             await axios.post('/api/cadastroVeiculo', vehicle)
                 .then(res => {
                     veiculoId = res.data
                 })
                 .catch(err => console.log(err))
+        //***************Else, if it exists, get existing Id and update status******************* */
         else {
             veiculoId = existingVeiculoId
 

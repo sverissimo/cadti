@@ -15,6 +15,37 @@ const UserAuthTemplate = ({ data, handleInput, handleSubmit }) => {
         }, 600);
     }, [])
 
+    const errorHandler = (el) => {
+        let value = data[el?.field]
+        if (!value) return
+
+        if (el.errorHandler && el.errorHandler(value)) return false
+        else if (value && el.errorHandler && !el.errorHandler(value)) return true
+
+        if (value?.length < el?.minLength) return true
+
+        if (typeof value !== 'string') value = value.toString()
+        if (el.pattern) return value.match(el.pattern) === null
+        else return false
+
+    }
+
+    const helper = (el) => {
+        let value = data[el.field]
+        if (!value) return ' '
+        if (el.errorHandler && el.errorHandler(value)) return '✓'
+        else if (value && el.errorHandler && !el.errorHandler(value)) return '✘'
+
+        if (value?.length < el?.minLength) return '✘'
+        if (value?.length >= el?.minLength) return '✓'
+
+        if (typeof value !== 'string') value = value.toString()
+        if (value > el.max || value < el.min) return 'Valor inválido'
+        else if (value.match(el.pattern) === null) return '✘'
+        else if (el.pattern && value.match(el.pattern) !== null) return '✓'
+        else return ' '
+    }
+
     return (
         <div className='flexColumn login'>
             <h2 className='login__title'>CadTI - Cadastro do Transporte Intermunicipal - Seinfra MG</h2>
@@ -23,16 +54,17 @@ const UserAuthTemplate = ({ data, handleInput, handleSubmit }) => {
                     <h4 className="header2 login__subtitle">{title}</h4>
                 </header>
                 <section className='flexColumn center'>
-                    {form.map(({ name, label, options, type }, i) => (
+                    {form.map(({ name, label, options, type = 'text', ...el }, i) => (
                         <div className="input" key={i}>
                             <TextField
-                                type="text"
                                 id={name}
                                 name={name}
                                 label={label}
                                 value={data[name] || ''}
                                 onChange={handleInput}
-                                type={type || 'text'}
+                                type={type}
+                                error={errorHandler(el)}
+                                helperText={helper(el)}
                                 InputProps={{ style: { width: '260px' } }}
                                 InputLabelProps={{ style: { fontSize: '10pt', color: '#223' } }}
                                 select={options ? true : false}

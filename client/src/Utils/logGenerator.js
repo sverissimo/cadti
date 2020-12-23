@@ -1,9 +1,12 @@
 import axios from 'axios'
+import { store } from '../App'
 import { logRoutesConfig } from '../Solicitacoes/logRoutesConfig'
 import { updateFilesMetadata, postFilesReturnIds } from './handleFiles'
 
 export async function logGenerator(obj) {
-    const path = window.location.pathname
+    const
+        path = window.location.pathname,
+        userName = store.getState()?.user?.name || 'Usuário não identificado'
 
     let logRoutes = JSON.parse(JSON.stringify(logRoutesConfig))
     logRoutes.forEach((el, i) => el.path = logRoutesConfig[i].path.replace('/veiculos', '').replace('/solicitacoes', '').replace('/empresas', ''))
@@ -13,7 +16,7 @@ export async function logGenerator(obj) {
         collection = 'logs',
         historyLength = obj?.historyLength,
         commonFields = {
-            user: 'Joe Dimaggio',
+            user: userName,
             createdAt: new Date(),
         }
 

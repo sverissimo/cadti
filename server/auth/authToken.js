@@ -1,8 +1,14 @@
 const jwt = require('jsonwebtoken')
 
 const authToken = (req, res, next) => {
-    const tokens = req.headers.cookie.split(';')
 
+    console.log(req.url, req.connection.remoteAddress)
+    //if (req.url.match('/sync') || req.url.match('/sync'))
+    if (req.connection.remoteAddress.match('::1'))
+        return next()
+
+    const tokens = req.headers.cookie.split(';')
+    console.log(req.url)
     let token = tokens.find(el => el.match('aToken'))
 
     if (!token)

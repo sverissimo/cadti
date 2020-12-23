@@ -1,3 +1,5 @@
+import { cpf } from "../Forms/commonFields"
+
 const loginForm = [
     {
         name: 'email',
@@ -15,6 +17,7 @@ const signUpForm = [
         name: 'name',
         label: 'Nome Completo'
     },
+    { ...cpf, name: 'cpf', field: 'cpf' },
     ...loginForm,
     {
         name: 'confirmPassword',
@@ -24,6 +27,10 @@ const signUpForm = [
         name: 'role',
         label: 'Perfil de usuário',
         options: [
+            {
+                optionLabel: 'Administrador',
+                optionValue: 'admin'
+            },
             {
                 optionLabel: 'Delegatário',
                 optionValue: 'empresa'

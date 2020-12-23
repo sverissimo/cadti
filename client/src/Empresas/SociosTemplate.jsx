@@ -15,7 +15,7 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import { sociosForm } from '../Forms/dadosSociosForm'
 import { empresaFiles } from '../Forms/empresaFiles';
 import TextInput from '../Reusable Components/TextInput'
-import DragAndDrop from '../Reusable Components/DragAndDrop'
+//import DragAndDrop from '../Reusable Components/DragAndDrop'
 import SaveIcon from '@material-ui/icons/Save'
 import { errorHandler, helper } from '../Utils/checkInputErrors';
 
@@ -33,11 +33,10 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
-export default function ({ socios, empresas, handleInput, handleBlur, data, addSocio, enableEdit, handleEdit, removeSocio,
-    handleFiles, removeFile, handleSubmit, setShowPendencias }) {
+export default function ({ socios, empresas, handleInput, handleBlur, data, addSocio, enableEdit, handleEdit, removeSocio, handleSubmit, setShowPendencias }) {
 
     const
-        { activeStep, stepTitles, filteredSocios, contratoSocial, selectedEmpresa, dropDisplay, fileToRemove, demand, demandFiles, showPendencias, info } = data,
+        { activeStep, stepTitles, filteredSocios, contratoSocial, selectedEmpresa, demand, showPendencias, info } = data,
         classes = useStyles(), { iconButton, list } = classes,
         contratoSocialForm = [empresaFiles[0]]
 
@@ -60,32 +59,32 @@ export default function ({ socios, empresas, handleInput, handleBlur, data, addS
                 }
                 {
                     (selectedEmpresa || !standAlone) &&
-                    <section className="flex center paper">
-                        {
-                            standAlone ?
-                                <div className="flexColumn" style={{ alignItems: 'center' }}>
-                                    <h6 style={{ fontSize: '14px' }}>Alteração do quadro Societário</h6>
-                                    <p style={{ fontSize: '12px', color: '#555' }}> Para adicionar um novo sócio, preencha os campos abaixo e clique em "Adicionar sócio".</p>
-                                </div>
-
-                                :
-                                <FormSubtiltle subtitle={stepTitles[activeStep]} />
-                        }
-
-                        <div className='flex center' style={{ padding: '10px 0', width: '100%' }}>
-                            <TextInput
-                                form={sociosForm}
-                                data={data}
-                                handleBlur={handleBlur}
-                                handleInput={handleInput}
-                            />
-                        </div>
-                        <div style={{ margin: '5px 0 7px 84.58%', width: '100%' }}>
-                            <Button color='primary' variant='outlined' size='small' onClick={addSocio}>
-                                <AddIcon /> Adicionar sócio
-                    </Button>
-                        </div>
-                    </section>
+                        standAlone ?
+                        /*  <div className="flexColumn" style={{ alignItems: 'center' }}>
+                             <h6 style={{ fontSize: '14px' }}>Alteração do quadro Societário</h6>
+                             <p style={{ fontSize: '12px', color: '#555' }}> Para adicionar um novo sócio, preencha os campos abaixo e clique em "Adicionar sócio".</p>
+                         </div> */
+                        <>
+                            <h3>Utilize as opções abaixo para editar dados dos sócios</h3>
+                            <br /><br /><br />
+                        </>
+                        : stepTitles &&
+                        <section className="flex center paper">
+                            <FormSubtiltle subtitle={stepTitles[activeStep]} />
+                            <div className='flex center' style={{ padding: '10px 0', width: '100%' }}>
+                                <TextInput
+                                    form={sociosForm}
+                                    data={data}
+                                    handleBlur={handleBlur}
+                                    handleInput={handleInput}
+                                />
+                            </div>
+                            <div style={{ margin: '5px 0 7px 84.58%', width: '100%' }}>
+                                <Button color='primary' variant='outlined' size='small' onClick={addSocio}>
+                                    <AddIcon /> Adicionar sócio
+                                        </Button>
+                            </div>
+                        </section>
                 }
             </main>
             {
@@ -99,8 +98,8 @@ export default function ({ socios, empresas, handleInput, handleBlur, data, addS
             {
                 socios?.length > 0 &&
                 <>
-                    <section className="flex center paper">
-                        <p > Sócios cadastrados</p>
+                    <section className="flexColumn center paper">
+                        <p> Sócios cadastrados</p>
                         {socios.map((s, i) =>
                             <div key={i}>
                                 {sociosForm.map((e, k) =>
@@ -110,11 +109,11 @@ export default function ({ socios, empresas, handleInput, handleBlur, data, addS
                                             name={e.field}
                                             label={e.label}
                                             className={list}
-                                            disabled={s.edit ? false : true}
                                             onChange={handleEdit}
                                             error={s.edit ? errorHandler(s[e.field], e) : null}
                                             helperText={s.edit ? helper(s[e.field], e) : null}
                                             type={e?.type}
+                                            disabled={e.field === 'share' && standAlone ? true : s.edit ? false : true}
                                             InputLabelProps={
                                                 {
                                                     shrink: true,
@@ -142,12 +141,12 @@ export default function ({ socios, empresas, handleInput, handleBlur, data, addS
                                     <EditIcon />
                                 </Button>
 
-                                <Button className={iconButton}
+                                {!standAlone && <Button className={iconButton}
                                     color={s.status === 'deleted' ? 'primary' : 'secondary'}
                                     title={s.status === 'deleted' ? 'Desfazer exclusão' : 'Remover'}
                                     onClick={() => removeSocio(i)}>
                                     {s.status === 'deleted' ? <i className='material-icons'>undo</i> : <DeleteIcon />}
-                                </Button>
+                                </Button>}
                             </div>
                         )}
                     </section>
@@ -177,19 +176,6 @@ export default function ({ socios, empresas, handleInput, handleBlur, data, addS
                             standAlone
                                 ?
                                 <section>
-                                    {!demand &&
-                                        <div className='flex center'>
-                                            <DragAndDrop
-                                                name='contratoSocial'
-                                                formData={contratoSocial}
-                                                dropDisplay={dropDisplay}
-                                                handleFiles={handleFiles}
-                                                demandFiles={demandFiles}
-                                                removeFile={removeFile}
-                                                fileToRemove={fileToRemove}
-                                                style={{ width: '40%' }}
-                                            />
-                                        </div>}
                                     <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                                         <Button
                                             size="small"

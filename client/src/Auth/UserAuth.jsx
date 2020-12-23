@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import axios from "axios";
 import UserAuthTemplate from "./UserAuthTemplate";
 import ReactToast from '../Reusable Components/ReactToast'
@@ -7,6 +7,7 @@ import { logUser } from "../Store/userActions";
 import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { setCookie } from "../Utils/documentCookies";
+import valueParser from "../Utils/valueParser";
 
 const UserAuth = (props) => {
 
@@ -16,7 +17,9 @@ const UserAuth = (props) => {
 
   const handleInput = e => {
     const { name, value } = e.target
-    setState({ ...state, [name]: value })
+    const parsedValue = valueParser(name, value)
+
+    setState({ ...state, [name]: parsedValue })
   }
 
   const login = async () => {
@@ -36,13 +39,22 @@ const UserAuth = (props) => {
     }
   }
 
+  const signUp = async () => {
+    await axios.post(endPoint, state)
+      .then(r => console.log(r))
+      .catch(err => console.log(err))
+    setState({ tab: 0, ...userAuthForms[0] })
+  }
+
   const handleSubmit = () => {
     if (tab === 0)
       login()
 
+    if (tab === 1)
+      signUp()
+
     if (toastMsg)
       toast(toastMsg)
-    //setState({ ...state, ...userAuthForms[0] })
   }
 
   const

@@ -10,11 +10,12 @@ import Authentication from './Authentication';
 
 import './Layouts/stylez.scss'
 
+export const store = applyMiddleware(promise, multi, thunk)(createStore)(rootReducer, /* preloadedState, */
+  window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__())
+
 function App() {
-  const store = applyMiddleware(promise, multi, thunk)(createStore)
   return (
-    <Provider store={store(rootReducer, /* preloadedState, */
-      window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__())}>
+    <Provider store={store}>
       <Authentication />
     </Provider>
   )

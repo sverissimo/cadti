@@ -14,9 +14,10 @@ export default function ShowDetails({ data, tab, title, header, close, empresas,
         [table, setTable] = useState(),
         [table2, setTable2] = useState(),
         [tables, setTables] = useState([]),
-        element = createFormPattern(tab, data) || [] //Element é o form com a adição do campo value, inserindo data para cada objeto(field)
-
+        element = createFormPattern(tab, data) || [], //Element é o form com a adição do campo value, inserindo data para cada objeto(field)
+        obs = element.find(el => el.field === 'obs')
     //Informações adicionais no showDetails fora dos campos padrão
+
     useEffect(() => {
         const additionalInfo = (tab) => {
             if (tab === 0) {
@@ -93,7 +94,7 @@ export default function ShowDetails({ data, tab, title, header, close, empresas,
             const
                 alteracoes = altContrato.filter(a => a.codigoEmpresa === data.codigoEmpresa),
                 altDocs = empresaDocs.filter(doc => doc?.metadata?.fieldName === 'altContratoDoc' && doc?.metadata.empresaId === data.codigoEmpresa)
-            console.log(alteracoes)
+
             let tableHeaders = [], arrayOfRows = [], row = [], rowObj = {}
 
             alteracoes.forEach(alt => {
@@ -150,7 +151,7 @@ export default function ShowDetails({ data, tab, title, header, close, empresas,
             <h4 className='equipaHeader'>{title} {data[header]}</h4> <hr />
             <main className="checkListContainer" style={{ justifyContent: 'flex-start' }}>
                 {
-                    element.map(({ field, label, value, type, width }, i) =>
+                    element.map(({ field, label, value, type, width }, i) => field !== 'obs' &&
                         <div className="showDetailsItem" style={{ width: width ? width : 150, }} key={i}>
                             <TextField
                                 name={field}
@@ -185,6 +186,20 @@ export default function ShowDetails({ data, tab, title, header, close, empresas,
                         />
                     </section>
                 )
+            }
+            {
+                tab === 3 && obs?.value &&
+                <footer className='flexColumn'>
+                    <label htmlFor="obs" className='obs__label'>Observações:</label>
+                    <textarea
+                        name="obs"
+                        id="obs"
+                        className='obs__textArea'
+                        defaultValue={obs?.value}
+                        cols="30"
+                        rows="6"
+                        disabled />
+                </footer>
             }
             <ClosePopUpButton close={close} />
         </div>

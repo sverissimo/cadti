@@ -69,8 +69,13 @@ class AltDados extends Component {
             demand = this.props?.location?.state?.demand
 
         if (demand) {
-            const demandState = setDemand(demand, redux)
-            console.log(demandState)
+            const
+                demandState = setDemand(demand, redux),
+                { originalVehicle, getUpdatedValues, alteracoes } = demandState
+
+            //altera o objeto alteracoes por referência para destacar apenas os campos alterados ao abrir a demanda
+            getUpdatedValues(originalVehicle, alteracoes)
+
             this.setState({ ...demandState, activeStep: 3 })
         }
 
@@ -338,7 +343,7 @@ class AltDados extends Component {
         if (demand && getUpdatedValues)
             tempObj = getUpdatedValues(originalVehicle, tempObj)  //Save only real changes to the request Object (method from setDemand())
 
-        let { placa, delegatario, compartilhado, ...camelizedRequest } = tempObj //remove invalid fields for update
+        let { delegatario, compartilhado, ...camelizedRequest } = tempObj //remove invalid fields for update
 
         if (newPlate && newPlate !== '')
             camelizedRequest.placa = newPlate

@@ -6,7 +6,7 @@ export const setDemand = (demand, redux) => {
         history = demand?.history,
 
         vehicle = veiculos.find(v => v.veiculoId === demand.veiculoId),
-        originalVehicle = Object.freeze(vehicle),
+        originalVehicle = JSON.parse(JSON.stringify(vehicle)),
 
         selectedEmpresa = empresas.find(e => e.razaoSocial === demand?.empresa),
         razaoSocial = selectedEmpresa?.razaoSocial,
