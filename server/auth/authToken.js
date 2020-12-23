@@ -5,7 +5,8 @@ const authToken = (req, res, next) => {
     console.log(req.url, req.connection.remoteAddress)
 
     //Uncomment those to syncDbs
-    //if (req.url.match('/sync') || req.url.match('/sync'))
+    //return next()
+    //if (req.url.match('/sync') || req.url.match('/api')) return next()
     //if (req.connection.remoteAddress.match('::1')) return next()
 
     const tokens = req.headers.cookie.split(';')

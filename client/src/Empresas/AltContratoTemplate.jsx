@@ -45,8 +45,7 @@ const AltContratoTemplate = (
                 </div>
             </header>
             {
-                //   selectedEmpresa?.cnpj &&
-                selectedEmpresa &&
+                selectedEmpresa?.cnpj &&
                 <>
                     {/*--------------------- Form / inputs -------------------------*/}
                     {

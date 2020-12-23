@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useCallback } from 'react'
 import axios from 'axios'
 
 import StoreHOC from '../Store/StoreHOC'
@@ -34,27 +34,6 @@ const Parametros = props => {
         else
             setState({ ...state, ...data, initState: data, [name]: value, tab, form, newState: undefined, modified: false })
     }, [props.redux, state])
-
-    useEffect(() => {
-        const pressKeyFnc = e => {
-            let event
-            if (e.key === 'p') {
-                event = { target: { name: 'selectedOption', value: 'Motivos para baixa do veículo' } }
-                selectOption(event)
-            }
-            if (e.key === 'o') {
-                /* event = { target: { name: 'selectedOption', value: 'Nomenclaturas' } }
-                selectOption(event) */
-                plusOne()
-            }
-            if (e.key === 'q') {
-                event = { target: { name: 'selectedOption', value: 'Idade e prazos para baixa' } }
-                selectOption(event)
-            }
-        }
-        document.addEventListener('keypress', pressKeyFnc)
-        return () => document.removeEventListener('keypress', pressKeyFnc)
-    }, [selectOption])
 
     //Nos formulários simples (que representam array de strings), adiciona mais um campo vazio
     const plusOne = () => {
@@ -147,10 +126,10 @@ const Parametros = props => {
         else
             keys.forEach(k => Object.assign(requestObj, { [k]: state[k] }))
 
-        console.log({ [parametro]: requestObj, id })
+        //console.log({ [parametro]: requestObj, id })
 
         axios.put('/api/parametros', { [parametro]: requestObj, id })
-            .then(r => console.log(r.data))
+            //.then(r => console.log(r.data))
             .catch(err => console.log(err))
         setState({ ...state, modified: false })
     }

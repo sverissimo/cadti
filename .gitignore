@@ -6,17 +6,13 @@
 .env
 sismob.code-workspace
 /.VSCodeCounter
+*[.sh, .xlsx, .txt, log]
 
 ecosystem.config.js
+
 client/debug.log
-oldVehicles.txt
 oldVehicles.json
-equipAccessQuery.txt
 oldVehiclesDB.json
-Veículos baixados - 1_11_2020.xlsx
-shit.json
-users.xlsx
-Veículos baixados - 2dez2020.xlsx
-Veículos baixados - 9dez2020.xlsx
+
 server/testAPI.rest
 mintty.exe.stackdump
