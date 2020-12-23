@@ -3,9 +3,10 @@ const jwt = require('jsonwebtoken')
 const authToken = (req, res, next) => {
 
     console.log(req.url, req.connection.remoteAddress)
+
+    //Uncomment those to syncDbs
     //if (req.url.match('/sync') || req.url.match('/sync'))
-    if (req.connection.remoteAddress.match('::1'))
-        return next()
+    //if (req.connection.remoteAddress.match('::1')) return next()
 
     const tokens = req.headers.cookie.split(';')
     console.log(req.url)
