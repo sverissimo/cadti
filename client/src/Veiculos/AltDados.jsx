@@ -65,8 +65,11 @@ class AltDados extends Component {
     async componentDidMount() {
         const
             { redux } = this.props,
-            { equipamentos, acessibilidade } = redux,
+            { equipamentos, acessibilidade, empresas, veiculos } = redux,
             demand = this.props?.location?.state?.demand
+
+        if (empresas && empresas.length === 1)
+            this.setState({ selectedEmpresa: empresas[0], razaoSocial: empresas[0]?.razaoSocial, frota: veiculos })
 
         if (demand) {
             const

@@ -36,6 +36,11 @@ class BaixaVeiculo extends Component {
 
     async componentDidMount() {
 
+        const { empresas, veiculos } = this.props.redux
+
+        if (empresas && empresas.length === 1)
+            this.setState({ selectedEmpresa: empresas[0], razaoSocial: empresas[0]?.razaoSocial, frota: veiculos })
+
         const demand = this.props?.location?.state?.demand
         if (demand) {
             const

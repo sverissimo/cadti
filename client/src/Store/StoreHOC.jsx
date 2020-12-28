@@ -87,8 +87,20 @@ export default function (requestArray, WrappedComponent) {
             const
                 request = await Axios.get('/getUser'),
                 user = request?.data
-            if (user)
+
+            if (user) {
                 this.props.logUser(user)
+                /* let
+                    { empresas } = this.props.redux,
+                    selectedEmpresa
+
+                if (!empresas) {
+                    const empresasRequest = await Axios.get('/api/empresas')
+                    empresas = empresasRequest?.data
+                }
+                if (empresas[0])
+                    selectedEmpresa = empresas[0] */
+            }
         }
 
         toast = () => this.setState({ confirmToast: !this.state.confirmToast })

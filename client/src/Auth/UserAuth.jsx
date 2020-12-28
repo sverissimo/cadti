@@ -13,11 +13,14 @@ const UserAuth = (props) => {
 
   const
     [state, setState] = useState({ tab: 0, ...userAuthForms[0] }),
-    { endPoint, toastMsg, tab } = state
+    { tab, endPoint, toastMsg, toastStatus, confirmToast } = state
+
+  const changeTab = tab => setState({ ...state, tab, ...userAuthForms[tab] })
 
   const handleInput = e => {
-    const { name, value } = e.target
-    const parsedValue = valueParser(name, value)
+    const
+      { name, value } = e.target,
+      parsedValue = valueParser(name, value)
 
     setState({ ...state, [name]: parsedValue })
   }
@@ -35,15 +38,28 @@ const UserAuth = (props) => {
       props.logUser(userFound)
     }
     catch (err) {
-      toast(err?.response?.data)
+      toast(err?.response?.data, 'error')
     }
   }
 
   const signUp = async () => {
-    await axios.post(endPoint, state)
+    const { form, endPoint, confirmToast, toastMsg, ...request } = state
+    let
+      error,
+      tab = 1
+
+    await axios.post(endPoint, request)
       .then(r => console.log(r))
-      .catch(err => console.log(err))
-    setState({ tab: 0, ...userAuthForms[0] })
+      .catch(err => {
+        toast(err?.response?.data, 'error')
+        error = true
+      })
+
+    if (!error) {
+      tab = 0
+      toast('Usuário cadastrado.')
+      setTimeout(() => setState({ tab, ...userAuthForms[tab] }), 1250)
+    }
   }
 
   const handleSubmit = () => {
@@ -52,14 +68,10 @@ const UserAuth = (props) => {
 
     if (tab === 1)
       signUp()
-
-    if (toastMsg)
-      toast(toastMsg)
   }
 
-  const
-    toast = toastMsg => setState({ ...state, confirmToast: !state.confirmToast, toastMsg }),
-    { confirmToast } = state
+  const toast = (toastMsg, toastStatus) => setState({ ...state, confirmToast: !state.confirmToast, toastMsg, toastStatus })
+
 
   return (
     <>
@@ -67,8 +79,9 @@ const UserAuth = (props) => {
         data={state}
         handleInput={handleInput}
         handleSubmit={handleSubmit}
+        changeTab={changeTab}
       />
-      <ReactToast open={confirmToast} close={toast} msg={toastMsg} status={tab === 0 ? 'error' : 'success'} />
+      <ReactToast open={confirmToast} close={toast} msg={toastMsg} status={toastStatus} />
     </>
   )
 }

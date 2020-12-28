@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react'
+import { connect } from 'react-redux'
 import AutoComplete from '../Utils/autoComplete'
+
 import './commonStyles.css'
 
-export default function SelectEmpresa(props) {
+function SelectEmpresa(props) {
 
     const
         [enableSelect, setEnabled] = useState(true),
-        { empresas, handleInput, handleBlur, shared, headerTitle } = props,
+        { user, empresas, handleInput, handleBlur, shared, headerTitle } = props,
         { razaoSocial, delegatarioCompartilhado, activeStep, demand } = props.data,
         list = 'razaoSocial'
 
@@ -17,7 +19,8 @@ export default function SelectEmpresa(props) {
 
     //Render field or title conditionally
     useEffect(() => {
-        if (demand || activeStep > 0)
+        //|| user?.empresas.length === 1
+        if (demand || activeStep > 0 || empresas.length === 1)
             setEnabled(false)
         else if (activeStep === 0)
             setEnabled(true)
@@ -30,7 +33,6 @@ export default function SelectEmpresa(props) {
     }, [demand, activeStep, enableSelect])
 
     if (enableSelect) {
-
 
         return (
             <div className={props.hasOwnProperty('shared') ? 'flex center' : 'paper flex center'} style={{ width: '100%', marginBottom: 0 }}>
@@ -59,7 +61,13 @@ export default function SelectEmpresa(props) {
     }
     else return (
         <>
-            <span className='selectedEmpresa'> {headerTitle || demand?.empresa || ''} </span>
+            <span className='selectedEmpresa'> {headerTitle || demand?.empresa || razaoSocial || ''} </span>
         </>
     )
 }
+
+function mapStateToProps(state) {
+    return { user: state.user, redux: state.data }
+}
+
+export default connect(mapStateToProps)(SelectEmpresa)

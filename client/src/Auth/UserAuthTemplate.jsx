@@ -4,8 +4,8 @@ import './userAuth.scss'
 import CustomButton from '../Reusable Components/CustomButton';
 import MenuItem from '@material-ui/core/MenuItem';
 
-const UserAuthTemplate = ({ data, handleInput, handleSubmit }) => {
-    const { title, form, buttonLabel } = data
+const UserAuthTemplate = ({ data, changeTab, handleInput, handleSubmit }) => {
+    const { title, form, buttonLabel, tab } = data
 
     useEffect(() => {
         setTimeout(() => {
@@ -52,6 +52,10 @@ const UserAuthTemplate = ({ data, handleInput, handleSubmit }) => {
             <div className='login__form paper'>
                 <header>
                     <h4 className="header2 login__subtitle">{title}</h4>
+                    {tab === 2 &&
+                        <h5 className='login__subtitle--forgotPassword'>
+                            Insira o e-mail cadastrado para recuperar a senha.
+                        </h5>}
                 </header>
                 <section className='flexColumn center'>
                     {form.map(({ name, label, options, type = 'text', ...el }, i) => (
@@ -82,10 +86,15 @@ const UserAuthTemplate = ({ data, handleInput, handleSubmit }) => {
                     <CustomButton label={buttonLabel} onClick={handleSubmit} />
                 </section>
                 <footer className="login__footer">
-                    <p>
-                        Ainda não é cadastrado?
-                       </p>
-                    <p>Esqueceu sua senha?</p>
+                    <p onClick={() => tab === 0 ? changeTab(1) : changeTab(0)}>
+                        {tab === 0 ? 'Ainda não é cadastrado?' : 'Voltar para a tela de login'}
+                    </p>
+                    {
+                        tab === 0 &&
+                        <p onClick={() => changeTab(2)}>
+                            Esqueceu sua senha?
+                        </p>
+                    }
                 </footer>
             </div>
         </div>

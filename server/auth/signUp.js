@@ -7,12 +7,12 @@ const signUp = async (req, res) => {
 
     const
         { password, confirmPassword, ...user } = req.body,
-        result = await UserModel.find({ email: user.email }),
+        result = await UserModel.find({ $or: [{ 'email': user.email }, { 'cpf': user.cpf }] }),
         userExists = result[0]
 
     //Verifica se o usuário já existe
     if (userExists)
-        return res.status(422).send('Usuário já existente.')
+        return res.status(422).send('Usuário já cadastrado.')
 
     //Cria o hash da password
     const

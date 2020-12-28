@@ -35,6 +35,9 @@
     &__subtitle {
         text-align: center;
         font-weight: 500;
+        &--forgotPassword {
+            font-size: 0.75rem;
+        }
     }
     &__text {
         &--error {

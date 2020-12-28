@@ -45,7 +45,11 @@ class Seguro extends Component {
     async componentDidMount() {
         const
             { redux } = this.props,
-            demand = this.props?.location?.state?.demand
+            demand = this.props?.location?.state?.demand,
+            { empresas, veiculos } = redux
+
+        if (empresas && empresas.length === 1)
+            this.setState({ selectedEmpresa: empresas[0], razaoSocial: empresas[0]?.razaoSocial, frota: veiculos })
 
         if (demand) {
             const
@@ -122,7 +126,6 @@ class Seguro extends Component {
     //Marca as placas que possuem compartilhamento por outra empresa. Acionado ao se informar a apólice (caso já exista)   
     renderPlacas = placas => {
         const { allVehicles, insurance, ownedPlacas } = this.state
-        //console.log("allVehicles", allVehicles)
 
         if (insurance) {
             //Se passar as placas como argumento se trata do filtro do searchBar. Senão é a renderização depois de preencher a apólice
@@ -182,6 +185,7 @@ class Seguro extends Component {
                 break
 
             case 'apolice':
+                if (!allVehicles) this.filterInsurances()
                 await this.checkExistance(value)
                 this.renderPlacas()
                 break

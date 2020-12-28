@@ -1,3 +1,4 @@
+//O campo codigo_empresa significa que essa entidade possui o codigo_empresa como FK no banco de dados
 const fieldParser = [
 
     {
@@ -5,42 +6,48 @@ const fieldParser = [
         label: 'Veículos',
         name: 'veiculoId',
         column: 'veiculo_id',
-        table: 'veiculos'
+        table: 'veiculos',
+        codigo_empresa: true
     },
     {
         collection: 'seguros',
         label: 'Seguros',
         name: 'apolice',
         column: 'apolice',
-        table: 'seguros'
+        table: 'seguros',
+        codigo_empresa: true
     },
     {
         collection: 'empresas',
         label: 'Empresas',
         name: 'codigoEmpresa',
         column: 'codigo_empresa',
-        table: 'empresas'
+        table: 'empresas',
+        codigo_empresa: true
     },
     {
         collection: 'socios',
         label: 'Sócios',
         name: 'socioId',
         column: 'socio_id',
-        table: 'socios'
+        table: 'socios',
+        codigo_empresa: true
     },
     {
         collection: 'procuradores',
         label: 'Procuradores',
         name: 'procuradorId',
         column: 'procurador_id',
-        table: 'procuradores'
+        table: 'procuradores',
+        //codigo_empresa: true
     },
     {
         collection: 'procuracoes',
         label: 'Procurações',
         name: 'procuracaoId',
         column: 'procuracao_id',
-        table: 'procuracoes'
+        table: 'procuracoes',
+        codigo_empresa: true
     },
     {
         collection: 'equipamentos',

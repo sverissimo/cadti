@@ -21,7 +21,8 @@ const signUpForm = [
     ...loginForm,
     {
         name: 'confirmPassword',
-        label: 'Confirme sua senha'
+        label: 'Confirme sua senha',
+        type: 'password'
     },
     {
         name: 'role',
@@ -43,10 +44,17 @@ const signUpForm = [
     }
 ]
 
+const forgotPassForm = [
+    {
+        name: 'email',
+        label: 'E-mail'
+    },
+]
+
 const userAuthForms = [
     { title: 'Fazer login', form: loginForm, buttonLabel: 'entrar', endPoint: '/auth/login' },
     { title: 'Cadastro de Usuário', form: signUpForm, buttonLabel: 'Cadastrar', endPoint: '/auth/signUp', toastMsg: 'Usuário cadastrado.' },
-    { title: 'Recuperação de senha', form: signUpForm, buttonLabel: 'Recuperar senha', endPoint: '/auth/forgotPassword', toastMsg: 'Senha enviada para o e-mail registrado.' }
+    { title: 'Recuperação de senha', form: forgotPassForm, buttonLabel: 'Recuperar senha', endPoint: '/auth/forgotPassword', toastMsg: 'Senha enviada para o e-mail registrado.' }
 ]
 
 export default userAuthForms

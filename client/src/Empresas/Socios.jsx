@@ -36,10 +36,17 @@ class AltSocios extends Component {
     componentDidMount() {
         const
             { redux } = this.props,
+            { empresas } = redux,
             demand = this.props?.location?.state?.demand,
             originals = humps.decamelizeKeys(redux.socios),
-            socios = JSON.parse(JSON.stringify(redux.socios)),
-            filteredSocios = socios.filter(s => s.razaoSocial === this.state.razaoSocial)
+            socios = JSON.parse(JSON.stringify(redux.socios))
+
+        let filteredSocios = socios.filter(s => s.razaoSocial === this.state.razaoSocial)
+
+        if (empresas && empresas.length === 1) {
+            filteredSocios = this.props.redux.socios
+            this.setState({ selectedEmpresa: empresas[0], razaoSocial: empresas[0]?.razaoSocial, filteredSocios })
+        }
 
         if (demand) {
 
