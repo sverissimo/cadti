@@ -15,7 +15,9 @@ import { laudosTable } from '../Forms/laudosTable'
 import { logGenerator } from '../Utils/logGenerator'
 import { setDemand } from '../Utils/setDemand'
 import { sizeExceedsLimit } from '../Utils/handleFiles'
-let i = 1
+
+let i = 1 //prevent more than 1 re-render in specific functions/conditions
+
 const Laudos = props => {
     const
         { veiculos, empresas, empresasLaudo, laudos, vehicleDocs } = props.redux,
@@ -58,6 +60,7 @@ const Laudos = props => {
             element: undefined,
         })
 
+    //Se o usuário representa apenas uma empresa, seleciona a empresa e carrega os dados
     if (empresas && empresas.length === 1 && i === 1) {
         i++
         setEmpresa(empresas[0])
@@ -71,6 +74,7 @@ const Laudos = props => {
         //, frota: veiculos
     }, [])
 
+    //Se tiver demanda/solicitação, carregar os dados
     if (demand && i === 1) {
         i++
         const
@@ -94,49 +98,47 @@ const Laudos = props => {
 
     }
 
-    const insertLaudos = useCallback(async () => {
-
-        if (selectedEmpresa && selectedEmpresa !== '') {
-            // Estabelece quais são os veículos 15+anos (oldVehicles)
-            const
-                currentYear = new Date().getFullYear(),
-                frota = veiculos.filter(v => v.empresa === selectedEmpresa.razaoSocial),
-                oldVehicles = frota.filter(v => currentYear - v.anoCarroceria > 14 && v.anoCarroceria !== null).sort((a, b) => a.placa.localeCompare(b.placa))
-
-            let vehiclesLaudo = [], laudosTemp = []
-            oldVehicles.forEach(v => {                  //Acrescenta os laudos atualizados para cada veículo 15+anos (oldVehicles)
-                laudos.forEach(l => {
-                    if (v.veiculoId === l.veiculoId) {
-                        laudosTemp.push(l)
-                    }
-                })
-                laudosTemp.sort((a, b) => {
-                    const dateA = new Date(a.validade)
-                    const dateB = new Date(b.validade)
-                    return dateB - dateA
-                })
-                vehiclesLaudo.push({ ...v, laudos: laudosTemp })
-                laudosTemp = []
-            })
-
-            await setOldVehicles(vehiclesLaudo)
-            await setFilteredVehicles(vehiclesLaudo)
-
-            if (selectedVehicle && vehiclesLaudo?.length > 0) {
-                const updatedVehicle = vehiclesLaudo.find(v => v.veiculoId === selectedVehicle.veiculoId)
-                if (updatedVehicle?.laudos?.length !== selectedVehicle?.laudos?.length) {
-                    await selectVehicle(updatedVehicle)
-                } else return
-            }
-        } else {
-            setOldVehicles()
-            setFilteredVehicles([])
-            setEmpresa()
-        }
-    })
-
     useEffect(() => {
+        const insertLaudos = async () => {
 
+            if (selectedEmpresa && selectedEmpresa !== '') {
+                // Estabelece quais são os veículos 15+anos (oldVehicles)
+                const
+                    currentYear = new Date().getFullYear(),
+                    frota = veiculos.filter(v => v.empresa === selectedEmpresa.razaoSocial),
+                    oldVehicles = frota.filter(v => currentYear - v.anoCarroceria > 14 && v.anoCarroceria !== null).sort((a, b) => a.placa.localeCompare(b.placa))
+
+                let vehiclesLaudo = [], laudosTemp = []
+                oldVehicles.forEach(v => {                  //Acrescenta os laudos atualizados para cada veículo 15+anos (oldVehicles)
+                    laudos.forEach(l => {
+                        if (v.veiculoId === l.veiculoId) {
+                            laudosTemp.push(l)
+                        }
+                    })
+                    laudosTemp.sort((a, b) => {
+                        const dateA = new Date(a.validade)
+                        const dateB = new Date(b.validade)
+                        return dateB - dateA
+                    })
+                    vehiclesLaudo.push({ ...v, laudos: laudosTemp })
+                    laudosTemp = []
+                })
+
+                await setOldVehicles(vehiclesLaudo)
+                await setFilteredVehicles(vehiclesLaudo)
+
+                if (selectedVehicle && vehiclesLaudo?.length > 0) {
+                    const updatedVehicle = vehiclesLaudo.find(v => v.veiculoId === selectedVehicle.veiculoId)
+                    if (updatedVehicle?.laudos?.length !== selectedVehicle?.laudos?.length) {
+                        await selectVehicle(updatedVehicle)
+                    } else return
+                }
+            } else {
+                setOldVehicles()
+                setFilteredVehicles([])
+                setEmpresa()
+            }
+        }
 
         insertLaudos()
     }, [selectedEmpresa, veiculos, laudos, selectedVehicle])

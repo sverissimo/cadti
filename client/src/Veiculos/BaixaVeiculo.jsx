@@ -123,7 +123,7 @@ class BaixaVeiculo extends Component {
                         customMessage = `Já existe uma demanda aberta para o veículo de placa ${vehicle.placa}. Para acessá-la, clique em "Solicitações" no menu superior.`
 
                     const demandExists = checkDemand(vehicle?.veiculoId, logs)
-                    console.log(vehicle)
+
                     if (demandExists) {
                         this.setState({ customTitle, customMessage, openAlertDialog: true, delegatario: '', placa: undefined })
                         return

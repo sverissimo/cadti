@@ -46,7 +46,8 @@ const
     getFormatedDate = require('./getDate'),
     authRouter = require('./auth/authRouter'),
     authToken = require('./auth/authToken'),
-    getUser = require('./auth/getUser')
+    getUser = require('./auth/getUser'),
+    UserModel = require('./mongo/models/userModel')
 
 dailyTasks.start()
 dotenv.config()
@@ -210,6 +211,18 @@ app.post('/api/altContrato', (req, res) => {
 
 app.set('io', io)
 app.use('/api/parametros', parametros)
+
+
+//************************************USUÁRIOS DO SISTEMA *********************** */
+
+app.get('/api/users', async (req, res) => {
+    if (req.user && req.user.role === 'admin') {
+        const users = await UserModel.find().select('-password -__v')
+        res.send(users)
+    }
+    else
+        res.status(403).send('O usuário não possui acesso para esta parte do CadTI.')
+})
 
 //************************************ GET METHOD ROUTES *********************** */
 

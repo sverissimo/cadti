@@ -49,7 +49,17 @@ class Procuradores extends Component {
     async componentDidMount() {
         const
             { redux } = this.props,
-            demand = this.props?.location?.state?.demand
+            { empresas } = redux,
+            demand = this.props?.location?.state?.demand,
+            procuracoes = JSON.parse(JSON.stringify(this.props.redux.procuracoes))
+
+        //Se o usuário representa apenas uma empresa, seleciona a empresa e carrega os dados
+        if (empresas && empresas.length === 1) {
+            const
+                selectedEmpresa = empresas[0],
+                selectedDocs = procuracoes.filter(pr => pr.codigoEmpresa === selectedEmpresa.codigoEmpresa)
+            this.setState({ selectedEmpresa, razaoSocial: selectedEmpresa?.razaoSocial, selectedDocs })
+        }
 
         //*************Set demand if any
         if (demand) {

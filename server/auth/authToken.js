@@ -10,7 +10,7 @@ const authToken = (req, res, next) => {
     //if (req.connection.remoteAddress.match('::1')) return next()
 
     const tokens = req.headers.cookie.split(';')
-    console.log(req.url)
+
     let token = tokens.find(el => el.match('aToken'))
 
     if (!token)

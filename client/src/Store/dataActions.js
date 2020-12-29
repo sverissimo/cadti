@@ -27,6 +27,12 @@ export const getData = (collectionsArray = []) => {
                         Object.assign(globalState, { [key]: el })
                     })
                 })
+                .catch(err => {
+                    //if (err.response.status === 401 || err.response.status === 403) {
+                    //console.log(err?.response, err?.response?.data)
+                    console.log(err?.response?.data)
+                    globalState = { ...globalState, sessionExpired: true }
+                })
         }
         //Pega os nomes dos equipamentos e itens de acessibilidade a partir do ID
         if (['acessibilidade', 'equipamentos'].every(p => globalState.hasOwnProperty(p))) {

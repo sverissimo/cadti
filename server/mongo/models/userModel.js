@@ -30,7 +30,8 @@ const userSchema = new mongoose.Schema({
         default: false
     },
     empresas: { type: [] }
-})
+},
+    { timestamps: true })
 
 const UserModel = mongoose.model('users', userSchema, 'users')
 

@@ -9,7 +9,7 @@ router.get('/', async (req, res) => {
 
     //Se não tiver nada no MongoDB, populate com valores padrão dos respectivos mongooseSchemas na pasta models/parametros
     if (!data[0]) {
-        console.log('needed to populate')
+        console.log('needed to populate mongoDB with standard "Parâmetros"...')
         const initiateDB = new parametrosModel({})
         initiateDB.save((err, doc) => {
             if (err) console.log(err)
@@ -18,7 +18,6 @@ router.get('/', async (req, res) => {
         })
     }
     else {
-        console.log('NOOO needed to populate!@!!!!!!!!!!!')
         res.send(data)
     }
 })
@@ -27,6 +26,7 @@ router.put('/', async (req, res) => {
 
     const
         update = req.body,
+        user = req.user,
         query = {},
         options = {
             new: true,
@@ -34,7 +34,10 @@ router.put('/', async (req, res) => {
             omitUndefined: true
         },
         io = req.app.get('io')
-    console.log(io)
+
+    if (user.role !== 'admin') //Restringe alteração de parâmetros ao admin
+        return res.status(403).send('O usuário logado não possui permissão para alterar os parâmetros do sistema.')
+
     let
         socketEvent = 'insertElements',
         socketProp = 'insertedObjects',
@@ -58,7 +61,7 @@ router.put('/', async (req, res) => {
         if (err) console.log(err)
         doc.id = doc._id
         delete doc._id
-        console.log("doc", doc)
+        //console.log("doc", doc)
         if (!preventSocket) {
             console.log("shouldnt have preventsocekt", preventSocket)
             io.sockets.emit(socketEvent, { [socketProp]: [doc], collection: 'parametros', primaryKey: 'id' })

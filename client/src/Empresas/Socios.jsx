@@ -43,6 +43,7 @@ class AltSocios extends Component {
 
         let filteredSocios = socios.filter(s => s.razaoSocial === this.state.razaoSocial)
 
+        //Se o usuário representa apenas uma empresa, seleciona a empresa e carrega os dados
         if (empresas && empresas.length === 1) {
             filteredSocios = this.props.redux.socios
             this.setState({ selectedEmpresa: empresas[0], razaoSocial: empresas[0]?.razaoSocial, filteredSocios })

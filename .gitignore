@@ -6,11 +6,13 @@
 .env
 sismob.code-workspace
 /.VSCodeCounter
-*[.sh, .xlsx, .txt, log]
+*.xlsx
+*.txt
+*.log
 
 ecosystem.config.js
 
-client/debug.log
+/client/debug.log
 oldVehicles.json
 oldVehiclesDB.json
 

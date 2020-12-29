@@ -8,7 +8,7 @@ function SelectEmpresa(props) {
 
     const
         [enableSelect, setEnabled] = useState(true),
-        { user, empresas, handleInput, handleBlur, shared, headerTitle } = props,
+        { empresas, handleInput, handleBlur, shared, headerTitle } = props,
         { razaoSocial, delegatarioCompartilhado, activeStep, demand } = props.data,
         list = 'razaoSocial'
 
@@ -30,7 +30,7 @@ function SelectEmpresa(props) {
         if (enableSelect && selectInput[0])
             selectInput[0].focus()
 
-    }, [demand, activeStep, enableSelect])
+    }, [demand, activeStep, enableSelect, empresas])
 
     if (enableSelect) {
 

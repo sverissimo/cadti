@@ -35,9 +35,13 @@ const sections = [
     { title: 'Veículos', link: '/veiculos' },
     { title: 'Empresas', link: '/empresas' },
     { title: 'Relatórios', link: '/relatorios' },
-    { title: 'Solicitações ', link: '/solicitacoes' },
-    //{ title: 'Fale Conosco', link: '/faleConosco' },
-];
+    { title: 'Solicitações ', link: '/solicitacoes' }
+]
+
+const adminSections = [
+    { title: 'Alterar parâmetros do sistema', link: '/parametros', icon: 'settings' },
+    { title: 'Gestão de usuários', link: '/users', icon: 'group' },
+]
 
 const StyledBadge = withStyles((theme) => ({
     badge: {
@@ -53,6 +57,7 @@ const Header = props => {
         logs = props?.logs,
         { parametros } = props,
         { pathname } = props.location,
+        { user } = props,
         demand = localStorage.getItem('demand'),
         classes = useStyles(),
         { toolbarTitle, toolbarSecondary, toolbarLink } = classes
@@ -107,7 +112,7 @@ const Header = props => {
         nomeSecretaria = nomes.secretaria
         siglaSecretaria = nomes.siglaSecretaria
     }
-    
+
     const logout = async () => props.logUserOut()
 
     return (
@@ -164,18 +169,21 @@ const Header = props => {
                         }
                     </Link>
                 ))}
-                <Link
-                    component={RouterLink}
-                    to='/parametros'
-                >
-                    <span
-                        className="material-icons"
-                        style={{ color: 'white', cursor: 'pointer' }}
-                        title='Alterar parâmetros do sistema'
-                    >
-                        settings
-                    </span>
-                </Link>
+                {
+                    user.role === 'admin' &&
+                    adminSections.map(({ title, link, icon }, i) =>
+                        <Link component={RouterLink} to={link} key={i}>
+                            <span
+                                className="material-icons adminLink"
+                                style={{ color: 'white', cursor: 'pointer' }}
+                                title={title}
+                            >
+                                {icon}
+                            </span>
+                        </Link>
+                    )
+
+                }
             </Toolbar>
         </React.Fragment >
     )
@@ -184,7 +192,8 @@ const Header = props => {
 function mapStateToProps(state) {
     return {
         logs: state.data?.logs,
-        parametros: state.data?.parametros
+        parametros: state.data?.parametros,
+        user: state.user
     }
 }
 

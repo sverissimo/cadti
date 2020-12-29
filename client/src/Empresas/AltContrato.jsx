@@ -37,8 +37,12 @@ const AltContrato = props => {
             //filteredSocios: [socios[0], socios[1]],
         })
 
-    //ComponentDidMount para carregar demand, se houver
+    //ComponentDidMount para carregar demand, se houver e selecionar a empresa dependendo do usuário
     useEffect(() => {
+        if (empresas && empresas.length === 1)
+            setState({ ...state, ...empresas[0], selectedEmpresa: empresas[0], filteredSocios: socios })
+
+
         const demand = props?.location?.state?.demand
 
         if (demand && demand.history[0]) {

@@ -88,19 +88,8 @@ export default function (requestArray, WrappedComponent) {
                 request = await Axios.get('/getUser'),
                 user = request?.data
 
-            if (user) {
+            if (user)
                 this.props.logUser(user)
-                /* let
-                    { empresas } = this.props.redux,
-                    selectedEmpresa
-
-                if (!empresas) {
-                    const empresasRequest = await Axios.get('/api/empresas')
-                    empresas = empresasRequest?.data
-                }
-                if (empresas[0])
-                    selectedEmpresa = empresas[0] */
-            }
         }
 
         toast = () => this.setState({ confirmToast: !this.state.confirmToast })
@@ -108,7 +97,8 @@ export default function (requestArray, WrappedComponent) {
         render() {
             //Todo novo render verifica o localCookie. Se tiver expirado, faz o logout do usuário.
             const validSession = getCookie('loggedIn').length > 0;
-            if (!validSession) {
+
+            if (!validSession || this.props.redux.sessionExpired) {
                 setTimeout(() => {
                     this.props.logUserOut()
                 }, 1200)
