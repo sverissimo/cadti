@@ -19,7 +19,12 @@ export default function (requestArray, WrappedComponent) {
 
     let collections = []
 
-    if (!requestArray.includes('logs')) requestArray.push('logs')
+    //Qualquer que seja o componente, essas duas coleções do Mongo devem estar presentes
+    const requiredCollections = ['logs', 'parametros']
+    requiredCollections.forEach(c => {
+        if (!requestArray.includes(c))
+            requestArray.push(c)
+    })
     collections = requestArray.map(req => req.replace('getFiles/', '').replace('lookUpTable/', ''))
 
     class With extends React.Component {

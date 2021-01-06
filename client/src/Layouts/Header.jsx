@@ -66,6 +66,7 @@ const Header = props => {
         [path, setSelected] = useState(document.location.pathname),
         [logCounter, setLogCounter] = useState()
 
+    //Atualiza o menu superior, destacando a aba selecionada e atualizando o número de solicitações em aberto
     useEffect(() => {
         if (logs && Array.isArray(logs)) {
             const count = logs
@@ -120,7 +121,11 @@ const Header = props => {
             <CssBaseline />
 
             <Toolbar>
-                <Button size="small">Criar usuário</Button>
+                {/* {user.role === 'admin' ?
+                    <Button size="small">Criar usuário</Button>
+                    :
+                    <></>
+                } */}
                 <Typography
                     component="h2"
                     variant="h6"
@@ -170,7 +175,7 @@ const Header = props => {
                     </Link>
                 ))}
                 {
-                    user.role === 'admin' &&
+                    user.role === 'admin' &&                     //Apenas usuários admin podem visualizar essas opções
                     adminSections.map(({ title, link, icon }, i) =>
                         <Link component={RouterLink} to={link} key={i}>
                             <span

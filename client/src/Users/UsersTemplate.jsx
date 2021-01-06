@@ -3,10 +3,11 @@ import MaterialTable from 'material-table';
 import userTable from './userTable';
 import exportToXlsx from '../Consultas/exportToXlsx';
 
-export default function ({ collection, showDetails, del, setData }) {
+export default function ({ collection, showDetails, addUser, editUser, deleteUser }) {
 
     if (!Array.isArray(collection)) collection = []
-    collection = collection.map(obj => ({ ...obj }))
+    //collection = collection.map(obj => ({ ...obj }))
+    collection = Array.from(collection).sort((a, b) => a.name.localeCompare(b.name))
 
     return (
         <div style={{ margin: '10px 0' }} className='noPrint'>
@@ -38,6 +39,7 @@ export default function ({ collection, showDetails, del, setData }) {
                         emptyDataSourceMessage: 'Registro não encontrado.',
                         editRow: { deleteText: 'Tem certeza que deseja apagar esse registro ?' },
                         deleteTooltip: 'Apagar',
+                        addTooltip: 'Adicionar novo usuário',
                         filterRow: { filterTooltip: 'Filtrar' }
                     },
                     toolbar: {
@@ -45,34 +47,31 @@ export default function ({ collection, showDetails, del, setData }) {
                         searchPlaceholder: 'Procurar',
                         exportName: 'Salvar como arquivo do excel',
                         exportAriaLabel: 'Exportar',
-                        exportTitle: 'Exportar'
+                        exportTitle: 'Exportar para xlsx',
                     },
                     pagination: {
-
                         labelRowsSelect: 'Resultados por página',
                         labelDisplayedRows: ' {from}-{to} a {count}',
                         firstTooltip: 'Primeira página',
                         previousTooltip: 'Página anterior',
                         nextTooltip: 'Próxima Página',
                         lastTooltip: 'Última Página',
-
                     }
                 }}
-                actions={[
+                /* actions={[
                     {
-                        icon: 'info',
-                        iconProps: { color: 'primary' },
-                        tooltip: 'Mais informações',
-                        onClick: (event, rowData) => showDetails(event, rowData)
+                        icon: 'delete',
+                        onClick: (event, rowData) => {
+                            deleteUser(event, rowData)
+                        }
                     }
-                ]}
+                ]} */
                 editable={{
                     onRowAdd: newData =>
                         new Promise((resolve, reject) => {
                             setTimeout(() => {
-                                setData([...collection, newData]);
-
-                                resolve();
+                                addUser(newData)
+                                resolve()
                             }, 1000)
                         }),
                     onRowUpdate: (newData, oldData) =>
@@ -81,13 +80,19 @@ export default function ({ collection, showDetails, del, setData }) {
                                 const dataUpdate = [...collection];
                                 const index = oldData.tableData.id;
                                 dataUpdate[index] = newData;
-                                setData([...dataUpdate]);
-
+                                editUser(newData);
                                 resolve();
-                            }, 1000)
+                            }, 500)
                         }),
                     //isEditable: rowData => rowData.name === 'role', // only name(a) rows would be editable
-                    onRowDelete: async oldData => await del(oldData)
+                    onRowDelete: oldData =>
+                        new Promise((resolve, reject) => {
+                            setTimeout(() => {
+                                deleteUser(oldData)
+
+                                resolve();
+                            }, 1000);
+                        })
                 }}
             />
         </div>

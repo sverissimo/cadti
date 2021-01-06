@@ -18,7 +18,7 @@ const useStyles1 = makeStyles(theme => ({
     },
     warning: {
         backgroundColor: amber[700],
-    },    
+    },
     message: {
         display: 'flex',
         alignItems: 'center'
@@ -28,7 +28,7 @@ const useStyles1 = makeStyles(theme => ({
 function MySnackbarContentWrapper(props) {
     const classes = useStyles1();
     const { className, message, onClose, variant, ...other } = props;
-    
+
     return (
         <SnackbarContent
             className={clsx(classes[variant], className)}
@@ -36,7 +36,11 @@ function MySnackbarContentWrapper(props) {
             message={
                 message &&
                 <span id="client-snackbar" className={classes.message}>
-                    <Icon>{props.variant === 'error' ? 'close' : 'check'}</Icon>    {message}
+                    <Icon>{props.variant === 'error' ?
+                        'close' :
+                        props.variant === 'warning' ?
+                            'error_outlined' :
+                            'check'}</Icon>    {message}
                 </span>
             }
             {...other}

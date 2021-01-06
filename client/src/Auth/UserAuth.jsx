@@ -9,11 +9,12 @@ import { bindActionCreators } from 'redux'
 import { setCookie } from "../Utils/documentCookies";
 import valueParser from "../Utils/valueParser";
 
-const UserAuth = (props) => {
+const UserAuth = props => {
 
   const
     [state, setState] = useState({ tab: 0, ...userAuthForms[0] }),
-    { tab, endPoint, toastMsg, toastStatus, confirmToast } = state
+    { tab, endPoint, toastMsg, toastStatus, confirmToast } = state,
+    importedTab = props?.tab
 
   const changeTab = tab => setState({ ...state, tab, ...userAuthForms[tab] })
 

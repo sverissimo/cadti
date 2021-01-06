@@ -81,7 +81,7 @@ const dataReducer = (state = {}, action) => {
 
                 if (!id) return
 
-                if (!collection.match('Docs')) id = Number(id)
+                if (!collection.match('Docs') && collection !== 'users') id = Number(id)
                 if (collection === 'laudos')
                     id = id.toString()
 
