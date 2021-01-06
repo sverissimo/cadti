@@ -40,6 +40,7 @@ export default function ({ collection, showDetails, addUser, editUser, deleteUse
                         editRow: { deleteText: 'Tem certeza que deseja apagar esse registro ?' },
                         deleteTooltip: 'Apagar',
                         addTooltip: 'Adicionar novo usuário',
+                        editTooltip: 'Editar',
                         filterRow: { filterTooltip: 'Filtrar' }
                     },
                     toolbar: {

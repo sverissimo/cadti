@@ -15,6 +15,7 @@ const
     Grid = require('gridfs-stream')
 Grid.mongo = mongoose.mongo
 
+
 //Componentes do sistema
 const
     counter = require('./config/counter'),
@@ -47,8 +48,9 @@ const
     authRouter = require('./auth/authRouter'),
     authToken = require('./auth/authToken'),
     getUser = require('./auth/getUser'),
-    UserModel = require('./mongo/models/userModel'),
-    users = require('./users/users')
+    users = require('./users/users'),
+    getUsers = require('./users/getUsers'),
+    checkPermissions = require('./auth/checkPermissions')
 
 dailyTasks.start()
 dotenv.config()
@@ -215,14 +217,7 @@ app.use('/api/parametros', parametros)
 
 //************************************USUÁRIOS DO SISTEMA *********************** */
 
-app.get('/api/users', async (req, res) => {
-    if (req.user && req.user.role === 'admin') {
-        const users = await UserModel.find().select('-password -__v')
-        res.send(users)
-    }
-    else
-        res.status(403).send('O usuário não possui acesso para esta parte do CadTI.')
-})
+app.get('/api/users', checkPermissions, getUsers)
 app.use('/users', users)
 
 //************************************ GET METHOD ROUTES *********************** */

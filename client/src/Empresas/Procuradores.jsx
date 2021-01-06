@@ -272,12 +272,14 @@ class Procuradores extends Component {
 
         //******************Post newMembers  *****************/
         if (newMembers.length > 0) {
+            newMembers.forEach(m => m.empresas = `{${codigoEmpresa}}`)  //Adiciona o código da empresa do procurador
             newMembers = humps.decamelizeKeys(newMembers)
             const cadRequest = {
                 table: 'procuradores', tablePK: 'procurador_id',
                 procuradores: newMembers,
                 empresas: [codigoEmpresa]
             }
+
             await axios.post('/api/cadProcuradores', cadRequest)
                 .then(procs => {
                     procs.data.forEach(p => procIdArray.push(p.procurador_id))
@@ -292,9 +294,20 @@ class Procuradores extends Component {
             keys: procuradorForm.map(p => humps.decamelize(p.field))
         }
 
-        if (oldMembers && oldMembers[0])
+        if (oldMembers && oldMembers[0]) {
+            oldMembers.forEach(m => {
+                let { empresas } = m
+                //Inclui a empresa no array de empresas do procurador caso ainda não esteja lá
+                if (empresas && empresas[0]) {
+                    if (!empresas.includes(codigoEmpresa))
+                        empresas.push(codigoEmpresa)
+                    empresas = `{${empresas.toString()}}`  //Adiciona o código da empresa do procurador
+                }
+            })
+
             axios.put('/api/editProc', { ...request })
                 .then(r => console.log(r))
+        }
 
         //***************Create new Procuracao****************/
         let novaProcuracao = {

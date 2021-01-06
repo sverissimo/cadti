@@ -10,6 +10,7 @@ const apiGetRouter = (req, res) => {
     let
         table = req.url.replace('/api/', ''),
         condition
+
     if (table === 'seguradoras') table = table.slice(0, -1)
     //Se o usuário não é válido ou o role não está definido, retorna 403
     if (!user || !role)
@@ -27,6 +28,7 @@ const apiGetRouter = (req, res) => {
         }
     }
     const data = getUpdatedData(table, condition || '')
+    console.log('*************************', table, data, '***************************')
     data
         .then(r => res.json(r))
         .catch(err => console.log(err))

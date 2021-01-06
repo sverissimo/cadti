@@ -7,10 +7,18 @@ import ReactToast from '../Reusable Components/ReactToast'
 const Users = props => {
 
     const
-        { users } = props.redux,
+        { users, socios } = props.redux,
         [state, setState] = useState({ confirmToast: false })
 
-    const addUser = user => {
+    const addUser = async user => {
+
+        const
+            { cpf } = user,
+            socio = socios.find(s => s.cpfSocio === cpf)
+
+        if (socio)
+            user.empresas = [socio.codigoEmpresa]
+
         axios.post('/users/addUser', user)
             .then(r => console.log(r.data))
             .catch(err => toast(err?.response?.data || 'Erro'))
@@ -45,6 +53,6 @@ const Users = props => {
     )
 }
 
-const collection = ['users']
+const collection = ['users', 'socios']
 
 export default StoreHOC(collection, Users)

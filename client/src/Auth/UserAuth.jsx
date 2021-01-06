@@ -13,8 +13,7 @@ const UserAuth = props => {
 
   const
     [state, setState] = useState({ tab: 0, ...userAuthForms[0] }),
-    { tab, endPoint, toastMsg, toastStatus, confirmToast } = state,
-    importedTab = props?.tab
+    { tab, endPoint, toastMsg, toastStatus, confirmToast } = state
 
   const changeTab = tab => setState({ ...state, tab, ...userAuthForms[tab] })
 

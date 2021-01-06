@@ -4,8 +4,7 @@ const addUser = async (req, res) => {
     const
         io = req.app.get('io'),
         user = req.body,
-        cpf = user && user.cpf,
-        email = user && user.email,
+        { cpf, email } = user,
         query = [{ email }, { cpf }],
         alreadyExists = await UserModel.findOne({ $or: query }).select('-password, -__v').lean()
 
