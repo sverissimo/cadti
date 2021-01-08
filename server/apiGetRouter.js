@@ -28,7 +28,7 @@ const apiGetRouter = (req, res) => {
         }
     }
     const data = getUpdatedData(table, condition || '')
-    console.log('*************************', table, data, '***************************')
+
     data
         .then(r => res.json(r))
         .catch(err => console.log(err))

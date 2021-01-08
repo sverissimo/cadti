@@ -50,7 +50,8 @@ const
     getUser = require('./auth/getUser'),
     users = require('./users/users'),
     getUsers = require('./users/getUsers'),
-    checkPermissions = require('./auth/checkPermissions')
+    checkPermissions = require('./auth/checkPermissions'),
+    insertEmpresa = require('./users/insertEmpresa')
 
 dailyTasks.start()
 dotenv.config()
@@ -766,15 +767,21 @@ app.put('/api/editSocios', (req, res) => {
 
 app.put('/api/editProc', (req, res) => {
 
-    const { requestArray, table, tablePK, keys } = req.body
+    const { requestArray, table, tablePK, keys, codigoEmpresa } = req.body
     let queryString = '',
         ids = '',
         i = 0
+
+    const updateRequest = { procuradores: requestArray, codigoEmpresa }
+    insertEmpresa(updateRequest);
+    res.send('okey dokey')
+    return
 
     keys.forEach(key => {
         requestArray.forEach(o => {
             if (o.hasOwnProperty(key)) {
                 i++
+                console.log(i)
                 if (key !== 'procurador_id' && i < 2) {
                     ids = ''
                     queryString += `
@@ -784,7 +791,8 @@ app.put('/api/editProc', (req, res) => {
                     requestArray.forEach(obj => {
                         let value = obj[key]
                         if (value) {
-                            if (key !== 'codigo_empresa') value = '\'' + value + '\''
+                            if (key === 'empresas') value = `ARRAY[${value}]`
+                            else if (key !== 'codigo_empresa') value = '\'' + value + '\''
                             if (key === 'data_fim') value += '::date'
                             queryString += `WHEN ${obj.procurador_id} THEN ${value} `
 
@@ -803,9 +811,10 @@ app.put('/api/editProc', (req, res) => {
         })
         i = 0
     })
-
+    //Atualiza os procuradores com a string gerada acima
     pool.query(queryString, (err, t) => {
         if (err) console.log(err)
+
         if (t) {
             const ids = requestArray.map(el => el.procurador_id)
             let query2 = 'SELECT * FROM procuradores',
@@ -816,7 +825,7 @@ app.put('/api/editProc', (req, res) => {
                     condition += ` OR procurador_id = ${id}`
             })
             query2 += condition
-
+            //Depois de atualizado, faz um select dos procuradores e envia um socket para o client para atualizar em tempo real o estado global(redux)
             pool.query(query2, (error, table) => {
                 if (error) console.log(error)
                 const update = { data: table.rows, collection: 'procuradores', primaryKey: 'procuradorId' }
@@ -824,6 +833,9 @@ app.put('/api/editProc', (req, res) => {
                 io.sockets.emit('updateProcuradores', update)
                 res.send('Dados atualizados.')
             })
+            //Atualiza o array de empresas dos usuários
+            const updateRequest = { procuradores: requestArray, codigoEmpresa }
+            insertEmpresa(updateRequest);
         }
         else res.send('something went wrong with your update...')
     })

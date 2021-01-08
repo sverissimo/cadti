@@ -184,7 +184,8 @@ class Procuradores extends Component {
             Object.values(sObject).forEach(v => {
                 if (v) j += 1
             })
-            if (j > 0) addedProcs.push(sObject)
+            if (j > 0)
+                addedProcs.push(sObject)
             j = 0
             sObject = {}
 
@@ -202,8 +203,19 @@ class Procuradores extends Component {
             gotId = procuradores.find(p => p.cpfProcurador === addedProc.cpfProcurador)
             if (gotId?.procuradorId) {
 
+                //Acrescenta a empresa no array de empresas de cada procurador
+                addedProc.empresas = gotId.empresas
+                //Se não tiver nenhuma empresa ou se o único códigoEmpresa na array for ===0 (quer dizer q tinha mas venceu ou foi exluído):
+                //Nesse caso, a array de empresas no DB será um array de apenas 1 item, com o códigoEmpresa atual
+                if ((addedProc.empresas[0] === 0 && addedProc.empresas.length === 1) || !addedProc.empresas)
+                    addedProc.empresas = [empresaId]
+
+                //Caso já tenha alguma outra, apenas acrescenta o novo codigoEmpresa, desde que não seja repetido
+                if (addedProc.empresas && addedProc.empresas[0] && !addedProc.empresas.includes(empresaId))
+                    addedProc.empresas.push(empresaId)
+
                 Object.keys(addedProc).forEach(k => {
-                    if (addedProc[k] === gotId[k])
+                    if (addedProc[k] === gotId[k] && k !== 'empresas' && k !== 'cpfProcurador')
                         delete addedProc[k]
                 })
                 addedProc.procuradorId = gotId.procuradorId
@@ -213,6 +225,14 @@ class Procuradores extends Component {
                 newMembers.push(addedProc)
         })
 
+        const request = {
+            table: 'procuradores',
+            tablePK: 'procurador_id',
+            requestArray: oldMembers,
+            codigoEmpresa: empresaId
+        }
+        axios.put('/api/editProc', request)
+        return
         if (approved === undefined) {
 
             const log = {
@@ -291,17 +311,20 @@ class Procuradores extends Component {
             table: 'procuradores',
             tablePK: 'procurador_id',
             requestArray: oldMembers,
-            keys: procuradorForm.map(p => humps.decamelize(p.field))
+            keys: procuradorForm.map(p => humps.decamelize(p.field)),
+            codigoEmpresa
         }
 
         if (oldMembers && oldMembers[0]) {
+            request.keys.push('empresas')  //Não está no form, mas é uma key que precisa ser acrescentada para atualizar no DB
             oldMembers.forEach(m => {
                 let { empresas } = m
+
                 //Inclui a empresa no array de empresas do procurador caso ainda não esteja lá
                 if (empresas && empresas[0]) {
                     if (!empresas.includes(codigoEmpresa))
-                        empresas.push(codigoEmpresa)
-                    empresas = `{${empresas.toString()}}`  //Adiciona o código da empresa do procurador
+                        m.empresas.push(codigoEmpresa)
+                    m.empresas = empresas.toString()      //Adiciona o código da empresa do procurador                                      
                 }
             })
 
@@ -354,12 +377,49 @@ class Procuradores extends Component {
     }
 
     removeProc = async proc => {
-
         const
             id = proc.procuracaoId,
+            { procuradores, codigoEmpresa } = proc,
+            procuradoresRedux = this.props.redux.procuradores,
+            { procuracoes } = this.props.redux,
             selectedFile = this.props.redux.empresaDocs.find(f => Number(f.metadata.procuracaoId) === id)
 
         let procs = [...this.state.selectedDocs]
+
+        //Remove o código da empresa da array de empresas do procurador caso não haja outra procuração da mesma empresa
+        if (procuradores[0]) {
+            //Checa se há outras procurações 
+            const
+                outrasProcuracoes = procuracoes.filter(p => p.codigoEmpresa === codigoEmpresa && p.procuracaoId !== id),
+                dontRemove = new Set()
+            //Armazena os ids dos procuradores que estão em outras procurações para que não lhes seja removido o direito de acesso
+            outrasProcuracoes.forEach(op =>
+                op.procuradores.forEach(p => dontRemove.add(p))
+            )
+
+            let filteredProcs = procuradoresRedux.filter(p => procuradores.includes(p.procuradorId) && !dontRemove.has(p.procuradorId))
+
+            filteredProcs.forEach(p => {
+                let empresas = p.empresas || []
+                empresas = empresas.filter(e => e !== codigoEmpresa)
+                p.empresas = empresas
+                if (empresas.length === 0)
+                    p.empresas = [0]
+            })
+            //Se tiver que alterar permissões de um procurador, altera, senão apenas apaga a procuração
+            if (filteredProcs[0]) {
+                filteredProcs = humps.decamelizeKeys(filteredProcs)
+
+                const request = {
+                    table: 'procuradores',
+                    tablePK: 'procurador_id',
+                    requestArray: filteredProcs,
+                    keys: ['empresas']
+                }
+                axios.put('/api/editProc', { ...request })
+                    .then(r => console.log(r))
+            }
+        }
 
         await axios.delete(`/api/delete?table=procuracoes&tablePK=procuracao_id&id=${id}`)
             .then(r => console.log(r.data))
