@@ -52,6 +52,7 @@ const
     getUsers = require('./users/getUsers'),
     checkPermissions = require('./auth/checkPermissions'),
     insertEmpresa = require('./users/insertEmpresa')
+const removeEmpresa = require('./users/removeEmpresa')
 
 dailyTasks.start()
 dotenv.config()
@@ -767,16 +768,11 @@ app.put('/api/editSocios', (req, res) => {
 
 app.put('/api/editProc', (req, res) => {
 
-    const { requestArray, table, tablePK, keys, codigoEmpresa } = req.body
+    const { requestArray, table, tablePK, keys, codigoEmpresa, updateUser } = req.body
     let queryString = '',
         ids = '',
         i = 0
-
-    const updateRequest = { procuradores: requestArray, codigoEmpresa }
-    insertEmpresa(updateRequest);
-    res.send('okey dokey')
-    return
-
+    console.log(updateUser === 'insertEmpresa', updateUser)
     keys.forEach(key => {
         requestArray.forEach(o => {
             if (o.hasOwnProperty(key)) {
@@ -813,6 +809,7 @@ app.put('/api/editProc', (req, res) => {
     })
     //Atualiza os procuradores com a string gerada acima
     pool.query(queryString, (err, t) => {
+        console.log("🚀 ~ file: server.js ~ line 819 ~ pool.query ~ queryString", queryString)
         if (err) console.log(err)
 
         if (t) {
@@ -827,15 +824,18 @@ app.put('/api/editProc', (req, res) => {
             query2 += condition
             //Depois de atualizado, faz um select dos procuradores e envia um socket para o client para atualizar em tempo real o estado global(redux)
             pool.query(query2, (error, table) => {
-                if (error) console.log(error)
+                if (error)
+                    console.log(error)
                 const update = { data: table.rows, collection: 'procuradores', primaryKey: 'procuradorId' }
-                console.log(update)
                 io.sockets.emit('updateProcuradores', update)
                 res.send('Dados atualizados.')
             })
             //Atualiza o array de empresas dos usuários
             const updateRequest = { procuradores: requestArray, codigoEmpresa }
-            insertEmpresa(updateRequest);
+            if (updateUser === 'insertEmpresa')
+                insertEmpresa(updateRequest)
+            if (updateUser === 'removeEmpresa')
+                removeEmpresa(updateRequest);
         }
         else res.send('something went wrong with your update...')
     })

@@ -225,14 +225,7 @@ class Procuradores extends Component {
                 newMembers.push(addedProc)
         })
 
-        const request = {
-            table: 'procuradores',
-            tablePK: 'procurador_id',
-            requestArray: oldMembers,
-            codigoEmpresa: empresaId
-        }
-        axios.put('/api/editProc', request)
-        return
+        //Se o request não for dew aprovação, cria a demanda
         if (approved === undefined) {
 
             const log = {
@@ -260,6 +253,7 @@ class Procuradores extends Component {
             this.setState({ toastMsg: 'Solicitação de cadastro enviada', confirmToast: true })
             setTimeout(() => { this.resetState() }, 1500);
         }
+        //Demanda indeferida
         if (approved === false) {
             const log = {
                 id: demand.id,
@@ -276,6 +270,7 @@ class Procuradores extends Component {
                 this.props.history.push('/solicitacoes')
             }, 1500);
         }
+        //Aprova alteração de procuradores/procuração
         if (approved === true) {
             newMembers = humps.decamelizeKeys(newMembers)
             oldMembers = humps.decamelizeKeys(oldMembers)
@@ -312,7 +307,8 @@ class Procuradores extends Component {
             tablePK: 'procurador_id',
             requestArray: oldMembers,
             keys: procuradorForm.map(p => humps.decamelize(p.field)),
-            codigoEmpresa
+            codigoEmpresa,
+            updateUser: 'insertEmpresa'
         }
 
         if (oldMembers && oldMembers[0]) {
@@ -328,7 +324,7 @@ class Procuradores extends Component {
                 }
             })
 
-            axios.put('/api/editProc', { ...request })
+            axios.put('/api/editProc', request)
                 .then(r => console.log(r))
         }
 
@@ -406,7 +402,7 @@ class Procuradores extends Component {
                 if (empresas.length === 0)
                     p.empresas = [0]
             })
-            //Se tiver que alterar permissões de um procurador, altera, senão apenas apaga a procuração
+            //Se tiver que alterar permissões de um procurador (usuário), altera, senão apenas apaga a procuração
             if (filteredProcs[0]) {
                 filteredProcs = humps.decamelizeKeys(filteredProcs)
 
@@ -414,7 +410,9 @@ class Procuradores extends Component {
                     table: 'procuradores',
                     tablePK: 'procurador_id',
                     requestArray: filteredProcs,
-                    keys: ['empresas']
+                    keys: ['empresas'],
+                    codigoEmpresa,
+                    updateUser: 'removeEmpresa'
                 }
                 axios.put('/api/editProc', { ...request })
                     .then(r => console.log(r))
