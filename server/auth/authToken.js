@@ -18,10 +18,25 @@ const authToken = (req, res, next) => {
     else
         token = token.replace('aToken=', '').trim()
 
-    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
-        if (err) return res.status(403).send(err)
-        if (user && user.user)
-            req.user = user.user
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, result) => {
+        if (err)
+            return res.status(403).send(err)
+
+        const { user } = result
+        //Armazena o user no express e o filtro de requisições ao mongoDB
+        if (user) {
+            const empresas = user.empresas && user.empresas
+            let filter = {}
+            if (user.role !== 'admin')
+                filter = {
+                    $or: [
+                        { 'empresaId': { $in: empresas } },
+                        { 'codigoEmpresa': { $in: empresas } }
+                    ]
+                }
+            req.user = user
+            req.filter = filter
+        }
         next()
     })
 }

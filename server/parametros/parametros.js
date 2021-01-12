@@ -9,7 +9,7 @@ router.get('/', async (req, res) => {
 
     //Se não tiver nada no MongoDB, populate com valores padrão dos respectivos mongooseSchemas na pasta models/parametros
     if (!data[0]) {
-        console.log('needed to populate mongoDB with standard "Parâmetros"...')
+        //console.log('needed to populate mongoDB with standard "Parâmetros"...')
         const initiateDB = new parametrosModel({})
         initiateDB.save((err, doc) => {
             if (err) console.log(err)

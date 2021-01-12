@@ -7,7 +7,7 @@ import Paper from '@material-ui/core/Paper'
 import './relatorios.css'
 
 const RelatoriosTemplate = (
-    { empresas, razaoSocial, selectedEmpresa, selectedVehicles, labels, values, tableLabels, tableData, mediaIdades, moda, 
+    { empresas, razaoSocial, selectedEmpresa, selectedVehicles, labels, values, tableLabels, tableData, mediaIdades, moda,
         handleInput, segurosVencidos, segurosVigentes, oldVehicles, veiculosNovos }) => {
 
     const colors = ['#ff7c43', '#ffa600', '#FF9800', '#f95d6a', '#f44336', '#2E93fA', '#3333ff', '#66DA26', '#669999', '#E91E63', '#d45087', '#a05195', '#665191', '#2f4b7c', '#003f5c',]
@@ -19,7 +19,7 @@ const RelatoriosTemplate = (
                 data={{ razaoSocial }}
                 handleInput={handleInput}
             />
-            {(!selectedVehicles || selectedVehicles.length === 0) ? <p>Nenhum veículo cadastrado para {selectedEmpresa.razaoSocial}</p>
+            {(!selectedVehicles || selectedVehicles.length === 0) ? <p>Nenhum veículo cadastrado para {selectedEmpresa?.razaoSocial}</p>
                 :
                 <>
                     <h3 style={{ width: '100%', textAlign: 'center' }}>

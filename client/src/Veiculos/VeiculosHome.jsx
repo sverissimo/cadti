@@ -1,60 +1,52 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
+import StoreHOC from '../Store/StoreHOC'
+
 import './veiculos.scss'
 
 const menuCards = [
     {
         title: 'Cadastro de Veículos',
-        date: '07/Nov',
-        description:
-            'Cadastrar um novo veículo no sistema',
+        description: 'Cadastrar um novo veículo no sistema',
         imageUrl: '/images/add_new.jpg',
         link: '/cadastro'
     },
     {
         title: 'Alteração de dados',
-        date: '07/Nov',
-        description:
-            'Alterar dados de um veículo',
+        description: 'Alterar dados de um veículo',
         link: '/altDados',
         imageUrl: '/images/pen.png'
     },
     {
         title: 'Seguros',
-        date: '07/Nov',
-        description:
-            'Atualizar seguros e apólices',
+        description: 'Atualizar seguros e apólices',
         link: '/seguros',
         imageUrl: "/images/car_insurance2.png"
     },
     {
         title: 'Laudos',
-        date: '07/Nov',
-        description:
-            'Laudos de segurança veicular',
+        description: 'Laudos de segurança veicular',
         link: '/laudos',
         imageUrl: "/images/laudos.png"
     },
     {
         title: 'Baixa',
-        date: '07/Nov',
-        description:
-            'Baixa de veículos',
+        description: 'Baixa de veículos',
         link: '/baixaVeiculo',
         imageUrl: "/images/remove_doc.png"
     },
     {
         title: 'Configurações',
-        date: '07/Nov',
-        description:
-            'Chassi, carrocerias, seguradoras, etc',
+        description: 'Chassi, carrocerias, seguradoras, etc',
         link: '/config',
         imageUrl: "/images/config2.jpg"
     }
 ]
 
-export default function VeiculosHome(props) {
-    const { match } = props
+function VeiculosHome(props) {
+
+    const { match, user } = props
+
     return (
         <div>
             <section className="jumbotron">
@@ -68,15 +60,20 @@ export default function VeiculosHome(props) {
             <section className="card">
                 {
                     menuCards.map(({ title, link, imageUrl, description }, i) =>
-                        <Link to={match.url + link} key={i} className="card__container">
-                            <span className="card__image"> <img src={imageUrl} alt={title} /> </span>
-                            <div className="card__text">
-                                <h3 >{title}</h3>
-                                <p > {description}</p>
-                            </div>
-                        </Link>
+                        user?.role !== 'admin' && link === '/config' ?      //Não renderiza a opção "Configurações" para usuários sem permissão
+                            null :
+                            <Link to={match.url + link} key={i} className="card__container">
+                                <span className="card__image"> <img src={imageUrl} alt={title} /> </span>
+                                <div className="card__text">
+                                    <h3 >{title}</h3>
+                                    <p > {description}</p>
+                                </div>
+                            </Link>
                     )}
             </section>
         </div >
     )
 }
+
+const collections = []
+export default StoreHOC(collections, VeiculosHome)

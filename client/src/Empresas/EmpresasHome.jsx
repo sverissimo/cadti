@@ -1,44 +1,39 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-
+import StoreHOC from '../Store/StoreHOC'
 import './empresas.scss'
 
 const featuredPosts = [
     {
         title: 'Cadastrar',
-        date: '07/Nov',
-        description:
-            'Cadastrar uma nova empresa no sistema.',
+        description: 'Cadastrar uma nova empresa no sistema.',
         imageUrl: '/images/addCompany21.png',
         link: '/empresas/cadastro'
     },
     {
         title: 'Alteração do Contrato Social',
-        date: '07/Nov',
-        description:
-            'Alteração de dados da empresa ou contrato social',
+        description: 'Alteração de dados da empresa ou contrato social',
         link: '/altContrato',
         imageUrl: '/images/pen2.png'
     },
     {
         title: 'Sócios',
-        date: '07/Nov',
-        description:
-            'Visualizar ou editar dados dos sócios',
+        description: 'Visualizar ou editar dados dos sócios',
         link: '/empresas/socios',
         imageUrl: '/images/socios3.png'
     },
     {
         title: 'Procurações',
-        date: '07/Nov',
-        description:
-            'Cadastrar procurações e procuradores',
+        description: 'Cadastrar procurações e procuradores',
         link: '/empresas/procuradores',
         imageUrl: '/images/procuradores31.png'
     },
 ]
 
-export default function () {
+const EmpresasHome = props => {
+    const
+        { user } = props,
+        role = user?.role
 
     return (
         <>
@@ -53,26 +48,31 @@ export default function () {
                 </div>
             </section>
 
-            <main className='cardContainer'>
-                {featuredPosts.map(({ link, title, description, imageUrl }, i) => (
-                    <Link to={link} style={{ textDecoration: 'none' }} key={i}>
-
-                        <div className='cardE'>
-                            <div className='cardE__text'>
-                                <h3>
-                                    {title}
-                                </h3>
-                                <p>
-                                    {description}
-                                </p>
+            <main className='cardContainer' style={{ width: role === 'admin' ? '100%' : '90%', marginLeft: role === 'admin' ? '0' : '5%' }}>
+                {featuredPosts.map(({ link, title, description, imageUrl }, i) =>
+                    role !== 'admin' && link === '/empresas/cadastro' ?
+                        null
+                        :
+                        <Link to={link} style={{ textDecoration: 'none' }} key={i}>
+                            <div className='cardE'>
+                                <div className='cardE__text'>
+                                    <h3>
+                                        {title}
+                                    </h3>
+                                    <p>
+                                        {description}
+                                    </p>
+                                </div>
+                                <figure className='cardE__image'>
+                                    <img src={imageUrl} alt="" />
+                                </figure>
                             </div>
-                            <figure className='cardE__image'>
-                                <img src={imageUrl} alt="" />
-                            </figure>
-                        </div>
-                    </Link>
-                ))}
+                        </Link>
+                )}
             </main>
         </>
     )
 }
+
+const collections = []
+export default StoreHOC(collections, EmpresasHome)

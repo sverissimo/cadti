@@ -21,6 +21,9 @@ const login = async (req, res) => {
     if (!userFound.verified)
         return res.status(403).send('Aguardando aprovação do usuário.')
 
+    if (!userFound.empresas[0] && userFound.role && userFound.role !== 'admin')
+        return res.status(403).send('O usuário não possui vinculação com nenhuma empresa do sistema.')
+
     const
         { password, __v, ...user } = userFound,
         accessToken = jwt.sign({ user }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '20m' })

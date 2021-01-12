@@ -15,7 +15,6 @@ const
     Grid = require('gridfs-stream')
 Grid.mongo = mongoose.mongo
 
-
 //Componentes do sistema
 const
     counter = require('./config/counter'),
@@ -51,8 +50,8 @@ const
     users = require('./users/users'),
     getUsers = require('./users/getUsers'),
     checkPermissions = require('./auth/checkPermissions'),
-    insertEmpresa = require('./users/insertEmpresa')
-const removeEmpresa = require('./users/removeEmpresa')
+    insertEmpresa = require('./users/insertEmpresa'),
+    removeEmpresa = require('./users/removeEmpresa')
 
 dailyTasks.start()
 dotenv.config()
@@ -163,29 +162,24 @@ app.post('/api/logs', logHandler, (req, res) => {
 })
 
 app.get('/api/logs', (req, res) => {
-    console.log(req.user)
-    logsModel.find()
+
+    const { filter } = req
+
+    logsModel.find(filter)
         .then(doc => res.send(doc))
         .catch(err => console.log(err))
-})
-
-app.get('/api/log', (req, res) => {
-    const { subject, primaryKey, id } = req.query
-
-    logsModel.find({ [primaryKey]: id, completed: false, subject: { $regex: subject } }, (err, doc) => {
-        if (err) console.log(err)
-        console.log(doc)
-        if (!doc || doc.length === 0) res.send(false)
-        else res.send(doc)
-    })
 })
 
 //************************************CADASTRO PROVISÓRIO DE SEGUROS**************** */
 
 app.post('/api/cadSeguroMongo', (req, res) => {
     const
-        { body } = req,
+        { user, body } = req,
+        role = user && user.role,
         segModel = new segurosModel(body)
+
+    if (role === 'empresa')
+        return res.status(403).send('O usuário não possui permissões para esse cadastro no cadTI.')
 
     segModel.save(function (err, doc) {
         if (err) console.log(err)
@@ -197,7 +191,9 @@ app.post('/api/cadSeguroMongo', (req, res) => {
 //***************************  CADASTRO DE ALTERAÇÕES DE CONTRATO SOCIAL**************** */
 
 app.get('/api/altContrato', (req, res) => {
-    altContratoModel.find()
+
+    const { filter } = req
+    altContratoModel.find(filter)
         .then(doc => res.send(doc))
         .catch(err => console.log(err))
 })
@@ -293,6 +289,12 @@ app.get('/api/getOldVehicles', async (req, res) => {
 
 //get all dischargedVehicles and download excel spreadsheet
 app.get('/api/oldVehiclesXls', async (req, res) => {
+
+    //Checa permissão de usuário
+    const { user } = req
+    if (!user || user.role === 'empresa')
+        res.status(403).send('Não há permissão para esse usuário acessar essa parte do CadTI.')
+
     const
         dischargedVehicles = await oldVehiclesModel.find().select('-__v -_id').lean(),
         currentDate = getFormatedDate(),
@@ -507,8 +509,12 @@ app.post('/api/cadSeguro', (req, res) => {
 
 app.post('/api/addElement', (req, res) => {
     const
+        { user } = req,
         { table, requestElement } = req.body,
         { keys, values } = parseRequestBody(requestElement)
+
+    if (user.role !== 'admin' && table !== 'laudos')
+        return res.status(403).send('É preciso permissão de administrador para acessar essa parte do cadTI.')
 
     let queryString = `INSERT INTO public.${table} (${keys}) VALUES (${values}) RETURNING *`
 
@@ -539,14 +545,18 @@ app.post('/api/addElement', (req, res) => {
 
 app.put('/api/editElements', (req, res) => {
     const
+        { user } = req,
         { table, tablePK, column, requestArray } = req.body,
         { collection } = fieldParser.find(el => el.table === table)
     let
         queryString = ''
-    if (!requestArray && !requestArray[0]) {
-        res.send('nothing to update...')
-        return
-    }
+
+    //Checa permissão de admin
+    if (user.role !== 'admin')
+        return res.status(403).send('É preciso permissão de administrador para acessar essa parte do cadTI.')
+    //Request vazio
+    if (!requestArray && !requestArray[0])
+        return res.send('nothing to update...')
 
     requestArray.forEach(obj => {
         queryString += `
@@ -939,8 +949,12 @@ app.delete('/api/delete', (req, res) => {
 
     let { id } = req.query
     const
+        { user } = req,
         { table, tablePK } = req.query,
         { collection } = fieldParser.find(f => f.table === table)
+
+    if (user.role !== 'admin')
+        return res.status(403).send('É preciso permissão de administrador para acessar essa parte do cadTI.')
 
     if (collection === 'laudos')
         id = `'${id}'`
