@@ -423,7 +423,18 @@ app.post('/api/cadastroVeiculo', (req, res) => {
 app.post('/api/cadEmpresa', cadEmpresa)
 
 app.post('/api/cadSocios', cadSocios, (req, res) => {
-    const { data } = req
+    const
+        { data } = req,
+        socios = req.body.socios
+
+    //Atualiza as permissões de usuário, caso existam usuários cadastrados com o mesmo cpf        
+    if (socios && socios[0]) {
+        const
+            codigoEmpresa = socios[0].codigo_empresa,
+            updateRequest = { usuarios: socios, codigoEmpresa }
+        insertEmpresa(updateRequest);
+    }
+    //Envia socket p o client com os dados atualizados
     io.sockets.emit('insertSocios', data)
     res.send(data)
 })
@@ -841,7 +852,7 @@ app.put('/api/editProc', (req, res) => {
                 res.send('Dados atualizados.')
             })
             //Atualiza o array de empresas dos usuários
-            const updateRequest = { procuradores: requestArray, codigoEmpresa }
+            const updateRequest = { usuarios: requestArray, codigoEmpresa }
             if (updateUser === 'insertEmpresa')
                 insertEmpresa(updateRequest)
             if (updateUser === 'removeEmpresa')
@@ -956,8 +967,20 @@ app.delete('/api/delete', (req, res) => {
     if (user.role !== 'admin')
         return res.status(403).send('É preciso permissão de administrador para acessar essa parte do cadTI.')
 
-    if (collection === 'laudos')
+    if (table === 'laudos')
         id = `'${id}'`
+
+    //Se a tabel for Sócios, chama a função para atualizar a permissão de usuários
+    if (table === 'socios') {
+        const
+            { codigoEmpresa, cpf_socio, socio_id } = req.query,
+            updateRequest = { usuarios: [{ socio_id, cpf_socio }], codigoEmpresa }
+        console.log("🚀 ~ file: server.js ~ line 977 ~ app.delete ~ codigoEmpresa", codigoEmpresa)
+
+        removeEmpresa(updateRequest)
+        res.send('ok')
+        return
+    }
 
     const query = ` DELETE FROM public.${table} WHERE ${tablePK} = ${id}`
     console.log(query, '\n\n', req.query)

@@ -42,36 +42,42 @@ const AltContrato = props => {
         if (empresas && empresas.length === 1)
             setState({ ...state, ...empresas[0], selectedEmpresa: empresas[0], filteredSocios: socios })
 
-
         const demand = props?.location?.state?.demand
 
         if (demand && demand.history[0]) {
             const
                 { empresaDocs } = props.redux,
                 { altContrato, socioUpdates, files } = demand?.history[0],
-                selectedEmpresa = empresas.find(e => e.empresaId === demand.codigoEmpresa),
+                selectedEmpresa = empresas.find(e => e.codigoEmpresa === demand.empresaId),
                 altContratoFields = {}
+
+
+            console.log("🚀 ~ file: AltContrato.jsx ~ line 51 ~ useEffect ~ altContrato", altContrato)
 
             let
                 filteredSocios = JSON.parse(JSON.stringify(socios.filter(s => s.codigoEmpresa === selectedEmpresa.codigoEmpresa))),
                 demandFiles
+            console.log(socios)
 
             if (altContrato)
                 altContratoForm.forEach(({ field }) => altContratoFields[field] = altContrato[field])
 
             if (socioUpdates[0]) {
                 const newSocios = []
-                filteredSocios.forEach(fs => {
-                    socioUpdates.forEach(us => {
+                socioUpdates.forEach(us => {
+                    //Se é novo, armazena no newSocios
+                    if (us.status === 'new' && !newSocios.includes(us))
+                        newSocios.push(us)
+                    //Senão, atualiza os existentes com os campos de vieram da demanda
+                    filteredSocios.forEach(fs => {
                         if (fs.socioId === us?.socioId) {
                             Object.keys(us).forEach(k => {
                                 fs[k] = us[k]
                             })
                         }
-                        if (us.status === 'new' && !newSocios.includes(us))
-                            newSocios.push(us)
                     })
                 })
+
                 filteredSocios = filteredSocios.concat(newSocios)
             }
             if (files)
@@ -82,11 +88,11 @@ const AltContrato = props => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
+    //Armazena uma cópia dos sócios antes de qualquer edição para avaliar se houve mudança e fazer ou não o request
     useEffect(() => {
-
         if (state.selectedEmpresa) {
-
-            const codigoEmpresa = state.selectedEmpresa.codigoEmpresa,
+            const
+                codigoEmpresa = state.selectedEmpresa.codigoEmpresa,
                 originalSocios = JSON.parse(JSON.stringify(socios.filter(s => s.codigoEmpresa === codigoEmpresa))) || []
 
             setState({ ...state, originalSocios })
@@ -171,12 +177,12 @@ const AltContrato = props => {
             invalid = 0,
             totalShare = 0
 
+        //Confere se todos os campos de novos sócios foram preenchidos
         sociosForm.forEach(obj => {
             if (state[obj.field] === '' || state[obj.field] === undefined) {
                 invalid += 1
             }
         })
-
         if (invalid === 100) {
             setState({ ...state, alertType: 'fieldsMissing', openAlertDialog: true })
             return null
@@ -204,7 +210,7 @@ const AltContrato = props => {
 
             await setState({ ...state, ...clearForm, filteredSocios: socios, totalShare })
             setTimeout(() => {
-                console.log(state)
+                //console.log(state)
                 document.getElementsByName('nomeSocio')[0].focus()
             }, 200);
         }
@@ -231,27 +237,28 @@ const AltContrato = props => {
 
             setState({ ...state, filteredSocios })
         }
-
-
     }
 
     const handleSubmit = async approved => {
         const
             { demand, altContratoDoc } = state,
+            { codigoEmpresa } = state?.selectedEmpresa,
             altContrato = createRequestObj(altContratoForm),
             altEmpresa = createRequestObj(empresasForm),
             empresaUpdates = updateEmpresa(altEmpresa),
             socioUpdates = checkSocioUpdates(),
             log = createLog({ demand, altContrato, socioUpdates, approved })
-
         let
             socioIds = [],
             toastMsg = 'Solicitação de alteração contratual enviada.'
+
+        console.log("🚀 ~ file: AltContrato.jsx ~ line 250 ~ socioUpdates", socioUpdates)
         //Se não houver nenhuma altreração, alerta e retorna
         if (!demand && !altContrato && !empresaUpdates && !altContratoDoc && !socioUpdates && !socioUpdates[0]) {
             alert('Nenhuma modificação registrada!')
             return
         }
+
         //A alteração de dados da empresa não precisa de aprovação. Se for só isso, não gera demanda
         if (empresaUpdates) {
             axios.put('/api/editTableRow', empresaUpdates)
@@ -286,14 +293,13 @@ const AltContrato = props => {
                     await axios.put('/api/editSocios', { requestArray: oldSocios, ...requestInfo })
                     const ids = oldSocios.map(s => s.socio_id)
                     socioIds = socioIds.concat(ids)
-                    console.log(socioIds, oldSocios, ids)
                 }
-                if (deletedSocios[0])
+                if (deletedSocios[0]) {
                     deletedSocios.forEach(s => {
-                        axios.delete(`/api/delete?table=socios&tablePK=socio_id&id=${s.socio_id}`)
+                        axios.delete(`/api/delete?table=socios&tablePK=socio_id&id=${s.socio_id}&codigoEmpresa=${+codigoEmpresa}&cpf_socio=${s.cpf_socio}`)
                     })
+                }
                 toastMsg = 'Alteração de contrato social aprovada.'
-                console.log(socioIds)
             }
         }
         if (approved === false)
@@ -301,7 +307,7 @@ const AltContrato = props => {
 
         if (socioIds[0])
             log.metadata.socios = socioIds
-        console.log(socioIds)
+
         logGenerator(log)                               //Generate the demand
             .then(r => {
                 console.log(r?.data)
@@ -332,7 +338,7 @@ const AltContrato = props => {
                 originalSocios.forEach(async s => {
                     if (m.socioId === s.socioId) {
                         Object.keys(m).forEach(key => {
-                            if (m[key] && m[key] !== '' && (m[key] !== s[key] || key === 'socioId')) {
+                            if (m[key] && m[key] !== '' && (m[key] !== s[key] || key === 'socioId') || key === 'cpfSocio') {
                                 Object.assign(altObj, { [key]: m[key] })
                             }
                         })
@@ -508,16 +514,21 @@ const AltContrato = props => {
             resetForms = {},
             forms = [altContratoForm, sociosForm]
 
+        let clearedState = {}
+
         forms.forEach(form => {
             form.forEach(({ field }) => {
                 Object.assign(resetForms, { [field]: '' })
             })
         })
 
-        setState({
+        //Se for só uma empresa, volta para o estado inicial (componentDidMount) para procuradores de apenas uma empresa
+        if (empresas && empresas.length === 1)
+            clearedState = { ...state, ...empresas[0], selectedEmpresa: empresas[0], filteredSocios: socios }
 
+        setState({
             ...state, ...resetForms, activeStep: 0, razaoSocial: '', selectedEmpresa: undefined, filteredSocios: [],
-            altContratoDoc: undefined, fileToRemove: undefined
+            altContratoDoc: undefined, fileToRemove: undefined, ...clearedState
         })
     }
     const

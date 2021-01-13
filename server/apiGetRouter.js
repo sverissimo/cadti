@@ -18,15 +18,11 @@ const apiGetRouter = (req, res) => {
         return res.status(403)
 
     //Se o usuário não possui autorização para acessar os dados de nenhuma empresa 
-    if (role === 'empresas' && !empresas[0])
+    if (role === 'empresa' && !empresas[0])
         return res.send([])
 
-
-    //**********************E SE O ROLE FOR "TECNICO SEINFRA"???????????????????? */
-
-
     //Se o usuário não for admin e se tiver empresas autorizadas a representar, filtra essas empresas antes de enviar dados
-    if (role !== 'admin' && empresas[0]) {
+    if (role === 'empresa' && empresas[0]) {
         //Verifica se a tabela necessita de filtro ou se é uma lookup table
         const applyFilter = fieldParser.find(el => el.table === table && el.codigo_empresa)
         if (applyFilter)

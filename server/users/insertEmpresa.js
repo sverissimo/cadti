@@ -1,10 +1,10 @@
 const UserModel = require("../mongo/models/userModel")
 
 
-const insertEmpresa = async ({ procuradores, codigoEmpresa }) => {
-    //Busca os usuários cruzando os cpfs com os dos procuradores
+const insertEmpresa = async ({ usuarios, codigoEmpresa }) => {
+    //Busca os usuários cruzando os cpfs com os dos sócios ou procuradores
     const
-        cpfs = procuradores.map(p => p.cpf_procurador),
+        cpfs = usuarios.map(u => u.cpf_procurador || u.cpf_socio),
         users = await UserModel.find({ 'cpf': { $in: cpfs } }),
         updates = []
 

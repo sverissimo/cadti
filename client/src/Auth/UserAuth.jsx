@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "axios";
 import UserAuthTemplate from "./UserAuthTemplate";
 import ReactToast from '../Reusable Components/ReactToast'
@@ -14,6 +14,16 @@ const UserAuth = props => {
   const
     [state, setState] = useState({ tab: 0, ...userAuthForms[0] }),
     { tab, endPoint, toastMsg, toastStatus, confirmToast } = state
+
+  useEffect(() => {
+    const signIn = e => {
+      if (e.key === 'Enter')
+        handleSubmit()
+    }
+    document.addEventListener('keypress', signIn)
+    return () => document.removeEventListener('keypress', signIn)
+  })
+
 
   const changeTab = tab => setState({ ...state, tab, ...userAuthForms[tab] })
 
