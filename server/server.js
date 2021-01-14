@@ -225,6 +225,17 @@ const routes = 'empresas|socios|veiculos|modelosChassi|carrocerias|equipamentos|
 app.get(`/api/${routes}`, apiGetRouter);
 app.get('/api/lookUpTable/:table', lookup);
 
+app.post('/api/checkSocios', async (req, res) => {
+
+    const
+        { newCpfs } = req.body,
+        cpfArray = newCpfs.map(cpf => `'${cpf}'`),
+        condition = `WHERE cpf_socio IN (${cpfArray})`,
+        checkSocios = await getUpdatedData('socios', condition)
+
+    res.send(checkSocios);
+})
+
 //************************************ SPECIAL VEHICLE ROUTES *********************** */
 //Busca os veículos de uma empresa incluindo todos os de outras empresas que lhe são compartilhados ou que estão em sua apolice apesar d n ser compartilhado
 app.get('/api/allVehicles', async (req, res) => {
@@ -431,7 +442,7 @@ app.post('/api/cadSocios', cadSocios, (req, res) => {
     if (socios && socios[0]) {
         const
             codigoEmpresa = socios[0].codigo_empresa,
-            updateRequest = { usuarios: socios, codigoEmpresa }
+            updateRequest = { representantes: socios, codigoEmpresa }
         insertEmpresa(updateRequest);
     }
     //Envia socket p o client com os dados atualizados
@@ -852,7 +863,7 @@ app.put('/api/editProc', (req, res) => {
                 res.send('Dados atualizados.')
             })
             //Atualiza o array de empresas dos usuários
-            const updateRequest = { usuarios: requestArray, codigoEmpresa }
+            const updateRequest = { representantes: requestArray, codigoEmpresa }
             if (updateUser === 'insertEmpresa')
                 insertEmpresa(updateRequest)
             if (updateUser === 'removeEmpresa')
@@ -964,37 +975,44 @@ app.delete('/api/delete', (req, res) => {
         { table, tablePK } = req.query,
         { collection } = fieldParser.find(f => f.table === table)
 
+    /* const { codigoEmpresa, cpf_socio, cpf_procurador } = req.query
+
+    if (table === 'socios' || table === 'procuradores')
+        removeEmpresa({ representantes: [{ cpf_socio, cpf_procurador }], codigoEmpresa })
+    return res.send('alright!') */
+
     if (user.role !== 'admin')
         return res.status(403).send('É preciso permissão de administrador para acessar essa parte do cadTI.')
 
     if (table === 'laudos')
         id = `'${id}'`
 
-    //Se a tabel for Sócios, chama a função para atualizar a permissão de usuários
-    if (table === 'socios') {
-        const
-            { codigoEmpresa, cpf_socio, socio_id } = req.query,
-            updateRequest = { usuarios: [{ socio_id, cpf_socio }], codigoEmpresa }
-        console.log("🚀 ~ file: server.js ~ line 977 ~ app.delete ~ codigoEmpresa", codigoEmpresa)
-
-        removeEmpresa(updateRequest)
-        res.send('ok')
-        return
-    }
-
     const query = ` DELETE FROM public.${table} WHERE ${tablePK} = ${id}`
     console.log(query, '\n\n', req.query)
 
     pool.query(query, async (err, t) => {
-        if (err) console.log(err)
+        if (err)
+            console.log(err)
         if (id) {
             id = id.replace(/\'/g, '')
 
             io.sockets.emit('deleteOne', { id, tablePK, collection })
+            if (!err)
+                updateUserPermitions()
             res.send(`${id} deleted from ${table}`)
         }
         else res.send('no id found.')
     })
+
+    //*****************************ATUALIZA PERMISSÕES DE USUÁRIOS ******************************** */
+    //Se a tabela for socios ou procuradores, chama a função para atualizar a permissão de usuários
+    const updateUserPermitions = () => {
+
+        const { codigoEmpresa, cpf_socio, cpf_procurador } = req.query
+
+        if (table === 'socios' || table === 'procuradores')
+            removeEmpresa({ representantes: [{ cpf_socio, cpf_procurador }], codigoEmpresa })
+    }
 })
 
 app.delete('/api/removeProc', (req, res) => {

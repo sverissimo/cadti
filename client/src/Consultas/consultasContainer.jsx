@@ -167,7 +167,7 @@ class ConsultasContainer extends Component {
             tablePK = tablePKs[tab],
             itemId = humps.camelize(tablePK)
 
-        axios.delete(`/api/delete?table=${table}&tablePK=${tablePK}&id=${data[itemId]}`)
+        axios.delete(`/api/delete?table=${table}&tablePK=${tablePK}&id=${data[itemId]}&cpf_socio=${data.cpfSocio}&cpf_procurador=${data.cpfProcurador}`)
             .then(r => console.log(r.data))
     }
 

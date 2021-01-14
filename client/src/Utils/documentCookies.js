@@ -1,5 +1,5 @@
 export function setCookie(cname, cvalue) {
-    let d = new Date(), time = 40 * 60 * 1000
+    let d = new Date(), time = 60 * 60 * 1000
     d.setTime(d.getTime() + time)
     d = d.toUTCString()
 

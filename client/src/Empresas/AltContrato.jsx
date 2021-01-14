@@ -282,13 +282,39 @@ const AltContrato = props => {
                         table: 'socios',
                         tablePK: 'socio_id'
                     }
-                if (newSocios[0])
-                    await axios.post('/api/cadSocios', { socios: newSocios })
-                        .then(async r => {
-                            const ids = r?.data.map(s => s.socio_id)
-                            if (ids[0])
-                                socioIds = socioIds.concat(ids)
+                //se o Cpf já existe no banco de dados, tira do newSocios e coloca no oldSocios
+                if (newSocios[0]) {
+                    const
+                        indexes = [],
+                        newCpfs = newSocios.map(s => s.cpf_socio),
+                        checkSocios = await axios.post('/api/checkSocios', { newCpfs }),
+                        existingSocios = checkSocios?.data
+                    console.log("🚀 ~ file: AltContrato.jsx ~ line 291 ~ existingSocios", existingSocios)
+
+                    newSocios.forEach((s, i) => {
+                        existingSocios.forEach(os => {
+                            if (s.cpf_socio === os.cpf_socio) {
+                                s.socio_id = os.socio_id
+                                oldSocios.push(s)
+                            }
                         })
+                        oldSocios.forEach(os => {
+                            if (s.cpf_socio === os.cpf_socio) {
+                                indexes.push(i)
+                            }
+                        })
+                    })
+                    indexes.forEach(i => newSocios.splice(i))
+                    //                    console.log({ newSocios, oldSocios, indexes, originalSocios })
+                    //Se sobrou algum novo sócio, post request dos novos sócios
+                    if (newSocios[0])
+                        await axios.post('/api/cadSocios', { socios: newSocios })
+                            .then(async r => {
+                                const ids = r?.data.map(s => s.socio_id)
+                                if (ids[0])
+                                    socioIds = socioIds.concat(ids)
+                            })
+                }
                 if (oldSocios[0]) {
                     await axios.put('/api/editSocios', { requestArray: oldSocios, ...requestInfo })
                     const ids = oldSocios.map(s => s.socio_id)
@@ -296,7 +322,7 @@ const AltContrato = props => {
                 }
                 if (deletedSocios[0]) {
                     deletedSocios.forEach(s => {
-                        axios.delete(`/api/delete?table=socios&tablePK=socio_id&id=${s.socio_id}&codigoEmpresa=${+codigoEmpresa}&cpf_socio=${s.cpf_socio}`)
+                        axios.delete(`/api/delete?table=socios&tablePK=socio_id&socio_id=${s.socio_id}&codigoEmpresa=${+codigoEmpresa}&cpf_socio=${s.cpf_socio}`)
                     })
                 }
                 toastMsg = 'Alteração de contrato social aprovada.'
