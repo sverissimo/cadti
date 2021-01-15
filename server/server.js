@@ -768,7 +768,7 @@ app.put('/api/editSocios', (req, res) => {
                 requestArray.forEach(obj => {
                     let value = obj[key]
                     if (value) {
-                        if (key !== 'codigo_empresa' && key !== 'share')
+                        if (key !== 'codigo_empresa' && key !== 'share' && key !== 'empresas')
                             value = '\'' + value + '\''
                         queryString += `WHEN ${obj.socio_id} THEN ${value} `
 
@@ -787,6 +787,7 @@ app.put('/api/editSocios', (req, res) => {
         })
     })
 
+    console.log("🚀 ~ file: server.js ~ line 791 ~ pool.query ~ queryString", queryString)
     pool.query(queryString, (err, t) => {
         if (err) console.log(err)
         if (t)

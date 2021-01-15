@@ -51,13 +51,9 @@ const AltContrato = props => {
                 selectedEmpresa = empresas.find(e => e.codigoEmpresa === demand.empresaId),
                 altContratoFields = {}
 
-
-            console.log("🚀 ~ file: AltContrato.jsx ~ line 51 ~ useEffect ~ altContrato", altContrato)
-
             let
                 filteredSocios = JSON.parse(JSON.stringify(socios.filter(s => s.codigoEmpresa === selectedEmpresa.codigoEmpresa))),
                 demandFiles
-            console.log(socios)
 
             if (altContrato)
                 altContratoForm.forEach(({ field }) => altContratoFields[field] = altContrato[field])
@@ -242,7 +238,6 @@ const AltContrato = props => {
     const handleSubmit = async approved => {
         const
             { demand, altContratoDoc } = state,
-            { codigoEmpresa } = state?.selectedEmpresa,
             altContrato = createRequestObj(altContratoForm),
             altEmpresa = createRequestObj(empresasForm),
             empresaUpdates = updateEmpresa(altEmpresa),
@@ -289,7 +284,6 @@ const AltContrato = props => {
                         newCpfs = newSocios.map(s => s.cpf_socio),
                         checkSocios = await axios.post('/api/checkSocios', { newCpfs }),
                         existingSocios = checkSocios?.data
-                    console.log("🚀 ~ file: AltContrato.jsx ~ line 291 ~ existingSocios", existingSocios)
 
                     newSocios.forEach((s, i) => {
                         existingSocios.forEach(os => {
@@ -305,8 +299,8 @@ const AltContrato = props => {
                         })
                     })
                     indexes.forEach(i => newSocios.splice(i))
-                    //                    console.log({ newSocios, oldSocios, indexes, originalSocios })
-                    //Se sobrou algum novo sócio, post request dos novos sócios
+
+                    //Post request dos novos sócios
                     if (newSocios[0])
                         await axios.post('/api/cadSocios', { socios: newSocios })
                             .then(async r => {
@@ -320,11 +314,11 @@ const AltContrato = props => {
                     const ids = oldSocios.map(s => s.socio_id)
                     socioIds = socioIds.concat(ids)
                 }
-                if (deletedSocios[0]) {
+                /* if (deletedSocios[0]) {
                     deletedSocios.forEach(s => {
-                        axios.delete(`/api/delete?table=socios&tablePK=socio_id&socio_id=${s.socio_id}&codigoEmpresa=${+codigoEmpresa}&cpf_socio=${s.cpf_socio}`)
+                        axios.delete(`/api/delete?table=socios&tablePK=socio_id&id=${s.socio_id}&codigoEmpresa=${+codigoEmpresa}&cpf_socio=${s.cpf_socio}`)
                     })
-                }
+                } */
                 toastMsg = 'Alteração de contrato social aprovada.'
             }
         }
@@ -397,16 +391,31 @@ const AltContrato = props => {
 
         //Separa os sócios modificados em novos, alterados e excluídos para que cada o respectivo request seja feito
         if (socioUpdates[0]) {
+            //Acrescenta o codigoEmpresa na array empresas de cada sócio
+            socioUpdates.forEach(s => {
+                if (Array.isArray(s.empresas) && !s.empresas.includes(codigoEmpresa))
+                    s.empresas.push(codigoEmpresa)
+                else if (!s.empresas)
+                    s.empresas = [codigoEmpresa]
+                s.empresas = s.empresas.toString()
+                s.empresas = `ARRAY[${s.empresas}]`
+                if (s.empresas instanceof Array && s.status === 'deleted')
+                    s.empresas = s.empresas.filter(el => el !== codigoEmpresa)
+            })
+
             socioUpdates = humps.decamelizeKeys(socioUpdates)
             const
                 newSocios = socioUpdates.filter(s => s.status === 'new'),
-                oldSocios = socioUpdates.filter(s => s.status === 'modified'),
+                oldSocios = socioUpdates.filter(s => s.status === 'modified' || s.status === 'deleted'),
                 deletedSocios = socioUpdates.filter(s => s.status === 'deleted')
 
             //Apaga a prop 'status' de cada sócio antes do request
-            newSocios.forEach(s => delete s.status)
             oldSocios.forEach(s => delete s.status)
             deletedSocios.forEach(s => delete s.status)
+            newSocios.forEach(s => {
+                delete s.status
+
+            })
 
             return { newSocios, oldSocios, deletedSocios }
         }

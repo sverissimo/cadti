@@ -10,7 +10,7 @@ const removeEmpresa = async ({ representantes, codigoEmpresa }) => {
     codigoEmpresa = +codigoEmpresa
 
     const
-        cpfs = shouldUpdate(representantes, codigoEmpresa),
+        cpfs = await shouldUpdate(representantes, codigoEmpresa),
         filter = ({ 'cpf': { $in: cpfs } })
 
     console.log("🚀 ~ file: removeEmpresa.js ~ line 10 ~ removeEmpresa ~ filter", cpfs, filter)
