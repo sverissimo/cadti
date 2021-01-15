@@ -226,9 +226,11 @@ app.get(`/api/${routes}`, apiGetRouter);
 app.get('/api/lookUpTable/:table', lookup);
 
 app.post('/api/checkSocios', async (req, res) => {
-
     const
-        { newCpfs } = req.body,
+        { newCpfs } = req.body
+    if (!newCpfs || !newCpfs instanceof Array)
+        return res.send([])
+    const
         cpfArray = newCpfs.map(cpf => `'${cpf}'`),
         condition = `WHERE cpf_socio IN (${cpfArray})`,
         checkSocios = await getUpdatedData('socios', condition)
@@ -752,8 +754,9 @@ app.put('/api/updateInsurances', async (req, res) => {
 
 app.put('/api/editSocios', (req, res) => {
 
-    const { requestArray, table, tablePK } = req.body
-    let queryString = '',
+    const { requestArray, table, tablePK, codigoEmpresa, cpfsToAdd, cpfsToRemove } = req.body
+    let
+        queryString = '',
         ids = ''
 
     requestArray.forEach(o => {
@@ -787,14 +790,22 @@ app.put('/api/editSocios', (req, res) => {
         })
     })
 
-    console.log("🚀 ~ file: server.js ~ line 791 ~ pool.query ~ queryString", queryString)
+
     pool.query(queryString, (err, t) => {
         if (err) console.log(err)
-        if (t)
+        if (t) {
+            //Adiciona permissões, se for o caso
+            if (cpfsToAdd && cpfsToAdd[0])
+                insertEmpresa({ representantes: cpfsToAdd, codigoEmpresa })
+            //Remove permissões de usuário, se for o caso
+            if (cpfsToRemove && cpfsToRemove[0])
+                removeEmpresa({ representantes: cpfsToRemove, codigoEmpresa })
+            //Novo get request da tabela socios e socket para atualizar as informações do clientSide
             pool.query(socios, (error, table) => {
                 if (error) console.log(error)
                 io.sockets.emit('updateSocios', table.rows)
             })
+        }
         res.send('Dados atualizados.')
     })
 })

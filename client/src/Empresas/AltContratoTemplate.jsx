@@ -15,8 +15,9 @@ import { empresaFiles } from '../Forms/empresaFiles'
 
 
 const AltContratoTemplate = (
-    { empresas, data, setActiveStep, enableEdit, handleEdit, addSocio, removeSocio, handleInput, handleSubmit, handleFiles, removeFile,
+    { empresas, data, setActiveStep, enableEdit, handleEdit, addSocio, removeSocio, handleInput, handleBlur, handleSubmit, handleFiles, removeFile,
         setShowPendencias }) => {
+
 
     const
         { selectedEmpresa, demand, demandFiles, activeStep, stepTitles, subtitles, dropDisplay, altContratoDoc, fileToRemove, info, showPendencias } = data,
@@ -93,6 +94,7 @@ const AltContratoTemplate = (
                                 <AltSociosTemplate
                                     data={data}
                                     handleInput={handleInput}
+                                    handleBlur={handleBlur}
                                     addSocio={addSocio}
                                     removeSocio={removeSocio}
                                     handleFiles={handleFiles}

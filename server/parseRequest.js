@@ -9,7 +9,10 @@ const parseRequestBody = (body) => {
 
             Object.entries(obj).forEach(([k, v]) => {
                 if (v) {
-                    values.push(('\'' + v + '\'').toString())
+                    if (typeof v === 'string' && v.match('ARRAY'))
+                        values.push(v).toString()
+                    else
+                        values.push(('\'' + v + '\'').toString())
                     keys.push(k.toString())
                 }
             })
