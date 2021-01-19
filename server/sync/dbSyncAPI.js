@@ -6,7 +6,7 @@ const
     getCompartilhadoId = require('./getCompartilhadoID'),
     { accessParseDB, equipamentsParseDB } = require('./getEquip'),
     forceDbUpdate = require('./forceDbUpdate'),
-    { oldVehicles, getOldVehicle } = require('./oldVehicles')
+    { oldVehicles } = require('./oldVehicles')
 
 router.post('/createTable', (req, res) => {
     const { query } = req.body
@@ -41,7 +41,7 @@ router.post('/updateTable', (req, res) => {
 
     const query = `INSERT INTO public.${table} (${keys}) VALUES ${values}`
 
-    console.log(query.substring(0, 400))
+    console.log(query)
     //fs.writeFile(`${table}Insert.txt`, query, 'utf8', (err) => console.log(err))
     //console.log(query)
 

@@ -30,7 +30,7 @@ const apiGetRouter = (req, res) => {
             condition = `WHERE ${table}.codigo_empresa IN (${empresas})`
         if (table === 'socios') {
             emps = ''
-            empresas.forEach(e => emps += ` or socios.empresas @> '{${e}}'`)
+            empresas.forEach(e => emps += ` or socios.empresas LIKE '%${e}%'`)
             condition += emps
         }
     }

@@ -41,7 +41,7 @@ const AltContrato = props => {
     useEffect(() => {
         if (empresas && empresas.length === 1)
             setState({ ...state, ...empresas[0], selectedEmpresa: empresas[0], filteredSocios: socios })
-        console.log(socios)
+
         const demand = props?.location?.state?.demand
 
         if (demand && demand.history[0]) {
@@ -136,6 +136,7 @@ const AltContrato = props => {
 
         if (name === 'razaoSocial') {
             selectedEmpresa = empresas.find(e => e.razaoSocial === value) || {}
+
             let venc = selectedEmpresa?.vencimentoContrato
 
             if (venc && venc.length > 0)
@@ -143,19 +144,20 @@ const AltContrato = props => {
 
             if (selectedEmpresa?.codigoEmpresa) {
 
-                let
-                    aditionalSocios = [],
-                    filteredSocios = JSON.parse(JSON.stringify(socios.filter(s => s.codigoEmpresa === selectedEmpresa.codigoEmpresa)))
-
-                aditionalSocios = JSON.parse(JSON.stringify(socios.filter(s => {
+                filteredSocios = JSON.parse(JSON.stringify(socios.filter(s => s.codigoEmpresa === selectedEmpresa.codigoEmpresa)))
+                let aditionalSocios = JSON.parse(JSON.stringify(socios.filter(s => {
                     if (s.empresas && s.empresas[0])
                         return s.empresas.includes(selectedEmpresa.codigoEmpresa)
                 })))
 
-                filteredSocios = new Set(filteredSocios)
-
-                console.log("🚀 ~ file: AltContrato.jsx ~ line 150 ~ aditionalSocios", aditionalSocios, filteredSocios)
+                aditionalSocios = filteredSocios.concat(aditionalSocios)
+                const result = new Map()
+                for (const s of aditionalSocios) {
+                    result.set(s.socioId, s)
+                }
+                filteredSocios = [...result.values()]
             }
+
             setState({ ...state, ...selectedEmpresa, selectedEmpresa, filteredSocios, [name]: value })
         }
         else {
@@ -410,22 +412,22 @@ const AltContrato = props => {
             socioUpdates.forEach(s => {
 
                 console.log(s.empresas, codigoEmpresa)
-                if (s.empresas && s.empresas[0] && !s.empresas.includes(codigoEmpresa)) {
-                    s.empresas.push(codigoEmpresa)
+                if (s.empresas && s.empresas[0] && !s.empresas.find(e => e.codigoEmpresa === codigoEmpresa)) {
+                    s.empresas.push({ codigoEmpresa, share: s?.share })
                 }
                 else if (!s.empresas)
-                    s.empresas = [codigoEmpresa]
+                    s.empresas = [{ codigoEmpresa, share: s?.share }]
                 //Se newSocio, incluir cpf para atualizar permissões de usuário
                 if (s.status === 'new' || s.outsider === true)
                     cpfsToAdd.push({ cpf_socio: s.cpfSocio })
                 //Se deleted, remove o código da empresa da array de empresas do sócio e grava todos os cpfs para retirar permissão de usuário
                 if (s.empresas instanceof Array && s.status === 'deleted') {
-                    s.empresas = s.empresas.filter(el => el !== codigoEmpresa)
+                    s.empresas = s.empresas.filter(el => el.codigoEmpresa !== codigoEmpresa)
                     cpfsToRemove.push({ cpf_socio: s.cpfSocio }) // Esse é o formato esperado no backEnd (/users/removeEmpresa.js)
                 }
                 //Se após apagada a empresa, não houver nenhuma, registra 0 como único elemento da array empresas (previne erro no posgresql)
                 if (!s.empresas[0])
-                    s.empresas = [0]
+                    s.empresas = [{ empresas: null, share: null }]
                 //Transforma a array em uma string para o Postgresql
                 if (approved && s.empresas && !s.empresas.toString().match('ARRAY')) {
                     s.empresas = s.empresas.toString()

@@ -42,6 +42,17 @@ export const getData = (collectionsArray = []) => {
             globalState.veiculos = updatedData
         }
 
+        //JSON Parsing do array de empresas dos sócios, que são strings no postgresql
+        if (globalState.socios && Array.isArray(globalState.socios)) {
+            const socs = [...globalState.socios]
+            socs.forEach(s => {
+                if (s.empresas)
+                    s.empresas = JSON.parse(s.empresas)
+            })
+
+            globalState.socios = socs
+        }
+
         dispatch({
             type: 'GET_DATA',
             payload: globalState
