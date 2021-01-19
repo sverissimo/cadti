@@ -762,7 +762,7 @@ app.put('/api/editSocios', (req, res) => {
     requestArray.forEach(o => {
         const keys = Object.keys(o)
         keys.forEach(key => {
-            if (key !== 'socio_id') {
+            if (key !== 'socio_id' && o[key]) {
                 ids = ''
                 queryString += `
                     UPDATE ${table} 
@@ -790,7 +790,7 @@ app.put('/api/editSocios', (req, res) => {
         })
     })
 
-
+    console.log("🚀 ~ file: server.js ~ line 795 ~ pool.query ~ queryString", queryString)
     pool.query(queryString, (err, t) => {
         if (err) console.log(err)
         if (t) {

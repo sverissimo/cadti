@@ -97,7 +97,7 @@ export default function ({ handleInput, handleBlur, data, addSocio, enableEdit, 
                                                 style: {
                                                     fontSize: '13px',
                                                     color: s.edit === true ? '#000'
-                                                        : s.status === 'new' ? 'green'
+                                                        : s.status === 'new' || s.outsider ? 'green'
                                                             : s.status === 'modified' ? '#FF2500'
                                                                 : s.status === 'deleted' ? 'red'
                                                                     : '#888',

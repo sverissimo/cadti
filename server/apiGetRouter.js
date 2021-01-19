@@ -10,7 +10,8 @@ const apiGetRouter = (req, res) => {
     let
         table = req.url.replace('/api/', ''),
         condition,
-        data
+        data,
+        emps
 
     if (table === 'seguradoras') table = table.slice(0, -1)
     //Se o usuário não é válido ou o role não está definido, retorna 403
@@ -27,8 +28,13 @@ const apiGetRouter = (req, res) => {
         const applyFilter = fieldParser.find(el => el.table === table && el.codigo_empresa)
         if (applyFilter)
             condition = `WHERE ${table}.codigo_empresa IN (${empresas})`
+        if (table === 'socios') {
+            emps = ''
+            empresas.forEach(e => emps += ` or socios.empresas @> '{${e}}'`)
+            condition += emps
+        }
     }
-
+    console.log(condition)
     data = getUpdatedData(table, condition || '')
     data
         .then(r => res.json(r))
