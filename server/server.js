@@ -226,6 +226,7 @@ app.get(`/api/${routes}`, apiGetRouter);
 app.get('/api/lookUpTable/:table', lookup);
 
 app.post('/api/checkSocios', async (req, res) => {
+    //Checa se o(s) cpf(s) informado(s) também é sócio de alguma outra empresa do sistema
     const
         { newCpfs } = req.body
     if (!newCpfs || !newCpfs instanceof Array)
@@ -235,6 +236,11 @@ app.post('/api/checkSocios', async (req, res) => {
         condition = `WHERE cpf_socio IN (${cpfArray})`,
         checkSocios = await getUpdatedData('socios', condition)
 
+    //Parse da coluna empresas de string para JSON
+    checkSocios.forEach(s => {
+        if (s.empresas)
+            s.empresas = JSON.parse(s.empresas)
+    })
     res.send(checkSocios);
 })
 

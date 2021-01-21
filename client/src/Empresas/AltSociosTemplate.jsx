@@ -107,7 +107,13 @@ export default function ({ handleInput, handleBlur, data, addSocio, enableEdit, 
                                         />
                                     </Fragment>
                                 )}
-                                <Button component='span' className={iconButton} title='editar' onClick={() => enableEdit(i)}>
+                                <Button
+                                    disabled={s.status === 'deleted'}
+                                    component='span'
+                                    className={iconButton}
+                                    title='editar'
+                                    onClick={() => enableEdit(i)}
+                                >
                                     <EditIcon />
                                 </Button>
 

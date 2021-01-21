@@ -179,9 +179,11 @@ const AltContrato = props => {
     }
 
     const handleEdit = e => {
+        //Função que reage ao input dos campos de edição dos sócios
         const
             { name } = e.target,
-            { filteredSocios } = state
+            { filteredSocios, selectedEmpresa } = state,
+            { codigoEmpresa } = selectedEmpresa
 
         let { value } = e.target
 
@@ -191,8 +193,24 @@ const AltContrato = props => {
         let editSocio = filteredSocios.find(s => s.edit === true)
         const index = filteredSocios.indexOf(editSocio)
 
+        //Atualiza o estado de acordo com o valor de input do usuário
         editSocio[name] = value
-        editSocio.status = 'modified'
+        //Acrescenta o status do sócio modificado, caso não seja === "new" nem === "deleted"
+        if (!editSocio.status)
+            editSocio.status = 'modified'
+
+        //Se houver atualização na participação, acha o elemento da array empresas e atualiza o valor
+        if (name === 'share' && !isNaN(+value)) {
+            const
+                { empresas } = editSocio,
+                index = empresas.findIndex(e => e.codigoEmpresa === codigoEmpresa)
+            if (index !== -1)
+                empresas[index] = { ...empresas[index], share: +value }
+            else if (empresas[0])
+                empresas.push({ codigoEmpresa, share: +value })
+            else
+                editSocio.empresas = [{ codigoEmpresa, share: +value }]
+        }
 
         const fs = filteredSocios
         fs[index] = editSocio
@@ -243,10 +261,15 @@ const AltContrato = props => {
 
             Object.assign(sObject, { ...update })
         }
+        if (sObject.share)
+            sObject.share = +sObject.share
+
+        //Insere informações sobre empresa e participação para os sócios
+        const { share } = sObject
         if (sObject.empresas && sObject.empresas[0])
-            sObject.empresas.push(codigoEmpresa)
+            sObject.empresas.push({ codigoEmpresa, share })
         if (sObject.empresas && !sObject.empresas[0] || !sObject.empresas)
-            sObject.empresas = [codigoEmpresa]
+            sObject.empresas = [{ codigoEmpresa, share }]
 
 
         socios.push(sObject)
@@ -275,20 +298,30 @@ const AltContrato = props => {
 
     const removeSocio = index => {
         const
-            { filteredSocios } = state,
+            { filteredSocios, selectedEmpresa, demand } = state,
+            { codigoEmpresa } = selectedEmpresa,
             socioToRemove = filteredSocios[index]
 
-        if (socioToRemove?.status === 'new') {
+        if (socioToRemove?.status === 'new' || (!demand && socioToRemove.outsider)) {
             filteredSocios.splice(index, 1)
             setState({ ...state, filteredSocios })
         }
         else {
-            if (socioToRemove.status && socioToRemove.status !== 'deleted') {
+            if (socioToRemove?.status && socioToRemove?.status !== 'deleted') {
                 socioToRemove.originalStatus = socioToRemove.status
                 socioToRemove.status = 'deleted'
             }
-            else if (socioToRemove?.status === 'deleted')
+            else if (socioToRemove?.status === 'deleted') {
+                let { empresas, share } = socioToRemove
+                const updateEmpresas = { codigoEmpresa, share: !isNaN(+share) && +share }
+
+                if (empresas && empresas[0])
+                    empresas.push(updateEmpresas)
+                else
+                    empresas = [updateEmpresas]
+
                 socioToRemove.status = socioToRemove?.originalStatus
+            }
             else
                 socioToRemove.status = 'deleted'
 
@@ -310,11 +343,12 @@ const AltContrato = props => {
             toastMsg = 'Solicitação de alteração contratual enviada.'
 
         //Se não houver nenhuma altreração, alerta e retorna
-        if (!demand && !altContrato && !empresaUpdates && !altContratoDoc && !socioUpdates && !socioUpdates[0]) {
+        if (!demand && !altContrato && !empresaUpdates && !altContratoDoc && !socioUpdates) {
             alert('Nenhuma modificação registrada!')
             return
         }
-
+        console.log(socioUpdates)
+        return
         //A alteração de dados da empresa não precisa de aprovação. Se for só isso, não gera demanda
         if (empresaUpdates) {
             axios.put('/api/editTableRow', empresaUpdates)
@@ -394,57 +428,62 @@ const AltContrato = props => {
 
         //verifica se houve alteração em sócios existentes e as insere em oldSocios ou se há novos sócios, inseridos em newSocios
         filteredSocios.forEach(m => {
+            //Apaga campos irrelevantes
             delete m.edit
+            delete m.createdAt
+            delete m.razaoSocial
             //Exclui campos nulos ou em branco do request
             Object.keys(m).forEach(k => {
                 if (!m[k] || m[k] === '')
                     delete m[k]
             })
             //Se foi modificado, inserido ou removido, insere o objeto socio no socioUpdates
-            if (m.socioId)
-                if (m.status || m.outsider)
-                    socioUpdates.push(m)
+            if (m.status)
+                socioUpdates.push(m)
         })
 
         //Separa os sócios modificados em novos, alterados e excluídos para que cada o respectivo request seja feito
         if (socioUpdates[0]) {
             //Acrescenta o codigoEmpresa na array empresas de cada sócio
             socioUpdates.forEach(s => {
-
-                console.log(s.empresas, codigoEmpresa)
-                if (s.empresas && s.empresas[0] && !s.empresas.find(e => e.codigoEmpresa === codigoEmpresa)) {
+                //Se o sócio ainda não tem a empresa em sua array de empresas, inserir
+                if (s.empresas && s.empresas[0] && !s.empresas.some(e => e.codigoEmpresa === codigoEmpresa))
                     s.empresas.push({ codigoEmpresa, share: s?.share })
+                //Se a empresa já existe, atualiza o share
+                else if (s.empresas && s.empresas[0] && s.empresas.some(e => e.codigoEmpresa === codigoEmpresa)) {
+                    const
+                        index = s.empresas.findIndex(e => e.codigoEmpresa === codigoEmpresa),
+                        empresaUpdate = { ...s.empresas[index] }
+                    empresaUpdate.share = +s.share
+                    s.empresas[index] = s.empresas[index]
+                    console.log(index, empresaUpdate, s.share)
                 }
-                else if (!s.empresas)
+
+                else if (!s.empresas || !s.empresas[0])
                     s.empresas = [{ codigoEmpresa, share: s?.share }]
                 //Se newSocio, incluir cpf para atualizar permissões de usuário
                 if (s.status === 'new' || s.outsider === true)
                     cpfsToAdd.push({ cpf_socio: s.cpfSocio })
                 //Se deleted, remove o código da empresa da array de empresas do sócio e grava todos os cpfs para retirar permissão de usuário
                 if (s.empresas instanceof Array && s.status === 'deleted') {
-                    s.empresas = s.empresas.filter(el => el.codigoEmpresa !== codigoEmpresa)
+                    s.empresas = s.empresas.filter(e => e.codigoEmpresa !== codigoEmpresa)
                     cpfsToRemove.push({ cpf_socio: s.cpfSocio }) // Esse é o formato esperado no backEnd (/users/removeEmpresa.js)
-                }
-                //Se após apagada a empresa, não houver nenhuma, registra 0 como único elemento da array empresas (previne erro no posgresql)
-                if (!s.empresas[0])
-                    s.empresas = [{ empresas: null, share: null }]
-                //Transforma a array em uma string para o Postgresql
-                if (approved && s.empresas && !s.empresas.toString().match('ARRAY')) {
-                    s.empresas = s.empresas.toString()
-                    s.empresas = `ARRAY[${s.empresas}]`
+                    //Se após apagada a empresa, não houver nenhuma, registra 0 como único elemento da array empresas (previne erro no posgresql)
+                    if (!s.empresas[0])
+                        s.empresas = []
                 }
             })
 
             //Se não tiver demand, retorna socioUpdates
             if (!demand)
-                return socioUpdates
+                return { socioUpdates, cpfsToAdd, cpfsToRemove }
 
             //Prepara o objeto de resposta
             if (demand && approved) {
                 socioUpdates.forEach(s => {
                     delete s.outsider
-                    delete s.createdAt
                     delete s.razaoSocial
+                    delete s.share
                 })
                 socioUpdates = humps.decamelizeKeys(socioUpdates)
                 const
