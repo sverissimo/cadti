@@ -52,7 +52,7 @@ const AltContrato = props => {
                 altContratoFields = {}
 
             let
-                filteredSocios = JSON.parse(JSON.stringify(socios.filter(s => s.codigoEmpresa === selectedEmpresa.codigoEmpresa))),
+                filteredSocios = JSON.parse(JSON.stringify(socios.filter(s => s.empresas[0] && s.empresas.some(e => e.codigoEmpresa === selectedEmpresa.codigoEmpresa)))),
                 demandFiles
 
             if (altContrato)
@@ -60,18 +60,20 @@ const AltContrato = props => {
 
             if (socioUpdates[0]) {
                 const newSocios = []
+
                 socioUpdates.forEach(us => {
                     //Se é novo, armazena no newSocios
-                    if ((us.status === 'new' && !newSocios.includes(us)) || us.outsider)
+                    if (us.status === 'new' || us.outsider)
                         newSocios.push(us)
                     //Senão, atualiza os existentes com os campos de vieram da demanda
-                    filteredSocios.forEach(fs => {
-                        if (fs.socioId === us?.socioId) {
-                            Object.keys(us).forEach(k => {
-                                fs[k] = us[k]
-                            })
-                        }
-                    })
+                    else
+                        filteredSocios.forEach(fs => {
+                            if (us.socioId === fs.socioId) {
+                                const index = filteredSocios.findIndex(s => s.socioId === us.socioId)
+                                if (index !== -1)
+                                    filteredSocios[index] = us
+                            }
+                        })
                 })
 
                 filteredSocios = filteredSocios
@@ -91,7 +93,7 @@ const AltContrato = props => {
         if (state.selectedEmpresa) {
             const
                 codigoEmpresa = state.selectedEmpresa.codigoEmpresa,
-                originalSocios = JSON.parse(JSON.stringify(socios.filter(s => s.codigoEmpresa === codigoEmpresa))) || []
+                originalSocios = JSON.parse(JSON.stringify(socios.filter(s => s.empresas.some(e => e.codigoEmpresa === codigoEmpresa)))) || []
 
             setState({ ...state, originalSocios })
         }
@@ -144,7 +146,7 @@ const AltContrato = props => {
 
             if (selectedEmpresa?.codigoEmpresa) {
 
-                filteredSocios = JSON.parse(JSON.stringify(socios.filter(s => s.codigoEmpresa === selectedEmpresa.codigoEmpresa)))
+                filteredSocios = JSON.parse(JSON.stringify(socios.filter(s => s.empresas[0] && s.empresas.some(e => e.codigoEmpresa === selectedEmpresa.codigoEmpresa))))
                 let aditionalSocios = JSON.parse(JSON.stringify(socios.filter(s => {
                     if (s.empresas && s.empresas[0])
                         return s.empresas.includes(selectedEmpresa.codigoEmpresa)
@@ -156,6 +158,13 @@ const AltContrato = props => {
                     result.set(s.socioId, s)
                 }
                 filteredSocios = [...result.values()]
+                filteredSocios.forEach(s => {
+                    let empresa
+                    if (s.empresas[0])
+                        empresa = s.empresas.find(e => e.share && e.codigoEmpresa === selectedEmpresa.codigoEmpresa)
+                    if (empresa && empresa.share)
+                        s.share = empresa.share
+                })
             }
 
             setState({ ...state, ...selectedEmpresa, selectedEmpresa, filteredSocios, [name]: value })
@@ -268,9 +277,8 @@ const AltContrato = props => {
         const { share } = sObject
         if (sObject.empresas && sObject.empresas[0])
             sObject.empresas.push({ codigoEmpresa, share })
-        if (sObject.empresas && !sObject.empresas[0] || !sObject.empresas)
+        if ((sObject.empresas && !sObject.empresas[0]) || !sObject.empresas)
             sObject.empresas = [{ codigoEmpresa, share }]
-
 
         socios.push(sObject)
         socios.sort((a, b) => a.nomeSocio.localeCompare(b.nomeSocio))
@@ -347,8 +355,8 @@ const AltContrato = props => {
             alert('Nenhuma modificação registrada!')
             return
         }
-        console.log(socioUpdates)
-        return
+        //console.log(socioUpdates)
+
         //A alteração de dados da empresa não precisa de aprovação. Se for só isso, não gera demanda
         if (empresaUpdates) {
             axios.put('/api/editTableRow', empresaUpdates)
@@ -364,8 +372,8 @@ const AltContrato = props => {
             //Registrar as alterações contratuais
             if (altContrato)
                 axios.post('/api/altContrato', altContrato)
-            //Atualizar os sócios: existentes, novos e a excluir
 
+            //Atualizar os sócios: existentes, novos e a excluir
             if (socioUpdates) {
                 const
                     { newSocios, oldSocios, cpfsToAdd, cpfsToRemove } = socioUpdates,
@@ -384,15 +392,14 @@ const AltContrato = props => {
                         .then(async r => {
                             const ids = r?.data.map(s => s.socio_id)
                             if (ids[0])
-                                socioIds = socioIds.concat(ids)
+                                socioIds = socioIds.concat(ids)         //A array de ids de sócios vai para a metadata dos arquivos
                         })
-
+                //Update/delete dos modificados
                 if (oldSocios[0]) {
                     await axios.put('/api/editSocios', { requestArray: oldSocios, ...requestInfo })
                     const ids = oldSocios.map(s => s.socio_id)
-                    socioIds = socioIds.concat(ids)
+                    socioIds = socioIds.concat(ids)             //A array de ids de sócios vai para a metadata dos arquivos
                 }
-
                 toastMsg = 'Alteração de contrato social aprovada.'
             }
         }
@@ -451,14 +458,9 @@ const AltContrato = props => {
                     s.empresas.push({ codigoEmpresa, share: s?.share })
                 //Se a empresa já existe, atualiza o share
                 else if (s.empresas && s.empresas[0] && s.empresas.some(e => e.codigoEmpresa === codigoEmpresa)) {
-                    const
-                        index = s.empresas.findIndex(e => e.codigoEmpresa === codigoEmpresa),
-                        empresaUpdate = { ...s.empresas[index] }
-                    empresaUpdate.share = +s.share
-                    s.empresas[index] = s.empresas[index]
-                    console.log(index, empresaUpdate, s.share)
+                    const index = s.empresas.findIndex(e => e.codigoEmpresa === codigoEmpresa)
+                    s.empresas[index].share = +s.share
                 }
-
                 else if (!s.empresas || !s.empresas[0])
                     s.empresas = [{ codigoEmpresa, share: s?.share }]
                 //Se newSocio, incluir cpf para atualizar permissões de usuário
@@ -484,6 +486,9 @@ const AltContrato = props => {
                     delete s.outsider
                     delete s.razaoSocial
                     delete s.share
+                    delete s.codigoEmpresa
+                    delete s.originalStatus
+                    s.empresas = JSON.stringify(s.empresas)
                 })
                 socioUpdates = humps.decamelizeKeys(socioUpdates)
                 const
@@ -491,12 +496,10 @@ const AltContrato = props => {
                     oldSocios = socioUpdates.filter(s => s.status === 'modified' || s.status === 'deleted')
 
                 //Se aprovado, Apaga a prop 'status' de cada sócio antes do request
-
                 oldSocios.forEach(s => delete s.status)
                 newSocios.forEach(s => delete s.status)
                 return { newSocios, oldSocios, cpfsToAdd, cpfsToRemove }
             }
-
         }
         else return null
     }
@@ -536,7 +539,7 @@ const AltContrato = props => {
                 history: {
                     altContrato,
                     info,
-                    socioUpdates
+                    ...socioUpdates
                 },
                 empresaId: codigoEmpresa,
                 historyLength: 0,

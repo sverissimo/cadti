@@ -27,7 +27,7 @@ const AltContratoTemplate = (
     return (
         <main>
             <header>
-                <Crumbs links={['Empresas', '/empresas']} text='Alteração de dados e contrato social' />
+                <Crumbs links={['Empresas', '/empresas']} text='Alteração de dados e contrato social' demand={demand} selectedEmpresa={selectedEmpresa} />
                 {/*--------------------- Steppers ------------------------------*/}
                 <section>
                     <CustomStepper

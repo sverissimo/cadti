@@ -763,35 +763,18 @@ app.put('/api/editSocios', (req, res) => {
     const { requestArray, table, tablePK, codigoEmpresa, cpfsToAdd, cpfsToRemove } = req.body
     let
         queryString = '',
-        ids = ''
+        keys = new Set()
 
     requestArray.forEach(o => {
-        const keys = Object.keys(o)
+        Object.keys(o).forEach(k => keys.add(k))
         keys.forEach(key => {
-            if (key !== 'socio_id' && o[key]) {
-                ids = ''
+            if (key !== 'socio_id' && key !== 'cpf_socio' && o[key] && o[key] !== '') {
+                const value = o[key]
                 queryString += `
                     UPDATE ${table} 
-                    SET ${key} = CASE ${tablePK} 
+                    SET ${key} = '${value}'
+                    WHERE socio_id = ${o.socio_id};
                     `
-                requestArray.forEach(obj => {
-                    let value = obj[key]
-                    if (value) {
-                        if (key !== 'codigo_empresa' && key !== 'share' && key !== 'empresas')
-                            value = '\'' + value + '\''
-                        queryString += `WHEN ${obj.socio_id} THEN ${value} `
-
-                        if (ids.split(' ').length <= requestArray.length)
-                            ids += obj.socio_id + ', '
-                    }
-                })
-
-                ids = ids.slice(0, ids.length - 2)
-                queryString += `
-                    END
-                    WHERE ${tablePK} IN (${ids});
-                    `
-                ids = ids + ', '
             }
         })
     })

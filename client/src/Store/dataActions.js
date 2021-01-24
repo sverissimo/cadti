@@ -46,10 +46,17 @@ export const getData = (collectionsArray = []) => {
         if (globalState.socios && Array.isArray(globalState.socios)) {
             const socs = [...globalState.socios]
             socs.forEach(s => {
-                if (s.empresas)
-                    s.empresas = JSON.parse(s.empresas)
+                if (s.empresas && typeof s.empresas === 'string')
+                    if (s.empresas.match('object'))
+                        console.log(s)
+                    else
+                        try {
+                            s.empresas = JSON.parse(s.empresas)
+                        }
+                        catch (e) {
+                            console.log('invalid socio id' + s.socioId + e.message)
+                        }
             })
-
             globalState.socios = socs
         }
 
