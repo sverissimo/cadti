@@ -187,6 +187,22 @@ export const updateCollection = (data, collection) => dispatch => {
     data = humps.camelizeKeys(data)
     const payload = { data, collection }
 
+    //Parse do coluna empresas na tabela sócios de string p JSON
+    if (collection === 'socios') {
+        data.forEach(s => {
+            if (s.empresas && typeof s.empresas === 'string')
+                if (s.empresas.match('object'))
+                    console.log(s)
+                else
+                    try {
+                        s.empresas = JSON.parse(s.empresas)
+                    }
+                    catch (e) {
+                        console.log('invalid socio id' + s.socioId + e.message)
+                    }
+        })
+    }
+
     dispatch({
         type: 'UPDATE_COLLECTION',
         payload

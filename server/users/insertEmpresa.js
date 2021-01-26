@@ -14,7 +14,7 @@ const insertEmpresa = async ({ representantes, codigoEmpresa }) => {
         if (!empresas.includes(codigoEmpresa))
             updates.push({ cpf: u.cpf, codigoEmpresa })
     })
-    //console.log("🚀 ~ file: insertEmpresa.js ~ line 21 ~ insertEmpresa ~ updates", users, cpfs)
+    console.log("🚀 ~ file: insertEmpresa.js ~ line 21 ~ insertEmpresa ~ updates", users, cpfs)
 
     //Atualiza o as arrays de empresas de cada usuário
     if (updates[0]) {

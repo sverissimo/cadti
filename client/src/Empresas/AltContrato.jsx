@@ -454,12 +454,15 @@ const AltContrato = props => {
             //Acrescenta o codigoEmpresa na array empresas de cada sócio
             socioUpdates.forEach(s => {
                 //Se o sócio ainda não tem a empresa em sua array de empresas, inserir
-                if (s.empresas && s.empresas[0] && !s.empresas.some(e => e.codigoEmpresa === codigoEmpresa))
+                if (s.empresas && s.empresas[0] && !s.empresas.some(e => e.codigoEmpresa === codigoEmpresa)) {
                     s.empresas.push({ codigoEmpresa, share: s?.share })
+                    console.log(s, s.empresas)
+                }
                 //Se a empresa já existe, atualiza o share
                 else if (s.empresas && s.empresas[0] && s.empresas.some(e => e.codigoEmpresa === codigoEmpresa)) {
                     const index = s.empresas.findIndex(e => e.codigoEmpresa === codigoEmpresa)
                     s.empresas[index].share = +s.share
+                    console.log(s, s.empresas)
                 }
                 else if (!s.empresas || !s.empresas[0])
                     s.empresas = [{ codigoEmpresa, share: s?.share }]

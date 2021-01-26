@@ -1,4 +1,6 @@
-const UserModel = require("../mongo/models/userModel")
+const
+    UserModel = require("../mongo/models/userModel"),
+    { getUpdatedData } = require("../getUpdatedData")
 
 const addUser = async (req, res) => {
     const
