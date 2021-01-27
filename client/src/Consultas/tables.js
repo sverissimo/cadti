@@ -39,7 +39,7 @@ export const sociosTable = [
         title: 'CPF',
     },
     {
-        field: 'razaoSocial',
+        field: 'nomeEmpresas',
         title: 'Delegatário(s)',
     },
     {
@@ -76,6 +76,10 @@ export const procuradorTable = [
     {
         field: 'telProcurador',
         title: 'Telefone'
+    },
+    {
+        field: 'nomeEmpresas',
+        title: 'Empresas'
     }
 ]
 

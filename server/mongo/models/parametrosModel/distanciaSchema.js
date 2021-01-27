@@ -26,6 +26,6 @@ const
             trim: true,
             default: 65
         }
-    }, { _id: false, strict: false })
+    }, { _id: false, id: false, strict: false })
 
 module.exports = distanciaSchema

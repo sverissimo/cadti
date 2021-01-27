@@ -9,13 +9,13 @@ function SelectEmpresa(props) {
     const
         [enableSelect, setEnabled] = useState(true),
         { empresas, handleInput, handleBlur, shared, headerTitle } = props,
-        { razaoSocial, delegatarioCompartilhado, activeStep, demand } = props.data,
+        { razaoSocial, compartilhado, activeStep, demand } = props.data,
         list = 'razaoSocial'
 
     //Configure the form. If shared is present in state, another form will be pusshed into the array (CadVehicles)
     let headerTitles = [{ title: 'Selecione a Viação', list, name: list, value: razaoSocial }]
     if (shared)
-        headerTitles.push({ title: 'Empresa autorizada a compartilhar', list, name: 'delegatarioCompartilhado', value: delegatarioCompartilhado })
+        headerTitles.push({ title: 'Empresa autorizada a compartilhar', list, name: 'compartilhado', value: compartilhado })
 
     //Render field or title conditionally
     useEffect(() => {
@@ -33,7 +33,6 @@ function SelectEmpresa(props) {
     }, [demand, activeStep, enableSelect, empresas])
 
     if (enableSelect) {
-
         return (
             <div className={props.hasOwnProperty('shared') ? 'flex center' : 'paper flex center'} style={{ width: '100%', marginBottom: 0 }}>
                 {
@@ -62,6 +61,11 @@ function SelectEmpresa(props) {
     else return (
         <>
             <span className='selectedEmpresa'> {headerTitle || demand?.empresa || razaoSocial || ''} </span>
+            {compartilhado &&
+                <span className='compartilhadoHeader'>
+                    Compartilhado por {compartilhado}
+                </span>
+            }
         </>
     )
 }

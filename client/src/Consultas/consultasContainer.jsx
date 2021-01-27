@@ -73,7 +73,8 @@ class ConsultasContainer extends Component {
 
         let updatedElement
 
-        if (elementDetails) updatedElement = redux[options[tab]].find(e => e[primaryKeys[tab]] === elementDetails[primaryKeys[tab]])
+        if (elementDetails)
+            updatedElement = redux[options[tab]].find(e => e[primaryKeys[tab]] === elementDetails[primaryKeys[tab]])
 
         if (elementDetails !== undefined && updatedElement) {
             await this.setState({ showDetails: !this.state.showDetails, elementDetails: updatedElement })
@@ -244,6 +245,7 @@ class ConsultasContainer extends Component {
                 tab={tab}
                 items={items}
                 collection={this.props.redux[options[tab]]}
+                empresas={empresas}
                 showDetails={this.showDetails}
                 showFiles={this.showFiles}
                 del={this.deleteHandler}

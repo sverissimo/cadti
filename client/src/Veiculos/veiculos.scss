@@ -10,7 +10,7 @@ body {
     border: 1px solid #ddd;
     color: white;
     background: {
-        image: url('/images/busFleet4.jpg');
+        image: url("/images/busFleet4.jpg");
         size: 100% 100%;
         repeat: no-repeat;
     }
@@ -110,6 +110,13 @@ body {
         margin-bottom: 2px;
         padding: 3px;
     }
+}
+
+.compartilhadoHeader {
+    font-size: 11px;
+    text-align: center;
+    margin-top: -8px;
+    color: #333;
 }
 
 .radio {

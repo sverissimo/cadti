@@ -14,8 +14,7 @@ export const setDemand = (demand, redux) => {
 
     let
         selectedVehicle = { ...vehicle } || null,
-        alteracoes,
-        compartilhado
+        alteracoes
 
     //******************Get the last log updates
     if (Array.isArray(history))
@@ -24,11 +23,6 @@ export const setDemand = (demand, redux) => {
     //******************Set Alterações into State and set equipamentosId/acessibilidade array of names for each vehicle
     if (alteracoes) {
         Object.keys(alteracoes).forEach(key => selectedVehicle[key] = alteracoes[key])
-
-        //Pega o ID do delegatario compartilhado se houver
-        compartilhado = empresas.find(e => e.codigoEmpresa === selectedVehicle.compartilhadoId)?.razaoSocial
-        if (compartilhado)
-            selectedVehicle.compartilhado = compartilhado
 
         //Pega os nomes dos equipamentos e acessórios para renderizar
         const { equipamentosId, acessibilidadeId } = alteracoes
@@ -66,7 +60,7 @@ export const setDemand = (demand, redux) => {
 
     //****************** Return the object    
     return {
-        ...selectedVehicle, originalVehicle, delegatario, compartilhado, razaoSocial, selectedEmpresa,
+        ...selectedVehicle, originalVehicle, delegatario, razaoSocial, selectedEmpresa,
         demand, demandFiles: latestDocs, alteracoes, getUpdatedValues
     }
 }

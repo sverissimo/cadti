@@ -5,8 +5,9 @@ import * as XLSX from 'xlsx';
 import MaterialTable from 'material-table';
 
 import { solicitacoesTable } from '../Forms/solicitacoesTable'
+import configTablePermissions from './configTablePermissions';
 
-export default function ({ tableData, title, showDetails, assessDemand, completed, showInfo }) {
+export default function ({ tableData, title, showDetails, assessDemand, completed, showInfo, user }) {
 
     let parsedData = JSON.parse(JSON.stringify(tableData))
     parsedData.forEach(obj => delete obj.history)
@@ -94,7 +95,7 @@ export default function ({ tableData, title, showDetails, assessDemand, complete
                         tooltip: 'Ver histórico',
                         onClick: (event, rowData) => showDetails(rowData['id'])
                     },
-                    rowData => ({
+                    rowData => (configTablePermissions({ rowData, user }) && {
                         icon: !completed ? 'assignment_turned_in_outlined' : rowData?.status === 'Solicitação indeferida' ? 'clear' : 'done_icon',
                         iconProps: {
                             className: !completed ? 'assessDemandButton' : '',

@@ -26,7 +26,7 @@ const
             trim: true,
             default: 15
         }
-    }, { _id: false, strict: false })
+    }, { _id: false, id: false, strict: false })
 
 module.exports = idadeBaixaSchema
 

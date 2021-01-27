@@ -36,6 +36,6 @@ const
             trim: true,
             default: 'CadTI - MG'
         },
-    }, { _id: false, strict: false })
+    }, { _id: false, id: false, strict: false })
 
 module.exports = nomesSchema

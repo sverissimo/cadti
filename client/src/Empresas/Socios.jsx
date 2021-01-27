@@ -11,8 +11,6 @@ import valueParser from '../Utils/valueParser'
 import Crumbs from '../Reusable Components/Crumbs'
 import { sociosForm } from '../Forms/dadosSociosForm'
 import AlertDialog from '../Reusable Components/AlertDialog'
-import { removeFile, sizeExceedsLimit } from '../Utils/handleFiles'
-import { setEmpresaDemand } from '../Utils/setEmpresaDemand'
 import { logGenerator } from '../Utils/logGenerator'
 
 class AltSocios extends Component {
@@ -37,30 +35,13 @@ class AltSocios extends Component {
         const
             { redux } = this.props,
             { empresas } = redux,
-            demand = this.props?.location?.state?.demand,
-            originals = humps.decamelizeKeys(redux.socios),
-            socios = JSON.parse(JSON.stringify(redux.socios))
-
-        let filteredSocios = socios.filter(s => s.razaoSocial === this.state.razaoSocial)
+            originals = JSON.parse(JSON.stringify(redux.socios))
 
         //Se o usuário representa apenas uma empresa, seleciona a empresa e carrega os dados
         if (empresas && empresas.length === 1) {
-            filteredSocios = this.props.redux.socios
-            this.setState({ selectedEmpresa: empresas[0], razaoSocial: empresas[0]?.razaoSocial, filteredSocios })
+            const filteredSocios = this.props.redux.socios
+            this.setState({ selectedEmpresa: empresas[0], razaoSocial: empresas[0]?.razaoSocial, filteredSocios, originals })
         }
-
-        if (demand) {
-
-            const filteredSocios = socios.filter(s => s.codigoEmpresa === demand.empresaId)
-            console.log(filteredSocios)
-
-            const
-                demandState = setEmpresaDemand(demand, redux, filteredSocios),
-                { latestDoc, ...updatedState } = demandState
-            console.log(demandState)
-            this.setState({ ...updatedState, contratoSocial: latestDoc, originals })
-        }
-        else this.setState({ originals, filteredSocios })
     }
 
     componentDidUpdate(prevProps, prevState) {
@@ -103,91 +84,6 @@ class AltSocios extends Component {
                 if (value !== selectedEmpresa.razaoSocial) this.setState({ selectedEmpresa: undefined })
             } else this.setState({ selectedEmpresa: undefined })
         }
-    }
-
-    handleBlur = async e => {
-        const { filteredSocios, share } = this.state
-        const { name } = e.target
-        let { value } = e.target
-        switch (name) {
-            case 'cpfSocio':
-                const alreadyExists = filteredSocios.find(e => e.cpfSocio === value)
-                if (alreadyExists) {
-                    this.setState({ alertType: 'alreadyExists', openAlertDialog: true })
-                    this.setState({ cpfSocio: '' })
-                }
-                break;
-            case 'share':
-
-                if (share && typeof share !== 'number')
-                    await this.setState({ share: Number(this.state.share) })                         //Garante que o state é um número
-
-                if (value) {
-                    value = this.state.share
-                    if (value > 100) {
-                        await this.setState({ share: '' })
-                        value = ''
-                        this.setState({ alertType: 'numberNotValid', openAlertDialog: true })
-                    }
-                    if (value < 0) {
-                        value = value * -1
-                        this.setState({ share: value })
-                    }
-                    if (value > 0) {
-                        let totalShare = 0
-                        const allShares = filteredSocios.map(s => s.share ? Number(s.share) : 0)            //Procura valor share entre os sócios
-
-                        if (allShares[0])                                                   // se encontrar, retorna a soma dos valores
-                            totalShare = allShares.reduce((a, b) => a + b)
-
-                        totalShare += value
-                        //console.log(totalShare, typeof totalShare)
-                        this.setState({ totalShare })
-                    }
-                }
-                break;
-            default: break;
-        }
-    }
-
-    addSocio = async () => {
-        let socios = this.state.filteredSocios,
-            sObject = {}
-
-        //check if totalShare is more than 100
-
-        if (this.state.totalShare > 100) {
-            this.setState({ openAlertDialog: true, alertType: 'overShared' })
-            return null
-        }
-
-        sociosForm.forEach(obj => {
-            Object.assign(sObject, { [obj.field]: this.state[obj.field] })
-        })
-        socios.unshift(sObject)
-
-        await this.setState({ filteredSocios: socios })
-
-        sociosForm.forEach(async obj => {
-            await this.setState({ [obj.field]: undefined })
-        })
-        document.getElementsByName('nomeSocio')[0].focus()
-    }
-
-    removeSocio = async index => {
-        let socios = [...this.state.filteredSocios]
-        const socio = socios[index]
-
-        if (socio.status && socio.status !== 'deleted') {
-            socio.originalStatus = socio.status
-            socio.status = 'deleted'
-        }
-        else if (socio?.status === 'deleted')
-            socio.status = socio?.originalStatus
-        else
-            socio.status = 'deleted'
-
-        this.setState({ filteredSocios: socios })
     }
 
     enableEdit = index => {
@@ -423,25 +319,6 @@ class AltSocios extends Component {
             setTimeout(() => { this.props.history.push('/solicitacoes') }, 1500)
     }
 
-    handleFiles = files => {
-        //limit file Size
-        if (sizeExceedsLimit(files)) return
-
-        if (files && files[0]) {
-            const contratoSocial = new FormData()
-            contratoSocial.append('contratoSocial', files[0])
-            this.setState({ contratoSocial, fileToRemove: null })
-        }
-    }
-
-    removeFile = async (name) => {
-        const
-            { contratoSocial } = this.state,
-            newState = removeFile(name, contratoSocial)
-
-        this.setState({ ...this.state, ...newState })
-    }
-
     resetState = () => {
         const { filteredSocios } = this.state
 
@@ -455,7 +332,6 @@ class AltSocios extends Component {
         })
     }
 
-    setShowPendencias = () => this.setState({ showPendencias: !this.state.showPendencias })
     toggleDialog = () => this.setState({ openDialog: !this.state.openDialog })
     closeAlert = () => this.setState({ openAlertDialog: !this.state.openAlertDialog })
     toast = () => this.setState({ confirmToast: !this.state.confirmToast })
@@ -472,15 +348,10 @@ class AltSocios extends Component {
                     socios={filteredSocios}
                     empresas={empresas}
                     handleInput={this.handleInput}
-                    handleBlur={this.handleBlur}
-                    addSocio={this.addSocio}
-                    removeSocio={this.removeSocio}
                     enableEdit={this.enableEdit}
                     handleEdit={this.handleEdit}
-                    handleFiles={this.handleFiles}
                     handleSubmit={this.handleSubmit}
-                    removeFile={this.removeFile}
-                    setShowPendencias={this.setShowPendencias}
+
                 />
                 <ReactToast open={this.state.confirmToast} close={this.toast} msg={this.state.toastMsg} />
                 {openAlertDialog && <AlertDialog open={openAlertDialog} close={this.closeAlert} alertType={alertType} />}

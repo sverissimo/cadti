@@ -27,7 +27,7 @@ export default function ({ redux, data, handleInput, handleBlur, handleEquipa, h
         [shared, setShared] = useState(false),
         { button } = useStyles(),
         { empresas, equipamentos, acessibilidade, modelosChassi, carrocerias } = redux,
-        { activeStep, addEquipa, subtitle, selectedEmpresa, type, placa, reactivated } = data,
+        { activeStep, demand, addEquipa, subtitle, selectedEmpresa, type, placa, reactivated } = data,
         form = cadVehicleForm[activeStep]
 
     let eqCollection = equipamentos
@@ -58,7 +58,7 @@ export default function ({ redux, data, handleInput, handleBlur, handleEquipa, h
                     />
                 </section>
                 {
-                    activeStep === 0 &&
+                    activeStep === 0 && !demand &&
                     <section className="flex center" style={{ width: '100%', margin: '-7px 0 -4px 0' }}>
                         <FormControlLabel
                             control={

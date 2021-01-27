@@ -13,8 +13,10 @@ const dataReducer = (state = {}, action) => {
                 let update = [...state[collection]]
 
                 data.forEach(el => {
-                    if (collection.match('Logs')) update.push(el)
-                    else update.unshift(el)
+                    if (collection.match('logs'))
+                        update.push(el)
+                    else
+                        update.unshift(el)
                 })
 
                 return {

@@ -976,13 +976,7 @@ app.delete('/api/delete', (req, res) => {
         { table, tablePK } = req.query,
         { collection } = fieldParser.find(f => f.table === table)
 
-    /* const { codigoEmpresa, cpf_socio, cpf_procurador } = req.query
-
-    if (table === 'socios' || table === 'procuradores')
-        removeEmpresa({ representantes: [{ cpf_socio, cpf_procurador }], codigoEmpresa })
-    return res.send('alright!') */
-
-    if (user.role !== 'admin')
+    if (user.role !== 'admin' && collection !== 'procuracoes')
         return res.status(403).send('É preciso permissão de administrador para acessar essa parte do cadTI.')
 
     if (table === 'laudos')
@@ -992,6 +986,7 @@ app.delete('/api/delete', (req, res) => {
     console.log(query, '\n\n', req.query)
 
     pool.query(query, async (err, t) => {
+
         if (err)
             console.log(err)
         if (id) {

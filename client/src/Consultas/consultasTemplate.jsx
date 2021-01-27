@@ -3,16 +3,23 @@ import MaterialTable from 'material-table';
 import { tables } from './tables'
 import exportToXlsx from './exportToXlsx';
 import { setForm } from '../Utils/createFormPattern';
+import getEmpresas from './getEmpresas';
 
-export default function ({ tab, collection, showDetails, showFiles, showCertificate, del }) {
+export default function ({ tab, collection, empresas, showDetails, showFiles, showCertificate, del }) {
 
     const
         id = ['codigoEmpresa', 'socioId', 'procuradorId', 'veiculoId', 'apolice'][tab],
         subject = ['empresas', 'sócios', 'procuradores', 'veículos', 'seguros'],
         form = setForm(tab)
 
-    if (!Array.isArray(collection)) collection = []
+    if (!Array.isArray(collection))
+        collection = []
+
     collection = collection.map(obj => ({ ...obj }))
+
+    //Caso a aba seja Sócios ou Procuradores, extrai e renderiza o nome das empresas das arrays de codigoEmpresa de cada sócio/procurador
+    if (tab === 1 || tab === 2)
+        collection = getEmpresas(collection, empresas, tab)
 
     return (
         <div style={{ margin: '10px 0' }} className='noPrint'>

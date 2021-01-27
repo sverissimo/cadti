@@ -1,4 +1,3 @@
-const { pool } = require("../config/pgConfig")
 const { getUpdatedData } = require("../getUpdatedData")
 const UserModel = require("../mongo/models/userModel")
 
@@ -46,7 +45,7 @@ async function shouldUpdate(representantes, codigoEmpresa) {
         if (cpfs.includes(cpf_socio))
             shouldUpdate = false
 
-        console.log("🚀 ~ file: removeEmpresa.js ~ line 58 ~ shouldUpdate ~ cpf_socio", cpf_socio)
+        //console.log("🚀 ~ file: removeEmpresa.js ~ line 58 ~ shouldUpdate ~ cpf_socio", cpf_socio)
 
         if (shouldUpdate)
             return [cpf_socio]
@@ -63,7 +62,7 @@ async function shouldUpdate(representantes, codigoEmpresa) {
             cpfSocios = socios
                 .filter(s => s.codigo_empresa === codigoEmpresa)
                 .map(s => s.cpf_socio)
-        console.log("🚀 ~ file: removeEmpresa.js ~ line 79 ~ shouldUpdate ~ cpfProcuradores", cpfProcuradores)
+        // console.log("🚀 ~ file: removeEmpresa.js ~ line 79 ~ shouldUpdate ~ cpfProcuradores", cpfProcuradores)
         cpfProcuradores.forEach((cpf, i) => {
 
             if (cpfSocios.includes(cpf))
@@ -71,7 +70,7 @@ async function shouldUpdate(representantes, codigoEmpresa) {
         })
         indexes.forEach(i => cpfProcuradores.splice(i))
 
-        console.log("🚀 ~ file: removeEmpresa.js ~ line 79 ~ shouldUpdate ~ cpfProcuradores", cpfProcuradores)
+        //  console.log("🚀 ~ file: removeEmpresa.js ~ line 79 ~ shouldUpdate ~ cpfProcuradores", cpfProcuradores)
         //Retorna os cpfs para excluir a permissão de usuário
         if (cpfProcuradores[0])
             return cpfProcuradores

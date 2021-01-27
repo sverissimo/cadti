@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react'
-
 import StoreHOC from '../Store/StoreHOC'
 
 import SolHistory from './SolHistory'
@@ -13,6 +12,7 @@ function Solicitacoes(props) {
 
     const
         { veiculos, empresas, vehicleDocs, empresaDocs } = props.redux,
+        { user } = props,
         [logs, setLogs] = useState([]),
         [showHistory, setShowHistory] = useState(false),
         [selectedLog, selectLog] = useState(),
@@ -109,6 +109,7 @@ function Solicitacoes(props) {
             <SolicitacoesTable
                 tableData={logs}
                 title={!completed ? 'Solicitações em andamento' : 'Solicitações concluídas'}
+                user={user}
                 showDetails={showDetails}
                 assessDemand={assessDemand}
                 completed={completed}

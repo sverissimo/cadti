@@ -82,7 +82,6 @@ export const insertData = (dataFromServer, collection) => (dispatch, getState) =
     if (collection === 'veiculos' && data[0]) {
 
         const { acessibilidade, equipamentos } = getState().data
-
         let
             eqNames = [],
             acNames = []
@@ -94,7 +93,6 @@ export const insertData = (dataFromServer, collection) => (dispatch, getState) =
                 })
             })
         }
-
         if (data[0]?.acessibilidadeId) {
             data[0].acessibilidadeId.forEach(acId => {
                 acessibilidade.forEach(({ id, item }) => {
