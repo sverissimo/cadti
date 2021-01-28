@@ -760,7 +760,9 @@ app.put('/api/updateInsurances', async (req, res) => {
 
 app.put('/api/editSocios', (req, res) => {
 
-    const { requestArray, table, tablePK, codigoEmpresa, cpfsToAdd, cpfsToRemove } = req.body
+    const
+        { requestArray, table, codigoEmpresa, cpfsToAdd, cpfsToRemove } = req.body,
+        { role, empresas } = req.user
     let
         queryString = '',
         keys = new Set()
@@ -780,7 +782,7 @@ app.put('/api/editSocios', (req, res) => {
     })
 
     console.log("🚀 ~ file: server.js ~ line 795 ~ pool.query ~ queryString", queryString)
-    pool.query(queryString, (err, t) => {
+    pool.query(queryString, async (err, t) => {
         if (err) console.log(err)
         if (t) {
             //Adiciona permissões, se for o caso
@@ -789,11 +791,14 @@ app.put('/api/editSocios', (req, res) => {
             //Remove permissões de usuário, se for o caso
             if (cpfsToRemove && cpfsToRemove[0])
                 removeEmpresa({ representantes: cpfsToRemove, codigoEmpresa })
+
+            //Se o usuário for de empresa, enviar de volta apenas as empresas com permissão
+            let condition
+            if (role === 'empresa')
+                condition = `WHERE socios.codigo_empresa IN (${empresas})`
             //Novo get request da tabela socios e socket para atualizar as informações do clientSide
-            pool.query(socios, (error, table) => {
-                if (error) console.log(error)
-                io.sockets.emit('updateSocios', table.rows)
-            })
+            const updatedSocios = await getUpdatedData('socios', condition)
+            io.sockets.emit('updateSocios', updatedSocios)
         }
         res.send('Dados atualizados.')
     })

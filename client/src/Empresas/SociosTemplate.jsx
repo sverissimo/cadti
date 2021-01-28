@@ -113,7 +113,7 @@ export default function ({ socios, empresas, handleInput, handleBlur, data, addS
                                             error={s.edit ? errorHandler(s[e.field], e) : null}
                                             helperText={s.edit ? helper(s[e.field], e) : null}
                                             type={e?.type}
-                                            disabled={e.field === 'share' && standAlone ? true : s.edit ? false : true}
+                                            disabled={(e.field === 'share' && standAlone) || e.disabled ? true : s.edit ? false : true}
                                             InputLabelProps={
                                                 {
                                                     shrink: true,
