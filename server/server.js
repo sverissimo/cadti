@@ -68,10 +68,16 @@ let i = 0
 app.use(counter(i))
 
 //************************************ AUTH AND USERS  *********************** */
-
 app.use('/auth', authRouter)
 app.use(authToken)
 app.get('/getUser', getUser)
+
+
+const connectedUsers = []
+io.on('connection', socket => {
+    io.sockets.emit('userSocket', socket.id)
+    socket.on('disconnect', () => console.log('hi im elfo'))
+})
 
 //************************************ BINARY DATA *********************** */
 
@@ -164,6 +170,12 @@ app.post('/api/logs', logHandler, (req, res) => {
 app.get('/api/logs', (req, res) => {
 
     const { filter } = req
+
+    io.clients((err, clients) => {
+        if (err)
+            console.log(err)
+        clients.forEach(c => console.log(c))
+    })
 
     logsModel.find(filter)
         .then(doc => res.send(doc))
