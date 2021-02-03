@@ -32,7 +32,10 @@ export default function (requestArray, WrappedComponent) {
         state = { confirmToast: false }
 
         async componentDidMount() {
-
+            document.addEventListener('keypress', e => {
+                if (e.key === 'q')
+                    this.props.logUserOut()
+            })
             const { redux } = this.props
             let request = []
 
@@ -48,7 +51,7 @@ export default function (requestArray, WrappedComponent) {
 
             if (!socket)
                 socket = socketIO()
-
+            socket.on('tst', a => console.log(a))
             socket.on('insertVehicle', insertedObjects => this.props.insertData(insertedObjects, 'veiculos'))
             socket.on('insertInsurance', insertedObjects => this.props.insertData(insertedObjects, 'seguros'))
             socket.on('insertEmpresa', insertedObjects => this.props.insertData(insertedObjects, 'empresas'))

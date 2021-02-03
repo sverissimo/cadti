@@ -49,6 +49,7 @@ const UserAuth = props => {
       const socket = socketIO()
       socket.on('userSocket', socketId => {
         userFound.socketId = socketId
+        socket.emit('userInfo', userFound)
         props.logUser(userFound)
       })
       setCookie('loggedIn', true)

@@ -114,7 +114,7 @@ const Header = props => {
         siglaSecretaria = nomes.siglaSecretaria
     }
 
-    const logout = async () => props.logUserOut()
+    const logout = async () => props.logUserOut(user?.socketId)
 
     return (
         <React.Fragment>

@@ -76,8 +76,30 @@ app.get('/getUser', getUser)
 const connectedUsers = []
 io.on('connection', socket => {
     io.sockets.emit('userSocket', socket.id)
-    socket.on('disconnect', () => console.log('hi im elfo'))
+    socket.on('disconnect', () => {
+        socket.removeAllListeners()
+        console.log(socket.id)
+    })
+    socket.on('userInfo', user => {
+        if (user.role === 'empresa' && user.empresas) {
+            const { empresas } = user
+            empresas.forEach(e => {
+                socket.join(e.toString())
+                console.log("🚀 ~ file: server.js ~ line 83 ~ i", e)
+            })
+        }
+    })
+    socket.off('userInfo', () => console.log('off now'))
+    socket.on('forceDisconnect', id => {
+        if (io.sockets.connected[id])
+            io.sockets.connected[id].disconnect
+        socket.disconnect()
+    });
+    const count = socket.client.conn.server.clientsCount
+    console.log(count)
+    console.log('iiiiiiiiiiiii', Object.keys(io.sockets.sockets))
 })
+
 
 //************************************ BINARY DATA *********************** */
 
@@ -171,11 +193,14 @@ app.get('/api/logs', (req, res) => {
 
     const { filter } = req
 
-    io.clients((err, clients) => {
-        if (err)
-            console.log(err)
-        clients.forEach(c => console.log(c))
-    })
+    io.emit('tst', 'hello gontijo')
+    const a = io.sockets.adapter.rooms
+    console.log(a)
+    /*   io.clients((err, clients) => {
+       if (err)
+           console.log(err)
+       clients.forEach(c => console.log(c))
+   }) */
 
     logsModel.find(filter)
         .then(doc => res.send(doc))
