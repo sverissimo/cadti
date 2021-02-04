@@ -5,11 +5,9 @@ const { getUpdatedData } = require('./getUpdatedData')
 const cadSocios = (req, res, next) => {
 
     const socios = parseRequestBody(req.body.socios)
-    const a = req.body.socios[0]
-    console.log(a, typeof a, Array.isArray(a))
-    let promisseArray = [];
 
-    console.log("🚀 ~ file: cadSocios.js ~ line 11 ~ cadSocios ~     socios", socios)
+    let promisseArray = []
+
     socios.forEach(s => {
         const { keys, values } = s
         let sp = new Promise((resolve, reject) => {

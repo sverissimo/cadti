@@ -8,7 +8,6 @@ import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { setCookie } from "../Utils/documentCookies";
 import valueParser from "../Utils/valueParser";
-const socketIO = require('socket.io-client')
 
 const UserAuth = props => {
 
@@ -46,13 +45,8 @@ const UserAuth = props => {
         userFound = getUser?.data
       //Ao se descodificar o token, se as credenciais estiverem certas e o token válido, retorna o usuárui, armazena na globalStore e cria cookie local.      
 
-      const socket = socketIO()
-      socket.on('userSocket', socketId => {
-        userFound.socketId = socketId
-        socket.emit('userInfo', userFound)
-        props.logUser(userFound)
-      })
       setCookie('loggedIn', true)
+      props.logUser(userFound)
     }
     catch (err) {
       toast(err?.response?.data, 'error')

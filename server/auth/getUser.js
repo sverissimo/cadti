@@ -1,5 +1,6 @@
 const getUser = (req, res) => {
     const { user } = req
+    console.log(user)
     if (user)
         return res.send(req.user)
     else

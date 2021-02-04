@@ -31,11 +31,13 @@ export default function (requestArray, WrappedComponent) {
 
         state = { confirmToast: false }
 
+        quitFn = e => {
+            if (e.key === 'q')
+                this.props.logUserOut()
+        }
+
         async componentDidMount() {
-            document.addEventListener('keypress', e => {
-                if (e.key === 'q')
-                    this.props.logUserOut()
-            })
+            document.addEventListener('keypress', e => this.quitFn(e))
             const { redux } = this.props
             let request = []
 
@@ -50,8 +52,12 @@ export default function (requestArray, WrappedComponent) {
                 await this.props.getData(request)
 
             if (!socket)
-                socket = socketIO()
-            socket.on('tst', a => console.log(a))
+                socket = socketIO('ws://localhost:3001')
+            socket.on('connect', () => {
+                console.log('shit')
+                socket.emit('tst', this.props?.user)
+            })
+            socket.on('a', msg => console.log(msg))
             socket.on('insertVehicle', insertedObjects => this.props.insertData(insertedObjects, 'veiculos'))
             socket.on('insertInsurance', insertedObjects => this.props.insertData(insertedObjects, 'seguros'))
             socket.on('insertEmpresa', insertedObjects => this.props.insertData(insertedObjects, 'empresas'))
@@ -85,12 +91,15 @@ export default function (requestArray, WrappedComponent) {
         }
 
         componentWillUnmount() {
+            document.removeEventListener('keypress', this.quitFn)
             if (!socket) socket = socketIO(':3001')
             const clearAll = ['insertVehicle', 'insertInsurance', 'insertEmpresa', 'insertSocios', 'insertFiles', 'addElements',
                 'insertElements', 'insertProcuradores', 'updateVehicle', 'updateInsurance', 'updateSocios', 'updateLogs', 'deleteOne',
                 'updateDocs', 'updateAny']
 
             clearAll.forEach(el => socket.off(el))
+            socket.disconnect()
+            socket = undefined
         }
 
         getUser = async () => {

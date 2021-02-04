@@ -34,7 +34,7 @@ const apiGetRouter = (req, res) => {
             condition += emps
         }
     }
-    console.log(condition)
+    //console.log(condition)
     data = getUpdatedData(table, condition || '')
     data
         .then(r => res.json(r))

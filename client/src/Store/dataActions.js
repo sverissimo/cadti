@@ -74,11 +74,26 @@ export const insertData = (dataFromServer, collection) => (dispatch, getState) =
         payload = { collection, data },
         seguradoras = getState().data.seguradoras
 
+    if (collection === 'socios') {
+        data.forEach(s => {
+            if (s.empresas && typeof s.empresas === 'string')
+                if (s.empresas.match('object'))
+                    console.log(s)
+                else
+                    try {
+                        s.empresas = JSON.parse(s.empresas)
+                    }
+                    catch (e) {
+                        console.log('invalid socio id' + s.socioId + e.message)
+                    }
+        })
+    }
+
     if (!seguradoras) {
         dispatch({ type: 'INSERT_DATA', payload })
         return
     }
-    console.log(payload)
+
     if (collection === 'veiculos' && data[0]) {
 
         const { acessibilidade, equipamentos } = getState().data

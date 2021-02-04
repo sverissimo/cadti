@@ -83,7 +83,7 @@ const AltContrato = props => {
             if (files)
                 demandFiles = empresaDocs.filter(d => files.includes(d.id))
 
-            setState({ ...state, ...altContrato, ...selectedEmpresa, selectedEmpresa, demand, demandFiles, filteredSocios, activeStep: 2 })
+            setState({ ...state, ...altContrato, ...selectedEmpresa, selectedEmpresa, demand, demandFiles, filteredSocios, activeStep: 3 })
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
@@ -388,7 +388,7 @@ const AltContrato = props => {
 
                 //Post request dos novos sócios
                 if (newSocios[0])
-                    await axios.post('/api/cadSocios', { socios: newSocios })
+                    await axios.post('/api/cadSocios', { socios: newSocios, codigoEmpresa })
                         .then(async r => {
                             const ids = r?.data.map(s => s.socio_id)
                             if (ids[0])

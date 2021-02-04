@@ -51,7 +51,8 @@ const
     getUsers = require('./users/getUsers'),
     checkPermissions = require('./auth/checkPermissions'),
     insertEmpresa = require('./users/insertEmpresa'),
-    removeEmpresa = require('./users/removeEmpresa')
+    removeEmpresa = require('./users/removeEmpresa'),
+    userSockets = require('./auth/userSockets')
 
 dailyTasks.start()
 dotenv.config()
@@ -72,34 +73,26 @@ app.use('/auth', authRouter)
 app.use(authToken)
 app.get('/getUser', getUser)
 
-
-const connectedUsers = []
+//*************************IO SOCKETS CONNECTION / CONFIG********************* */
 io.on('connection', socket => {
-    io.sockets.emit('userSocket', socket.id)
-    socket.on('disconnect', () => {
-        socket.removeAllListeners()
-        console.log(socket.id)
-    })
-    socket.on('userInfo', user => {
-        if (user.role === 'empresa' && user.empresas) {
+    socket.on('tst', user => {
+        if (user.role !== 'empresa') {
+            socket.join('admin')
+            console.log('admin', user.cpf)
+        }
+        else if (user.empresas) {
             const { empresas } = user
-            empresas.forEach(e => {
-                socket.join(e.toString())
-                console.log("🚀 ~ file: server.js ~ line 83 ~ i", e)
-            })
+            //Se o usuário só tem 1 empresa, já fica conectado no room dela para updates em tempo real.
+            if (empresas.length === 1)
+                socket.join(empresas[0])
+            else {
+                console.log('Multiple empresas', empresas)
+                socket.empresas = empresas
+            }
         }
     })
-    socket.off('userInfo', () => console.log('off now'))
-    socket.on('forceDisconnect', id => {
-        if (io.sockets.connected[id])
-            io.sockets.connected[id].disconnect
-        socket.disconnect()
-    });
-    const count = socket.client.conn.server.clientsCount
-    console.log(count)
-    console.log('iiiiiiiiiiiii', Object.keys(io.sockets.sockets))
 })
-
+app.set('io', io)
 
 //************************************ BINARY DATA *********************** */
 
@@ -191,16 +184,14 @@ app.post('/api/logs', logHandler, (req, res) => {
 
 app.get('/api/logs', (req, res) => {
 
-    const { filter } = req
+    const
+        { filter } = req
+    req.body = { codigoEmpresa: 9060 }
 
-    io.emit('tst', 'hello gontijo')
-    const a = io.sockets.adapter.rooms
-    console.log(a)
-    /*   io.clients((err, clients) => {
-       if (err)
-           console.log(err)
-       clients.forEach(c => console.log(c))
-   }) */
+    setTimeout(() => {
+        userSockets(req, res, 'procuradores', 'a')
+        //io.sockets.to('9060').emit('a', 'hello gontijo')
+    }, 1500);
 
     logsModel.find(filter)
         .then(doc => res.send(doc))
@@ -247,7 +238,6 @@ app.post('/api/altContrato', (req, res) => {
 
 //********************************** PARÂMETROS DO SISTEMA ********************************* */
 
-app.set('io', io)
 app.use('/api/parametros', parametros)
 
 //************************************USUÁRIOS DO SISTEMA *********************** */
@@ -481,18 +471,17 @@ app.post('/api/cadEmpresa', cadEmpresa)
 app.post('/api/cadSocios', cadSocios, (req, res) => {
     const
         { data } = req,
-        socios = req.body.socios
+        { socios, codigoEmpresa } = req.body
+    console.log("🚀 ~ file: server.js ~ line 477 ~ app.post ~ socios", socios)
 
     //Atualiza as permissões de usuário, caso existam usuários cadastrados com o mesmo cpf        
     if (socios && socios[0]) {
-        const
-            codigoEmpresa = socios[0].codigo_empresa,
-            updateRequest = { representantes: socios, codigoEmpresa }
+        const updateRequest = { representantes: socios, codigoEmpresa }
         insertEmpresa(updateRequest);
     }
     //Envia socket p o client com os dados atualizados
     io.sockets.emit('insertSocios', data)
-    res.send(data)
+    res.send(data);
 })
 
 app.post('/api/cadProcuradores', cadProcuradores, (req, res) => {
@@ -795,7 +784,7 @@ app.put('/api/updateInsurances', async (req, res) => {
         res.send('No changes whatsoever.')
 })
 
-app.put('/api/editSocios', (req, res) => {
+app.put('/api/editSocios', (req, res, next) => {
 
     const
         { requestArray, table, codigoEmpresa, cpfsToAdd, cpfsToRemove } = req.body,
@@ -829,15 +818,9 @@ app.put('/api/editSocios', (req, res) => {
             if (cpfsToRemove && cpfsToRemove[0])
                 removeEmpresa({ representantes: cpfsToRemove, codigoEmpresa })
 
-            //Se o usuário for de empresa, enviar de volta apenas as empresas com permissão
-            let condition
-            if (role === 'empresa')
-                condition = `WHERE socios.codigo_empresa IN (${empresas})`
-            //Novo get request da tabela socios e socket para atualizar as informações do clientSide
-            const updatedSocios = await getUpdatedData('socios', condition)
-            io.sockets.emit('updateSocios', updatedSocios)
+            userSockets(req, res, 'socios', 'updatedSocios')
+            //res.send('Dados atualizados.')
         }
-        res.send('Dados atualizados.')
     })
 })
 
