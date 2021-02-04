@@ -53,11 +53,12 @@ export default function (requestArray, WrappedComponent) {
 
             if (!socket)
                 socket = socketIO('ws://localhost:3001')
-            socket.on('connect', () => {
-                console.log('shit')
+            //**************************Just testing socktes...
+            socket.on('connect', () =>
                 socket.emit('tst', this.props?.user)
-            })
+            )
             socket.on('a', msg => console.log(msg))
+            //******************************************* */
             socket.on('insertVehicle', insertedObjects => this.props.insertData(insertedObjects, 'veiculos'))
             socket.on('insertInsurance', insertedObjects => this.props.insertData(insertedObjects, 'seguros'))
             socket.on('insertEmpresa', insertedObjects => this.props.insertData(insertedObjects, 'empresas'))

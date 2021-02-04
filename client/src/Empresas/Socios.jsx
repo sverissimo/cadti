@@ -98,9 +98,9 @@ class AltSocios extends Component {
     }
 
     handleSubmit = async index => {
-        const { filteredSocios } = this.state
-
         const
+            { filteredSocios, selectedEmpresa } = this.state,
+            { codigoEmpresa } = selectedEmpresa,
             table = 'socios',
             keys = ['telSocio', 'emailSocio'],
             editSocio = filteredSocios[index]
@@ -118,7 +118,7 @@ class AltSocios extends Component {
         keys.forEach(k => { if (editSocio[k]) requestObject[k] = editSocio[k] })
         const requestArray = [humps.decamelizeKeys(requestObject)]
 
-        await axios.put('/api/editSocios', { requestArray, table, keys })
+        await axios.put('/api/editSocios', { requestArray, table, keys, codigoEmpresa })  //O envio do codogoEmpresa é para uso do userSockets.js
             .then(r => console.log(r.data))
             .catch(err => console.log(err))
     }
@@ -133,7 +133,7 @@ class AltSocios extends Component {
 
         return (
             <React.Fragment>
-                <Crumbs links={['Empresas', '/empresas']} text='Alteração do quadro societário' />
+                <Crumbs links={['Empresas', '/empresas']} text='Alteração de dados dos sócios' />
                 <SociosTemplate
                     data={this.state}
                     socios={filteredSocios}
@@ -141,7 +141,6 @@ class AltSocios extends Component {
                     handleInput={this.handleInput}
                     enableEdit={this.enableEdit}
                     handleEdit={this.handleEdit}
-                    handleSubmit={this.handleSubmit}
                 />
                 <ReactToast open={confirmToast} close={this.toast} msg={toastMsg} />
                 {openAlertDialog && <AlertDialog open={openAlertDialog} close={this.closeAlert} alertType={alertType} />}

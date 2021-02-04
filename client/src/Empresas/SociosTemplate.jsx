@@ -2,8 +2,6 @@ import React, { Fragment } from 'react'
 
 import SelectEmpresa from '../Reusable Components/SelectEmpresa'
 import FormSubtiltle from '../Reusable Components/FormSubtiltle'
-import ShowLocalFiles from '../Reusable Components/ShowLocalFiles';
-import StepperButtons from '../Reusable Components/StepperButtons';
 
 import Button from '@material-ui/core/Button'
 import EditIcon from '@material-ui/icons/Edit';
@@ -13,10 +11,7 @@ import AddIcon from '@material-ui/icons/Add';
 import DeleteIcon from '@material-ui/icons/Delete';
 
 import { sociosForm } from '../Forms/dadosSociosForm'
-import { empresaFiles } from '../Forms/empresaFiles';
 import TextInput from '../Reusable Components/TextInput'
-//import DragAndDrop from '../Reusable Components/DragAndDrop'
-import SaveIcon from '@material-ui/icons/Save'
 import { errorHandler, helper } from '../Utils/checkInputErrors';
 
 const useStyles = makeStyles(theme => ({
@@ -33,12 +28,11 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
-export default function ({ socios, empresas, handleInput, handleBlur, data, addSocio, enableEdit, handleEdit, removeSocio, handleSubmit, setShowPendencias }) {
+export default function ({ socios, empresas, handleInput, handleBlur, data, addSocio, enableEdit, handleEdit, removeSocio }) {
 
     const
-        { activeStep, stepTitles, filteredSocios, contratoSocial, selectedEmpresa, demand, showPendencias, info } = data,
-        classes = useStyles(), { iconButton, list } = classes,
-        contratoSocialForm = [empresaFiles[0]]
+        { activeStep, stepTitles, filteredSocios, selectedEmpresa } = data,
+        classes = useStyles(), { iconButton, list } = classes
 
     let standAlone = true
     if (stepTitles) standAlone = false
@@ -60,13 +54,13 @@ export default function ({ socios, empresas, handleInput, handleBlur, data, addS
                 {
                     (selectedEmpresa || !standAlone) &&
                         standAlone ?
-                        /*  <div className="flexColumn" style={{ alignItems: 'center' }}>
-                             <h6 style={{ fontSize: '14px' }}>Alteração do quadro Societário</h6>
-                             <p style={{ fontSize: '12px', color: '#555' }}> Para adicionar um novo sócio, preencha os campos abaixo e clique em "Adicionar sócio".</p>
-                         </div> */
                         <>
-                            <h3>Utilize as opções abaixo para editar dados dos sócios</h3>
-                            <br /><br /><br />
+                            <div className="flexColumn" style={{ alignItems: 'center' }}>
+                                <h6 style={{ fontSize: '14px' }}>Alteração de informações dos sócios</h6>
+                                <p style={{ fontSize: '12px', color: '#555' }}> Clique no lápis à direita do sócio para editar e clique novamente para salvar.</p>
+                                <p style={{ fontSize: '12px', color: '#555', marginTop: 0 }}> Para alterar participação societária e nome, vá para Empresas {'->'} Altereação de Contrato</p>
+
+                            </div>
                         </>
                         : stepTitles &&
                         <section className="flex center paper">
@@ -150,47 +144,6 @@ export default function ({ socios, empresas, handleInput, handleBlur, data, addS
                             </div>
                         )}
                     </section>
-                    {
-                        standAlone && demand ?
-                            <section>
-                                {contratoSocial &&
-                                    <ShowLocalFiles
-                                        demand={demand}
-                                        collection='empresaDocs'
-                                        demandFiles={[contratoSocial]}
-                                        form={contratoSocialForm}
-                                    />
-                                }
-                                <StepperButtons
-                                    uniqueStep={true}
-                                    declineButtonLabel='Indeferir'
-                                    demand={demand}
-                                    setShowPendencias={setShowPendencias}
-                                    showPendencias={showPendencias}
-                                    info={info}
-                                    handleSubmit={handleSubmit}
-                                    handleInput={handleInput}
-                                />
-                            </section>
-                            :
-                            standAlone
-                                ?
-                                <section>
-                                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                                        <Button
-                                            size="small"
-                                            color="primary"
-                                            variant="contained"
-                                            style={{ margin: '0px 0 10px 0' }}
-                                            onClick={() => handleSubmit()}
-                                        >
-                                            Enviar <span>&nbsp;&nbsp; </span> <SaveIcon />
-                                        </Button>
-                                    </div>
-                                </section>
-                                :
-                                null
-                    }
                 </>
             }
         </>

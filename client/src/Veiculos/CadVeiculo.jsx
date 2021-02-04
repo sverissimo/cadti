@@ -422,7 +422,7 @@ class VeiculosContainer extends PureComponent {
                     situacao
                 }
 
-            await axios.put('/api/updateVehicle', { requestObject, table, tablePK, id: veiculoId })
+            await axios.put('/api/updateVehicle', { requestObject, table, tablePK, id: veiculoId, codigoEmpresa }) //CodigoEmpresa para F5 sockets
         }
 
         //*****************Generate log ************** */

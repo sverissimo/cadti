@@ -1,5 +1,4 @@
 import { deleteCookie } from "../Utils/documentCookies"
-const socketIO = require('socket.io-client')
 
 export const logUser = user => {
     return dispatch => {

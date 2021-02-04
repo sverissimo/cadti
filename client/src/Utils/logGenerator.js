@@ -6,7 +6,8 @@ import { updateFilesMetadata, postFilesReturnIds } from './handleFiles'
 export async function logGenerator(obj) {
     const
         path = window.location.pathname,
-        userName = store.getState()?.user?.name || 'Usuário não identificado'
+        userName = store.getState()?.user?.name || 'Usuário não identificado',
+        codigoEmpresa = obj.empresaId
 
     let logRoutes = JSON.parse(JSON.stringify(logRoutesConfig))
     logRoutes.forEach((el, i) => el.path = logRoutesConfig[i].path.replace('/veiculos', '').replace('/solicitacoes', '').replace('/empresas', ''))
@@ -56,8 +57,7 @@ export async function logGenerator(obj) {
         }
     }
 
-    //**********************if log already exists, no need to inform veiculoId and empresaId**********************
-    if (obj?.id && log.empresaId) delete log.empresaId
+    //**********************if log already exists, no need to inform veiculoId **********************    
     if (obj?.id && log.veiculoId) delete log.veiculoId
     delete log.historyLength
 
@@ -70,7 +70,7 @@ export async function logGenerator(obj) {
         log.status = 'Solicitação indeferida'
         log.completed = true
 
-        const post = axios.post('/api/logs', { log, collection })
+        const post = axios.post('/api/logs', { log, collection, codigoEmpresa })
         return post
     }
 
@@ -96,6 +96,6 @@ export async function logGenerator(obj) {
     //**********************request and return promisse**********************
 
     //console.log(JSON.stringify(filteredLog))
-    const post = axios.post('/api/logs', { log: filteredLog, collection })
+    const post = axios.post('/api/logs', { log: filteredLog, collection, codigoEmpresa })
     return post
 }

@@ -1,7 +1,7 @@
 import React from 'react'
 import MaterialTable from 'material-table';
 import userTable from './userTable';
-import exportToXlsx from '../Consultas/exportToXlsx';
+//import exportToXlsx from '../Consultas/exportToXlsx';
 
 export default function ({ collection, showDetails, addUser, editUser, deleteUser }) {
 

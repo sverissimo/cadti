@@ -83,8 +83,10 @@ io.on('connection', socket => {
         else if (user.empresas) {
             const { empresas } = user
             //Se o usuário só tem 1 empresa, já fica conectado no room dela para updates em tempo real.
-            if (empresas.length === 1)
+            if (empresas.length === 1) {
+                console.log('oneEmpresa', user.cpf)
                 socket.join(empresas[0])
+            }
             else {
                 console.log('Multiple empresas', empresas)
                 socket.empresas = empresas
@@ -174,24 +176,32 @@ app.post('/api/logs', logHandler, (req, res) => {
     const
         { collection } = req.body,
         { id, doc } = res.locals,
-        insertedObjects = [doc],
-        insertResponseObj = { insertedObjects, collection }
+        insertedObjects = [doc]
+    //insertResponseObj = { req, res, insertedObjects, collection, codigoEmpresa }
 
-    if (!id) io.sockets.emit('insertElements', insertResponseObj)
-    else io.sockets.emit('updateLogs', insertedObjects)
-    res.sendStatus(200)
+    let event
+    req.body.codigoEmpresa = doc.empresaId
+    //Se a solicitação é nova, insere no socket pelo event 'insert' (StoreHOC ouvindo no client)
+    if (!id)
+        event = 'insertElements'
+    //io.sockets.emit('insertElements', insertResponseObj)    
+    //Senão, apenas atualiza os objetos no store do client pelo socket
+    else
+        event = 'updateLogs'
+    //io.sockets.emit('updateLogs', insertedObjects)
+
+    userSockets({ req, res, event, collection, mongoData: insertedObjects })
+    //res.sendStatus(200)
 })
 
 app.get('/api/logs', (req, res) => {
 
-    const
-        { filter } = req
+    const { filter } = req
+    /* setTimeout(() => {
     req.body = { codigoEmpresa: 9060 }
-
-    setTimeout(() => {
-        userSockets(req, res, 'procuradores', 'a')
-        //io.sockets.to('9060').emit('a', 'hello gontijo')
-    }, 1500);
+    userSockets(req, res, 'procuradores', 'a')
+    //io.sockets.to('9060').emit('a', 'hello gontijo')
+}, 1500); */
 
     logsModel.find(filter)
         .then(doc => res.send(doc))
@@ -786,9 +796,8 @@ app.put('/api/updateInsurances', async (req, res) => {
 
 app.put('/api/editSocios', (req, res, next) => {
 
-    const
-        { requestArray, table, codigoEmpresa, cpfsToAdd, cpfsToRemove } = req.body,
-        { role, empresas } = req.user
+    const { requestArray, table, codigoEmpresa, cpfsToAdd, cpfsToRemove } = req.body
+
     let
         queryString = '',
         keys = new Set()
@@ -807,7 +816,7 @@ app.put('/api/editSocios', (req, res, next) => {
         })
     })
 
-    console.log("🚀 ~ file: server.js ~ line 795 ~ pool.query ~ queryString", queryString)
+    //console.log("🚀 ~ file: server.js ~ line 795 ~ pool.query ~ queryString", queryString)
     pool.query(queryString, async (err, t) => {
         if (err) console.log(err)
         if (t) {
@@ -818,8 +827,7 @@ app.put('/api/editSocios', (req, res, next) => {
             if (cpfsToRemove && cpfsToRemove[0])
                 removeEmpresa({ representantes: cpfsToRemove, codigoEmpresa })
 
-            userSockets(req, res, 'socios', 'updatedSocios')
-            //res.send('Dados atualizados.')
+            userSockets({ req, res, table: 'socios', event: 'updateSocios' })
         }
     })
 })
@@ -922,13 +930,8 @@ app.put('/api/updateVehicle', (req, res) => {
     console.log(query)
     pool.query(query, (err, t) => {
         if (err) console.log(err)
-        if (t && t.rows) {
-            const data = getUpdatedData('veiculos', condition)
-            data.then(r => {
-                io.sockets.emit('updateVehicle', r)
-                res.send(r)
-            })
-        }
+        if (t && t.rows)
+            userSockets({ req, res, table: 'veiculos', condition, event: 'updateVehicle' })
     })
 })
 

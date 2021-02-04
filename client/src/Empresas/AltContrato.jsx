@@ -39,8 +39,15 @@ const AltContrato = props => {
 
     //ComponentDidMount para carregar demand, se houver e selecionar a empresa dependendo do usuário
     useEffect(() => {
-        if (empresas && empresas.length === 1)
-            setState({ ...state, ...empresas[0], selectedEmpresa: empresas[0], filteredSocios: socios })
+        if (empresas && empresas.length === 1) {
+            const selectedEmpresa = { ...empresas[0] }
+            //Formata data vinda do DB para renderização no browser
+            let venc = selectedEmpresa?.vencimentoContrato
+            if (venc && venc.length > 0)
+                selectedEmpresa.vencimentoContrato = venc.substr(0, 10)
+
+            setState({ ...state, ...selectedEmpresa, selectedEmpresa, filteredSocios: socios })
+        }
 
         const demand = props?.location?.state?.demand
 
@@ -147,10 +154,13 @@ const AltContrato = props => {
             if (selectedEmpresa?.codigoEmpresa) {
 
                 filteredSocios = JSON.parse(JSON.stringify(socios.filter(s => s.empresas[0] && s.empresas.some(e => e.codigoEmpresa === selectedEmpresa.codigoEmpresa))))
-                let aditionalSocios = JSON.parse(JSON.stringify(socios.filter(s => {
-                    if (s.empresas && s.empresas[0])
-                        return s.empresas.includes(selectedEmpresa.codigoEmpresa)
-                })))
+                let aditionalSocios = JSON.parse(JSON.stringify(socios))
+                aditionalSocios = aditionalSocios
+                    .filter(s => {
+                        if (s.empresas && s.empresas[0])
+                            return s.empresas.includes(selectedEmpresa.codigoEmpresa)
+                        else return null
+                    })
 
                 aditionalSocios = filteredSocios.concat(aditionalSocios)
                 const result = new Map()
