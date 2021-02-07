@@ -95,7 +95,7 @@ export async function logGenerator(obj) {
 
     //**********************request and return promisse**********************
 
-    //console.log(JSON.stringify(filteredLog))
+    console.log(JSON.stringify(filteredLog))
     const post = axios.post('/api/logs', { log: filteredLog, collection, codigoEmpresa })
     return post
 }

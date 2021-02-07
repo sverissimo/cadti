@@ -1,23 +1,30 @@
 const { getUpdatedData } = require("../getUpdatedData")
 
-const userSockets = async ({ req, res, table, condition = '', event, collection, mongoData }) => {
+const userSockets = async ({ req, res, table, condition = '', event, collection, mongoData, veiculo_id }) => {
     //Os args table e condition se referem ao banco postgresql
     //Os args collection e data ao MongoDB
     const
         io = req.app.get('io'),
-        { codigoEmpresa } = req.body,
         { sockets } = io.sockets,
         ids = Object.keys(sockets)
 
-    let data
+    let
+        data,
+        { codigoEmpresa, codigo_empresa } = req.body
+
+    if (!codigoEmpresa)             //Se vier do Postgres, virá decamelized
+        codigoEmpresa = codigo_empresa
+
+    console.log("🚀 ~ file: userSockets.js ~ line 17 ~ userSockets ~ codigoEmpresa", codigoEmpresa)
+
     if (table)
         data = await getUpdatedData(table, condition)
     if (collection)
         data = mongoData
 
-    console.log("🚀 ~ file: userSockets.js ~ line 17 ~ userSockets ~ data", data)
+    //console.log("🚀 ~ file: userSockets.js ~ line 17 ~ userSockets ~ data", data)
 
-    //console.log(table, codigoEmpresa)
+
     let filteredData = []
     //Ao conectar o socket em server.js, usuários com permissão 'empresa' q têm mais de uma empresa tem uma array 'empresas' inserida
     ids.forEach(id => {
@@ -46,6 +53,8 @@ const userSockets = async ({ req, res, table, condition = '', event, collection,
     data = formatData(data, event, collection)
     await io.sockets.to('admin').emit(event, data)
 
+    if (veiculo_id)
+        return res.send('' + veiculo_id)
     res.send('Dados atualizados.')
 }
 
@@ -86,7 +95,7 @@ const formatData = (data, event, collection) => {
     if (event === 'insertElements')
         formatedData = { insertedObjects: data, collection }
     else
-        formatData = data
+        formatedData = data
 
     return formatedData
 }

@@ -180,7 +180,7 @@ app.post('/api/logs', logHandler, (req, res) => {
     //insertResponseObj = { req, res, insertedObjects, collection, codigoEmpresa }
 
     let event
-    req.body.codigoEmpresa = doc.empresaId
+
     //Se a solicitação é nova, insere no socket pelo event 'insert' (StoreHOC ouvindo no client)
     if (!id)
         event = 'insertElements'
@@ -453,7 +453,8 @@ app.post('/api/cadastroVeiculo', (req, res) => {
         reqObj = req.body,
         { keys, values } = parseRequestBody(reqObj)
 
-    console.log(`INSERT INTO public.veiculos(${keys}) VALUES(${values}) RETURNING veiculo_id`)
+
+    //console.log(`INSERT INTO public.veiculos(${keys}) VALUES(${values}) RETURNING veiculo_id`)
 
     pool.query(
         `INSERT INTO public.veiculos (${keys}) VALUES (${values}) RETURNING veiculo_id`, (err, table) => {
@@ -464,14 +465,8 @@ app.post('/api/cadastroVeiculo', (req, res) => {
             if (table && table.rows) {
                 const
                     id = table.rows[0].veiculo_id,
-                    condition = `WHERE veiculo_id = '${id}'`,
-                    data = getUpdatedData('veiculos', condition)
-
-                console.log(id, condition, data)
-                data.then(response => {
-                    io.sockets.emit('insertVehicle', response)
-                    res.send(id.toString())
-                })
+                    condition = `WHERE veiculo_id = '${id}'`
+                userSockets({ req, res, table: 'veiculos', event: 'insertVehicle', condition, veiculo_id: id })
             }
         })
 })
