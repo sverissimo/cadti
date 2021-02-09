@@ -13,9 +13,7 @@ const logHandler = async (req, res, next) => {
         logObject.save(function (err, doc) {
             if (err) console.log(err)
             if (doc) res.locals = { doc }
-
-            console.log("🚀 ~ file: logHandler.js ~ line 16 ~ doc", doc)
-
+            //console.log("🚀 ~ file: logHandler.js ~ line 16 ~ doc", doc)
             next()
         })
     }

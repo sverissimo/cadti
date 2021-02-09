@@ -70,6 +70,8 @@ export const getData = (collectionsArray = []) => {
 export const insertData = (dataFromServer, collection) => (dispatch, getState) => {
 
     let data = humps.camelizeKeys(dataFromServer)
+    console.log("🚀 ~ file: dataActions.js ~ line 73 ~ insertData ~ data", data)
+
     const
         payload = { collection, data },
         seguradoras = getState().data.seguradoras
@@ -121,7 +123,7 @@ export const insertData = (dataFromServer, collection) => (dispatch, getState) =
         data[0].acessibilidade = acNames
     }
 
-    if (collection === 'seguros' && data[0].placas && data[0].placas.length === 1) {
+    if (collection === 'seguros' && data[0] && data[0].placas && data[0].placas.length === 1) {
 
         const seguradora = seguradoras.find(sg => sg.id === data[0].seguradoraId)
         let

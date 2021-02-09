@@ -81,7 +81,8 @@ const dataReducer = (state = {}, action) => {
                     { id } = payload,
                     updatedData = [...state[collection]]
 
-                if (!id) return
+                if (!id)
+                    return
 
                 if (!collection.match('Docs') && collection !== 'users') id = Number(id)
                 if (collection === 'laudos')
@@ -90,6 +91,10 @@ const dataReducer = (state = {}, action) => {
                 const
                     element = updatedData.find(el => el[tablePK] === id),
                     index = updatedData.findIndex(el => el[tablePK] === element[tablePK])
+
+                if (index === -1)
+                    return
+
                 updatedData.splice(index, 1)
 
                 return {

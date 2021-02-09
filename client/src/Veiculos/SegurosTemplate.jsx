@@ -41,7 +41,7 @@ export default function SegurosTemplate({ empresas, data, seguros, seguradoras, 
         showPendencias, info, renderedPlacas } = data
 
     data.seguradoras = seguradoras
-    data.seguros = seguros
+    //data.seguros = seguros
 
     const classes = useStyles(), { textField } = classes
 

@@ -1,6 +1,8 @@
-const { getUpdatedData } = require("../getUpdatedData")
+const
+    { pool } = require("../config/pgConfig"),
+    { getUpdatedData } = require("../getUpdatedData")
 
-const userSockets = async ({ req, res, table, condition = '', event, collection, mongoData, veiculo_id }) => {
+const userSockets = async ({ req, res, table, condition = '', event, collection, mongoData, veiculo_id, id }) => {
     //Os args table e condition se referem ao banco postgresql
     //Os args collection e data ao MongoDB
     const
@@ -16,13 +18,22 @@ const userSockets = async ({ req, res, table, condition = '', event, collection,
         codigoEmpresa = codigo_empresa
 
     console.log("🚀 ~ file: userSockets.js ~ line 17 ~ userSockets ~ codigoEmpresa", codigoEmpresa)
+    if (table === 'seguros') {
+        try {
+            const getData = await pool.query(`SELECT * FROM seguros WHERE id = ${id}`)
+            data = getData && getData.rows
+        }
+        catch (err) {
+            console.log(err)
+        }
+    }
 
-    if (table)
+    else if (table)
         data = await getUpdatedData(table, condition)
-    if (collection)
+    if (collection && mongoData)
         data = mongoData
 
-    //console.log("🚀 ~ file: userSockets.js ~ line 17 ~ userSockets ~ data", data)
+    console.log("🚀 ~ file: userSockets.js ~ line 28 ~ userSockets ~ data", data)
 
 
     let filteredData = []
@@ -76,7 +87,7 @@ const filterData = (table, data, codigosEmpresa, event, collection) => {
             if (table)
                 temp = data.filter(d => d.codigo_empresa === codigoEmpresa)
             //Se for collection do mongo o id para filtrar é empresaID
-            if (collection)
+            else if (collection)
                 temp = data.filter(d => d.empresaId === codigoEmpresa)
         }
         result.push(...temp)

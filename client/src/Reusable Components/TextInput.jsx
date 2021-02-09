@@ -36,6 +36,7 @@ const useStyles = makeStyles(theme => ({
 }))
 
 export default function TextInput({ handleInput, handleBlur, form, data, empresas, selectOptions, disableAll, style = {}, disableSome = [] }) {
+    //console.log("🚀 ~ file: TextInput.jsx ~ line 39 ~ TextInput ~ data", data)
 
     const classes = useStyles(),
         { helperText } = classes

@@ -545,8 +545,10 @@ app.post('/api/empresaFullCad', cadEmpresa, (req, res, next) => {
 app.post('/api/cadSeguro', (req, res) => {
     let parsed = []
 
-    const keys = Object.keys(req.body).toString(),
-        values = Object.values(req.body)
+    const { codigoEmpresa, ...filteredObject } = req.body
+    console.log("🚀 ~ file: server.js ~ line 549 ~ app.post ~ req.body", req.body, codigoEmpresa, filteredObject)
+    const keys = Object.keys(filteredObject).toString(),
+        values = Object.values(filteredObject)
 
     values.forEach(v => {
         parsed.push(('\'' + v + '\'').toString())
@@ -558,12 +560,14 @@ app.post('/api/cadSeguro', (req, res) => {
             if (err) console.log(err)
             if (table && table.rows && table.rows.length === 0) { res.send(table.rows); return }
             if (table && table.rows.length > 0) {
-                const updatedData = {
-                    insertedObjects: table.rows,
-                    collection: 'seguros'
-                }
-                io.sockets.emit('insertElements', updatedData)
-                res.send(table.rows)
+                const
+                    seguro = table.rows[0],
+                    condition = seguro && `WHERE seguros.id = ${seguro.id}`
+                console.log("🚀 ~ file: server.js ~ line 566 ~ `INSERTINTOpublic.seguros ~ condition", condition)
+                //Não tem collection, mas utiliza o event insertElements, q serve aos dados do MongoDB. Aí fica tendo p o userSockets processar
+                userSockets({ req, res, table: 'seguros', event: 'insertElements', condition, collection: 'seguros', id: seguro.id })
+                /* io.sockets.emit('insertElements', updatedData)
+                res.send(table.rows) */
             }
         })
 })

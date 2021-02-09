@@ -95,7 +95,7 @@ class Seguro extends Component {
         this.setState({ seguros: filteredInsurances, allVehicles, frota, ownedPlacas, allPlates })
     }
 
-    //Verifica se o seguro já existe
+    //Verifica se o seguro já existe e preenche os camopos automaticamente (plain obj to state)
     checkExistance = async inputValue => {
 
         const
@@ -545,7 +545,8 @@ class Seguro extends Component {
     approveInsurance = async cadSeguro => {
         const
             { seguros } = this.props.redux,
-            { apolice, vencimento, dataEmissao, seguradoraId, insurance, demand, demandFiles } = this.state,
+            { selectedEmpresa, apolice, vencimento, dataEmissao, seguradoraId, insurance, demand, demandFiles } = this.state,
+            { codigoEmpresa } = selectedEmpresa,
             vehicleIds = insurance.veiculos
 
         //****************************** Cria o body para os requests****************************** */
@@ -608,7 +609,7 @@ class Seguro extends Component {
                     if (r.status === 200)
                         console.log(r.status, 'cadSeguroOk')
                 })
-
+        return
         //A atualização da coluna "apólice" da tabela veículos vai sempre ocorrer. Independente de ser um novo número ou não de apolice, 
         //novos veículos podem ser adicionados ou excluídos
 
