@@ -107,11 +107,12 @@ const carrocerias = condition => `
 		`
 
 const laudos = condition => `
-SELECT laudos.*,
-	emp.empresa as empresa_laudo
-FROM laudos
-LEFT JOIN empresa_laudo emp
-	ON emp.id = laudos.empresa_id
+    SELECT laudos.*,
+        emp.empresa as empresa_laudo
+    FROM laudos
+    LEFT JOIN empresa_laudo emp
+        ON emp.id = laudos.empresa_id
+    ${condition}
 `
 
 const

@@ -12,11 +12,12 @@ const userSockets = async ({ req, res, table, condition = '', event, collection,
     let
         data,
         { codigoEmpresa, codigo_empresa } = req.body
+    //console.log("🚀 ~ file: userSockets.js ~ line 15 ~ userSockets ~ codigoEmpresa", codigoEmpresa)
 
     if (!codigoEmpresa)             //Se vier do Postgres, virá decamelized
         codigoEmpresa = codigo_empresa
 
-    console.log("🚀 ~ file: userSockets.js ~ line 17 ~ userSockets ~ codigoEmpresa", codigoEmpresa)
+    console.log("🚀 ~ file: userSockets.js ~ line 20 ~ userSockets ~ codigoEmpresa", codigoEmpresa)
 
     if (table)
         data = await getUpdatedData(table, condition)
@@ -33,7 +34,7 @@ const userSockets = async ({ req, res, table, condition = '', event, collection,
         //Se tem a prop empresa filtra os dados apenas com essas empresas e emite um evento para cada usuário, conforme suas permissões
         if (empresas) {
             filteredData = filterData(table, data, empresas, event, collection)
-            console.log("🚀 ~ file: userSockets.js ~ line 29 ~ userSockets ~ filteredData", filteredData)
+            //console.log("🚀 ~ file: userSockets.js ~ line 37 ~ userSockets ~ filteredData", filteredData)
             if (filteredData[0])
                 io.sockets.to(id).emit(event, filteredData)
             else if (filteredData instanceof Object && Object.keys(filteredData).length > 0)
@@ -42,7 +43,7 @@ const userSockets = async ({ req, res, table, condition = '', event, collection,
     })
 
     //Os usuários admin fazem join('admin') no server. Basta enviar todos os dados sem filtro para a room 'admin'    
-    data = formatData(data, event, collection)
+    data = formatData({ data, event, collection, table })
     await io.sockets.to('admin').emit(event, data)
 
     if (noResponse)
@@ -73,18 +74,21 @@ const filterData = (table, data, codigosEmpresa, event, collection) => {
         result.push(...temp)
         temp = []
     })
-    if (collection)
-        result = formatData(result, event, collection)
-    console.log("🚀 ~ file: userSockets.js ~ line 77 ~ filterData ~ result", result)
+    //Se achou o codigoEmpresa na array de empresas do usuário, formata a data para enviar o socket
+    if (result[0])
+        result = formatData({ data: result, event, collection, table })
+    //console.log("🚀 ~ file: userSockets.js ~ line 77 ~ filterData ~ result", result)
     return result
 }
 
 //Formata os dados do jeito que o client espera receber
-const formatData = (data, event, collection) => {
+const formatData = ({ data, event, collection, table }) => {
     let formatedData
 
     if (event === 'insertElements')
-        formatedData = { insertedObjects: data, collection }
+        formatedData = { insertedObjects: data, collection: collection || table }
+    else if (event === 'updateElements' && table === 'laudos')
+        formatedData = { updatedCollection: data, collection: table }
     else
         formatedData = data
 

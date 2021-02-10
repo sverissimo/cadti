@@ -362,9 +362,9 @@ class VeiculosContainer extends PureComponent {
 
     handleCadastro = async approved => {
         const
-            { equipamentosId, acessibilidadeId, pesoDianteiro, pesoTraseiro, poltronas, codigoEmpresa, compartilhadoId, modeloChassiId, originalVehicle, getUpdatedValues,
+            { equipamentosId, acessibilidadeId, pesoDianteiro, pesoTraseiro, poltronas, compartilhadoId, modeloChassiId, originalVehicle, getUpdatedValues,
                 modeloCarroceriaId, selectedEmpresa, showPendencias, info, form, demand, demandFiles, reactivated } = this.state,
-
+            { codigoEmpresa } = selectedEmpresa,
             existingVeiculoId = demand?.veiculoId,
             oldHistoryLength = demand?.history?.length || 0
 
@@ -398,7 +398,6 @@ class VeiculosContainer extends PureComponent {
             vReview = getUpdatedValues(originalVehicle, vReview)     //Save only real changes to the request Object (method from setDemand())
 
         const vehicle = humps.decamelizeKeys(vReview)
-        console.log(vehicle)
 
         //***************If it doesnt exist, post the new vehicle Object **************** */
         if (!existingVeiculoId)
@@ -407,6 +406,7 @@ class VeiculosContainer extends PureComponent {
                     veiculoId = res.data
                 })
                 .catch(err => console.log(err))
+
         //***************Else, if it exists, get existing Id and update status******************* */
         else {
             veiculoId = existingVeiculoId
@@ -482,9 +482,11 @@ class VeiculosContainer extends PureComponent {
     resetState = () => {
         const
             resetState = {},
-            { equipamentos } = this.props.redux,
+            { empresas, veiculos, equipamentos } = this.props.redux,
             resetFiles = {},
             resetEquip = {}
+
+        let empresaDetails = {}
 
         cadVehicleForm.forEach(form => {
             form.forEach(obj => {
@@ -493,11 +495,15 @@ class VeiculosContainer extends PureComponent {
                 })
             })
         })
+        //Limpa os arquivos anexados no state
         cadVehicleFiles.forEach(({ name }) => {
             Object.assign(resetFiles, { [name]: null })
         })
-
+        //Limpa os check de todos os equipamento
         equipamentos.forEach(e => Object.assign(resetEquip, { [e.item]: false }))
+        //Se o usuário só tiver uma empresa, manter os dados da empresa após resetState
+        if (empresas && empresas.length === 1)
+            empresaDetails = { selectedEmpresa: empresas[0], razaoSocial: empresas[0]?.razaoSocial, frota: veiculos }
 
         this.setState({
             ...resetState,
@@ -509,7 +515,8 @@ class VeiculosContainer extends PureComponent {
             frota: [],
             delegatarioCompartilhado: '',
             form: new FormData(),
-            resetShared: true
+            resetShared: true,
+            ...empresaDetails
         })
     }
 

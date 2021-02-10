@@ -240,7 +240,6 @@ const Laudos = props => {
     }
 
     const showDetails = () => {
-
         if (selectedVehicle) {
             setDetails(!details)
             setAnchorEl(null)
@@ -252,7 +251,6 @@ const Laudos = props => {
     }
 
     const handleSubmit = async approved => {
-
         const
             empresaId = selectedEmpresa?.codigoEmpresa,
             veiculoId = selectedVehicle?.veiculoId
@@ -261,7 +259,6 @@ const Laudos = props => {
             errors = checkInputErrors() || []
 
         //***************************Check for errors*********************/
-
         const laudoAlreadyExists = laudos.find(l => l.id === stateInputs.id)
         if (laudoAlreadyExists) {
             setAlertDialog({
@@ -340,9 +337,10 @@ const Laudos = props => {
             //Prepare the request Object
             const empresa = empresasLaudo.find(e => e.empresa === empresaLaudo)
             let laudoId
-            if (empresa) requestElement.empresa_id = empresa.id
+            if (empresa)
+                requestElement.empresa_id = empresa.id  //Esse é id da empresa que emite o laudo
             requestElement.veiculo_id = selectedVehicle.veiculoId
-
+            requestElement.codigo_empresa = empresaId    // Esse é o código da empresa/delegatário
             const requestBody = { table: 'laudos', requestElement }
 
             //Submit

@@ -75,19 +75,13 @@ app.get('/getUser', getUser)
 
 //*************************IO SOCKETS CONNECTION / CONFIG********************* */
 io.on('connection', socket => {
-    socket.on('tst', user => {
+    socket.on('userDetails', user => {
         if (user.role !== 'empresa') {
             socket.join('admin')
             console.log('admin', user.cpf)
         }
         else if (user.empresas) {
             const { empresas } = user
-            //Se o usuário só tem 1 empresa, já fica conectado no room dela para updates em tempo real.
-            /* if (empresas.length === 1) {
-                console.log('oneEmpresa', user.cpf)
-                socket.join(empresas[0])
-            }
-            else { */
             console.log('Array de empresas: ', empresas)
             socket.empresas = empresas
         }
@@ -436,9 +430,8 @@ app.post('/api/cadastroVeiculo', (req, res) => {
         reqObj = req.body,
         { keys, values } = parseRequestBody(reqObj)
 
-
+    console.log("🚀 ~ file: server.js ~ line 438 ~ app.post ~ reqObj", reqObj)
     //console.log(`INSERT INTO public.veiculos(${keys}) VALUES(${values}) RETURNING veiculo_id`)
-
     pool.query(
         `INSERT INTO public.veiculos (${keys}) VALUES (${values}) RETURNING veiculo_id`, (err, table) => {
 
@@ -449,7 +442,13 @@ app.post('/api/cadastroVeiculo', (req, res) => {
                 const
                     id = table.rows[0].veiculo_id,
                     condition = `WHERE veiculo_id = '${id}'`
-                userSockets({ req, res, table: 'veiculos', event: 'insertVehicle', condition, veiculo_id: id })
+                userSockets({
+                    req, res,
+                    table: 'veiculos',
+                    event: 'insertVehicle',
+                    condition,
+                    veiculo_id: id
+                })
             }
         })
 })
@@ -553,12 +552,13 @@ app.post('/api/addElement', (req, res) => {
         { table, requestElement } = req.body,
         { keys, values } = parseRequestBody(requestElement)
 
-    if (user.role !== 'admin' && table !== 'laudos')
+    if (user.role !== 'admin')
         return res.status(403).send('É preciso permissão de administrador para acessar essa parte do cadTI.')
+    console.log("🚀 ~ file: server.js ~ line 550 ~ app.post ~ user.role", user.role)
 
     let queryString = `INSERT INTO public.${table} (${keys}) VALUES (${values}) RETURNING *`
 
-    pool.query(queryString, (err, t) => {
+    pool.query(queryString, async (err, t) => {
         if (err) console.log(err)
 
         if (t && t.rows) {
@@ -566,19 +566,21 @@ app.post('/api/addElement', (req, res) => {
                 io.sockets.emit('addElements', { insertedObjects: t.rows, table })
 
             else {
-                //Após atualizar a tabela laudos, faze um query com join de empresas_laudo e com o resultado atualiza o socket
-                pool.query(laudos, (err, t) => {
-                    if (err)
-                        console.log(err)
-                    if (t && t.rows) {
-                        io.sockets.emit('updateElements', { collection: table, updatedCollection: t.rows })
-                        const { veiculo_id } = requestElement
-                        if (veiculo_id)
-                            updateVehicleStatus([veiculo_id], io)
-                    }
-                })
+                //Emite sockets para atualização dos laudos                        
+                const
+                    { veiculo_id, codigo_empresa } = requestElement,
+                    condition = `WHERE laudos.codigo_empresa = ${codigo_empresa}`
+                userSockets({ req, noResponse: true, table, condition, event: 'updateElements' })
+
+                //Atualiza status do vepiculo e emite sockets para atualização dos laudos
+                if (veiculo_id) {
+                    req.body.codigoEmpresa = codigo_empresa     //Passa o codigo p o body para o userSockets acessar
+                    await updateVehicleStatus([veiculo_id])
+                    const vCondition = `WHERE veiculos.veiculo_id = ${veiculo_id}`
+                    userSockets({ req, noResponse: true, table: 'veiculos', event: 'updateVehicle', condition: vCondition })
+                }
             }
-            res.json(t.rows)
+            res.send('Dados inseridos')
         }
     })
 })
@@ -748,11 +750,10 @@ app.put('/api/updateInsurances', async (req, res) => {
         await pool.query(query, async (err, t) => {
             if (err) console.log(err)
             if (t && t.rows) {
-                //updateVehicleStatus(ids, io)
                 await updateVehicleStatus(ids)
                 condition = 'WHERE ' + condition     //Adaptando para o userSocket fazer o getUpdatedData
                 await userSockets({ req, res, table: 'veiculos', condition, event: 'updateVehicle', noResponse: true }) //noResponse é p não enviar res p o client, sendo a função abaixo vai faze-lo
-                userSockets({ req, res, table: 'seguros', event: 'updateInsurance' })
+                userSockets({ req, res, table: 'seguros', event: 'updateInsurance' }) //Atualiza os seguros com o join da coluna apolice dos veiculos atualizada
             }
         })
     }
@@ -980,13 +981,12 @@ app.delete('/api/delete', (req, res) => {
     console.log(query, '\n\n', req.query)
 
     pool.query(query, async (err, t) => {
-
         if (err)
             console.log(err)
         if (id) {
             id = id.replace(/\'/g, '')
-
-            io.sockets.emit('deleteOne', { id, tablePK, collection })
+            //io.sockets.emit('deleteOne', { id, tablePK, collection })
+            userSockets({ req, noResponse: true, table, tablePK, event: 'deleteOne', id })
             if (!err)
                 updateUserPermitions()
             res.send(`${id} deleted from ${table}`)

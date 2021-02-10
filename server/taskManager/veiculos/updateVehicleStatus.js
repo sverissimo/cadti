@@ -5,7 +5,7 @@ const
     moment = require('moment')
 
 //Para cada veículo, pega os dados atualizados de getVehicleStatus e faz um request de atualização da situação de todos eles p o DB 
-const updateVehicleStatus = async (vehicleIds, io) => {
+const updateVehicleStatus = async (vehicleIds) => {
 
     const
         updates = await getVehicleStatus(vehicleIds),
@@ -31,9 +31,6 @@ const updateVehicleStatus = async (vehicleIds, io) => {
         await pool.query(updateQuery, (err, t) => {
             if (err)
                 console.log(err)
-            /*   if (io)
-                  emitSockets(io, ids) */
-
             console.log('Vehicles general update result: ok.')
         })
         console.log('updatedVehicleStatus ok.')
@@ -124,24 +121,6 @@ const getVehicleStatus = async vehicleIds => {
 
         return updates
     }
-}
-
-function emitSockets(io, ids) {
-
-    if (!ids || !ids[0]) return
-
-    let condition = ''
-
-    ids.forEach(id => {
-        condition = condition + `veiculo_id = '${id}' OR `
-    })
-    condition = condition.slice(0, condition.length - 3)
-
-    const data = getUpdatedData('veiculos', `WHERE ${condition}`)
-    data.then(res => {
-        io.sockets.emit('updateVehicle', res)
-        console.log('*********** Sockets emitted, vehicle(s) status updated. *****************\n', condition)
-    })
 }
 
 module.exports = updateVehicleStatus

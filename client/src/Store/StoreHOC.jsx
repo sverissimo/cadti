@@ -51,14 +51,13 @@ export default function (requestArray, WrappedComponent) {
             if (request[0])
                 await this.props.getData(request)
 
+            //**************************Socket management*****************************
             if (!socket)
                 socket = socketIO('ws://localhost:3001')
-            //**************************Just testing socktes...
-            socket.on('connect', () =>
-                socket.emit('tst', this.props?.user)
-            )
-            socket.on('a', msg => console.log(msg))
-            //******************************************* */
+            //Conecta o usuário em um socket, passando suas informações   
+            socket.on('connect', () => socket.emit('userDetails', this.props?.user))
+
+            //********************Listen to socket events and call dataActions*********************** */
             socket.on('insertVehicle', insertedObjects => this.props.insertData(insertedObjects, 'veiculos'))
             socket.on('insertInsurance', insertedObjects => this.props.insertData(insertedObjects, 'seguros'))
             socket.on('insertEmpresa', insertedObjects => this.props.insertData(insertedObjects, 'empresas'))
@@ -80,10 +79,7 @@ export default function (requestArray, WrappedComponent) {
             socket.on('updateDocs', ({ ids, metadata, collection, primaryKey }) => this.props.updateDocs(ids, metadata, collection, primaryKey))
             socket.on('updateElements', ({ collection, updatedCollection }) => this.props.updateCollection(updatedCollection, collection))
 
-            socket.on('deleteOne', object => {
-                const { id, tablePK, collection } = object
-                this.props.deleteOne(id, tablePK, collection)
-            })
+            socket.on('deleteOne', ({ id, tablePK, collection }) => this.props.deleteOne(id, tablePK, collection))
 
             socket.on('insertFiles', object => {
                 const { insertedObjects, collection } = object

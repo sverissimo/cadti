@@ -1,13 +1,15 @@
 const jwt = require('jsonwebtoken')
 
 const authToken = (req, res, next) => {
-
-    console.log(req.url, req.connection.remoteAddress)
-
     //Uncomment those to syncDbs
-    //return next()
-    //if (req.url.match('/sync') || req.url.match('/api')) return next()
-    //if (req.connection.remoteAddress.match('::1')) return next()
+    /*
+    console.dir(req.headers)
+    req.user = {}
+    req.user.role = 'admin'
+    return next() 
+    if (req.url.match('/sync') || req.url.match('/api')) return next()
+    if (req.connection.remoteAddress.match('::1')) return next()
+    */
 
     const tokens = req.headers.cookie.split(';')
 
