@@ -31,8 +31,8 @@ const updateVehicleStatus = async (vehicleIds, io) => {
         await pool.query(updateQuery, (err, t) => {
             if (err)
                 console.log(err)
-            if (io)
-                emitSockets(io, ids)
+            /*   if (io)
+                  emitSockets(io, ids) */
 
             console.log('Vehicles general update result: ok.')
         })
@@ -64,6 +64,7 @@ const getVehicleStatus = async vehicleIds => {
             condition = condition + `veiculos.veiculo_id = '${id}' OR `
         })
         condition = condition.slice(0, condition.length - 3)
+        console.log("🚀 ~ file: updateVehicleStatus.js ~ line 67 ~ condition", condition)
         veiculos = await getUpdatedData('veiculos', `WHERE ${condition}`)
     }
 

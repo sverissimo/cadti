@@ -7,7 +7,6 @@ const logHandler = async (req, res, next) => {
         { log } = req.body,
         { id, subject, history, status, completed } = log,
         logObject = new logsModel(log)
-    console.log("🚀 ~ file: logHandler.js ~ line 10 ~ logHandler ~ log", log)
 
     if (!id) {
         logObject.save(function (err, doc) {

@@ -83,14 +83,13 @@ io.on('connection', socket => {
         else if (user.empresas) {
             const { empresas } = user
             //Se o usuário só tem 1 empresa, já fica conectado no room dela para updates em tempo real.
-            if (empresas.length === 1) {
+            /* if (empresas.length === 1) {
                 console.log('oneEmpresa', user.cpf)
                 socket.join(empresas[0])
             }
-            else {
-                console.log('Multiple empresas', empresas)
-                socket.empresas = empresas
-            }
+            else { */
+            console.log('Array de empresas: ', empresas)
+            socket.empresas = empresas
         }
     })
 })
@@ -177,31 +176,21 @@ app.post('/api/logs', logHandler, (req, res) => {
         { collection } = req.body,
         { id, doc } = res.locals,
         insertedObjects = [doc]
-    //insertResponseObj = { req, res, insertedObjects, collection, codigoEmpresa }
 
     let event
-
     //Se a solicitação é nova, insere no socket pelo event 'insert' (StoreHOC ouvindo no client)
     if (!id)
         event = 'insertElements'
-    //io.sockets.emit('insertElements', insertResponseObj)    
     //Senão, apenas atualiza os objetos no store do client pelo socket
     else
         event = 'updateLogs'
-    //io.sockets.emit('updateLogs', insertedObjects)
 
     userSockets({ req, res, event, collection, mongoData: insertedObjects })
-    //res.sendStatus(200)
 })
 
 app.get('/api/logs', (req, res) => {
 
     const { filter } = req
-    /* setTimeout(() => {
-    req.body = { codigoEmpresa: 9060 }
-    userSockets(req, res, 'procuradores', 'a')
-    //io.sockets.to('9060').emit('a', 'hello gontijo')
-}, 1500); */
 
     logsModel.find(filter)
         .then(doc => res.send(doc))
@@ -209,7 +198,6 @@ app.get('/api/logs', (req, res) => {
 })
 
 //************************************CADASTRO PROVISÓRIO DE SEGUROS**************** */
-
 app.post('/api/cadSeguroMongo', (req, res) => {
     const
         { user, body } = req,
@@ -227,7 +215,6 @@ app.post('/api/cadSeguroMongo', (req, res) => {
 })
 
 //***************************  CADASTRO DE ALTERAÇÕES DE CONTRATO SOCIAL**************** */
-
 app.get('/api/altContrato', (req, res) => {
 
     const { filter } = req
@@ -247,16 +234,13 @@ app.post('/api/altContrato', (req, res) => {
 })
 
 //********************************** PARÂMETROS DO SISTEMA ********************************* */
-
 app.use('/api/parametros', parametros)
 
 //************************************USUÁRIOS DO SISTEMA *********************** */
-
 app.get('/api/users', checkPermissions, getUsers)
 app.use('/users', users)
 
 //************************************ GET METHOD ROUTES *********************** */
-
 const routes = 'empresas|socios|veiculos|modelosChassi|carrocerias|equipamentos|seguros|seguradoras|procuradores|procuracoes|empresasLaudo|laudos|acessibilidade'
 
 app.get(`/api/${routes}`, apiGetRouter);
@@ -293,9 +277,8 @@ app.get('/api/allVehicles', async (req, res) => {
 
     //Pega todos os veículos assegurados, pertencentes ou não à frota, com compartilhamento ou não(irregulares)
     seguros.forEach(s => {
-        if (s.veiculos) {
+        if (s.veiculos && s.veiculos[0])
             vehicleIds.push(...s.veiculos)
-        }
     })
     if (!vehicleIds[0])
         vehicleIds = 0
@@ -311,7 +294,7 @@ app.get('/api/allVehicles', async (req, res) => {
         OR veiculos.compartilhado_id = ${codigoEmpresa}
         OR veiculos.veiculo_id IN (${vehicleIds})
             `
-    //console.log("vQuery", vQuery)
+    //console.log("🚀 ~ file: server.js ~ line 288 ~ app.get ~ vQuery ", vQuery)
 
     pool.query(vQuery, (err, t) => {
         if (err) console.log(err)
@@ -545,30 +528,22 @@ app.post('/api/empresaFullCad', cadEmpresa, (req, res, next) => {
 app.post('/api/cadSeguro', (req, res) => {
     let parsed = []
 
-    const { codigoEmpresa, ...filteredObject } = req.body
-    console.log("🚀 ~ file: server.js ~ line 549 ~ app.post ~ req.body", req.body, codigoEmpresa, filteredObject)
-    const keys = Object.keys(filteredObject).toString(),
-        values = Object.values(filteredObject)
+    const keys = Object.keys(req.body).toString(),
+        values = Object.values(req.body)
 
     values.forEach(v => {
-        parsed.push(('\'' + v + '\'').toString())
+        parsed.push(('\'' + v + '\''))
     })
 
     parsed = parsed.toString().replace(/'\['/g, '').replace(/'\]'/g, '')
     pool.query(
         `INSERT INTO public.seguros (${keys}) VALUES (${parsed}) RETURNING *`, (err, table) => {
-            if (err) console.log(err)
-            if (table && table.rows && table.rows.length === 0) { res.send(table.rows); return }
-            if (table && table.rows.length > 0) {
-                const
-                    seguro = table.rows[0],
-                    condition = seguro && `WHERE seguros.id = ${seguro.id}`
-                console.log("🚀 ~ file: server.js ~ line 566 ~ `INSERTINTOpublic.seguros ~ condition", condition)
-                //Não tem collection, mas utiliza o event insertElements, q serve aos dados do MongoDB. Aí fica tendo p o userSockets processar
-                userSockets({ req, res, table: 'seguros', event: 'insertElements', condition, collection: 'seguros', id: seguro.id })
-                /* io.sockets.emit('insertElements', updatedData)
-                res.send(table.rows) */
-            }
+            if (err)
+                console.log(err)
+            if (table && table.rows && table.rows.length === 0)
+                return res.send(table.rows)
+            if (table && table.rows.length > 0)
+                res.send('Seguro cadastrado.')
         })
 })
 
@@ -749,11 +724,9 @@ app.put('/api/updateInsurances', async (req, res) => {
             condition = condition + `veiculo_id = '${id}' OR `
         })
         condition = condition.slice(0, condition.length - 3)
+        console.log("🚀 ~ file: server.js ~ line 727 ~ app.put ~ condition", condition)
 
-        const data = getUpdatedData('veiculos', `WHERE ${condition}`)
-        data.then(async res => {
-            await io.sockets.emit('updateVehicle', res)
-        })
+        userSockets({ req, res, table: 'veiculos', condition: `WHERE ${condition}`, event: 'updateVehicle', noResponse: true })
     }
 
     //Se não houver nenhum id, a intenção era só apagar o n de apólice do(s) veículo(s). Nesse caso res = 'no changes'
@@ -775,20 +748,14 @@ app.put('/api/updateInsurances', async (req, res) => {
         await pool.query(query, async (err, t) => {
             if (err) console.log(err)
             if (t && t.rows) {
-                updateVehicleStatus(ids, io)
-                const data = getUpdatedData('veiculos', `WHERE ${condition}`)
-                data.then(async res => {
-                    await io.sockets.emit('updateVehicle', res)
-                    pool.query(seguros, (err, t) => {
-                        if (err) console.log(err)
-                        if (t && t.rows) io.sockets.emit('updateInsurance', t.rows)
-                    })
-                })
+                //updateVehicleStatus(ids, io)
+                await updateVehicleStatus(ids)
+                condition = 'WHERE ' + condition     //Adaptando para o userSocket fazer o getUpdatedData
+                await userSockets({ req, res, table: 'veiculos', condition, event: 'updateVehicle', noResponse: true }) //noResponse é p não enviar res p o client, sendo a função abaixo vai faze-lo
+                userSockets({ req, res, table: 'seguros', event: 'updateInsurance' })
             }
         })
-        res.send({ ids, value })
     }
-
     else
         res.send('No changes whatsoever.')
 })

@@ -48,8 +48,10 @@ class Seguro extends Component {
             demand = this.props?.location?.state?.demand,
             { empresas, veiculos } = redux
 
-        if (empresas && empresas.length === 1)
-            this.setState({ selectedEmpresa: empresas[0], razaoSocial: empresas[0]?.razaoSocial, frota: veiculos })
+        if (empresas && empresas.length === 1) {
+            await this.setState({ selectedEmpresa: empresas[0], razaoSocial: empresas[0]?.razaoSocial, frota: veiculos })
+            this.filterInsurances()
+        }
 
         if (demand) {
             const
@@ -91,7 +93,6 @@ class Seguro extends Component {
             frota = allVehicles.filter(v => v.codigoEmpresa === codigoEmpresa),
             ownedPlacas = frota.map(v => v.placa)
 
-        //console.log("Seguro -> componentDidMount -> allVehicles", allVehicles, allPlates, ownedPlacas)
         this.setState({ seguros: filteredInsurances, allVehicles, frota, ownedPlacas, allPlates })
     }
 
@@ -129,33 +130,43 @@ class Seguro extends Component {
 
         if (insurance) {
             //Se passar as placas como argumento se trata do filtro do searchBar. Senão é a renderização depois de preencher a apólice
-            if (!placas) placas = insurance.placas || []
+            if (!placas)
+                placas = insurance.placas
+            console.log("🚀 ~ file: Seguros.jsx ~ line 133 ~ Seguro ~ placas", placas)
 
             let renderedPlacas = []
-            placas.forEach(p => {
-                const
-                    veiculo = allVehicles.find(v => v.placa === p),
-                    { placa, empresa, compartilhado } = veiculo,
-                    vehicleDetails = { placa, owner: empresa, delCompartilhado: compartilhado }
 
-                //Se o veículo não for próprio
-                if (!ownedPlacas.includes(placa)) {
-                    //Se constar com compartilhado de outra viação, está fora da frota da empresa, senão pode estar irregular
-                    if (compartilhado)
-                        Object.assign(vehicleDetails, { outsider: true })
-                    else
-                        Object.assign(vehicleDetails, { irregular: true })
-                }
-                //Se o veículo for próprio:
-                else {
-                    if (compartilhado)
-                        vehicleDetails.compartilhado = true
-                    else
-                        vehicleDetails.compartilhado = false
-                }
-                renderedPlacas.push(vehicleDetails)
-            })
-            this.setState({ renderedPlacas })
+            if (placas) {
+                placas.forEach(p => {
+                    const
+                        veiculo = allVehicles.find(v => v.placa === p)
+                    if (!veiculo) {
+                        this.setState({ renderedPlacas })
+                        return
+                    }
+                    const
+                        { placa, empresa, compartilhado } = veiculo,
+                        vehicleDetails = { placa, owner: empresa, delCompartilhado: compartilhado }
+                    //Se o veículo não for próprio
+                    if (!ownedPlacas.includes(placa)) {
+                        //Se constar com compartilhado de outra viação, está fora da frota da empresa, senão pode estar irregular
+                        if (compartilhado)
+                            Object.assign(vehicleDetails, { outsider: true })
+                        else
+                            Object.assign(vehicleDetails, { irregular: true })
+                    }
+                    //Se o veículo for próprio:
+                    else {
+                        if (compartilhado)
+                            vehicleDetails.compartilhado = true
+                        else
+                            vehicleDetails.compartilhado = false
+                    }
+                    renderedPlacas.push(vehicleDetails)
+                })
+
+                this.setState({ renderedPlacas })
+            }
         }
     }
 
@@ -345,8 +356,8 @@ class Seguro extends Component {
                 update = { ...insurance },
                 { veiculoId } = vehicleFound
 
-            if (!update.placas) update.placas = []
-            if (!update.veiculos) update.veiculos = []
+            if (!update.placas || !update.placas[0]) update.placas = []
+            if (!update.veiculos || !update.veiculos[0]) update.veiculos = []
 
             if (!update.placas.includes(placaInput))
                 update.placas.push(placaInput)
@@ -359,6 +370,7 @@ class Seguro extends Component {
                 deletedVehicles.splice(i, 1)
             }
             this.renderPlacas(update?.placas)
+            console.log("🚀 ~ file: Seguros.jsx ~ line 374 ~ Seguro ~ addPlate= ~ update", update)
             this.setState({ insurance: update, addedPlaca: '', deletedVehicles })
         }
     }
@@ -545,8 +557,7 @@ class Seguro extends Component {
     approveInsurance = async cadSeguro => {
         const
             { seguros } = this.props.redux,
-            { selectedEmpresa, apolice, vencimento, dataEmissao, seguradoraId, insurance, demand, demandFiles } = this.state,
-            { codigoEmpresa } = selectedEmpresa,
+            { apolice, vencimento, dataEmissao, seguradoraId, insurance, demand, demandFiles } = this.state,
             vehicleIds = insurance.veiculos
 
         //****************************** Cria o body para os requests****************************** */
@@ -565,6 +576,8 @@ class Seguro extends Component {
                 de = moment(insuranceExists.dataEmissao).isSame(moment(dataEmissao)),
                 v = moment(insuranceExists.vencimento).isSame(moment(vencimento)),
                 vExists = JSON.stringify(vehicleIds) === JSON.stringify(insuranceExists.veiculos)
+
+            console.log("🚀 ~ file: Seguros.jsx ~ line 579 ~ Seguro ~ JSON.stringify(vehicleIds)", insuranceExists)
 
             //Evitar seguro repetido de ser cadastrado
             if (de && v && vExists) {
@@ -595,7 +608,7 @@ class Seguro extends Component {
                     body.deletedVehicles = deletedVehicles
             }
         }
-
+        //console.log(JSON.stringify(body))
         //Se as datas forem diferentes, se trata de cadastrar um novo seguro no MongoDB, ainda que o número da apólice seja o mesmo (caso insuranceExists === true ou false)
         if (cadSeguro.situacao === 'Aguardando início da vigência') {
             cadSeguro.veiculos = vehicleIds
@@ -609,10 +622,9 @@ class Seguro extends Component {
                     if (r.status === 200)
                         console.log(r.status, 'cadSeguroOk')
                 })
-        return
+
         //A atualização da coluna "apólice" da tabela veículos vai sempre ocorrer. Independente de ser um novo número ou não de apolice, 
         //novos veículos podem ser adicionados ou excluídos
-
         await axios.put('/api/updateInsurances', body)
             .then(res => {
                 console.log(res.data)
@@ -663,11 +675,21 @@ class Seguro extends Component {
     toggleDialog = () => this.setState({ openAddDialog: !this.state.openAddDialog })
     toast = toastMsg => this.setState({ confirmToast: !this.state.confirmToast, toastMsg: toastMsg ? toastMsg : this.state.toastMsg })
     closeAlert = () => this.setState({ openAlertDialog: !this.state.openAlertDialog })
-    clearFields = () => {
-        this.setState({
-            seguradora: '', insurance: undefined, apolice: '', dataEmissao: '', vencimento: '', apoliceDoc: null, deletedVehicles: [],
-            dropDisplay: 'Clique ou arraste para anexar a apólice'
-        })
+    clearFields = async () => {
+        const
+            { empresas, veiculos } = this.props.redux,
+            cleanedUpState = {
+                seguradora: '', insurance: undefined, apolice: '', dataEmissao: '', vencimento: '',
+                apoliceDoc: null, deletedVehicles: [], dropDisplay: 'Clique ou arraste para anexar a apólice'
+            },
+            empresaDetails = { selectedEmpresa: empresas[0], razaoSocial: empresas[0]?.razaoSocial, frota: veiculos }
+        //Se tiver só uma empresa, mantém os dados dela no state após o submit
+        if (empresas && empresas.length === 1) {
+            await this.setState({ ...cleanedUpState, ...empresaDetails })
+            this.filterInsurances()
+        }
+        else if (empresas)
+            this.setState({ ...cleanedUpState })
     }
 
     render() {

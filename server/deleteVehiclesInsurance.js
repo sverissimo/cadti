@@ -16,13 +16,13 @@ const deleteVehiclesInsurance = async vehicleIds => {
 
     condition = condition.slice(0, condition.length - 3)
     delQuery += condition
+    //console.log("🚀 ~ file: deleteVehiclesInsurance.js ~ line 19 ~ delQuery", delQuery)
 
-    console.log(delQuery)
     await pool.query(delQuery, (err, t) => {
-        if (err) console.log(err)
-        if (t) {
+        if (err)
+            console.log(err)
+        if (t)
             console.log('deleteVehicleInsurance: seg n cadastrado registered.', t)
-        }
     })
 
     await updateVehicleStatus(vehicleIds)
