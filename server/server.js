@@ -52,7 +52,8 @@ const
     checkPermissions = require('./auth/checkPermissions'),
     insertEmpresa = require('./users/insertEmpresa'),
     removeEmpresa = require('./users/removeEmpresa'),
-    userSockets = require('./auth/userSockets')
+    userSockets = require('./auth/userSockets'),
+    deleteSockets = require('./auth/deleteSockets')
 
 dailyTasks.start()
 dotenv.config()
@@ -557,6 +558,7 @@ app.post('/api/addElement', (req, res) => {
     console.log("🚀 ~ file: server.js ~ line 550 ~ app.post ~ user.role", user.role)
 
     let queryString = `INSERT INTO public.${table} (${keys}) VALUES (${values}) RETURNING *`
+    console.log("🚀 ~ file: server.js ~ line 561 ~ app.post ~ queryString", queryString)
 
     pool.query(queryString, async (err, t) => {
         if (err) console.log(err)
@@ -968,7 +970,7 @@ app.delete('/api/delete', (req, res) => {
     let { id } = req.query
     const
         { user } = req,
-        { table, tablePK } = req.query,
+        { table, tablePK, codigoEmpresa } = req.query,
         { collection } = fieldParser.find(f => f.table === table)
 
     if (user.role !== 'admin' && collection !== 'procuracoes')
@@ -977,18 +979,22 @@ app.delete('/api/delete', (req, res) => {
     if (table === 'laudos')
         id = `'${id}'`
 
+    const singleSocket = req.headers.referer && req.headers.referer.match('/veiculos/config')
+
     const query = ` DELETE FROM public.${table} WHERE ${tablePK} = ${id}`
     console.log(query, '\n\n', req.query)
 
     pool.query(query, async (err, t) => {
         if (err)
             console.log(err)
-        if (id) {
-            id = id.replace(/\'/g, '')
-            //io.sockets.emit('deleteOne', { id, tablePK, collection })
-            userSockets({ req, noResponse: true, table, tablePK, event: 'deleteOne', id })
-            if (!err)
+        else if (t && id) {
+            if (singleSocket)
+                io.sockets.emit('deleteOne', { id, tablePK, collection })
+            else {
+                id = id.replace(/\'/g, '')
+                deleteSockets({ req, noResponse: true, table, tablePK, event: 'deleteOne', id, codigoEmpresa })
                 updateUserPermitions()
+            }
             res.send(`${id} deleted from ${table}`)
         }
         else res.send('no id found.')

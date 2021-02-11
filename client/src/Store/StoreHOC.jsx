@@ -79,7 +79,10 @@ export default function (requestArray, WrappedComponent) {
             socket.on('updateDocs', ({ ids, metadata, collection, primaryKey }) => this.props.updateDocs(ids, metadata, collection, primaryKey))
             socket.on('updateElements', ({ collection, updatedCollection }) => this.props.updateCollection(updatedCollection, collection))
 
-            socket.on('deleteOne', ({ id, tablePK, collection }) => this.props.deleteOne(id, tablePK, collection))
+            socket.on('deleteOne', ({ id, tablePK, collection }) => {
+                console.log({ id, tablePK, collection })
+                this.props.deleteOne(id, tablePK, collection)
+            })
 
             socket.on('insertFiles', object => {
                 const { insertedObjects, collection } = object

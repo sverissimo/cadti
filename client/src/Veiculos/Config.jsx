@@ -202,6 +202,7 @@ class VehicleConfig extends PureComponent {
         let requestElement = { [field]: newElement }
         if (marcaId) requestElement.marcaId = marcaId
         requestElement = humps.decamelizeKeys(requestElement)
+        console.log("🚀 ~ file: Config.jsx ~ line 205 ~ VehicleConfig ~ addNewElement= ~ requestElement", requestElement)
 
         await axios.post('/api/addElement', { table, requestElement })
 

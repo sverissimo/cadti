@@ -5,7 +5,7 @@ export const configVehicleForm = [
         field: 'item',
         label: 'Equipamentos',
         name: 'equipamentosId',
-        table: 'equipamentosId'
+        table: 'equipamentos'
     },
     {
         collection: 'acessibilidade',

@@ -385,16 +385,18 @@ const Laudos = props => {
 
     function deleteLaudo(laudoId) {
 
-        const { veiculoId } = selectedVehicle
+        const
+            { veiculoId } = selectedVehicle,
+            { codigoEmpresa } = selectedEmpresa
 
         if (laudoId) {
             closeConfirmDialog()
 
-            axios.delete(`/api/delete?table=laudos&tablePK=id&id=${laudoId}&veiculoId=${veiculoId}`)
+            axios.delete(`/api/delete?table=laudos&tablePK=id&id=${laudoId}&veiculoId=${veiculoId}&codigoEmpresa=${codigoEmpresa}`)
                 .then(({ data }) => console.log(data))
 
             const laudoDoc = vehicleDocs.find(d => d.metadata.fieldName === 'laudoDoc' && d.metadata.laudoId === laudoId.toString())
-            if (laudoDoc) axios.delete(`/api/deleteFile?collection=vehicleDocs&id=${laudoDoc?.id}`)
+            if (laudoDoc) axios.delete(`/api/deleteFile?collection=vehicleDocs&id=${laudoDoc?.id}&codigoEmpresa=${codigoEmpresa}`)
                 .then(({ data }) => console.log(data))
         }
     }

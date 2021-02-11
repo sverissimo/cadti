@@ -144,11 +144,12 @@ class BaixaVeiculo extends Component {
     handleSubmit = async (approved) => {
         const
             { selectedEmpresa, veiculoId, selectedMotivo, demand, selectedVehicle, info, motivo } = this.state,
-            { dataEmissao, vencimento, dataRegistro } = selectedVehicle
+            { dataEmissao, vencimento, dataRegistro } = selectedVehicle,
+            { codigoEmpresa } = selectedEmpresa
 
         //**************Create Log****************** */
         const log = {
-            empresaId: selectedEmpresa?.codigoEmpresa,
+            empresaId: codigoEmpresa,
             veiculoId,
             history: { info: selectedMotivo ? `Motivo da baixa: ${selectedMotivo}` : motivo },
             historyLength: 0,
@@ -187,7 +188,7 @@ class BaixaVeiculo extends Component {
             //Salva o veículo baixado no MongoDB
             axios.post('/api/baixaVeiculo', discharged)
             //Apaga o veículo baixado do Postgresql
-            await axios.delete(`/api/delete?table=${table}&tablePK=${tablePK}&id=${veiculoId}`)
+            await axios.delete(`/api/delete?table=${table}&tablePK=${tablePK}&id=${veiculoId}&codigoEmpresa=${codigoEmpresa}`)
                 .then(r => console.log(r))
                 .catch(err => console.log(err))
 

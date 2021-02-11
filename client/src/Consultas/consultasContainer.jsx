@@ -168,7 +168,16 @@ class ConsultasContainer extends Component {
             tablePK = tablePKs[tab],
             itemId = humps.camelize(tablePK)
 
-        axios.delete(`/api/delete?table=${table}&tablePK=${tablePK}&id=${data[itemId]}&cpf_socio=${data.cpfSocio}&cpf_procurador=${data.cpfProcurador}`)
+        let { codigoEmpresa } = data
+        if (table === 'socios')
+            codigoEmpresa = data?.empresas
+                .find(e => e.codigoEmpresa === codigoEmpresa)?.codigoEmpresa
+        if (table === 'procuradores')
+            codigoEmpresa = data?.empresas.find(e => e === codigoEmpresa)
+
+        console.log("🚀 ~ file: ConsultasContainer.jsx ~ line 172 ~ ConsultasContainer ~ codigoEmpresa", codigoEmpresa)
+
+        axios.delete(`/api/delete?table=${table}&tablePK=${tablePK}&id=${data[itemId]}&codigoEmpresa=${codigoEmpresa}&cpf_socio=${data.cpfSocio}&cpf_procurador=${data.cpfProcurador}`)
             .then(r => console.log(r.data))
     }
 
