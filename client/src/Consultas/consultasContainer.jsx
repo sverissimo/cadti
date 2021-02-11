@@ -169,11 +169,9 @@ class ConsultasContainer extends Component {
             itemId = humps.camelize(tablePK)
 
         let { codigoEmpresa } = data
-        if (table === 'socios')
-            codigoEmpresa = data?.empresas
-                .find(e => e.codigoEmpresa === codigoEmpresa)?.codigoEmpresa
-        if (table === 'procuradores')
-            codigoEmpresa = data?.empresas.find(e => e === codigoEmpresa)
+        //Socios e procuradores não possuem codigoEmpresa, mas array de empresa
+        if (table === 'socios' || table === 'procuradores')
+            codigoEmpresa = JSON.stringify(data?.empresas)
 
         console.log("🚀 ~ file: ConsultasContainer.jsx ~ line 172 ~ ConsultasContainer ~ codigoEmpresa", codigoEmpresa)
 

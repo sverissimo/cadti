@@ -65,7 +65,7 @@ const AltContrato = props => {
             if (altContrato)
                 altContratoForm.forEach(({ field }) => altContratoFields[field] = altContrato[field])
 
-            if (socioUpdates[0]) {
+            if (socioUpdates && socioUpdates[0]) {
                 const newSocios = []
 
                 socioUpdates.forEach(us => {
@@ -100,7 +100,7 @@ const AltContrato = props => {
         if (state.selectedEmpresa) {
             const
                 codigoEmpresa = state.selectedEmpresa.codigoEmpresa,
-                originalSocios = JSON.parse(JSON.stringify(socios.filter(s => s.empresas.some(e => e.codigoEmpresa === codigoEmpresa)))) || []
+                originalSocios = JSON.parse(JSON.stringify(socios.filter(s => s.empresas && s.empresas.some(e => e.codigoEmpresa === codigoEmpresa)))) || []
 
             setState({ ...state, originalSocios })
         }
@@ -153,7 +153,7 @@ const AltContrato = props => {
 
             if (selectedEmpresa?.codigoEmpresa) {
 
-                filteredSocios = JSON.parse(JSON.stringify(socios.filter(s => s.empresas[0] && s.empresas.some(e => e.codigoEmpresa === selectedEmpresa.codigoEmpresa))))
+                filteredSocios = JSON.parse(JSON.stringify(socios.filter(s => s.empresas && s.empresas[0] && s.empresas.some(e => e.codigoEmpresa === selectedEmpresa.codigoEmpresa))))
                 let aditionalSocios = JSON.parse(JSON.stringify(socios))
                 aditionalSocios = aditionalSocios
                     .filter(s => {
@@ -655,7 +655,7 @@ const AltContrato = props => {
         //Se for só uma empresa, volta para o estado inicial (componentDidMount) para procuradores de apenas uma empresa
         if (empresas && empresas.length === 1)
             clearedState = { ...state, ...empresas[0], selectedEmpresa: empresas[0], filteredSocios: socios }
-
+        console.log('reseted???')
         setState({
             ...state, ...resetForms, activeStep: 0, razaoSocial: '', selectedEmpresa: undefined, filteredSocios: [],
             altContratoDoc: undefined, fileToRemove: undefined, ...clearedState

@@ -11,6 +11,7 @@ import AddIcon from '@material-ui/icons/Add';
 import DeleteIcon from '@material-ui/icons/Delete';
 
 import { sociosForm } from '../Forms/dadosSociosForm'
+import { sociosForm as sociosEditForm } from '../Forms/sociosForm'
 import TextInput from '../Reusable Components/TextInput'
 import { errorHandler, helper } from '../Utils/checkInputErrors';
 
@@ -67,7 +68,7 @@ export default function ({ socios, empresas, handleInput, handleBlur, data, addS
                             <FormSubtiltle subtitle={stepTitles[activeStep]} />
                             <div className='flex center' style={{ padding: '10px 0', width: '100%' }}>
                                 <TextInput
-                                    form={sociosForm}
+                                    form={standAlone ? sociosForm : sociosEditForm}
                                     data={data}
                                     handleBlur={handleBlur}
                                     handleInput={handleInput}

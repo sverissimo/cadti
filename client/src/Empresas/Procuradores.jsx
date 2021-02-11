@@ -100,7 +100,23 @@ class Procuradores extends Component {
 
         document.addEventListener('keydown', this.escFunction, false)
     }
+    componentDidUpdate(prevProps) {
+        const
+            { selectedEmpresa } = this.state,
+            { procuracoes } = this.props.redux
 
+        if (selectedEmpresa) {
+            const
+                { codigoEmpresa } = this.state?.selectedEmpresa,
+                updatedProcs = JSON.parse(JSON.stringify(procuracoes))
+
+            //Se alterar o redux por sockets,, altera state, pq procs são renderizadas a partir do state.
+            if (JSON.stringify(prevProps.redux.procuracoes) !== JSON.stringify(updatedProcs)) {
+                const updatedDocs = updatedProcs.filter(p => p.codigoEmpresa === codigoEmpresa)
+                this.setState({ selectedDocs: updatedDocs })
+            }
+        }
+    }
     componentWillUnmount() { this.setState({}) }
 
     handleInput = async e => {
@@ -295,7 +311,9 @@ class Procuradores extends Component {
                 empresas: [codigoEmpresa]
             }
 
-            await axios.post('/api/cadProcuradores', cadRequest)
+            console.log("🚀 ~ file: Procuradores.jsx ~ line 300 ~ Procuradores ~ approveProc= ~ cadRequest", cadRequest)
+            console.log("🚀 ~ file: Procuradores.jsx ~ line 300 ~ Procuradores ~ approveProc= ~ cadRequest", JSON.stringify(cadRequest))
+            await axios.post('/api/cadProcuradores', { ...cadRequest, codigoEmpresa })
                 .then(procs => {
                     procs.data.forEach(p => procIdArray.push(p.procurador_id))
                 })
@@ -380,8 +398,6 @@ class Procuradores extends Component {
             { procuracoes } = this.props.redux,
             selectedFile = this.props.redux.empresaDocs.find(f => Number(f.metadata.procuracaoId) === id)
 
-        let procs = [...this.state.selectedDocs]
-
         //Remove o código da empresa da array de empresas do procurador caso não haja outra procuração da mesma empresa
         if (procuradores[0]) {
             //Checa se há outras procurações 
@@ -419,17 +435,12 @@ class Procuradores extends Component {
             }
         }
 
-        await axios.delete(`/api/delete?table=procuracoes&tablePK=procuracao_id&id=${id}`)
+        await axios.delete(`/api/delete?table=procuracoes&tablePK=procuracao_id&id=${id}&codigoEmpresa=${codigoEmpresa}`)
             .then(r => console.log(r.data))
 
         if (selectedFile && selectedFile.hasOwnProperty('id'))
             axios.delete(`/api/deleteFile?collection=empresaDocs&id=${selectedFile.id}`)
                 .then(({ data }) => console.log(data))
-
-        const i = procs.indexOf(proc)
-        procs.splice(i, 1)
-
-        this.setState({ selectedDocs: procs })
     }
 
     handleFiles = files => {

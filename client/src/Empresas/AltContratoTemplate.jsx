@@ -18,7 +18,6 @@ const AltContratoTemplate = (
     { empresas, data, setActiveStep, enableEdit, handleEdit, addSocio, removeSocio, handleInput, handleBlur, handleSubmit, handleFiles, removeFile,
         setShowPendencias }) => {
 
-
     const
         { selectedEmpresa, demand, demandFiles, activeStep, stepTitles, subtitles, dropDisplay, altContratoDoc, fileToRemove, info, showPendencias } = data,
         headerTitle = `Alteração de contrato social - ${selectedEmpresa?.razaoSocial}`,

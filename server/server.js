@@ -223,8 +223,9 @@ app.post('/api/altContrato', (req, res) => {
     const { body } = req
     const newDoc = new altContratoModel(body)
     newDoc.save((err, doc) => {
-        if (err) console.log(err)
-        res.json({ doc })
+        if (err)
+            console.log(err)
+        userSockets({ req, res, event: 'insertElements', collection: 'altContrato', mongoData: [doc] })
     })
 })
 
@@ -472,12 +473,7 @@ app.post('/api/cadSocios', cadSocios, (req, res) => {
     res.send(data);
 })
 
-app.post('/api/cadProcuradores', cadProcuradores, (req, res) => {
-    const { data } = req
-    console.log(data)
-    io.sockets.emit('insertProcuradores', data)
-    res.send(data)
-})
+app.post('/api/cadProcuradores', cadProcuradores)
 
 app.post('/api/cadProcuracao', (req, res) => {
 
@@ -503,27 +499,16 @@ app.post('/api/cadProcuracao', (req, res) => {
         })
 })
 
-
 app.post('/api/empresaFullCad', cadEmpresa, (req, res, next) => {
     const
         id = req.codigo_empresa,
+        table = 'empresas',
         condition = `WHERE empresas.codigo_empresa = ${id}`,
-        data = getUpdatedData('empresas', condition)
-    data.then(newObject => {
-        io.sockets.emit('insertEmpresa', newObject)
-        next()
-    })
-},
-    cadSocios, (req, res) => {
-        const { data, codigo_empresa } = req
-        let socioIds
-        if (data && codigo_empresa) {
-            socioIds = data.map(s => s.socio_id)
-            io.sockets.emit('insertSocios', data)
-            res.json({ socioIds, codigo_empresa })
-        }
-        else res.send('No socio added whatsoever.')
-    })
+        event = 'insertEmpresa'
+
+    userSockets({ req, noResponse: true, table, condition, event })
+    next()
+}, cadSocios)
 
 app.post('/api/cadSeguro', (req, res) => {
     let parsed = []
@@ -795,8 +780,8 @@ app.put('/api/editSocios', (req, res, next) => {
             //Remove permissões de usuário, se for o caso
             if (cpfsToRemove && cpfsToRemove[0])
                 removeEmpresa({ representantes: cpfsToRemove, codigoEmpresa })
-
-            userSockets({ req, res, table: 'socios', event: 'updateSocios' })
+            const condition = `WHERE socios.codigo_empresa = ${codigoEmpresa}`
+            userSockets({ req, res, table: 'socios', event: 'updateSocios', condition })
         }
     })
 })
@@ -982,8 +967,8 @@ app.delete('/api/delete', (req, res) => {
     const singleSocket = req.headers.referer && req.headers.referer.match('/veiculos/config')
 
     const query = ` DELETE FROM public.${table} WHERE ${tablePK} = ${id}`
-    console.log(query, '\n\n', req.query)
-
+    //console.log(query, '\n\n', req.query)
+    console.log({ table, tablePK, codigoEmpresa })
     pool.query(query, async (err, t) => {
         if (err)
             console.log(err)

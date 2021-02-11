@@ -1,6 +1,7 @@
-const { pool } = require('./config/pgConfig')
-const { parseRequestBody } = require('./parseRequest')
-const { getUpdatedData } = require('./getUpdatedData')
+const
+    { pool } = require('./config/pgConfig'),
+    { parseRequestBody } = require('./parseRequest'),
+    userSockets = require('./auth/userSockets')
 
 const cadSocios = (req, res, next) => {
 
@@ -25,7 +26,8 @@ const cadSocios = (req, res, next) => {
         sp = ''
     })
 
-    if (promisseArray.length === 0) next()
+    if (promisseArray.length === 0)
+        next()
     let condition = '', ids = []
     Promise.all(promisseArray)
         .then(array => {
@@ -39,12 +41,8 @@ const cadSocios = (req, res, next) => {
                 })
                 condition = condition.slice(0, condition.length - 3)
                 condition = 'WHERE ' + condition
-
-                const data = getUpdatedData('socios', condition)
-                data.then(res => {
-                    req.data = res
-                    next()
-                })
+                //Nesse caso, o userSockets responde o com uma array de socio_id
+                userSockets({ req, res, table: 'socios', condition, event: 'insertSocios' })
             }
         })
 }

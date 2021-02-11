@@ -1,6 +1,7 @@
 const { pool } = require('./config/pgConfig')
 const { parseRequestBody } = require('./parseRequest')
 const { getUpdatedData } = require('./getUpdatedData')
+const userSockets = require('./auth/userSockets')
 
 const cadProcuradores = (req, res, next) => {
 
@@ -33,11 +34,12 @@ const cadProcuradores = (req, res, next) => {
             })
             condition = condition.slice(0, condition.length - 3)
             condition = 'WHERE ' + condition
-            const data = getUpdatedData('procuradores', condition)
+            userSockets({ req, res, table: 'procuradores', condition, event: 'insertProcuradores' })
+            /*  const data = getUpdatedData('procuradores', condition)
             data.then(res => {
                 req.data = res
                 next()
-            })
+            }) */
         })
 }
 
