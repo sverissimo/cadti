@@ -10,7 +10,7 @@ import Laudos from './Veiculos/Laudos'
 import BaixaVeiculo from './Veiculos/BaixaVeiculo'
 import Config from './Veiculos/Config'
 
-import Consultas from './Consultas/ConsultasContainer'
+import Consultas from './Consultas/Consultas'
 import Empresas from './Empresas/EmpresasContainer'
 import EmpresasHome from './Empresas/EmpresasHome'
 import Procuradores from './Empresas/Procuradores'
