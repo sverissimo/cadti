@@ -34,7 +34,7 @@ class AltSocios extends Component {
             this.setState({ originalSocios })
     }
 
-    handleInput = async e => {
+    handleInput = e => {
         const
             { empresas, socios } = this.props.redux,
             { name } = e.target
@@ -46,20 +46,19 @@ class AltSocios extends Component {
 
         if (name === 'razaoSocial') {
             const
-                selectedEmpresa = empresas.find(e => e.razaoSocial === value),
-                filteredSocios = socios.filter(s => s.razaoSocial === value)
+                selectedEmpresa = empresas.find(e => e.razaoSocial === value)
 
-            if (filteredSocios.length > 0)
-                this.setState({ filteredSocios, selectedEmpresa })
-            else
-                this.setState({ filteredSocios: [] })
             if (selectedEmpresa) {
-                await this.setState({ razaoSocial: selectedEmpresa.razaoSocial, selectedEmpresa })
+                const
+                    reduxSocios = JSON.parse(JSON.stringify(socios)),
+                    filteredSocios = reduxSocios.filter(s => s.empresas && s.empresas[0] && s.empresas.some(e => e.codigoEmpresa === selectedEmpresa.codigoEmpresa))
+
+                this.setState({ razaoSocial: selectedEmpresa.razaoSocial, selectedEmpresa, filteredSocios })
                 if (value !== selectedEmpresa.razaoSocial)
                     this.setState({ selectedEmpresa: undefined })
             }
             else
-                this.setState({ selectedEmpresa: undefined })
+                this.setState({ selectedEmpresa: undefined, filteredSocios: [] })
         }
     }
 

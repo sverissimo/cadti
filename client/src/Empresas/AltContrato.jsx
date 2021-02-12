@@ -295,8 +295,10 @@ const AltContrato = props => {
 
         //Verifica se a soma das participações passou 100%
         socios.forEach(s => {
-            totalShare += Number(s.share)
+            if (s?.status !== 'deleted')
+                totalShare += Number(s.share)
         })
+
         if (totalShare > 100) {
             socios.pop()
             await setState({ ...state, alertType: 'overShared', openAlertDialog: true })
@@ -498,7 +500,6 @@ const AltContrato = props => {
                 socioUpdates.forEach(s => {
                     delete s.outsider
                     delete s.razaoSocial
-                    delete s.share
                     delete s.codigoEmpresa
                     delete s.originalStatus
                     s.empresas = JSON.stringify(s.empresas)

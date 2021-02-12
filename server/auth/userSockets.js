@@ -66,8 +66,10 @@ const filterData = (table, data, codigosEmpresa, event, collection) => {
 
         if (table === 'procuradores')
             temp = data.filter(p => p.empresas && p.empresas.includes(codigoEmpresa))
-        else if (table === 'socios')
+        else if (table === 'socios') {
             temp = data.filter(s => s.empresas && s.empresas.match(codigoEmpresa.toString()))
+            console.log("🚀 ~ file: userSockets.js ~ line 71 ~ filterData ~ data", data, typeof data[0].empresas)
+        }
 
         else {
             if (table)
