@@ -6,6 +6,7 @@ import SolicitacoesTemplate from './SolicitacoesTemplate'
 import SolicitacoesTable from './SolicitacoesTable'
 import { logRoutesConfig } from './logRoutesConfig'
 import AlertDialog from '../Reusable Components/AlertDialog'
+import removePDF from '../Utils/removePDFButton'
 
 
 function Solicitacoes(props) {
@@ -22,6 +23,12 @@ function Solicitacoes(props) {
         [showFiles, setShowFiles] = useState(false),
         [filesIds, setFilesId] = useState(),
         { openAlertDialog, customTitle, customMessage } = alertProperties
+
+    //Desabilita opção de exportar como PDF do material-table
+    useEffect(() => {
+        removePDF()
+        return () => removePDF(true)
+    }, [])
 
     //*********Effect adds eventListner to Esc key--> back/closes windows ************/
     useEffect(() => {

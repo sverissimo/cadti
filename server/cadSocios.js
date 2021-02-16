@@ -6,7 +6,6 @@ const
 const cadSocios = (req, res, next) => {
 
     const socios = parseRequestBody(req.body.socios)
-
     let promisseArray = []
 
     socios.forEach(s => {
@@ -29,6 +28,7 @@ const cadSocios = (req, res, next) => {
     if (promisseArray.length === 0)
         next()
     let condition = '', ids = []
+
     Promise.all(promisseArray)
         .then(array => {
             if (array && array[0])
@@ -41,6 +41,7 @@ const cadSocios = (req, res, next) => {
                 })
                 condition = condition.slice(0, condition.length - 3)
                 condition = 'WHERE ' + condition
+                console.log("🚀 ~ file: cadSocios.js ~ line 44 ~ cadSocios ~ condition", condition)
                 //Nesse caso, o userSockets responde o com uma array de socio_id
                 userSockets({ req, res, table: 'socios', condition, event: 'insertSocios' })
             }

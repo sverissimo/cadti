@@ -30,10 +30,10 @@ export default function ({ tab, collection, empresas, showDetails, showFiles, sh
                 style={{ fontFamily: 'Segoe UI', fontSize: '14px' }}
                 options={{
                     filtering: true,
-                    exportButton: true,
                     exportFileName: subject[tab],
+                    exportButton: true,
                     exportCsv: (columns, data) => {
-                        exportToXlsx(subject, tab, form, data)
+                        exportToXlsx(subject[tab], form, data)
                     },
                     actionsColumnIndex: -1,
                     searchFieldStyle: { color: '#024', fontSize: '14px' },
@@ -56,7 +56,7 @@ export default function ({ tab, collection, empresas, showDetails, showFiles, sh
                     toolbar: {
                         searchTooltip: 'Procurar',
                         searchPlaceholder: 'Procurar',
-                        exportName: 'Salvar como arquivo do excel',
+                        exportCSVName: 'Salvar como arquivo do excel',
                         exportAriaLabel: 'Exportar',
                         exportTitle: 'Exportar'
                     },

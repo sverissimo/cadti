@@ -1,7 +1,7 @@
 import React from 'react'
 import MaterialTable from 'material-table';
 import userTable from './userTable';
-//import exportToXlsx from '../Consultas/exportToXlsx';
+import exportToXlsx from '../Consultas/exportToXlsx';
 
 export default function ({ collection, showDetails, addUser, editUser, deleteUser }) {
 
@@ -20,9 +20,9 @@ export default function ({ collection, showDetails, addUser, editUser, deleteUse
                     filtering: true,
                     exportButton: true,
                     exportFileName: 'Usuários',
-                    /*  exportCsv: (columns, data) => {
-                         exportToXlsx(subject, tab, userTable, data)
-                     }, */
+                    exportCsv: (columns, data) => {
+                        exportToXlsx('Usuários', userTable, data)
+                    },
                     actionsColumnIndex: -1,
                     searchFieldStyle: { color: '#024', fontSize: '14px' },
                     headerStyle: { backgroundColor: '#FAFAFC' },
@@ -46,7 +46,7 @@ export default function ({ collection, showDetails, addUser, editUser, deleteUse
                     toolbar: {
                         searchTooltip: 'Procurar',
                         searchPlaceholder: 'Procurar',
-                        exportName: 'Salvar como arquivo do excel',
+                        exportCSVName: 'Salvar como arquivo do excel',
                         exportAriaLabel: 'Exportar',
                         exportTitle: 'Exportar para xlsx',
                     },

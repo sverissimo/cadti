@@ -1,14 +1,21 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import StoreHOC from '../Store/StoreHOC'
 import UsersTemplate from './UsersTemplate'
 import ReactToast from '../Reusable Components/ReactToast'
+import removePDF from '../Utils/removePDFButton'
 
 const Users = props => {
 
     const
         { users, socios } = props.redux,
         [state, setState] = useState({ confirmToast: false })
+
+    //Desabilita opção de exportar como PDF do material-table
+    useEffect(() => {
+        removePDF()
+        return () => removePDF(true)
+    }, [])
 
     const addUser = async user => {
 

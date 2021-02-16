@@ -14,6 +14,7 @@ import Certificate from '../Veiculos/Certificate'
 import ShowDetails from '../Reusable Components/ShowDetails'
 import ShowFiles from '../Reusable Components/ShowFiles'
 import AlertDialog from '../Reusable Components/AlertDialog'
+import removePDF from '../Utils/removePDFButton'
 
 const format = {
     top: '5%',
@@ -56,9 +57,13 @@ class ConsultasContainer extends Component {
 
     componentDidMount() {
         document.addEventListener('keydown', this.escFunction, false)
+        removePDF() //Desabilita opção de exportar como PDF do material-table
     }
 
-    componentWillUnmount() { this.setState({}) }
+    componentWillUnmount() {
+        removePDF(true)
+        this.setState({})
+    }
 
     changeTab = async (e, value) => {
         await this.setState({ tab: value })

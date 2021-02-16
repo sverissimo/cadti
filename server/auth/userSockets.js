@@ -1,5 +1,6 @@
-const { getUpdatedData } = require("../getUpdatedData")
-
+const
+    { getUpdatedData } = require("../getUpdatedData"),
+    insertEmpresa = require('../users/insertEmpresa')
 //Condition é a string de filtro de busca para o postgres, noResponse é para não enviar res.send(pq a função é chamada no meio de outra)
 const userSockets = async ({ req, res, table, condition = '', event, collection, mongoData, veiculo_id, noResponse }) => {
     //Os args table e condition se referem ao banco postgresql
@@ -50,8 +51,11 @@ const userSockets = async ({ req, res, table, condition = '', event, collection,
         return
     if (veiculo_id)
         return res.send('' + veiculo_id)
-    if (table === 'procuradores' || table === 'socios')
+    if (table === 'procuradores' || table === 'socios') {
+        console.log('dataaaaa', codigoEmpresa, data)
+        insertEmpresa({ representantes: data, codigoEmpresa })
         return res.send(data)
+    }
     else
         return res.send('Dados atualizados.')
 }

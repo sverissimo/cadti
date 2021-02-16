@@ -2,11 +2,11 @@ import * as FileSaver from 'file-saver';
 import * as XLSX from 'xlsx';
 import moment from 'moment'
 
-const exportToXlsx = (subject, tab, form, rawData) => {
+const exportToXlsx = (subject, form, rawData) => {
     const
         fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8',
         fileExtension = '.xlsx',
-        fileName = subject[tab]
+        fileName = subject
 
     const formatedData = formatData(form, rawData)
 

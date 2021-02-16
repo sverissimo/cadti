@@ -456,23 +456,7 @@ app.post('/api/cadastroVeiculo', (req, res) => {
 })
 
 app.post('/api/cadEmpresa', cadEmpresa)
-
-app.post('/api/cadSocios', cadSocios, (req, res) => {
-    const
-        { data } = req,
-        { socios, codigoEmpresa } = req.body
-    console.log("🚀 ~ file: server.js ~ line 477 ~ app.post ~ socios", socios)
-
-    //Atualiza as permissões de usuário, caso existam usuários cadastrados com o mesmo cpf        
-    if (socios && socios[0]) {
-        const updateRequest = { representantes: socios, codigoEmpresa }
-        insertEmpresa(updateRequest);
-    }
-    //Envia socket p o client com os dados atualizados
-    io.sockets.emit('insertSocios', data)
-    res.send(data);
-})
-
+app.post('/api/cadSocios', cadSocios)
 app.post('/api/cadProcuradores', cadProcuradores)
 
 app.post('/api/cadProcuracao', (req, res) => {
@@ -482,7 +466,6 @@ app.post('/api/cadProcuracao', (req, res) => {
     req.body.procuradores = parseProc
 
     const { keys, values } = parseRequestBody(req.body)
-
     pool.query(
         `INSERT INTO public.procuracoes (${keys}) VALUES (${values}) RETURNING *`, (err, table) => {
             if (err) res.send(err)
@@ -754,9 +737,11 @@ app.put('/api/editSocios', (req, res, next) => {
 
     let
         queryString = '',
-        keys = new Set()
+        keys = new Set(),
+        socioIds = []
 
     requestArray.forEach(o => {
+        socioIds.push(o.socio_id)
         Object.keys(o).forEach(k => keys.add(k))
         keys.forEach(key => {
             if (key !== 'socio_id' && key !== 'cpf_socio' && o[key] && o[key] !== '') {
@@ -780,8 +765,8 @@ app.put('/api/editSocios', (req, res, next) => {
             //Remove permissões de usuário, se for o caso
             if (cpfsToRemove && cpfsToRemove[0])
                 removeEmpresa({ representantes: cpfsToRemove, codigoEmpresa })
-            const condition = `WHERE socios.codigo_empresa = ${codigoEmpresa}`
-            userSockets({ req, res, table: 'socios', event: 'updateSocios', condition })
+            //const condition = `WHERE socios.socio_id IN (${socioIds})`
+            userSockets({ req, res, table: 'socios', event: 'updateSocios' })
         }
     })
 })

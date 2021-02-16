@@ -46,6 +46,7 @@ function SelectEmpresa(props) {
                                 value={value}
                                 onChange={handleInput}
                                 onBlur={handleBlur}
+                                autoComplete='off'
                             />
                             <AutoComplete
                                 collection={empresas}
