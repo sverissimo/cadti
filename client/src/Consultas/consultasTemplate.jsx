@@ -1,11 +1,10 @@
 import React from 'react'
-import MaterialTable from 'material-table';
+import MaterialTable from 'material-table'
 import { tables } from './tables'
-import exportToXlsx from './exportToXlsx';
-import { setForm } from '../Utils/createFormPattern';
-import getEmpresas from './getEmpresas';
+import exportToXlsx from './exportToXlsx'
+import { setForm } from '../Utils/createFormPattern'
 
-export default function ({ tab, collection, empresas, showDetails, showFiles, showCertificate, del }) {
+export default function ({ tab, collection, showDetails, showFiles, showCertificate, del }) {
 
     const
         id = ['codigoEmpresa', 'socioId', 'procuradorId', 'veiculoId', 'apolice'][tab],
@@ -16,10 +15,6 @@ export default function ({ tab, collection, empresas, showDetails, showFiles, sh
         collection = []
 
     collection = collection.map(obj => ({ ...obj }))
-
-    //Caso a aba seja Sócios ou Procuradores, extrai e renderiza o nome das empresas das arrays de codigoEmpresa de cada sócio/procurador
-    if (tab === 1 || tab === 2)
-        collection = getEmpresas(collection, empresas, tab)
 
     return (
         <div style={{ margin: '10px 0' }} className='noPrint'>

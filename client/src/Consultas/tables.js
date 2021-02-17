@@ -2,26 +2,22 @@ import { formatDate } from '../Utils/formatValues'
 
 export const delegatarioTable = [
     {
+        field: 'codigoEmpresa',
+        title: 'Código da Empresa',
+    },
+    {
         field: 'razaoSocial',
         title: 'Razão Social',
     },
     {
-        field: 'cnpj',
-        title: 'CNPJ',
-    },
-    {
         field: 'vencimentoContrato',
-        title: 'Vencimento do Cadastro',
+        title: 'Vencimento do Contrato',
         filtering: false,
         render: rowData => formatDate(rowData.vencimentoContrato)
     },
     {
-        field: 'cidade',
-        title: 'Município',
-    },
-    {
-        field: 'telefone',
-        title: 'Telefone',
+        field: 'cnpj',
+        title: 'CNPJ',
     },
     {
         field: 'frota',
@@ -76,6 +72,11 @@ export const procuradorTable = [
     {
         field: 'telProcurador',
         title: 'Telefone'
+    },
+    {
+        field: 'createdAt',
+        title: 'Data de inclusão no sistema',
+        type: 'date'
     },
     {
         field: 'nomeEmpresas',

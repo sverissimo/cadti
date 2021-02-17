@@ -3,7 +3,7 @@ import { cnpj, phone, email } from './commonFields'
 export const empresasForm = [
     {
         field: 'razaoSocial',
-        label: 'Razão Social'        
+        label: 'Razão Social'
     },
     {
         ...cnpj,
@@ -19,12 +19,12 @@ export const empresasForm = [
     {
         ...phone,
         field: 'telefone',
-        label: 'Telefone',        
+        label: 'Telefone',
     },
     {
         ...email,
         field: 'email',
-        label: 'E-mail'        
+        label: 'E-mail'
     },
     {
         field: 'cep',
@@ -65,7 +65,7 @@ export const empresasForm = [
     },
     {
         field: 'vencimentoContrato',
-        label: 'Vencimento do Contrato',
+        label: 'Vencimento do Cadastro',
         type: 'date',
     }
 ]

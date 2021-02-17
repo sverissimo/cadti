@@ -12,7 +12,11 @@ export const eForm = [
     {
         field: 'situacao',
         label: 'Situação'
-    },   
+    },
+    {
+        field: 'codigoEmpresa',
+        label: 'Código da Empresa'
+    },
     {
         ...createdAt,
         width: '150px',
@@ -20,15 +24,7 @@ export const eForm = [
     {
         field: 'frota',
         label: 'Tamanho da Frota'
-    },
-    {
-        field: 'oldId',
-        label: 'Código no sistema antigo'
-    },
-    /*     {
-            ...placas
-        }, */
-
+    }
 ]
 
 export const sForm = [
@@ -89,5 +85,9 @@ export const vForm = [
     {
         field: 'marcaCarroceria',
         label: 'Marca da Carroceria',
+    },
+    {
+        field: 'sipro',
+        label: 'SEI',
     },
 ]

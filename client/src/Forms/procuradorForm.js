@@ -13,11 +13,23 @@ export const procuradorForm = [{
 },
 {
     ...phone,
-    field: 'telProcurador',    
+    field: 'telProcurador',
     width: 240
 },
 {
     ...email,
     field: 'emailProcurador',
     width: 240
-}]
+},
+{
+    field: 'createdAt',
+    label: 'Data de inclusão no sistema',
+    type: 'date',
+    width: 240
+},
+{
+    field: 'nomeEmpresas',
+    label: 'Empresas',
+    width: 240
+}
+]

@@ -60,7 +60,7 @@ export const vistoriaForm = [
         field: 'distanciaMinima',
         label: 'Distância Mínima (cm)',
         margin: 'normal',
-        type: 'number',        
+        type: 'number',
         max: 150
     },
     {
@@ -69,5 +69,5 @@ export const vistoriaForm = [
         margin: 'normal',
         type: 'number',
         max: 150
-    }   
+    }
 ]

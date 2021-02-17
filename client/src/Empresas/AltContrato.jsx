@@ -502,6 +502,7 @@ const AltContrato = props => {
                     delete s.razaoSocial
                     delete s.codigoEmpresa
                     delete s.originalStatus
+                    delete s.nomeEmpresas
                     s.empresas = JSON.stringify(s.empresas)
                 })
                 socioUpdates = humps.decamelizeKeys(socioUpdates)

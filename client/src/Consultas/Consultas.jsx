@@ -15,6 +15,7 @@ import ShowDetails from '../Reusable Components/ShowDetails'
 import ShowFiles from '../Reusable Components/ShowFiles'
 import AlertDialog from '../Reusable Components/AlertDialog'
 import removePDF from '../Utils/removePDFButton'
+import getEmpresas from './getEmpresas'
 
 const format = {
     top: '5%',
@@ -36,7 +37,7 @@ class ConsultasContainer extends Component {
     }
 
     state = {
-        tab: 0,
+        tab: 2,
         items: ['Empresas', 'Sócios', 'Procuradores', 'Veículos', 'Seguros'],
         tablePKs: ['codigo_empresa', 'socio_id', 'procurador_id', 'veiculo_id', 'id'],
         dbTables: ['empresas', 'socios', 'procuradores', 'veiculos', 'seguros'],
@@ -245,9 +246,17 @@ class ConsultasContainer extends Component {
             { redux } = this.props,
             { empresas, procuracoes, procuradores, empresaDocs, altContrato } = redux,
             primaryKeys = tablePKs.map(pk => humps.camelize(pk))
+        let
+            updatedElement,
+            collection = [...this.props.redux[options[tab]]]
 
-        let updatedElement
-        if (elementDetails && showDetails) updatedElement = redux[options[tab]].find(e => e[primaryKeys[tab]] === elementDetails[primaryKeys[tab]])
+        //Caso a aba seja Sócios ou Procuradores, extrai e renderiza o nome das empresas das arrays de codigoEmpresa de cada sócio/procurador
+        if (tab === 1 || tab === 2)
+            collection = getEmpresas(collection, empresas, tab)
+
+        //Define os dados para a exibição de informações adicionais (ShowDetails)
+        if (elementDetails && showDetails)
+            updatedElement = collection.find(e => e[primaryKeys[tab]] === elementDetails[primaryKeys[tab]])
 
         return <Fragment>
             <TabMenu items={items}
@@ -256,7 +265,7 @@ class ConsultasContainer extends Component {
             <ConsultasTemplate
                 tab={tab}
                 items={items}
-                collection={this.props.redux[options[tab]]}
+                collection={collection}
                 empresas={empresas}
                 showDetails={this.showDetails}
                 showFiles={this.showFiles}
