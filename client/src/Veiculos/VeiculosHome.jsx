@@ -19,7 +19,7 @@ const menuCards = [
     },
     {
         title: 'Seguros',
-        description: 'Atualizar seguros e apólices',
+        description: 'Cadastro e atualização de seguro',
         link: '/seguros',
         imageUrl: "/images/car_insurance2.png"
     },

@@ -32,6 +32,11 @@ export const empresasForm = [
         maxLength: 10
     },
     {
+        field: 'rua',
+        label: 'Rua',
+        maxLength: 100,
+    },
+    {
         field: 'numero',
         label: 'Número',
         type: 'number',
@@ -41,11 +46,6 @@ export const empresasForm = [
         field: 'complemento',
         label: 'Complemento',
         maxLength: 20,
-    },
-    {
-        field: 'rua',
-        label: 'Rua',
-        maxLength: 100,
     },
     {
         field: 'bairro',
@@ -65,7 +65,7 @@ export const empresasForm = [
     },
     {
         field: 'vencimentoContrato',
-        label: 'Vencimento do Cadastro',
+        label: 'Vencimento do Cadastro - CRC',
         type: 'date',
     }
 ]

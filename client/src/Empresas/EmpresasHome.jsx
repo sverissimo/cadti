@@ -11,7 +11,7 @@ const featuredPosts = [
         link: '/empresas/cadastro'
     },
     {
-        title: 'Alteração do Contrato Social',
+        title: 'Alteração do Cadastral',
         description: 'Alteração de dados da empresa ou contrato social',
         link: '/altContrato',
         imageUrl: '/images/pen2.png'

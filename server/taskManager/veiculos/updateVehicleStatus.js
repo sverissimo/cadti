@@ -79,7 +79,7 @@ const getVehicleStatus = async vehicleIds => {
 
             //Checar laudos vencidos
             const currentYear = currentDate.getFullYear()
-            if (currentYear - v.ano_carroceria >= 15) {
+            if (currentYear - v.ano_carroceria >= 16) {
                 laudoVencido = true
                 laudos.forEach(l => {
                     if (l.veiculo_id === v.veiculo_id) {

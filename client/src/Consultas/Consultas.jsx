@@ -37,7 +37,7 @@ class ConsultasContainer extends Component {
     }
 
     state = {
-        tab: 2,
+        tab: 3,
         items: ['Empresas', 'Sócios', 'Procuradores', 'Veículos', 'Seguros'],
         tablePKs: ['codigo_empresa', 'socio_id', 'procurador_id', 'veiculo_id', 'id'],
         dbTables: ['empresas', 'socios', 'procuradores', 'veiculos', 'seguros'],
@@ -189,11 +189,10 @@ class ConsultasContainer extends Component {
 
         const
             { laudos, parametros } = this.props.redux,
-            { veiculoId, anoCarroceria, situacao, vencimento, vencimentoContrato } = vehicle,
+            { veiculoId, anoCarroceria, situacao, vencimento } = vehicle,
             seguroVencido = moment(vencimento).isBefore(),
-            contratoVencido = moment(vencimentoContrato).isBefore(),
             currentYear = new Date().getFullYear(),
-            isOld = currentYear - anoCarroceria >= 15
+            isOld = currentYear - anoCarroceria >= 16
 
         if (isOld) {
             const hasLaudo = laudos.find(l => l.veiculoId === veiculoId),
@@ -215,10 +214,6 @@ class ConsultasContainer extends Component {
         }
         if (seguroVencido) {
             await this.setState({ alertType: 'seguroVencido', openAlertDialog: true })
-            return
-        }
-        if (contratoVencido) {
-            await this.setState({ alertType: 'contratoVencido', openAlertDialog: true })
             return
         }
 

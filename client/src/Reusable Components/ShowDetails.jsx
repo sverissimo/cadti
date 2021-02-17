@@ -6,6 +6,7 @@ import ClosePopUpButton from '../Reusable Components/ClosePopUpButton'
 import createFormPattern from '../Utils/createFormPattern'
 import { procuradorEmpresaTable as procTable } from '../Forms/procuradorEmpresaTable'
 import altContratoTable from '../Forms/altContratoTable'
+import TextArea from './TextArea'
 
 export default function ShowDetails({ data, tab, title, header, close, empresas, procuracoes, procuradores, empresaDocs, altContrato }) {
     //data é o objeto (row) do campo de dados de uma determinada tabela
@@ -15,7 +16,9 @@ export default function ShowDetails({ data, tab, title, header, close, empresas,
         [table2, setTable2] = useState(),
         [tables, setTables] = useState([]),
         element = createFormPattern(tab, data) || [], //Element é o form com a adição do campo value, inserindo data para cada objeto(field)
-        obs = element.find(el => el.field === 'obs')
+        obs = element.find(el => el.field === 'obs'),
+        equipamentos = element.find(el => el.field === 'equipamentos'),
+        acessibilidade = element.find(el => el.field === 'acessibilidade')
     //Informações adicionais no showDetails fora dos campos padrão
 
     useEffect(() => {
@@ -145,13 +148,14 @@ export default function ShowDetails({ data, tab, title, header, close, empresas,
         if (tableArray[0])
             setTables(tableArray)
     }, [table, table2])
-
+    console.log(element)
     return (
         <div className="popUpWindow" style={{ left: '20%', right: '20%' }}>
             <h4 className='equipaHeader'>{title} {data[header]}</h4> <hr />
             <main className="checkListContainer" style={{ justifyContent: 'flex-start' }}>
                 {
                     element.map(({ field, label, value, type, width }, i) => field !== 'obs' &&
+                        field !== 'equipamentos' && field !== 'acessibilidade' &&
                         <div className="showDetailsItem" style={{ width: width ? width : 150, }} key={i}>
                             <TextField
                                 name={field}
@@ -188,17 +192,37 @@ export default function ShowDetails({ data, tab, title, header, close, empresas,
                 )
             }
             {
-                tab === 3 && obs?.value &&
+                tab === 3 &&
                 <footer className='flexColumn'>
-                    <label htmlFor="obs" className='obs__label'>Observações:</label>
-                    <textarea
-                        name="obs"
-                        id="obs"
-                        className='obs__textArea'
-                        defaultValue={obs?.value}
-                        cols="30"
-                        rows="6"
-                        disabled />
+                    {
+                        equipamentos?.value &&
+                        <TextArea
+                            label='Equipamentos:'
+                            name='equipamentos'
+                            id='equipamentos'
+                            defaultValue={equipamentos?.value}
+                            rows='2'
+                        />
+                    }
+                    {
+                        acessibilidade?.value &&
+                        <TextArea
+                            label='Itens de acessibilidade:'
+                            name='acessibilidade'
+                            id='acessibilidade'
+                            defaultValue={acessibilidade?.value}
+                            rows='2'
+                        />
+                    }{
+                        obs?.value &&
+                        <TextArea
+                            label='Observações:'
+                            name='obs'
+                            id='obs'
+                            defaultValue={obs?.value}
+                            rows='6'
+                        />
+                    }
                 </footer>
             }
             <ClosePopUpButton close={close} />

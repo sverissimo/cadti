@@ -1,3 +1,44 @@
+const allVehicleFields = (condition = '') => `
+        SELECT veiculos.*,	
+            (extract(year from current_date) - ano_carroceria) as indicador_idade,   
+            marca_chassi.marca as marca_chassi,
+            modelo_chassi.modelo_chassi,	
+            marca_carroceria.marca as marca_carroceria,
+            modelo_carroceria.modelo as modelo_carroceria,
+            d.razao_social as empresa,
+            d2.razao_social as compartilhado,
+            d2.codigo_empresa as codigo_compartilhado,
+            seguradora.seguradora,
+            seguros.data_emissao,
+            seguros.vencimento,
+            lau.id as numero_laudo,
+            elau.empresa as empresa_laudo,
+            lau.validade as vencimento_laudo			
+        FROM veiculos
+        LEFT JOIN public.modelo_chassi
+            ON veiculos.modelo_chassi_id = public.modelo_chassi.id
+        LEFT JOIN public.marca_chassi
+            ON modelo_chassi.marca_id = marca_chassi.id
+        LEFT JOIN public.modelo_carroceria
+            ON veiculos.modelo_carroceria_id = public.modelo_carroceria.id
+        LEFT JOIN public.marca_carroceria
+            ON public.marca_carroceria.id = public.modelo_carroceria.marca_id
+        LEFT JOIN public.empresas d
+            ON veiculos.codigo_empresa = d.codigo_empresa       
+        LEFT JOIN public.empresas d2
+            ON veiculos.compartilhado_id = d2.codigo_empresa       		
+        LEFT JOIN public.seguros
+            ON veiculos.apolice = seguros.apolice
+        LEFT JOIN public.seguradora
+            ON public.seguradora.id = seguros.seguradora_id 
+        LEFT JOIN public.laudos lau
+            ON lau.veiculo_id = veiculos.veiculo_id
+        LEFT JOIN public.empresa_laudo elau
+            ON elau.id = lau.empresa_id  
+        ${condition}
+        ORDER BY veiculos.veiculo_id DESC
+    `
+
 const veiculos = (condition = '') => `
         SELECT veiculos.*,	
             (extract(year from current_date) - ano_carroceria) as indicador_idade,   
@@ -123,6 +164,6 @@ const
 
 
 module.exports = {
-    empresas, socios, procuradores, procuracoes, veiculos, seguros, seguradora, laudos, empresasLaudo,
+    empresas, socios, procuradores, procuracoes, veiculos, allVehicleFields, seguros, seguradora, laudos, empresasLaudo,
     acessibilidade, equipamentos, seguradoras, carrocerias, modelosChassi: modeloChassi
 }

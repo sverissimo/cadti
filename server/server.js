@@ -237,7 +237,7 @@ app.get('/api/users', checkPermissions, getUsers)
 app.use('/users', users)
 
 //************************************ GET METHOD ROUTES *********************** */
-const routes = 'empresas|socios|veiculos|modelosChassi|carrocerias|equipamentos|seguros|seguradoras|procuradores|procuracoes|empresasLaudo|laudos|acessibilidade'
+const routes = 'empresas|socios|veiculos|modelosChassi|carrocerias|equipamentos|seguros|seguradoras|procuradores|procuracoes|empresasLaudo|laudos|acessibilidade|allVehicleFields'
 
 app.get(`/api/${routes}`, apiGetRouter);
 app.get('/api/lookUpTable/:table', lookup);

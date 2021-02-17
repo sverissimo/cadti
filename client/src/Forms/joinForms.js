@@ -71,7 +71,7 @@ export const vForm = [
         label: 'Indicador de idade'
     },
     {
-        field: 'equipamentosId',
+        field: 'equipamentos',
         label: 'Equipamentos'
     },
     {

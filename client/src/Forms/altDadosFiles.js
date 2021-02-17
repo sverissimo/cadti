@@ -1,5 +1,5 @@
 export const altDadosFiles = [
-    { title: 'Documento de Transferência', name: 'transferenciaDoc' },
+    { title: 'Formulário de Alteração de Cadastro', name: 'transferenciaDoc' },
     { title: 'Declaração de Responsabilidade de Manutenção', name: 'declaracao' },
     { title: 'Certificado de Vistoria', name: 'vistoria' },
     { title: 'DAE Quitada', name: 'dae' },

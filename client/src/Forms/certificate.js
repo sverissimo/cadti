@@ -40,14 +40,21 @@ export const caracteristicas = [
             width: '19mm'
         },
         {
+            field: 'distanciaMinima',
+            label: 'Distância Mínima (cm)',
+        },
+        {
+            field: 'distanciaMaxima',
+            label: 'Distância Máxima (cm)'
+        }
+    ],
+    [
+        {
             field: 'nChassi',
             label: 'Número do Chassi',
             width: '50mm',
             left: '15mm'
         },
-
-    ],
-    [
         {
             field: 'marcaChassi',
             label: 'Marca do Chassi',
@@ -63,14 +70,6 @@ export const caracteristicas = [
         {
             field: 'anoChassi',
             label: 'Ano do chassi',
-        },
-        {
-            field: 'distanciaMinima',
-            label: 'Distância Mínima (cm)',
-        },
-        {
-            field: 'distanciaMaxima',
-            label: 'Distância Máxima (cm)'
         }
     ],
     [
@@ -176,7 +175,7 @@ export const informacoesGerais = [[
     },
     {
         field: 'dataExpedicao',
-        label: 'Data de expedição',
+        label: 'Data de atualização do CRV',
         width: '35mm',
         left: '9mm'
     },

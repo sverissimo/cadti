@@ -106,7 +106,7 @@ const Laudos = props => {
                 const
                     currentYear = new Date().getFullYear(),
                     frota = veiculos.filter(v => v.empresa === selectedEmpresa.razaoSocial),
-                    oldVehicles = frota.filter(v => currentYear - v.anoCarroceria > 14 && v.anoCarroceria !== null).sort((a, b) => a.placa.localeCompare(b.placa))
+                    oldVehicles = frota.filter(v => currentYear - v.anoCarroceria > 15 && v.anoCarroceria !== null).sort((a, b) => a.placa.localeCompare(b.placa))
 
                 let vehiclesLaudo = [], laudosTemp = []
                 oldVehicles.forEach(v => {                  //Acrescenta os laudos atualizados para cada veículo 15+anos (oldVehicles)
