@@ -24,6 +24,12 @@ const apiGetRouter = (req, res) => {
 
     //Se o usuário não for admin e se tiver empresas autorizadas a representar, filtra essas empresas antes de enviar dados
     if (role === 'empresa' && empresas[0]) {
+        //Se a tabela for allVehicleFields, muda p/ fazer o filtro depois volta para o request do getUpdatedData
+        let originalTable
+        if (table === 'allVehicleFields') {
+            originalTable = 'allVehicleFields'
+            table = 'veiculos'
+        }
         //Verifica se a tabela necessita de filtro ou se é uma lookup table
         const applyFilter = fieldParser.find(el => el.table === table && el.codigo_empresa)
         if (applyFilter)
@@ -33,7 +39,10 @@ const apiGetRouter = (req, res) => {
             empresas.forEach(e => emps += ` or socios.empresas LIKE '%${e}%'`)
             condition += emps
         }
+        if (originalTable)
+            table = originalTable
     }
+
     //console.log(condition)
     data = getUpdatedData(table, condition || '')
     data

@@ -149,6 +149,7 @@ export default function ShowDetails({ data, tab, title, header, close, empresas,
             setTables(tableArray)
     }, [table, table2])
     console.log(element)
+
     return (
         <div className="popUpWindow" style={{ left: '20%', right: '20%' }}>
             <h4 className='equipaHeader'>{title} {data[header]}</h4> <hr />
@@ -160,7 +161,7 @@ export default function ShowDetails({ data, tab, title, header, close, empresas,
                             <TextField
                                 name={field}
                                 label={label}
-                                value={type === 'date' ? moment(value).format('DD/MM/YYYY') : value || ''}
+                                value={type !== 'date' ? value || '' : moment(value).isValid() ? moment(value).format('DD/MM/YYYY') : ''}
                                 InputLabelProps={{ shrink: true, style: { fontSize: '0.9rem', fontWeight: 500 } }}
                                 inputProps={{
                                     style: {
@@ -175,7 +176,9 @@ export default function ShowDetails({ data, tab, title, header, close, empresas,
                         </div>
                     )}
             </main>
-            {tables[0] &&
+            {
+                //As tabelas aparecem nos detalhes das empresas, caso tenhamj procuradores e/ou alterações de contrato cadastrados
+                tables[0] &&
                 tables.map((table, i) =>
                     <section key={i}>
                         <hr style={{ margin: '12px 0' }} />
@@ -192,6 +195,7 @@ export default function ShowDetails({ data, tab, title, header, close, empresas,
                 )
             }
             {
+                //Se a tab for Veículos, há 3 textAreas depois dos detalhes: obs, equip e access.
                 tab === 3 &&
                 <footer className='flexColumn'>
                     {

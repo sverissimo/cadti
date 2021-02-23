@@ -37,7 +37,7 @@ export const getData = (collectionsArray = []) => {
         //Pega os nomes dos equipamentos e itens de acessibilidade a partir do ID
         if (['acessibilidade', 'equipamentos'].every(p => globalState.hasOwnProperty(p))) {
             const { acessibilidade, equipamentos } = globalState
-            let veiculos = globalState.veiculos || getState().data?.veiculos
+            let veiculos = globalState.veiculos || globalState.allVehicleFields || getState().data?.veiculos
             const updatedData = idsToString(veiculos, equipamentos, acessibilidade)
             globalState.veiculos = updatedData
         }

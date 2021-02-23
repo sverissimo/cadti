@@ -17,7 +17,7 @@ const dataToReturn = (tab, data) => {
         Object.keys(data).forEach(key => {
             if (tab === 3) {
                 const { veiculoId, laudoId, tableData, modeloChassiId, modeloCarroceriaId, codigoEmpresa, vencimentoContrato, delegatarioCompartilhado,
-                    acessibilidadeId, equipamentosId, ...vData } = data
+                    acessibilidadeId, equipamentosId, compartilhadoId, ...vData } = data
                 data = vData
             }
 
@@ -76,23 +76,23 @@ export function setForm(tab) {
     switch (tab) {
         case 0:
             formPattern = mergeForms(empresasForm, eForm)
-            return formPattern
+            break
         case 1:
             formPattern = sociosForm.concat(sForm)
-            return formPattern
+            break
         case 2:
             formPattern = procuradorForm
-            return formPattern
+            break
         case 3:
             let consolidateForm = []
-            formPattern = cadForm.concat([vForm])
-            formPattern.forEach(form => {
-                consolidateForm = ([...consolidateForm, ...form])
+            cadForm.forEach(form => {
+                consolidateForm.push(...form)
             })
-            return consolidateForm
+            formPattern = consolidateForm.concat(...vForm)
+            return formPattern
         case 4:
             formPattern = seguroForm.concat(segForm)
-            return formPattern
+            break
         default:
             return formPattern
     }

@@ -96,7 +96,7 @@ class ConsultasContainer extends Component {
     showFiles = id => {
         const
             { tab } = this.state,
-            { veiculos, socios, empresaDocs, vehicleDocs } = this.props.redux
+            { allVehicleFields, socios, empresaDocs, vehicleDocs } = this.props.redux
         let
             selectedFiles,
             typeId
@@ -141,7 +141,7 @@ class ConsultasContainer extends Component {
             case 3:
                 typeId = 'veiculoId'
                 selectedFiles = vehicleDocs.filter(f => f.metadata.veiculoId === id)
-                const vehicle = veiculos.find(v => v.veiculoId === id)
+                const vehicle = allVehicleFields.find(v => v.veiculoId === id)
                 if (vehicle) {
                     const seguro = empresaDocs.find(f => f?.metadata?.apolice === vehicle?.apolice?.toString())
                     if (seguro) selectedFiles.push(seguro)
@@ -305,7 +305,7 @@ class ConsultasContainer extends Component {
     }
 }
 
-const collections = ['veiculos', 'empresas', 'socios', 'procuradores', 'seguros', 'seguradoras', 'procuracoes',
+const collections = ['allVehicleFields', 'empresas', 'socios', 'procuradores', 'seguros', 'seguradoras', 'procuracoes',
     'getFiles/vehicleDocs', 'getFiles/empresaDocs', 'equipamentos', 'acessibilidade', 'laudos', 'altContrato', 'parametros']
 
 export default connect(null, { updateCollection })(StoreHOC(collections, ConsultasContainer))

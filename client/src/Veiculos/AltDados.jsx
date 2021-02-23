@@ -181,7 +181,7 @@ class AltDados extends Component {
         const
             { empresas, logs, equipamentos, acessibilidade, parametros } = this.props.redux,
             { distanciaPoltronas } = parametros[0],
-            { frota, demand, utilizacao, distanciaMinima } = this.state,
+            { frota, demand, utilizacao, distanciaMinima, distanciaMaxima } = this.state,
             { name } = e.target
 
         let
@@ -199,20 +199,35 @@ class AltDados extends Component {
             case 'delegatario':
                 await this.getId(name, value, empresas, 'codigoEmpresa', 'razaoSocial', 'codigoEmpresa')
                 break;
-
             case 'distanciaMinima':
                 let errorMsg
                 if (utilizacao)
                     errorMsg = validateDist(utilizacao, distanciaMinima, distanciaPoltronas)
-                if (errorMsg) {
+                if (distanciaMinima && distanciaMaxima && +distanciaMinima > +distanciaMaxima)
+                    errorMsg = 'A Distância mínima não pode ser superior à distância máxima.'
+                if (errorMsg)
                     this.setState({
                         openAlertDialog: true,
                         customTitle: 'Distância mínima inválida.',
                         customMessage: errorMsg,
                         distanciaMinima: ''
                     })
-                }
                 break
+            case 'distanciaMaxima': {
+                let errorMsg
+                if (utilizacao)
+                    errorMsg = validateDist(utilizacao, distanciaMaxima, distanciaPoltronas)
+                if (distanciaMaxima && distanciaMinima && +distanciaMaxima < +distanciaMinima)
+                    errorMsg = 'A Distância máxima não pode ser inferior à distância mínima.'
+                if (errorMsg)
+                    this.setState({
+                        openAlertDialog: true,
+                        customTitle: 'Distância máxima inválida.',
+                        customMessage: errorMsg,
+                        distanciaMaxima: ''
+                    })
+                break
+            }
             default:
                 void 0
         }

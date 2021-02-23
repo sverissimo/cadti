@@ -75,10 +75,6 @@ export const vForm = [
         label: 'Equipamentos'
     },
     {
-        field: 'compartilhado',
-        label: 'Compartilhado por'
-    },
-    {
         field: 'marcaChassi',
         label: 'Marca do Chassi',
     },
@@ -89,5 +85,26 @@ export const vForm = [
     {
         field: 'sipro',
         label: 'SEI',
+    },
+    {
+        field: 'compartilhado',
+        label: 'Compartilhado por'
+    },
+    {
+        field: 'codigoCompartilhado',
+        label: 'Código Del. Compartilhado',
+    },
+    {
+        field: 'empresaLaudo',
+        label: 'Empresa Laudo',
+    },
+    {
+        field: 'numeroLaudo',
+        label: 'Número do Laudo',
+    },
+    {
+        field: 'vencimentoLaudo',
+        label: 'Validade do Laudo',
+        type: 'date'
     },
 ]

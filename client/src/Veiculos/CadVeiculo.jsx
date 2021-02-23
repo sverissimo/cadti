@@ -181,7 +181,7 @@ class VeiculosContainer extends PureComponent {
             { empresas, modelosChassi, carrocerias, parametros } = this.props.redux,
             { distanciaPoltronas, idadeBaixa } = parametros[0],
             { idadeMaxCad, difIdade, idadeBaixaAut } = idadeBaixa,
-            { anoCarroceria, anoChassi, utilizacao, distanciaMinima, situacao } = this.state,
+            { anoCarroceria, anoChassi, utilizacao, distanciaMinima, distanciaMaxima, situacao } = this.state,
             { name } = e.target,
             carr = Number(anoCarroceria),
             chas = Number(anoChassi),
@@ -237,6 +237,8 @@ class VeiculosContainer extends PureComponent {
                 let errorMsg
                 if (utilizacao)
                     errorMsg = validateDist(utilizacao, distanciaMinima, distanciaPoltronas)
+                if (distanciaMinima && +distanciaMinima > +distanciaMaxima)
+                    errorMsg = 'A Distância mínima não pode ser superior à distância máxima.'
                 if (errorMsg)
                     this.setState({
                         openAlertDialog: true,
@@ -245,6 +247,21 @@ class VeiculosContainer extends PureComponent {
                         distanciaMinima: ''
                     })
                 break
+            case 'distanciaMaxima': {
+                let errorMsg
+                if (utilizacao)
+                    errorMsg = validateDist(utilizacao, distanciaMaxima, distanciaPoltronas)
+                if (distanciaMaxima && +distanciaMaxima < +distanciaMinima)
+                    errorMsg = 'A Distância máxima não pode ser inferior à distância mínima.'
+                if (errorMsg)
+                    this.setState({
+                        openAlertDialog: true,
+                        customTitle: 'Distância máxima inválida.',
+                        customMsg: errorMsg,
+                        distanciaMaxima: ''
+                    })
+                break
+            }
             default: void 0
         }
 

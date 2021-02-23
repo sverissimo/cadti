@@ -6,9 +6,8 @@ export const delegatario = [[
         left: '50mm'
     },
     {
-        type: 'date',
-        field: 'vencimentoContrato',
-        label: 'Validade do Contrato',
+        field: 'codigoEmpresa',
+        label: 'Código do Delegatário',
         width: '36mm',
         left: '5mm'
     },
