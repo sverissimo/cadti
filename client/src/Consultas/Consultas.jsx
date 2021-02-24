@@ -7,7 +7,7 @@ import StoreHOC from '../Store/StoreHOC'
 import { connect } from 'react-redux'
 import { updateCollection } from '../Store/dataActions'
 
-import ConsultasTemplate from './ConsultasTemplate'
+import ConsultasTemplate from './ConsultasTemplate2'
 import { TabMenu } from '../Layouts'
 
 import Certificate from '../Veiculos/Certificate'

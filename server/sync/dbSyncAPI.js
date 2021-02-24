@@ -41,7 +41,7 @@ router.post('/updateTable', (req, res) => {
 
     const query = `INSERT INTO public.${table} (${keys}) VALUES ${values}`
 
-    console.log(query)
+    //console.log(query)
     //fs.writeFile(`${table}Insert.txt`, query, 'utf8', (err) => console.log(err))
     //console.log(query)
 
@@ -94,7 +94,7 @@ async function getEquipaIds() {
         DROP IF EXISTS equipamentos;
     `
     const updateQuery = equipQuery + accessQuery
-    fs.writeFile(`equipAccessQuery.txt`, updateQuery, 'utf8', (err) => console.log(err), (err) => console.log(err))
+    //fs.writeFile(`equipAccessQuery.txt`, updateQuery, 'utf8', (err) => console.log(err), (err) => console.log(err))
 
     pool.query(updateQuery, (err, t) => { if (err) console.log('********************Equip/AccessQuerry ERROR!!!!! ********\n\n', err) })
 }
