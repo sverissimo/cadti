@@ -432,8 +432,8 @@ app.post('/api/cadastroVeiculo', (req, res) => {
         reqObj = req.body,
         { keys, values } = parseRequestBody(reqObj)
 
-    console.log("🚀 ~ file: server.js ~ line 438 ~ app.post ~ reqObj", reqObj)
-    //console.log(`INSERT INTO public.veiculos(${keys}) VALUES(${values}) RETURNING veiculo_id`)
+    //console.log("🚀 ~ file: server.js ~ line 438 ~ app.post ~ reqObj", reqObj)
+    console.log(`INSERT INTO public.veiculos(${keys}) VALUES(${values}) RETURNING veiculo_id`)
     pool.query(
         `INSERT INTO public.veiculos (${keys}) VALUES (${values}) RETURNING veiculo_id`, (err, table) => {
 

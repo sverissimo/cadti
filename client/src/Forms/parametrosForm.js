@@ -39,24 +39,32 @@ export const parametrosIdade = [
 ]
 export const distancias = [
     {
+        field: 'comercial',
+        label: 'Comercial',
+    },
+    {
+        field: 'comercialExecutivo',
+        label: 'Comercial Executivo',
+    },
+    {
         field: 'convencional',
         label: 'Convencional',
     },
     {
-        field: 'executivo',
-        label: 'Executivo',
-    },
-    {
-        field: 'semiLeito',
-        label: 'Semi-Leito',
+        field: 'convencionalExecutivo',
+        label: 'Convencional Executivo',
     },
     {
         field: 'leito',
         label: 'Leito',
     },
     {
-        field: 'urbano',
-        label: 'Urbano',
+        field: 'semiLeito',
+        label: 'Semi-Leito',
+    },
+    {
+        field: 'semiLeitoExecutivo',
+        label: 'Semi-Leito Executivo',
     }
 ]
 

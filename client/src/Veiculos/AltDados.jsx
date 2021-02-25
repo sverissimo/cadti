@@ -135,6 +135,8 @@ class AltDados extends Component {
             const vehicle = this.state.frota.find(v => v.placa === value)
             if (!vehicle) equipamentos.forEach(e => this.setState({ [e]: false }))
         }
+        if (name === 'utilizacao')
+            this.setState({ distanciaMinima: undefined, distanciaMaxima: undefined })
 
         if (name === 'newPlate') {
             let newPlate = value
@@ -167,9 +169,13 @@ class AltDados extends Component {
     capitalize = (field, value) => {
         if (!value || typeof value !== 'string') return
         if (field === 'utilizacao') {
-            if (value === 'RODOVIARIO') value = 'CONVENCIONAL'
-            if (value === 'SEMI LEITO - EXECUTIVO') value = 'Semi-Leito'
-            if (value !== 'Semi-Leito') value = value.charAt(0) + value.slice(1).toLowerCase()
+            if (value === 'RODOVIARIO') value = 'Convencional'
+            if (value === 'EXECUTIVO') value = 'Convencional Executivo'
+            if (value === 'URBANO') value = 'Comercial'
+            if (value === 'URBANO EXECUTIVO') value = 'Comercial Executivo'
+            if (value === 'SEMI LEITO') value = 'Semi-Leito'
+            if (value === 'SEMI LEITO - EXECUTIVO') value = 'Semi-Leito Executivo'
+            if (value === 'LEITO') value = 'Leito'
         }
         if (field === 'dominio' && value === 'Sim') value = 'Veículo próprio'
         if (field === 'dominio' && value === 'Não') value = 'Possuidor'
@@ -195,10 +201,10 @@ class AltDados extends Component {
 
             case 'compartilhado':
                 this.getId(name, value, empresas, 'compartilhadoId', 'razaoSocial', 'codigoEmpresa')
-                break;
+                break
             case 'delegatario':
                 await this.getId(name, value, empresas, 'codigoEmpresa', 'razaoSocial', 'codigoEmpresa')
-                break;
+                break
             case 'distanciaMinima':
                 let errorMsg
                 if (utilizacao)
@@ -419,10 +425,8 @@ class AltDados extends Component {
         else
             this.toast()
 
-        if (!demand) {
-            await this.setState({ activeStep: 0, razaoSocial: undefined })
-            this.reset(true)
-        }
+        if (!demand)
+            setTimeout(() => { this.reset() }, 1200);
         else
             setTimeout(() => { this.props.history.push('/solicitacoes') }, 1500)
     }
@@ -450,16 +454,30 @@ class AltDados extends Component {
     closeAlert = () => this.setState({ openAlertDialog: !this.state.openAlertDialog })
     closeEquipa = () => this.setState({ addEquipa: false })
     toast = toastMsg => this.setState({ confirmToast: !this.state.confirmToast, toastMsg: toastMsg ? toastMsg : this.state.toastMsg })
-    reset = resetAll => {
 
-        let resetFiles = {}
+    reset = resetAll => {
+        const
+            { empresas, veiculos, equipamentos, acessibilidade } = this.props.redux,
+            equip = equipamentos.concat(acessibilidade),
+            resetEquips = { acessibilidade: [], acessibilidadeId: [], equipamentos: [], equipamentosId: [] }
+        let
+            resetFiles = {},
+            empresaDetails = {}
 
         altForm.forEach(form => form.forEach(el => this.setState({ [el.field]: '' })))
-        altDadosFiles.forEach(({ name }) => {
-            Object.assign(resetFiles, { [name]: undefined })
-        })
-        if (resetAll) this.setState({ ...resetFiles, form: undefined, selectedEmpresa: undefined, razaoSocial: undefined })
-        else this.setState({ ...resetFiles, form: undefined })
+        altDadosFiles.forEach(({ name }) => { Object.assign(resetFiles, { [name]: undefined }) })
+
+        //Limpa os check de todos os equipamento
+        equip.forEach(e => this.setState({ [e.item]: false }))
+
+        //Se o usuário só tiver uma empresa, manter os dados da empresa após resetState
+        if (empresas && empresas.length === 1)
+            empresaDetails = { selectedEmpresa: empresas[0], razaoSocial: empresas[0]?.razaoSocial, frota: veiculos }
+
+        if (resetAll)
+            this.setState({ ...resetFiles, ...resetEquips, ...equip, form: undefined, selectedEmpresa: undefined, razaoSocial: undefined, activeStep: 0, ...empresaDetails })
+        else
+            this.setState({ ...resetFiles, ...resetEquips, ...equip, form: undefined, activeStep: 0, ...empresaDetails, })
     }
 
     render() {

@@ -142,7 +142,9 @@ class VeiculosContainer extends PureComponent {
                     await this.setState({ [name]: value })
                 }
                 break
-
+            case ('utilizacao'):
+                this.setState({ distanciaMinima: undefined, distanciaMaxima: undefined })
+                break
             case ('valorChassi'):
                 this.setState({ [name]: formatMoney(value) })
                 break
@@ -496,45 +498,29 @@ class VeiculosContainer extends PureComponent {
         this.setState({ ...this.state, ...newState })
     }
 
-    resetState = () => {
+    resetState = resetAll => {
         const
-            resetState = {},
-            { empresas, veiculos, equipamentos } = this.props.redux,
+            { empresas, veiculos, equipamentos, acessibilidade } = this.props.redux,
+            equip = equipamentos.concat(acessibilidade),
+            resetEquips = { acessibilidade: [], acessibilidadeId: [], equipamentos: [], equipamentosId: [] }
+        let
             resetFiles = {},
-            resetEquip = {}
+            empresaDetails = {}
 
-        let empresaDetails = {}
+        cadVehicleForm.forEach(form => form.forEach(el => this.setState({ [el.field]: '' })))
+        cadVehicleFiles.forEach(({ name }) => { Object.assign(resetFiles, { [name]: undefined }) })
 
-        cadVehicleForm.forEach(form => {
-            form.forEach(obj => {
-                Object.keys(obj).forEach(key => {
-                    if (key === 'field' && this.state[obj[key]]) Object.assign(resetState, { [obj[key]]: undefined })
-                })
-            })
-        })
-        //Limpa os arquivos anexados no state
-        cadVehicleFiles.forEach(({ name }) => {
-            Object.assign(resetFiles, { [name]: null })
-        })
         //Limpa os check de todos os equipamento
-        equipamentos.forEach(e => Object.assign(resetEquip, { [e.item]: false }))
+        equip.forEach(e => this.setState({ [e.item]: false }))
+
         //Se o usuário só tiver uma empresa, manter os dados da empresa após resetState
         if (empresas && empresas.length === 1)
             empresaDetails = { selectedEmpresa: empresas[0], razaoSocial: empresas[0]?.razaoSocial, frota: veiculos }
 
-        this.setState({
-            ...resetState,
-            ...resetFiles,
-            ...resetEquip,
-            activeStep: 0,
-            razaoSocial: '',
-            selectedEmpresa: undefined,
-            frota: [],
-            delegatarioCompartilhado: '',
-            form: new FormData(),
-            resetShared: true,
-            ...empresaDetails
-        })
+        if (resetAll)
+            this.setState({ ...resetFiles, ...resetEquips, ...equip, form: undefined, selectedEmpresa: undefined, razaoSocial: undefined, activeStep: 0, ...empresaDetails })
+        else
+            this.setState({ ...resetFiles, ...resetEquips, ...equip, form: undefined, activeStep: 0, ...empresaDetails, })
     }
 
     closeEquipa = () => this.setState({ addEquipa: false })

@@ -22,11 +22,18 @@ export const vistoriaForm = [
         max: 8
     },
     {
-        field: 'pneumaticos',
-        label: 'Pneumáticos',
+        field: 'pneumaticosDianteiro',
+        label: 'Pneumáticos Eixo Dianteiro',
         margin: 'normal',
         type: 'number',
-        max: 20
+        max: 12
+    },
+    {
+        field: 'pneumaticosTraseiro',
+        label: 'Pneumáticos Eixo Traseiro',
+        margin: 'normal',
+        type: 'number',
+        max: 18
     },
     {
         field: 'pesoDianteiro',

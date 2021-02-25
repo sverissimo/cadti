@@ -29,7 +29,7 @@ export const altForm = [[{
     label: 'Utilização',
     margin: 'normal',
     select: true,
-    options: ['Convencional', 'Executivo', 'Leito', 'Semi-Leito', 'Urbano']
+    options: ['Comercial', 'Comercial Executivo', 'Convencional', 'Convencional Executivo', 'Leito', 'Semi-Leito', 'Semi-Leito Executivo']
 },
 {
     field: 'dominio',

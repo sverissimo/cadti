@@ -1,19 +1,4 @@
 export const altFormVistoria = [
-  
-    {
-        field: 'pesoDianteiro',
-        label: 'Peso Dianteiro (kg)',
-        margin: 'normal',
-        type: 'number',
-        max: 12000
-    },
-    {
-        field: 'pesoTraseiro',
-        label: 'Peso Traseiro (kg)',
-        margin: 'normal',
-        type: 'number',
-        max: 15000
-    },
     {
         field: 'poltronas',
         label: 'Poltronas',
@@ -32,7 +17,7 @@ export const altFormVistoria = [
         field: 'distanciaMinima',
         label: 'Distância Mínima (cm)',
         margin: 'normal',
-        type: 'number',        
+        type: 'number',
         max: 150
     },
     {
@@ -41,5 +26,57 @@ export const altFormVistoria = [
         margin: 'normal',
         type: 'number',
         max: 150
-    }         
+    },
+    {
+        field: 'eixos',
+        label: 'Eixos',
+        margin: 'normal',
+        type: 'number',
+        max: 8
+    },
+    {
+        field: 'pneumaticosDianteiro',
+        label: 'Pneumáticos Eixo Dianteiro',
+        margin: 'normal',
+        type: 'number',
+        max: 12
+    },
+    {
+        field: 'pneumaticosTraseiro',
+        label: 'Pneumáticos Eixo Traseiro',
+        margin: 'normal',
+        type: 'number',
+        max: 18
+    },
+    {
+        field: 'pesoDianteiro',
+        label: 'Peso Dianteiro (kg)',
+        margin: 'normal',
+        type: 'number',
+        max: 12000
+    },
+    {
+        field: 'pesoTraseiro',
+        label: 'Peso Traseiro (kg)',
+        margin: 'normal',
+        type: 'number',
+        max: 15000
+    },
+    {
+        field: 'cilindros',
+        label: 'Cilindros',
+        margin: 'normal',
+        type: 'number',
+        max: 12,
+        step: 1,
+        disabled: true
+    },
+    {
+        field: 'potencia',
+        label: 'Potência (cv)',
+        margin: 'normal',
+        type: 'number',
+        max: 600,
+        disabled: true
+    },
 ]

@@ -9,16 +9,7 @@ const authToken = (req, res, next) => {
         req.user.role = 'admin'
         return next()
     }
-
-    /* req.user = {}
-    req.user.role = 'admin'
-    return next() 
-    if (req.url.match('/sync') || req.url.match('/api')) return next()
-    if (req.connection.remoteAddress.match('::1')) return next() */
-
-
     const tokens = req.headers.cookie.split(';')
-
     let token = tokens.find(el => el.match('aToken'))
 
     if (!token)
