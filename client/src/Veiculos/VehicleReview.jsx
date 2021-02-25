@@ -114,8 +114,6 @@ export default function Revisao({ data, parentComponent, form, filesForm, files 
                     </section>
                 }
                 {(files || demandFiles) &&
-
-                    //<div style={{ borderTop: '1px solid #ccc', paddingTop:'5px' }}>
                     <div>
                         <p style={{ margin: '0 0 13px 11px', fontWeight: '500', color: '#555' }}>
                             <FileCopyOutlinedIcon style={{ verticalAlign: 'middle', padding: '0 0 0 8px' }} />
@@ -130,7 +128,6 @@ export default function Revisao({ data, parentComponent, form, filesForm, files 
                             files={files}
                         />
                     </div>
-
                 }
             </Paper >
         </>

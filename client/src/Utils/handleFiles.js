@@ -40,10 +40,12 @@ export const postFilesReturnIds = async (formData, metadata = {}, completed, fil
             metadata.tempFile = false
         else
             metadata.tempFile = true
+        console.log(metadata)
 
         filesToSend.append('metadata', JSON.stringify(metadata))
         for (let pair of formData) {
             filesToSend.set(pair[0], pair[1])
+            console.log("🚀 ~ file: handleFiles.js ~ line 49 ~ postFilesReturnIds ~ pair[0], pair[1]", pair[0], pair[1])
         }
 
         files = await axios.post(`/api/${filesEndPoint}`, filesToSend)

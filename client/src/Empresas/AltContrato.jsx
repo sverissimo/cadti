@@ -312,8 +312,7 @@ const AltContrato = props => {
         setTimeout(() => {
             //console.log(state)
             document.getElementsByName('nomeSocio')[0].focus()
-        }, 200);
-
+        }, 200)
     }
 
     const removeSocio = index => {

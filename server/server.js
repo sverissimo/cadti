@@ -484,12 +484,17 @@ app.post('/api/cadProcuracao', (req, res) => {
 
 app.post('/api/empresaFullCad', cadEmpresa, (req, res, next) => {
     const
-        id = req.codigo_empresa,
+        id = res.locals.codigoEmpresa,
         table = 'empresas',
         condition = `WHERE empresas.codigo_empresa = ${id}`,
         event = 'insertEmpresa'
 
-    userSockets({ req, noResponse: true, table, condition, event })
+    console.log("🚀 ~ file: server.js ~ line 488 ~ app.post ~ req.codigo_empresa", id)
+    userSockets({ req, res, noResponse: true, table, condition, event })
+
+    if (!req.body.socios)
+        return res.json({ codigo_empresa: id })
+
     next()
 }, cadSocios)
 

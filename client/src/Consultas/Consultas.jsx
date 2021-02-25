@@ -7,7 +7,7 @@ import StoreHOC from '../Store/StoreHOC'
 import { connect } from 'react-redux'
 import { updateCollection } from '../Store/dataActions'
 
-import ConsultasTemplate from './ConsultasTemplate2'
+import ConsultasTemplate from './ConsultasTemplate'
 import { TabMenu } from '../Layouts'
 
 import Certificate from '../Veiculos/Certificate'
@@ -37,7 +37,7 @@ class ConsultasContainer extends Component {
     }
 
     state = {
-        tab: 3,
+        tab: 0,
         items: ['Empresas', 'Sócios', 'Procuradores', 'Veículos', 'Seguros'],
         tablePKs: ['codigo_empresa', 'socio_id', 'procurador_id', 'veiculo_id', 'id'],
         dbTables: ['empresas', 'socios', 'procuradores', 'veiculos', 'seguros'],
@@ -155,7 +155,7 @@ class ConsultasContainer extends Component {
         }
 
         selectedFiles = selectedFiles.filter(file => file?.metadata?.tempFile === false)
-
+        console.log(selectedFiles)
         if (selectedFiles[0]) {
             selectedFiles = selectedFiles
                 .sort((a, b) => new Date(a['uploadDate']) - new Date(b['uploadDate']))

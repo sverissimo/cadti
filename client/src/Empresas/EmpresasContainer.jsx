@@ -2,7 +2,6 @@ import React, { Component, Fragment } from 'react'
 import axios from 'axios'
 import humps from 'humps'
 import ReactToast from '../Reusable Components/ReactToast'
-
 import StoreHOC from '../Store/StoreHOC'
 
 import { checkInputErrors } from '../Utils/checkInputErrors'
@@ -11,7 +10,6 @@ import SociosTemplate from './SociosTemplate'
 import EmpresaCadReview from './EmpresaCadReview'
 
 import valueParser from '../Utils/valueParser'
-import { empresaFiles } from '../Forms/empresaFiles'
 import { empresasForm } from '../Forms/empresasForm'
 import { sociosForm } from '../Forms/sociosForm'
 import Crumbs from '../Reusable Components/Crumbs'
@@ -19,7 +17,8 @@ import Crumbs from '../Reusable Components/Crumbs'
 import StepperButtons from '../Reusable Components/StepperButtons'
 import CustomStepper from '../Reusable Components/Stepper'
 import AlertDialog from '../Reusable Components/AlertDialog'
-import { removeFile as globalRemoveFile, sizeExceedsLimit } from '../Utils/handleFiles'
+import { handleFiles, postFilesReturnIds, removeFile } from '../Utils/handleFiles'
+import cadEmpresaForm from '../Forms/cadEmpresaForm'
 
 class EmpresasContainer extends Component {
 
@@ -46,7 +45,6 @@ class EmpresasContainer extends Component {
         addedSocios: [0],
         totalShare: 0,
         socios: [],
-        dropDisplay: 'Clique ou arraste para anexar o contrato social atualizado da empresa',
         showFiles: false
     }
 
@@ -211,18 +209,9 @@ class EmpresasContainer extends Component {
         }
     }
 
-    handleFiles = files => {
-        //limit file Size
-        if (sizeExceedsLimit(files)) return
-
-        let formData = new FormData()
-        formData.append('contratoSocial', files[0])
-        this.setState({ contratoSocial: formData })
-    }
-
     handleSubmit = async () => {
 
-        let { socios, contratoSocial } = this.state,
+        let { socios, form } = this.state,
             empresa = {},
             empresaId,
             socioIds
@@ -248,44 +237,62 @@ class EmpresasContainer extends Component {
 
         empresa = humps.decamelizeKeys(empresa)
         socios = humps.decamelizeKeys(socios)
-
+        if (!socios || !socios[0]) {
+            console.log('Warning: No socios were registered!!!')
+            socios = undefined
+        }
+        else
+            console.log(socios)
         await axios.post('/api/empresaFullCad', { empresa, socios })
             .then(res => {
                 empresaId = res.data.codigo_empresa
                 socioIds = res.data.socioIds
+                console.log("🚀 ~ file: EmpresasContainer.jsx ~ line 249 ~ EmpresasContainer ~ handleSubmit= ~ empresaId", empresaId)
+                this.submitFile(empresaId, socioIds, form)
             })
-
-        this.submitFile(empresaId, socioIds, contratoSocial)
         this.toast()
         this.resetState()
     }
 
-    submitFile = async (empresaId, socioIds, contratoSocial) => {
-        if (contratoSocial instanceof FormData) {
-            const contratoFile = new FormData()
-            let metadata = {
-                fieldName: 'contratoSocial',
+    handleFiles = async (files, name) => {
+
+        if (files && files[0]) {
+            await this.setState({ [name]: files[0] })
+
+            const newState = handleFiles(files, this.state, cadEmpresaForm)
+            this.setState({ ...newState, fileToRemove: null })
+        }
+    }
+
+    submitFile = async (empresaId, socioIds) => {
+
+        const
+            { form } = this.state,
+            metadata = {
                 empresaId,
                 socios: socioIds,
                 tempFile: false
             }
 
-            metadata = JSON.stringify(metadata)
-            contratoFile.append('metadata', metadata)
-
-            for (let pair of contratoSocial.entries()) {
-                contratoFile.append(pair[0], pair[1])
+        if (form instanceof FormData) {
+            let filesToSend = new FormData()
+            //O loop é para cada arquivo ter seu fieldName correto no campo metadata
+            for (let pair of form) {
+                metadata.fieldName = pair[0]
+                filesToSend.append('metadata', JSON.stringify(metadata))
+                filesToSend.set(pair[0], pair[1])
+                await axios.post('/api/empresaUpload', filesToSend)
+                    .then(r => console.log(r))
+                    .catch(err => console.log(err))
+                filesToSend = new FormData()
             }
-
-            await axios.post('/api/empresaUpload', contratoFile)
-                .then(r => console.log('file ok.'))
         }
     }
 
-    removeFile = async (name) => {
+    removeFile = name => {
         const
-            { contratoSocial } = this.state,
-            newState = globalRemoveFile(name, contratoSocial)
+            { form } = this.state,
+            newState = removeFile(name, form)
         this.setState({ ...this.state, ...newState })
     }
 
@@ -307,7 +314,7 @@ class EmpresasContainer extends Component {
             })
         })
 
-        empresaFiles.forEach(({ name }) => {
+        cadEmpresaForm.forEach(({ name }) => {
             Object.assign(resetFiles, { [name]: undefined })
         })
 
@@ -322,7 +329,7 @@ class EmpresasContainer extends Component {
             addedSocios: [0],
             totalShare: 0,
             socios: [],
-            dropDisplay: 'Clique ou arraste para anexar o contrato social atualizado da empresa',
+            form: undefined,
             showFiles: false
         })
     }
@@ -335,7 +342,7 @@ class EmpresasContainer extends Component {
     render() {
 
         const { socios, activeStep, confirmToast, toastMsg, steps, openAlertDialog,
-            alertType, contratoSocial, customMsg, customTitle } = this.state
+            alertType, form, customMsg, customTitle } = this.state
 
         return <Fragment>
 
@@ -371,8 +378,8 @@ class EmpresasContainer extends Component {
                         activeStep === 2 &&
                         <EmpresaCadReview
                             data={this.state}
-                            files={contratoSocial}
-                            filesForm={empresaFiles}
+                            files={form}
+                            filesForm={cadEmpresaForm}
                             empresasForm={empresasForm}
                             sociosForm={sociosForm}
                         />

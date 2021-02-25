@@ -5,6 +5,7 @@ const
 
 const cadSocios = (req, res, next) => {
 
+    console.log("🚀 ~ file: cadSocios.js ~ line 9 ~ cadSocios ~ socios", req.body)
     const socios = parseRequestBody(req.body.socios)
     let promisseArray = []
 

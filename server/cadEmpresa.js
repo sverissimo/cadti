@@ -14,7 +14,16 @@ const cadEmpresa = (req, res, next) => {
         if (table && table.rows && table.rows.length === 0) { res.send('Nenhuma empresa cadastrada.'); return }
         if (table.hasOwnProperty('rows') && table.rows.length > 0) {
             if (table && table.rows[0].hasOwnProperty('codigo_empresa')) {
+
                 const codigoEmpresa = table.rows[0].codigo_empresa
+                res.locals.codigoEmpresa = codigoEmpresa
+                //console.log("🚀 ~ file: cadEmpresa.js ~ line 33 ~ pool.query ~ res.locals", res.locals)
+
+                //Se não tiver sócios no body, next()
+                if (!req.body.socios) {
+                    return next()
+                }
+
                 //Insere a coluna empresas [{codigoEmpresa, share}] para cada sócio
                 req.body.socios.forEach(obj => {
                     //Os sócios podem já ter cadastro no sistema (outra empresa) ou ser novos
@@ -28,12 +37,9 @@ const cadEmpresa = (req, res, next) => {
                     obj.empresas = JSON.stringify(empresas)
                     console.log("🚀 ~ file: cadEmpresa.js ~ line 28 ~ pool.query ~ OBJempresas", obj.empresas)
                 })
-
-                console.log("🚀 ~ file: cadEmpresa.js ~ line 31 ~ pool.query ~ codigoEmpresa", codigoEmpresa)
-                req.codigo_empresa = codigoEmpresa
+                next()
             }
         }
-        next()
     })
 }
 

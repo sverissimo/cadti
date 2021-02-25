@@ -13,12 +13,15 @@ const userSockets = async ({ req, res, table, condition = '', event, collection,
     let
         data,
         { codigoEmpresa, codigo_empresa } = req.body
-    //console.log("🚀 ~ file: userSockets.js ~ line 15 ~ userSockets ~ codigoEmpresa", codigoEmpresa)
 
     if (!codigoEmpresa)             //Se vier do Postgres, virá decamelized
         codigoEmpresa = codigo_empresa
 
-    console.log("🚀 ~ file: userSockets.js ~ line 20 ~ userSockets ~ codigoEmpresa", codigoEmpresa)
+    //Se houver uma nova empresa cadastrada, o codigoEmpresa veio dentro do mesmo request e salvo em res.locals
+    if (!codigoEmpresa && (table === 'empresas' || table === 'socios'))
+        codigoEmpresa = res.locals.codigoEmpresa
+
+    console.log("🚀 ~ file: userSockets.js ~ line 24 ~ userSockets ~ codigoEmpresa", codigoEmpresa)
 
     if (table)
         data = await getUpdatedData(table, condition)
@@ -53,13 +56,17 @@ const userSockets = async ({ req, res, table, condition = '', event, collection,
         return res.send('' + veiculo_id)
     if (table === 'procuradores' || table === 'socios') {
         console.log('dataaaaa', codigoEmpresa, data)
-        insertEmpresa({ representantes: data, codigoEmpresa })
+        if (codigoEmpresa)
+            insertEmpresa({ representantes: data, codigoEmpresa })
+        //Se o CodigoEmpresa está salvo em res.locals é pq o request foi empresaFullCad, precisa retornar id da emp e socios
+        if (res.locals.codigoEmpresa)
+            data = { codigo_empresa: codigoEmpresa, socioIds: data.map(s => s.socio_id) }
         return res.send(data)
     }
     else
         return res.send('Dados atualizados.')
-}
 
+}
 //Trata as tabelas do Postgresql que não possuem a coluna codigo_empresa
 const filterData = (table, data, codigosEmpresa, event, collection) => {
 

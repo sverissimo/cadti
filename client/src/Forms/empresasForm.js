@@ -64,6 +64,10 @@ export const empresasForm = [
         pattern: '[A-Z]{2}'
     },
     {
+        field: 'numeroContrato',
+        label: 'Número do Contrato Social',
+    },
+    {
         field: 'vencimentoContrato',
         label: 'Vencimento do Cadastro - CRC',
         type: 'date',

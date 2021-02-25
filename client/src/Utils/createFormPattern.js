@@ -76,13 +76,13 @@ export function setForm(tab) {
     switch (tab) {
         case 0:
             formPattern = mergeForms(empresasForm, eForm)
-            break
+            return formPattern
         case 1:
             formPattern = sociosForm.concat(sForm)
-            break
+            return formPattern
         case 2:
             formPattern = procuradorForm
-            break
+            return formPattern
         case 3:
             let consolidateForm = []
             cadForm.forEach(form => {
@@ -92,7 +92,7 @@ export function setForm(tab) {
             return formPattern
         case 4:
             formPattern = seguroForm.concat(segForm)
-            break
+            return formPattern
         default:
             return formPattern
     }
