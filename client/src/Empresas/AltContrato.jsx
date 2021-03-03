@@ -6,13 +6,14 @@ import StoreHOC from '../Store/StoreHOC'
 import AltContratoTemplate from './AltContratoTemplate'
 import ReactToast from '../Reusable Components/ReactToast'
 import { logGenerator } from '../Utils/logGenerator'
-import { removeFile as globalRemoveFile, sizeExceedsLimit } from '../Utils/handleFiles'
+import { handleFiles as globalHandleFiles, removeFile as globalRemoveFile } from '../Utils/handleFiles'
 import valueParser from '../Utils/valueParser'
 
 import { altContratoForm } from '../Forms/altContratoForm'
 import { empresasForm } from '../Forms/empresasForm'
 import { sociosForm } from '../Forms/sociosForm'
 import AlertDialog from '../Reusable Components/AlertDialog'
+import altContratoFiles from '../Forms/altContratoFiles'
 
 const AltContrato = props => {
 
@@ -350,7 +351,7 @@ const AltContrato = props => {
 
     const handleSubmit = async approved => {
         const
-            { demand, altContratoDoc, selectedEmpresa } = state,
+            { demand, form, selectedEmpresa } = state,
             { codigoEmpresa } = selectedEmpresa,
             altContrato = createRequestObj(altContratoForm),
             altEmpresa = createRequestObj(empresasForm),
@@ -362,7 +363,7 @@ const AltContrato = props => {
             toastMsg = 'Solicitação de alteração contratual enviada.'
 
         //Se não houver nenhuma altreração, alerta e retorna
-        if (!demand && !altContrato && !empresaUpdates && !altContratoDoc && !socioUpdates) {
+        if (!demand && !altContrato && !empresaUpdates && !form && !socioUpdates) {
             alert('Nenhuma modificação registrada!')
             return
         }
@@ -372,7 +373,7 @@ const AltContrato = props => {
         if (empresaUpdates) {
             axios.put('/api/editTableRow', empresaUpdates)
             toastMsg = 'Dados da empresa alterados com sucesso.'
-            if (!socioUpdates[0] && !altContrato && !altContratoDoc) {
+            if (!socioUpdates[0] && !altContrato && !form) {
                 toast('Dados da empresa atualizados!')
                 setTimeout(() => { resetState() }, 750);
                 return
@@ -414,8 +415,15 @@ const AltContrato = props => {
                 toastMsg = 'Alteração de contrato social aprovada.'
             }
         }
+        let files, fileIds
         if (approved === false)
             toastMsg = 'Solicitação indeferida.'
+        else if (!approved) {
+            files = await submitFile(codigoEmpresa, socioIds) //A função deve retornar o array de ids dos files para incorporar no log.
+            fileIds = files.map(f => f.id)
+            log.history.files = fileIds
+            //console.log("🚀 ~ file: AltContrato.jsx ~ line 422 ~ files", files, fileIds)
+        }
 
         if (socioIds[0])
             log.metadata.socios = socioIds
@@ -543,7 +551,7 @@ const AltContrato = props => {
 
     const createLog = ({ demand, altContrato, approved, socioUpdates }) => {
         const
-            { selectedEmpresa, info, altContratoDoc, numeroAlteracao } = state,
+            { selectedEmpresa, info } = state,
             { codigoEmpresa } = selectedEmpresa
         let log
 
@@ -561,15 +569,6 @@ const AltContrato = props => {
             }
             if (approved === false)
                 log.declined = true
-
-            if (altContratoDoc) {
-                log.history.files = altContratoDoc
-                log.metadata = {
-                    fieldName: 'altContratoDoc',
-                    empresaId: codigoEmpresa,
-                    numeroAlteracao
-                }
-            }
         }
         //Se houver demand, mas for rejeitada, indeferir demanda
         if (demand && approved === false) {
@@ -587,15 +586,11 @@ const AltContrato = props => {
         if (demand && approved === true) {
             const
                 { id } = demand,
-                { demandFiles, numeroAlteracao, numeroRegistro } = state
+                { demandFiles } = state
             log = {
                 id,
                 demandFiles,
                 history: {},
-                metadata: {
-                    numeroAlteracao,
-                    numeroRegistro,
-                },
                 approved
             }
         }
@@ -621,22 +616,57 @@ const AltContrato = props => {
             return null
     }
 
-    const handleFiles = files => {
-        //limit file Size
-        if (sizeExceedsLimit(files)) return
+    const handleFiles = async (files, name) => {
 
         if (files && files[0]) {
-            const altContratoDoc = new FormData()
-            altContratoDoc.append('altContratoDoc', files[0])
-            setState({ ...state, altContratoDoc, fileToRemove: null })
+            const
+                fileObj = { ...state, [name]: files[0] },
+                newState = globalHandleFiles(files, fileObj, altContratoFiles)
+            setState({ ...state, ...newState, [name]: files[0], fileToRemove: null })
         }
     }
 
+    const submitFile = async (empresaId, socioIds) => {
+        const
+            { form, numeroAlteracao } = state,
+            files = []
+
+        if (form instanceof FormData) {
+            const metadata = {
+                empresaId,
+                socios: socioIds,
+                numeroAlteracao,
+                tempFile: false
+            }
+            let filesToSend = new FormData()
+            //O loop é para cada arquivo ter seu fieldName correto no campo metadata
+            for (let pair of form) {
+                const name = pair[0]
+                console.log("🚀 ~ file: AltContrato.jsx ~ line 641 ~ submitFile ~ name", name)
+                //O CRC não precisa dos ids dos sócios nem do número de alteração em seu metadata
+                if (name === 'crc') {
+                    delete metadata.socios
+                    delete metadata.numeroAlteracao
+                }
+                metadata.fieldName = pair[0]
+                filesToSend.append('metadata', JSON.stringify(metadata))
+                filesToSend.set(pair[0], pair[1])
+                await axios.post('/api/empresaUpload', filesToSend)
+                    .then(r => {
+                        console.log(r)
+                        if (r?.data?.file instanceof Array)
+                            files.push(...r?.data?.file)
+                    })
+                    .catch(err => console.log(err))
+                filesToSend = new FormData()
+            }
+            return files
+        }
+    }
     const removeFile = async (name) => {
         const
-            { altContratoDoc } = state,
-            newState = globalRemoveFile(name, altContratoDoc)
-
+            { form } = state,
+            newState = globalRemoveFile(name, form)
         setState({ ...state, ...newState })
     }
 
@@ -659,7 +689,7 @@ const AltContrato = props => {
         console.log('reseted???')
         setState({
             ...state, ...resetForms, activeStep: 0, razaoSocial: '', selectedEmpresa: undefined, filteredSocios: [],
-            altContratoDoc: undefined, fileToRemove: undefined, ...clearedState
+            form: undefined, fileToRemove: undefined, ...clearedState
         })
     }
     const

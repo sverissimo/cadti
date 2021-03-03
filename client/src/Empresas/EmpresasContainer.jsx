@@ -265,7 +265,6 @@ class EmpresasContainer extends Component {
     }
 
     submitFile = async (empresaId, socioIds) => {
-
         const
             { form } = this.state,
             metadata = {
@@ -273,7 +272,6 @@ class EmpresasContainer extends Component {
                 socios: socioIds,
                 tempFile: false
             }
-
         if (form instanceof FormData) {
             let filesToSend = new FormData()
             //O loop é para cada arquivo ter seu fieldName correto no campo metadata

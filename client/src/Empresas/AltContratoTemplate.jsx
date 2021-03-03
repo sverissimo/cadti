@@ -12,6 +12,7 @@ import StepperButtons from '../Reusable Components/StepperButtons'
 import DragAndDrop from '../Reusable Components/DragAndDrop'
 import AltSociosTemplate from './AltSociosTemplate'
 import { empresaFiles } from '../Forms/empresaFiles'
+import altContratoFiles from '../Forms/altContratoFiles'
 
 
 const AltContratoTemplate = (
@@ -19,7 +20,7 @@ const AltContratoTemplate = (
         setShowPendencias }) => {
 
     const
-        { selectedEmpresa, demand, demandFiles, activeStep, stepTitles, subtitles, dropDisplay, altContratoDoc, fileToRemove, info, showPendencias } = data,
+        { selectedEmpresa, demand, demandFiles, activeStep, stepTitles, subtitles, form, altContratoDoc, fileToRemove, info, showPendencias } = data,
         headerTitle = `Alteração de contrato social - ${selectedEmpresa?.razaoSocial}`,
         forms = [empresasForm, altContratoForm]
 
@@ -62,27 +63,28 @@ const AltContratoTemplate = (
                                                 handleInput={handleInput}
                                                 style={{ width: '100%' }}
                                             />
-                                            {
-                                                activeStep === 1 &&
-                                                <div className='flex center' style={{ width: '100%' }}>
-                                                    <DragAndDrop
-                                                        name='altContratoDoc'
-                                                        style={{ width: '440px' }}
-                                                        dropDisplay={dropDisplay}
-                                                        formData={altContratoDoc}
-                                                        handleFiles={handleFiles}
-                                                        demandFiles={demandFiles}
-                                                        removeFile={removeFile}
-                                                        fileToRemove={fileToRemove}
-                                                    />
-                                                </div>
-                                            }
+                                            <div className='flex center' style={{ width: '100%' }}>
+                                                {
+                                                    activeStep === 0 && altContratoFiles.map(({ name, title }, i) =>
+                                                        <DragAndDrop
+                                                            key={i}
+                                                            name={name}
+                                                            formData={form}
+                                                            dropDisplay={`Clique ou arraste para anexar o ${title} `}
+                                                            handleFiles={handleFiles}
+                                                            removeFile={removeFile}
+                                                            fileToRemove={fileToRemove}
+                                                            style={{ width: i === 0 ? '380px' : '250px', marginRight: i === 0 ? '12px' : 0 }}
+                                                        />
+                                                    )
+                                                }
+                                            </div>
                                         </>
                                         :
                                         <EmpresaReview
                                             data={data}
                                             forms={forms}
-                                            files={altContratoDoc}
+                                            files={form}
                                             demandFiles={demandFiles}
                                             filesForm={empresaFiles}
                                         />

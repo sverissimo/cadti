@@ -16,6 +16,7 @@ export const handleFiles = (files, state, filesFormTemplate) => {
         if (sizeExceedsLimit(files)) return            //limit file Size
 
         filesFormTemplate.forEach(obj => {                   //set native file fieldname property for each file attached. Makes sense if multiple files
+            console.log(obj.name)
             for (let keys in state) {
                 if (keys.match(obj.name) && state[obj.name]) {
                     formData.set(obj.name, state[obj.name])
