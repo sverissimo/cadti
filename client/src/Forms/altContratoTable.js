@@ -12,6 +12,12 @@ const altContratoTable = [
         label: 'Número do registro SEI',
     },
     {
+        field: 'createdAt',
+        label: 'Registro no CadTI',
+        type: 'date',
+        format: value => value ? value : 'Nenhuma data informada'
+    },
+    {
         field: 'dataJunta',
         label: 'Registro na Junta Comercial',
         type: 'date',

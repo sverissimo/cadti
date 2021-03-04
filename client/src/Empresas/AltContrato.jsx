@@ -15,6 +15,14 @@ import { sociosForm } from '../Forms/sociosForm'
 import AlertDialog from '../Reusable Components/AlertDialog'
 import altContratoFiles from '../Forms/altContratoFiles'
 
+const
+    stepTitles = ['Alterar dados da empresa', 'Informações sobre alteração do contrato social', 'Informações sobre sócios', 'Revisão'],
+    subtitles = ['Utilize os campos abaixo caso deseje editar os dados da empresa',
+        'Informe as alterações no contrato social e anexe uma cópia do documento',
+        'Adicione ou altere sócios e suas respectivas participações.',
+        'Revise os dados informados.'
+    ]
+
 const AltContrato = props => {
 
     const
@@ -22,12 +30,8 @@ const AltContrato = props => {
         [state, setState] = useState({
             razaoSocial: '',
             activeStep: 0,
-            stepTitles: ['Alterar dados da empresa', 'Informações sobre alteração do contrato social', 'Informações sobre sócios', 'Revisão'],
-            subtitles: ['Utilize os campos abaixo caso deseje editar os dados da empresa',
-                'Informe as alterações no contrato social e anexe uma cópia do documento',
-                'Adicione ou altere sócios e suas respectivas participações.',
-                'Revise os dados informados.'
-            ],
+            stepTitles,
+            subtitles,
             dropDisplay: 'Clique ou arraste para anexar a cópia da alteração do contrato social ',
             demand: undefined,
             confirmToast: false,
@@ -373,18 +377,20 @@ const AltContrato = props => {
         if (empresaUpdates) {
             axios.put('/api/editTableRow', empresaUpdates)
             toastMsg = 'Dados da empresa alterados com sucesso.'
-            if (!socioUpdates[0] && !altContrato && !form) {
+            if (!socioUpdates && !altContrato && !form) {
                 toast('Dados da empresa atualizados!')
                 setTimeout(() => { resetState() }, 750);
                 return
             }
         }
+
+        console.log("🚀 ~ file: AltContrato.jsx ~ line 385 ~ demand", demand, approved)
         //Ao aprovar a solicitação(demanda)
         if (demand && approved) {
             //Registrar as alterações contratuais
             if (altContrato)
                 axios.post('/api/altContrato', altContrato)
-
+            console.log('faaaaaaaaaaaaaaaaaaaaaa')
             //Atualizar os sócios: existentes, novos e a excluir
             if (socioUpdates) {
                 const
@@ -396,7 +402,7 @@ const AltContrato = props => {
                         cpfsToAdd,
                         cpfsToRemove
                     }
-                console.log("🚀 ~ file: AltContrato.jsx ~ line 306 ~ newSocios, oldSocios", newSocios, oldSocios)
+                //console.log("🚀 ~ file: AltContrato.jsx ~ line 306 ~ newSocios, oldSocios", newSocios, oldSocios)
 
                 //Post request dos novos sócios
                 if (newSocios[0])
@@ -420,8 +426,10 @@ const AltContrato = props => {
             toastMsg = 'Solicitação indeferida.'
         else if (!approved) {
             files = await submitFile(codigoEmpresa, socioIds) //A função deve retornar o array de ids dos files para incorporar no log.
-            fileIds = files.map(f => f.id)
-            log.history.files = fileIds
+            if (files instanceof Array) {
+                fileIds = files.map(f => f.id)
+                log.history.files = fileIds
+            }
             //console.log("🚀 ~ file: AltContrato.jsx ~ line 422 ~ files", files, fileIds)
         }
 
@@ -443,7 +451,7 @@ const AltContrato = props => {
         toast(toastMsg)
     }
 
-    const checkSocioUpdates = (approved) => {
+    const checkSocioUpdates = approved => {
         const
             { filteredSocios, selectedEmpresa, demand } = state,
             { codigoEmpresa } = selectedEmpresa
@@ -531,6 +539,8 @@ const AltContrato = props => {
             { selectedEmpresa } = state,
             { codigoEmpresa } = selectedEmpresa
 
+        if (!altEmpresa)
+            return
         //Apaga propriedades === null ou inexistentes
         for (let prop in selectedEmpresa) {
             if (altEmpresa[prop] && altEmpresa[prop] === selectedEmpresa[prop])
@@ -599,8 +609,11 @@ const AltContrato = props => {
 
     //Prepara os objetos para o request
     const createRequestObj = form => {
+        const
+            { selectedEmpresa, demand } = state,
+            { codigoEmpresa } = selectedEmpresa,
+            createdAt = demand && demand.createdAt
 
-        const { selectedEmpresa } = state
         let returnObj = { codigoEmpresa: selectedEmpresa?.codigoEmpresa }
 
         form.forEach(({ field }) => {
@@ -610,8 +623,18 @@ const AltContrato = props => {
             }
         })
 
-        if (Object.keys(returnObj).length > 1)
+        //Adiciona a data de solicitação (não de cadastro) no sistema, em caso de alteração do contrato é ncessário verificar
+        console.log("🚀 ~ file: AltContrato.jsx ~ line 620 ~ returnObj", returnObj)
+        const keys = Object.keys(returnObj)
+        if (keys.length > 1) {
+            //Se tiver aprovando, pega o createdAt do log(demanda) e salva, para manter a data da solicitação.
+            if (keys.includes('numeroAlteracao') && demand) {
+                returnObj.createdAt = createdAt
+                returnObj.codigoEmpresa = codigoEmpresa     //Insere codigoEmpresa para userSocket.js filtrar no backEnd
+            }
             return returnObj
+        }
+        //Se keys.length não for 2 ou mais, retorna null (uma prop é o codigoEmpresa, acrescentado no início da função(this))
         else
             return null
     }
@@ -685,11 +708,11 @@ const AltContrato = props => {
 
         //Se for só uma empresa, volta para o estado inicial (componentDidMount) para procuradores de apenas uma empresa
         if (empresas && empresas.length === 1)
-            clearedState = { ...state, ...empresas[0], selectedEmpresa: empresas[0], filteredSocios: socios }
-        console.log('reseted???')
+            clearedState = { ...empresas[0], selectedEmpresa: empresas[0], filteredSocios: socios }
+
         setState({
-            ...state, ...resetForms, activeStep: 0, razaoSocial: '', selectedEmpresa: undefined, filteredSocios: [],
-            form: undefined, fileToRemove: undefined, ...clearedState
+            ...resetForms, activeStep: 0, stepTitles, subtitles, razaoSocial: '', selectedEmpresa: undefined,
+            filteredSocios: [], form: undefined, fileToRemove: undefined, ...clearedState
         })
     }
     const

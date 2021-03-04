@@ -169,6 +169,9 @@ export default function ShowDetails({ data, tab, title, header, close, empresas,
                             fileId = fileId?.id
                             if (fileId)
                                 rowObj = { ...fieldObj, value: fieldObj?.value, fileId }
+                            else
+                                rowObj = { ...fieldObj, value: '-' }
+
                         }
                         //Senão, o valor é o valor da célula
                         else

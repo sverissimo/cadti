@@ -220,11 +220,15 @@ app.get('/api/altContrato', (req, res) => {
 
 app.post('/api/altContrato', (req, res) => {
 
-    const { body } = req
+    const { codigoEmpresa, body, ...rest } = req
+    console.log(body)
     const newDoc = new altContratoModel(body)
     newDoc.save((err, doc) => {
-        if (err)
+        if (err) {
             console.log(err)
+            return res.send(err)
+        }
+
         userSockets({ req, res, event: 'insertElements', collection: 'altContrato', mongoData: [doc] })
     })
 })

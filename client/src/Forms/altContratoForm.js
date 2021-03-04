@@ -26,3 +26,10 @@ export const altContratoForm = [
         width
     }
 ]
+
+const PostmanTest = {
+    "numeroAlteracao": "1211",
+    "numeroRegistro": "1211",
+    "numeroSei": "1211",
+    "dataJunta": "2020-12-30",
+}
