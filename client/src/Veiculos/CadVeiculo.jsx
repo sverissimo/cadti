@@ -391,7 +391,7 @@ class VeiculosContainer extends PureComponent {
             veiculoId,
             situacao = 'Cadastro solicitado'
 
-        let pbt = Number(poltronas) * 93 + (Number(pesoDianteiro) + Number(pesoTraseiro))
+        let pbt = Number(poltronas) * 80 + (Number(pesoDianteiro) + Number(pesoTraseiro))
         if (isNaN(pbt)) pbt = undefined
 
         //**********Prepare the request Object************* */

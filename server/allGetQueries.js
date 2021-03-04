@@ -122,7 +122,8 @@ const procuracoes = (condition = '') => `
 		FROM procuracoes
 		LEFT JOIN empresas d
 		ON d.codigo_empresa = procuracoes.codigo_empresa
-		ORDER BY vencimento DESC      
+		${condition}
+        ORDER BY vencimento DESC      
 		`
 
 const seguradora = (condition = '') => `

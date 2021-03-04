@@ -349,7 +349,7 @@ class AltDados extends Component {
             oldHistoryLength = demand?.history?.length || 0
 
         //****************************Prepare the request Object*******************************
-        let pbt = Number(poltronas) * 93 + (Number(pesoDianteiro) + Number(pesoTraseiro))
+        let pbt = Number(poltronas) * 80 + (Number(pesoDianteiro) + Number(pesoTraseiro))
         if (isNaN(pbt)) pbt = undefined
 
         let tempObj = {}

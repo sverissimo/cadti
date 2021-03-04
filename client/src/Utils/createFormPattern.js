@@ -3,8 +3,8 @@ import { eForm, sForm, segForm, vForm } from '../Forms/joinForms'
 import { cadForm } from '../Forms/cadForm'
 import { empresasForm } from '../Forms/empresasForm'
 import { sociosForm } from '../Forms/sociosForm'
-import { procuradorForm } from '../Forms/procuradorForm'
 import { seguroForm } from '../Forms/seguroForm'
+import { procuradorConsultasForm } from '../Forms/procuradorConsultasForm'
 
 //Essa função seleciona e formata todos os campos que aparecem no componente ShowDetails e na exportação do arquivo de excel no ConsultasContainer
 const dataToReturn = (tab, data) => {
@@ -81,7 +81,7 @@ export function setForm(tab) {
             formPattern = sociosForm.concat(sForm)
             return formPattern
         case 2:
-            formPattern = procuradorForm
+            formPattern = procuradorConsultasForm
             return formPattern
         case 3:
             let consolidateForm = []

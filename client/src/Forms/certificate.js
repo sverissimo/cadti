@@ -157,7 +157,7 @@ export const pesagem = [[
     },
     {
         field: 'pesoPassageiros',
-        label: 'Passag/Bagagem',
+        label: 'Passag/Bagagem (ton)',
         width: '25mm',
         left: '3mm'
     },

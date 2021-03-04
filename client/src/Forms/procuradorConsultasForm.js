@@ -1,6 +1,6 @@
 import { cpf, email, phone } from './commonFields'
 
-export const procuradorForm = [{
+export const procuradorConsultasForm = [{
     field: 'nomeProcurador',
     label: 'Nome do Procurador',
     maxLength: 90,
@@ -19,6 +19,12 @@ export const procuradorForm = [{
 {
     ...email,
     field: 'emailProcurador',
+    width: 220
+},
+{
+    field: 'createdAt',
+    label: 'Data de inclusão no sistema',
+    type: 'date',
     width: 220
 }
 ]

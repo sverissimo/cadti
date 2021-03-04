@@ -7,6 +7,7 @@ import createFormPattern from '../Utils/createFormPattern'
 import { procuradorEmpresaTable as procTable } from '../Forms/procuradorEmpresaTable'
 import altContratoTable from '../Forms/altContratoTable'
 import TextArea from './TextArea'
+import { procuracaoForm } from '../Forms/procuracaoForm'
 
 export default function ShowDetails({ data, tab, title, header, close, empresas, procuracoes, procuradores, empresaDocs, altContrato }) {
     //data é o objeto (row) do campo de dados de uma determinada tabela
@@ -16,22 +17,27 @@ export default function ShowDetails({ data, tab, title, header, close, empresas,
         [table2, setTable2] = useState(),
         [tables, setTables] = useState([]),
         element = createFormPattern(tab, data) || [], //Element é o form com a adição do campo value, inserindo data para cada objeto(field)
-        obs = element.find(el => el.field === 'obs'),
+        obs = element.find(el => el.field === 'obs'), //Informações adicionais no showDetails fora dos campos padrão (obs, equip, acess)
         equipamentos = element.find(el => el.field === 'equipamentos'),
         acessibilidade = element.find(el => el.field === 'acessibilidade')
-    //Informações adicionais no showDetails fora dos campos padrão
 
+    //Cria tabela de procuradores e altContrato se o elemento for empresa
     useEffect(() => {
+        //Estabelece variáveis para uso nos tabs diferentes
+        const
+            razaoSocial = element.find(el => el.field === 'razaoSocial')?.value,
+            codigoEmpresa = empresas.find(e => e.razaoSocial === razaoSocial)?.codigoEmpresa,
+            selectedDocs = procuracoes.filter(p => p.codigoEmpresa === codigoEmpresa),
+            selectedFiles = empresaDocs.filter(d => d.metadata?.fieldName === 'procuracao' && d.metadata?.empresaId === codigoEmpresa)
+        let
+            selectedProcs = [],
+            tableHeaders = [],
+            arrayOfRows = [],
+            row = [],
+            rowObj
+
         const additionalInfo = (tab) => {
             if (tab === 0) {
-                let selectedProcs = [], tableHeaders = [], arrayOfRows = [], row = [], rowObj
-
-                const
-                    razaoSocial = element.find(el => el.field === 'razaoSocial')?.value,
-                    codigoEmpresa = empresas.find(e => e.razaoSocial === razaoSocial)?.codigoEmpresa,
-                    selectedDocs = procuracoes.filter(p => p.codigoEmpresa === codigoEmpresa),
-                    selectedFiles = empresaDocs.filter(d => d.metadata?.fieldName === 'procuracao' && d.metadata?.empresaId === codigoEmpresa)
-
                 //Cria uma array de procuradores com base na array de procuradorId disponível na tabela Procuracao do Postgresql
                 procuradores.forEach(pr => {
                     selectedDocs.forEach(doc => {
@@ -89,9 +95,60 @@ export default function ShowDetails({ data, tab, title, header, close, empresas,
             }
         }
         additionalInfo(tab)
+
+        //Se o elemento for Procurador, exibir tabela com procurações
+        if (tab === 2) {
+            const
+                procuradorId = (data?.procuradorId),
+                procs = procuracoes.filter(p => p.procuradores.includes(procuradorId))
+            let file
+            procs.forEach(p => {
+                file = empresaDocs.find(({ metadata }) => metadata?.procuracaoId === p.procuracaoId)
+                p.fileId = file?.id
+            })
+            //console.log("🚀 ~ file: ShowDetails.jsx ~ line 99 ~ useEffect ~ file", procs)
+
+            procs.forEach(proc => {
+                procuracaoForm.forEach(fieldObj => {
+                    const { field } = fieldObj
+                    //insere o cabeçalho da tabela (apenas uma vez)
+                    if (!tableHeaders.some(t => t === fieldObj.title))
+                        tableHeaders.push(fieldObj.title)
+                    //insere as linhas (também apenas uma vez)
+                    if (proc.hasOwnProperty(field) && !row.some(o => o.hasOwnProperty(field))) {
+
+                        //se a coluna/field for um arquivo o valor que aparecerá na tabela é "Clique para baixar..."
+                        if (field === 'fileId' && proc.fileId)
+                            rowObj = { ...fieldObj, value: 'Clique para baixar a procuração', fileId: proc.fileId }
+                        //Senão, o valor é o valor da célula
+                        else
+                            rowObj = { ...fieldObj, value: proc[field] }
+
+                        //se a célula possuir um método de autoFormatação, aplicar
+                        if (fieldObj.format) {
+                            const value = fieldObj.format(proc[field])
+                            rowObj = { ...fieldObj, value }
+                        }
+                        row.push(rowObj)
+                    }
+                })
+                arrayOfRows.push(row)
+                row = []
+            })
+            //Cria uma array de arquivos com base no id de cada procuração              
+            if (procs[0])
+                setTable({
+                    mainTitle: `Procurações cadastrados para ${data?.nomeProcurador}`,
+                    tableHeaders,
+                    arrayOfRows,
+                    docs: empresaDocs
+                })
+        }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [tab])
 
+
+    //Cria a tabela que lista as alterações de contrato social caso o objeto exibido seja uma empresa
     const setAltContrato = async () => {
         if (altContrato) {
             const
@@ -139,6 +196,7 @@ export default function ShowDetails({ data, tab, title, header, close, empresas,
         }
     }
 
+    //Adiciona as tabelas
     useEffect(() => {
         const tableArray = []
         if (table)
@@ -148,7 +206,7 @@ export default function ShowDetails({ data, tab, title, header, close, empresas,
         if (tableArray[0])
             setTables(tableArray)
     }, [table, table2])
-    console.log(element)
+    console.log(table)
 
     return (
         <div className="popUpWindow" style={{ left: '20%', right: '20%' }}>

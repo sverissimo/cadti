@@ -39,7 +39,14 @@ export default function PdfCertificate() {
 
     const formArray = [carac, delega, seg, peso, info, obs]
 
-    if (vehicle)
+    if (vehicle) {
+        //Adiciona Passag/Bagagem no certificado, q é poltronas x 80kg ou 0.08ton
+        const
+            { poltronas, pesoDianteiro } = vehicle,
+            pesoPassageiros = poltronas * 80 / 1000
+        vehicle.pesoPassageiros = pesoPassageiros
+        vehicle.pesoDianteiro = +pesoDianteiro
+
         formArray.forEach(form => {
             Object.entries(vehicle).forEach(([key, value]) => {
                 form.forEach((line, i) => {
@@ -53,6 +60,7 @@ export default function PdfCertificate() {
                 })
             })
         })
+    }
     const checkMulti = field => {
         if (field === 'equipamentosId' || field === 'equipamentosId') return
         else return 'certificate'

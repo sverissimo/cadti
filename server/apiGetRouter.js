@@ -34,11 +34,19 @@ const apiGetRouter = (req, res) => {
         const applyFilter = fieldParser.find(el => el.table === table && el.codigo_empresa)
         if (applyFilter)
             condition = `WHERE ${table}.codigo_empresa IN (${empresas})`
+        //As tabelas socios e procuradores não possuem código_empresa, mas arrays de empresas
         if (table === 'socios') {
             emps = ''
             empresas.forEach(e => emps += ` or socios.empresas LIKE '%${e}%'`)
             condition += emps
         }
+        if (table === 'procuradores') {
+            condition = `WHERE procuradores.procurador_id = 0`
+            emps = ''
+            empresas.forEach(e => emps += ` or ${e} = ANY(procuradores.empresas)`)
+            condition += emps
+        }
+
         if (originalTable)
             table = originalTable
     }
