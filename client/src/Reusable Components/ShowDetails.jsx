@@ -147,7 +147,6 @@ export default function ShowDetails({ data, tab, title, header, close, empresas,
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [tab])
 
-
     //Cria a tabela que lista as alterações de contrato social caso o objeto exibido seja uma empresa
     const setAltContrato = async () => {
         if (altContrato) {
@@ -165,7 +164,7 @@ export default function ShowDetails({ data, tab, title, header, close, empresas,
                     if (field === 'fileId' || (alt.hasOwnProperty(field) && !row.some(o => o.hasOwnProperty(field)))) {
                         //se a coluna/field for um arquivo o valor que aparecerá na tabela é "Clique para baixar..."
                         if (field === 'fileId') {
-                            let fileId = altDocs.find(d => d.metadata.numeroRegistro === alt.numeroRegistro)
+                            let fileId = altDocs.find(d => d.metadata.numeroAlteracao === alt.numeroAlteracao)
                             fileId = fileId?.id
                             if (fileId)
                                 rowObj = { ...fieldObj, value: fieldObj?.value, fileId }

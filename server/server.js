@@ -53,7 +53,8 @@ const
     insertEmpresa = require('./users/insertEmpresa'),
     removeEmpresa = require('./users/removeEmpresa'),
     userSockets = require('./auth/userSockets'),
-    deleteSockets = require('./auth/deleteSockets')
+    deleteSockets = require('./auth/deleteSockets'),
+    altContratoAlert = require('./alerts/altContratoAlert')
 
 dailyTasks.start()
 dotenv.config()
@@ -220,15 +221,16 @@ app.get('/api/altContrato', (req, res) => {
 
 app.post('/api/altContrato', (req, res) => {
 
-    const { codigoEmpresa, body, ...rest } = req
-    console.log(body)
+    const { body } = req
+    //console.log(body)
     const newDoc = new altContratoModel(body)
     newDoc.save((err, doc) => {
         if (err) {
             console.log(err)
             return res.send(err)
         }
-
+        altContratoAlert(doc)
+        return res.send(doc)
         userSockets({ req, res, event: 'insertElements', collection: 'altContrato', mongoData: [doc] })
     })
 })

@@ -390,7 +390,7 @@ const AltContrato = props => {
             //Registrar as alterações contratuais
             if (altContrato)
                 axios.post('/api/altContrato', altContrato)
-            console.log('faaaaaaaaaaaaaaaaaaaaaa')
+
             //Atualizar os sócios: existentes, novos e a excluir
             if (socioUpdates) {
                 const
@@ -623,7 +623,7 @@ const AltContrato = props => {
             }
         })
 
-        //Adiciona a data de solicitação (não de cadastro) no sistema, em caso de alteração do contrato é ncessário verificar
+        //Adiciona a data de solicitação (não de cadastro) no sistema, em caso de alteração do contrato é necessário verificar
         console.log("🚀 ~ file: AltContrato.jsx ~ line 620 ~ returnObj", returnObj)
         const keys = Object.keys(returnObj)
         if (keys.length > 1) {
