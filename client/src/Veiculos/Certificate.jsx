@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { delegatario, caracteristicas, seguro, pesagem, informacoesGerais, other } from '../Forms/certificate'
+import { delegatario as delega, dadosVeiculo, caracteristicas as carac, seguro as seg, vistoria, pesagem as peso, informacoesGerais as info, compartilhado } from '../Forms/certificate'
 import CertificateTemplate from './CertificateTemplate'
 
 export default function PdfCertificate() {
@@ -21,23 +21,17 @@ export default function PdfCertificate() {
             if (nomes)
                 await setNames(nomes)
 
-            setTimeout(() => {
-                if (data) window.print()
-            }, 500);
+            /*   setTimeout(() => {
+                  if (data) window.print()
+              }, 500); */
         }
         setData()
         localStorage.removeItem('vehicle')
     }, [])
 
-    let carac = caracteristicas,
-        delega = delegatario,
-        seg = seguro,
-        peso = pesagem,
-        info = informacoesGerais,
-        obs = other,
-        object = {}
-
-    const formArray = [carac, delega, seg, peso, info, obs]
+    //Cria array de formulários importados para fazer um loop preenchendo com valores do state
+    const formArray = [carac, dadosVeiculo, delega, seg, vistoria, peso, info]
+    let object = {}
 
     if (vehicle) {
         //Adiciona Passag/Bagagem no certificado, q é poltronas x 80kg ou 0.08ton
@@ -79,15 +73,17 @@ export default function PdfCertificate() {
     }
     return (
         <CertificateTemplate
+            vehicle={vehicle}
             nomes={names}
             checkMulti={checkMulti}
             redirect={redirect}
-            carac={carac}
             delega={delega}
+            carac={carac}
+            dadosVeiculo={dadosVeiculo}
             seg={seg}
+            vistoria={vistoria}
             peso={peso}
             info={info}
-            obs={obs}
         />
     )
 }

@@ -13,7 +13,7 @@
   "author": "Sandro Veríssimo",
   "license": "ISC",
   "dependencies": {
-    "axios": "^0.20.0",
+    "axios": "^0.21.1",
     "bcrypt": "^5.0.0",
     "concurrently": "^5.3.0",
     "cron": "^1.8.2",
@@ -30,10 +30,11 @@
     "multer": "^1.4.2",
     "multer-gridfs-storage": "^4.2.0",
     "node-sass": "^4.14.1",
+    "nodemailer": "^6.5.0",
     "nodemon": "^2.0.6",
     "pg": "^8.5.1",
-    "pm2": "^4.5.1",
-    "socket.io": "^2.3.0",
+    "pm2": "^4.5.5",
+    "socket.io": "^2.4.1",
     "xlsx": "^0.16.9"
   }
 }

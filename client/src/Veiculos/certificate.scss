@@ -1,8 +1,15 @@
+@mixin divLine {
+    display: flex;
+    margin: 7mm 0 3mm 0;
+    width: 100%;
+    padding: 0 2mm 0 6mm;
+}
+
 .A4 {
     font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif !important;
     background: white;
-    width: 21cm;
-    height: 29cm;
+    width: 20cm;
+    height: 28cm;
     margin: 0 auto;
     padding: 0 6mm;
     margin-bottom: 0.5cm;
@@ -16,7 +23,7 @@
     border: 1px solid #333;
     border-radius: 3mm;
     position: relative;
-    margin-bottom: 2.5mm;
+    margin-bottom: 2.2mm;
 }
 
 .firstBox {
@@ -35,10 +42,7 @@
 }
 
 .divLine {
-    display: flex;
-    margin: 9mm 0 4.5mm 0;
-    width: 100%;
-    padding: 0 2mm 0 6mm;
+    @include divLine();
 }
 
 .firstDivLine {
@@ -46,12 +50,8 @@
     top: 0;
 }
 
-@media print {
-    .page-break {
-        display: block;
-        page-break-inside: avoid;
-        page-break-after: avoid;
-    }
+.equipa {
+    font-size: 7.5pt;
 }
 
 @media print {
@@ -60,47 +60,46 @@
         margin: 0 !important;
         padding: 0 !important;
     }
-    nav,
-    .MuiToolbar-root,
-    .MuiTabs-flexContainer,
-    .noPrint {
-        display: none !important;
-    }
     .A4 {
         box-shadow: none;
         margin: 0 !important;
         padding: 0 !important;
         width: 200mm;
-        height: 26cm;
+        height: 28cm;
         display: block !important;
         overflow-x: hidden;
         page-break-after: avoid;
     }
     .divLine {
-        display: flex;
-        margin: 9mm 0 8mm 0;
-        width: 100%;
-        padding: 0 2mm 0 6mm;
+        @include divLine();
     }
     .certFooter {
         page-break-after: avoid;
     }
-
+    .page-break {
+        display: block;
+        page-break-inside: avoid;
+        page-break-after: avoid;
+    }
+    nav,
+    .MuiToolbar-root,
+    .MuiTabs-flexContainer,
+    .noPrint,
     .MuiToolbar-root,
     .MuiToolbar-regular,
     .MuiToolbar-gutters,
     .noprint,
     .printButton {
-        display: none;
+        display: none !important;
     }
 }
 
 .certificate {
     border-radius: 0% !important;
-    padding-top: 2mm !important;
+    padding-top: 1mm !important;
     height: 15px !important;
     font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif !important;
-    font-size: 13px !important;
+    font-size: 11px !important;
     font-weight: 500 !important;
     vertical-align: middle;
     text-align: center !important;
@@ -125,7 +124,6 @@
 .link {
     cursor: pointer;
     color: blue;
-
     text-decoration: underline;
 }
 
@@ -177,7 +175,7 @@
     &__title {
         font: {
             weight: 700;
-            size: 23pt;
+            size: 20pt;
         }
         margin: 2mm 0 0mm 0;
         letter-spacing: 2.2mm;
