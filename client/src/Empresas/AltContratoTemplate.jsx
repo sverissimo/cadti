@@ -20,7 +20,7 @@ const AltContratoTemplate = (
         setShowPendencias }) => {
 
     const
-        { selectedEmpresa, demand, demandFiles, activeStep, stepTitles, subtitles, form, altContratoDoc, fileToRemove, info, showPendencias } = data,
+        { selectedEmpresa, demand, demandFiles, activeStep, stepTitles, subtitles, form, fileToRemove, info, showPendencias } = data,
         headerTitle = `Alteração de contrato social - ${selectedEmpresa?.razaoSocial}`,
         forms = [empresasForm, altContratoForm]
 

@@ -59,6 +59,10 @@ export const vForm = [
         type: 'date',
     },
     {
+        field: 'cmt',
+        label: 'CMT (t)'
+    },
+    {
         field: 'pbt',
         label: 'Peso Bruto Total'
     },

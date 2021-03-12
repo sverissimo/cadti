@@ -178,30 +178,29 @@ export const pesagem = [[
     },
     {
         field: 'cmt',
-        label: 'PBT / CMT Legal',
-        width: '25mm'
+        label: 'PBT / CMT Legal (t)',
+        width: '27mm'
     },
     {
         field: 'pesoDianteiro',
         label: 'Peso Dianteiro (t)',
-        width: '28mm',
-        left: '4mm'
+        width: '25mm',
     },
     {
         field: 'pesoTraseiro',
         label: 'Peso Traseiro (t)',
-        width: '28mm',
-        left: '4mm'
+        width: '25mm'
     },
     {
         field: 'pbt',
         label: 'Peso Bruto Total (t)',
-        width: '25mm'
+        width: '28mm',
+        left: '3mm'
     },
     {
         field: 'pesoPassageiros',
         label: 'Passag/Bagagem (t)',
-        width: '25mm',
+        width: '28mm',
         left: '3mm'
     }
 ]]
@@ -215,14 +214,8 @@ export const informacoesGerais = [[
         width: '30mm',
         left: '4mm'
     },
-    /* {
-        field: 'dataExpedicao',
-        label: 'Data de expedição do CRV',
-        type: 'date',
-        width: '30mm',
-    }, */
     {
-        field: 'venciment',
+        field: 'vencimento',
         label: 'Validade do CRV',
         type: 'date',
         width: '25mm',
@@ -237,15 +230,6 @@ export const informacoesGerais = [[
         field: 'compartilhado',
         label: 'Empresa autorizada a compartilhar',
         width: '80mm',
-        left: '20mm'
-    }
-]]
-
-export const compartilhado = [[
-    {
-        field: 'compartilhado',
-        label: 'Empresas autorizadas a compartilhar',
-        width: '120mm',
         left: '20mm'
     }
 ]]

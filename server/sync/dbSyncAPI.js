@@ -11,7 +11,8 @@ const
 router.post('/createTable', (req, res) => {
     const { query } = req.body
 
-    console.log(query.substring(0, 50))
+    console.log(query.substring(0, 150))
+    //console.log(query)
 
     pool.query(query).then(() => res.send('createTable alright'))
 })

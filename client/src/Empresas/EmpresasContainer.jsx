@@ -17,7 +17,7 @@ import Crumbs from '../Reusable Components/Crumbs'
 import StepperButtons from '../Reusable Components/StepperButtons'
 import CustomStepper from '../Reusable Components/Stepper'
 import AlertDialog from '../Reusable Components/AlertDialog'
-import { handleFiles, postFilesReturnIds, removeFile } from '../Utils/handleFiles'
+import { handleFiles, removeFile } from '../Utils/handleFiles'
 import cadEmpresaForm from '../Forms/cadEmpresaForm'
 
 class EmpresasContainer extends Component {

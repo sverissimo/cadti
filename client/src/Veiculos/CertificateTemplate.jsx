@@ -108,7 +108,11 @@ const CertificateTemplate = ({ vehicle, nomes, checkMulti, redirect, delega, car
                         (equipamentos || acessibilidade) &&
                         <div className="divLine flex" style={{ overflow: 'unset' }}>
                             {
-                                equipamentos.map(e => <span className="equipa">{e},&nbsp;</span>)
+                                equipamentos.map((e, i) => !acessibilidade[0] && i === equipamentos.length - 1 ?
+                                    <span className="equipa">{e}.</span>
+                                    :
+                                    <span className="equipa">{e},&nbsp;</span>
+                                )
                             }
                             {
                                 acessibilidade.map((e, i) => i !== acessibilidade.length - 1 ?

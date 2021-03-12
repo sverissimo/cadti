@@ -2,7 +2,8 @@ const allVehicleFields = (condition = '') => `
         SELECT veiculos.*,	
             (extract(year from current_date) - ano_carroceria) as indicador_idade,   
             marca_chassi.marca as marca_chassi,
-            modelo_chassi.modelo_chassi,	
+            modelo_chassi.modelo_chassi,
+            modelo_chassi.cmt,
             marca_carroceria.marca as marca_carroceria,
             modelo_carroceria.modelo as modelo_carroceria,
             d.razao_social as empresa,
@@ -43,7 +44,8 @@ const veiculos = (condition = '') => `
         SELECT veiculos.*,	
             (extract(year from current_date) - ano_carroceria) as indicador_idade,   
             marca_chassi.marca as marca_chassi,
-            modelo_chassi.modelo_chassi,	
+            modelo_chassi.modelo_chassi,
+            modelo_chassi.cmt,	
             marca_carroceria.marca as marca_carroceria,
             modelo_carroceria.modelo as modelo_carroceria,
             d.razao_social as empresa,
@@ -133,11 +135,11 @@ const seguradora = (condition = '') => `
         `
 
 const modeloChassi = condition => `
-		SELECT modelo_chassi.id, modelo_chassi,
-			public.marca_chassi.marca as marca
-		FROM modelo_chassi 
-		LEFT JOIN marca_chassi
-			ON public.marca_chassi.id = public.modelo_chassi.marca_id
+        SELECT modelo_chassi.*,
+            public.marca_chassi.marca as marca
+        FROM modelo_chassi 
+        LEFT JOIN marca_chassi
+            ON public.marca_chassi.id = public.modelo_chassi.marca_id
 		`
 
 const carrocerias = condition => `

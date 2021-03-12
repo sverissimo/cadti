@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { delegatario as delega, dadosVeiculo, caracteristicas as carac, seguro as seg, vistoria, pesagem as peso, informacoesGerais as info, compartilhado } from '../Forms/certificate'
+import { delegatario as delega, dadosVeiculo, caracteristicas as carac, seguro as seg, vistoria, pesagem as peso, informacoesGerais as info } from '../Forms/certificate'
 import CertificateTemplate from './CertificateTemplate'
 
 export default function PdfCertificate() {

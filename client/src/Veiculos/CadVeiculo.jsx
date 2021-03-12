@@ -178,6 +178,11 @@ class VeiculosContainer extends PureComponent {
         }
     }
 
+    checkWeight = () => {
+        const { modelosChassi } = this.props.redux
+        console.log(modelosChassi)
+    }
+
     handleBlur = async e => {
         const
             { empresas, modelosChassi, carrocerias, parametros } = this.props.redux,
@@ -206,6 +211,7 @@ class VeiculosContainer extends PureComponent {
         switch (name) {
             case 'modeloChassi':
                 this.checkValid(name, value, modelosChassi, 'modeloChassiId', 'modeloChassi', 'id', 'chassi')
+                this.checkWeight()
                 break
             case 'modeloCarroceria':
                 this.checkValid(name, value, carrocerias, 'modeloCarroceriaId', 'modelo', 'id', 'carroceria')
