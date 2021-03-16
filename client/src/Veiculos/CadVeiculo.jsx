@@ -25,6 +25,7 @@ import { cadVehicleForm } from '../Forms/cadVehicleForm'
 import AlertDialog from '../Reusable Components/AlertDialog'
 import validateDist from '../Utils/validaDistanciaMinima'
 import { dischargedForm } from '../Forms/dischargedForm'
+import checkWeight from './checkWeight'
 
 class VeiculosContainer extends PureComponent {
     constructor() {
@@ -151,23 +152,14 @@ class VeiculosContainer extends PureComponent {
             case ('valorCarroceria'):
                 this.setState({ [name]: formatMoney(value) })
                 break
-
             default: void 0
         }
     }
 
     checkValid = async (name, value, collection, stateId, dbName, dbId, alertLabel) => {
 
-        const item = collection.filter(el => el[dbName].toLowerCase().match(value.toLowerCase()))
-        if (value === '') this.setState({ [name]: '', [stateId]: '' })
-        if (item[0]) {
-            const nombre = item[0][dbName]
-            const id = item[0][dbId]
-            if (value !== '') {
-                await this.setState({ [name]: nombre, [stateId]: id })
-
-            }
-        } else {
+        const item = collection.find(el => el[dbName].toLowerCase() === value.toLowerCase())
+        if (!item && value && value !== '') {
             await this.setState({ [name]: '', [stateId]: '' })
             this.setState({
                 alertType: 'invalidModel', openAlertDialog: true,
@@ -175,12 +167,30 @@ class VeiculosContainer extends PureComponent {
                 customMsg: `O modelo de ${alertLabel} não está cadastrado no sistema.`
             })
             document.getElementsByName(name)[0].focus()
+            return
+        }
+        if (value === '')
+            this.setState({ [name]: '', [stateId]: '' })
+        if (item) {
+            const
+                nombre = item[dbName],
+                id = item[dbId]
+            if (value !== '')
+                await this.setState({ [name]: nombre, [stateId]: id })
         }
     }
+    //Calcula o CMT legal após o blur do modeloChassi e salva no estado local
+    getCMT = () => {
+        const
+            { modelosChassi } = this.props.redux,
+            { modeloChassi } = this.state
 
-    checkWeight = () => {
-        const { modelosChassi } = this.props.redux
-        console.log(modelosChassi)
+        if (!modeloChassi)
+            return
+
+        const cmt = modelosChassi.find(c => c.modeloChassi === modeloChassi)?.cmt
+        console.log("🚀 ~ file: CadVeiculo.jsx ~ line 190 ~ VeiculosContainer ~ cmt", cmt)
+        this.setState({ cmt })
     }
 
     handleBlur = async e => {
@@ -210,8 +220,9 @@ class VeiculosContainer extends PureComponent {
 
         switch (name) {
             case 'modeloChassi':
-                this.checkValid(name, value, modelosChassi, 'modeloChassiId', 'modeloChassi', 'id', 'chassi')
-                this.checkWeight()
+                await this.checkValid(name, value, modelosChassi, 'modeloChassiId', 'modeloChassi', 'id', 'chassi')
+                this.getCMT()
+                this.setState({ pesoDianteiro: undefined, pesoTraseiro: undefined })
                 break
             case 'modeloCarroceria':
                 this.checkValid(name, value, carrocerias, 'modeloCarroceriaId', 'modelo', 'id', 'carroceria')
@@ -270,6 +281,15 @@ class VeiculosContainer extends PureComponent {
                     })
                 break
             }
+            case ('pesoDianteiro'):
+                checkWeight(this)
+                break
+            case 'pesoTraseiro':
+                checkWeight(this)
+                break
+            case 'poltronas':
+                checkWeight(this)
+                break
             default: void 0
         }
 
