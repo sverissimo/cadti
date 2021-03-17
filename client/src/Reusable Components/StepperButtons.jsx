@@ -23,7 +23,7 @@ const useStyles = makeStyles(theme => ({
 }))
 
 export default function StepperButtons({ activeStep, setActiveStep, lastStep, handleSubmit, disabled, demand, uniqueStep, declineButtonLabel,
-    setShowPendencias, showPendencias, handleInput, info }) {
+    setShowPendencias, showPendencias, handleInput, info, obs, addObs }) {
 
     const classes = useStyles(), { backButton, button, textField } = classes
 
@@ -70,18 +70,23 @@ export default function StepperButtons({ activeStep, setActiveStep, lastStep, ha
                 </>
                 :
                 <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
-                    {role === 'seinfra' && !showPendencias ? null
+                    {role === 'seinfra' && !showPendencias && !addObs
+                        ?
+                        null
                         :
                         <TextField
-                            name='info'
+                            name={addObs ? 'obs' : 'info'}  //Se estiver na solicitação, info>>demand, se na aprovação, veiculo>>obs
                             className={textField}
-                            value={info}
+                            value={addObs ? obs : info}
                             label={
                                 !demand || role === 'empresa' ? 'Observações/informações complementares'
                                     :
                                     demand && uniqueStep ? 'Motivos para o indeferimento'
                                         :
-                                        'Pendências/irregularidades para a aprovação'}
+                                        showPendencias ? 'Pendências/irregularidades para a aprovação'
+                                            :
+                                            'Observações'
+                            }
                             type='text'
                             onChange={handleInput}
                             InputLabelProps={{ shrink: true, style: { fontWeight: 600, marginBottom: '5%' } }}

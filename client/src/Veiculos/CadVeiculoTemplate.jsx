@@ -26,7 +26,7 @@ export default function ({ redux, data, handleInput, handleBlur, handleEquipa, h
     const
         [shared, setShared] = useState(false),
         { button } = useStyles(),
-        { empresas, equipamentos, acessibilidade, modelosChassi, carrocerias } = redux,
+        { empresas, compartilhados, equipamentos, acessibilidade, modelosChassi, carrocerias } = redux,
         { activeStep, demand, addEquipa, subtitle, selectedEmpresa, type, placa, reactivated } = data,
         form = cadVehicleForm[activeStep]
 
@@ -52,6 +52,7 @@ export default function ({ redux, data, handleInput, handleBlur, handleEquipa, h
                         data={data}
                         shared={shared}
                         empresas={empresas}
+                        compartilhados={compartilhados}
                         headerTitle={placa && selectedEmpresa && `Cadastro de veículo ${placa} - ${selectedEmpresa?.razaoSocial}`}
                         handleBlur={handleBlur}
                         handleInput={handleInput}

@@ -113,6 +113,12 @@ const empresas = (condition = '') => `
         ORDER BY frota DESC
         `
 
+const compartilhados = (condition = '') => ` 
+        SELECT empresas.codigo_empresa, empresas.razao_social
+        FROM public.empresas
+        ${condition}        
+        `
+
 const procuradores = (condition = '') => `
         SELECT * FROM public.procuradores
         ${condition}
@@ -167,6 +173,6 @@ const
 
 
 module.exports = {
-    empresas, socios, procuradores, procuracoes, veiculos, allVehicleFields, seguros, seguradora, laudos, empresasLaudo,
+    empresas, socios, procuradores, procuracoes, veiculos, allVehicleFields, seguros, seguradora, laudos, empresasLaudo, compartilhados,
     acessibilidade, equipamentos, seguradoras, carrocerias, modelosChassi: modeloChassi
 }

@@ -25,7 +25,7 @@ import { cadVehicleForm } from '../Forms/cadVehicleForm'
 import AlertDialog from '../Reusable Components/AlertDialog'
 import validateDist from '../Utils/validaDistanciaMinima'
 import { dischargedForm } from '../Forms/dischargedForm'
-import checkWeight from './checkWeight'
+import checkWeight, { getCMT } from './checkWeight'
 
 class VeiculosContainer extends PureComponent {
     constructor() {
@@ -179,19 +179,6 @@ class VeiculosContainer extends PureComponent {
                 await this.setState({ [name]: nombre, [stateId]: id })
         }
     }
-    //Calcula o CMT legal após o blur do modeloChassi e salva no estado local
-    getCMT = () => {
-        const
-            { modelosChassi } = this.props.redux,
-            { modeloChassi } = this.state
-
-        if (!modeloChassi)
-            return
-
-        const cmt = modelosChassi.find(c => c.modeloChassi === modeloChassi)?.cmt
-        console.log("🚀 ~ file: CadVeiculo.jsx ~ line 190 ~ VeiculosContainer ~ cmt", cmt)
-        this.setState({ cmt })
-    }
 
     handleBlur = async e => {
         const
@@ -221,7 +208,7 @@ class VeiculosContainer extends PureComponent {
         switch (name) {
             case 'modeloChassi':
                 await this.checkValid(name, value, modelosChassi, 'modeloChassiId', 'modeloChassi', 'id', 'chassi')
-                this.getCMT()
+                getCMT(this)
                 this.setState({ pesoDianteiro: undefined, pesoTraseiro: undefined })
                 break
             case 'modeloCarroceria':
@@ -407,8 +394,8 @@ class VeiculosContainer extends PureComponent {
 
     handleCadastro = async approved => {
         const
-            { equipamentosId, acessibilidadeId, pesoDianteiro, pesoTraseiro, poltronas, compartilhadoId, modeloChassiId, originalVehicle, getUpdatedValues,
-                modeloCarroceriaId, selectedEmpresa, showPendencias, info, form, demand, demandFiles, reactivated } = this.state,
+            { equipamentosId, acessibilidadeId, pbt, compartilhadoId, modeloChassiId, originalVehicle, getUpdatedValues,
+                modeloCarroceriaId, selectedEmpresa, showPendencias, info, obs, form, demand, demandFiles, reactivated } = this.state,
             { codigoEmpresa } = selectedEmpresa,
             existingVeiculoId = demand?.veiculoId,
             oldHistoryLength = demand?.history?.length || 0
@@ -417,12 +404,8 @@ class VeiculosContainer extends PureComponent {
             veiculoId,
             situacao = 'Cadastro solicitado'
 
-        let pbt = Number(poltronas) * 80 + (Number(pesoDianteiro) + Number(pesoTraseiro))
-        if (isNaN(pbt)) pbt = undefined
-
         //**********Prepare the request Object************* */
         let review = {}
-
         cadVehicleForm.forEach(form => {
             form.forEach(obj => {
                 for (let k in this.state) {
@@ -430,17 +413,17 @@ class VeiculosContainer extends PureComponent {
                 }
             })
         })
-
-        let { delegatarioCompartilhado, modeloChassi, modeloCarroceria, ...vReview } = review
-
+        //Retira campos desnecessários para o cadastro (joins de outras tabelas)
+        let { delegatarioCompartilhado, modeloChassi, modeloCarroceria, apolice, ...vReview } = review
+        //Adiciona campos que não estão no formulário ao objeto do request
         Object.assign(vReview, {
-            codigoEmpresa, situacao, pbt, modeloChassiId, modeloCarroceriaId,
+            codigoEmpresa, situacao, pbt, modeloChassiId, modeloCarroceriaId, obs,
             equipamentosId, acessibilidadeId, apolice: 'Seguro não cadastrado'
         })
         vReview.compartilhadoId = compartilhadoId
-
+        //Save only real changes to the request Object (method from setDemand())
         if (demand && originalVehicle)
-            vReview = getUpdatedValues(originalVehicle, vReview)     //Save only real changes to the request Object (method from setDemand())
+            vReview = getUpdatedValues(originalVehicle, vReview)
 
         const vehicle = humps.decamelizeKeys(vReview)
 
@@ -458,7 +441,6 @@ class VeiculosContainer extends PureComponent {
 
             if (demand && approved && !showPendencias)
                 situacao = 'Seguro não cadastrado'
-
             const
                 table = 'veiculos',
                 tablePK = 'veiculo_id',
@@ -466,7 +448,6 @@ class VeiculosContainer extends PureComponent {
                     ...vehicle,
                     situacao
                 }
-
             await axios.put('/api/updateVehicle', { requestObject, table, tablePK, id: veiculoId, codigoEmpresa }) //CodigoEmpresa para F5 sockets
         }
 
@@ -556,8 +537,8 @@ class VeiculosContainer extends PureComponent {
 
     render() {
         const
-            { confirmToast, toastMsg, activeStep, openAlertDialog, alertType, steps, selectedEmpresa,
-                dropDisplay, form, demand, demandFiles, showPendencias, info, resetShared, customMsg, customTitle } = this.state,
+            { confirmToast, toastMsg, activeStep, openAlertDialog, alertType, steps, selectedEmpresa, dropDisplay, form,
+                demand, demandFiles, showPendencias, info, resetShared, customMsg, customTitle, obs } = this.state,
 
             { redux } = this.props
 
@@ -591,8 +572,10 @@ class VeiculosContainer extends PureComponent {
             />}
 
             {activeStep === 3 && <Review
-                parentComponent='cadastro' files={this.state.form}
-                filesForm={cadVehicleFiles} data={this.state}
+                parentComponent='cadastro'
+                data={this.state}
+                files={this.state.form}
+                filesForm={cadVehicleFiles}
                 form={cadVehicleForm}
             />}
 
@@ -606,6 +589,8 @@ class VeiculosContainer extends PureComponent {
                 info={info}
                 handleSubmit={this.handleCadastro}
                 handleInput={this.handleInput}
+                addObs={demand && !showPendencias}  //Se tiver na aprovação, o campo info vira obs para registrar obs do veículo.
+                obs={obs}
             //disabled={(typeof placa !== 'string' || placa === '')}
             />}
             <ReactToast open={confirmToast} close={this.toast} msg={toastMsg} />
@@ -613,6 +598,6 @@ class VeiculosContainer extends PureComponent {
         </Fragment>
     }
 }
-const collections = ['veiculos', 'empresas', 'modelosChassi', 'carrocerias', 'equipamentos', 'acessibilidade', 'getFiles/vehicleDocs', 'parametros']
+const collections = ['veiculos', 'empresas', 'compartilhados', 'modelosChassi', 'carrocerias', 'equipamentos', 'acessibilidade', 'getFiles/vehicleDocs', 'parametros']
 
 export default StoreHOC(collections, VeiculosContainer)
