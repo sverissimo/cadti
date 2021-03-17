@@ -24,7 +24,6 @@ const format = {
 }
 
 class ConsultasContainer extends Component {
-
     constructor() {
         super()
         this.escFunction = (e) => {
@@ -35,7 +34,6 @@ class ConsultasContainer extends Component {
             }
         }
     }
-
     state = {
         tab: 3,
         items: ['Empresas', 'Sócios', 'Procuradores', 'Veículos', 'Seguros'],
@@ -55,22 +53,18 @@ class ConsultasContainer extends Component {
         vehicleDocs: [],
         showCertificate: false
     }
-
     componentDidMount() {
         document.addEventListener('keydown', this.escFunction, false)
         removePDF() //Desabilita opção de exportar como PDF do material-table
     }
-
     componentWillUnmount() {
         removePDF(true)
         this.setState({})
     }
-
     changeTab = async (e, value) => {
         await this.setState({ tab: value })
         return
     }
-
     showDetails = async (e, elementDetails) => {
         const
             { redux } = this.props,
@@ -238,7 +232,7 @@ class ConsultasContainer extends Component {
         const
             { tab, options, items, showDetails, elementDetails, showFiles, selectedElement, filesCollection, typeId, tablePKs, showCertificate, certified,
                 detailsTitle, detailsHeader, openAlertDialog, alertType, customTitle, customMessage } = this.state,
-            { redux } = this.props,
+            { redux, user } = this.props,
             { empresas, procuracoes, procuradores, empresaDocs, altContrato } = redux,
             primaryKeys = tablePKs.map(pk => humps.camelize(pk))
         let
@@ -262,6 +256,7 @@ class ConsultasContainer extends Component {
                 items={items}
                 collection={collection}
                 empresas={empresas}
+                user={user}
                 showDetails={this.showDetails}
                 showFiles={this.showFiles}
                 del={this.deleteHandler}

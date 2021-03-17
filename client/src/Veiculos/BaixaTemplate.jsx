@@ -15,7 +15,7 @@ import Send from '@material-ui/icons/Send'
 import { baixaForm } from '../Forms/baixaForm'
 import './veiculos.scss'
 
-export default function ({ selectOption, handleInput, handleBlur, handleCheck, handleSubmit, selectMotivo,
+export default function ({ user, selectOption, handleInput, handleBlur, handleCheck, handleSubmit, selectMotivo,
     data, empresas, motivosBaixa, searchDischarged, downloadXls, reactivateVehicle, setShowPendencias }) {
     const { selectedEmpresa, selectedOption, checked, delegaTransf, justificativa, selectedMotivo, demand, info, motivo, showPendencias } = data
 
@@ -90,6 +90,7 @@ export default function ({ selectOption, handleInput, handleBlur, handleCheck, h
                                 selectedOption === 'gerenciar' ?
                                     <BaixaGerenciar
                                         data={data}
+                                        user={user}
                                         handleInput={handleInput}
                                         searchDischarged={searchDischarged}
                                         downloadXls={downloadXls}

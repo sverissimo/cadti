@@ -143,6 +143,7 @@ class BaixaVeiculo extends Component {
 
     handleSubmit = async (approved) => {
         const
+            { empresas, veiculos } = this.props.redux,
             { selectedEmpresa, veiculoId, selectedMotivo, demand, selectedVehicle, info, motivo } = this.state,
             { dataEmissao, vencimento, dataRegistro } = selectedVehicle,
             { codigoEmpresa } = selectedEmpresa
@@ -182,7 +183,7 @@ class BaixaVeiculo extends Component {
                 'Data baixa': new Date().toLocaleDateString(),
                 'Data Inicio': new Date(dataEmissao).toLocaleDateString(),
                 'Data Fim': new Date(vencimento).toLocaleDateString(),
-                'Observação': `Motivo da baixa: ${selectedMotivo}`
+                'Observação': `${motivo}`
             })
             console.log(discharged)
             //Salva o veículo baixado no MongoDB
@@ -197,7 +198,13 @@ class BaixaVeiculo extends Component {
 
         //***********Clear state****************** */        
         this.toast()
-        await this.setState({ selectedEmpresa: undefined, frota: [], razaoSocial: '' })
+        //Se o usuário só tiver uma empresa, manter os dados da empresa após resetState
+        if (empresas && empresas.length === 1) {
+            const empresaDetails = { selectedEmpresa: empresas[0], razaoSocial: empresas[0]?.razaoSocial, frota: veiculos }
+            await this.setState({ ...empresaDetails, selectedMotivo: undefined })
+        }
+        else
+            await this.setState({ selectedEmpresa: undefined, frota: [], razaoSocial: '', selectedMotivo: undefined })
         this.reset()
 
         //***********if demand, Redirect to /solicitacoes */        
@@ -293,6 +300,7 @@ class BaixaVeiculo extends Component {
 
     render() {
         const
+            { user } = this.props,
             { empresas, parametros } = this.props.redux,
             { motivosBaixa } = parametros[0],
             { delegaTransf, confirmToast, toastMsg, checked, openAlertDialog, customTitle, customMessage, alertType, loading } = this.state
@@ -301,6 +309,7 @@ class BaixaVeiculo extends Component {
             <BaixaTemplate
                 data={this.state}
                 empresas={empresas}
+                user={user}
                 motivosBaixa={motivosBaixa}
                 checked={checked}
                 selectOption={this.selectOption}

@@ -4,7 +4,7 @@ import { tables } from './tables'
 import exportToXlsx from './exportToXlsx'
 import { setForm } from '../Utils/createFormPattern'
 
-export default function ({ tab, collection, showDetails, showFiles, showCertificate, del }) {
+export default function ({ tab, collection, user, showDetails, showFiles, showCertificate, del }) {
 
     const
         id = ['codigoEmpresa', 'socioId', 'procuradorId', 'veiculoId', 'apolice'][tab],
@@ -88,6 +88,7 @@ export default function ({ tab, collection, showDetails, showFiles, showCertific
                     }
                 ]}
                 editable={{
+                    isDeleteHidden: rowData => user.role !== 'admin',
                     onRowDelete: async oldData => await del(oldData)
                 }}
             />

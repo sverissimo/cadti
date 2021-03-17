@@ -26,6 +26,11 @@ const
             trim: true,
             default: 105,
         },
+        leitoExecutivo: {
+            type: Number,
+            trim: true,
+            default: 79,
+        },
         semiLeito: {
             type: Number,
             trim: true,

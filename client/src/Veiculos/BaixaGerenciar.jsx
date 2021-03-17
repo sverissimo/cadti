@@ -4,8 +4,11 @@ import SearchIcon from '@material-ui/icons/Search';
 import CustomButton from '../Reusable Components/CustomButton';
 import { dischargedForm as df } from '../Forms/dischargedForm';
 
-const BaixaGerenciar = ({ data, handleInput, searchDischarged, downloadXls, reactivateVehicle }) => {
-    const { placaBaixada, dischargedFound, notFound, reactivate, selectedOption } = data
+const BaixaGerenciar = ({ data, user, handleInput, searchDischarged, downloadXls, reactivateVehicle }) => {
+    const
+        { role } = user,
+        { placaBaixada, dischargedFound, notFound, reactivate, selectedOption } = data
+
 
     //Retira o campo observações, que será renderizado como blockElement fora do dischargedForm.map()
     const
@@ -42,14 +45,17 @@ const BaixaGerenciar = ({ data, handleInput, searchDischarged, downloadXls, reac
                                 <SearchIcon className='pointer' />
                             </span>
                         </div>
-                        <div className='downloadXls' onClick={downloadXls}>
-                            <img
-                                className='downloadXls__icon'
-                                src={selectedOption === 'baixar' ? '' : "/images/excel.png"}
-                                alt="Fazer o download do arquivo xlsx"
-                                title='Arquivo xlsx com todos os veículos baixados'
-                            />
-                        </div>
+                        {
+                            role !== 'empresa' &&
+                            <div className='downloadXls' onClick={downloadXls}>
+                                <img
+                                    className='downloadXls__icon'
+                                    src={selectedOption === 'baixar' ? '' : "/images/excel.png"}
+                                    alt="Fazer o download do arquivo xlsx"
+                                    title='Arquivo xlsx com todos os veículos baixados'
+                                />
+                            </div>
+                        }
                     </div>
                 </header>
                 {

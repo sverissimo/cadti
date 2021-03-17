@@ -20,6 +20,7 @@ let i = 1 //prevent more than 1 re-render in specific functions/conditions
 
 const Laudos = props => {
     const
+        { user } = props,
         { veiculos, empresas, empresasLaudo, laudos, vehicleDocs } = props.redux,
         demand = props?.location?.state?.demand
 
@@ -67,7 +68,6 @@ const Laudos = props => {
         empresaInput(empresas[0]?.razaoSocial)
     }
 
-
     useEffect(() => {                               //Set esc key to close details window
         const escFunction = e => { if (e.keyCode === 27) setDetails(false); setAnchorEl(null) }
         document.addEventListener('keydown', escFunction)
@@ -95,7 +95,6 @@ const Laudos = props => {
         changeInputs(state)
         setDemandFiles(dFiles)
         selectVehicle(originalVehicle)
-
     }
 
     useEffect(() => {
@@ -197,6 +196,10 @@ const Laudos = props => {
 
                 let laudosArray = [], tableHeaders = [], tempArray = [], table2 = [...laudosTable]
 
+                //Remove a opção de apagar se o usuário não for admin (é o último objeto de laudosTable, de onde veio)
+                if (user.role !== 'admin')
+                    table2.pop()
+
                 vehicleLaudos.forEach(l => {
                     table2.forEach(t => {
                         let fileId
@@ -227,7 +230,7 @@ const Laudos = props => {
 
             } else setTableData(`Nenhum laudo cadastrado para o veículo placa ${selectedVehicle.placa}.`)
         }
-    }, [selectedVehicle, laudos, vehicleDocs, demand])
+    }, [selectedVehicle, laudos, vehicleDocs, demand, user.role])
 
     useEffect(() => {
         i = 1

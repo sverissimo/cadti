@@ -10,6 +10,7 @@ function SelectEmpresa(props) {
         [enableSelect, setEnabled] = useState(true),
         { empresas, compartilhados, handleInput, handleBlur, shared, headerTitle } = props,
         { razaoSocial, compartilhado, activeStep, demand } = props.data,
+        singleEmpresaUser = empresas.length === 1,
         list = 'razaoSocial'
 
 
@@ -22,7 +23,7 @@ function SelectEmpresa(props) {
     //Render field or title conditionally
     useEffect(() => {
         //|| user?.empresas.length === 1
-        if (demand || activeStep > 0 || empresas.length === 1)
+        if (demand || activeStep > 0 || singleEmpresaUser)
             setEnabled(false)
         else if (activeStep === 0)
             setEnabled(true)
@@ -32,22 +33,32 @@ function SelectEmpresa(props) {
         if (enableSelect && selectInput[0])
             selectInput[0].focus()
 
-    }, [demand, activeStep, enableSelect, empresas])
+    }, [demand, activeStep, enableSelect, singleEmpresaUser])
 
     return (
-        <div className={props.hasOwnProperty('shared') ? 'flex center' : 'paper flex center'} style={{ width: '100%', marginBottom: 0 }}>
+        <div
+            className={props.hasOwnProperty('shared') ? 'flex center' : 'paper flex center'}
+            style={{
+                flexDirection: activeStep === 0 ? 'row' : 'column',
+                width: '100%',
+                marginBottom: 0,
+            }}>
             {
-                !enableSelect && <span className='selectedEmpresa'> {headerTitle || demand?.empresa || razaoSocial || ''} </span>
+                !enableSelect &&
+                <div className='selectedEmpresa'
+                    style={{ padding: shared && activeStep === 0 && '0 30px 33px 0' }}>
+                    {headerTitle || demand?.empresa || razaoSocial || ''}
+                </div>
             }
-            {compartilhado && enableSelect &&
-                <span className='compartilhadoHeader'>
+            {props.hasOwnProperty('shared') && activeStep !== 0 && compartilhado &&
+                <div className='compartilhadoHeader'>
                     Compartilhado por {compartilhado}
-                </span>
+                </div>
             }
             {
-                headerTitles.map(({ title, list, name, value }, i) =>
-                    (enableSelect || i === 1) &&
-                    <div className='flexColumn' key={i}>
+                (!activeStep || activeStep === 0) && headerTitles.map(({ title, list, name, value }, i) =>
+                    ((singleEmpresaUser && i === 1) || !singleEmpresaUser) &&
+                    < div className='flexColumn' key={i} >
                         <h4 style={{ margin: '5px 0', textAlign: 'center' }}>{title}</h4>
                         <input
                             list={list}
@@ -59,7 +70,7 @@ function SelectEmpresa(props) {
                             autoComplete='off'
                         />
                         <AutoComplete
-                            collection={compartilhados}
+                            collection={props.hasOwnProperty('shared') ? compartilhados : empresas}
                             datalist={list}
                             value={value}
                         />

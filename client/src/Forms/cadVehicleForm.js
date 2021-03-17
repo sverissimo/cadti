@@ -19,7 +19,7 @@ export const cadVehicleForm = [[{
     label: 'Utilização',
     margin: 'normal',
     select: true,
-    options: ['Comercial', 'Comercial Executivo', 'Convencional', 'Convencional Executivo', 'Leito', 'Semi-Leito', 'Semi-Leito Executivo']
+    options: ['Comercial', 'Comercial Executivo', 'Convencional', 'Convencional Executivo', 'Leito', 'Leito e Executivo', 'Semi-Leito', 'Semi-Leito Executivo']
 },
 {
     field: 'nChassi',
@@ -89,4 +89,4 @@ export const cadVehicleForm = [[{
     maxLength: 50
 }
 ]]
-    .concat([vistoriaForm])    
+    .concat([vistoriaForm])

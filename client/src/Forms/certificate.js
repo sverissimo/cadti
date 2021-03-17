@@ -1,15 +1,23 @@
+import moment from 'moment'
+
 export const delegatario = [[
     {
         field: 'empresa',
         label: 'Delegatário',
-        width: '120mm',
+        width: '100mm',
         left: '50mm'
     },
     {
         field: 'codigoEmpresa',
         label: 'Código do Delegatário',
-        width: '36mm',
+        width: '35mm',
         left: '5mm'
+    },
+    {
+        field: 'dataExpedicaoCRV',
+        label: 'Data de emissão',
+        width: '25mm',
+        value: moment().format('DD/MM/YYYY')
     },
 ]]
 
@@ -230,6 +238,6 @@ export const informacoesGerais = [[
         field: 'compartilhado',
         label: 'Empresa autorizada a compartilhar',
         width: '80mm',
-        left: '20mm'
+        left: '11mm'
     }
 ]]

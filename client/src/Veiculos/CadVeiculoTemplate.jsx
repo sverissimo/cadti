@@ -21,7 +21,7 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
-export default function ({ redux, data, handleInput, handleBlur, handleEquipa, handleCheck, closeEquipa, resetShared }) {
+export default function ({ redux, data, handleInput, handleBlur, handleEquipa, handleCheck, closeEquipa, resetShared, removePartilha }) {
 
     const
         [shared, setShared] = useState(false),
@@ -39,6 +39,12 @@ export default function ({ redux, data, handleInput, handleBlur, handleEquipa, h
     useEffect(() => {               //reset shared after submit
         if (resetShared) setShared(false)
     }, [resetShared])
+
+    const toggleShared = () => {
+        if (shared)
+            removePartilha()
+        setShared(!shared)
+    }
 
     let conditionalSubtitle = subtitle[activeStep]
     if (reactivated)
@@ -65,7 +71,7 @@ export default function ({ redux, data, handleInput, handleBlur, handleEquipa, h
                             control={
                                 <Checkbox
                                     checked={shared === true}
-                                    onChange={() => setShared(!shared)}
+                                    onChange={() => toggleShared()}
                                     value={shared}
                                 />
                             }

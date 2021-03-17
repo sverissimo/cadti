@@ -13,7 +13,7 @@ export const getCMT = component => {
 }
 
 //Passa this como argumento para a função verificar se o pbt ultrapassou o cmt legal
-const checkWeight = component => {
+const checkWeight = (component, name) => {
 
     let { poltronas, pesoDianteiro, pesoTraseiro, cmt, modeloChassi } = component.state
 
@@ -44,9 +44,12 @@ const checkWeight = component => {
             pbtString = stringBR(pbt),
             cmtString = cmt && cmt.toString().replace('.', ','),
             customTitle = 'Peso total bruto superior ao permitido (CMT) para o modelo de chassi informado.',
-            customMsg = `O número de poltronas e os pesos dianteiro e traseiro informados formam um peso bruto total de ${pbtString}t, superior à 
-                Carga Máxtima de tração permitida: modelo ${modeloChassi} -> ${cmtString}t.`
-        component.setState({ openAlertDialog: true, customTitle, customMsg, poltronas: 0, pesoDianteiro: 0, pesoTraseiro: 0 })
+            customMessage = `O número de poltronas e os pesos dianteiro e traseiro informados formam um peso bruto total de ${pbtString}t, superior à 
+                Carga Máxima de tração permitida: modelo ${modeloChassi} -> ${cmtString}t.`
+        component.setState({ openAlertDialog: true, customTitle, customMessage, [name]: 0 })
+        setTimeout(() => {
+            document.getElementsByName(name)[0].focus()
+        }, 1550);
     }
 }
 

@@ -164,7 +164,7 @@ class VeiculosContainer extends PureComponent {
             this.setState({
                 alertType: 'invalidModel', openAlertDialog: true,
                 customTitle: 'Modelo inválido.',
-                customMsg: `O modelo de ${alertLabel} não está cadastrado no sistema.`
+                customMessage: `O modelo de ${alertLabel} não está cadastrado no sistema.`
             })
             document.getElementsByName(name)[0].focus()
             return
@@ -194,7 +194,7 @@ class VeiculosContainer extends PureComponent {
         let
             { value } = e.target,
             customTitle,
-            customMsg,
+            customMessage,
             maxYear = currentYear - idadeMaxCad
 
         //Se o veículo for reativado, o ano de fabricação de referência para cadastro é o da baixa automática, não a idadeMaxCad
@@ -220,23 +220,23 @@ class VeiculosContainer extends PureComponent {
             case 'anoChassi':
                 customTitle = 'Ano de chassi inválido.'
                 if (chas && chas < maxYear - 1)
-                    customMsg = `O ano de fabricação do chassi informado é anterior à idade máxima permitida para cadastro.`
+                    customMessage = `O ano de fabricação do chassi informado é anterior à idade máxima permitida para cadastro.`
                 if ((carr && chas && (carr < chas || carr > chas + difIdade)))
-                    customMsg = 'O ano de chassi é incompatível com o ano da carroceria informado.'
+                    customMessage = 'O ano de chassi é incompatível com o ano da carroceria informado.'
 
-                if (customMsg) {
-                    this.setState({ anoChassi: '', openAlertDialog: true, customTitle, customMsg })
+                if (customMessage) {
+                    this.setState({ anoChassi: '', openAlertDialog: true, customTitle, customMessage })
                 }
                 break
             case 'anoCarroceria':
                 customTitle = 'Ano de carroceria inválido.'
                 if (carr && carr < maxYear)
-                    customMsg = `O ano de fabricação do carroceria informado é anterior à idade máxima permitida.`
+                    customMessage = `O ano de fabricação do carroceria informado é anterior à idade máxima permitida.`
                 if ((carr && chas && (carr < chas || carr > chas + difIdade)))
-                    customMsg = 'O ano de fabricação carroceria é incompatível com o ano do chassi informado.'
+                    customMessage = 'O ano de fabricação carroceria é incompatível com o ano do chassi informado.'
 
-                if (customMsg) {
-                    this.setState({ anoCarroceria: '', openAlertDialog: true, customTitle, customMsg })
+                if (customMessage) {
+                    this.setState({ anoCarroceria: '', openAlertDialog: true, customTitle, customMessage })
                 }
                 break
             case 'distanciaMinima':
@@ -249,7 +249,7 @@ class VeiculosContainer extends PureComponent {
                     this.setState({
                         openAlertDialog: true,
                         customTitle: 'Distância mínima inválida.',
-                        customMsg: errorMsg,
+                        customMessage: errorMsg,
                         distanciaMinima: ''
                     })
                 break
@@ -263,19 +263,19 @@ class VeiculosContainer extends PureComponent {
                     this.setState({
                         openAlertDialog: true,
                         customTitle: 'Distância máxima inválida.',
-                        customMsg: errorMsg,
+                        customMessage: errorMsg,
                         distanciaMaxima: ''
                     })
                 break
             }
             case ('pesoDianteiro'):
-                checkWeight(this)
+                checkWeight(this, name)
                 break
             case 'pesoTraseiro':
-                checkWeight(this)
+                checkWeight(this, name)
                 break
             case 'poltronas':
-                checkWeight(this)
+                checkWeight(this, name)
                 break
             default: void 0
         }
@@ -302,20 +302,20 @@ class VeiculosContainer extends PureComponent {
             placaMatch = checkExistance?.data,
             vehicle = placaMatch?.vehicleFound
 
-        let customTitle, customMsg
+        let customTitle, customMessage
 
         if (placaMatch) {
             const { status } = placaMatch
             if (status === 'existing') {
                 if (vehicle?.situacao.match(/Cadastro|Reativação/g)) {
                     customTitle = 'Solicitação aberta.'
-                    customMsg = 'Já existe uma solicitação de cadastro ou reativação para a placa informada. Para acompanhar, acesse \'Solicitações\' e filtre pela placa do veículo. '
+                    customMessage = 'Já existe uma solicitação de cadastro ou reativação para a placa informada. Para acompanhar, acesse \'Solicitações\' e filtre pela placa do veículo. '
                 }
                 else {
                     customTitle = 'Veículo já cadastrado.'
-                    customMsg = 'A placa informada corresponde a um veículo já cadastrado. Para alterar o cadastro, vá para Veículos -> \'Alteração de dados\'.'
+                    customMessage = 'A placa informada corresponde a um veículo já cadastrado. Para alterar o cadastro, vá para Veículos -> \'Alteração de dados\'.'
                 }
-                this.setState({ customTitle, customMsg, openAlertDialog: true, placa: null, reactivated: false })
+                this.setState({ customTitle, customMessage, openAlertDialog: true, placa: null, reactivated: false })
                 value = ''
                 return
             }
@@ -334,8 +334,8 @@ class VeiculosContainer extends PureComponent {
 
             else if (status === 'discharged') {
                 customTitle = 'Veículo baixado.'
-                customMsg = 'A placa informada corresponde a um veículo baixado. Para reativar seu cadastro, vá para Veículos -> Baixa -> \'Gerenciar Veículos Baixados\'.'
-                this.setState({ customTitle, customMsg, openAlertDialog: true, placa: null, reactivated: false })
+                customMessage = 'A placa informada corresponde a um veículo baixado. Para reativar seu cadastro, vá para Veículos -> Baixa -> \'Gerenciar Veículos Baixados\'.'
+                this.setState({ customTitle, customMessage, openAlertDialog: true, placa: null, reactivated: false })
                 value = ''
             }
         }
@@ -533,12 +533,13 @@ class VeiculosContainer extends PureComponent {
     closeEquipa = () => this.setState({ addEquipa: false })
     setShowPendencias = () => this.setState({ showPendencias: !this.state.showPendencias })
     toggleDialog = () => this.setState({ openAlertDialog: !this.state.openAlertDialog })
+    removePartilha = () => this.setState({ compartilhado: undefined })
     toast = toastMsg => this.setState({ confirmToast: !this.state.confirmToast, toastMsg: toastMsg ? toastMsg : this.state.toastMsg })
 
     render() {
         const
             { confirmToast, toastMsg, activeStep, openAlertDialog, alertType, steps, selectedEmpresa, dropDisplay, form,
-                demand, demandFiles, showPendencias, info, resetShared, customMsg, customTitle, obs } = this.state,
+                demand, demandFiles, showPendencias, info, resetShared, customMessage, customTitle, obs } = this.state,
 
             { redux } = this.props
 
@@ -560,6 +561,7 @@ class VeiculosContainer extends PureComponent {
                 closeEquipa={this.closeEquipa}
                 match={this.props.match}
                 resetShared={resetShared}
+                removePartilha={this.removePartilha}
             />
             {activeStep === 2 && <VehicleDocs
                 parentComponent='cadastro'
@@ -594,7 +596,7 @@ class VeiculosContainer extends PureComponent {
             //disabled={(typeof placa !== 'string' || placa === '')}
             />}
             <ReactToast open={confirmToast} close={this.toast} msg={toastMsg} />
-            {openAlertDialog && <AlertDialog open={openAlertDialog} close={this.toggleDialog} alertType={alertType} customMessage={customMsg} customTitle={customTitle} />}
+            {openAlertDialog && <AlertDialog open={openAlertDialog} close={this.toggleDialog} alertType={alertType} customMessage={customMessage} customTitle={customTitle} />}
         </Fragment>
     }
 }

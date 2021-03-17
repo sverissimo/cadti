@@ -24,6 +24,7 @@ import FormDialog from '../Reusable Components/FormDialog'
 import AlertDialog from '../Reusable Components/AlertDialog'
 import { handleFiles, removeFile } from '../Utils/handleFiles'
 import validateDist from '../Utils/validaDistanciaMinima'
+import checkWeight from './checkWeight'
 
 
 class AltDados extends Component {
@@ -111,7 +112,8 @@ class AltDados extends Component {
     }
 
     handleInput = async e => {
-        const { veiculos, empresas, equipamentos } = this.props.redux,
+        const
+            { veiculos, empresas, equipamentos } = this.props.redux,
             { name, value } = e.target
 
         if (name === 'razaoSocial') {
@@ -145,7 +147,9 @@ class AltDados extends Component {
                 if (newPlate.match('[A-Z]{3}[0-9]{1}[A-Z]{1}[0-9]{2}')) newPlate = newPlate.replace(/(\w{3})/, '$1-')
                 this.setState({ ...this.state, newPlate })
             }
-        } else this.setState({ [name]: value })
+        }
+        else
+            this.setState({ [name]: value })
     }
 
     getId = async (name, value, collection, stateId, dbName, dbId) => {
@@ -176,6 +180,7 @@ class AltDados extends Component {
             if (value === 'SEMI LEITO') value = 'Semi-Leito'
             if (value === 'SEMI LEITO - EXECUTIVO') value = 'Semi-Leito Executivo'
             if (value === 'LEITO') value = 'Leito'
+            if (value === 'LEITO E EXECUTIVO') value = 'Leito e Executivo'
         }
         if (field === 'dominio' && value === 'Sim') value = 'Veículo próprio'
         if (field === 'dominio' && value === 'Não') value = 'Possuidor'
@@ -234,6 +239,15 @@ class AltDados extends Component {
                     })
                 break
             }
+            case ('pesoDianteiro'):
+                checkWeight(this, name)
+                break
+            case 'pesoTraseiro':
+                checkWeight(this, name)
+                break
+            case 'poltronas':
+                checkWeight(this, name)
+                break
             default:
                 void 0
         }

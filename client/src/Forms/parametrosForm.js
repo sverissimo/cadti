@@ -59,6 +59,10 @@ export const distancias = [
         label: 'Leito',
     },
     {
+        field: 'leitoExecutivo',
+        label: 'Leito e Executivo'
+    },
+    {
         field: 'semiLeito',
         label: 'Semi-Leito',
     },
