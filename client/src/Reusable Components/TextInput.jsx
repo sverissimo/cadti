@@ -35,7 +35,7 @@ const useStyles = makeStyles(theme => ({
     },
 }))
 
-export default function TextInput({ handleInput, handleBlur, form, data, empresas, selectOptions, disableAll, style = {}, disableSome = [] }) {
+export default function TextInput({ handleInput, handleBlur, form, data, empresas, compartilhados, selectOptions, disableAll, style = {}, disableSome = [] }) {
     //console.log("🚀 ~ file: TextInput.jsx ~ line 39 ~ TextInput ~ data", data)
 
     const classes = useStyles(),
@@ -144,7 +144,7 @@ export default function TextInput({ handleInput, handleBlur, form, data, empresa
                         </TextField>
                         {el.autoComplete === true && <AutoComplete
                             collection={data[el.collection]}
-                            empresas={empresas}
+                            empresas={compartilhados ? compartilhados : empresas}
                             datalist={el.datalist}
                             value={data[el.field] || ''}
                         />

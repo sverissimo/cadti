@@ -16,7 +16,7 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
-export default function ({ handleInput, handleBlur, data, handleCheck, handleEquipa, altPlacaOption, showAltPlaca, empresas, equipamentos, acessibilidade, close }) {
+export default function ({ handleInput, handleBlur, data, handleCheck, handleEquipa, altPlacaOption, showAltPlaca, empresas, compartilhados, equipamentos, acessibilidade, close }) {
 
     const
         { activeStep, subtitle, placa, selectedEmpresa, addEquipa, demand, type } = data,
@@ -32,6 +32,7 @@ export default function ({ handleInput, handleBlur, data, handleCheck, handleEqu
                 <SelectEmpresa
                     data={data}
                     empresas={empresas}
+                    compartilhados={compartilhados}
                     headerTitle={selectedEmpresa && `Alteração de dados ${placa || ''} - ${selectedEmpresa?.razaoSocial}`}
                     handleInput={handleInput}
                     handleBlur={handleBlur}
@@ -47,6 +48,7 @@ export default function ({ handleInput, handleBlur, data, handleCheck, handleEqu
                                 form={form}
                                 data={data}
                                 empresas={empresas}
+                                compartilhados={compartilhados}
                                 handleBlur={handleBlur}
                                 handleInput={handleInput}
                                 disableSome={demand ? ['placa', 'delegatario'] : ['delegatario']}
@@ -94,4 +96,4 @@ export default function ({ handleInput, handleBlur, data, handleCheck, handleEqu
             }
         </div>
     )
-}   
+}

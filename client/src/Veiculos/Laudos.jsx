@@ -15,13 +15,14 @@ import { laudosTable } from '../Forms/laudosTable'
 import { logGenerator } from '../Utils/logGenerator'
 import { setDemand } from '../Utils/setDemand'
 import { sizeExceedsLimit } from '../Utils/handleFiles'
+import { checkDemand } from '../Utils/checkDemand'
 
 let i = 1 //prevent more than 1 re-render in specific functions/conditions
 
 const Laudos = props => {
     const
         { user } = props,
-        { veiculos, empresas, empresasLaudo, laudos, vehicleDocs } = props.redux,
+        { veiculos, empresas, empresasLaudo, laudos, vehicleDocs, logs } = props.redux,
         demand = props?.location?.state?.demand
 
     const initState = Object.freeze({
@@ -172,6 +173,14 @@ const Laudos = props => {
     }, [empresaInput, empresas, oldVehicles, stateInputs])
 
     const clickOnPlate = async event => {
+        const
+            { id } = event.currentTarget,
+            demandExists = checkDemand(id, logs)
+
+        if (demandExists) {
+            alert('Solicitação de cadastro do laudo já realizada para este veículo.')
+            return
+        }
 
         if (selectedVehicle) {
             event.persist()

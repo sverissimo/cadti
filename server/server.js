@@ -27,7 +27,7 @@ const
     { cadEmpresa } = require('./cadEmpresa'),
     { cadSocios } = require('./cadSocios'),
     { cadProcuradores } = require('./cadProcuradores'),
-    { seguros, socios, laudos, lookup } = require('./queries'),
+    { seguros, lookup } = require('./queries'),
     { fieldParser } = require('./fieldParser'),
     { getUpdatedData } = require('./getUpdatedData'),
     { empresaChunks, vehicleChunks } = require('./mongo/models/chunksModel'),
@@ -418,16 +418,30 @@ app.get('/api/alreadyExists', async (req, res) => {
         else
             res.send(false)
     }
-})
+});
 
 app.post('/api/baixaVeiculo', async (req, res) => {
 
-    const discharged = new oldVehiclesModel(req.body)
+    const
+        placa = req.body.Placa,
+        filter = { Placa: placa },
+        update = req.body
+    /*     exists = await oldVehiclesModel.find({ Placa: 'AAA-1111' }).lean()
+    if (exists && exists[0])
+        return res.send(exists) */
 
+    oldVehiclesModel.findOneAndUpdate(filter, update, { upsert: true, new: true }, (err, doc) => {
+        if (err) {
+            console.log(err)
+            return res.status(500).send(err.message)
+        }
+        res.send(doc)
+    })
+    /* const discharged = new oldVehiclesModel(req.body)
     discharged.save((err, doc) => {
         if (err) console.log(err)
         if (doc) res.send(doc)
-    })
+    }) */
 })
 
 //************************************ OTHER METHOD ROUTES *********************** */

@@ -190,7 +190,7 @@ class AltDados extends Component {
 
     handleBlur = async e => {
         const
-            { empresas, logs, equipamentos, acessibilidade, parametros } = this.props.redux,
+            { empresas, compartilhados, logs, equipamentos, acessibilidade, parametros } = this.props.redux,
             { distanciaPoltronas } = parametros[0],
             { frota, demand, utilizacao, distanciaMinima, distanciaMaxima } = this.state,
             { name } = e.target
@@ -205,7 +205,7 @@ class AltDados extends Component {
         switch (name) {
 
             case 'compartilhado':
-                this.getId(name, value, empresas, 'compartilhadoId', 'razaoSocial', 'codigoEmpresa')
+                this.getId(name, value, compartilhados, 'compartilhadoId', 'razaoSocial', 'codigoEmpresa')
                 break
             case 'delegatario':
                 await this.getId(name, value, empresas, 'codigoEmpresa', 'razaoSocial', 'codigoEmpresa')
@@ -469,7 +469,7 @@ class AltDados extends Component {
     closeEquipa = () => this.setState({ addEquipa: false })
     toast = toastMsg => this.setState({ confirmToast: !this.state.confirmToast, toastMsg: toastMsg ? toastMsg : this.state.toastMsg })
 
-    reset = resetAll => {
+    reset = () => {
         const
             { empresas, veiculos, equipamentos, acessibilidade } = this.props.redux,
             equip = equipamentos.concat(acessibilidade),
@@ -488,16 +488,13 @@ class AltDados extends Component {
         if (empresas && empresas.length === 1)
             empresaDetails = { selectedEmpresa: empresas[0], razaoSocial: empresas[0]?.razaoSocial, frota: veiculos }
 
-        if (resetAll)
-            this.setState({ ...resetFiles, ...resetEquips, ...equip, form: undefined, selectedEmpresa: undefined, razaoSocial: undefined, activeStep: 0, ...empresaDetails })
-        else
-            this.setState({ ...resetFiles, ...resetEquips, ...equip, form: undefined, activeStep: 0, ...empresaDetails, })
+        this.setState({ ...resetFiles, ...resetEquips, ...equip, form: undefined, info: undefined, activeStep: 0, ...empresaDetails, })
     }
 
     render() {
 
         const
-            { empresas, equipamentos, acessibilidade } = this.props.redux,
+            { empresas, compartilhados, equipamentos, acessibilidade } = this.props.redux,
 
             { confirmToast, toastMsg, stepTitles, activeStep, steps, altPlaca, selectedEmpresa, openAlertDialog, alertType, customTitle, customMessage,
                 dropDisplay, form, title, header, newPlate, demand, showPendencias, info, demandFiles } = this.state
@@ -513,6 +510,7 @@ class AltDados extends Component {
             <AltDadosTemplate
                 data={this.state}
                 empresas={empresas}
+                compartilhados={compartilhados}
                 equipamentos={equipamentos}
                 acessibilidade={acessibilidade}
                 setActiveStep={this.setActiveStep}
@@ -573,6 +571,6 @@ class AltDados extends Component {
     }
 }
 
-const collections = ['veiculos', 'empresas', 'equipamentos', 'acessibilidade', 'getFiles/vehicleDocs', 'parametros'];
+const collections = ['veiculos', 'empresas', 'compartilhados', 'equipamentos', 'acessibilidade', 'getFiles/vehicleDocs', 'parametros'];
 
 export default StoreHOC(collections, AltDados)

@@ -86,10 +86,10 @@ function Solicitacoes(props) {
 
     const showInfo = index => {
         if (selectedLog && selectedLog?.history) {
-
             const historyLog = selectedLog?.history[index]
 
-            if (!historyLog?.info) return
+            if (!historyLog?.info)
+                return
             setHistoryLog(historyLog)
         }
     }

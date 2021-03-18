@@ -409,7 +409,8 @@ class VeiculosContainer extends PureComponent {
         cadVehicleForm.forEach(form => {
             form.forEach(obj => {
                 for (let k in this.state) {
-                    if (k === obj.field) Object.assign(review, { [k]: this.state[k] })
+                    if (k === obj.field && this.state[k] !== '')
+                        Object.assign(review, { [k]: this.state[k] })
                 }
             })
         })
@@ -420,12 +421,20 @@ class VeiculosContainer extends PureComponent {
             codigoEmpresa, situacao, pbt, modeloChassiId, modeloCarroceriaId, obs,
             equipamentosId, acessibilidadeId, apolice: 'Seguro não cadastrado'
         })
-        vReview.compartilhadoId = compartilhadoId
+
+        //Elimina chaves com empty string
+        for (let k in vReview) {
+            if (vReview[k] === '')
+                delete vReview[k]
+        }
+        console.log(vReview)
+        vReview.compartilhadoId = compartilhadoId && compartilhadoId
         //Save only real changes to the request Object (method from setDemand())
         if (demand && originalVehicle)
             vReview = getUpdatedValues(originalVehicle, vReview)
 
         const vehicle = humps.decamelizeKeys(vReview)
+        console.log(vReview, '437')
 
         //***************If it doesnt exist, post the new vehicle Object **************** */
         if (!existingVeiculoId)
@@ -505,7 +514,7 @@ class VeiculosContainer extends PureComponent {
         this.setState({ ...this.state, ...newState })
     }
 
-    resetState = resetAll => {
+    resetState = () => {
         const
             { empresas, veiculos, equipamentos, acessibilidade } = this.props.redux,
             equip = equipamentos.concat(acessibilidade),
@@ -524,10 +533,7 @@ class VeiculosContainer extends PureComponent {
         if (empresas && empresas.length === 1)
             empresaDetails = { selectedEmpresa: empresas[0], razaoSocial: empresas[0]?.razaoSocial, frota: veiculos }
 
-        if (resetAll)
-            this.setState({ ...resetFiles, ...resetEquips, ...equip, form: undefined, selectedEmpresa: undefined, razaoSocial: undefined, activeStep: 0, ...empresaDetails })
-        else
-            this.setState({ ...resetFiles, ...resetEquips, ...equip, form: undefined, activeStep: 0, ...empresaDetails, })
+        this.setState({ ...resetFiles, ...resetEquips, ...equip, form: undefined, info: undefined, activeStep: 0, ...empresaDetails, })
     }
 
     closeEquipa = () => this.setState({ addEquipa: false })

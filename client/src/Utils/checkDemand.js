@@ -9,10 +9,12 @@ export const checkDemand = (id, logsCollection) => {
     const
         component = logRoutesConfig.find(c => path.match(c?.path)),
         subject = component?.subject,
-        primaryKey = component?.primaryKey
+        primaryKey = component?.primaryKey,
+        // eslint-disable-next-line eqeqeq
+        exists = logsCollection.find(log => log.subject === subject && log[primaryKey] == id && log.completed === false)
 
-    const exists = logsCollection.find(log => log.subject === subject && log[primaryKey] === id.toString() && log.completed === false)
-
-    if (exists) return exists
-    else return false
+    if (exists)
+        return exists
+    else
+        return false
 }

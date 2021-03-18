@@ -2,7 +2,8 @@ import humps from 'humps'
 const validaDistanciaMinima = (utilizacao, dist, distancias) => {
 
     utilizacao = humps.camelize(utilizacao)
-
+    if (utilizacao === 'leitoEExecutivo')
+        utilizacao = 'leitoExecutivo'
     let validDistance, d
 
     if (distancias[utilizacao] && dist && dist !== '') {

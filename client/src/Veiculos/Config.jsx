@@ -234,6 +234,12 @@ class VehicleConfig extends PureComponent {
 
         let data = [...this.state.data]
 
+        //Evita que seja apagado algum elemento que esteja cadastrado em algum veículo.
+        const removeForbidden = data[index]?.count > 0
+        if (removeForbidden) {
+            alert('O item selecionado não pode ser apagado por haver vínculo com um ou mais veículos cadastrados no sistema.')
+            return
+        }
         const
             { staticData } = this.state,
             { collection, table } = staticData,
