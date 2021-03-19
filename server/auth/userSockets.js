@@ -55,7 +55,7 @@ const userSockets = async ({ req, res, table, condition = '', event, collection,
     if (veiculo_id)
         return res.send('' + veiculo_id)
     if (table === 'procuradores' || table === 'socios') {
-        console.log('dataaaaa', codigoEmpresa, data)
+        //console.log('dataaaaa', codigoEmpresa, data)
         if (codigoEmpresa)
             insertEmpresa({ representantes: data, codigoEmpresa })
         //Se o CodigoEmpresa está salvo em res.locals é pq o request foi empresaFullCad, precisa retornar id da emp e socios
@@ -79,7 +79,7 @@ const filterData = (table, data, codigosEmpresa, event, collection) => {
             temp = data.filter(p => p.empresas && p.empresas.includes(codigoEmpresa))
         else if (table === 'socios') {
             temp = data.filter(s => s.empresas && s.empresas.match(codigoEmpresa.toString()))
-            console.log("🚀 ~ file: userSockets.js ~ line 71 ~ filterData ~ data", data, typeof data[0].empresas)
+            //console.log("🚀 ~ file: userSockets.js ~ line 71 ~ filterData ~ data", data, typeof data[0].empresas)
         }
 
         else {

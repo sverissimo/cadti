@@ -1,0 +1,30 @@
+.socios_docs_container {
+    display: flex;
+    flex-direction: column;
+    padding: 10px 0;
+}
+
+.review__subtitle {
+    margin: 0 0 0px 25px;
+    font-size: 1rem;
+}
+
+.socios__review {
+    &__prop {
+        font-family: inherit;
+        font-size: 0.65rem;
+        margin: 1px 5px 1px 45px;
+    }
+    &__icon {
+        vertical-align: middle;
+        padding: 0 2px 3px 0;
+    }
+}
+
+.docs {
+    margin: 25px 0 15px 0;
+    &__icon {
+        vertical-align: middle;
+        padding: 0 2px 2px 0;
+    }
+}

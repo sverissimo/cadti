@@ -433,8 +433,9 @@ const AltContrato = props => {
             //console.log("🚀 ~ file: AltContrato.jsx ~ line 422 ~ files", files, fileIds)
         }
 
-        if (socioIds[0])
+        if (fileIds && socioIds[0] && log.metadata)
             log.metadata.socios = socioIds
+        console.log("🚀 ~ file: AltContrato.jsx ~ line 438 ~ log", log)
 
         logGenerator(log)                               //Generate the demand
             .then(r => {

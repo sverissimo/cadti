@@ -67,8 +67,8 @@ app.use(express.static('client/build'))
 app.use(setCorsHeader)
 
 //**********************************    Counter ****************************/
-let i = 0
-app.use(counter(i))
+/* let i = 0
+app.use(counter(i)) */
 
 //************************************ AUTH AND USERS  *********************** */
 app.use('/auth', authRouter)
@@ -418,17 +418,13 @@ app.get('/api/alreadyExists', async (req, res) => {
         else
             res.send(false)
     }
-});
+})
 
 app.post('/api/baixaVeiculo', async (req, res) => {
-
     const
         placa = req.body.Placa,
         filter = { Placa: placa },
         update = req.body
-    /*     exists = await oldVehiclesModel.find({ Placa: 'AAA-1111' }).lean()
-    if (exists && exists[0])
-        return res.send(exists) */
 
     oldVehiclesModel.findOneAndUpdate(filter, update, { upsert: true, new: true }, (err, doc) => {
         if (err) {
@@ -437,11 +433,6 @@ app.post('/api/baixaVeiculo', async (req, res) => {
         }
         res.send(doc)
     })
-    /* const discharged = new oldVehiclesModel(req.body)
-    discharged.save((err, doc) => {
-        if (err) console.log(err)
-        if (doc) res.send(doc)
-    }) */
 })
 
 //************************************ OTHER METHOD ROUTES *********************** */
