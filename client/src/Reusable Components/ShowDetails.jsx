@@ -145,7 +145,7 @@ export default function ShowDetails({ data, tab, title, header, close, empresas,
                 })
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [tab])
+    }, [tab, altContrato])
 
     //Cria a tabela que lista as alterações de contrato social caso o objeto exibido seja uma empresa
     const setAltContrato = async () => {
@@ -208,7 +208,6 @@ export default function ShowDetails({ data, tab, title, header, close, empresas,
         if (tableArray[0])
             setTables(tableArray)
     }, [table, table2])
-    console.log(table)
 
     return (
         <div className="popUpWindow" style={{ left: '20%', right: '20%' }}>

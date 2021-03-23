@@ -37,9 +37,10 @@ const userSockets = async ({ req, res, table, condition = '', event, collection,
         //Se tem a prop empresa filtra os dados apenas com essas empresas e emite um evento para cada usuário, conforme suas permissões
         if (empresas) {
             filteredData = filterData(table, data, empresas, event, collection)
-            //console.log("🚀 ~ file: userSockets.js ~ line 37 ~ userSockets ~ filteredData", filteredData)
-            if (filteredData[0])
+            if (filteredData[0]) {
+                //    console.log("🚀 ~ file: userSockets.js ~ line 41 ~ userSockets ~ filteredData", filteredData)
                 io.sockets.to(id).emit(event, filteredData)
+            }
             else if (filteredData instanceof Object && Object.keys(filteredData).length > 0)
                 io.sockets.to(id).emit(event, filteredData)
         }
@@ -48,7 +49,7 @@ const userSockets = async ({ req, res, table, condition = '', event, collection,
     data = formatData({ data, event, collection, table })
     await io.sockets.to('admin').emit(event, data)
 
-    console.log("🚀 ~ file: userSockets.js ~ line 57 ~ userSockets ~ data", data)
+    //console.log("🚀 ~ file: userSockets.js ~ line 57 ~ userSockets ~ data", data)
 
     if (noResponse)
         return
@@ -56,8 +57,8 @@ const userSockets = async ({ req, res, table, condition = '', event, collection,
         return res.send('' + veiculo_id)
     if (table === 'procuradores' || table === 'socios') {
         //console.log('dataaaaa', codigoEmpresa, data)
-        if (codigoEmpresa)
-            insertEmpresa({ representantes: data, codigoEmpresa })
+        /*  if (codigoEmpresa)
+             insertEmpresa({ representantes: data, codigoEmpresa }) */
         //Se o CodigoEmpresa está salvo em res.locals é pq o request foi empresaFullCad, precisa retornar id da emp e socios
         if (res.locals.codigoEmpresa)
             data = { codigo_empresa: codigoEmpresa, socioIds: data.map(s => s.socio_id) }
@@ -69,6 +70,7 @@ const userSockets = async ({ req, res, table, condition = '', event, collection,
 }
 //Trata as tabelas do Postgresql que não possuem a coluna codigo_empresa
 const filterData = (table, data, codigosEmpresa, event, collection) => {
+    //console.log("🚀 ~ file: userSockets.js ~ line 73 ~ filterData ~ table, data, codigosEmpresa, event, collection", table, data, codigosEmpresa, event, collection)
 
     let result = []
     //Para cada código de empresa q o usuário tem, verifica se o codigoEmpresa do req bate
@@ -82,13 +84,10 @@ const filterData = (table, data, codigosEmpresa, event, collection) => {
             //console.log("🚀 ~ file: userSockets.js ~ line 71 ~ filterData ~ data", data, typeof data[0].empresas)
         }
 
-        else {
-            if (table)
-                temp = data.filter(d => d.codigo_empresa === codigoEmpresa)
-            //Se for collection do mongo o id para filtrar é empresaID
-            else if (collection)
-                temp = data.filter(d => d.empresaId === codigoEmpresa)
-        }
+        //Se for table codiogo_empresa, se collection empresaID, se mongoCoreData (AltContrato), codigoEmpresa 
+        else
+            temp = data.filter(d => d.codigo_empresa === codigoEmpresa || d.empresaId === codigoEmpresa || d.codigoEmpresa === codigoEmpresa)
+
         //console.log("🚀 ~ file: userSockets.js ~ line 84 ~ filterData ~ temp", temp)
         result.push(...temp)
         temp = []

@@ -230,7 +230,7 @@ app.post('/api/altContrato', (req, res) => {
             return res.send(err)
         }
         altContratoAlert(doc)
-        return res.send(doc)
+        console.log('line 233 Server = doc', doc)
         userSockets({ req, res, event: 'insertElements', collection: 'altContrato', mongoData: [doc] })
     })
 })
@@ -747,7 +747,7 @@ app.put('/api/updateInsurances', async (req, res) => {
         res.send('No changes whatsoever.')
 })
 
-app.put('/api/editSocios', (req, res, next) => {
+app.put('/api/editSocios', async (req, res, next) => {
 
     const { requestArray, table, codigoEmpresa, cpfsToAdd, cpfsToRemove } = req.body
 
@@ -771,20 +771,35 @@ app.put('/api/editSocios', (req, res, next) => {
         })
     })
 
+    //Remove permissões de usuário, se for o caso
+    /*    if (cpfsToRemove && cpfsToRemove[0]) {
+           console.log("🚀 ~ file: server.js ~ line 783 ~ pool.query ~ cpfsToAdd[0]", cpfsToAdd[0])
+           console.log("🚀 ~ file: server.js ~ line 783 ~ pool.query ~ cpfsToRemove", cpfsToRemove)
+   
+           removeEmpresa({ representantes: cpfsToRemove, codigoEmpresa })
+       }
+    */
+    //removeEmpresa({ representantes: cpfsToRemove, codigoEmpresa })
     //console.log("🚀 ~ file: server.js ~ line 795 ~ pool.query ~ queryString", queryString)
+
     pool.query(queryString, async (err, t) => {
         if (err) console.log(err)
         if (t) {
             //Adiciona permissões, se for o caso
             if (cpfsToAdd && cpfsToAdd[0])
                 insertEmpresa({ representantes: cpfsToAdd, codigoEmpresa })
-            //Remove permissões de usuário, se for o caso
-            if (cpfsToRemove && cpfsToRemove[0])
-                removeEmpresa({ representantes: cpfsToRemove, codigoEmpresa })
-            //const condition = `WHERE socios.socio_id IN (${socioIds})`
+
             userSockets({ req, res, table: 'socios', event: 'updateSocios' })
+            //const condition = `WHERE socios.socio_id IN (${socioIds})`
         }
     })
+})
+
+app.patch('/api/removeEmpresa', (req, res) => {
+    const { cpfsToRemove, codigoEmpresa } = req.body
+    if (cpfsToRemove && cpfsToRemove[0])
+        removeEmpresa({ representantes: cpfsToRemove, codigoEmpresa })
+    res.send('permision updated.')
 })
 
 app.put('/api/editProc', (req, res) => {

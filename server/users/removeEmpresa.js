@@ -9,16 +9,29 @@ const removeEmpresa = async ({ representantes, codigoEmpresa }) => {
     codigoEmpresa = +codigoEmpresa
 
     const
-        cpfs = await shouldUpdate(representantes, codigoEmpresa),
-        filter = ({ 'cpf': { $in: cpfs } })
+        cpfs = await shouldUpdate(representantes, codigoEmpresa)
+    //,filter = ({ 'cpf': { $in: cpfs } })
 
-    console.log("🚀 ~ file: removeEmpresa.js ~ line 10 ~ removeEmpresa ~ filter", cpfs, filter)
+    if (cpfs instanceof Array) {
+        cpfs.forEach(async cpf => {
+            const filter = { cpf }
+            try {
+                await UserModel.update(filter, { $pull: { 'empresas': codigoEmpresa } }, (err, doc) => {
+                    if (err)
+                        console.log(err)
+                    console.log(doc)
+                })
+            } catch (error) {
+                console.log(error)
+            }
+        })
+    }
 
-    if (cpfs)
+    /* if (cpfs)
         UserModel.updateMany(filter, { $pull: { 'empresas': codigoEmpresa } }, async (err, doc) => {
             if (err) console.log(err)
             console.log(doc)
-        })
+        }) */
 }
 
 async function shouldUpdate(representantes, codigoEmpresa) {

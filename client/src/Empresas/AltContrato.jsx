@@ -214,8 +214,8 @@ const AltContrato = props => {
         if (name === 'share')
             value = value.replace(',', '.')
 
-        let editSocio = filteredSocios.find(s => s.edit === true)
-        const index = filteredSocios.indexOf(editSocio)
+        const fs = [...filteredSocios]
+        let editSocio = fs.find(s => s.edit === true)
 
         //Atualiza o estado de acordo com o valor de input do usuário
         editSocio[name] = value
@@ -236,9 +236,6 @@ const AltContrato = props => {
                 editSocio.empresas = [{ codigoEmpresa, share: +value }]
         }
 
-        const fs = filteredSocios
-        fs[index] = editSocio
-
         setState({ ...state, filteredSocios: fs })
     }
 
@@ -247,7 +244,7 @@ const AltContrato = props => {
             { selectedEmpresa } = state,
             { codigoEmpresa } = selectedEmpresa
         let
-            socios = state.filteredSocios,
+            socios = [...state.filteredSocios],
             sObject = {},
             invalid = 0,
             totalShare = 0
@@ -400,7 +397,6 @@ const AltContrato = props => {
                         tablePK: 'socio_id',
                         codigoEmpresa,
                         cpfsToAdd,
-                        cpfsToRemove
                     }
                 //console.log("🚀 ~ file: AltContrato.jsx ~ line 306 ~ newSocios, oldSocios", newSocios, oldSocios)
 
@@ -414,7 +410,13 @@ const AltContrato = props => {
                         })
                 //Update/delete dos modificados
                 if (oldSocios[0]) {
+                    //atualiza os sócios. Status 'deleted' não são apagados, apenas têm sua coluna 'empresas' atualizada.
                     await axios.put('/api/editSocios', { requestArray: oldSocios, ...requestInfo })
+
+                    //remove as permissões de usuário dos sócios excluídos
+                    if (cpfsToRemove[0])
+                        await axios.patch('/api/removeEmpresa', { cpfsToRemove, codigoEmpresa })
+
                     const ids = oldSocios.map(s => s.socio_id)
                     socioIds = socioIds.concat(ids)             //A array de ids de sócios vai para a metadata dos arquivos
                 }
