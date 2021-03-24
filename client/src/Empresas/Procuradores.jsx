@@ -169,28 +169,23 @@ class Procuradores extends Component {
     }
 
     addProc = async (approved) => {
-
         const
-            { redux } = this.props,
             { selectedEmpresa, demand, procuracao, vencimento, expires, info } = this.state,
             empresaId = selectedEmpresa.codigoEmpresa,
-            procuradores = JSON.parse(JSON.stringify(redux.procuradores)),
             nProc = [...this.state.procsToAdd]
         let
             addedProcs = [],
             sObject = {}
 
         //***********************Check for errors *********************** */
-        /*       let { errors } = checkInputErrors('returnObj', 'Dont check the date, please!') || []
-      
+        /*       let { errors } = checkInputErrors('returnObj', 'Dont check the date, please!') || []      
               if (errors && errors[0]) {
                   if (!expires)
                       await this.setState({ ...this.state, ...checkInputErrors('setState', 'dontCheckDate') })
                   else
                       await this.setState({ ...this.state, ...checkInputErrors('setState') })
                   return
-              }
-   */
+              }   */
         //***********Create array of Procs from state***********
         nProc.forEach((n, i) => {
             procuradorForm.forEach(obj => {
@@ -211,16 +206,18 @@ class Procuradores extends Component {
         })
 
         let
-            gotId,
             newMembers = [],
             oldMembers = []
 
-        addedProcs.forEach(addedProc => {
-            gotId = procuradores.find(p => p.cpfProcurador === addedProc.cpfProcurador)
-            if (gotId?.procuradorId) {
+        for (let addedProc of addedProcs) {
+            const
+                getData = await axios.get(`/api/getOne?table=procuradores&key=cpf_procurador&value='${addedProc.cpfProcurador}'`),
+                existingProc = humps.camelizeKeys(getData?.data[0])
+            console.log("🚀 ~ file: Procuradores.jsx ~ line 222 ~ Procuradores ~ addProc= ~ existingProc", existingProc)
+            if (existingProc?.procuradorId) {
 
                 //Acrescenta a empresa no array de empresas de cada procurador
-                addedProc.empresas = gotId.empresas
+                addedProc.empresas = existingProc.empresas
                 //Se não tiver nenhuma empresa ou se o único códigoEmpresa na array for ===0 (quer dizer q tinha mas venceu ou foi exluído):
                 //Nesse caso, a array de empresas no DB será um array de apenas 1 item, com o códigoEmpresa atual
                 if ((addedProc.empresas[0] === 0 && addedProc.empresas.length === 1) || !addedProc.empresas)
@@ -231,23 +228,25 @@ class Procuradores extends Component {
                     addedProc.empresas.push(empresaId)
 
                 Object.keys(addedProc).forEach(k => {
-                    if (addedProc[k] === gotId[k] && k !== 'empresas' && k !== 'cpfProcurador')
+                    if (addedProc[k] === existingProc[k] && k !== 'empresas' && k !== 'cpfProcurador')
                         delete addedProc[k]
                 })
-                addedProc.procuradorId = gotId.procuradorId
+                addedProc.procuradorId = existingProc.procuradorId
                 oldMembers.push(addedProc)
             }
             else
                 newMembers.push(addedProc)
-        })
+        }
+        //console.log("🚀 ~ file: Procuradores.jsx ~ line 248 ~ Procuradores ~ addProc= ~ oldMembers", oldMembers)        
 
-        //Se o request não for dew aprovação, cria a demanda
+        //Se o request não for de aprovação, cria a demanda
         if (approved === undefined) {
 
             const log = {
                 status: 'Aguardando aprovação',
                 empresaId,
                 history: {
+
                     files: procuracao,
                     newMembers,
                     oldMembers,
@@ -311,14 +310,11 @@ class Procuradores extends Component {
                 empresas: [codigoEmpresa]
             }
 
-            console.log("🚀 ~ file: Procuradores.jsx ~ line 300 ~ Procuradores ~ approveProc= ~ cadRequest", cadRequest)
-            console.log("🚀 ~ file: Procuradores.jsx ~ line 300 ~ Procuradores ~ approveProc= ~ cadRequest", JSON.stringify(cadRequest))
             await axios.post('/api/cadProcuradores', { ...cadRequest, codigoEmpresa })
                 .then(procs => {
                     procs.data.forEach(p => procIdArray.push(p.procurador_id))
                 })
         }
-
         //***************Update existing members ****************/
         const request = {
             table: 'procuradores',
@@ -427,10 +423,12 @@ class Procuradores extends Component {
                     tablePK: 'procurador_id',
                     requestArray: filteredProcs,
                     keys: ['empresas'],
-                    codigoEmpresa,
-                    updateUser: 'removeEmpresa'
+                    codigoEmpresa
                 }
                 axios.put('/api/editProc', { ...request })
+                    .then(r => console.log(r))
+                //Remove a permissão do usuário para a empresa selecionada, caso haja usuário com mesmo cpf cadastrado no sistema
+                axios.patch('/api/removeEmpresa', { cpfsToRemove: filteredProcs, codigoEmpresa })
                     .then(r => console.log(r))
             }
         }

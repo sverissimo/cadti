@@ -72,8 +72,8 @@ export default function Revisao({ data, forms, filesForm, files, demandFiles }) 
                             <PeopleIcon className='socios__review__icon' />
                         Sócios
                         </h3>
-                        {filteredSocios.map(({ nomeSocio, status, outsider }) =>
-                            <div
+                        {filteredSocios.map(({ nomeSocio, status, outsider }, i) =>
+                            <div key={i}
                                 className='flex socios__review__div'
                                 style={{ color: outsider || status === 'new' ? 'green' : status === 'modified' ? 'orange' : status === 'deleted' ? 'red' : '' }}>
                                 <span className='socios__review__prop' >

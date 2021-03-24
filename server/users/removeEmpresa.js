@@ -4,15 +4,13 @@ const UserModel = require("../mongo/models/userModel")
 
 const removeEmpresa = async ({ representantes, codigoEmpresa }) => {
 
-    console.log("🚀 ~ file: removeEmpresa.js ~ line 7 ~ removeEmpresa ~ representantes", representantes)
-
+    // console.log("🚀 ~ file: removeEmpresa.js ~ line 7 ~ removeEmpresa ~ representantes", representantes)
     codigoEmpresa = +codigoEmpresa
-
     const
-        cpfs = await shouldUpdate(representantes, codigoEmpresa)
-    //,filter = ({ 'cpf': { $in: cpfs } })
+        cpfs = await shouldUpdate(representantes, codigoEmpresa),
+        filter = ({ 'cpf': { $in: cpfs } })
 
-    if (cpfs instanceof Array) {
+    /* if (cpfs instanceof Array) {
         cpfs.forEach(async cpf => {
             const filter = { cpf }
             try {
@@ -25,21 +23,22 @@ const removeEmpresa = async ({ representantes, codigoEmpresa }) => {
                 console.log(error)
             }
         })
-    }
+    } */
 
-    /* if (cpfs)
+    if (cpfs)
         UserModel.updateMany(filter, { $pull: { 'empresas': codigoEmpresa } }, async (err, doc) => {
             if (err) console.log(err)
             console.log(doc)
-        }) */
+        })
 }
 
 async function shouldUpdate(representantes, codigoEmpresa) {
     const
         procuracoes = await getUpdatedData('procuracoes'),
         procuradores = await getUpdatedData('procuradores'),
-        filteredDocs = procuracoes.filter(p => p.codigo_empresa === codigoEmpresa)
+        filteredDocs = procuracoes.filter(p => p.codigo_empresa == codigoEmpresa)
 
+    console.log("🚀 ~ file: removeEmpresa.js ~ line 40 ~ shouldUpdate ~ procuracoes, procuradores, filteredDocs", procuracoes, procuradores, filteredDocs)
     //Se se está apagando um sócio, verificar se alguma procuração vigente contém o cpf dele. Nesse caso, não remove da permissão do usuário
     if (representantes[0] && representantes[0].cpf_socio) {
         let shouldUpdate = true
@@ -58,7 +57,7 @@ async function shouldUpdate(representantes, codigoEmpresa) {
         if (cpfs.includes(cpf_socio))
             shouldUpdate = false
 
-        //console.log("🚀 ~ file: removeEmpresa.js ~ line 58 ~ shouldUpdate ~ cpf_socio", cpf_socio)
+        console.log("🚀 ~ file: removeEmpresa.js ~ line 58 ~ shouldUpdate ~ cpfs, cpf_socio", shouldUpdate, cpfs, cpf_socio)
 
         if (shouldUpdate)
             return [cpf_socio]

@@ -306,15 +306,17 @@ app.get('/api/allVehicles', async (req, res) => {
     })
 })
 
-//get one vehicle
-app.get('/api/veiculo/:id', (req, res) => {
-    const { id } = req.params
-    const { column, filter } = req.query
-
-    pool.query(`SELECT ${column} FROM public.veiculos WHERE ${filter} = $1`, [id], (err, table) => {
+//get one element
+app.get('/api/getOne', (req, res) => {
+    const { table, key, value } = req.query
+    console.log(`SELECT * FROM public.${table} WHERE ${key} = ${value}`)
+    pool.query(`SELECT * FROM public.${table} WHERE ${key} = ${value}`, (err, table) => {
         if (err) res.send(err)
-        if (table.rows.length === 0) { res.send('Veículo não encontrado.'); return }
-        res.json(table.rows.map(r => r[column]))
+        if (table && table.rows && table.rows[0])
+            return res.json(table.rows);
+        else
+            return res.send('Não encontrado.')
+        //res.json(table.rows.map(r => r[column]))
     })
 });
 
@@ -944,15 +946,16 @@ app.get('/api/deleteManyFiles', async (req, res) => {
 
     const ids = getIds.map(e => new mongoose.mongo.ObjectId(e._id))
 
-    let chunks
+    //let chunks
     gfs.collection('vehicleDocs')
     let r
     ids.forEach(fileId => {
         gfs.files.deleteOne({ _id: fileId }, (err, result) => {
-            if (err) console.log(err)
-            if (result) { r = result; console.log(r) }
+            if (err)
+                console.log(err)
+            if (result)
+                r = result
         })
-
         //        if (collection === 'empresaDocs') chunks = empresaChunks
         //      if (collection === 'vehicleDocs') chunks = vehicleChunks
 
@@ -962,7 +965,7 @@ app.get('/api/deleteManyFiles', async (req, res) => {
             }
         })
     })
-    res.send(r || 'hi, im elfo')
+    res.send(r || 'no files deeleted.')
     //    io.sockets.emit('deleteOne', { tablePK: '_id', id, collection })
 })
 

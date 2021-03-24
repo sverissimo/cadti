@@ -19,7 +19,7 @@ const insertEmpresa = async ({ representantes, codigoEmpresa }) => {
 
     //Atualiza o as arrays de empresas de cada usuário
     if (updates[0]) {
-        updates.forEach(async u => {
+        for (let u of updates) {
             const filter = { 'cpf': u.cpf }
             console.log('InsertEmpresa', filter)
             try {
@@ -28,7 +28,7 @@ const insertEmpresa = async ({ representantes, codigoEmpresa }) => {
             catch (error) {
                 console.log(error)
             }
-        })
+        }
     }
 }
 

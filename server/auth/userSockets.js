@@ -13,7 +13,6 @@ const userSockets = async ({ req, res, table, condition = '', event, collection,
     let
         data,
         { codigoEmpresa, codigo_empresa } = req.body
-
     if (!codigoEmpresa)             //Se vier do Postgres, virá decamelized
         codigoEmpresa = codigo_empresa
 
@@ -21,7 +20,7 @@ const userSockets = async ({ req, res, table, condition = '', event, collection,
     if (!codigoEmpresa && (table === 'empresas' || table === 'socios'))
         codigoEmpresa = res.locals.codigoEmpresa
 
-    console.log("🚀 ~ file: userSockets.js ~ line 24 ~ userSockets ~ codigoEmpresa", codigoEmpresa)
+    console.log("🚀 ~ file: userSockets.js ~ line 24 ~ userSockets ~ table & codigoEmpresa", table, codigoEmpresa)
 
     if (table)
         data = await getUpdatedData(table, condition)
@@ -47,6 +46,7 @@ const userSockets = async ({ req, res, table, condition = '', event, collection,
     })
     //Os usuários admin fazem join('admin') no server. Basta enviar todos os dados sem filtro para a room 'admin'    
     data = formatData({ data, event, collection, table })
+    console.log("🚀 ~ file: userSockets.js ~ line 49 ~ userSockets ~ data", data)
     await io.sockets.to('admin').emit(event, data)
 
     //console.log("🚀 ~ file: userSockets.js ~ line 57 ~ userSockets ~ data", data)
@@ -57,8 +57,8 @@ const userSockets = async ({ req, res, table, condition = '', event, collection,
         return res.send('' + veiculo_id)
     if (table === 'procuradores' || table === 'socios') {
         //console.log('dataaaaa', codigoEmpresa, data)
-        /*  if (codigoEmpresa)
-             insertEmpresa({ representantes: data, codigoEmpresa }) */
+        if (codigoEmpresa && table === 'procuradores')
+            insertEmpresa({ representantes: data, codigoEmpresa })
         //Se o CodigoEmpresa está salvo em res.locals é pq o request foi empresaFullCad, precisa retornar id da emp e socios
         if (res.locals.codigoEmpresa)
             data = { codigo_empresa: codigoEmpresa, socioIds: data.map(s => s.socio_id) }
@@ -83,7 +83,6 @@ const filterData = (table, data, codigosEmpresa, event, collection) => {
             temp = data.filter(s => s.empresas && s.empresas.match(codigoEmpresa.toString()))
             //console.log("🚀 ~ file: userSockets.js ~ line 71 ~ filterData ~ data", data, typeof data[0].empresas)
         }
-
         //Se for table codiogo_empresa, se collection empresaID, se mongoCoreData (AltContrato), codigoEmpresa 
         else
             temp = data.filter(d => d.codigo_empresa === codigoEmpresa || d.empresaId === codigoEmpresa || d.codigoEmpresa === codigoEmpresa)

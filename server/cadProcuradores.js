@@ -1,6 +1,5 @@
 const { pool } = require('./config/pgConfig')
 const { parseRequestBody } = require('./parseRequest')
-const { getUpdatedData } = require('./getUpdatedData')
 const userSockets = require('./auth/userSockets')
 
 const cadProcuradores = (req, res, next) => {
