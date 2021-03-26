@@ -21,12 +21,12 @@ const deleteSockets = async ({ req, noResponse, table, tablePK, id, event, codig
                 confirmSend = empresas.some(e => JSON.parse(codigoEmpresa).includes(e))
             if (table === 'socios')
                 confirmSend = empresas.some(cod => JSON.parse(codigoEmpresa).find(e => e.codigoEmpresa == cod))
-
-            console.log("🚀 ~ file: deleteSockets.js ~ line 25 ~ deleteSockets ~ confirmSend", confirmSend)
-            console.log("🚀 ~ file: deleteSockets.js ~ line 26 ~ deleteSockets ~ JSON.parse(codigoEmpresa)", JSON.parse(codigoEmpresa))
-            console.log("🚀 ~ file: deleteSockets.js ~ line 27 ~ deleteSockets ~ data", data)
+            /* 
+                        console.log("🚀 ~ file: deleteSockets.js ~ line 25 ~ deleteSockets ~ confirmSend", confirmSend)
+                        console.log("🚀 ~ file: deleteSockets.js ~ line 26 ~ deleteSockets ~ JSON.parse(codigoEmpresa)", JSON.parse(codigoEmpresa))
+                        console.log("🚀 ~ file: deleteSockets.js ~ line 27 ~ deleteSockets ~ data", data) */
             if (confirmSend) {
-                console.log("🚀 ~ file: deleteSockets.js ~ line 21 ~ deleteSockets ~ data", data)
+                //console.log("🚀 ~ file: deleteSockets.js ~ line 21 ~ deleteSockets ~ data", data)
                 io.sockets.to(id).emit(event, data)
             }
 

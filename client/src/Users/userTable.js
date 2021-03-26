@@ -19,7 +19,7 @@ const userTable = [
         name: 'role',
         title: 'Perfil',
         label: 'Perfil',
-        lookup: { admin: 'admin', empresa: 'empresa' },
+        lookup: { admin: 'Administrador', tecnico: 'Técnico Seinfra', empresa: 'Delegatário' },
         editable: 'always'
     },
 ]

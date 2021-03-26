@@ -797,10 +797,12 @@ app.put('/api/editSocios', async (req, res, next) => {
     })
 })
 
-app.patch('/api/removeEmpresa', (req, res) => {
+app.patch('/api/removeEmpresa', async (req, res) => {
     const { cpfsToRemove, codigoEmpresa } = req.body
+
     if (cpfsToRemove && cpfsToRemove[0])
-        removeEmpresa({ representantes: cpfsToRemove, codigoEmpresa })
+        await removeEmpresa({ representantes: cpfsToRemove, codigoEmpresa })
+
     res.send('permision updated.')
 })
 
@@ -811,6 +813,7 @@ app.put('/api/editProc', (req, res) => {
         ids = '',
         i = 0
     console.log(updateUser === 'insertEmpresa', updateUser)
+    //Cria a string para o query no Postgresql
     keys.forEach(key => {
         requestArray.forEach(o => {
             if (o.hasOwnProperty(key)) {
@@ -872,8 +875,8 @@ app.put('/api/editProc', (req, res) => {
             const updateRequest = { representantes: requestArray, codigoEmpresa }
             if (updateUser === 'insertEmpresa')
                 insertEmpresa(updateRequest)
-            if (updateUser === 'removeEmpresa')
-                removeEmpresa(updateRequest);
+            /*  if (updateUser === 'removeEmpresa')
+                 removeEmpresa(updateRequest); */
         }
         else res.send('something went wrong with your update...')
     })

@@ -21,6 +21,16 @@ export default function ({ collection, showDetails, addUser, editUser, deleteUse
                     exportButton: true,
                     exportFileName: 'Usuários',
                     exportCsv: (columns, data) => {
+                        //Altera os valores de role para fins de exportação p xls
+                        const
+                            roles = userTable.find(obj => obj.lookup)?.lookup,
+                            dataToExport = [...data]
+                        dataToExport.forEach(el => {
+                            Object.entries(roles).forEach(([k, v]) => {
+                                if (k === el?.role)
+                                    el.role = v
+                            })
+                        })
                         exportToXlsx('Usuários', userTable, data)
                     },
                     actionsColumnIndex: -1,
