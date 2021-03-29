@@ -31,13 +31,15 @@ export default function (requestArray, WrappedComponent) {
 
         state = { confirmToast: false }
 
-        quitFn = e => {
-            if (e.key === 'q')
+        /* quitFn = e => {
+            if (e.ctrlKey && e.key === 'q') {
+                console.log('object')
                 this.props.logUserOut()
+            }
         }
-
+ */
         async componentDidMount() {
-            document.addEventListener('keypress', e => this.quitFn(e))
+            //document.addEventListener('keypress', e => this.quitFn(e))
             const { redux } = this.props
             let request = []
 

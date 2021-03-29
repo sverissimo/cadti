@@ -1,4 +1,5 @@
 const
+    bcrypt = require('bcrypt'),
     UserModel = require("../mongo/models/userModel"),
     { getUpdatedData } = require("../getUpdatedData")
 
@@ -12,7 +13,12 @@ const addUser = async (req, res) => {
 
     if (alreadyExists)
         return res.status(422).send('Usuário já cadastrado no CadTI.')
-    user.password = 'senhaProvisoria'
+
+    //Define password provisóra de 1234
+    const
+        salt = await bcrypt.genSalt(10),
+        hashedPassword = await bcrypt.hash('1234', salt)
+    user.password = hashedPassword
     newUser = new UserModel(user)
 
     newUser.save((err, doc) => {

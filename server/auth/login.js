@@ -21,7 +21,7 @@ const login = async (req, res) => {
     if (!userFound.verified)
         return res.status(403).send('Aguardando aprovação do usuário.')
 
-    if (!userFound.empresas[0] && userFound.role && userFound.role !== 'admin')
+    if (!userFound.empresas[0] && userFound.role && userFound.role === 'empresa')
         return res.status(403).send('O usuário não possui vinculação com nenhuma empresa do sistema.')
 
     const

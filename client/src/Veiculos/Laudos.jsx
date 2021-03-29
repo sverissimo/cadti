@@ -206,14 +206,15 @@ const Laudos = props => {
                 let laudosArray = [], tableHeaders = [], tempArray = [], table2 = [...laudosTable]
 
                 //Remove a opção de apagar se o usuário não for admin (é o último objeto de laudosTable, de onde veio)
-                if (user.role !== 'admin')
+                if (user.role === 'empresa')
                     table2.pop()
 
                 vehicleLaudos.forEach(l => {
                     table2.forEach(t => {
                         let fileId
 
-                        const laudoDoc = laudoDocs.find(d => d.metadata.laudoId === l.id || d.metadata.laudoId.toString() === l.id.toString())
+                        // eslint-disable-next-line eqeqeq
+                        const laudoDoc = laudoDocs.find(d => d?.metadata?.laudoId == l?.id)
                         if (laudoDoc)
                             fileId = laudoDoc.id
 

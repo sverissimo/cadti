@@ -57,7 +57,7 @@ const userSockets = async ({ req, res, table, condition = '', event, collection,
         return res.send('' + veiculo_id)
     if (table === 'procuradores' || table === 'socios') {
         //console.log('dataaaaa', codigoEmpresa, data)
-        if (codigoEmpresa && table === 'procuradores')
+        if (codigoEmpresa)
             insertEmpresa({ representantes: data, codigoEmpresa })
         //Se o CodigoEmpresa está salvo em res.locals é pq o request foi empresaFullCad, precisa retornar id da emp e socios
         if (res.locals.codigoEmpresa)

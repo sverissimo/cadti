@@ -58,6 +58,8 @@ const UserAuth = props => {
     let
       error,
       tab = 1
+    if (request instanceof Object)
+      request.role = 'empresa'
 
     await axios.post(endPoint, request)
       .then(r => console.log(r))

@@ -26,7 +26,7 @@ const authToken = (req, res, next) => {
         if (user) {
             const empresas = user.empresas && user.empresas
             let filter = {}
-            if (user.role !== 'admin')
+            if (user.role === 'empresa')
                 filter = {
                     $or: [
                         { 'empresaId': { $in: empresas } },

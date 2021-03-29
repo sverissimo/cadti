@@ -60,7 +60,7 @@ const getFilesMetadata = async (req, res) => {
         fieldName = { 'metadata.fieldName': req.query.fieldName }
 
     //Filtro de permissão de usuários 
-    if (role !== 'admin' && empresas[0]) {
+    if (role === 'empresa' && empresas[0]) {
         if (req.params.collection === 'empresaDocs')
             filter = { 'metadata.empresaId': { $in: empresas } }
         else {

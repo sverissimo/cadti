@@ -24,24 +24,24 @@ const signUpForm = [
         label: 'Confirme sua senha',
         type: 'password'
     },
-    {
-        name: 'role',
-        label: 'Perfil de usuário',
-        options: [
-            {
-                optionLabel: 'Administrador',
-                optionValue: 'admin'
-            },
-            {
-                optionLabel: 'Delegatário',
-                optionValue: 'empresa'
-            },
-            {
-                optionLabel: 'Técnico Seinfra',
-                optionValue: 'seinfra'
-            },
-        ]
-    }
+    /*  {
+         name: 'role',
+         label: 'Perfil de usuário',
+         options: [
+             {
+                 optionLabel: 'Administrador',
+                 optionValue: 'admin'
+             },
+             {
+                 optionLabel: 'Delegatário',
+                 optionValue: 'empresa'
+             },
+             {
+                 optionLabel: 'Técnico Seinfra',
+                 optionValue: 'seinfra'
+             },
+         ]
+     } */
 ]
 
 const forgotPassForm = [

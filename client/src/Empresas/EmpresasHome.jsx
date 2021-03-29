@@ -48,9 +48,9 @@ const EmpresasHome = props => {
                 </div>
             </section>
 
-            <main className='cardContainer' style={{ width: role === 'admin' ? '100%' : '90%', marginLeft: role === 'admin' ? '0' : '5%' }}>
+            <main className='cardContainer' style={{ width: role !== 'empresa' ? '100%' : '90%', marginLeft: role !== 'empresa' ? '0' : '5%' }}>
                 {featuredPosts.map(({ link, title, description, imageUrl }, i) =>
-                    role !== 'admin' && link === '/empresas/cadastro' ?
+                    role === 'empresa' && link === '/empresas/cadastro' ?
                         null
                         :
                         <Link to={link} style={{ textDecoration: 'none' }} key={i}>
