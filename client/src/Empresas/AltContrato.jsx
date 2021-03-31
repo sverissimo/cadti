@@ -217,8 +217,12 @@ const AltContrato = props => {
         const fs = [...filteredSocios]
         let editSocio = fs.find(s => s.edit === true)
 
+        if (!editSocio)
+            return
+
         //Atualiza o estado de acordo com o valor de input do usuário
-        editSocio[name] = value
+        const parsedValue = valueParser(name, value)
+        editSocio[name] = parsedValue
         //Acrescenta o status do sócio modificado, caso não seja === "new" nem === "deleted"
         if (!editSocio.status)
             editSocio.status = 'modified'
@@ -319,8 +323,7 @@ const AltContrato = props => {
 
     const removeSocio = index => {
         const
-            { filteredSocios, selectedEmpresa, demand } = state,
-            { codigoEmpresa } = selectedEmpresa,
+            { filteredSocios, demand } = state,
             socioToRemove = filteredSocios[index]
 
         if (socioToRemove?.status === 'new' || (!demand && socioToRemove.outsider)) {
@@ -332,17 +335,8 @@ const AltContrato = props => {
                 socioToRemove.originalStatus = socioToRemove.status
                 socioToRemove.status = 'deleted'
             }
-            else if (socioToRemove?.status === 'deleted') {
-                let { empresas, share } = socioToRemove
-                const updateEmpresas = { codigoEmpresa, share: !isNaN(+share) && +share }
-
-                if (empresas && empresas[0])
-                    empresas.push(updateEmpresas)
-                else
-                    empresas = [updateEmpresas]
-
+            else if (socioToRemove?.status === 'deleted')
                 socioToRemove.status = socioToRemove?.originalStatus
-            }
             else
                 socioToRemove.status = 'deleted'
 
@@ -368,7 +362,6 @@ const AltContrato = props => {
             alert('Nenhuma modificação registrada!')
             return
         }
-        //console.log(socioUpdates)
 
         //A alteração de dados da empresa não precisa de aprovação. Se for só isso, não gera demanda
         if (empresaUpdates) {
@@ -381,7 +374,6 @@ const AltContrato = props => {
             }
         }
 
-        console.log("🚀 ~ file: AltContrato.jsx ~ line 385 ~ demand", demand, approved)
         //Ao aprovar a solicitação(demanda)
         if (demand && approved) {
             //Registrar as alterações contratuais
@@ -418,7 +410,7 @@ const AltContrato = props => {
                         await axios.patch('/api/removeEmpresa', { cpfsToRemove, codigoEmpresa })
 
                     const ids = oldSocios.map(s => s.socio_id)
-                    socioIds = socioIds.concat(ids)             //A array de ids de sócios vai para a metadata dos arquivos
+                    socioIds = socioIds.concat(ids)             //A array de ids de sócios vai para a metadata dos arquivos                    
                 }
                 toastMsg = 'Alteração de contrato social aprovada.'
             }
@@ -426,6 +418,10 @@ const AltContrato = props => {
         let files, fileIds
         if (approved === false)
             toastMsg = 'Solicitação indeferida.'
+
+        //***********************ERROR --- Se for p aprovar, o filesIds vai sepre ser undefined */
+        // AO CRIAR A DEMANDA, NÃO ESTÁ PREENCHENDO A ARRAY DE SÓCIOS E ESTÁ DANDO TEMP: FALSE DE CARA
+
         else if (!approved) {
             files = await submitFile(codigoEmpresa, socioIds) //A função deve retornar o array de ids dos files para incorporar no log.
             if (files instanceof Array) {
@@ -434,6 +430,10 @@ const AltContrato = props => {
             }
             //console.log("🚀 ~ file: AltContrato.jsx ~ line 422 ~ files", files, fileIds)
         }
+
+        //***********************ERROR --- assim, o log.metadata.socios tb será sempre undefined */
+        //****####################  MAS ACHO Q O IMPORTANTE É O SÓCIOS SER PREENCHIDO NO CREATE DEMAND 
+        //MSM, DEPOIS O LOGGENERATOR PEGA A COLLECTION DOS FILES E SÓ MUDA O TEMP TO FALSE  */
 
         if (fileIds && socioIds[0] && log.metadata)
             log.metadata.socios = socioIds
@@ -653,6 +653,7 @@ const AltContrato = props => {
     }
 
     const submitFile = async (empresaId, socioIds) => {
+        //Essa função só é chamada ao CRIAR a demanda. Por isso, tempFile é true e o SocioIds deve ser preenchido aqui
         const
             { form, numeroAlteracao } = state,
             files = []
@@ -660,9 +661,7 @@ const AltContrato = props => {
         if (form instanceof FormData) {
             const metadata = {
                 empresaId,
-                socios: socioIds,
-                numeroAlteracao,
-                tempFile: false
+                tempFile: true
             }
             let filesToSend = new FormData()
             //O loop é para cada arquivo ter seu fieldName correto no campo metadata
@@ -670,13 +669,23 @@ const AltContrato = props => {
                 const name = pair[0]
                 console.log("🚀 ~ file: AltContrato.jsx ~ line 641 ~ submitFile ~ name", name)
                 //O CRC não precisa dos ids dos sócios nem do número de alteração em seu metadata
-                if (name === 'crc') {
-                    delete metadata.socios
-                    delete metadata.numeroAlteracao
+                if (name === "altContratoDoc") {
+                    const altContMeta = {
+                        ...metadata,
+                        fieldName: name,
+                        socios: socioIds,
+                        numeroAlteracao
+                    }
+                    filesToSend.append('metadata', JSON.stringify(altContMeta))
                 }
-                metadata.fieldName = pair[0]
-                filesToSend.append('metadata', JSON.stringify(metadata))
-                filesToSend.set(pair[0], pair[1])
+                else {
+                    const crcMeta = {
+                        ...metadata,
+                        fieldName: name
+                    }
+                    filesToSend.append('metadata', JSON.stringify(crcMeta))
+                }
+                filesToSend.set(name, pair[1])
                 await axios.post('/api/empresaUpload', filesToSend)
                     .then(r => {
                         console.log(r)

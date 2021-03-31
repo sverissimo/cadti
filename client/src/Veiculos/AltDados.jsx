@@ -357,15 +357,12 @@ class AltDados extends Component {
 
     handleSubmit = async (approved) => {
         const
-            { veiculoId, poltronas, pesoDianteiro, pesoTraseiro, codigoEmpresa, originalVehicle, showPendencias, getUpdatedValues,
+            { veiculoId, pbt, codigoEmpresa, originalVehicle, showPendencias, getUpdatedValues,
                 compartilhadoId, newPlate, selectedEmpresa, equipamentosId, acessibilidadeId, info, demand, form, demandFiles } = this.state,
 
             oldHistoryLength = demand?.history?.length || 0
 
         //****************************Prepare the request Object*******************************
-        let pbt = Number(poltronas) * 80 + (Number(pesoDianteiro) + Number(pesoTraseiro))
-        if (isNaN(pbt)) pbt = undefined
-
         let tempObj = {}
         altForm.forEach(form => {
             form.forEach(obj => {

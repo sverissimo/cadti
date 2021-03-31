@@ -62,16 +62,27 @@ async function shouldUpdate(representantes, codigoEmpresa) {
                 .filter(s => s.empresas.match(codigoEmpresa))
                 .map(s => s.cpf_socio)
         //console.log("🚀 ~ file: removeEmpresa.js ~ line 84 ~ shouldUpdate ~ cpfSocios", cpfSocios, codigoEmpresa)
-        for (let cpf of cpfProcuradores) {
-            console.log(cpf)
+
+        //Evita retirada de permissão de sócios
+        for (const cpf of cpfProcuradores) {
+            //console.log(cpf)
             if (cpfSocios.includes(cpf))
                 dontRemove.push(cpf)
+        }
+        //Checa se há outra procuração
+        for (const p of representantes) {
+            const
+                otherValidProcs = filteredDocs.filter(d => d.procuradores.includes(p.procurador_id)),
+                keepThisCpfToo = otherValidProcs.length > 1
+            if (keepThisCpfToo && !dontRemove.includes(p.cpf_procurador))
+                dontRemove.push(p.cpf_procurador)
         }
         //console.log("🚀 ~ file: removeEmpresa.js ~ line 79 ~ shouldUpdate ~ cpfProcuradores", cpfProcuradores, cpfSocios)
 
         const cpfsToRemove = cpfProcuradores.filter(cpf => !dontRemove.includes(cpf))
 
-        console.log("🚀 ~ file: removeEmpresa.js ~ line 92 ~ shouldUpdate ~ socios", cpfsToRemove)
+        console.log("🚀 ~ file: removeEmpresa.js ~ line 79 ~ shouldUpdate ~ dontRemove", dontRemove)
+        console.log("🚀 ~ file: removeEmpresa.js ~ line 92 ~ shouldUpdate ~ cpfsToRemove", cpfsToRemove)
 
         //Retorna os cpfs para excluir a permissão de usuário
         if (cpfsToRemove[0])

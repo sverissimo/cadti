@@ -18,3 +18,8 @@ oldVehiclesDB.json
 
 server/testAPI.rest
 mintty.exe.stackdump
+
+startPM2.bat
+startNginx.bat
+startMongoDB.bat
+configScreen.bat

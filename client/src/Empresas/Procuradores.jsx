@@ -428,7 +428,7 @@ class Procuradores extends Component {
                 axios.put('/api/editProc', { ...request })
                     .then(r => console.log(r))
                 //Remove a permissão do usuário para a empresa selecionada, caso haja usuário com mesmo cpf cadastrado no sistema
-                axios.patch('/api/removeEmpresa', { cpfsToRemove: filteredProcs, codigoEmpresa })
+                await axios.patch('/api/removeEmpresa', { cpfsToRemove: filteredProcs, codigoEmpresa })
                     .then(r => console.log(r))
             }
         }
