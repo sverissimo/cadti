@@ -1,0 +1,3 @@
+Echo Starting Mongodb - cadTI comp DataBase - in 5 seconds...
+TIMEOUT /T 5
+START "runas /user:administrator" cmd /K "cd C:\Program Files\MongoDB\Server\3.4\bin & mongod.exe --dbpath c:\data\db"
