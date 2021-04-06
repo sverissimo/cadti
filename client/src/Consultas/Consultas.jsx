@@ -108,7 +108,7 @@ class ConsultasContainer extends Component {
                 if (socio) {
                     let sociosArray = []
                     selectedFiles = empresaDocs
-                        .filter(f => f.metadata.empresaId === socio.codigoEmpresa)
+                        .filter(f => socio.empresas.some(e => e.codigoEmpresa === f.metadata.empresaId && f.metadata.fieldName !== 'crc'))
                         .forEach(f => {
                             if (f.metadata.socios && f.metadata.socios.includes(id))
                                 sociosArray.push(f)

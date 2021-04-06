@@ -26,7 +26,8 @@ const
 const AltContrato = props => {
 
     const
-        { empresas, socios } = props.redux,
+        { empresas } = props.redux,
+        socios = [...props.redux.socios],
         [state, setState] = useState({
             razaoSocial: '',
             activeStep: 0,
@@ -45,6 +46,7 @@ const AltContrato = props => {
     //ComponentDidMount para carregar demand, se houver e selecionar a empresa dependendo do usuário
     useEffect(() => {
         if (empresas && empresas.length === 1) {
+
             const selectedEmpresa = { ...empresas[0] }
             //Formata data vinda do DB para renderização no browser
             let venc = selectedEmpresa?.vencimentoContrato
@@ -412,6 +414,8 @@ const AltContrato = props => {
                     const ids = oldSocios.map(s => s.socio_id)
                     socioIds = socioIds.concat(ids)             //A array de ids de sócios vai para a metadata dos arquivos                    
                 }
+                if (socioIds[0])
+                    Object.assign(log, { metadata: { socios: socioIds } })
                 toastMsg = 'Alteração de contrato social aprovada.'
             }
         }
@@ -428,15 +432,8 @@ const AltContrato = props => {
                 fileIds = files.map(f => f.id)
                 log.history.files = fileIds
             }
-            //console.log("🚀 ~ file: AltContrato.jsx ~ line 422 ~ files", files, fileIds)
         }
 
-        //***********************ERROR --- assim, o log.metadata.socios tb será sempre undefined */
-        //****####################  MAS ACHO Q O IMPORTANTE É O SÓCIOS SER PREENCHIDO NO CREATE DEMAND 
-        //MSM, DEPOIS O LOGGENERATOR PEGA A COLLECTION DOS FILES E SÓ MUDA O TEMP TO FALSE  */
-
-        if (fileIds && socioIds[0] && log.metadata)
-            log.metadata.socios = socioIds
         console.log("🚀 ~ file: AltContrato.jsx ~ line 438 ~ log", log)
 
         logGenerator(log)                               //Generate the demand

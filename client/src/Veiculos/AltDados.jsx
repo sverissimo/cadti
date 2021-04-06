@@ -75,10 +75,15 @@ class AltDados extends Component {
         if (demand) {
             const
                 demandState = setDemand(demand, redux),
-                { originalVehicle, getUpdatedValues, alteracoes } = demandState
+                { originalVehicle, getUpdatedValues, alteracoes, compartilhadoId } = demandState
+            console.log("🚀 ~ file: AltDados.jsx ~ line 79 ~ AltDados ~ componentDidMount ~ demandState", demandState)
 
             //altera o objeto alteracoes por referência para destacar apenas os campos alterados ao abrir a demanda
             getUpdatedValues(originalVehicle, alteracoes)
+
+            //Se uma das alterações foi apagar o delegatário compartilhado, remove prop "compartilhado" para não renderizar na tela
+            if (compartilhadoId === 'NULL')
+                demandState.compartilhado = ''
 
             this.setState({ ...demandState, activeStep: 3 })
         }
