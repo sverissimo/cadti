@@ -1,0 +1,1 @@
+module.exports = `<a href="http://www.cadti.mg.gov.br" class="href">www.cadti.mg.gov.br</a>`
