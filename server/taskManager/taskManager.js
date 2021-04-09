@@ -3,7 +3,8 @@ const
     moment = require('moment'),
     insertNewInsurances = require('./seguros/insertNewInsurances'),
     checkExpiredInsurances = require('./seguros/checkExpiredInsurances'),
-    updateVehicleStatus = require('./veiculos/updateVehicleStatus')
+    updateVehicleStatus = require('./veiculos/updateVehicleStatus'),
+    dailyAlerts = require('./dailyAlerts')
 
 let
     dailyTasks = { start: () => void 0 },
@@ -26,7 +27,7 @@ if (process.env.NODE_ENV !== 'production') {
 }
 
 //PRODUCTION
-else
+else {
     dailyTasks = new CronJob('1 0 0 * * *', async function () {
 
         // checa se um seguro registrado com início de vigência futura iniciou sua vigência. Caso positivo, resgata o seguro do MongoDB e insere no Postgresql 
@@ -37,7 +38,7 @@ else
         await checkExpiredInsurances()
         console.log('updated expired insurances alright')
 
-        //Atualiza a tabela de veículos do Postgresql de acordo com a situação do seguroe do laudo e atualizando a situação de todos os veículos.
+        //Atualiza a tabela de veículos do Postgresql de acordo com a situação do seguros do laudo e atualizando a situação de todos os veículos.
         updateVehicleStatus()
         console.log('updated vehicle data alright')
 
@@ -45,5 +46,8 @@ else
         console.log(`Updated ${i} times, once a day. ${moment()}`)
 
     }, null, true, 'America/Sao_Paulo');
+
+    dailyAlerts.start()
+}
 
 module.exports = dailyTasks

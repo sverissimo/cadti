@@ -1,6 +1,5 @@
 const
   nodeMailerSender = require("./nodeMailerSender"),
-  getCollections = require("./getCollections"),
   htmlGenerator = require("./htmlGenerator"),
   testMailSender = require("./testMailSender")
 
@@ -11,11 +10,6 @@ const
  */
 async function sendMail(data) {
 
-  const { socios, procuradores } = await getCollections
-  //console.log(procuradores[1])
-
-
-  return
   options = options || { subject: 'a', to: 'b' }
 
   const

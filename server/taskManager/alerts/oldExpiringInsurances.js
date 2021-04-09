@@ -1,21 +1,23 @@
+//@ts-check
 const
     { pool } = require('../../config/pgConfig'),
     moment = require('moment'),
-    { socios: allSocios, seguros: allSeguros } = require('../../queries'),
-    sendMail = require('../../mail/sendMail')
+    { seguros: allSeguros } = require('../../queries'),
+    sendMail = require('../../mail/sendMail'),
+    setRecipients = require('./setRecipients')
+
 
 /**Identifica seguros prestes a vencer e chama o método ../mail/mailSender para enviar alertas*/
 const warnExpiringInsurances = async () => {
 
-    let
-        seguros = seg.rows,
-        socios = soc.rows,
-        procuradores = proc.rows
+    const
+        seg = await pool.query(allSeguros),
+        seguros = seg.rows
 
     //Verifica seguros com vencimento em 15 dias    
-    expiringSeguros = seguros.filter(s => {
+    const expiringSeguros = seguros.filter(s => {
         const
-            warningDate = moment().add(22, 'days'),
+            warningDate = moment().add(85, 'days'),
             vencendo = moment(s.vencimento).isSame(warningDate, 'days')
 
         /* **********************ADICIONAR OUTROS PRAZOS PARA ALERTA **************************
@@ -24,11 +26,10 @@ const warnExpiringInsurances = async () => {
         *****************************************************************************************/
         return vencendo
     })
-    sendMail({ data: expiringSeguros, type: 'expiringSeguros' })
 
-    //console.log(expiringSeguros.map(s => { return { a: s.apolice, date: s.vencimento } }))
-    //console.log(expiringSeguros)
-
+    const a = await setRecipients(expiringSeguros)
+    console.log(a)
+    //sendMail({ data: expiringSeguros, type: 'expiringSeguros' })
 
 }
 
