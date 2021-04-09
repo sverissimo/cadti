@@ -3,8 +3,13 @@ const
     footer = require("./templates/footer"),
     messages = require("./templates/messages")
 
+/**Gera o html formatado para o envio de e-mails.
+ * @param{object} mailContent - contém o vocativo e tipo de mensagem ou uma mensagem personalizada enviada do frontEnd(opcional)
+ * O tipo de mensagem deve ser igual a um tipo constante no arquivo './messages.js' para retornar a mensagem por extenso.
+ * @yields{string} - retorna um html formatado em formato de string.
+ */
 
-function messageGenerator(mailContent) {
+function htmlGenerator(mailContent) {
 
     const { vocativo, messageType } = mailContent
     let message = mailContent.message
@@ -28,4 +33,4 @@ function messageGenerator(mailContent) {
     return html
 }
 
-module.exports = messageGenerator
+module.exports = htmlGenerator

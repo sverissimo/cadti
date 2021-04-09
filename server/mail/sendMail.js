@@ -1,23 +1,33 @@
 const
   nodeMailerSender = require("./nodeMailerSender"),
-  messageGenerator = require("./messageGenerator"),
+  getCollections = require("./getCollections"),
+  htmlGenerator = require("./htmlGenerator"),
   testMailSender = require("./testMailSender")
 
-/**@params
- * options é um objeto com as props subject, to e mailContent
+
+/**Envia e-mail utilizando o nodeMailer
+ * @params{object} -  options é um objeto com as props type e data
+ * A data é para pegar a razão social e o código da empresa e dai formar o to e o vocativo
  */
-async function main(options) {
+async function sendMail(data) {
+
+  const { socios, procuradores } = await getCollections
+  //console.log(procuradores[1])
+
+
+  return
   options = options || { subject: 'a', to: 'b' }
 
   const
     { subject, to } = options,
     mailContent = { vocativo: 'Delegatário', messageType: 'seguroVencendo' },
-    html = messageGenerator(mailContent)
+    html = htmlGenerator(mailContent)
 
-  testMailSender({ subject, to, html })
+  testMailSender({ subject, to, html, socios })
   //const messageInfo = await nodeMailerSender({ subject, to, html }).then(r => console.log(r))
-
-
 }
 
-main().catch(console.error);
+//autoCall for testing purposes
+//main().catch(console.error);
+
+module.exports = sendMail
