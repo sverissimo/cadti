@@ -3,18 +3,22 @@ const
     sendMail = require('../../mail/sendMail'),
     setRecipients = require('./setRecipients'),
     { seguros: allSeguros } = require('../../queries'),
-    AlertsClass = require('./alertsClass')
+    SeguroAlert = require('./SeguroAlert')
+
 
 
 /**Identifica seguros prestes a vencer e chama o método ../mail/mailSender para enviar alertas*/
 const expiringInsurancesAlert = async () => {
 
     const
-        seguroAlert = new AlertsClass(),
+        seguroAlert = new SeguroAlert(),
         seguros = await seguroAlert.getCollection(allSeguros),
-        expiring = seguroAlert.checkExpiring(seguros)
+        prazos = seguroAlert.prazos
 
-    console.log(expiring)
+    seguroAlert.checkExpiring(seguros, prazos)
+    seguroAlert.getApolices()
+
+    console.log(seguroAlert.createMessage())
 
 
     //    const a = await setRecipients(expiringSeguros)
