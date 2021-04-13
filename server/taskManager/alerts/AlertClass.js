@@ -34,6 +34,16 @@ class AlertClass {
         return expiringItems
     }
 
+    /**Separa as empresas */
+    getEmpresas(expiringItems) {
+        //const empresas = new Set(expiringItems.map(e => e.codigo_empresa))
+        const codigosEmpresas = []
+        const empresas = expiringItems
+            .filter(e => !codigosEmpresas.includes(e.codigo_empresa) && codigosEmpresas.push(e.codigo_empresa))
+            .map(({ codigo_empresa, empresa }) => ({ codigo_empresa, razao_social: empresa }))
+
+        return Array.from(empresas)
+    }
 }
 
 module.exports = AlertClass

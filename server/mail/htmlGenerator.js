@@ -9,13 +9,9 @@ const
  * @yields{string} - retorna um html formatado em formato de string.
  */
 
-function htmlGenerator(mailContent) {
+function htmlGenerator({ vocativo, message }) {
 
-    const { vocativo, messageType } = mailContent
-    let message = mailContent.message
-
-    if (!message)
-        message = messages[messageType]
+    //const {intro, tip, }
 
     const html = `
     <html lang="pt-br">

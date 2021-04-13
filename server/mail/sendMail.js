@@ -8,16 +8,13 @@ const
  * @params{object} -  options é um objeto com as props type e data
  * A data é para pegar a razão social e o código da empresa e dai formar o to e o vocativo
  */
-async function sendMail(data) {
+async function sendMail({ to, subject, vocativo, message }) {
 
-  options = options || { subject: 'a', to: 'b' }
+  console.log({ to, subject, vocativo, message })
 
-  const
-    { subject, to } = options,
-    mailContent = { vocativo: 'Delegatário', messageType: 'seguroVencendo' },
-    html = htmlGenerator(mailContent)
-
-  testMailSender({ subject, to, html, socios })
+  /*   html = htmlGenerator({ vocativo, message })
+  
+    testMailSender({ subject, to, html, socios }) */
   //const messageInfo = await nodeMailerSender({ subject, to, html }).then(r => console.log(r))
 }
 

@@ -6,26 +6,29 @@ const
     SeguroAlert = require('./SeguroAlert')
 
 
-
 /**Identifica seguros prestes a vencer e chama o método ../mail/mailSender para enviar alertas*/
 const expiringInsurancesAlert = async () => {
 
     const
         seguroAlert = new SeguroAlert(),
+        subject = seguroAlert.subject,
         seguros = await seguroAlert.getCollection(allSeguros),
-        prazos = seguroAlert.prazos
+        prazos = seguroAlert.prazos,
 
-    seguroAlert.checkExpiring(seguros, prazos)
-    seguroAlert.getApolices()
+        segurosVencendo = seguroAlert.checkExpiring(seguros, prazos),
+        empresas = seguroAlert.getEmpresas(segurosVencendo)
 
-    console.log(seguroAlert.createMessage())
+    console.log("🚀 ~ file: expiringInsurancesAlert.js ~ line 19 ~ expiringInsurancesAlert ~ empresas", empresas)
 
+    for (let empresa of empresas) {
+        const
+            { codigo_empresa, razao_social } = empresa,
+            { to, vocativo } = await setRecipients(codigo_empresa, razao_social),
+            apolices = seguroAlert.getExpiringApolices(codigo_empresa),
+            message = seguroAlert.createMessage({ apolices })
 
-    //    const a = await setRecipients(expiringSeguros)
-    //  console.log(a)
-    //sendMail({ data: expiringSeguros, type: 'expiringSeguros' })
-
+        sendMail({ to, subject, vocativo, message })
+    }
 }
 
-//expiringInsurancesAlert()
 module.exports = expiringInsurancesAlert
