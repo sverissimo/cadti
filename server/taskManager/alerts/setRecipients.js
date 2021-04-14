@@ -24,14 +24,6 @@ const setRecipients = async (codigo_empresa, razao_social) => {
 
     Object.assign(mailObj, { to, vocativo })
 
-
-    /* const shouldReturn = [
-        {
-            to: ['s@a.com', 'b@const.uk'],
-            vocativo: 'razaoSocial',
-            apolices: [32, 3]
-        }] */
-
     return mailObj
 }
 

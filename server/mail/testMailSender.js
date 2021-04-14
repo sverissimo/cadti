@@ -1,34 +1,12 @@
-const fs = require('fs')
-const MailMessage = require('./models/mailMessage')
-const SeguroWarning = require('./models/seguroWarning')
+//const fs = require('fs')
 
-async function testMailSender({ to, subject, html, socios }) {
-
-    console.log(socios)
-
-    let
-        i = '',
-        fileName = `./fakeEmail${i}.html`,
-        exists = fs.existsSync(fileName)
-
-    while (exists) {
-        i++
-        fileName = `./fakeEmail${i}.html`
-        exists = fs.existsSync(fileName)
-    }
-
-    const s = new SeguroWarning()
-    //console.log(s)
-
-
-    /*     const
-            tst = new MailMessage(),
-            getSeguros = await tst.getSeguros(),
-            seguros = getSeguros.rows
-        console.log(seguros) */
-    //console.log(tst.getSeguros())
-    //console.log(tst.getSeguros())
-    //fs.writeFile(fileName, html, () => console.log('created html alright'))
+function testMailSender({ html, vocativo }) {
+    /* 
+        const fileName = `./fakeEmail${vocativo}.html`
+    
+        console.log(fileName, html) */
+    //fs.writeFileSync(fileName, html, () => console.log('created html alright -> ', vocativo))
+    return 'hello'
 }
 
 module.exports = testMailSender

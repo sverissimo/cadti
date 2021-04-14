@@ -13,7 +13,7 @@ async function nodeMailerSender({ to, subject, html }) {
         subject,
         html
     })
-    console.log("Message sent: %s", info.messageId);
+    console.log("Message sent: %s", info, info.messageId);
     return info
 }
 

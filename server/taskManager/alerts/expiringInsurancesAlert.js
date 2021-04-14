@@ -6,7 +6,8 @@ const
     SeguroAlert = require('./SeguroAlert')
 
 
-/**Identifica seguros prestes a vencer e chama o método ../mail/mailSender para enviar alertas*/
+/**
+ * Identifica seguros prestes a vencer e chama o método ../mail/mailSender para enviar alertas*/
 const expiringInsurancesAlert = async () => {
 
     const
@@ -28,7 +29,10 @@ const expiringInsurancesAlert = async () => {
             message = seguroAlert.createMessage({ apolices })
 
         sendMail({ to, subject, vocativo, message })
+        await new Promise(r => setTimeout(r, 2000));
     }
 }
+
+expiringInsurancesAlert()
 
 module.exports = expiringInsurancesAlert
