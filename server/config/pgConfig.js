@@ -1,6 +1,7 @@
 const pg = require('pg')
 const dotenv = require('dotenv')
 
+dotenv.config()
 if (!process.env.DB_USER)
     dotenv.config({ path: '../../../.env' })
 

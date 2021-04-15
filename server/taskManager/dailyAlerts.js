@@ -1,13 +1,14 @@
 //@ts-check
 const
     { CronJob } = require("cron").CronJob,
-    expiringInsurancesAlert = require('./alerts/expiringInsurancesAlert')
+    expiringItemsAlert = require('./alerts/expiringItemsAlert')
 
 
 //Development
 const dailyAlerts = {
     start: () => {
-        expiringInsurancesAlert()
+        /* expiringItemsAlert('seguros')
+        expiringItemsAlert('procuracoes') */
     }
 }
 

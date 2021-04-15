@@ -2,7 +2,7 @@
 const
   nodeMailerSender = require("./nodeMailerSender"),
   htmlGenerator = require("./htmlGenerator")
-//,testMailSender = require("./testMailSender")
+  , testMailSender = require("./testMailSender")
 
 
 /**
@@ -15,8 +15,10 @@ async function sendMail({ to, subject, vocativo, message }) {
   const html = htmlGenerator({ vocativo, message })
 
   try {
-    await nodeMailerSender({ to: 'sverissimo2@gmail.com', subject, html })
+    //await nodeMailerSender({ to: 'sverissimo2@gmail.com', subject, html })
     //await console.log({ to: 'sverissimo2@gmail.com', subject, html })
+    //await testMailSender({ vocativo, html })
+    return
   }
   catch (error) {
     console.log(error)
@@ -24,7 +26,7 @@ async function sendMail({ to, subject, vocativo, message }) {
 
 }
 
-//testMailSender({ vocativo, html })  
+
 //autoCall for testing purposes
 //main().catch(console.error);
 

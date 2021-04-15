@@ -1,7 +1,7 @@
 const dotenv = require('dotenv')
 
 if (!process.env.MAIL_SERVICE)
-    dotenv.config({ path: '../../.env' })
+    dotenv.config({ path: '../../../.env' })
 
 module.exports = {
     service: process.env.MAIL_SERVICE,

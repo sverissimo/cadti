@@ -47,7 +47,7 @@ else {
 
     }, null, true, 'America/Sao_Paulo');
 
-    dailyAlerts.start()
+    //dailyAlerts.start()
 }
 
 module.exports = dailyTasks

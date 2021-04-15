@@ -15,6 +15,9 @@ ecosystem.config.js
 /client/debug.log
 oldVehicles.json
 oldVehiclesDB.json
+./*.html
 
 server/testAPI.rest
 mintty.exe.stackdump
+
+

@@ -1,12 +1,12 @@
-//const fs = require('fs')
+const fs = require('fs')
 
 function testMailSender({ html, vocativo }) {
-    /* 
-        const fileName = `./fakeEmail${vocativo}.html`
-    
-        console.log(fileName, html) */
-    //fs.writeFileSync(fileName, html, () => console.log('created html alright -> ', vocativo))
-    return 'hello'
+
+    const fileName = `./fakeEmail_${vocativo}.html`
+    console.log(fileName)
+
+    fs.writeFileSync(fileName, html, () => console.log('created html alright -> ', vocativo))
+    return 'alright.'
 }
 
 module.exports = testMailSender

@@ -1,6 +1,6 @@
 module.exports = `
 <footer>
-    Att,
+    Atenciosamente,
     <h4>
         DGTI - Seinfra-MG.
     </h4>
