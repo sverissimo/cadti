@@ -3,18 +3,21 @@
 const
     header = require("./templates/header"),
     footer = require("./templates/footer"),
-    linkParaCadTI = require("./config/linkParaCadTI")
+    linkParaCadTI = require("./config/linkParaCadTI"),
+    tableGenerator = require("./templates/tableGenerator")
 
 /**
  * Gera o html formatado para o envio de e-mails.
- * @param {Object} message - contém o vocativo e tipo de mensagem ou uma mensagem personalizada enviada do frontEnd(opcional)
- * O tipo de mensagem deve ser igual a um tipo constante no arquivo './messages.js' para retornar a mensagem por extenso.
+ * @param {Object} message - contém o vocativo e a mensagem, dividida em intro, tableData, tableHEader tip e tipPath
+ * Ver classe Alert.js em ../alerts
  * @returns {String} html - retorna um html formatado em formato de string.
  */
 
 function htmlGenerator({ vocativo, message }) {
 
-    const { intro, details, tip, tipPath } = message
+    const
+        { intro, tableData, tableHeaders, tip, tipPath } = message,
+        table = tableGenerator(tableData, tableHeaders)
 
     const html = `
     <html lang="pt-br">
@@ -25,11 +28,13 @@ function htmlGenerator({ vocativo, message }) {
         <p>
             ${intro}
         </p>
+        </br>
+        <table>
+            ${table}
+        </table>
+        </br>
         <p>
-            ${details}
-        </p>
-        <p>
-            ${tip}, acesse ${linkParaCadTI} na opção ${tipPath}.
+            ${tip}, acesse ${linkParaCadTI} na opção ${tipPath}
         </p>
         ${footer}
     </html>

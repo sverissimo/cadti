@@ -140,7 +140,7 @@ const seguradora = (condition = '') => `
         order by seguradora.seguradora asc
         `
 
-const modeloChassi = condition => `
+const modeloChassi = (condition = '') => `
         SELECT modelo_chassi.*,
             public.marca_chassi.marca as marca
         FROM modelo_chassi 
@@ -148,7 +148,7 @@ const modeloChassi = condition => `
             ON public.marca_chassi.id = public.modelo_chassi.marca_id
 		`
 
-const carrocerias = condition => `
+const carrocerias = (condition = '') => `
 		SELECT modelo_carroceria.id, modelo_carroceria.modelo,
 			public.marca_carroceria.marca as marca
 		FROM modelo_carroceria
@@ -156,13 +156,19 @@ const carrocerias = condition => `
 			ON public.marca_carroceria.id = public.modelo_carroceria.marca_id
 		`
 
-const laudos = condition => `
+const laudos = (condition = '') => `
     SELECT laudos.*,
-        emp.empresa as empresa_laudo
+        emp.empresa as empresa_laudo,
+		d.razao_social razao_social,
+		v.placa placa
     FROM laudos
     LEFT JOIN empresa_laudo emp
         ON emp.id = laudos.empresa_id
-    ${condition}
+	LEFT JOIN empresas d
+		ON d.codigo_empresa = laudos.codigo_empresa
+	LEFT JOIN veiculos v
+		ON v.veiculo_id = laudos.veiculo_id
+    ${condition}	
 `
 
 const

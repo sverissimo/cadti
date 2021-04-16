@@ -16,8 +16,8 @@ async function sendMail({ to, subject, vocativo, message }) {
 
   try {
     //await nodeMailerSender({ to: 'sverissimo2@gmail.com', subject, html })
-    //await console.log({ to: 'sverissimo2@gmail.com', subject, html })
-    //await testMailSender({ vocativo, html })
+    //console.log({ to: 'sverissimo2@gmail.com', subject, html })
+    await testMailSender({ vocativo, html })
     return
   }
   catch (error) {

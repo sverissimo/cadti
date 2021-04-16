@@ -8,6 +8,7 @@ const getCollections = require("./getCollections")
  *@returns {Promise} to - array de strings (e-mails de destinatários)
  */
 const setRecipients = async (codigo_empresa, razao_social) => {
+    //console.log("🚀 ~ file: setRecipients.js ~ line 11 ~ setRecipients ~ codigo_empresa, razao_social", codigo_empresa, razao_social)
     const
         { socios, procuradores } = await getCollections,
         mailObj = {}

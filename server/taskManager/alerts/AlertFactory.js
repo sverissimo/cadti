@@ -1,8 +1,8 @@
 //@ts-check
-
 const
     SeguroAlert = require("./SeguroAlert"),
-    ProcuracaoAlert = require("./ProcuracaoAlert");
+    ProcuracaoAlert = require("./ProcuracaoAlert"),
+    LaudoAlert = require("./LaudoAlert");
 
 class AlertFactory {
 
@@ -21,6 +21,8 @@ class AlertFactory {
                 return new SeguroAlert()
             case 'procuracoes':
                 return new ProcuracaoAlert()
+            case 'laudos':
+                return new LaudoAlert()
             default: return {}
         }
     }

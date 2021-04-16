@@ -6,7 +6,7 @@ const
 
 /**
  * Identifica seguros prestes a vencer e chama o método ../mail/mailSender para enviar alertas*/
-const expiringItemsAlert = async (type = 'procuracoes') => {
+const expiringItemsAlert = async (type = 'laudos') => {
 
     const
         alertObject = new AlertFactory(type).createAlert(),
@@ -18,6 +18,7 @@ const expiringItemsAlert = async (type = 'procuracoes') => {
         empresas = alertObject.getEmpresas(expiringItems)
 
     console.log("🚀 ~ file: expiringItemsAlert.js ~ line 19 ~ expiringItemsAlert ~ empresas", empresas)
+    //console.log("🚀 ~ file: expiringItemsAlert.js ~ line 15 ~ expiringItemsAlert ~   collection", expiringItems)
 
     for (let empresa of empresas) {
         const
@@ -28,8 +29,8 @@ const expiringItemsAlert = async (type = 'procuracoes') => {
 
         await sendMail({ to, subject, vocativo, message })
         await new Promise(r => setTimeout(r, 2000));
-        return
     }
+    return
 }
 
 expiringItemsAlert()

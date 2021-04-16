@@ -7,13 +7,13 @@ const
 //Development
 const dailyAlerts = {
     start: () => {
-        /* expiringItemsAlert('seguros')
-        expiringItemsAlert('procuracoes') */
+        expiringItemsAlert('seguros')
+        expiringItemsAlert('procuracoes')
     }
 }
 
 
-
+dailyAlerts.start()
 module.exports = dailyAlerts
 
 
