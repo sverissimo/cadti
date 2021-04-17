@@ -1,29 +1,33 @@
 //@ts-check
 const
     sendMail = require('../../mail/sendMail'),
-    setRecipients = require('./setRecipients'),
-    AlertFactory = require('./AlertFactory')
+    AlertFactory = require('./AlertFactory'),
+    Recipients = require('./Recipients')
 
 /**
- * Identifica seguros prestes a vencer e chama o método ../mail/mailSender para enviar alertas*/
+ * Identifica seguros prestes a vencer e chama o método ../mail/mailSender para enviar alertas
+ * @param {string} type - tipo de alerta a ser criado.
+ * */
 const expiringItemsAlert = async (type = 'laudos') => {
 
     const
         alertObject = new AlertFactory(type).createAlert(),
         subject = alertObject.subject,
+        recipients = new Recipients(),
         collection = await alertObject.getCollection(),
         prazos = alertObject.prazos,
 
         expiringItems = alertObject.checkExpiring(collection, prazos),
         empresas = alertObject.getEmpresas(expiringItems)
 
-    console.log("🚀 ~ file: expiringItemsAlert.js ~ line 19 ~ expiringItemsAlert ~ empresas", empresas)
-    //console.log("🚀 ~ file: expiringItemsAlert.js ~ line 15 ~ expiringItemsAlert ~   collection", expiringItems)
+    //Acrescenta recipients ao objeto pq o ProcuraracaoAlert (que implementa o método addProcsName) precisa para adicionar os nomes dos procuradores.
+    alertObject.recipients = await recipients.getAllRecipients()
+
 
     for (let empresa of empresas) {
         const
             { codigo_empresa, razao_social } = empresa,
-            { to, vocativo } = await setRecipients(codigo_empresa, razao_social),
+            { to, vocativo } = recipients.setRecipients(codigo_empresa, razao_social),
             expiringEmpresaItems = alertObject.getEmpresaExpiringItems(codigo_empresa),
             message = alertObject.createMessage(expiringEmpresaItems)
 
@@ -33,6 +37,6 @@ const expiringItemsAlert = async (type = 'laudos') => {
     return
 }
 
-expiringItemsAlert()
+//expiringItemsAlert()
 
 module.exports = expiringItemsAlert

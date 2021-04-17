@@ -13,7 +13,7 @@ const dailyAlerts = {
 }
 
 
-dailyAlerts.start()
+//dailyAlerts.start()
 module.exports = dailyAlerts
 
 

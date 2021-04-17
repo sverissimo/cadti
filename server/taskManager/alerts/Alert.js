@@ -88,12 +88,12 @@ class Alert {
             .map((item) => {
                 const obj = {}
                 this.mailFields.forEach(f => Object.assign(obj, { [f]: item[f] }))
+                this.addProcsName(obj)
                 return obj
             })
 
         return expiringEmpresaItems
     }
-
 
     /**
      * Cria a mensagem que será enviada por e-mail. A mensagem é dividida em intro, details, tip e tipPath.
@@ -117,6 +117,11 @@ class Alert {
             return message
         }
     }
+    /**
+     * Adiciona os nomes dos procuradores em um objeto que tenha array de procurador_id. Método específico para as subClasses que implementarem (ex: ProcuracaoAlert)
+     * @param {object} obj - item a expirar (criado pelo método this.getEmpresaExpiringItems)
+     */
+    addProcsName(obj) { void 0 }
 }
 
 module.exports = Alert

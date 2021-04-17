@@ -4,8 +4,13 @@ const
     ProcuracaoAlert = require("./ProcuracaoAlert"),
     LaudoAlert = require("./LaudoAlert");
 
+/**      
+ * @throws {InvalidArgumentException}
+ * @yields {object} Gera uma classe de alerta
+ */
 class AlertFactory {
 
+    /**@type {string} */
     alertType;
 
     constructor(type) {

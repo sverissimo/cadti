@@ -17,6 +17,8 @@ const tableGenerator = (tableData, tableHeaders) => {
         data.forEach(([k, v]) => {
             if (k === 'vencimento' || k === 'validade')
                 v = moment(v).format('DD/MM/YYYY')
+            if (v instanceof Array)
+                v = v.join().replace(/,/g, ', ')
             tableString += ` <td>${v}</td> `
         })
         tableString += `</tr>

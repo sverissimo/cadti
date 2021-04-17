@@ -8,6 +8,9 @@ const
 
 class ProcuracaoAlert extends Alert {
 
+    /** @type {{ procuradores: any[]; }} */
+    recipients;
+
     constructor() {
         super()
         this.subject = 'Vencimento de procurações.'
@@ -19,6 +22,22 @@ class ProcuracaoAlert extends Alert {
         this.messageTip = 'Para atualizar ou cadastrar uma nova procuração'
         this.tipPath = '\"Empresas\" >> \"Procuradores\".'
     }
+
+    addProcsName(expiringProcuracao) {
+        if (this.recipients) {
+            const { procuradores } = this.recipients
+
+            expiringProcuracao.procuradores.forEach((procId, i) => {
+                const name = procuradores
+                    .find(p => p.nome_procurador && p.procurador_id === procId)
+                    .nome_procurador
+                expiringProcuracao.procuradores[i] = name
+            });
+        }
+        expiringProcuracao.procuradores = expiringProcuracao.procuradores.sort()
+        return expiringProcuracao
+    }
+
 }
 
 module.exports = ProcuracaoAlert
