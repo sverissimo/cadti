@@ -221,15 +221,16 @@ app.get('/api/altContrato', (req, res) => {
 
 app.post('/api/altContrato', (req, res) => {
 
-    const { body } = req
-    //console.log(body)
+    const { razaoSocial, ...body } = req.body
+    console.log({ body })
+
     const newDoc = new altContratoModel(body)
     newDoc.save((err, doc) => {
         if (err) {
             console.log(err)
             return res.send(err)
         }
-        altContratoAlert(doc)
+        altContratoAlert({ ...body, razaoSocial })
         console.log('line 233 Server = doc', doc)
         userSockets({ req, res, event: 'insertElements', collection: 'altContrato', mongoData: [doc] })
     })

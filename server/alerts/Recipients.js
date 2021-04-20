@@ -1,8 +1,8 @@
 //@ts-check
 const
-    { pool } = require('../../config/pgConfig'),
-    { socios: getSocsQuery } = require('../../queries'),
-    { procuradores: getProcuradores } = require('../../allGetQueries'),
+    { pool } = require('../config/pgConfig'),
+    { socios: getSocsQuery } = require('../queries'),
+    { procuradores: getProcuradores } = require('../allGetQueries'),
     getProcsQuery = getProcuradores()
 
 

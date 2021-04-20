@@ -611,7 +611,7 @@ const AltContrato = props => {
     const createRequestObj = form => {
         const
             { selectedEmpresa, demand } = state,
-            { codigoEmpresa } = selectedEmpresa,
+            { codigoEmpresa, razaoSocial } = selectedEmpresa,
             createdAt = demand && demand.createdAt
 
         let returnObj = { codigoEmpresa: selectedEmpresa?.codigoEmpresa }
@@ -631,6 +631,7 @@ const AltContrato = props => {
             if (keys.includes('numeroAlteracao') && demand) {
                 returnObj.createdAt = createdAt
                 returnObj.codigoEmpresa = codigoEmpresa     //Insere codigoEmpresa para userSocket.js filtrar no backEnd
+                returnObj.razaoSocial = razaoSocial         //Insere razão social para o altContratoAlert no backEnd.
             }
             return returnObj
         }

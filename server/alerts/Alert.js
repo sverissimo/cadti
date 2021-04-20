@@ -1,6 +1,6 @@
 //@ts-check
 const
-    { pool } = require('../../config/pgConfig'),
+    { pool } = require('../config/pgConfig'),
     moment = require('moment')
 
 

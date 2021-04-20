@@ -3,6 +3,7 @@ const
   nodeMailerSender = require("./nodeMailerSender"),
   htmlGenerator = require("./htmlGenerator")
   , testMailSender = require("./testMailSender")
+  , simpleMsgGenerator = require("./simpleMsgGenerator")
 
 
 /**
@@ -12,7 +13,11 @@ const
  */
 async function sendMail({ to, subject, vocativo, message }) {
 
-  const html = htmlGenerator({ vocativo, message })
+  let html
+  if (typeof message === 'object')
+    html = htmlGenerator({ vocativo, message })
+  else
+    html = simpleMsgGenerator(vocativo, message)
 
   try {
     //await nodeMailerSender({ to: 'sverissimo2@gmail.com', subject, html })

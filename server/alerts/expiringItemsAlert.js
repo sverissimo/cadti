@@ -1,6 +1,6 @@
 //@ts-check
 const
-    sendMail = require('../../mail/sendMail'),
+    sendMail = require('../mail/sendMail'),
     AlertFactory = require('./AlertFactory'),
     Recipients = require('./Recipients')
 

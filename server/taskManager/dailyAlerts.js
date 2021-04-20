@@ -1,7 +1,7 @@
 //@ts-check
 const
     { CronJob } = require("cron").CronJob,
-    expiringItemsAlert = require('./alerts/expiringItemsAlert')
+    expiringItemsAlert = require('../alerts/expiringItemsAlert')
 
 
 //Development

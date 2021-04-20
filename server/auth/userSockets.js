@@ -20,7 +20,7 @@ const userSockets = async ({ req, res, table, condition = '', event, collection,
     if (!codigoEmpresa && (table === 'empresas' || table === 'socios'))
         codigoEmpresa = res.locals.codigoEmpresa
 
-    console.log("🚀 ~ file: userSockets.js ~ line 24 ~ userSockets ~ table & codigoEmpresa", table, codigoEmpresa)
+    //console.log("🚀 ~ file: userSockets.js ~ line 24 ~ userSockets ~ table & codigoEmpresa", table, codigoEmpresa)
 
     if (table)
         data = await getUpdatedData(table, condition)
@@ -46,7 +46,7 @@ const userSockets = async ({ req, res, table, condition = '', event, collection,
     })
     //Os usuários admin fazem join('admin') no server. Basta enviar todos os dados sem filtro para a room 'admin'    
     data = formatData({ data, event, collection, table })
-    console.log("🚀 ~ file: userSockets.js ~ line 49 ~ userSockets ~ data", data)
+    //console.log("🚀 ~ file: userSockets.js ~ line 49 ~ userSockets ~ data", data)
     await io.sockets.to('admin').emit(event, data)
 
     //console.log("🚀 ~ file: userSockets.js ~ line 57 ~ userSockets ~ data", data)

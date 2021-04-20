@@ -1,7 +1,7 @@
 //@ts-check
 const
     Alert = require("./Alert"),
-    { laudos: getAllLaudos } = require("../../allGetQueries"),
+    { laudos: getAllLaudos } = require("../allGetQueries"),
     laudos = getAllLaudos()
 
 
@@ -13,7 +13,7 @@ class LaudoAlert extends Alert {
     constructor() {
         super()
         this.subject = 'Vencimento de laudos de segurança veicular (veículos acima de 15 anos).'
-        this.prazos = [5, 7, 8]
+        this.prazos = [5, 7, 9]
         this.dbQuery = laudos
         this.messageIntro = 'Os laudos listados abaixo se encontram próximos do vencimento:'
         this.mailFields = ['id', 'empresa_laudo', 'placa', 'validade']
