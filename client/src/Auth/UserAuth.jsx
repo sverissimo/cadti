@@ -75,12 +75,29 @@ const UserAuth = props => {
     }
   }
 
+  const retrievePassword = async () => {
+    const
+      { email } = state
+      , recoveryMail = email
+
+    axios.post(endPoint, { recoveryMail })
+      .then(r => {
+        toast(r.data)
+        setTimeout(() => setState({ tab: 0, ...userAuthForms[0] }), 1250)
+      })
+      .catch(err => {
+        toast(err?.response?.data, 'error')
+      })
+  }
+
   const handleSubmit = () => {
     if (tab === 0)
       login()
 
     if (tab === 1)
       signUp()
+    if (tab === 2)
+      retrievePassword()
   }
 
   const toast = (toastMsg, toastStatus) => setState({ ...state, confirmToast: !state.confirmToast, toastMsg, toastStatus })

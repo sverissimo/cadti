@@ -90,10 +90,10 @@ const UserAuthTemplate = ({ data, changeTab, handleInput, handleSubmit }) => {
                         {tab === 0 ? 'Ainda não é cadastrado?' : 'Voltar para a tela de login'}
                     </p>
                     {
-                        /*      tab === 0 &&
-                             <p onClick={() => changeTab(2)}>
-                                 Esqueceu sua senha?
-                             </p> */
+                        tab === 0 &&
+                        <p onClick={() => changeTab(2)}>
+                            Esqueceu sua senha?
+                        </p>
                     }
                 </footer>
             </div>

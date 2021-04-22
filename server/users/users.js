@@ -5,9 +5,9 @@ const
     addUser = require('./addUser'),
     editUser = require('./editUser'),
     deleteUser = require('./deleteUser')
+    , { generatePass } = require('../auth/changePass')
 
-
-router.post('/addUser', checkPermissions, addUser)
+router.post('/addUser', checkPermissions, generatePass, addUser)
 router.put('/editUser', checkPermissions, editUser)
 router.delete('/deleteUser', checkPermissions, deleteUser)
 

@@ -20,8 +20,8 @@ async function sendMail({ to, subject, vocativo, message }) {
     html = simpleMsgGenerator(vocativo, message)
 
   try {
-    //await nodeMailerSender({ to: 'sverissimo2@gmail.com', subject, html })
-    //console.log({ to: 'sverissimo2@gmail.com', subject, html })
+    //await nodeMailerSender({ to, subject, html })
+    //console.log({ to, subject, html })
     await testMailSender({ vocativo, html })
     return
   }
