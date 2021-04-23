@@ -26,8 +26,6 @@ const addUser = async (req, res) => {
     user.password = passwordHash
     const newUser = new UserModel(user)
     console.log("🚀 ~ file: addUser.js ~ line 28 ~ addUser ~ hashedPassword", passwordHash)
-    //console.log("🚀 ~ file: addUser.js ~ line 27 ~ addUser ~ req.body", req.body)
-    //console.log("🚀 ~ file: addUser.js ~ line 32 ~ addUser ~ user", user)
 
     //Salva usuário no MongoDB
     newUser.save((err, doc) => {

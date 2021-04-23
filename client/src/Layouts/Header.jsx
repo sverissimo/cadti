@@ -35,7 +35,8 @@ const sections = [
     { title: 'Veículos', link: '/veiculos' },
     { title: 'Empresas', link: '/empresas' },
     { title: 'Relatórios', link: '/relatorios' },
-    { title: 'Solicitações ', link: '/solicitacoes' }
+    { title: 'Solicitações ', link: '/solicitacoes' },
+    { title: 'Editar Conta', link: '/editAccount', icon: 'person' },
 ]
 
 const adminSections = [
@@ -115,17 +116,12 @@ const Header = props => {
     }
 
     const logout = async () => props.logUserOut(user?.socketId)
-
+    console.log(props)
     return (
         <React.Fragment>
             <CssBaseline />
 
             <Toolbar>
-                {/* {user.role === 'admin' ?
-                    <Button size="small">Criar usuário</Button>
-                    :
-                    <></>
-                } */}
                 <Typography
                     component="h2"
                     variant="h6"
@@ -141,52 +137,64 @@ const Header = props => {
                 </Button>
             </Toolbar>
             <Toolbar component="nav" variant="dense" className={toolbarSecondary}>
-                {sections.map(({ link, title }, i) => (
-                    <Link
-                        component={RouterLink}
-                        to={link}
-                        key={i}
-                        color="inherit"
-                        noWrap
-                        variant="body2"
-                        href=""
-                        style={{
-                            fontFamily: 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif',
-                            fontSize: '15px',
-                            backgroundColor: selected(link).bgColor,
-                            borderBottom: selected(link).borderB,
-                            fontWeight: selected(link).fontW,
-                            borderTop: selected(link).borderT
-                        }}
-                        className={toolbarLink}
-                        onClick={() => setSelected(link)}
-                    >
-                        {
-                            title === 'Solicitações ' ?
+                {sections.map(({ link, title, icon }, i) => (
+                    title === 'Editar Conta' ? null
+                        :
+                        <Link
+                            component={RouterLink}
+                            to={link}
+                            key={i}
+                            color="inherit"
+                            noWrap
+                            variant="body2"
+                            href=""
+                            style={{
+                                fontFamily: 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif',
+                                fontSize: '15px',
+                                backgroundColor: selected(link).bgColor,
+                                borderBottom: selected(link).borderB,
+                                fontWeight: selected(link).fontW,
+                                borderTop: selected(link).borderT
+                            }}
+                            className={toolbarLink}
+                            onClick={() => setSelected(link)}
+                        >
+                            {
+                                title === 'Solicitações ' ?
 
-                                <StyledBadge badgeContent={logCounter} color='secondary'>
-                                    <span>
-                                        {title}
-                                    </span>
-                                </StyledBadge>
-                                :
-                                title
-                        }
-                    </Link>
+                                    <StyledBadge badgeContent={logCounter} color='secondary'>
+                                        <span>
+                                            {title}
+                                        </span>
+                                    </StyledBadge>
+                                    :
+                                    title
+                            }
+                        </Link>
                 ))}
                 {
-                    user.role === 'admin' &&                     //Apenas usuários admin podem visualizar essas opções
-                    adminSections.map(({ title, link, icon }, i) =>
-                        <Link component={RouterLink} to={link} key={i}>
+                    user.role === 'admin' ?                     //Apenas usuários admin podem visualizar essas opções
+                        adminSections.map(({ title, link, icon }, i) =>
+                            <Link component={RouterLink} to={link} key={i}>
+                                <span
+                                    className="material-icons adminLink"
+                                    style={{ color: 'white', cursor: 'pointer' }}
+                                    title={title}
+                                >
+                                    {icon}
+                                </span>
+                            </Link>
+                        )
+                        :
+                        <Link component={RouterLink} to={sections[6].link}>
                             <span
-                                className="material-icons adminLink"
+                                className="material-icons iconHeaderLink"
                                 style={{ color: 'white', cursor: 'pointer' }}
-                                title={title}
+                                title={sections[6].title}
                             >
-                                {icon}
+                                {sections[6].icon}
                             </span>
                         </Link>
-                    )
 
                 }
             </Toolbar>
