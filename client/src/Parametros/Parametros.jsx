@@ -126,12 +126,12 @@ const Parametros = props => {
         else
             keys.forEach(k => Object.assign(requestObj, { [k]: state[k] }))
 
-        //console.log({ [parametro]: requestObj, id })
+        const modified = checkForChanges(null, null, requestObj)
 
         axios.put('/api/parametros', { [parametro]: requestObj, id })
             //.then(r => console.log(r.data))
             .catch(err => console.log(err))
-        setState({ ...state, modified: false })
+        setState({ ...state, initState: requestObj, modified })
     }
 
     return (

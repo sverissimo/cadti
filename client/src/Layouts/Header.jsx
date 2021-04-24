@@ -116,7 +116,7 @@ const Header = props => {
     }
 
     const logout = async () => props.logUserOut(user?.socketId)
-    console.log(props)
+
     return (
         <React.Fragment>
             <CssBaseline />

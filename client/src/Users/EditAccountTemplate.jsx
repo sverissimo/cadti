@@ -10,7 +10,7 @@ import './editAccount.scss'
  * @returns 
  */
 const EditAccountTemplate = ({ data, handleInput, handleSubmit }) => {
-
+    const { modified } = data
     return (
         <div className='flexColumn center editAccount__container'>
             <header className="selectHeader">
@@ -28,7 +28,7 @@ const EditAccountTemplate = ({ data, handleInput, handleSubmit }) => {
                 <CustomButton
                     action='save'
                     onClick={handleSubmit}
-                //disabled={!modified}
+                    disabled={!modified}
                 />
             </div>
         </div>

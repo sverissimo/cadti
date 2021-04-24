@@ -8,7 +8,8 @@ const
     , { generatePass } = require('../auth/changePass')
 
 router.post('/addUser', checkPermissions, generatePass, addUser)
-router.put('/editUser', checkPermissions, editUser)
+//Essa rota não possui autenticação padrão porque o próprio usuário pode alterar seus dados.
+router.put('/editUser', editUser)
 router.delete('/deleteUser', checkPermissions, deleteUser)
 
 module.exports = router

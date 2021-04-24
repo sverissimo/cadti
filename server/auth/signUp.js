@@ -19,6 +19,7 @@ const signUp = async (req, res) => {
     let
         empresasProcuracao = [],
         empresasSocio = []
+
     //Retorna o array de códigos das empresas nas quais o usuário possui vínculo de procurador
     if (proc && proc.empresas)
         empresasProcuracao = proc.empresas
@@ -30,6 +31,7 @@ const signUp = async (req, res) => {
         } catch (error) {
             console.log(error)
         }
+
     //Retorna o array de códigos das empresas nas quais o usuário possui vículo de sócio
     empresasSocio = empresasSocio.map(e => e.codigoEmpresa)
     const empresas = empresasProcuracao.concat(empresasSocio)
@@ -46,6 +48,7 @@ const signUp = async (req, res) => {
         salt = await bcrypt.genSalt(10),
         hasedPassword = await bcrypt.hash(password, salt),
         confirmPass = bcrypt.compareSync(confirmPassword, hasedPassword)
+
     // confere confirmação de senha
     if (!confirmPass)
         return res.status(422).send('Senhas não conferem.')
