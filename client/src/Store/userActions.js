@@ -1,5 +1,6 @@
 import { deleteCookie } from "../Utils/documentCookies"
 
+
 export const logUser = user => {
     return dispatch => {
         dispatch({
@@ -9,16 +10,15 @@ export const logUser = user => {
     }
 }
 
-export const logUserOut = b => {
-    return async (dispatch, getState) => {
-        /* const socketId = getState()?.user.socketId
-        console.log(socketId, b)
-        let socket
-        if (!socket)
-            socket = socketIO()
-        console.log("🚀 ~ file: userActions.js ~ line 20 ~ return ~ socket", socket)
+export const editUser = user => dispatch => {
+    dispatch({
+        type: 'LOG_USER',
+        payload: user
+    })
+}
 
-        socket.emit('forceDisconnect', socketId) */
+export const logUserOut = () => {
+    return async dispatch => {
         await fetch('/auth/logout', { method: 'GET', credentials: 'same-origin' })
             .then(r => {
                 deleteCookie('loggedIn')

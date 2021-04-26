@@ -2,13 +2,16 @@ import axios from 'axios'
 import React, { useState, useEffect } from 'react'
 import StoreHOC from '../Store/StoreHOC'
 import EditAccountTemplate from './EditAccountTemplate'
-
+import ReactToast from '../Reusable Components/ReactToast'
+import { connect } from 'react-redux'
+import { editUser } from '../Store/userActions'
 
 const EditAccount = props => {
 
     const
         data = props.user,
-        [state, setState] = useState({ initState: {}, modified: false })
+        [state, setState] = useState({ initState: { confirmToast: false }, modified: false }),
+        { toastMsg, toastStatus, confirmToast } = state
 
 
     useEffect(() => {
@@ -37,6 +40,8 @@ const EditAccount = props => {
             passChanged,
             changedArray
 
+        if (name === 'confirmPassword')
+            modified = state.modified
         //Se for passada uma array, compara a array com a array inicial do estado
         if (newArray)
             changedArray = initState.toString() !== newArray.toString()
@@ -51,7 +56,7 @@ const EditAccount = props => {
             fieldChanged = initState[name] && initState[name].toString() !== value
             passChanged = name === 'password' && state[name] && value !== ''
         }
-        console.log(state[name], value)
+
         if (fieldChanged || stateChanged || changedArray || passChanged)
             modified = true
         return modified
@@ -60,26 +65,47 @@ const EditAccount = props => {
     const handleSubmit = () => {
         const
             modified = checkForChanges(null, null, state),
-            { name, cpf, email, password } = state,
+            { name, cpf, email, password, confirmPassword } = state,
             requestObj = { name, cpf, email, password }
 
-        requestObj.id = state._id
+        if (password !== confirmPassword) {
+            toast('Senhas não conferem', 'error')
+            return
+        }
 
+        requestObj.id = state._id
         axios
             .put('/users/editUser', requestObj)
-            .catch(err => console.log(err))
-        setState({ ...state, initState: state, modified, password: undefined })
-
+            .then(r => {
+                if (r.status === 200) {
+                    toast(r.data)
+                    props.editUser({ name, email })
+                    setTimeout(() => {
+                        setState({
+                            ...state,
+                            initState: state,
+                            modified,
+                            password: undefined,
+                            confirmPassword: undefined
+                        })
+                    }, 1200);
+                }
+            })
+            .catch(err => toast(err.message, 'error'))
     }
 
+    const toast = (toastMsg, toastStatus) => setState({ ...state, confirmToast: !state.confirmToast, toastMsg, toastStatus })
+
     return (
-        <EditAccountTemplate
-            data={state}
-            handleInput={handleInput}
-            handleSubmit={handleSubmit}
-        />
+        <>
+            <EditAccountTemplate
+                data={state}
+                handleInput={handleInput}
+                handleSubmit={handleSubmit}
+            />
+            <ReactToast open={confirmToast} close={toast} msg={toastMsg} status={toastStatus} />
+        </>
     )
 }
 
-
-export default StoreHOC([], EditAccount)
+export default connect(null, { editUser })(StoreHOC([], EditAccount))

@@ -32,7 +32,7 @@ const editUser = async (req, res) => {
 
     const update = { updatedObjects: [updatedUser], collection: 'users', primaryKey: 'id' }
     io.sockets.emit('updateAny', update)
-    res.status(200).send('user updated!')
+    res.status(200).send('Dados de usuário atualizados com sucesso!')
 }
 
 module.exports = editUser

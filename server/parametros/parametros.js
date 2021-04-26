@@ -66,7 +66,7 @@ router.put('/', async (req, res) => {
             console.log("shouldnt have preventsocekt", preventSocket)
             io.sockets.emit(socketEvent, { [socketProp]: [doc], collection: 'parametros', primaryKey: 'id' })
         }
-        res.send([doc])
+        res.status(200).send('Dados atualizados com sucesso.')
     })
 })
 

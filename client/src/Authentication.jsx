@@ -9,9 +9,10 @@ import Container from '@material-ui/core/Container';
 
 import { getCookie } from './Utils/documentCookies'
 
-const Authentication = () => {
-
-    const loggedIn = getCookie('loggedIn').length > 0 // Se deixar como estado inicial do store.user desse jeito, será q n atualiza o componente qdo apagar??
+const Authentication = props => {
+    const
+        loggedIn = getCookie('loggedIn').length > 0,
+        { user } = props
 
     if (!loggedIn)
         return <UserAuth />
@@ -21,7 +22,7 @@ const Authentication = () => {
                 <Container maxWidth="lg" style={{ minHeight: '100vh' }}>
                     <BrowserRouter>
                         <Header />
-                        <Routes />
+                        <Routes user={user} />
                     </BrowserRouter>
                     <Footer />
                 </Container>
@@ -31,9 +32,7 @@ const Authentication = () => {
 
 function mapStateToProps(state) {
     return {
-        redux: {
-            ...state.user
-        }
+        ...state
     }
 }
 

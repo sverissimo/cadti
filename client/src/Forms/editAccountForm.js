@@ -17,5 +17,10 @@ export const editAccountForm = [
         field: 'password',
         label: 'Alterar senha',
         type: 'password'
+    },
+    {
+        field: 'confirmPassword',
+        label: 'Confirme a nova senha',
+        type: 'password'
     }
 ]

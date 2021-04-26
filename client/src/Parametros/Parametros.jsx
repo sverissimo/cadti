@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react'
 import axios from 'axios'
 
 import StoreHOC from '../Store/StoreHOC'
+import ReactToast from '../Reusable Components/ReactToast'
 
 import ParametrosTemplate from './ParametrosTemplate'
 import { distancias, nomes, parametrosIdade, motivosBaixa } from '../Forms/parametrosForm'
@@ -13,7 +14,8 @@ const Parametros = props => {
             options: ['Idade e prazos para baixa', 'Distância mínima entre poltronas', 'Nomenclaturas', 'Motivos para baixa do veículo'],
             params: ['idadeBaixa', 'distanciaPoltronas', 'nomes', 'motivosBaixa'],
             forms: [parametrosIdade, distancias, nomes, motivosBaixa]
-        })
+        }),
+        { toastMsg, toastStatus, confirmToast } = state
 
     //Seleciona o conjunto de parâmetros p editar
     const selectOption = useCallback(e => {
@@ -129,10 +131,18 @@ const Parametros = props => {
         const modified = checkForChanges(null, null, requestObj)
 
         axios.put('/api/parametros', { [parametro]: requestObj, id })
-            //.then(r => console.log(r.data))
+            .then(r => {
+                if (r.status === 200) {
+                    toast(r.data)
+                    setTimeout(() => {
+                        setState({ ...state, initState: requestObj, modified })
+                    }, 1200);
+                }
+            })
             .catch(err => console.log(err))
-        setState({ ...state, initState: requestObj, modified })
     }
+
+    const toast = (toastMsg, toastStatus) => setState({ ...state, confirmToast: !state.confirmToast, toastMsg, toastStatus })
 
     return (
         <>
@@ -144,6 +154,7 @@ const Parametros = props => {
                 handleInput={handleInput}
                 handleSubmit={handleSubmit}
             />
+            <ReactToast open={confirmToast} close={toast} msg={toastMsg} status={toastStatus} />
         </>
     )
 }

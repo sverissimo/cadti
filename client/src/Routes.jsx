@@ -1,5 +1,5 @@
 import React from 'react'
-import { Switch, Route } from 'react-router-dom'
+import { Switch, Route, Redirect } from 'react-router-dom'
 import HomeTemplate from './HomeTemplate'
 
 import VeiculosHome from './Veiculos/VeiculosHome'
@@ -26,7 +26,8 @@ import EditAccount from './Users/EditAccount'
 //import UnderConstruction from './UnderConstruction'
 
 
-const Routes = () => {
+const Routes = ({ user }) => {
+
     return (
         <Switch>
             <Route exact path='/' component={HomeTemplate} />
@@ -54,10 +55,16 @@ const Routes = () => {
             <Route path='/solicitacoes/altContrato' exact component={AltContrato} />
             <Route path='/solicitacoes/socios' exact component={Socios} />
             <Route path='/solicitacoes/procuradores' exact component={Procuradores} />
-            <Route path='/parametros' exact component={Parametros} />
             <Route path='/userAuth' exact component={UserAuth} />
-            <Route path='/users' exact component={Users} />
             <Route path='/editAccount' exact component={EditAccount} />
+            <Route path='/parametros'>
+                {user.role === 'admin' ? <Parametros /> : <Redirect to='/' />}
+            </Route>
+            <Route path='/users'>
+                {user.role === 'admin' ? <Users /> : <Redirect to='/' />}
+            </Route>
+
+
 
             {/* <Route path='/faleConosco' component={UnderConstruction} /> */}
         </Switch>
