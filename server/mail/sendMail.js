@@ -11,13 +11,13 @@ const
  * @params {Object}  objeto com as props { to, subject, vocativo, message }
  * A data é para pegar a razão social e o código da empresa e dai formar o to e o vocativo
  */
-async function sendMail({ to, subject, vocativo, message }) {
+async function sendMail({ to, subject, vocativo, message, footer }) {
 
   let html
   if (typeof message === 'object')
     html = htmlGenerator({ vocativo, message })
   else
-    html = simpleMsgGenerator(vocativo, message)
+    html = simpleMsgGenerator(vocativo, message, footer)
 
   try {
     //await nodeMailerSender({ to, subject, html })

@@ -8,11 +8,12 @@ import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { setCookie } from "../Utils/documentCookies";
 import valueParser from "../Utils/valueParser";
+import confirmEmailMsg from "./confirmEmailMsg";
 
 const UserAuth = props => {
 
   const
-    [state, setState] = useState({ tab: 0, ...userAuthForms[0] }),
+    [state, setState] = useState({ tab: 1, ...userAuthForms[1] }),
     { tab, endPoint, toastMsg, toastStatus, confirmToast } = state
 
   useEffect(() => {
@@ -60,8 +61,18 @@ const UserAuth = props => {
       tab = 1
     if (request instanceof Object)
       request.role = 'empresa'
+    const
+      { email, name } = request,
+      message = confirmEmailMsg(name, email),
+      mail = {
+        to: email,
+        subject: 'Confirmação de e-mail',
+        vocativo: name,
+        message
+      }
+    axios.post(`/alerts/mail`, mail)
 
-    await axios.post(endPoint, request)
+    /* await axios.post(endPoint, request)
       .then(r => console.log(r))
       .catch(err => {
         toast(err?.response?.data, 'error')
@@ -73,6 +84,7 @@ const UserAuth = props => {
       toast('Usuário cadastrado.')
       setTimeout(() => setState({ tab, ...userAuthForms[tab] }), 1250)
     }
+     */
   }
 
   const retrievePassword = async () => {

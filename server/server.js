@@ -54,7 +54,8 @@ const
     removeEmpresa = require('./users/removeEmpresa'),
     userSockets = require('./auth/userSockets'),
     deleteSockets = require('./auth/deleteSockets'),
-    altContratoAlert = require('./alerts/altContratoAlert')
+    altContratoAlert = require('./alerts/altContratoAlert'),
+    userAlerts = require('./alerts/userAlerts')
 
 dailyTasks.start()
 dotenv.config()
@@ -71,6 +72,7 @@ app.use(setCorsHeader)
 app.use(counter(i)) */
 
 //************************************ AUTH AND USERS  *********************** */
+app.post('/alerts/:type', userAlerts)
 app.use('/auth', authRouter)
 app.use(authToken)
 app.get('/getUser', getUser)
@@ -192,6 +194,10 @@ app.get('/api/logs', (req, res) => {
         .then(doc => res.send(doc))
         .catch(err => console.log(err))
 })
+
+//************************************ALERTS *************************************** */
+
+
 
 //************************************CADASTRO PROVISÓRIO DE SEGUROS**************** */
 app.post('/api/cadSeguroMongo', (req, res) => {

@@ -34,7 +34,7 @@ function MySnackbarContentWrapper(props) {
             className={clsx(classes[variant], className)}
             aria-describedby="client-snackbar"
             message={
-                message &&
+                message && typeof message === 'string' &&
                 <span id="client-snackbar" className={classes.message}>
                     <Icon>{props.variant === 'error' ?
                         'close' :
