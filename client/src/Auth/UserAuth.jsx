@@ -13,7 +13,7 @@ import confirmEmailMsg from "./confirmEmailMsg";
 const UserAuth = props => {
 
   const
-    [state, setState] = useState({ tab: 1, ...userAuthForms[1] }),
+    [state, setState] = useState({ tab: 0, ...userAuthForms[0] }),
     { tab, endPoint, toastMsg, toastStatus, confirmToast } = state
 
   useEffect(() => {
@@ -63,17 +63,21 @@ const UserAuth = props => {
       request.role = 'empresa'
     const
       { email, name } = request,
-      message = confirmEmailMsg(name, email),
       mail = {
         to: email,
         subject: 'Confirmação de e-mail',
-        vocativo: name,
-        message
+        vocativo: name
       }
-    axios.post(`/alerts/mail`, mail)
 
-    /* await axios.post(endPoint, request)
-      .then(r => console.log(r))
+    await axios.post(endPoint, request)
+      .then(r => {
+        const
+          userId = r?.data?.id,
+          message = confirmEmailMsg(email, userId)
+
+        mail.message = message
+        axios.post(`/alerts/mail`, mail)
+      })
       .catch(err => {
         toast(err?.response?.data, 'error')
         error = true
@@ -84,7 +88,7 @@ const UserAuth = props => {
       toast('Usuário cadastrado.')
       setTimeout(() => setState({ tab, ...userAuthForms[tab] }), 1250)
     }
-     */
+
   }
 
   const retrievePassword = async () => {

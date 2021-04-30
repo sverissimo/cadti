@@ -7,7 +7,8 @@ const
     bodyParser = require('body-parser'),
     path = require('path'),
     fs = require('fs'),
-    dotenv = require('dotenv'),
+    fileUpload = require('express-fileupload')
+dotenv = require('dotenv'),
     mongoose = require('mongoose'),
     { conn } = require('./mongo/mongoConfig'),
     morgan = require('morgan'),
@@ -79,10 +80,13 @@ app.get('/getUser', getUser)
 
 //*************************IO SOCKETS CONNECTION / CONFIG********************* */
 io.on('connection', socket => {
+    if (socket.handshake.headers.authorization === process.env.FILE_SECRET) {
+        app.set('backupSocket', socket)
+    }
     socket.on('userDetails', user => {
         if (user.role !== 'empresa') {
             socket.join('admin')
-            console.log('admin', user.cpf)
+            console.log('admin')
         }
         else if (user.empresas) {
             const { empresas } = user
@@ -91,6 +95,7 @@ io.on('connection', socket => {
         }
     })
 })
+
 app.set('io', io)
 
 //************************************ BINARY DATA *********************** */
@@ -195,9 +200,24 @@ app.get('/api/logs', (req, res) => {
         .catch(err => console.log(err))
 })
 
-//************************************ALERTS *************************************** */
+//************************************BACKUP - SAVE FILES *************************************** */
 
+app.post('/files/save', fileUpload(), (req, res) => {
 
+    //  console.dir(req.files)
+    /* const
+        { name, data } = req.files.fileNamez
+        , folder = 'd:\\arquivos_cadti\\'
+        , path = folder + name
+
+    if (!fs.existsSync(folder))
+        fs.mkdirSync(folder)
+
+    fs.writeFileSync(path, data) */
+    const backupSocket = req.app.get('backupSocket')
+    backupSocket.emit('a', req.files)
+    res.send('Alright')
+})
 
 //************************************CADASTRO PROVISÓRIO DE SEGUROS**************** */
 app.post('/api/cadSeguroMongo', (req, res) => {
