@@ -3,18 +3,24 @@ const
     express = require('express'),
     app = express(),
     server = require('http').createServer(app),
+    app2 = express(),
+    server2 = require('http').createServer(app2),
     io = require('socket.io').listen(server),
     bodyParser = require('body-parser'),
     path = require('path'),
     fs = require('fs'),
-    fileUpload = require('express-fileupload')
-dotenv = require('dotenv'),
+    fileUpload = require('express-fileupload'),
+    dotenv = require('dotenv'),
     mongoose = require('mongoose'),
     { conn } = require('./mongo/mongoConfig'),
     morgan = require('morgan'),
     xlsx = require('xlsx'),
     Grid = require('gridfs-stream')
 Grid.mongo = mongoose.mongo
+
+const { default: axios } = require('axios')
+const formidable = require('formidable')
+const multer = require('multer')
 
 //Componentes do sistema
 const
@@ -57,6 +63,8 @@ const
     deleteSockets = require('./auth/deleteSockets'),
     altContratoAlert = require('./alerts/altContratoAlert'),
     userAlerts = require('./alerts/userAlerts')
+const fileBackup = require('./utils/fileBackup')
+
 
 dailyTasks.start()
 dotenv.config()
@@ -108,15 +116,45 @@ conn.once('open', () => {
     console.log('Mongo connected to the server.')
 })
 
-const { vehicleUpload, empresaUpload } = storage()
+const
+    { vehicleUpload, empresaUpload, memoryStorage } = storage()
+    //, memoryStorage = storage().memoryStorage.any()
+    , up = multer()
 
-app.post('/api/empresaUpload', empresaUpload.any(), uploadMetadata, (req, res) => {
+
+app.post('/api/empresaUpload', async (req, res, next) => {
+
+    const form = formidable({ multiples: true });
+
+    form.parse(req, (err, fields, files) => {
+        if (err) {
+            next(err);
+            return
+        }
+        //const file = Object.values(files)[0].toString('base64')
+        //req.app.set('filesToBackup', { fields, file })
+
+        const
+            file = Object.values(files)[0]
+            , f = fs.readFileSync(file.path, 'utf-8')
+            , f2 = Buffer.from(f).toString('base64')
+        req.app.set('filesToBackup', f2)
+        //     console.log({ fields, file })
+
+        fileBackup(req, fields)
+    })
+    next()
+}, empresaUpload.any(), uploadMetadata, (req, res) => {
+
+    //TENTAR CHAMAR O FILEBACKUP AQUI PARA VER SE ELE MANTÉM AS PROPS E AGREGA O METADATA DO MULTER E DO UPLOADMETADATA().
+
     const { filesArray } = req
     if (filesArray && filesArray[0]) {
         io.sockets.emit('insertFiles', { insertedObjects: filesArray, collection: 'empresaDocs' })
         res.json({ file: filesArray })
     } else res.send('No uploads whatsoever...')
 })
+
 
 app.post('/api/vehicleUpload', vehicleUpload.any(), uploadMetadata, (req, res) => {
     const { filesArray } = req
@@ -202,22 +240,7 @@ app.get('/api/logs', (req, res) => {
 
 //************************************BACKUP - SAVE FILES *************************************** */
 
-app.post('/files/save', fileUpload(), (req, res) => {
-
-    //  console.dir(req.files)
-    /* const
-        { name, data } = req.files.fileNamez
-        , folder = 'd:\\arquivos_cadti\\'
-        , path = folder + name
-
-    if (!fs.existsSync(folder))
-        fs.mkdirSync(folder)
-
-    fs.writeFileSync(path, data) */
-    const backupSocket = req.app.get('backupSocket')
-    backupSocket.emit('a', req.files)
-    res.send('Alright')
-})
+//app.post('/files/save', fileBackup)
 
 //************************************CADASTRO PROVISÓRIO DE SEGUROS**************** */
 app.post('/api/cadSeguroMongo', (req, res) => {
@@ -1095,3 +1118,5 @@ app.use((error, req, res, next) => {
 
 server.listen(process.env.PORT || 3001, () => {
 })
+
+server2.listen(process.env.PORT2 || 3002, () => console.log('backup server on.'))

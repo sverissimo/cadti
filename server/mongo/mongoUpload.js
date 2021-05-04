@@ -47,7 +47,7 @@ const storage = () => {
             gfs.collection('empresaDocs')
 
             let { metadata } = req.body
-            metadata = JSON.parse(metadata)          
+            metadata = JSON.parse(metadata)
 
             let fileInfo = {
                 filename: file.originalname,
@@ -60,9 +60,10 @@ const storage = () => {
 
     const
         vehicleUpload = multer({ storage: vehicleStorage }),
-        empresaUpload = multer({ storage: empresaStorage })
+        empresaUpload = multer({ storage: empresaStorage, inMemory: true }),
+        memoryStorage = multer({ dest: 'uploads/', inMemory: true })
 
-    return { empresaUpload, vehicleUpload }
+    return { empresaUpload, vehicleUpload, memoryStorage }
 }
 
 
