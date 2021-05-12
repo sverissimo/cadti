@@ -4,5 +4,14 @@
 			"path": "."
 		}
 	],
-	"settings": {}
+	"settings": {
+		"workbench.colorTheme": "Sublime Material Theme - Dark",
+		"editor.tokenColorCustomizations": {
+			"variables": "#dadada"
+		},
+		"workbench.colorCustomizations": {
+			"editor.background": "#111",
+			"sideBar.background": "#020212"
+		}
+	}
 }

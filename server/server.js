@@ -6,9 +6,10 @@ const
     app2 = express(),
     server2 = require('http').createServer(app2),
     io = require('socket.io').listen(server),
-    bodyParser = require('body-parser'),
+    //bodyParser = require('body-parser'),
     path = require('path'),
     fs = require('fs'),
+    formidable = require('formidable'),
     fileUpload = require('express-fileupload'),
     dotenv = require('dotenv'),
     mongoose = require('mongoose'),
@@ -18,9 +19,6 @@ const
     Grid = require('gridfs-stream')
 Grid.mongo = mongoose.mongo
 
-const { default: axios } = require('axios')
-const formidable = require('formidable')
-const multer = require('multer')
 
 //Componentes do sistema
 const
@@ -70,9 +68,11 @@ dailyTasks.start()
 dotenv.config()
 
 app.use(morgan('dev'))
-app.use(bodyParser.json({ limit: '50mb' }))
+app.use(express.json({ limit: '50mb' }))
+app.use(express.urlencoded({ extended: true }))
+/* app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded())
-
+ */
 app.use(express.static('client/build'))
 app.use(setCorsHeader)
 
@@ -116,11 +116,7 @@ conn.once('open', () => {
     console.log('Mongo connected to the server.')
 })
 
-const
-    { vehicleUpload, empresaUpload, memoryStorage } = storage()
-    //, memoryStorage = storage().memoryStorage.any()
-    , up = multer()
-
+const { vehicleUpload, empresaUpload } = storage()
 
 app.post('/api/empresaUpload', async (req, res, next) => {
 
@@ -136,19 +132,18 @@ app.post('/api/empresaUpload', async (req, res, next) => {
 
         const
             file = Object.values(files)[0]
-            , f = fs.readFileSync(file.path, 'utf-8')
-            , f2 = Buffer.from(f).toString('base64')
-        req.app.set('filesToBackup', f2)
-        //     console.log({ fields, file })
+            , f = fs.readFileSync(file.path)
+            , f2 = Buffer.from(f).toString('utf-8')
+        req.app.set('filesToBackup', f)
 
-        fileBackup(req, fields)
+        //fileBackup(req, fields)
     })
     next()
 }, empresaUpload.any(), uploadMetadata, (req, res) => {
 
     //TENTAR CHAMAR O FILEBACKUP AQUI PARA VER SE ELE MANTÉM AS PROPS E AGREGA O METADATA DO MULTER E DO UPLOADMETADATA().
-
     const { filesArray } = req
+    fileBackup(req, filesArray)
     if (filesArray && filesArray[0]) {
         io.sockets.emit('insertFiles', { insertedObjects: filesArray, collection: 'empresaDocs' })
         res.json({ file: filesArray })
@@ -314,7 +309,7 @@ app.post('/api/checkSocios', async (req, res) => {
         if (s.empresas)
             s.empresas = JSON.parse(s.empresas)
     })
-    res.send(checkSocios);
+    res.send(checkSocios)
 })
 
 //************************************ SPECIAL VEHICLE ROUTES *********************** */

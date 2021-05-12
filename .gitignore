@@ -9,6 +9,7 @@ sismob.code-workspace
 *.xlsx
 *.txt
 *.log
+*.docx
 
 ecosystem.config.js
 
@@ -21,3 +22,4 @@ server/testAPI.rest
 mintty.exe.stackdump
 
 
+*.code-workspace

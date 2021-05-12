@@ -5,8 +5,7 @@ const
         useUnifiedTopology: true,
         useNewUrlParser: true,
         useCreateIndex: true,
-        useFindAndModify: false,
-        debug: true
+        useFindAndModify: false
     }
 
 mongoose.connect(mongoURI, options)
