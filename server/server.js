@@ -6,11 +6,9 @@ const
     app2 = express(),
     server2 = require('http').createServer(app2),
     io = require('socket.io').listen(server),
-    //bodyParser = require('body-parser'),
     path = require('path'),
     fs = require('fs'),
     formidable = require('formidable'),
-    fileUpload = require('express-fileupload'),
     dotenv = require('dotenv'),
     mongoose = require('mongoose'),
     { conn } = require('./mongo/mongoConfig'),
@@ -60,8 +58,8 @@ const
     userSockets = require('./auth/userSockets'),
     deleteSockets = require('./auth/deleteSockets'),
     altContratoAlert = require('./alerts/altContratoAlert'),
-    userAlerts = require('./alerts/userAlerts')
-const fileBackup = require('./utils/fileBackup')
+    userAlerts = require('./alerts/userAlerts'),
+    fileBackup = require('./utils/fileBackup')
 
 
 dailyTasks.start()
@@ -70,9 +68,6 @@ dotenv.config()
 app.use(morgan('dev'))
 app.use(express.json({ limit: '50mb' }))
 app.use(express.urlencoded({ extended: true }))
-/* app.use(bodyParser.json({ limit: '50mb' }));
-app.use(bodyParser.urlencoded())
- */
 app.use(express.static('client/build'))
 app.use(setCorsHeader)
 
@@ -121,29 +116,29 @@ const { vehicleUpload, empresaUpload } = storage()
 app.post('/api/empresaUpload', async (req, res, next) => {
 
     const form = formidable({ multiples: true });
-
+    let binaryFiles = []
     form.parse(req, (err, fields, files) => {
         if (err) {
             next(err);
             return
         }
-        //const file = Object.values(files)[0].toString('base64')
-        //req.app.set('filesToBackup', { fields, file })
+        for (let f in files) {
+            let
+                file = files[f]
+                , fBinary = fs.readFileSync(file.path)
 
-        const
-            file = Object.values(files)[0]
-            , f = fs.readFileSync(file.path)
-            , f2 = Buffer.from(f).toString('utf-8')
-        req.app.set('filesToBackup', f)
-
-        //fileBackup(req, fields)
+            console.log("🚀 ~ file: server.js ~ line 154 ~ form.parse ~ file", file.name)
+            binaryFiles.push(fBinary)
+        }
+        req.app.set('binaryFiles', binaryFiles)
     })
     next()
 }, empresaUpload.any(), uploadMetadata, (req, res) => {
 
-    //TENTAR CHAMAR O FILEBACKUP AQUI PARA VER SE ELE MANTÉM AS PROPS E AGREGA O METADATA DO MULTER E DO UPLOADMETADATA().
+    //Passa os arquivos para a função fileBackup que envia por webSocket para a máquina local.
     const { filesArray } = req
     fileBackup(req, filesArray)
+
     if (filesArray && filesArray[0]) {
         io.sockets.emit('insertFiles', { insertedObjects: filesArray, collection: 'empresaDocs' })
         res.json({ file: filesArray })
@@ -352,17 +347,25 @@ app.get('/api/allVehicles', async (req, res) => {
 })
 
 //get one element
-app.get('/api/getOne', (req, res) => {
-    const { table, key, value } = req.query
-    console.log(`SELECT * FROM public.${table} WHERE ${key} = ${value}`)
-    pool.query(`SELECT * FROM public.${table} WHERE ${key} = ${value}`, (err, table) => {
+app.get('/api/getOne', async (req, res) => {
+    const
+        { table, key, value } = req.query
+        , condition = `WHERE ${key} = ${value}`
+        , el = await getUpdatedData(table, condition)
+    console.log({ el, condition })
+    return res.json(el)
+
+
+    /* 
+    , queryString = `SELECT * FROM public.${table} WHERE ${key} = ${value}`
+    console.log(queryString)
+    pool.query(queryString, (err, table) => {
         if (err) res.send(err)
         if (table && table.rows && table.rows[0])
             return res.json(table.rows);
         else
-            return res.send('Não encontrado.')
-        //res.json(table.rows.map(r => r[column]))
-    })
+            return res.send('Não encontrado.');        
+    }) */
 });
 
 //get one dischargedVehicle

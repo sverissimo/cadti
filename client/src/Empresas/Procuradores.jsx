@@ -266,7 +266,7 @@ class Procuradores extends Component {
                 .then(r => console.log(r))
 
             this.setState({ toastMsg: 'Solicitação de cadastro enviada', confirmToast: true })
-            setTimeout(() => { this.resetState() }, 1500);
+            //setTimeout(() => { this.resetState() }, 1500);
         }
         //Demanda indeferida
         if (approved === false) {
