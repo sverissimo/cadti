@@ -31,7 +31,6 @@ const fileBackup = async (req, fields) => {
                 , request = await getUpdatedData('veiculos', condition)
                 , veiculo = request[0]
                 , { codigo_empresa: empresaId, empresa: razaoSocial, placa } = veiculo
-            console.log("🚀 ~ file: fileBackup.js ~ line 34 ~ fileBackup ~ veiculo", veiculo)
             Object.assign(addMetadata, { empresaId, razaoSocial, placa })
         }
     }

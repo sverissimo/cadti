@@ -113,45 +113,20 @@ conn.once('open', () => {
 
 const { vehicleUpload, empresaUpload } = storage()
 
-app.post('/api/empresaUpload', prepareBackup,
-    /*
-    , (req, res, next) => {
-    
-         const form = formidable({ multiples: true });
-        let binaryFiles = []
-        form.parse(req, (err, fields, files) => {
-            if (err) {
-                next(err);
-                return
-            }
-            for (let f in files) {
-                let
-                    file = files[f]
-                    , fBinary = fs.readFileSync(file.path)
-    
-                console.log("🚀 ~ file: server.js ~ line 154 ~ form.parse ~ file", file.name)
-                binaryFiles.push(fBinary)
-            }
-            req.app.set('binaryFiles', binaryFiles)
-        })
-        next() 
-    }, 
-    */
-    empresaUpload.any(), uploadMetadata, (req, res) => {
+app.post('/api/empresaUpload', prepareBackup, empresaUpload.any(), uploadMetadata, (req, res) => {
+    //Passa os arquivos para a função fileBackup que envia por webSocket para a máquina local.
+    const { filesArray } = req
+    fileBackup(req, filesArray)
 
-        //Passa os arquivos para a função fileBackup que envia por webSocket para a máquina local.
-        const { filesArray } = req
-        fileBackup(req, filesArray)
-
-        if (filesArray && filesArray[0]) {
-            io.sockets.emit('insertFiles', { insertedObjects: filesArray, collection: 'empresaDocs' })
-            res.json({ file: filesArray })
-        } else res.send('No uploads whatsoever...')
-    })
+    if (filesArray && filesArray[0]) {
+        io.sockets.emit('insertFiles', { insertedObjects: filesArray, collection: 'empresaDocs' })
+        res.json({ file: filesArray })
+    } else res.send('No uploads whatsoever...')
+})
 
 
 app.post('/api/vehicleUpload', prepareBackup, vehicleUpload.any(), uploadMetadata, (req, res) => {
-
+    //Passa os arquivos para a função fileBackup que envia por webSocket para a máquina local.
     const { filesArray } = req
     fileBackup(req, filesArray)
 
