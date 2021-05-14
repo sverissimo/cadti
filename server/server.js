@@ -8,7 +8,6 @@ const
     io = require('socket.io').listen(server),
     path = require('path'),
     fs = require('fs'),
-    formidable = require('formidable'),
     dotenv = require('dotenv'),
     mongoose = require('mongoose'),
     { conn } = require('./mongo/mongoConfig'),
@@ -59,7 +58,8 @@ const
     deleteSockets = require('./auth/deleteSockets'),
     altContratoAlert = require('./alerts/altContratoAlert'),
     userAlerts = require('./alerts/userAlerts'),
-    fileBackup = require('./utils/fileBackup')
+    fileBackup = require('./utils/fileBackup'),
+    prepareBackup = require('./utils/prepareBackup')
 
 
 dailyTasks.start()
@@ -113,41 +113,48 @@ conn.once('open', () => {
 
 const { vehicleUpload, empresaUpload } = storage()
 
-app.post('/api/empresaUpload', async (req, res, next) => {
+app.post('/api/empresaUpload', prepareBackup,
+    /*
+    , (req, res, next) => {
+    
+         const form = formidable({ multiples: true });
+        let binaryFiles = []
+        form.parse(req, (err, fields, files) => {
+            if (err) {
+                next(err);
+                return
+            }
+            for (let f in files) {
+                let
+                    file = files[f]
+                    , fBinary = fs.readFileSync(file.path)
+    
+                console.log("🚀 ~ file: server.js ~ line 154 ~ form.parse ~ file", file.name)
+                binaryFiles.push(fBinary)
+            }
+            req.app.set('binaryFiles', binaryFiles)
+        })
+        next() 
+    }, 
+    */
+    empresaUpload.any(), uploadMetadata, (req, res) => {
 
-    const form = formidable({ multiples: true });
-    let binaryFiles = []
-    form.parse(req, (err, fields, files) => {
-        if (err) {
-            next(err);
-            return
-        }
-        for (let f in files) {
-            let
-                file = files[f]
-                , fBinary = fs.readFileSync(file.path)
+        //Passa os arquivos para a função fileBackup que envia por webSocket para a máquina local.
+        const { filesArray } = req
+        fileBackup(req, filesArray)
 
-            console.log("🚀 ~ file: server.js ~ line 154 ~ form.parse ~ file", file.name)
-            binaryFiles.push(fBinary)
-        }
-        req.app.set('binaryFiles', binaryFiles)
+        if (filesArray && filesArray[0]) {
+            io.sockets.emit('insertFiles', { insertedObjects: filesArray, collection: 'empresaDocs' })
+            res.json({ file: filesArray })
+        } else res.send('No uploads whatsoever...')
     })
-    next()
-}, empresaUpload.any(), uploadMetadata, (req, res) => {
 
-    //Passa os arquivos para a função fileBackup que envia por webSocket para a máquina local.
+
+app.post('/api/vehicleUpload', prepareBackup, vehicleUpload.any(), uploadMetadata, (req, res) => {
+
     const { filesArray } = req
     fileBackup(req, filesArray)
 
-    if (filesArray && filesArray[0]) {
-        io.sockets.emit('insertFiles', { insertedObjects: filesArray, collection: 'empresaDocs' })
-        res.json({ file: filesArray })
-    } else res.send('No uploads whatsoever...')
-})
-
-
-app.post('/api/vehicleUpload', vehicleUpload.any(), uploadMetadata, (req, res) => {
-    const { filesArray } = req
     if (filesArray && filesArray[0]) {
         io.sockets.emit('insertFiles', { insertedObjects: filesArray, collection: 'vehicleDocs' })
         res.json({ file: filesArray })
