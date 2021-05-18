@@ -1,11 +1,13 @@
 const
     { mongo } = require('mongoose'),
+    mongoose = require('mongoose'),
     { filesModel } = require('./models/filesModel'),
     { empresaModel } = require('./models/empresaModel'),
     { getUpdatedData } = require('../getUpdatedData'),
     { pool } = require('../config/pgConfig')
 
 const mongoDownload = (req, res, gfs) => {
+    console.log("🚀 ~ file: mongoDownload.js ~ line 11 ~ mongoDownload ~ fileId", req)
 
     const fileId = new mongo.ObjectId(req.query.id)
     const collection = req.query.collection
@@ -74,14 +76,21 @@ const getFilesMetadata = async (req, res) => {
 
 
 
-const getOneFileMetadata = (req, res) => {
+const getOneFileMetadata = async (req, res) => {
 
-    const { collection, id } = req.query
+    const
+        { collection, md5 } = req.query
+        , filter = { md5 }
 
     let filesCollection = empresaModel
     if (collection === 'vehicleDocs') filesCollection = filesModel
 
-    filesCollection.find({ 'metadata.procuracaoId': id.toString() }).exec((err, doc) => res.send(doc))
+    filesCollection.findOne(filter, (err, doc) => {
+        if (err)
+            console.log(err)
+        res.send(doc)
+    })
+    //filesCollection.find(filter).exec((err, doc) => res.send(doc))
 }
 
 module.exports = { mongoDownload, getFilesMetadata, getOneFileMetadata }

@@ -48,7 +48,7 @@ const fileBackup = async (req, fields) => {
         i++
     }
 
-    backupSocket.emit('a', { files: filesToSend, fields })
+    backupSocket.emit('fileBackup', { files: filesToSend, fields })
 
     /*     
     Testing multiple files

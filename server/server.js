@@ -58,8 +58,9 @@ const
     deleteSockets = require('./auth/deleteSockets'),
     altContratoAlert = require('./alerts/altContratoAlert'),
     userAlerts = require('./alerts/userAlerts'),
-    fileBackup = require('./utils/fileBackup'),
-    prepareBackup = require('./utils/prepareBackup')
+    fileBackup = require('./fileBackup/fileBackup'),
+    prepareBackup = require('./fileBackup/prepareBackup'),
+    { permanentBackup } = require('./fileBackup/permanentBackup')
 
 
 dailyTasks.start()
@@ -145,7 +146,7 @@ app.get('/api/getOneFile/', getOneFileMetadata)
 app.put('/api/updateFilesMetadata', async (req, res) => {
 
     const
-        { collection, ids, metadata } = req.body,
+        { collection, ids, metadata, id, md5 } = req.body,
         update = {}
 
     if (!ids) {
@@ -158,7 +159,9 @@ app.put('/api/updateFilesMetadata', async (req, res) => {
     })
 
     parsedIds = ids.map(id => new mongoose.mongo.ObjectId(id))
-
+    res.locals.fileIds = ids
+    permanentBackup(req, res)
+    return
     gfs.collection(collection)
 
     gfs.files.updateMany(
@@ -174,6 +177,7 @@ app.put('/api/updateFilesMetadata', async (req, res) => {
                     ids,
                     primaryKey: 'id'
                 }
+                permanentBackup(req, metadata)
                 io.sockets.emit('updateDocs', data)
                 res.send({ doc, ids })
                 return
