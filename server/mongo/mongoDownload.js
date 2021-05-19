@@ -1,9 +1,7 @@
 const
     { mongo } = require('mongoose'),
-    mongoose = require('mongoose'),
     { filesModel } = require('./models/filesModel'),
     { empresaModel } = require('./models/empresaModel'),
-    { getUpdatedData } = require('../getUpdatedData'),
     { pool } = require('../config/pgConfig')
 
 const mongoDownload = (req, res, gfs) => {
@@ -73,8 +71,6 @@ const getFilesMetadata = async (req, res) => {
 
     filesCollection.find({ ...filter, ...fieldName }).sort({ uploadDate: -1 }).exec((err, doc) => res.send(doc))
 }
-
-
 
 const getOneFileMetadata = async (req, res) => {
 
