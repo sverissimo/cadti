@@ -27,6 +27,8 @@ const permanentBackup = async (req, res) => {
     for (let id of ids) {
         let fileRequest
         //if (process.env.NODE_ENV === 'production')
+        /* const fakeId = '60a3db4be679940c68006686'
+        fileRequest = await empresaModel.find(new mongoose.mongo.ObjectId(fakeId)) */
         fileRequest = await empresaModel.find(new mongoose.mongo.ObjectId(id))
 
         /* else
@@ -47,8 +49,9 @@ const permanentBackup = async (req, res) => {
                 placa = fieldsToAdd.placa
             }
             Object.assign(metadata, { razaoSocial, placa })
-            file.id = '60632acbde5f8a1a2cd76a2c'
+            //            file._id = '60632acbde5f8a1a2cd76a2c'
             filesMetadata.push(file)
+            console.log("🚀 ~ file: permanentBackup.js ~ line 52 ~ permanentBackup ~ file", file)
         }
     }
     backupSocket.emit('permanentBackup', filesMetadata)

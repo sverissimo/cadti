@@ -4,7 +4,6 @@ const { getUpdatedData } = require("../getUpdatedData")
 
 //adiciona metadata para o backup
 const addMetadata = async (metadata) => {
-    console.log("🚀 ~ file: addMetadata.js ~ line 7 ~ addMetadata ~ metadata", metadata)
 
     if (metadata) {
         const { empresaId, veiculoId } = metadata
