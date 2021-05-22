@@ -11,6 +11,7 @@ import { configVehicleForm } from '../Forms/configVehicleForm'
 import ReactToast from '../Reusable Components/ReactToast'
 import { getCookie } from '../Utils/documentCookies'
 import { logUser, logUserOut } from './userActions'
+import { getEnvironment } from '../getEnvironment'
 
 const socketIO = require('socket.io-client')
 let socket
@@ -52,8 +53,10 @@ export default function (requestArray, WrappedComponent) {
                 await this.props.getData(request)
 
             //**************************Socket management*****************************
-            if (!socket)
-                socket = socketIO('ws://localhost:3001')
+            if (!socket) {
+                const { webSocketHost } = getEnvironment()
+                socket = socketIO(webSocketHost)
+            }
             //Conecta o usuário em um socket, passando suas informações   
             socket.on('connect', () => socket.emit('userDetails', this.props?.user))
 
