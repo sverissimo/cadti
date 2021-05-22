@@ -5,7 +5,6 @@ const
     { pool } = require('../config/pgConfig')
 
 const mongoDownload = (req, res, gfs) => {
-    console.log("🚀 ~ file: mongoDownload.js ~ line 11 ~ mongoDownload ~ fileId", req)
 
     const fileId = new mongo.ObjectId(req.query.id)
     const collection = req.query.collection

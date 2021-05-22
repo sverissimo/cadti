@@ -161,7 +161,7 @@ app.put('/api/updateFilesMetadata', async (req, res) => {
     parsedIds = ids.map(id => new mongoose.mongo.ObjectId(id))
     res.locals.fileIds = ids
     permanentBackup(req, res)
-    return res.send('whatever')
+
     gfs.collection(collection)
 
     gfs.files.updateMany(
@@ -177,7 +177,7 @@ app.put('/api/updateFilesMetadata', async (req, res) => {
                     ids,
                     primaryKey: 'id'
                 }
-                permanentBackup(req, metadata)
+
                 io.sockets.emit('updateDocs', data)
                 res.send({ doc, ids })
                 return
