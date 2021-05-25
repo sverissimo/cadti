@@ -160,6 +160,8 @@ app.put('/api/updateFilesMetadata', async (req, res) => {
 
     parsedIds = ids.map(id => new mongoose.mongo.ObjectId(id))
     res.locals.fileIds = ids
+    res.locals.collection = collection
+
     permanentBackup(req, res)
 
     gfs.collection(collection)

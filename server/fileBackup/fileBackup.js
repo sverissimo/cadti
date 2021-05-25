@@ -16,6 +16,7 @@ const fileBackup = async (req, fields) => {
         const
             { metadata } = fields[0]
             , { empresaId, veiculoId } = metadata
+        console.log("🚀 ~ file: fileBackup.js ~ line 19 ~ fileBackup ~ metadata", metadata)
 
         if (empresaId) {
             const
