@@ -161,7 +161,7 @@ export default function ShowDetails({ data, tab, title, header, close, empresas,
                     const { field } = fieldObj
                     if (!tableHeaders.includes(fieldObj.label))
                         tableHeaders.push(fieldObj.label)
-                    if (field === 'fileId' || (alt.hasOwnProperty(field) && !row.some(o => o.hasOwnProperty(field)))) {
+                    if (field === 'fileId' || !row.some(o => o.hasOwnProperty(field))) {
                         //se a coluna/field for um arquivo o valor que aparecerá na tabela é "Clique para baixar..."
                         if (field === 'fileId') {
                             let fileId = altDocs.find(d => d.metadata.numeroAlteracao === alt.numeroAlteracao)
@@ -174,18 +174,21 @@ export default function ShowDetails({ data, tab, title, header, close, empresas,
                         }
                         //Senão, o valor é o valor da célula
                         else
-                            rowObj = { ...fieldObj, value: alt[field] }
+                            rowObj = { ...fieldObj, value: alt[field] || '-' }
                         //se a célula possuir um método de autoFormatação, aplicar
                         if (fieldObj.format) {
-                            const value = fieldObj.format(alt[field])
+                            const value = fieldObj.format(alt[field]) || '-'
                             rowObj = { ...fieldObj, value }
                         }
                         row.push(rowObj)
                     }
                 })
+
                 arrayOfRows.push(row)
                 row = []
             })
+
+            console.log("🚀 ~ file: ShowDetails.jsx ~ line 198 ~ setAltContrato ~     arrayOfRows", arrayOfRows)
             if (alteracoes[0]) {
                 //setProcs(true)
                 setTable2({

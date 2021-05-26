@@ -111,4 +111,8 @@ export const vForm = [
         label: 'Validade do Laudo',
         type: 'date'
     },
+    {
+        field: 'acessibilidade',
+        label: 'Itens de Acessibilidade'
+    },
 ]

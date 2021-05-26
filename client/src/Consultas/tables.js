@@ -11,7 +11,7 @@ export const delegatarioTable = [
     },
     {
         field: 'vencimentoContrato',
-        title: 'Vencimento do Contrato',
+        title: 'Vencimento do Cadastro',
         filtering: false,
         render: rowData => formatDate(rowData.vencimentoContrato)
     },

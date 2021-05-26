@@ -20,7 +20,7 @@ export default function StandardTable({ table, docsCollection, length, title, st
     }
 
     return (
-        <table>
+        <table className='showDetailsTable'>
             <thead>
                 <tr>
                     <th className='tHeader'
@@ -37,7 +37,7 @@ export default function StandardTable({ table, docsCollection, length, title, st
                         <tr key={j}>
                             {
                                 el.map((obj, i) =>
-                                    <td key={i} style={style} className={obj.type === 'link' && obj.fileId ? 'link2' : 'review'}
+                                    <td key={i} style={{ ...style, width: obj.field === 'numeroSei' && '200px' }} className={obj.type === 'link' && obj.fileId ? 'link2' : 'review'}
                                         onClick={
                                             () => obj.field === filePK && obj.fileId ? getFile(obj.fileId)
                                                 : obj?.action === 'delete' ? deleteFunction(el[idIndex]?.value)

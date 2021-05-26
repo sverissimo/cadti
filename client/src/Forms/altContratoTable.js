@@ -19,7 +19,7 @@ const altContratoTable = [
     },
     {
         field: 'dataJunta',
-        label: 'Registro na Junta Comercial',
+        label: 'Data de Registro na Junta Comercial',
         type: 'date',
         format: value => value ? value : 'Nenhuma data informada'
     },
