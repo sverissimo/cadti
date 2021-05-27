@@ -21,7 +21,7 @@ const exportToXlsx = (subject, form, rd) => {
     ws['!cols'] = widths.map(w => ({ wch: w }))
     //console.log(fitToColumn(formatedData))
 
-    //Obtém o cumprimento máximo dos valores das células para formatar o arquivo de excel
+    //Obtém o cumprimento máximo/médio dos valores das células para formatar o arquivo de excel
     function fitToColumn(formatedData) {
         const
             numberOfColumns = Object.keys(formatedData[0]).length
@@ -34,7 +34,7 @@ const exportToXlsx = (subject, form, rd) => {
                 width < 5 ? width = 5 : void 0
                 if (!widths[i] || width > widths[i])
                     widths[i] = width */
-                let width = v ? v.toString().length : 1
+                let width = v ? v.toString().length : 2
                 if (!widths[i])
                     widths[i] = width
                 else

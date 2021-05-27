@@ -5,6 +5,7 @@ import { empresasForm } from '../Forms/empresasForm'
 import { sociosForm } from '../Forms/sociosForm'
 import { seguroForm } from '../Forms/seguroForm'
 import { procuradorConsultasForm } from '../Forms/procuradorConsultasForm'
+import orderObjectKeys from './orderObjectKeys'
 
 //Essa função seleciona e formata todos os campos que aparecem no componente ShowDetails e na exportação do arquivo de excel no ConsultasContainer
 const dataToReturn = (tab, data) => {
@@ -13,10 +14,18 @@ const dataToReturn = (tab, data) => {
         const
             element = [],
             formPattern = setForm(tab)
+        let subject
+        if (tab === 3)
+            subject = 'veículos'
+        if (tab === 4)
+            subject = 'seguros'
+
+        const orderedData = orderObjectKeys(subject, [data])
+        data = orderedData[0] ? orderedData[0] : data
 
         Object.keys(data).forEach(key => {
             if (tab === 3) {
-                const { veiculoId, laudoId, tableData, modeloChassiId, modeloCarroceriaId, codigoEmpresa, vencimentoContrato, delegatarioCompartilhado,
+                let { veiculoId, laudoId, tableData, modeloChassiId, modeloCarroceriaId, vencimentoContrato, delegatarioCompartilhado,
                     acessibilidadeId, equipamentosId, compartilhadoId, ...vData } = data
                 data = vData
             }

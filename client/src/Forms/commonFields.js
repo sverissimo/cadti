@@ -4,6 +4,10 @@ import { cnpjValidator } from '../Utils/cnpjValidator'
 import { clearFormat } from '../Utils/formatValues'
 
 export const
+    codigoEmpresa = {
+        field: 'codigoEmpresa',
+        label: 'Código da Empresa'
+    },
     razaoSocial = {
         field: 'razaoSocial',
         label: 'Empresa',
@@ -36,7 +40,7 @@ export const
     },
     phone = {
         label: 'Telefone',
-    //    minLength: 14,
+        //    minLength: 14,
         maxLength: 15,
         pattern: '((([+][0-9]{1,3})?[ ]?[-]?[(]?[0-9]{2,3}[)]?[ ]?[-]?[0-9]{4,5}[ ]?[-]?[0-9]{4}))'
 

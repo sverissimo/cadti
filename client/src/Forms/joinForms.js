@@ -1,4 +1,4 @@
-import { razaoSocial, placas, createdAt } from '../Forms/commonFields'
+import { codigoEmpresa, razaoSocial, placas, createdAt } from '../Forms/commonFields'
 
 export const eForm = [
     {
@@ -14,8 +14,7 @@ export const eForm = [
         label: 'Situação'
     },
     {
-        field: 'codigoEmpresa',
-        label: 'Código da Empresa'
+        ...codigoEmpresa
     },
     {
         ...createdAt,
@@ -38,10 +37,13 @@ export const sForm = [
 
 export const segForm = [
     {
-        ...razaoSocial
+        ...razaoSocial, field: 'empresa', width: '540px'
     },
     {
-        ...createdAt
+        ...codigoEmpresa
+    },
+    {
+        ...createdAt, width: '150px'
     },
     {
         ...placas
@@ -53,6 +55,14 @@ export const segForm = [
 ]
 
 export const vForm = [
+    {
+        field: 'codigoEmpresa',
+        label: 'Código do Delegatário',
+    },
+    {
+        field: 'empresa',
+        label: 'Delegatário',
+    },
     {
         field: 'dataRegistro',
         label: 'Data do registro no sistema',
@@ -111,8 +121,13 @@ export const vForm = [
         label: 'Validade do Laudo',
         type: 'date'
     },
+
     {
         field: 'acessibilidade',
         label: 'Itens de Acessibilidade'
+    },
+    {
+        field: 'obs',
+        label: 'Observações',
     },
 ]

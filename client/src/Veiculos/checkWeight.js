@@ -54,7 +54,7 @@ const checkWeight = (component, name) => {
 }
 
 //Recebe um float de 3 casas, transforma o número em string, troca "." por "," , retira os zeros depois da vírgula
-const stringBR = num => {
+export const stringBR = num => {
     if (!num)
         return
     num = num.toString()

@@ -4,5 +4,10 @@ export const cadVehicleFiles = [
     { title: 'Certificado de Vistoria', name: 'vistoria' },
     { title: 'DAE Quitada', name: 'dae' },
     { title: 'Laudo de Pesagem', name: 'pesagem' },
-    //{ title: 'Apólice do Seguro', name: 'apoliceDoc' },
+    { title: 'Nota Fiscal Carroceria', name: 'nfCarroceria' },
+    { title: 'Nota Fiscal Chassi', name: 'nfChassi' },
+    { title: 'Layout do Veículo', name: 'layout' },
+    { title: 'Contrato', name: 'contrato' },
+    { title: 'Outros Anexos', name: 'outrosAnexos' },
+
 ]

@@ -18,6 +18,7 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
+
 const CertificateTemplate = ({ vehicle, nomes, checkMulti, redirect, delega, carac, dadosVeiculo, seg, vistoria, peso, info, }) => {
 
     const
@@ -71,8 +72,11 @@ const CertificateTemplate = ({ vehicle, nomes, checkMulti, redirect, delega, car
                                                     el.type === 'date' ? !moment(el.value).isValid() ? ''
                                                         :
                                                         moment(el.value).format('DD/MM/YYYY') :
-                                                        el.field === 'dataExpedicao' ? moment().format('DD-MM-YYYY') :
-                                                            el.value || ''
+                                                        el.field === 'dataExpedicao' ? moment().format('DD-MM-YYYY')
+                                                            :
+                                                            el.format ? el.format(el.value)
+                                                                :
+                                                                el.value || ''
                                                 }
                                                 inputProps={{
                                                     className: checkMulti(el.field),

@@ -1,23 +1,29 @@
 import moment from 'moment'
+import { stringBR } from '../Veiculos/checkWeight'
 
 export const delegatario = [[
     {
         field: 'empresa',
         label: 'Delegatário',
-        width: '100mm',
+        width: '95mm',
         left: '50mm'
     },
     {
         field: 'codigoEmpresa',
         label: 'Código do Delegatário',
-        width: '35mm',
-        left: '5mm'
+        width: '18mm',
     },
     {
         field: 'dataExpedicaoCRV',
         label: 'Data de emissão',
-        width: '25mm',
+        width: '20mm',
         value: moment().format('DD/MM/YYYY')
+    },
+    {
+        field: 'vencimento',
+        label: 'Validade do CRV',
+        type: 'date',
+        width: '20mm',
     },
 ]]
 
@@ -178,38 +184,41 @@ export const vistoria = [[
 ]]
 
 export const pesagem = [[
-    {
-        field: 'eixos',
-        label: 'Nº Eixos',
-        width: '15mm',
-        left: '2mm'
-    },
+
     {
         field: 'cmt',
         label: 'PBT / CMT Legal (t)',
-        width: '27mm'
+        width: '27mm',
+        left: '2mm',
+        format: float => stringBR(float)
     },
     {
         field: 'pesoDianteiro',
         label: 'Peso Dianteiro (t)',
-        width: '25mm',
+        width: '27mm',
+        left: '3.5mm',
+        format: float => stringBR(float)
     },
     {
         field: 'pesoTraseiro',
         label: 'Peso Traseiro (t)',
-        width: '25mm'
+        width: '27mm',
+        left: '3.5mm',
+        format: float => stringBR(float)
     },
     {
         field: 'pbt',
         label: 'Peso Bruto Total (t)',
-        width: '28mm',
-        left: '3mm'
+        width: '30mm',
+        left: '4mm',
+        format: float => stringBR(float)
     },
     {
         field: 'pesoPassageiros',
         label: 'Passag/Bagagem (t)',
-        width: '28mm',
-        left: '3mm'
+        width: '30mm',
+        left: '3mm',
+        format: float => stringBR(float)
     }
 ]]
 
@@ -223,21 +232,15 @@ export const informacoesGerais = [[
         left: '4mm'
     },
     {
-        field: 'vencimento',
-        label: 'Validade do CRV',
-        type: 'date',
-        width: '25mm',
-    },
-    {
         field: 'cores',
         label: 'Cores',
-        width: '50mm',
+        width: '65mm',
         left: '15mm'
     },
     {
         field: 'compartilhado',
         label: 'Empresa autorizada a compartilhar',
-        width: '80mm',
+        width: '90mm',
         left: '11mm'
     }
 ]]

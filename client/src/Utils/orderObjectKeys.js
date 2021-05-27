@@ -1,24 +1,25 @@
 //@ts-check
 
+import { vehicleFieldsOrder, seguroFieldsOrder } from "../Consultas/fieldsOrder"
+
 /**
  * @param {string} subject
  * @param {Object[]} rawData 
  * @returns any
  */
 const orderObjectKeys = (subject, rawData) => {
-    if (subject !== 'veículos' && !rawData[0].veiculoId)
-        return null
 
-    const
-        keys = Object.keys(rawData[0])
-        , ap = keys.indexOf('apolice')
-        , seg = keys.indexOf('seguradora')
-        , orderedArray = []
+    let keys
 
-    keys.splice(seg, 0, 'apolice')
-    keys.splice(ap, 1)
+    if (subject === 'veículos' && rawData[0].veiculoId) {
+        keys = vehicleFieldsOrder
+    }
+    else if (subject === 'seguros')
+        keys = seguroFieldsOrder
+    else
+        return rawData
+    const orderedArray = []
 
-    console.log("🚀 ~ file: orderObjectKeys.js ~ line 6 ~ orderObjectKeys ~ keys", keys)
     rawData.forEach(obj => {
         let tempObj = {}
         keys.forEach(key => {
@@ -28,7 +29,20 @@ const orderObjectKeys = (subject, rawData) => {
         orderedArray.push(tempObj)
         tempObj = {}
     })
+
     return orderedArray
 }
 
 export default orderObjectKeys
+
+
+/* const
+        keys = Object.keys(rawData[0])
+        , ap = keys.indexOf(insertedProp)
+        , seg = keys.indexOf(insertAfter)
+        , orderedArray = []
+
+    keys.splice(seg, 0, insertedProp)
+    keys.splice(ap, 1)
+
+    console.log("🚀 ~ file: orderObjectKeys.js ~ line 6 ~ orderObjectKeys ~ keys", keys) */
