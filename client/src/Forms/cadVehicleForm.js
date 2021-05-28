@@ -80,7 +80,7 @@ export const cadVehicleForm = [[{
     label: 'Situação da Propriedade',
     margin: 'normal',
     select: true,
-    options: ['Veículo próprio', 'Leasing', 'Possuidor']
+    options: ['Veículo próprio', 'Alienação Fiduciária', 'Leasing', 'Possuidor']
 },
 {
     field: 'cores',

@@ -187,8 +187,8 @@ class AltDados extends Component {
             if (value === 'LEITO') value = 'Leito'
             if (value === 'LEITO E EXECUTIVO') value = 'Leito e Executivo'
         }
-        if (field === 'dominio' && value === 'Sim') value = 'Veículo próprio'
-        if (field === 'dominio' && value === 'Não') value = 'Possuidor'
+        if (field === 'dominio' && value === 'Sim') value = 'Leasing'
+        if (field === 'dominio' && value === 'Não') value = 'Veículo próprio'
 
         return value
     }

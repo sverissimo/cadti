@@ -2,7 +2,6 @@ export const cadVehicleFiles = [
     { title: 'CRLV do Veículo', name: 'crlv' },
     { title: 'Declaração de Responsabilidade de Manutenção', name: 'declaracao' },
     { title: 'Certificado de Vistoria', name: 'vistoria' },
-    { title: 'DAE Quitada', name: 'dae' },
     { title: 'Laudo de Pesagem', name: 'pesagem' },
     { title: 'Nota Fiscal Carroceria', name: 'nfCarroceria' },
     { title: 'Nota Fiscal Chassi', name: 'nfChassi' },
