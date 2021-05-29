@@ -24,12 +24,14 @@ export const altContratoForm = [
         label: 'Data de registro na Junta Comercial',
         type: 'date',
         width
+    },
+    {
+        field: 'numeroContrato',
+        label: 'Número do Contrato Social',
+    },
+    {
+        field: 'vencimentoContrato',
+        label: 'Vencimento do Cadastro - CRC',
+        type: 'date',
     }
 ]
-/*
-const PostmanTest = {
-    "numeroAlteracao": "1211",
-    "numeroRegistro": "1211",
-    "numeroSei": "1211",
-    "dataJunta": "2020-12-30",
-} */

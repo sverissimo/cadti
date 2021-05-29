@@ -18,11 +18,13 @@ import altContratoFiles from '../Forms/altContratoFiles'
 const AltContratoTemplate = (
     { empresas, data, setActiveStep, enableEdit, handleEdit, addSocio, removeSocio, handleInput, handleBlur, handleSubmit, handleFiles, removeFile,
         setShowPendencias }) => {
+    //Retirados campos número do Contrato e vencimento do CRC a pedido da DGTI (passou p/ próxima tab)
+    const dadosEmpresaForm = empresasForm.filter(el => el.field !== 'numeroContrato' && el.field !== 'vencimentoContrato')
 
     const
         { selectedEmpresa, demand, demandFiles, activeStep, stepTitles, subtitles, form, fileToRemove, info, showPendencias } = data,
         headerTitle = `Alteração de contrato social - ${selectedEmpresa?.razaoSocial}`,
-        forms = [empresasForm, altContratoForm]
+        forms = [dadosEmpresaForm, altContratoForm]
 
     return (
         <main>
@@ -65,7 +67,7 @@ const AltContratoTemplate = (
                                             />
                                             <div className='flex center' style={{ width: '100%' }}>
                                                 {
-                                                    activeStep === 0 && altContratoFiles.map(({ name, title }, i) =>
+                                                    activeStep === 1 && altContratoFiles.map(({ name, title }, i) =>
                                                         <DragAndDrop
                                                             key={i}
                                                             name={name}

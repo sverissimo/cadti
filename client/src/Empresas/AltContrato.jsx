@@ -18,7 +18,7 @@ import altContratoFiles from '../Forms/altContratoFiles'
 const
     stepTitles = ['Alterar dados da empresa', 'Informações sobre alteração do contrato social', 'Informações sobre sócios', 'Revisão'],
     subtitles = ['Utilize os campos abaixo caso deseje editar os dados da empresa',
-        'Informe as alterações no contrato social e anexe uma cópia do documento',
+        'Informe as alterações no contrato social ou CRC e anexe uma cópia do documento',
         'Adicione ou altere sócios e suas respectivas participações.',
         'Revise os dados informados.'
     ]

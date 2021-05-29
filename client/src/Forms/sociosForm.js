@@ -10,7 +10,8 @@ export const sociosForm = [{
 },
 {
     ...cpf,
-    width
+    width,
+    disabled: false
 },
 {
     ...phone,

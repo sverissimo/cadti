@@ -10,8 +10,7 @@ import TextField from '@material-ui/core/TextField'
 import AddIcon from '@material-ui/icons/Add';
 import DeleteIcon from '@material-ui/icons/Delete';
 
-import { sociosForm } from '../Forms/dadosSociosForm'
-import { sociosForm as sociosEditForm } from '../Forms/sociosForm'
+import { sociosForm as dadosSociosForm } from '../Forms/dadosSociosForm'
 import TextInput from '../Reusable Components/TextInput'
 import { errorHandler, helper } from '../Utils/checkInputErrors';
 
@@ -59,7 +58,7 @@ export default function ({ socios, empresas, handleInput, handleBlur, data, addS
                             <div className="flexColumn" style={{ alignItems: 'center' }}>
                                 <h6 style={{ fontSize: '14px' }}>Alteração de informações dos sócios</h6>
                                 <p style={{ fontSize: '12px', color: '#555' }}> Clique no lápis à direita do sócio para editar e clique novamente para salvar.</p>
-                                <p style={{ fontSize: '12px', color: '#555', marginTop: 0 }}> Para alterar participação societária e nome, vá para Empresas {'->'} Altereação de Contrato</p>
+                                <p style={{ fontSize: '12px', color: '#555', marginTop: 0 }}> Para alterar a participação societária, nome e CPF, vá para EMPRESAS – ALTERAÇÃO CADASTRAL</p>
 
                             </div>
                         </>
@@ -68,7 +67,7 @@ export default function ({ socios, empresas, handleInput, handleBlur, data, addS
                             <FormSubtiltle subtitle={stepTitles[activeStep]} />
                             <div className='flex center' style={{ padding: '10px 0', width: '100%' }}>
                                 <TextInput
-                                    form={standAlone ? sociosForm : sociosEditForm}
+                                    form={dadosSociosForm}
                                     data={data}
                                     handleBlur={handleBlur}
                                     handleInput={handleInput}
@@ -97,7 +96,7 @@ export default function ({ socios, empresas, handleInput, handleBlur, data, addS
                         <p> Sócios cadastrados</p>
                         {socios.map((s, i) =>
                             <div key={i}>
-                                {sociosForm.map((e, k) =>
+                                {dadosSociosForm.map((e, k) =>
                                     <Fragment key={k + 1000}>
                                         <TextField
                                             value={s[e.field] || ''}

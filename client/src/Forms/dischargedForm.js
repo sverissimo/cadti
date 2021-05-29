@@ -7,6 +7,7 @@ export const dischargedForm = [
     { field: "empresa", label: "Delegatário" },
     { field: "dataRegistro", label: "Data de Registro" },
     { field: "situacao", label: "Situação" },
+    { field: "motivoBaixa", label: "Motivo da Baixa" },
     { field: "dataBaixa", label: "Data baixa" },
     { field: "nChassi", label: "Número chassi" },
     { field: "marcaChassi", label: "Marca chassi" },

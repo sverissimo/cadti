@@ -177,15 +177,17 @@ class BaixaVeiculo extends Component {
                 if (selectedVehicle[field])
                     discharged[label] = selectedVehicle[field].toString()
             })
+            const motivoRaw = typeof motivo === 'string' && motivo.replace('Motivo da baixa: ', '')
             Object.assign(discharged, {
                 'Situação': 'Baixado',
                 'Data de Registro': new Date(dataRegistro).toLocaleDateString(),
                 'Data baixa': new Date().toLocaleDateString(),
                 'Data Inicio': new Date(dataEmissao).toLocaleDateString(),
                 'Data Fim': new Date(vencimento).toLocaleDateString(),
+                'Motivo da Baixa': motivoRaw,
                 'Observação': `${motivo}`
             })
-            console.log(discharged)
+
             //Salva o veículo baixado no MongoDB
             axios.post('/api/baixaVeiculo', discharged)
             //Apaga o veículo baixado do Postgresql
