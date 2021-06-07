@@ -3,16 +3,20 @@ const
     router = express.Router(),
     fs = require('fs'),
     { pool } = require('../config/pgConfig'),
+    { BackupDB } = require('../database/BackupDB'),
     getCompartilhadoId = require('./getCompartilhadoID'),
     { accessParseDB, equipamentsParseDB } = require('./getEquip'),
     forceDbUpdate = require('./forceDbUpdate'),
     { oldVehicles } = require('./oldVehicles')
 
-router.post('/createTable', (req, res) => {
-    const { query } = req.body
 
+router.post('/createTable', (req, res) => {
+    const
+        { query } = req.body
+        , backupDB = new BackupDB()
+
+    backupDB.createSafetyBackup()
     console.log(query.substring(0, 150))
-    //console.log(query)
 
     pool.query(query).then(() => res.send('createTable alright'))
 })
@@ -23,7 +27,6 @@ router.post('/updateTable', (req, res) => {
         keys = Object.keys(sgti_data[0])
 
     values = ''
-    //console.log(sgti_data)
     sgti_data.forEach(d => {
         values += '('
         Object.values(d).forEach(v => {
@@ -42,9 +45,8 @@ router.post('/updateTable', (req, res) => {
 
     const query = `INSERT INTO public.${table} (${keys}) VALUES ${values}`
 
-    //console.log(query)
+    //console.log("🚀 ~ file: dbSyncAPI.js ~ line 43 ~ router.post ~ query", query)
     //fs.writeFile(`${table}Insert.txt`, query, 'utf8', (err) => console.log(err))
-    //console.log(query)
 
     pool.query(query)
         .then(() => {
@@ -56,6 +58,13 @@ router.post('/updateTable', (req, res) => {
 })
 
 router.get('/forceDbUpdate', forceDbUpdate)
+
+router.get('/createRestorePoint', (req, res) => {
+    const backupDB = new BackupDB()
+    backupDB.createNewBackup()
+    console.log('###### Postgresql: new restore point created.')
+    res.status(200).send('New restore point created.')
+})
 
 async function getEquipaIds() {
 

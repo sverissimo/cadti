@@ -3,7 +3,8 @@ const dotenv = require('dotenv')
 
 dotenv.config()
 if (!process.env.DB_USER)
-    dotenv.config({ path: '../../../.env' })
+    dotenv.config({ path: '../../.env' })
+
 
 const Pool = pg.Pool
 let pool = new Pool({

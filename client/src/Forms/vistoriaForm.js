@@ -76,5 +76,10 @@ export const vistoriaForm = [
         margin: 'normal',
         type: 'number',
         max: 150
+    },
+    {
+        field: 'numeroDae',
+        label: 'Nº Documento Arrecação Estadual',
+        maxLength: 40
     }
 ]
