@@ -17,11 +17,13 @@ const useStyles = makeStyles(theme => ({
 }))
 
 export default function Revisao({ data, parentComponent, form, filesForm, files }) {
+
     const
         classes = useStyles(),
         { paper } = classes,
         { acessibilidade, equipamentos, alteracoes, demand, demandFiles } = data,
-        originalVehicle = data?.originalVehicle
+        originalVehicle = data?.originalVehicle,
+        numeroDae = demand?.history instanceof Array && demand?.history.reverse().find(e => e.numeroDae).numeroDae
 
     let vehicleDetails = [],
         obj = {},
@@ -90,7 +92,7 @@ export default function Revisao({ data, parentComponent, form, filesForm, files 
                         <p>
                             {
                                 equipamentos && equipamentos.map((e, i) =>
-                                    <span style={{ fontFamily: 'Segoe UI, Tahoma, Geneva, Verdana', fontSize: '12px' }} key={i}>
+                                    <span className='smallFont' key={i}>
                                         {i !== equipamentos.length - 1 ? e + ', ' : e}
                                     </span>
                                 )
@@ -105,7 +107,7 @@ export default function Revisao({ data, parentComponent, form, filesForm, files 
                         <p>
                             {
                                 acessibilidade.map((e, i) =>
-                                    <span style={{ fontFamily: 'Segoe UI, Tahoma, Geneva, Verdana', fontSize: '12px' }} key={i}>
+                                    <span className='smallFont' key={i}>
                                         {i !== acessibilidade.length - 1 ? e + ', ' : e}
                                     </span>
                                 )
@@ -127,6 +129,11 @@ export default function Revisao({ data, parentComponent, form, filesForm, files 
                             form={filesForm}
                             files={files}
                         />
+                        {numeroDae &&
+                            <span className='smallFont addMargin'>
+                                Nº Documento Arrecadação Estadual: {numeroDae}
+                            </span>
+                        }
                     </div>
                 }
             </Paper >

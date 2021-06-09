@@ -9,7 +9,7 @@ import DoneIcon from '@material-ui/icons/Done';
 import FileCopyOutlinedIcon from '@material-ui/icons/FileCopyOutlined';
 import ArrowBackIcon from '@material-ui/icons/ArrowBack'
 
-export default function StandardTable({ tableData, staticFields, title, tableStyle, style, completed, showInfo, 
+export default function StandardTable({ tableData, staticFields, title, tableStyle, style, completed, showInfo,
     showFiles, setShowFiles, filesCollection, primaryKey, close, filesIds, razaoSocial }) {
 
     const dateFormat = value => {
@@ -18,7 +18,7 @@ export default function StandardTable({ tableData, staticFields, title, tableSty
         }
         else return value
     }
-
+    console.log(tableData[0].numeroDae || undefined)
     const createButton = (action, index, files) => {
         const disable = !tableData[index]?.info ? true : false
         const dStyle = { cursor: 'default' }
@@ -125,6 +125,7 @@ export default function StandardTable({ tableData, staticFields, title, tableSty
                                             key={i}
                                             style={obj?.style ? obj.style : style}
                                             className={obj.type === 'link' && obj.laudoDocId ? 'link2' : 'review'}
+                                            title={tableData[0].numeroDae || undefined}
                                         >
                                             {obj.type === 'date' ? dateFormat(obj.value)
                                                 : obj?.action ? createButton(obj.action, obj?.index, obj?.files)

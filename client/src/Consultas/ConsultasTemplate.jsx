@@ -4,7 +4,7 @@ import { tables } from './tables'
 import exportToXlsx from './exportToXlsx'
 import { setForm } from '../Utils/createFormPattern'
 
-export default function ({ tab, collection, user, showDetails, showFiles, showCertificate, del }) {
+export default function ({ tab, collection, user, procuracoes, showDetails, showFiles, showCertificate, del }) {
 
     const
         id = ['codigoEmpresa', 'socioId', 'procuradorId', 'veiculoId', 'apolice'][tab],
@@ -28,7 +28,7 @@ export default function ({ tab, collection, user, showDetails, showFiles, showCe
                     exportFileName: subject[tab],
                     exportButton: true,
                     exportCsv: (columns, data) => {
-                        exportToXlsx(subject[tab], form, data)
+                        exportToXlsx(subject[tab], form, data, procuracoes)
                     },
                     actionsColumnIndex: -1,
                     searchFieldStyle: { color: '#024', fontSize: '14px' },

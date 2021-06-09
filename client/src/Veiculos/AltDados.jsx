@@ -362,8 +362,8 @@ class AltDados extends Component {
 
     handleSubmit = async (approved) => {
         const
-            { veiculoId, pbt, codigoEmpresa, originalVehicle, showPendencias, getUpdatedValues,
-                compartilhadoId, newPlate, selectedEmpresa, equipamentosId, acessibilidadeId, info, demand, form, demandFiles } = this.state,
+            { veiculoId, pbt, codigoEmpresa, originalVehicle, showPendencias, getUpdatedValues, numeroDae,
+                compartilhadoId, newPlate, selectedEmpresa, equipamentosId, acessibilidadeId, demand, form, demandFiles } = this.state,
 
             oldHistoryLength = demand?.history?.length || 0
 
@@ -383,7 +383,9 @@ class AltDados extends Component {
         if (demand && getUpdatedValues)
             tempObj = getUpdatedValues(originalVehicle, tempObj)  //Save only real changes to the request Object (method from setDemand())
 
-        let { delegatario, compartilhado, ...camelizedRequest } = tempObj //remove invalid fields for update
+        //remove invalid fields for update
+        let { delegatario, compartilhado, ...camelizedRequest } = tempObj
+        delete camelizedRequest.numeroDae
 
         if (newPlate && newPlate !== '')
             camelizedRequest.placa = newPlate
@@ -396,14 +398,19 @@ class AltDados extends Component {
             this.setState({ openAlertDialog: true, customTitle: 'Nenhuma alteração', customMessage: 'Não foi realizada nenhuma alteração na solicitação aberta. Para prosseguir, altere algum dos campos ou adicione uma justificativa.' })
             return
         }
-        const requestObject = humps.decamelizeKeys(camelizedRequest)
+        //******************Inserir número da DAE na info da solicitação************** */
+        let { info } = this.state
+        if (typeof info === 'string')
+            info += `\n\n Nº Documento Arrecadação Estadual: ${numeroDae}`
 
         //******************GenerateLog********************** */
+        const requestObject = humps.decamelizeKeys(camelizedRequest)
         let
             history = {
                 alteracoes: camelizedRequest,
                 info,
-                files: form,
+                numeroDae,
+                files: form
             },
             log = {
                 empresaId: selectedEmpresa?.codigoEmpresa,

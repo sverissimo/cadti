@@ -2,17 +2,21 @@ import * as FileSaver from 'file-saver';
 import * as XLSX from 'xlsx';
 import moment from 'moment'
 import orderObjectKeys from '../Utils/orderObjectKeys';
+import addProcuracao from './addProcuracao';
 
-const exportToXlsx = (subject, form, rd) => {
+const exportToXlsx = (subject, form, rd, procuracoes) => {
     //Demanda da DGTI de reordenar colunas da tabela veículos
-    const rawData = orderObjectKeys(subject, rd) || rd
+    let rawData = orderObjectKeys(subject, rd) || rd
 
     const
         fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8',
         fileExtension = '.xlsx',
         fileName = subject
 
-    const formatedData = formatData(form, rawData)
+    let formatedData = formatData(form, rawData, subject)
+    if (subject === 'procuradores')
+        formatedData = addProcuracao(formatedData, procuracoes)
+    console.log("🚀 ~ file: exportToXlsx.js ~ line 19 ~ exportToXlsx ~ formatedData", formatedData)
 
     const
         ws = XLSX.utils.json_to_sheet(formatedData)
@@ -48,7 +52,6 @@ const exportToXlsx = (subject, form, rd) => {
             else
                 return average
         })
-        //console.log("🚀 ~ file: exportToXlsx.js ~ line 45 ~ fitToColumn ~ w", w)
         return w
     }
 
@@ -58,7 +61,7 @@ const exportToXlsx = (subject, form, rd) => {
     FileSaver.saveAs(data, fileName + fileExtension);
 }
 
-function formatData(form, data) {
+function formatData(form, data, subject) {
 
     const rawData = JSON.parse(JSON.stringify(data))
 
@@ -71,20 +74,22 @@ function formatData(form, data) {
     }
 
     if (Array.isArray(rawData)) {
+
         rawData.forEach((obj, i) => {
             Object.entries(obj).forEach(([key, value]) => {
 
                 const formField = form.find(f => f.field === key)
+                if (key !== 'procuradorId') {
+                    if (!formField) {
+                        delete obj[key]
+                        return
 
-                if (!formField) {
-                    delete obj[key]
-                    return
-
-                } else {
-                    const header = formField?.label
-                    value = formatValue(value)
-                    obj[header] = value
-                    delete obj[key]
+                    } else {
+                        const header = formField?.label
+                        value = formatValue(value)
+                        obj[header] = value
+                        delete obj[key]
+                    }
                 }
             })
         })

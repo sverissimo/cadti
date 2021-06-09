@@ -13,7 +13,9 @@ export default function SolHistory({ solicitacao, showInfo, historyLog, setHisto
     const
         { history } = solicitacao,
         date = moment(historyLog?.createdAt).format('DD/MM/YYYY, HH:mm[h]')
+
     let docSelection = {}
+
     if (solicitacao.hasOwnProperty('veiculoId'))
         docSelection = {
             primaryKey: 'veiculoId',
@@ -54,7 +56,7 @@ export default function SolHistory({ solicitacao, showInfo, historyLog, setHisto
                     <section>
 
                         <br /><br /><br />
-                        <div>{historyLog.info}</div>
+                        <div style={{ whiteSpace: 'pre-line' }}>{historyLog.info}</div>
                     </section>
                     <footer>
                         <div className='voltarDiv' style={{

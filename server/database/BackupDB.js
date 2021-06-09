@@ -1,13 +1,13 @@
-const { pool } = require('../config/pgConfig')
+/* const { pool } = require('../config/pgConfig')
 const { createDBQuery } = require('./createDbQuery')
-
+ */
 //@ts-check
 const
     { execSync } = require('child_process')
     , fs = require('fs')
     , date = new Date()
     , day = date.getDate()
-    , month = date.toLocaleDateString('default', { month: 'short' })
+    , month = date.toLocaleDateString('en-US', { month: 'short' })
     , year = date.getFullYear()
     , dotenv = require('dotenv')
 

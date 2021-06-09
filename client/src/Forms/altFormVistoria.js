@@ -79,4 +79,9 @@ export const altFormVistoria = [
         max: 600,
         disabled: true
     },
+    {
+        field: 'numeroDae',
+        label: 'Nº Documento Arrecadação Estadual',
+        maxLength: 40
+    }
 ]

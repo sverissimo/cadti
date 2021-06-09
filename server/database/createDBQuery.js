@@ -9,7 +9,7 @@ const createDBQuery = user => {
     
     ALTER DATABASE sismob_db RENAME TO sismob_db3210;
 
-    DROP DATABASE sismob_db;
+    --DROP DATABASE sismob_db;
 
     CREATE DATABASE sismob_db
         WITH

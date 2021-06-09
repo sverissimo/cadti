@@ -395,7 +395,7 @@ class VeiculosContainer extends PureComponent {
     handleCadastro = async approved => {
         const
             { equipamentosId, acessibilidadeId, pbt, compartilhadoId, modeloChassiId, originalVehicle, getUpdatedValues,
-                modeloCarroceriaId, selectedEmpresa, showPendencias, info, obs, form, demand, demandFiles, reactivated } = this.state,
+                modeloCarroceriaId, selectedEmpresa, showPendencias, obs, form, demand, demandFiles, reactivated } = this.state,
             { codigoEmpresa } = selectedEmpresa,
             existingVeiculoId = demand?.veiculoId,
             oldHistoryLength = demand?.history?.length || 0
@@ -414,8 +414,10 @@ class VeiculosContainer extends PureComponent {
                 }
             })
         })
+
         //Retira campos desnecessários para o cadastro (joins de outras tabelas)
-        let { delegatarioCompartilhado, modeloChassi, modeloCarroceria, apolice, ...vReview } = review
+        let { delegatarioCompartilhado, modeloChassi, modeloCarroceria, apolice, numeroDae, ...vReview } = review
+
         //Adiciona campos que não estão no formulário ao objeto do request
         Object.assign(vReview, {
             codigoEmpresa, situacao, pbt, modeloChassiId, modeloCarroceriaId, obs,
@@ -434,7 +436,7 @@ class VeiculosContainer extends PureComponent {
             vReview = getUpdatedValues(originalVehicle, vReview)
 
         const vehicle = humps.decamelizeKeys(vReview)
-        console.log(vReview, '437')
+        //console.log(vReview, '437')
 
         //***************If it doesnt exist, post the new vehicle Object **************** */
         if (!existingVeiculoId)
@@ -460,12 +462,18 @@ class VeiculosContainer extends PureComponent {
             await axios.put('/api/updateVehicle', { requestObject, table, tablePK, id: veiculoId, codigoEmpresa }) //CodigoEmpresa para F5 sockets
         }
 
+        //******************Inserir número da DAE na info da solicitação************** */
+        let { info } = this.state
+        if (typeof info === 'string')
+            info += `\n\n Nº Documento Arrecadação Estadual: ${numeroDae}`
+
         //*****************Generate log ************** */
         const log = {
             empresaId: selectedEmpresa?.codigoEmpresa,
             veiculoId,
             history: {
                 info,
+                numeroDae,
                 files: form,
             },
             metadata: { veiculoId },

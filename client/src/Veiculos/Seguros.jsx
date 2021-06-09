@@ -446,7 +446,7 @@ class Seguro extends Component {
 
     handleSubmit = async approved => {
 
-        const { seguradora, insurance, errors, deletedVehicles, seguradoraId, apolice,
+        const { seguradora, insurance, errors, deletedVehicles, seguradoraId, apolice, numeroDae,
             dataEmissao, vencimento, selectedEmpresa, demand, demandFiles, apoliceDoc, info } = this.state
 
         let vehicleIds = []
@@ -516,6 +516,8 @@ class Seguro extends Component {
                 history: {
                     ...seguro,
                     vehicleIds,
+                    info: `Nº Documento Arrecadação Estadual: ${numeroDae}`,
+                    numeroDae,
                     files: apoliceDoc
                 },
                 demandFiles,

@@ -21,7 +21,7 @@ const permanentBackup = async (req, res) => {
         , collection = res.locals.collection
         , filesMetadata = []
     let
-        , razaoSocial
+        razaoSocial
         , placa
 
     for (let id of ids) {

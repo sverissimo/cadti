@@ -37,8 +37,13 @@ const useStyles = makeStyles(theme => ({
 export default function SegurosTemplate({ empresas, data, seguros, seguradoras, enableAddPlaca, handleInput, handleBlur,
     addPlate, removeFromInsurance, handleFiles, handleSubmit, enableChangeApolice, showAllPlates, removeFile, setShowPendencias }) {
 
-    const { selectedEmpresa, placa, apolice, addedPlaca, allVehicles, frota, demandFiles, fileToRemove, demand, insurance, dropDisplay, apoliceDoc,
-        showPendencias, info, renderedPlacas } = data
+    const
+        { selectedEmpresa, placa, apolice, addedPlaca, allVehicles, frota, demandFiles, fileToRemove, demand, insurance, dropDisplay, apoliceDoc,
+            showPendencias, info, renderedPlacas } = data
+
+    let { numeroDae } = data
+    if (!numeroDae)
+        numeroDae = demand?.history instanceof Array && demand?.history.reverse().find(e => e.numeroDae).numeroDae
 
     data.seguradoras = seguradoras
     //data.seguros = seguros
@@ -160,6 +165,24 @@ export default function SegurosTemplate({ empresas, data, seguros, seguradoras, 
                                 </div>
                             }
 
+                        </section>
+                        <section
+                            className='flex'
+                            style={{ margin: '5px 0' }}
+                        >
+                            <TextField
+                                inputProps={{
+                                    name: 'numeroDae',
+                                }}
+                                InputLabelProps={{
+                                    style: { fontSize: '0.8rem' }
+                                }}
+                                label='Nº Documento de Arrecadação Estadual (DAE)'
+                                className={textField}
+                                value={numeroDae || ''}
+                                onChange={handleInput}
+                                onBlur={handleBlur}
+                            />
                         </section>
 
                         <div className='addNewDiv' style={{ justifyContent: 'flex-start', padding: '10px' }}>
