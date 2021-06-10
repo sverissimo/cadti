@@ -631,13 +631,16 @@ app.put('/api/editElements', (req, res) => {
             WHERE ${tablePK} = ${obj.id};             
             `
     });
-    const obj = requestArray[0]
+    const
+        primaryKey = collection === 'empresas' ? 'codigoEmpresa' : 'id',
+        obj = requestArray[0]
+
     pool.query(queryString, (err, tb) => {
         if (err) console.log(err)
         pool.query(`SELECT * FROM ${table} WHERE ${tablePK} = ${obj.id}`, (err, t) => {
             if (err) console.log(err)
             if (t && t.rows) {
-                io.sockets.emit('updateAny', { collection, updatedObjects: t.rows, primaryKey: 'id' })
+                io.sockets.emit('updateAny', { collection, updatedObjects: t.rows, primaryKey })
                 res.send(t.rows)
             } else res.send('Nothing was returned from the dataBase...')
         })

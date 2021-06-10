@@ -16,6 +16,7 @@ import ShowFiles from '../Reusable Components/ShowFiles'
 import AlertDialog from '../Reusable Components/AlertDialog'
 import removePDF from '../Utils/removePDFButton'
 import getEmpresas from './getEmpresas'
+import ConfirmDialog from '../Reusable Components/ConfirmDialog'
 
 const format = {
     top: '5%',
@@ -35,7 +36,7 @@ class ConsultasContainer extends Component {
         }
     }
     state = {
-        tab: 2,
+        tab: 0,
         items: ['Empresas', 'Sócios', 'Procuradores', 'Veículos', 'Seguros'],
         tablePKs: ['codigo_empresa', 'socio_id', 'procurador_id', 'veiculo_id', 'id'],
         dbTables: ['empresas', 'socios', 'procuradores', 'veiculos', 'seguros'],
@@ -162,6 +163,19 @@ class ConsultasContainer extends Component {
         }
     }
 
+    confirmDeactivate = data => {
+        if (data.situacao === 'Desativada') {
+            alert(`A empresa ${data.razaoSocial} já foi desativada.`)
+            return
+        }
+        this.setState({
+            openConfirmDialog: true,
+            confirmType: 'deactivateEmpresa',
+            element: data?.razaoSocial || '',
+            empresaToDeactivate: data?.codigoEmpresa
+        })
+    }
+
     deleteHandler = data => {
         const { dbTables, tablePKs, tab } = this.state,
             table = dbTables[tab],
@@ -169,14 +183,27 @@ class ConsultasContainer extends Component {
             itemId = humps.camelize(tablePK)
 
         let { codigoEmpresa } = data
+
         //Socios e procuradores não possuem codigoEmpresa, mas array de empresa
         if (table === 'socios' || table === 'procuradores')
             codigoEmpresa = JSON.stringify(data?.empresas)
 
-        console.log("🚀 ~ file: ConsultasContainer.jsx ~ line 172 ~ ConsultasContainer ~ codigoEmpresa", codigoEmpresa)
-
-        axios.delete(`/api/delete?table=${table}&tablePK=${tablePK}&id=${data[itemId]}&codigoEmpresa=${codigoEmpresa}&cpf_socio=${data.cpfSocio}&cpf_procurador=${data.cpfProcurador}`)
-            .then(r => console.log(r.data))
+        //Demanda da SGTI para não apagar as empresas, mas alterar o status para "inativo"
+        if (tab === 0) {
+            codigoEmpresa = data
+            const reqBody = {
+                table,
+                tablePK,
+                column: 'situacao',
+                requestArray: [{ situacao: 'Desativada', id: codigoEmpresa }]
+            }
+            console.log(reqBody)
+            axios.put('/api/editElements', reqBody)
+            this.closeConfirmDialog()
+        }
+        else
+            axios.delete(`/api/delete?table=${table}&tablePK=${tablePK}&id=${data[itemId]}&codigoEmpresa=${codigoEmpresa}&cpf_socio=${data.cpfSocio}&cpf_procurador=${data.cpfProcurador}`)
+                .then(r => console.log(r.data))
     }
 
     showCertificate = async vehicle => {
@@ -227,11 +254,12 @@ class ConsultasContainer extends Component {
     toggleDialog = () => this.setState({ openDialog: !this.state.openDialog })
     closeAlert = () => this.setState({ openAlertDialog: !this.state.openAlertDialog })
     closeCertificate = () => this.setState({ showCertificate: !this.state.showCertificate })
+    closeConfirmDialog = () => this.setState({ openConfirmDialog: false })
 
     render() {
         const
             { tab, options, items, showDetails, elementDetails, showFiles, selectedElement, filesCollection, typeId, tablePKs, showCertificate, certified,
-                detailsTitle, detailsHeader, openAlertDialog, alertType, customTitle, customMessage } = this.state,
+                detailsTitle, detailsHeader, openAlertDialog, openConfirmDialog, alertType, confirmType, customTitle, customMessage } = this.state,
             { redux, user } = this.props,
             { empresas, procuracoes, procuradores, empresaDocs, altContrato } = redux,
             primaryKeys = tablePKs.map(pk => humps.camelize(pk))
@@ -262,6 +290,7 @@ class ConsultasContainer extends Component {
                 showFiles={this.showFiles}
                 del={this.deleteHandler}
                 showCertificate={this.showCertificate}
+                confirmDeactivate={this.confirmDeactivate}
             />
             {showDetails &&
                 <ShowDetails
@@ -281,7 +310,8 @@ class ConsultasContainer extends Component {
                 showCertificate &&
                 <Certificate vehicle={certified} />
             }
-            {showFiles &&
+            {
+                showFiles &&
                 <ShowFiles
                     tab={tab}
                     elementId={selectedElement}
@@ -293,10 +323,23 @@ class ConsultasContainer extends Component {
                     empresaDocs={empresaDocs}
                 />
             }
-            {openAlertDialog &&
+            {
+                openAlertDialog &&
                 <AlertDialog
                     open={openAlertDialog} close={this.closeAlert} alertType={alertType} tab={tab} customMessage={customMessage} customTitle={customTitle}
-                />}
+                />
+            }
+            {
+                openConfirmDialog &&
+                <ConfirmDialog
+                    open={openConfirmDialog}
+                    close={this.closeConfirmDialog}
+                    confirm={this.deleteHandler}
+                    element={this.state.element}
+                    type={confirmType}
+                    id={this.state.empresaToDeactivate}
+                />
+            }
         </Fragment>
     }
 }

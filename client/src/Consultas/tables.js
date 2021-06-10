@@ -20,6 +20,10 @@ export const delegatarioTable = [
         title: 'CNPJ',
     },
     {
+        field: 'situacao',
+        title: 'Situação',
+    },
+    {
         field: 'frota',
         title: 'Tamanho da frota'
     }

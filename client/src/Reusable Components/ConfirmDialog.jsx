@@ -8,12 +8,17 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import { Fragment } from 'react';
 
 export default function ConfirmDialog({ open, type, close, confirm, element, id, index, customTitle = '', customMessage = '' }) {
+    console.log("🚀 ~ file: ConfirmDialog.jsx ~ line 11 ~ ConfirmDialog ~ id", id)
 
     let title, message
     if (type === 'delete') {
         title = 'Confirmar exclusão'
         message = 'Tem certeza que deseja excluir esse registro?'
         if (element) message = message.replace('?', ': ')
+    }
+    if (type === 'deactivateEmpresa') {
+        title = 'Desativar empresa'
+        message = `Tem certeza que deseja desativar a empresa ${element}?`
     }
 
     if (title && message) return (

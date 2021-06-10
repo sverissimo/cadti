@@ -4,7 +4,7 @@ import { tables } from './tables'
 import exportToXlsx from './exportToXlsx'
 import { setForm } from '../Utils/createFormPattern'
 
-export default function ({ tab, collection, user, procuracoes, showDetails, showFiles, showCertificate, del }) {
+export default function ({ tab, collection, user, procuracoes, showDetails, showFiles, showCertificate, confirmDeactivate, del }) {
 
     const
         id = ['codigoEmpresa', 'socioId', 'procuradorId', 'veiculoId', 'apolice'][tab],
@@ -85,10 +85,17 @@ export default function ({ tab, collection, user, procuracoes, showDetails, show
                         tooltip: 'Emitir certificado',
                         hidden: tab !== 3,
                         onClick: (event, rowData) => showCertificate(rowData)
+                    },
+                    {
+                        icon: 'cancel',
+                        iconProps: { color: 'disabled' },
+                        tooltip: 'Desativar empresa',
+                        hidden: tab !== 0 || user.role === 'empresa',
+                        onClick: (event, rowData) => confirmDeactivate(rowData)
                     }
                 ]}
                 editable={{
-                    isDeleteHidden: rowData => user.role !== 'admin',
+                    isDeleteHidden: rowData => user.role === 'empresa' || tab === 0,
                     onRowDelete: async oldData => await del(oldData)
                 }}
             />
