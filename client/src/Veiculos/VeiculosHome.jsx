@@ -2,7 +2,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import StoreHOC from '../Store/StoreHOC'
 
-import './veiculos.scss'
+import styles from './veiculosHome.module.scss'
 
 const menuCards = [
     {
@@ -24,6 +24,12 @@ const menuCards = [
         imageUrl: "/images/car_insurance2.png"
     },
     {
+        title: 'Compartilhamento',
+        description: 'Gerenciar compartilhamento do veículo',
+        link: '/altDados',
+        imageUrl: '/images/shareVehicle2.png'
+    },
+    {
         title: 'Laudos',
         description: 'Laudos de segurança veicular',
         link: '/laudos',
@@ -43,13 +49,15 @@ const menuCards = [
     }
 ]
 
+const { jumbotron, card, card__image, card__container, card__text } = styles
+
 function VeiculosHome(props) {
 
     const { match, user } = props
 
     return (
         <div>
-            <section className="jumbotron">
+            <section className={jumbotron}>
                 <h1>
                     Veículos
                 </h1>
@@ -57,14 +65,14 @@ function VeiculosHome(props) {
                     Selecione uma das opções abaixo.
                 </p>
             </section>
-            <section className="card">
+            <section className={card}>
                 {
                     menuCards.map(({ title, link, imageUrl, description }, i) =>
-                        user?.role !== 'admin' && link === '/config' ?      //Não renderiza a opção "Configurações" para usuários sem permissão
+                        user?.role !== 'admin' && link === '/config' ?      //Não renderiza a opção Configurações para usuários sem permissão
                             null :
-                            <Link to={match.url + link} key={i} className="card__container">
-                                <span className="card__image"> <img src={imageUrl} alt={title} /> </span>
-                                <div className="card__text">
+                            <Link to={match.url + link} key={i} className={card__container}>
+                                <span className={card__image}> <img src={imageUrl} alt={title} /> </span>
+                                <div className={card__text}>
                                     <h3 >{title}</h3>
                                     <p > {description}</p>
                                 </div>
