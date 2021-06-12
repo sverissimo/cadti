@@ -23,6 +23,7 @@ import Parametros from './Parametros/Parametros'
 import UserAuth from './Auth/UserAuth'
 import Users from './Users/Users'
 import EditAccount from './Users/EditAccount'
+import Compartilhamento from './Veiculos/Compartilhamento'
 //import UnderConstruction from './UnderConstruction'
 
 
@@ -35,6 +36,7 @@ const Routes = ({ user }) => {
             <Route path='/veiculos/cadastro' exact component={CadVeiculos} />
             <Route path='/veiculos/altDados' exact component={AltDados} />
             <Route path='/veiculos/seguros' exact component={Seguros} />
+            <Route path='/veiculos/compartilhamento' exact component={Compartilhamento} />
             <Route path='/veiculos/laudos' exact component={Laudos} />
             <Route path='/veiculos/baixaVeiculo' exact component={BaixaVeiculo} />
             <Route path='/veiculos/config' exact component={Config} />

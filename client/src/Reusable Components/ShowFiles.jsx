@@ -31,6 +31,7 @@ const ShowFiles = ({ filesCollection, close, typeId, empresas, filesIds, razaoSo
             if (!fileLabels.find(f => f.name === 'newPlateDoc')) fileLabels.push({ title: 'CRLV com nova placa', name: 'newPlateDoc' })
             if (!fileLabels.find(f => f.name === 'apoliceDoc')) fileLabels.push({ title: 'Apólice de seguro', name: 'apoliceDoc' })
             if (!fileLabels.find(f => f.name === 'laudoDoc')) fileLabels.push({ title: 'Laudo de segurança veicular', name: 'laudoDoc' })
+            if (!fileLabels.find(f => f.name === 'contratoCompartilhamento')) fileLabels.push({ title: 'Contrato de Compartilhamento', name: 'contratoCompartilhamento' })
             break;
         default: void 0
     }

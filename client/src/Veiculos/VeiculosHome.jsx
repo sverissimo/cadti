@@ -26,7 +26,7 @@ const menuCards = [
     {
         title: 'Compartilhamento',
         description: 'Gerenciar compartilhamento do veículo',
-        link: '/altDados',
+        link: '/compartilhamento',
         imageUrl: '/images/shareVehicle2.png'
     },
     {

@@ -7,7 +7,7 @@ const TextArea = props => {
             <textarea
                 className='obs__textArea'
                 cols="30"
-                disabled
+                disabled={props.disabled === false ? false : true}
                 {...props}
             />
         </>

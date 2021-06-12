@@ -45,6 +45,16 @@ export const logRoutesConfig = [
     },
     {
         ...vehicle,
+        subject: 'Compartilhamento de veículo',
+        path: '/solicitacoes/compartilhamento',
+        requestAction: 'Compartilhamento de seguro solicitado',
+        concludedAction: 'Compartilhamento de veículo realizado.',
+        primaryKey: 'id',
+        collection, docs,
+
+    },
+    {
+        ...vehicle,
         subject: 'Cadastro de laudo de segurança veicular',
         collection: 'logs',
         path: '/solicitacoes/laudos',
