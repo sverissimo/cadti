@@ -24,6 +24,9 @@ const permanentBackup = async (req, res) => {
         razaoSocial
         , placa
 
+    if (!backupSocket) //cancela o backup se não houver socket definido
+        return
+
     for (let id of ids) {
         let fileRequest
         if (collection === 'empresaDocs')

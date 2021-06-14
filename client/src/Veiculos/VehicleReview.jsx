@@ -23,7 +23,7 @@ export default function Revisao({ data, parentComponent, form, filesForm, files 
         { paper } = classes,
         { acessibilidade, equipamentos, alteracoes, demand, demandFiles } = data,
         originalVehicle = data?.originalVehicle,
-        numeroDae = demand?.history instanceof Array && demand?.history.reverse().find(e => e.numeroDae).numeroDae
+        numeroDae = demand?.history instanceof Array && demand?.history.reverse().find(e => e.numeroDae)?.numeroDae
 
     let vehicleDetails = [],
         obj = {},

@@ -3,26 +3,22 @@ import { altFormVistoria } from './altFormVistoria'
 export const altForm = [[{
     field: 'placa',
     label: 'Placa',
-    margin: 'normal',
-    datalist: 'placa',
     autoComplete: true,
     collection: 'frota',
 },
 {
     field: 'delegatario',
     label: 'Delegatário',
-    margin: 'normal',
-    datalist: 'razaoSocial',
+    itemProp: 'razaoSocial',
     autoComplete: true,
     collection: 'empresas'
 },
 {
     field: 'compartilhado',
     label: 'Delegatário Compartilhado',
-    margin: 'normal',
-    datalist: 'razaoSocial',
+    itemProp: 'razaoSocial',
     autoComplete: true,
-    collection: 'empresas'
+    collection: 'compartilhados'
 },
 {
     field: 'utilizacao',

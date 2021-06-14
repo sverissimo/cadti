@@ -78,6 +78,8 @@ export default function SegurosTemplate({ empresas, data, seguros, seguradoras, 
                         <TextInput
                             form={seguroForm}
                             data={data}
+                            seguros={seguros}
+                            seguradoras={seguradoras}
                             handleBlur={handleBlur}
                             handleInput={handleInput}
                         />
@@ -110,7 +112,7 @@ export default function SegurosTemplate({ empresas, data, seguros, seguradoras, 
                                 />
                                 <AutoComplete
                                     collection={allVehicles}
-                                    datalist='placa'
+                                    field='placa'
                                     value={addedPlaca}
                                 />
                                 <Button
@@ -121,7 +123,7 @@ export default function SegurosTemplate({ empresas, data, seguros, seguradoras, 
                                     onClick={() => addPlate(addedPlaca)}
                                 >
                                     <Add /> Adicionar
-                            </Button>
+                                </Button>
                             </div>
 
                             <div>

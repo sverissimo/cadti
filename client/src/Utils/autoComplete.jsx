@@ -1,21 +1,27 @@
 import React from 'react'
 
-export default function AutoComplete({ collection = [], datalist, value, empresas }) {
+export default function AutoComplete({ collection = [], field, itemProp, value }) {
 
     if (value?.length > 2 && typeof collection !== 'string') {
-        if (datalist === 'razaoSocial' && empresas && empresas[0]) collection = empresas
+
+        //O id é o próprio field (ex:placa). Quando for diferente, o parentComponent deve passar o itemProp a ser renderizado. 
+        if (field === 'modeloCarroceria')
+            field = 'modelo'
+        if (!itemProp)
+            itemProp = field
 
         return (
-            <datalist id={datalist}>
+            <datalist id={field} autoComplete='off'>
                 {
                     collection.map((item, index) => {
                         return (
-                            <option key={index}>{item[datalist]}</option>
+                            <option key={index}>{item[itemProp]}</option>
                         )
                     })}
             </datalist>
         )
-    } else {
+    }
+    else {
         return null
     }
 }

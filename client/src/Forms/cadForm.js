@@ -31,8 +31,6 @@ export const cadForm = [[{
 {
     field: 'modeloChassi',
     label: 'Modelo do Chassi',
-    margin: 'normal',
-    datalist: 'modeloChassi',
     autoComplete: true,
     collection: 'modelosChassi'
 },

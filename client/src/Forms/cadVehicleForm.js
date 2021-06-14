@@ -30,8 +30,6 @@ export const cadVehicleForm = [[{
 {
     field: 'modeloChassi',
     label: 'Modelo do Chassi',
-    margin: 'normal',
-    datalist: 'modeloChassi',
     autoComplete: true,
     collection: 'modelosChassi'
 },
@@ -54,8 +52,7 @@ export const cadVehicleForm = [[{
 {
     field: 'modeloCarroceria',
     label: 'Modelo da Carroceria',
-    margin: 'normal',
-    datalist: 'modelo',
+    itemProp: 'modelo',
     autoComplete: true,
     collection: 'carrocerias'
 },

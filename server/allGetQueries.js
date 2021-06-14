@@ -113,10 +113,10 @@ const empresas = (condition = '') => `
         ORDER BY frota DESC
         `
 
-const compartilhados = (condition = '') => ` 
+const compartilhados = (condition = 'WHERE situacao != \'Desativada\'') => ` 
         SELECT empresas.codigo_empresa, empresas.razao_social
         FROM public.empresas
-        ${condition}        
+        WHERE situacao != \'Desativada\'
         `
 
 const procuradores = (condition = '') => `

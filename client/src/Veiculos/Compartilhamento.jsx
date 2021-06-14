@@ -1,55 +1,81 @@
+import axios from 'axios'
 import React, { useEffect, useState } from 'react'
-import { compartilhamentoFiles } from '../Forms/compatilhamentoFiles'
 import StoreHOC from '../Store/StoreHOC'
+
+import CompartilhamentoTemplate from './CompartilhamentoTemplate'
+import { compartilhamentoFiles } from '../Forms/compatilhamentoFiles'
 import { handleFiles as globalHandleFiles, removeFile as deleteFiles } from '../Utils/handleFiles'
 import { logGenerator } from '../Utils/logGenerator'
-import CompartilhamentoTemplate from './CompartilhamentoTemplate'
+import ReactToast from '../Reusable Components/ReactToast'
+import compartilhamentoForm from '../Forms/compartilhamentoForm'
 
 
 const Compartilhamento = props => {
 
     const
-        { empresas, compartilhados, veiculos } = props.redux
-        , [state, setState] = useState({})
-        , { demand } = state
+        { empresas, compartilhados, veiculos, vehicleDocs } = props.redux
+        , [state, setState] = useState({ confirmToast: false })
+        , demand = props?.location?.state?.demand
 
     useEffect(() => {
         if (empresas && empresas.length === 1)
             setState({ ...state, selectedEmpresa: empresas[0], razaoSocial: empresas[0]?.razaoSocial, frota: veiculos })
-        return () => void 0
-    }, [empresas])
 
-    const handleInput = async e => {
+        if (demand?.history) {
+            const
+                { empresaId, veiculoId } = demand
+                , { motivoCompartilhamento, compartilhado, compartilhadoId, files } = demand.history.length && demand.history[0]
+                , selectedEmpresa = empresas.find(e => e.codigoEmpresa === empresaId)
+                , frota = veiculos.filter(v => v.codigoEmpresa === empresaId)
+                , vehicle = frota.find(v => v.veiculoId === veiculoId)
+
+            let demandFiles
+            if (files)
+                demandFiles = vehicleDocs.filter(doc => files.includes(doc.id))
+            setState({ ...state, ...vehicle, selectedEmpresa, demand, demandFiles, razaoSocial: selectedEmpresa.razaoSocial, motivoCompartilhamento, compartilhado, compartilhadoId })
+        }
+
+
+        return () => void 0
+    }, [empresas, demand])
+
+    const handleInput = e => {
         const { name, value } = e.target
 
-        await setState({ ...state, [name]: value })
-
         switch (name) {
-
             case 'razaoSocial':
                 const selectedEmpresa = empresas.find(e => e.razaoSocial === value)
                 if (selectedEmpresa) {
                     const frota = veiculos.filter(v => v.codigoEmpresa === selectedEmpresa.codigoEmpresa)
-                    setState({ ...state, selectedEmpresa, frota, razaoSocial: selectedEmpresa.razaoSocial })
+                    setState({ ...state, selectedEmpresa, frota, razaoSocial: selectedEmpresa.razaoSocial, [name]: value })
                 }
+                else
+                    setState({ ...state, [name]: value })
                 break
 
             case 'placa':
                 const vehicle = veiculos.find(v => v.placa === value)
                 if (vehicle)
-                    setState({ ...state, ...vehicle })
+                    setState({ ...state, ...vehicle, [name]: value })
+                else
+                    setState({ ...state, [name]: value })
                 break
+
             case 'compartilhado':
-                const compartilhado = compartilhados.find(dc => dc.razaoSocial === value)
+                const compartilhado = compartilhados.find(dc => dc.razaoSocial === value && value !== '')
                 if (compartilhado) {
                     const { codigoEmpresa, razaoSocial } = compartilhado
-                    setState({ ...state, compartilhadoId: codigoEmpresa, compartilhado: razaoSocial })
+                    setState({ ...state, compartilhadoId: codigoEmpresa, compartilhado: razaoSocial, compartilhamentoRemoved: false, [name]: value })
                 }
+                else if (!value)
+                    setState({ ...state, compartilhadoId: undefined, compartilhado: undefined, compartilhamentoRemoved: true, [name]: value })
+                else
+                    setState({ ...state, [name]: value })
                 break
-            default: void 0
+            default:
+                setState({ ...state, [name]: value })
         }
     }
-
 
     const handleFiles = (files, name) => {
         if (files && files[0]) {
@@ -71,7 +97,7 @@ const Compartilhamento = props => {
             { selectedEmpresa, compartilhadoId, compartilhado, motivoCompartilhamento, info, form, veiculoId } = state,
             { codigoEmpresa } = selectedEmpresa
         let log
-
+        console.log("🚀 ~ file: Compartilhamento.jsx ~ line 114 ~ createLog ~ demand", approved)
         //Se não houver demanda, criar demanda/log
         if (!demand) {
             log = {
@@ -112,6 +138,7 @@ const Compartilhamento = props => {
                 { demandFiles } = state
             log = {
                 id,
+                veiculoId,
                 demandFiles,
                 history: {},
                 approved
@@ -126,8 +153,62 @@ const Compartilhamento = props => {
         logGenerator(log)
             .then(r => console.log(r?.data))
             .catch(err => console.log(err))
+        let toastMsg
+
+        if (approved) {
+            //A string 'NULL' é interpretada no backEnd como a inteção de remover o compartilhamento
+            let compartilhado_id = state.compartilhadoId
+            if (!compartilhado_id)
+                compartilhado_id = 'NULL'
+
+            const
+                request = axios.create({
+                    baseURL: '/api',
+                })
+                , requestObj = {
+                    table: 'veiculos',
+                    tablePK: 'veiculo_id',
+                    id: demand.veiculoId,
+                    requestObject: { veiculo_id: demand.veiculoId, compartilhado_id }
+                }
+            request.put('/updateVehicle', requestObj)
+                .catch(e => console.log(e))
+                .then(r => console.log(r))
+            toastMsg = 'Compartilhamento de veículo aprovado.'
+        }
+        else if (approved === false)
+            toastMsg = 'Solicitação indeferida.'
+        else if (!approved)
+            toastMsg = 'Solicitação enviada.'
+
+        //Refresh do state ou volta para a página de solicitações
+        if (demand)
+            setTimeout(() => {
+                props.history.push('/solicitacoes')
+            }, 1500);
+        else
+            setTimeout(() => { resetState() }, 900);
+        toast(toastMsg)
 
     }
+    const resetState = () => {
+        const resetForm = {}
+        let clearedState = {}
+
+        compartilhamentoForm.forEach(({ field }) => {
+            Object.assign(resetForm, { [field]: '' })
+        })
+
+        //Se for só uma empresa, volta para o estado inicial (componentDidMount) para procuradores de apenas uma empresa
+        if (empresas && empresas.length === 1)
+            clearedState = { ...empresas[0], selectedEmpresa: empresas[0] }
+
+        setState({
+            ...resetForm, razaoSocial: '', selectedEmpresa: undefined, form: undefined, fileToRemove: undefined, ...clearedState
+        })
+    }
+
+    const toast = toastMsg => setState({ ...state, confirmToast: !state.confirmToast, toastMsg })
 
     return (
         <>
@@ -140,6 +221,7 @@ const Compartilhamento = props => {
                     removeFile={removeFile}
                     handleSubmit={handleSubmit}
                 />
+                <ReactToast open={state.confirmToast} close={toast} msg={state.toastMsg} />
             </div>
         </>
     )

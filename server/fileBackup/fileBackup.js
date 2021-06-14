@@ -11,6 +11,9 @@ const fileBackup = async (req, fields) => {
         , filesToSend = []
         , addMetadata = {}
 
+    if (!backupSocket) //cancela o backup se não houver socket definido
+        return
+
     //adiciona metadata para o backup
     if (fields.length) {
         const

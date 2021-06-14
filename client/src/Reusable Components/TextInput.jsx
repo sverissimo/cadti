@@ -35,10 +35,12 @@ const useStyles = makeStyles(theme => ({
     },
 }))
 
-export default function TextInput({ handleInput, handleBlur, form, data, empresas, compartilhados, selectOptions, disableAll, style = {}, disableSome = [] }) {
+export default function TextInput({ handleInput, handleBlur, form, data, empresas, compartilhados, seguros, seguradoras, selectOptions, disableAll, style = {}, disableSome = [] }) {
     //console.log("🚀 ~ file: TextInput.jsx ~ line 39 ~ TextInput ~ data", data)
 
-    const classes = useStyles(),
+    const
+        reduxData = { compartilhados, empresas, seguros, seguradoras },
+        classes = useStyles(),
         { helperText } = classes
 
     const errorHandler = (el) => {
@@ -107,10 +109,11 @@ export default function TextInput({ handleInput, handleBlur, form, data, empresa
                                     fontFamily: '\'Segoe UI\', Tahoma, Geneva, Verdana, sans-serif'
                                 },
                                 value: `${data[el.field] || ''}`,
-                                list: el.datalist || '',
+                                list: el.field || el.itemProp || '',
                                 maxLength: el.maxLength || '',
                                 minLength: el.minLength || '',
                                 max: el.max || '',
+                                autoComplete: 'off'
                             }}
 
                             multiline={el.multiline || false}
@@ -143,9 +146,9 @@ export default function TextInput({ handleInput, handleBlur, form, data, empresa
 
                         </TextField>
                         {el.autoComplete === true && <AutoComplete
-                            collection={data[el.collection]}
-                            empresas={compartilhados ? compartilhados : empresas}
-                            datalist={el.datalist}
+                            field={el.field}
+                            collection={data[el.collection] || reduxData[el.collection]}
+                            itemProp={el.itemProp}
                             value={data[el.field] || ''}
                         />
                         }

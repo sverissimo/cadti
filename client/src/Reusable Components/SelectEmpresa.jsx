@@ -8,16 +8,16 @@ function SelectEmpresa(props) {
 
     const
         [enableSelect, setEnabled] = useState(true),
-        { empresas, compartilhados, handleInput, handleBlur, shared, headerTitle } = props,
+        { empresas: allEmpresas, compartilhados, handleInput, handleBlur, shared, headerTitle } = props,
         { razaoSocial, compartilhado, activeStep, demand } = props.data,
-        singleEmpresaUser = empresas.length === 1,
-        list = 'razaoSocial'
+        empresas = allEmpresas.filter(e => e.situacao !== 'Desativada'),
+        singleEmpresaUser = empresas.length === 1
 
 
     //Configure the form. If shared is present in state, another form will be pusshed into the array (CadVehicles)
-    let headerTitles = [{ title: 'Selecione a Viação', list, name: list, value: razaoSocial }]
+    let headerTitles = [{ title: 'Selecione a Viação', name: 'razaoSocial', field: 'razaoSocial', value: razaoSocial }]
     if (shared)
-        headerTitles.push({ title: 'Empresa autorizada a compartilhar', list, name: 'compartilhado', value: compartilhado })
+        headerTitles.push({ title: 'Empresa autorizada a compartilhar', field: 'compartilhado', name: 'compartilhado', itemProp: 'razaoSocial', value: compartilhado })
 
 
     //Render field or title conditionally
@@ -56,22 +56,23 @@ function SelectEmpresa(props) {
                 </div>
             }
             {
-                (!activeStep || activeStep === 0) && headerTitles.map(({ title, list, name, value }, i) =>
+                (!activeStep || activeStep === 0) && enableSelect && headerTitles.map(({ title, field, name, itemProp, value }, i) =>
                     ((singleEmpresaUser && i === 1) || !singleEmpresaUser) &&
                     < div className='flexColumn' key={i} >
                         <h4 style={{ margin: '5px 0', textAlign: 'center' }}>{title}</h4>
                         <input
-                            list={list}
+                            list={field}
                             name={name}
                             className='selectEmpresa'
-                            value={value}
+                            value={value || ''}
                             onChange={handleInput}
                             onBlur={handleBlur}
                             autoComplete='off'
                         />
                         <AutoComplete
-                            collection={props.hasOwnProperty('shared') ? compartilhados : empresas}
-                            datalist={list}
+                            collection={field === 'compartilhado' ? compartilhados : empresas}
+                            field={field}
+                            itemProp={itemProp}
                             value={value}
                         />
                     </div>

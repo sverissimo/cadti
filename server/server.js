@@ -86,6 +86,7 @@ app.get('/getUser', getUser)
 io.on('connection', socket => {
     if (socket.handshake.headers.authorization === process.env.FILE_SECRET) {
         app.set('backupSocket', socket)
+        console.log('new backup socket connected.')
     }
     socket.on('userDetails', user => {
         if (user.role !== 'empresa') {
@@ -618,26 +619,27 @@ app.put('/api/editElements', (req, res) => {
         queryString = ''
 
     //Checa permissão de admin
-    if (user.role !== 'admin')
-        return res.status(403).send('É preciso permissão de administrador para acessar essa parte do cadTI.')
+    if (user.role === 'empresa')
+        return res.status(403).send('Esse usuário não possui permissões para acessar essa parte do cadTI.')
     //Request vazio
     if (!requestArray && !requestArray[0])
         return res.send('nothing to update...')
 
     requestArray.forEach(obj => {
         queryString += `
-            UPDATE ${table}
-            SET ${column} = '${obj[column]}' 
-            WHERE ${tablePK} = ${obj.id};             
-            `
+        UPDATE ${table}
+        SET ${column} = '${obj[column]}' 
+        WHERE ${tablePK} = ${obj.id || obj[tablePK]};             
+        `
     });
+    console.log("🚀 ~ file: server.js ~ line 630 ~ app.put ~ queryString", queryString)
     const
         primaryKey = collection === 'empresas' ? 'codigoEmpresa' : 'id',
         obj = requestArray[0]
 
     pool.query(queryString, (err, tb) => {
         if (err) console.log(err)
-        pool.query(`SELECT * FROM ${table} WHERE ${tablePK} = ${obj.id}`, (err, t) => {
+        pool.query(`SELECT * FROM ${table} WHERE ${tablePK} = ${obj.id || obj[tablePK]}`, (err, t) => {
             if (err) console.log(err)
             if (t && t.rows) {
                 io.sockets.emit('updateAny', { collection, updatedObjects: t.rows, primaryKey })

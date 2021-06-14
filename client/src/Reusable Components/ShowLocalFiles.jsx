@@ -36,7 +36,7 @@ const fileIcon = {
 
 }
 
-export default function ShowLocalFiles({ form, files, demand, demandFiles, collection, style = {} }) {
+export default function ShowLocalFiles({ form, files, demandFiles, collection, style = {} }) {
 
     const createLink = (key, fileName) => {
 

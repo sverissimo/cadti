@@ -2,7 +2,6 @@ const compartilhamentoForm = [
     {
         field: 'placa',
         label: 'Placa',
-        datalist: 'placa',
         autoComplete: true,
         collection: 'frota',
     },
@@ -35,9 +34,9 @@ const compartilhamentoForm = [
     {
         field: 'compartilhado',
         label: 'Delegatário Compartilhado',
-        datalist: 'razaoSocial',
+        itemProp: 'razaoSocial',
         autoComplete: true,
-        collection: 'empresas'
+        collection: 'compartilhados'
     }
 ]
 

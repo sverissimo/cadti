@@ -34,7 +34,7 @@ const checkWeight = (component, name) => {
         pbt = pbt.toFixed(3)
     //Avalia se o PBT é maior que o CMT
     if (+cmt >= pbt) {
-        console.log('Cmt, pbt ok.', cmt, pbt)
+        //console.log('Cmt, pbt ok.', cmt, pbt)
         pbt = Number(stringBR(pbt).replace(',', '.'))
         component.setState({ pbt })
     }
