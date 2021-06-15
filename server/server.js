@@ -589,7 +589,7 @@ app.post('/api/addElement', (req, res) => {
         if (t && t.rows) {
             if (table !== 'laudos')
                 io.sockets.emit('addElements', { insertedObjects: t.rows, table })
-
+            //Se a tabela for laudos
             else {
                 //Emite sockets para atualização dos laudos                        
                 const
@@ -597,13 +597,14 @@ app.post('/api/addElement', (req, res) => {
                     condition = `WHERE laudos.codigo_empresa = ${codigo_empresa}`
                 userSockets({ req, noResponse: true, table, condition, event: 'updateElements' })
 
-                //Atualiza status do vepiculo e emite sockets para atualização dos laudos
+                //Atualiza status do veículo e emite sockets para atualização dos laudos
                 if (veiculo_id) {
                     req.body.codigoEmpresa = codigo_empresa     //Passa o codigo p o body para o userSockets acessar
                     await updateVehicleStatus([veiculo_id])
                     const vCondition = `WHERE veiculos.veiculo_id = ${veiculo_id}`
                     userSockets({ req, noResponse: true, table: 'veiculos', event: 'updateVehicle', condition: vCondition })
                 }
+                return res.send(t.rows)
             }
             res.send('Dados inseridos')
         }

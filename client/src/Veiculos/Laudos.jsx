@@ -46,7 +46,7 @@ const Laudos = props => {
         [laudoDoc, setLaudoDoc] = useState(),
         [stateInputs, changeInputs] = useState({ ...initState.stateInputs }),
         [toast, setToast] = useState(false),
-        [toastMsg, setToastMsg] = useState('Laudo enviado com sucesso.'),
+        [toastMsg, setToastMsg] = useState('Laudo enviado para aprovação.'),
         [table, setTableData] = useState(),
         [demandFiles, setDemandFiles] = useState(),
         [fileToRemove, setFileToRemove] = useState(),
@@ -203,6 +203,7 @@ const Laudos = props => {
                     vehicleLaudos = selectedVehicle?.laudos,
                     laudoDocs = vehicleDocs.filter(d => d.metadata.fieldName === 'laudoDoc')
 
+
                 let laudosArray = [], tableHeaders = [], tempArray = [], table2 = [...laudosTable]
 
                 //Remove a opção de apagar se o usuário não for admin (é o último objeto de laudosTable, de onde veio)
@@ -210,6 +211,7 @@ const Laudos = props => {
                     table2.pop()
 
                 vehicleLaudos.forEach(l => {
+                    console.log("🚀 ~ file: Laudos.jsx ~ line 214 ~ useEffect ~ l", l, laudoDocs)
                     table2.forEach(t => {
                         let fileId
 
@@ -246,6 +248,7 @@ const Laudos = props => {
         i = 1
         void 0
     }, [])
+
     const clear = () => {
         document.querySelector('[name = "placa"]').value = ''
         setFilteredVehicles(oldVehicles)
@@ -323,7 +326,8 @@ const Laudos = props => {
             clearForm('all fields, reset state please!')
             removeFile('laudoDoc')
             toggleToast()
-            //console.log(initState.dropDisplay, laudoDoc)
+
+            setTimeout(() => { clear() }, 1200);
             return
         }
 
@@ -445,8 +449,8 @@ const Laudos = props => {
             if (allFields) changeInputs({ ...initState.stateInputs })
             setLaudoDoc()
             setDropDisplay(initState.dropDisplay)
-            setOldVehicles()
-            setFilteredVehicles()
+            /*    setOldVehicles()
+               setFilteredVehicles() */
         }
 
     const selectOptions = props.redux.empresasLaudo.map(e => e.empresa)

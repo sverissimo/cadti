@@ -19,7 +19,13 @@ const AltContratoTemplate = (
     { empresas, data, setActiveStep, enableEdit, handleEdit, addSocio, removeSocio, handleInput, handleBlur, handleSubmit, handleFiles, removeFile,
         setShowPendencias }) => {
     //Retirados campos número do Contrato e vencimento do CRC a pedido da DGTI (passou p/ próxima tab)
-    const dadosEmpresaForm = empresasForm.filter(el => el.field !== 'numeroContrato' && el.field !== 'vencimentoContrato')
+    const dadosEmpresaForm = JSON.parse(JSON.stringify(empresasForm))
+        .filter(el => el.field !== 'numeroContrato' && el.field !== 'vencimentoContrato')
+        .map(e => {
+            if (e.field === 'razaoSocial')
+                e.disabled = true
+            return e
+        })
 
     const
         { selectedEmpresa, demand, demandFiles, activeStep, stepTitles, subtitles, form, fileToRemove, info, showPendencias } = data,
@@ -48,7 +54,8 @@ const AltContratoTemplate = (
                 </div>
             </header>
             {
-                selectedEmpresa?.cnpj &&
+                //selectedEmpresa?.cnpj &&
+                selectedEmpresa instanceof Object &&
                 <>
                     {/*--------------------- Form / inputs -------------------------*/}
                     {

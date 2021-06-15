@@ -24,7 +24,7 @@ const Compartilhamento = props => {
         if (demand?.history) {
             const
                 { empresaId, veiculoId } = demand
-                , { motivoCompartilhamento, compartilhado, compartilhadoId, files } = demand.history.length && demand.history[0]
+                , { motivoCompartilhamento, compartilhado, compartilhadoId, files, compartilhamentoRemoved } = demand.history.length && demand.history[0]
                 , selectedEmpresa = empresas.find(e => e.codigoEmpresa === empresaId)
                 , frota = veiculos.filter(v => v.codigoEmpresa === empresaId)
                 , vehicle = frota.find(v => v.veiculoId === veiculoId)
@@ -32,7 +32,10 @@ const Compartilhamento = props => {
             let demandFiles
             if (files)
                 demandFiles = vehicleDocs.filter(doc => files.includes(doc.id))
-            setState({ ...state, ...vehicle, selectedEmpresa, demand, demandFiles, razaoSocial: selectedEmpresa.razaoSocial, motivoCompartilhamento, compartilhado, compartilhadoId })
+            setState({
+                ...state, ...vehicle, selectedEmpresa, demand, demandFiles, razaoSocial: selectedEmpresa.razaoSocial,
+                motivoCompartilhamento, compartilhado, compartilhadoId, compartilhamentoRemoved
+            })
         }
 
 
@@ -94,10 +97,10 @@ const Compartilhamento = props => {
     }
     const createLog = ({ demand, approved }) => {
         const
-            { selectedEmpresa, compartilhadoId, compartilhado, motivoCompartilhamento, info, form, veiculoId } = state,
+            { selectedEmpresa, compartilhadoId, compartilhado, motivoCompartilhamento, info, form, veiculoId, compartilhamentoRemoved } = state,
             { codigoEmpresa } = selectedEmpresa
         let log
-        console.log("🚀 ~ file: Compartilhamento.jsx ~ line 114 ~ createLog ~ demand", approved)
+
         //Se não houver demanda, criar demanda/log
         if (!demand) {
             log = {
@@ -106,7 +109,8 @@ const Compartilhamento = props => {
                     motivoCompartilhamento,
                     files: form,
                     compartilhadoId,
-                    compartilhado
+                    compartilhado,
+                    compartilhamentoRemoved
                 },
                 metadata: { veiculoId },
                 empresaId: codigoEmpresa,
@@ -204,7 +208,7 @@ const Compartilhamento = props => {
             clearedState = { ...empresas[0], selectedEmpresa: empresas[0] }
 
         setState({
-            ...resetForm, razaoSocial: '', selectedEmpresa: undefined, form: undefined, fileToRemove: undefined, ...clearedState
+            ...resetForm, razaoSocial: '', selectedEmpresa: undefined, form: undefined, fileToRemove: undefined, ...clearedState, motivoCompartilhamento: undefined
         })
     }
 

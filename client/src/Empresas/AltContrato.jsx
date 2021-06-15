@@ -151,7 +151,7 @@ const AltContrato = props => {
             filteredSocios
 
         if (name === 'razaoSocial') {
-            selectedEmpresa = empresas.find(e => e.razaoSocial === value) || {}
+            selectedEmpresa = empresas.find(e => e.razaoSocial === value)
 
             let venc = selectedEmpresa?.vencimentoContrato
 
@@ -184,7 +184,10 @@ const AltContrato = props => {
                 })
             }
 
-            setState({ ...state, ...selectedEmpresa, selectedEmpresa, filteredSocios, [name]: value })
+            if (selectedEmpresa)
+                setState({ ...state, ...selectedEmpresa, selectedEmpresa, filteredSocios, [name]: value })
+            else
+                setState({ ...state, selectedEmpresa: undefined, filteredSocios: undefined, [name]: value })
         }
         else {
             const parsedValue = valueParser(name, value)

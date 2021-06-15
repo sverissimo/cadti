@@ -13,6 +13,7 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import { sociosForm as dadosSociosForm } from '../Forms/dadosSociosForm'
 import TextInput from '../Reusable Components/TextInput'
 import { errorHandler, helper } from '../Utils/checkInputErrors';
+import { sociosForm as sForm } from '../Forms/sociosForm';
 
 const useStyles = makeStyles(theme => ({
     list: {
@@ -34,8 +35,14 @@ export default function ({ socios, empresas, handleInput, handleBlur, data, addS
         { activeStep, stepTitles, filteredSocios, selectedEmpresa } = data,
         classes = useStyles(), { iconButton, list } = classes
 
-    let standAlone = true
-    if (stepTitles) standAlone = false
+    let
+        standAlone = true,
+        sociosForm = dadosSociosForm
+
+    if (stepTitles) {
+        standAlone = false
+        sociosForm = sForm
+    }
 
     return (
         <>
@@ -67,7 +74,7 @@ export default function ({ socios, empresas, handleInput, handleBlur, data, addS
                             <FormSubtiltle subtitle={stepTitles[activeStep]} />
                             <div className='flex center' style={{ padding: '10px 0', width: '100%' }}>
                                 <TextInput
-                                    form={dadosSociosForm}
+                                    form={sociosForm}
                                     data={data}
                                     handleBlur={handleBlur}
                                     handleInput={handleInput}
@@ -76,7 +83,7 @@ export default function ({ socios, empresas, handleInput, handleBlur, data, addS
                             <div style={{ margin: '5px 0 7px 84.58%', width: '100%' }}>
                                 <Button color='primary' variant='outlined' size='small' onClick={addSocio}>
                                     <AddIcon /> Adicionar sócio
-                                        </Button>
+                                </Button>
                             </div>
                         </section>
                 }
@@ -96,7 +103,7 @@ export default function ({ socios, empresas, handleInput, handleBlur, data, addS
                         <p> Sócios cadastrados</p>
                         {socios.map((s, i) =>
                             <div key={i}>
-                                {dadosSociosForm.map((e, k) =>
+                                {sociosForm.map((e, k) =>
                                     <Fragment key={k + 1000}>
                                         <TextField
                                             value={s[e.field] || ''}

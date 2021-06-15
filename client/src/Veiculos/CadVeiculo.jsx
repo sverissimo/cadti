@@ -62,10 +62,13 @@ class VeiculosContainer extends PureComponent {
 
         if (demand) {
             let reactivated = false
-            const demandState = setDemand(demand, redux)
+            const
+                demandState = setDemand(demand, redux),
+                numeroDae = demand?.history && demand.history.reverse().find(e => e.hasOwnProperty('numeroDae'))?.numeroDae
+
             if (demandState.situacao.match('Reativação'))
                 reactivated = true
-            this.setState({ ...demandState, activeStep: 3, reactivated })
+            this.setState({ ...demandState, numeroDae, activeStep: 3, reactivated })
         }
 
         //*********Create state[equipamento] for each equipamentos/acessibilidade and turn them to false before a vehicle is selected *********/
@@ -304,7 +307,7 @@ class VeiculosContainer extends PureComponent {
 
         let customTitle, customMessage
 
-        if (placaMatch) {
+        if (placaMatch && !this.state.demand) {
             const { status } = placaMatch
             if (status === 'existing') {
                 if (vehicle?.situacao.match(/Cadastro|Reativação/g)) {
@@ -482,8 +485,11 @@ class VeiculosContainer extends PureComponent {
             approved
         }
 
-        if (demand) log.id = demand?.id
-        if (reactivated) log.subject = 'Reativação de veículo'
+        if (demand)
+            log.id = demand?.id
+        if (reactivated)
+            log.subject = 'Reativação de veículo'
+
         logGenerator(log)
             .then(r => console.log(r?.data))
             .catch(err => console.log(err))

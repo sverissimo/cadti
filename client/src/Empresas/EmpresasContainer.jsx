@@ -62,11 +62,11 @@ class EmpresasContainer extends Component {
         if (action === 'back') this.setState({ activeStep: prevActiveStep - 1 });
         if (action === 'reset') this.setState({ activeStep: 0 })
 
-        const { errors } = this.state
+        /* const { errors } = this.state
         if (errors && errors[0]) {
             await this.setState({ ...this.state, ...checkInputErrors('setState') })
             return
-        }
+        } */
     }
 
     handleInput = e => {

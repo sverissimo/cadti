@@ -74,9 +74,9 @@ class AltDados extends Component {
 
         if (demand) {
             const
-                demandState = setDemand(demand, redux),
-                { originalVehicle, getUpdatedValues, alteracoes, compartilhadoId } = demandState
-            console.log("🚀 ~ file: AltDados.jsx ~ line 79 ~ AltDados ~ componentDidMount ~ demandState", demandState)
+                demandState = setDemand(demand, redux)
+                , { originalVehicle, getUpdatedValues, alteracoes, compartilhadoId } = demandState
+                , numeroDae = demand?.history && demand.history.reverse().find(e => e.hasOwnProperty('numeroDae'))?.numeroDae
 
             //altera o objeto alteracoes por referência para destacar apenas os campos alterados ao abrir a demanda
             getUpdatedValues(originalVehicle, alteracoes)
@@ -85,7 +85,7 @@ class AltDados extends Component {
             if (compartilhadoId === 'NULL')
                 demandState.compartilhado = ''
 
-            this.setState({ ...demandState, activeStep: 3 })
+            this.setState({ ...demandState, numeroDae, activeStep: 3 })
         }
 
         //*********Create state[key] for each equipamentos/acessibilidade and turn them to false before a vehicle is selected *********/

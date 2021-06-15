@@ -4,9 +4,7 @@ export default function AutoComplete({ collection = [], field, itemProp, value }
 
     if (value?.length > 2 && typeof collection !== 'string') {
 
-        //O id é o próprio field (ex:placa). Quando for diferente, o parentComponent deve passar o itemProp a ser renderizado. 
-        if (field === 'modeloCarroceria')
-            field = 'modelo'
+        //O id é o próprio field (ex:placa). Quando for diferente, o parentComponent deve passar o itemProp a ser renderizado.         
         if (!itemProp)
             itemProp = field
 
