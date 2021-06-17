@@ -37,9 +37,8 @@ const Compartilhamento = props => {
                 motivoCompartilhamento, compartilhado, compartilhadoId, compartilhamentoRemoved
             })
         }
-
-
         return () => void 0
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [empresas, demand])
 
     const handleInput = e => {

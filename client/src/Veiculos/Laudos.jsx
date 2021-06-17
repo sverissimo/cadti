@@ -22,7 +22,7 @@ let i = 1 //prevent more than 1 re-render in specific functions/conditions
 const Laudos = props => {
     const
         { user } = props,
-        { veiculos, empresas, empresasLaudo, laudos, vehicleDocs, logs } = props.redux,
+        { allVehicleFields: veiculos, empresas, empresasLaudo, laudos, vehicleDocs, logs } = props.redux,
         demand = props?.location?.state?.demand
 
     const initState = Object.freeze({
@@ -99,8 +99,8 @@ const Laudos = props => {
     }
 
     useEffect(() => {
-        const insertLaudos = async () => {
 
+        const insertLaudos = () => {
             if (selectedEmpresa && selectedEmpresa !== '') {
                 // Estabelece quais são os veículos 15+anos (oldVehicles)
                 const
@@ -108,29 +108,20 @@ const Laudos = props => {
                     frota = veiculos.filter(v => v.empresa === selectedEmpresa.razaoSocial),
                     oldVehicles = frota.filter(v => currentYear - v.anoCarroceria > 15 && v.anoCarroceria !== null).sort((a, b) => a.placa.localeCompare(b.placa))
 
-                let vehiclesLaudo = [], laudosTemp = []
-                oldVehicles.forEach(v => {                  //Acrescenta os laudos atualizados para cada veículo 15+anos (oldVehicles)
-                    laudos.forEach(l => {
-                        if (v.veiculoId === l.veiculoId) {
-                            laudosTemp.push(l)
-                        }
-                    })
-                    laudosTemp.sort((a, b) => {
-                        const dateA = new Date(a.validade)
-                        const dateB = new Date(b.validade)
-                        return dateB - dateA
-                    })
-                    vehiclesLaudo.push({ ...v, laudos: laudosTemp })
-                    laudosTemp = []
+                //Acrescenta os laudos atualizados para cada veículo 15+anos (oldVehicles)
+                let vehiclesLaudo = []
+                oldVehicles.forEach(v => {
+                    const vehicleLaudos = laudos.filter(l => l.veiculoId === v.veiculoId)
+                    vehiclesLaudo.push({ ...v, laudos: vehicleLaudos })
                 })
 
-                await setOldVehicles(vehiclesLaudo)
-                await setFilteredVehicles(vehiclesLaudo)
+                setOldVehicles(vehiclesLaudo)
+                setFilteredVehicles(vehiclesLaudo)
 
                 if (selectedVehicle && vehiclesLaudo?.length > 0) {
                     const updatedVehicle = vehiclesLaudo.find(v => v.veiculoId === selectedVehicle.veiculoId)
                     if (updatedVehicle?.laudos?.length !== selectedVehicle?.laudos?.length) {
-                        await selectVehicle(updatedVehicle)
+                        selectVehicle(updatedVehicle)
                     } else return
                 }
             } else {
@@ -211,7 +202,6 @@ const Laudos = props => {
                     table2.pop()
 
                 vehicleLaudos.forEach(l => {
-                    console.log("🚀 ~ file: Laudos.jsx ~ line 214 ~ useEffect ~ l", l, laudoDocs)
                     table2.forEach(t => {
                         let fileId
 
@@ -352,15 +342,17 @@ const Laudos = props => {
 
         if (approved === true) {
             //Prepare the request Object
-            const empresa = empresasLaudo.find(e => e.empresa === empresaLaudo)
+            const
+                empresa = empresasLaudo.find(e => e.empresa === empresaLaudo)
+
             let laudoId
             if (empresa)
                 requestElement.empresa_id = empresa.id  //Esse é id da empresa que emite o laudo
-            requestElement.veiculo_id = selectedVehicle.veiculoId
+            requestElement.veiculo_id = veiculoId
             requestElement.codigo_empresa = empresaId    // Esse é o código da empresa/delegatário
             const requestBody = { table: 'laudos', requestElement }
 
-            //Submit
+            //Insert new laudo in "Laudos" table
             await axios.post('/api/addElement', requestBody)
                 .then(r => {
                     laudoId = r?.data[0]?.id
@@ -380,7 +372,6 @@ const Laudos = props => {
                 },
                 approved
             }
-
             logGenerator(log)
                 .then(r => console.log(r.data))
 
@@ -390,6 +381,7 @@ const Laudos = props => {
             toggleToast()
             clearForm('Clear all Of It!!!')
         }
+
     }
 
     function confirmDelete(laudoId) {
@@ -482,22 +474,5 @@ const Laudos = props => {
     )
 }
 
-const collections = ['veiculos', 'empresas', 'empresasLaudo', 'laudos', 'getFiles/vehicleDocs']
+const collections = ['allVehicleFields', 'empresas', 'empresasLaudo', 'laudos', 'getFiles/vehicleDocs']
 export default StoreHOC(collections, Laudos)
-
-/*
-        [razaoSocial, empresaInput] = useState(empresas[0].razaoSocial),
-        [selectedEmpresa, setEmpresa] = useState(empresas[0]),
-        [oldVehicles, setOldVehicles] = useState(veiculos[0]),
-        [filteredVehicles, setFilteredVehicles] = useState([veiculos[0]]),
-        [details, setDetails] = useState(false),
-        [selectedVehicle, selectVehicle] = useState(veiculos[0]),
-
-
-
-[razaoSocial, empresaInput] = useState(''),
-[selectedEmpresa, setEmpresa] = useState(),
-[oldVehicles, setOldVehicles] = useState(),
-[filteredVehicles, setFilteredVehicles] = useState([]),
-[details, setDetails] = useState(false),
-[selectedVehicle, selectVehicle] = useState(), */
