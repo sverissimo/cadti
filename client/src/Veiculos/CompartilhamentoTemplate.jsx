@@ -16,8 +16,8 @@ const CompartilhamentoTemplate = ({ data, redux, handleInput, handleFiles, remov
     const
         { empresas, compartilhados } = redux
         , { razaoSocial, selectedEmpresa, motivoCompartilhamento, form, demand, compartilhamentoRemoved, demandFiles, fileToRemove } = data
-        //, reviewForm = compartilhamentoForm.map(e => ({ ...e, disabled: true }))
-        , reviewForm = compartilhamentoForm
+        , reviewForm = compartilhamentoForm.map(e => ({ ...e, disabled: true }))
+    // , reviewForm = compartilhamentoForm
 
     return (
         <>

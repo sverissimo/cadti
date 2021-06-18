@@ -14,7 +14,7 @@ const Compartilhamento = props => {
 
     const
         { empresas, compartilhados, veiculos, vehicleDocs } = props.redux
-        , [state, setState] = useState({ confirmToast: false })
+        , [state, setState] = useState({ confirmToast: false, compartilhadoAtual: null })
         , demand = props?.location?.state?.demand
 
     useEffect(() => {
@@ -56,11 +56,14 @@ const Compartilhamento = props => {
                 break
 
             case 'placa':
-                const vehicle = veiculos.find(v => v.placa === value)
+                const
+                    vehicle = veiculos.find(v => v.placa === value)
+                    , compartilhadoAtual = vehicle?.compartilhado || ''
+
                 if (vehicle)
-                    setState({ ...state, ...vehicle, [name]: value })
+                    setState({ ...state, ...vehicle, compartilhadoAtual, [name]: value })
                 else
-                    setState({ ...state, [name]: value })
+                    setState({ ...state, compartilhadoAtual: undefined, [name]: value })
                 break
 
             case 'compartilhado':
@@ -69,8 +72,10 @@ const Compartilhamento = props => {
                     const { codigoEmpresa, razaoSocial } = compartilhado
                     setState({ ...state, compartilhadoId: codigoEmpresa, compartilhado: razaoSocial, compartilhamentoRemoved: false, [name]: value })
                 }
-                else if (!value)
-                    setState({ ...state, compartilhadoId: undefined, compartilhado: undefined, compartilhamentoRemoved: true, [name]: value })
+                else if (!value) {
+                    const compartilhamentoRemoved = state.compartilhadoAtual && !value
+                    setState({ ...state, compartilhadoId: undefined, compartilhado: undefined, compartilhamentoRemoved, [name]: value })
+                }
                 else
                     setState({ ...state, [name]: value })
                 break
@@ -102,9 +107,10 @@ const Compartilhamento = props => {
 
         //Se não houver demanda, criar demanda/log
         if (!demand) {
+            const infoKey = compartilhamentoRemoved ? 'Motivo do término do compartilhamento' : 'Motivo do compartilhamento'
             log = {
                 history: {
-                    info: `Motivo do compartilhamento: ${motivoCompartilhamento}`,
+                    info: `${infoKey}: ${motivoCompartilhamento}`,
                     motivoCompartilhamento,
                     files: form,
                     compartilhadoId,
@@ -156,6 +162,7 @@ const Compartilhamento = props => {
         logGenerator(log)
             .then(r => console.log(r?.data))
             .catch(err => console.log(err))
+
         let toastMsg
 
         if (approved) {
@@ -199,7 +206,7 @@ const Compartilhamento = props => {
         let clearedState = {}
 
         compartilhamentoForm.forEach(({ field }) => {
-            Object.assign(resetForm, { [field]: '' })
+            Object.assign(resetForm, { [field]: undefined })
         })
 
         //Se for só uma empresa, volta para o estado inicial (componentDidMount) para procuradores de apenas uma empresa
@@ -207,7 +214,8 @@ const Compartilhamento = props => {
             clearedState = { ...empresas[0], selectedEmpresa: empresas[0] }
 
         setState({
-            ...resetForm, razaoSocial: '', selectedEmpresa: undefined, form: undefined, fileToRemove: undefined, ...clearedState, motivoCompartilhamento: undefined
+            ...resetForm, razaoSocial: '', selectedEmpresa: undefined, form: undefined,
+            fileToRemove: undefined, ...clearedState, motivoCompartilhamento: ''
         })
     }
 
