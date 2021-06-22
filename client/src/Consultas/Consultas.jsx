@@ -36,7 +36,7 @@ class ConsultasContainer extends Component {
         }
     }
     state = {
-        tab: 0,
+        tab: 1,
         items: ['Empresas', 'Sócios', 'Procuradores', 'Veículos', 'Seguros'],
         tablePKs: ['codigo_empresa', 'socio_id', 'procurador_id', 'veiculo_id', 'id'],
         dbTables: ['empresas', 'socios', 'procuradores', 'veiculos', 'seguros'],
@@ -110,10 +110,13 @@ class ConsultasContainer extends Component {
                     let sociosArray = []
                     selectedFiles = empresaDocs
                         .filter(f => socio.empresas.some(e => e.codigoEmpresa === f.metadata.empresaId && f.metadata.fieldName !== 'crc'))
-                        .forEach(f => {
-                            if (f.metadata.socios && f.metadata.socios.includes(id))
-                                sociosArray.push(f)
-                        })
+                    console.log("🚀 ~ file: Consultas.jsx ~ line 114 ~ ConsultasContainer ~ selectedFiles", selectedFiles)
+                    selectedFiles.forEach(f => {
+                        if (f.metadata.socios && f.metadata.socios.includes(id)) {
+                            console.log("🚀 ~ file: Consultas.jsx ~ line 129 ~ ConsultasContainer ~ id", id)
+                            sociosArray.push(f)
+                        }
+                    })
                     selectedFiles = sociosArray
                 }
                 break

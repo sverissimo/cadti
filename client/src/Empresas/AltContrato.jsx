@@ -39,8 +39,6 @@ const AltContrato = props => {
             filteredSocios: [],
             showPendencias: false,
             openAlertDialog: false
-            //selectedEmpresa: empresas[0],
-            //filteredSocios: [socios[0], socios[1]],
         })
 
     //ComponentDidMount para carregar demand, se houver e selecionar a empresa dependendo do usuário
@@ -99,6 +97,9 @@ const AltContrato = props => {
 
             setState({ ...state, ...altContrato, ...selectedEmpresa, selectedEmpresa, demand, demandFiles, filteredSocios, activeStep: 3 })
         }
+
+        return () => void 0
+
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
@@ -417,8 +418,13 @@ const AltContrato = props => {
                     const ids = oldSocios.map(s => s.socio_id)
                     socioIds = socioIds.concat(ids)             //A array de ids de sócios vai para a metadata dos arquivos                    
                 }
-                if (socioIds[0])
-                    Object.assign(log, { metadata: { socios: socioIds } })
+                if (socioIds[0]) {
+                    const unchangedSociosIds = filteredSocios
+                        .filter(s => s?.socioId && !socioIds.includes(s.socioId) && s?.status !== 'deleted')
+                        .map(s => s.socioId)
+                        , allSociosIds = socioIds.concat(unchangedSociosIds)
+                    Object.assign(log, { metadata: { socios: allSociosIds } })
+                }
                 toastMsg = 'Alteração de contrato social aprovada.'
             }
         }
@@ -430,14 +436,19 @@ const AltContrato = props => {
         // AO CRIAR A DEMANDA, NÃO ESTÁ PREENCHENDO A ARRAY DE SÓCIOS E ESTÁ DANDO TEMP: FALSE DE CARA
 
         else if (!approved) {
-            files = await submitFile(codigoEmpresa, socioIds) //A função deve retornar o array de ids dos files para incorporar no log.
+            //Adiciona os demais sócios para o metadata dos arquivos, para relacionar as alterações contratuais com todos os sócios 
+            const unchangedSociosIds = filteredSocios
+                .filter(s => s?.socioId && !socioIds.includes(s.socioId) && s?.status !== 'deleted')
+                .map(s => s.socioId)
+                , allSociosIds = socioIds.concat(unchangedSociosIds)
+
+            files = await submitFile(codigoEmpresa, allSociosIds) //A função deve retornar o array de ids dos files para incorporar no log.
             if (files instanceof Array) {
                 fileIds = files.map(f => f.id)
                 log.history.files = fileIds
             }
         }
-
-        console.log("🚀 ~ file: AltContrato.jsx ~ line 438 ~ log", log)
+        //console.log("🚀 ~ file: AltContrato.jsx ~ line 438 ~ log", log)
 
         logGenerator(log)                               //Generate the demand
             .then(r => {
@@ -626,8 +637,7 @@ const AltContrato = props => {
             }
         })
 
-        //Adiciona a data de solicitação (não de cadastro) no sistema, em caso de alteração do contrato é necessário verificar
-        console.log("🚀 ~ file: AltContrato.jsx ~ line 620 ~ returnObj", returnObj)
+        //Adiciona a data de solicitação (não de cadastro) no sistema, em caso de alteração do contrato é necessário verificar        
         const keys = Object.keys(returnObj)
         if (keys.length > 1) {
             //Se tiver aprovando, pega o createdAt do log(demanda) e salva, para manter a data da solicitação.
@@ -654,7 +664,7 @@ const AltContrato = props => {
     }
 
     const submitFile = async (empresaId, socioIds) => {
-        //Essa função só é chamada ao CRIAR a demanda. Por isso, tempFile é true e o SocioIds deve ser preenchido aqui
+        //Essa função só é chamada ao CRIAR a demanda. Por isso, tempFile é true e o SocioIds deve ser preenchido aqui        
         const
             { form, numeroAlteracao } = state,
             files = []
@@ -699,6 +709,7 @@ const AltContrato = props => {
             return files
         }
     }
+
     const removeFile = async (name) => {
         const
             { form } = state,

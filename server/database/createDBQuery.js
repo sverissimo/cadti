@@ -23,3 +23,18 @@ const createDBQuery = user => {
 }
 
 module.exports = { createDBQuery }
+
+/* const thisWorked = `
+SELECT  *
+FROM pg_stat_activity
+WHERE datname = 'sismob_db';
+
+SELECT
+    pg_terminate_backend (6636)
+FROM
+    pg_stat_activity
+WHERE
+    datname = 'sismob_db';
+
+alter database sismob_db rename to sismob_db123
+` */

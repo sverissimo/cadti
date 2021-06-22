@@ -21,9 +21,9 @@ export default function Revisao({ data, parentComponent, form, filesForm, files 
     const
         classes = useStyles(),
         { paper } = classes,
-        { acessibilidade, equipamentos, alteracoes, demand, demandFiles } = data,
+        { acessibilidade, equipamentos, alteracoes, demand, demandFiles, numeroDae: nDae } = data,
         originalVehicle = data?.originalVehicle,
-        numeroDae = demand?.history instanceof Array && demand?.history.reverse().find(e => e.numeroDae)?.numeroDae
+        numeroDae = nDae || demand?.history instanceof Array && demand?.history.reverse().find(e => e.numeroDae)?.numeroDae
 
     let vehicleDetails = [],
         obj = {},

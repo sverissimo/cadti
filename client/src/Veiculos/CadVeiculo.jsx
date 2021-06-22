@@ -61,14 +61,23 @@ class VeiculosContainer extends PureComponent {
             this.setState({ selectedEmpresa: empresas[0], razaoSocial: empresas[0]?.razaoSocial, frota: veiculos })
 
         if (demand) {
-            let reactivated = false
+            let
+                reactivated = false
+                , existingPendencias
             const
                 demandState = setDemand(demand, redux),
                 numeroDae = demand?.history && demand.history.reverse().find(e => e.hasOwnProperty('numeroDae'))?.numeroDae
 
+            console.log("🚀 ~ file: CadVeiculo.jsx ~ line 75 ~ VeiculosContainer ~ componentDidMount ~ demandState", demandState)
+            //Adiciona existência de situações específicias no state: pendências ou reativação.
+            if (demand.status.match('Pendências')) {
+                existingPendencias = true
+                demandState.obs = undefined
+            }
             if (demandState.situacao.match('Reativação'))
                 reactivated = true
-            this.setState({ ...demandState, numeroDae, activeStep: 3, reactivated })
+
+            this.setState({ ...demandState, numeroDae, activeStep: 3, reactivated, existingPendencias })
         }
 
         //*********Create state[equipamento] for each equipamentos/acessibilidade and turn them to false before a vehicle is selected *********/
@@ -467,7 +476,7 @@ class VeiculosContainer extends PureComponent {
 
         //******************Inserir número da DAE na info da solicitação************** */
         let { info } = this.state
-        if (typeof info === 'string')
+        if (typeof info === 'string' && numeroDae)
             info += `\n\n Nº Documento Arrecadação Estadual: ${numeroDae}`
 
         //*****************Generate log ************** */
@@ -559,7 +568,7 @@ class VeiculosContainer extends PureComponent {
     render() {
         const
             { confirmToast, toastMsg, activeStep, openAlertDialog, alertType, steps, selectedEmpresa, dropDisplay, form,
-                demand, demandFiles, showPendencias, info, resetShared, customMessage, customTitle, obs } = this.state,
+                demand, demandFiles, showPendencias, info, resetShared, customMessage, customTitle, obs, existingPendencias } = this.state,
 
             { redux } = this.props
 
@@ -611,7 +620,7 @@ class VeiculosContainer extends PureComponent {
                 info={info}
                 handleSubmit={this.handleCadastro}
                 handleInput={this.handleInput}
-                addObs={demand && !showPendencias}  //Se tiver na aprovação, o campo info vira obs para registrar obs do veículo.
+                addObs={demand && !existingPendencias && !showPendencias}  //Se tiver na aprovação, o campo info vira obs para registrar obs do veículo.
                 obs={obs}
             //disabled={(typeof placa !== 'string' || placa === '')}
             />}
