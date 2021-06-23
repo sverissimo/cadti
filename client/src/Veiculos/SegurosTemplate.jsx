@@ -43,7 +43,7 @@ export default function SegurosTemplate({ empresas, data, seguros, seguradoras, 
 
     let { numeroDae } = data
     if (!numeroDae)
-        numeroDae = demand?.history instanceof Array && demand?.history.reverse().find(e => e.numeroDae).numeroDae
+        numeroDae = demand?.history instanceof Array && demand?.history.reverse().find(e => e.numeroDae)?.numeroDae
 
     data.seguradoras = seguradoras
     //data.seguros = seguros

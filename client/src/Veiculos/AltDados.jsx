@@ -394,7 +394,7 @@ class AltDados extends Component {
         if ((!this.state.compartilhado || this.state.compartilhado === '') && originalVehicle?.compartilhadoId)
             camelizedRequest.compartilhadoId = 'NULL'
 
-        if (!approved && Object.keys(camelizedRequest).length === 0) {
+        if (approved === undefined && Object.keys(camelizedRequest).length === 0) {
             this.setState({ openAlertDialog: true, customTitle: 'Nenhuma alteração', customMessage: 'Não foi realizada nenhuma alteração na solicitação aberta. Para prosseguir, altere algum dos campos ou adicione uma justificativa.' })
             return
         }
