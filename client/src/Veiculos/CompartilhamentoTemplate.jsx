@@ -1,4 +1,8 @@
 import React from 'react'
+
+import Checkbox from '@material-ui/core/Checkbox'
+import FormControlLabel from '@material-ui/core/FormControlLabel'
+
 import compartilhamentoForm from '../Forms/compartilhamentoForm'
 import { compartilhamentoFiles } from '../Forms/compatilhamentoFiles'
 import Crumbs from '../Reusable Components/Crumbs'
@@ -10,14 +14,16 @@ import ShowLocalFiles from '../Reusable Components/ShowLocalFiles'
 import TextArea from '../Reusable Components/TextArea'
 import TextInput from '../Reusable Components/TextInput'
 
+import styles from './compartilhamento.module.scss'
 
-const CompartilhamentoTemplate = ({ data, redux, handleInput, handleFiles, removeFile, handleSubmit }) => {
+const CompartilhamentoTemplate = ({ data, redux, handleInput, handleFiles, removeFile, handleSubmit, toggleAcceptTerms }) => {
 
     const
         { empresas, compartilhados } = redux
-        , { razaoSocial, selectedEmpresa, motivoCompartilhamento, form, demand, compartilhamentoRemoved, demandFiles, fileToRemove } = data
+        , { razaoSocial, selectedEmpresa, motivoCompartilhamento, form, demand, compartilhamentoRemoved,
+            termsAccepted, demandFiles, fileToRemove } = data
         , reviewForm = compartilhamentoForm.map(e => ({ ...e, disabled: true }))
-    // , reviewForm = compartilhamentoForm
+        , { termoCiencia__div, termoCiencia__text } = styles
 
     return (
         <>
@@ -90,11 +96,30 @@ const CompartilhamentoTemplate = ({ data, redux, handleInput, handleFiles, remov
                                 }
                             </div>
                         </section>
+                        <section className={termoCiencia__div}>
+                            <FormControlLabel
+                                control={
+                                    <Checkbox
+                                        checked={termsAccepted === true}
+                                        onChange={() => toggleAcceptTerms()}
+                                        value={termsAccepted}
+                                    />
+                                }
+                                label={
+                                    <span className={termoCiencia__text}>
+                                        Estou ciente de que a utilização de veículos de terceiros é autorizada desde que o veículo seja cadastrado na Superintendência de Transporte Intermunicipal, apresentando o Certificado de Registro da SEINFRA vigente,  e com as características necessárias para utilização naquela linha.
+                                    </span>
+                                }
+                            />
+
+                        </section>
+
                     </main>
                     <footer>
                         <CustomButton
                             label={!demand ? 'Enviar' : 'Aprovar'}
                             onClick={() => !demand ? handleSubmit() : handleSubmit(true)}
+                            disabled={!demand && !termsAccepted}
                         />
                         {
                             demand &&

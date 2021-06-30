@@ -14,7 +14,13 @@ const Compartilhamento = props => {
 
     const
         { empresas, compartilhados, veiculos, vehicleDocs } = props.redux
-        , [state, setState] = useState({ confirmToast: false, compartilhadoAtual: null })
+        , [state, setState] = useState(
+            {
+                confirmToast: false,
+                compartilhadoAtual: null,
+                termsAccepted: false
+            }
+        )
         , demand = props?.location?.state?.demand
 
     useEffect(() => {
@@ -220,6 +226,7 @@ const Compartilhamento = props => {
     }
 
     const toast = toastMsg => setState({ ...state, confirmToast: !state.confirmToast, toastMsg })
+    const toggleAcceptTerms = () => setState({ ...state, termsAccepted: !state.termsAccepted })
 
     return (
         <>
@@ -231,6 +238,7 @@ const Compartilhamento = props => {
                     handleFiles={handleFiles}
                     removeFile={removeFile}
                     handleSubmit={handleSubmit}
+                    toggleAcceptTerms={toggleAcceptTerms}
                 />
                 <ReactToast open={state.confirmToast} close={toast} msg={state.toastMsg} />
             </div>

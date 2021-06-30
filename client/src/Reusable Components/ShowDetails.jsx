@@ -8,6 +8,7 @@ import { procuradorEmpresaTable as procTable } from '../Forms/procuradorEmpresaT
 import altContratoTable from '../Forms/altContratoTable'
 import TextArea from './TextArea'
 import { procuracaoForm } from '../Forms/procuracaoForm'
+import { stringBR } from '../Veiculos/checkWeight'
 
 export default function ShowDetails({ data, tab, title, header, close, empresas, procuracoes, procuradores, empresaDocs, altContrato }) {
     //data é o objeto (row) do campo de dados de uma determinada tabela
@@ -223,7 +224,15 @@ export default function ShowDetails({ data, tab, title, header, close, empresas,
                             <TextField
                                 name={field}
                                 label={label}
-                                value={type !== 'date' ? value || '' : moment(value).isValid() ? moment(value).format('DD/MM/YYYY') : ''}
+                                value={
+                                    label.match('Peso ') ?
+                                        stringBR(value)
+                                        : type !== 'date' ?
+                                            value || ''
+                                            : moment(value).isValid() ?
+                                                moment(value).format('DD/MM/YYYY')
+                                                : ''
+                                }
                                 InputLabelProps={{ shrink: true, style: { fontSize: '0.9rem', fontWeight: 500 } }}
                                 inputProps={{
                                     style: {

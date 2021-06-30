@@ -65,8 +65,8 @@ export default function ({ handleInput, handleBlur, data, handleCheck, handleEqu
                                 onClick={() => handleEquipa('equipamentos')}
                             >
                                 <AddIcon />
-                                        Equipamentos
-                                    </Button>
+                                Equipamentos
+                            </Button>
                             <Button
                                 variant="outlined"
                                 size="small"
@@ -75,7 +75,7 @@ export default function ({ handleInput, handleBlur, data, handleCheck, handleEqu
                                 onClick={() => handleEquipa('acessibilidade')}
                             >
                                 <AddIcon />
-                                        Acessibilidade
+                                Acessibilidade
                             </Button>
                         </section>}
 

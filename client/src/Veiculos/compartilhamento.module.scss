@@ -1,0 +1,17 @@
+.termoCiencia {
+    &__div {
+        display: flex;
+        background-color: whitesmoke;
+        margin: 3rem;
+        padding: 1rem;
+        border: 1px solid #ccc;
+        text-align: justify;
+        text-justify: inter-word;
+    }
+    &__text {
+        font: {
+            weight: 600;
+            size: 0.75rem;
+        }
+    }
+}

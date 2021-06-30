@@ -50,17 +50,17 @@ export const altFormVistoria = [
     },
     {
         field: 'pesoDianteiro',
-        label: 'Peso Dianteiro (kg)',
+        label: 'Peso Dianteiro (t)',
         margin: 'normal',
         type: 'number',
-        max: 12000
+        max: 15
     },
     {
         field: 'pesoTraseiro',
-        label: 'Peso Traseiro (kg)',
+        label: 'Peso Traseiro (t)',
         margin: 'normal',
         type: 'number',
-        max: 15000
+        max: 18
     },
     {
         field: 'cilindros',

@@ -7,18 +7,9 @@ export const altForm = [[{
     collection: 'frota',
 },
 {
-    field: 'delegatario',
-    label: 'Delegatário',
-    itemProp: 'razaoSocial',
-    autoComplete: true,
-    collection: 'empresas'
-},
-{
     field: 'compartilhado',
     label: 'Delegatário Compartilhado',
-    itemProp: 'razaoSocial',
-    autoComplete: true,
-    collection: 'compartilhados'
+    disabled: true
 },
 {
     field: 'utilizacao',
