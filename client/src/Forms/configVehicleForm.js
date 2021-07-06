@@ -57,7 +57,12 @@ export const configVehicleForm = [
         table: 'empresa_laudo'
     },
     {
+        //field: 'empresa',
+        label: 'Motivos para baixa do veículo',
+
+    },
+    {
         collection: 'laudos',
         table: 'laudos'
-    }
+    },
 ]

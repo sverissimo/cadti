@@ -5,6 +5,7 @@ import DeleteOutlinedIcon from '@material-ui/icons/DeleteOutlined';
 
 //Esse componente renderiza inputs de uma array no estado da aplicação
 const SimpleParams = ({ data, handleInput, plusOne, removeOne }) => {
+    console.log("🚀 ~ file: SimpleParams.jsx ~ line 8 ~ SimpleParams ~ data", data)
 
     const state = [...data?.newState] || []
 

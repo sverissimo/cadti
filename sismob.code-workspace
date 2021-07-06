@@ -12,6 +12,10 @@
 		"workbench.colorCustomizations": {
 			"editor.background": "#1b1b1b",
 			"sideBar.background": "#121212"
-		}
+		},
+		"cSpell.words": [
+			"Parametros",
+			"veiculos"
+		]
 	}
 }

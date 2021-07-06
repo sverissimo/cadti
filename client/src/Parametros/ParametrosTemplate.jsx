@@ -8,36 +8,41 @@ import MenuItem from '@material-ui/core/MenuItem'
 import TextField from '@material-ui/core/TextField'
 import './parametros.scss'
 
-const ParametrosTemplate = ({ data, selectOption, handleInput, handleSubmit, plusOne, removeOne }) => {
+const ParametrosTemplate = ({ data, selectOption, handleInput, handleSubmit, plusOne, removeOne, outsider }) => {
+    console.log("🚀 ~ file: ParametrosTemplate.jsx ~ line 12 ~ ParametrosTemplate ~ outsider", outsider)
     const { tab, options, selectedOption, form, modified } = data
+    console.log("🚀 ~ file: ParametrosTemplate.jsx ~ line 14 ~ ParametrosTemplate ~ selectedOption", data)
 
     return (
         <>
-            <Crumbs links={['Parâmetros', '/parametros']} text='Alterar parâmetros do sistema' />
-            <header className="selectHeader">
-                <h4 className='parametrosTitle'>Alterar parâmetros do sistema - Selecione uma das opções abaixo.</h4>
-                {/* ******************Select box ******************** */}
-                <TextField
-                    className='config__selector'
-                    onChange={selectOption}
-                    name='selectedOption'
-                    value={selectedOption || ''}
-                    select={true}
-                    placeholder='Clique para selecionar...'
-                    SelectProps={{
-                        style: {
-                            fontSize: '0.9rem', color: '#555', fontWeight: 400,
-                            width: 325, height: '44px'
-                        }
-                    }}
-                >
-                    {options.map((opt, i) =>
-                        <MenuItem key={i} value={opt} >
-                            {opt}
-                        </MenuItem>
-                    )}
-                </TextField>
-            </header>
+            {
+                !outsider &&
+                <header className="selectHeader">
+                    <Crumbs links={['Parâmetros', '/parametros']} text='Alterar parâmetros do sistema' />
+                    <h4 className='parametrosTitle'>Alterar parâmetros do sistema - Selecione uma das opções abaixo.</h4>
+                    {/* ******************Select box ******************** */}
+                    <TextField
+                        className='config__selector'
+                        onChange={selectOption}
+                        name='selectedOption'
+                        value={selectedOption || ''}
+                        select={true}
+                        placeholder='Clique para selecionar...'
+                        SelectProps={{
+                            style: {
+                                fontSize: '0.9rem', color: '#555', fontWeight: 400,
+                                width: 325, height: '44px'
+                            }
+                        }}
+                    >
+                        {options.map((opt, i) =>
+                            <MenuItem key={i} value={opt} >
+                                {opt}
+                            </MenuItem>
+                        )}
+                    </TextField>
+                </header>
+            }
             {
                 form && tab < 3 &&
                 <main className='configForm'>

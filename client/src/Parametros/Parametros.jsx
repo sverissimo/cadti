@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import axios from 'axios'
 
 import StoreHOC from '../Store/StoreHOC'
@@ -15,7 +15,30 @@ const Parametros = props => {
             params: ['idadeBaixa', 'distanciaPoltronas', 'nomes', 'motivosBaixa'],
             forms: [parametrosIdade, distancias, nomes, motivosBaixa]
         }),
-        { toastMsg, toastStatus, confirmToast } = state
+        { toastMsg, toastStatus, confirmToast } = state,
+        { outsider } = props
+
+    //QUando renderizado pelo componente Config de veículos, a prop outsider é definida como true, o state é configurado para a opção Motivo da baixa
+    useEffect(() => {
+        if (outsider) {
+            const
+                { parametros } = props.redux
+                , data = parametros[0]['motivosBaixa']
+
+            if (data && parametros[0]?.id)
+                data.id = parametros[0].id
+
+            setState({
+                ...state,
+                form: motivosBaixa,
+                tab: 3,
+                initState: data,
+                newState: data,
+                selectedOption: "Motivos para baixa do veículo"
+            })
+        }
+        return () => void 0
+    }, [outsider])
 
     //Seleciona o conjunto de parâmetros p editar
     const selectOption = useCallback(e => {
@@ -153,6 +176,7 @@ const Parametros = props => {
                 removeOne={removeOne}
                 handleInput={handleInput}
                 handleSubmit={handleSubmit}
+                outsider={props.outsider}
             />
             <ReactToast open={confirmToast} close={toast} msg={toastMsg} status={toastStatus} />
         </>

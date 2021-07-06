@@ -66,9 +66,13 @@ class VehicleConfig extends PureComponent {
     }
 
     selectCollection = async e => {
-        const
-            { value } = e.target,
-            { veiculos, marcaChassi, marcaCarroceria } = this.props.redux
+        const { value } = e.target
+        if (value === "Motivos para baixa do veículo") {
+            this.setState({ editMotivosBaixa: true, collection: value })
+            return
+        }
+
+        const { veiculos, marcaChassi, marcaCarroceria } = this.props.redux
         let
             staticData = configVehicleForm.find(el => el.label === value),
             data = JSON.parse(JSON.stringify(this.props.redux[staticData.collection]))
@@ -80,7 +84,7 @@ class VehicleConfig extends PureComponent {
         if (staticData.collection === 'modelosChassi') this.setState({ marcas: marcaChassi })
         if (staticData.collection === 'carrocerias') this.setState({ marcas: marcaCarroceria })
 
-        await this.setState({ collection: value, data, staticData })
+        await this.setState({ collection: value, data, staticData, editMotivosBaixa: undefined })
         void 0
     }
 
@@ -96,7 +100,7 @@ class VehicleConfig extends PureComponent {
             selectedObj = data[index],
             name = this.state?.staticData?.field
 
-        //O index de referência vai variar: se houver um campo em edição e se clicar no enableEdit de outro, o index de refrência é do campo anterior
+        //O index de referência vai variar: se houver um campo em edição e se clicar no enableEdit de outro, o index de referência é do campo anterior
         //Inicialmente os objetos originais se baseiam no index que é dado como argumento da função
         if (selectedObj?.edit === undefined) selectedObj.edit = false
 
@@ -123,9 +127,9 @@ class VehicleConfig extends PureComponent {
             await this.setState({ data, editIndex: index })
             inputTarget.focus()
         }
-        //Se todos objs estiverem com edição desabilitada:
+        //Se todos objetos estiverem com edição desabilitada:
         if (!leftOpen) {
-            //So o clicado estiver desabilitad, apenas habilite sua edição
+            //So o clicado estiver desabilitado, apenas habilite sua edição
             if (selectedObj.edit === false) {
                 data[index].edit = true
                 await this.setState({ data })
@@ -140,7 +144,7 @@ class VehicleConfig extends PureComponent {
             }
             return
         }
-        //Nesse caso, um campo está em ediçao e outro campo foi clicado. Salva-se o em edição caso tenha sido alterado e se habilita a edição do próximo
+        //Nesse caso, um campo está em edição e outro campo foi clicado. Salva-se o em edição caso tenha sido alterado e se habilita a edição do próximo
         if (leftOpen && !selectedObj.edit) {
             select.call(this)
             //Atualização do index para achar o objeto original referente ao último objeto com edit=true
@@ -282,7 +286,7 @@ class VehicleConfig extends PureComponent {
 
     render() {
 
-        const { options, collection, data, staticData, openAddDialog, marca, marcas, confirmToast, toastMsg, confirmDialogProps } = this.state
+        const { options, collection, data, staticData, openAddDialog, marca, marcas, editMotivosBaixa, confirmToast, toastMsg, confirmDialogProps } = this.state
         return (
             <Fragment>
                 <ConfigTemplate
@@ -296,6 +300,7 @@ class VehicleConfig extends PureComponent {
                     handleSubmit={this.handleSubmit}
                     openAddDialog={this.toggleDialog}
                     confirmDelete={this.confirmDelete}
+                    editMotivosBaixa={editMotivosBaixa}
                 />
                 {openAddDialog && <ConfigAddDialog
                     open={openAddDialog}

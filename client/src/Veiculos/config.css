@@ -1,27 +1,27 @@
 .container {
     display: flex;
     flex-direction: row;
-    flex-wrap: wrap;    
-    width: 100%;      
+    flex-wrap: wrap;
+    width: 100%;
 }
 
 .selectHeader {
     display: flex;
-    flex-direction: column;    
-    align-items: center;    
+    flex-direction: column;
+    align-items: center;
 }
 
 .addHeader {
-    display: flex;    
+    display: flex;
     justify-content: flex-end;
 }
 .headerElements {
-    flex: 0,5
+    flex: 0, 5;
 }
-.divCell {    
-    flex: 0,1;    
+.divCell {
+    flex: 0, 1;
     height: auto;
-    margin: 4px;          
+    margin: 4px;
     flex-direction: row;
     padding: 0 25px 0 0;
 }
@@ -29,11 +29,11 @@
 .configVehicleIcon {
     padding-right: 14px !important;
     width: 10px !important;
-    visibility: hidden;        
+    visibility: hidden;
 }
 
-.configVehicleIcon>.confIcon {
-    padding: 2px !important;    
+.configVehicleIcon > .confIcon {
+    padding: 2px !important;
     visibility: visible;
     cursor: pointer;
 }

@@ -26,10 +26,6 @@ export const altContratoForm = [
         width
     },
     {
-        field: 'numeroContrato',
-        label: 'Número do Contrato Social',
-    },
-    {
         field: 'vencimentoContrato',
         label: 'Vencimento do Cadastro - CRC',
         type: 'date',
