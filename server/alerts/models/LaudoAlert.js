@@ -1,7 +1,7 @@
 //@ts-check
 const
     Alert = require("./Alert"),
-    { laudos: getAllLaudos } = require("../allGetQueries"),
+    { laudos: getAllLaudos } = require("../../allGetQueries"),
     laudos = getAllLaudos()
 
 

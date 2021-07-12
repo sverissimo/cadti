@@ -2,7 +2,7 @@
 
 const
     Alert = require("./Alert"),
-    { procuracoes: getAllProcs } = require("../allGetQueries"),
+    { procuracoes: getAllProcs } = require("../../allGetQueries"),
     procuracoes = getAllProcs()
 
 

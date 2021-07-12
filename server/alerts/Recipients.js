@@ -49,7 +49,7 @@ class Recipients {
     setRecipients = (codigo_empresa, razao_social) => {
 
         if (!this.socios || !this.procuradores)
-            throw new Error('É necessario buscar os sócios e procuradores dos delegatários antes de chamar esse método (setRecipients).')
+            throw new Error('É necessário buscar os sócios e procuradores dos delegatários antes de chamar esse método (setRecipients).')
 
         const
             mailObj = {},

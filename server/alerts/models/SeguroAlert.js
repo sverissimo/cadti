@@ -1,6 +1,6 @@
 //@ts-check
 const Alert = require("./Alert")
-const { seguros } = require("../queries")
+const { seguros } = require("../../queries")
 
 
 //**Classe instanciada de Alert com métodos específicos para o alerta sobre o vencimento de seguros 

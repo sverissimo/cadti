@@ -1,6 +1,9 @@
 const fs = require('fs')
 
+
 function testMailSender({ html, vocativo }) {
+
+    vocativo = vocativo.replace('.', '')
 
     const fileName = `./fakeEmail_${vocativo}.html`
     console.log(fileName)

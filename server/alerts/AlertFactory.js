@@ -1,12 +1,12 @@
 //@ts-check
 const
-    SeguroAlert = require("./SeguroAlert"),
-    ProcuracaoAlert = require("./ProcuracaoAlert"),
-    LaudoAlert = require("./LaudoAlert");
+    SeguroAlert = require("./models/SeguroAlert"),
+    ProcuracaoAlert = require("./models/ProcuracaoAlert"),
+    LaudoAlert = require("./models/LaudoAlert");
 
 /**      
  * @throws {InvalidArgumentException}
- * @yields {object} Gera uma classe de alerta
+ * @yields {object} Gera uma instância de alerta
  */
 class AlertFactory {
 

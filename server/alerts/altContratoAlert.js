@@ -5,7 +5,7 @@ const
 
 
 /**
- * Ao se cadastrar altContratual, essa função verifica se foi registrado no cadTI em 10 dias a contar do prazo do registro da Junta, para emitir alerta casoi positivo.
+ * Ao se cadastrar altContratual, essa função verifica se foi registrado no cadTI em 10 dias a contar do prazo do registro da Junta, para emitir alerta caso positivo.
  * @param { object} doc - Objeto contendo data de registro na junta comercial e data de registro no sistema
  */
 const altContratoAlert = doc => {

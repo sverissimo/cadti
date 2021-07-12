@@ -3,6 +3,7 @@ const
     sendMail = require('../mail/sendMail'),
     AlertFactory = require('./AlertFactory'),
     Recipients = require('./Recipients')
+const AlertService = require('./services/AlertService')
 
 /**
  * Identifica seguros prestes a vencer e chama o método ../mail/mailSender para enviar alertas
@@ -29,9 +30,10 @@ const expiringItemsAlert = async (type = 'laudos') => {
             { codigo_empresa, razao_social } = empresa,
             { to, vocativo } = recipients.setRecipients(codigo_empresa, razao_social),
             expiringEmpresaItems = alertObject.getEmpresaExpiringItems(codigo_empresa),
-            message = alertObject.createMessage(expiringEmpresaItems)
+            message = alertObject.createMessage(expiringEmpresaItems),
+            alertService = new AlertService()
 
-        await sendMail({ to, subject, vocativo, message })
+        await alertService.mockAlert({ to, subject, vocativo, message })
         await new Promise(r => setTimeout(r, 2000));
     }
     return
