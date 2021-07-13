@@ -45,7 +45,7 @@ const
     updateVehicleStatus = require('./taskManager/veiculos/updateVehicleStatus'),
     emitSocket = require('./emitSocket'),
     parametros = require('./parametros/parametros'),
-    getFormatedDate = require('./getDate'),
+    getFormattedDate = require('./getDate'),
     authRouter = require('./auth/authRouter'),
     authToken = require('./auth/authToken'),
     getUser = require('./auth/getUser'),
@@ -377,7 +377,7 @@ app.get('/api/oldVehiclesXls', async (req, res) => {
 
     const
         dischargedVehicles = await oldVehiclesModel.find().select('-__v -_id').lean(),
-        currentDate = getFormatedDate(),
+        currentDate = getFormattedDate(),
 
         fileName = `Veículos baixados - ${currentDate}.xlsx`,
 
@@ -846,7 +846,7 @@ app.patch('/api/removeEmpresa', async (req, res) => {
     if (cpfsToRemove && cpfsToRemove[0])
         await removeEmpresa({ representantes: cpfsToRemove, codigoEmpresa })
 
-    res.send('permision updated.')
+    res.send('permission updated.')
 })
 
 app.put('/api/editProc', (req, res) => {
@@ -984,11 +984,11 @@ app.get('/api/deleteManyFiles', async (req, res) => {
         { id } = req.query
 
     console.log(id, typeof id)
-    const docsTodelete = { 'metadata.veiculoId': id }
+    const docsToDelete = { 'metadata.veiculoId': id }
 
     gfs.collection('vehicleDocs')
 
-    const getIds = await filesModel.filesModel.find(docsTodelete).select('_ids')
+    const getIds = await filesModel.filesModel.find(docsToDelete).select('_ids')
 
     const ids = getIds.map(e => new mongoose.mongo.ObjectId(e._id))
 
@@ -1011,7 +1011,7 @@ app.get('/api/deleteManyFiles', async (req, res) => {
             }
         })
     })
-    res.send(r || 'no files deeleted.')
+    res.send(r || 'no files deleted.')
     //    io.sockets.emit('deleteOne', { tablePK: '_id', id, collection })
 })
 
@@ -1043,7 +1043,7 @@ app.delete('/api/delete', (req, res) => {
             else {
                 id = id.replace(/\'/g, '')
                 deleteSockets({ req, noResponse: true, table, tablePK, event: 'deleteOne', id, codigoEmpresa })
-                updateUserPermitions()
+                updateUserPermissions()
             }
             res.send(`${id} deleted from ${table}`)
         }
@@ -1052,7 +1052,7 @@ app.delete('/api/delete', (req, res) => {
 
     //*****************************ATUALIZA PERMISSÕES DE USUÁRIOS ******************************** */
     //Se a tabela for socios ou procuradores, chama a função para atualizar a permissão de usuários
-    const updateUserPermitions = () => {
+    const updateUserPermissions = () => {
 
         const { codigoEmpresa, cpf_socio, cpf_procurador } = req.query
 
@@ -1080,7 +1080,7 @@ if (process.env.NODE_ENV === 'production') {
     })
 }
 
-//**********************************ERROR HANDLIONG*********************** */
+//**********************************ERROR HANDLING*********************** */
 app.use((req, res, next) => {
     const error = new Error("Not found.");
     error.status = 404

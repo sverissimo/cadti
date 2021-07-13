@@ -1,4 +1,4 @@
-const getFormatedDate = () => {
+const getFormattedDate = () => {
     const
         dateObj = new Date(),
         day = dateObj.getDate().toString(),
@@ -12,4 +12,4 @@ const getFormatedDate = () => {
     return result
 }
 
-module.exports = getFormatedDate
+module.exports = getFormattedDate

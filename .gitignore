@@ -6,6 +6,7 @@
 .env
 sismob.code-workspace
 /.VSCodeCounter
+server/alerts/mockAlertFiles/*.html
 *.xlsx
 *.txt
 *.log

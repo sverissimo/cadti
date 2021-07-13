@@ -33,7 +33,8 @@ const expiringItemsAlert = async (type = 'laudos') => {
             message = alertObject.createMessage(expiringEmpresaItems),
             alertService = new AlertService()
 
-        await alertService.mockAlert({ to, subject, vocativo, message })
+        //alertService.mockAlert({ to, subject, vocativo, message })
+        alertService.saveAlert({ codigo_empresa, subject, vocativo, message })
         await new Promise(r => setTimeout(r, 2000));
     }
     return
