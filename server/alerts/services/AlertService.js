@@ -3,8 +3,7 @@ const
     fs = require('fs')
     , path = require('path')
     , htmlGenerator = require('../../mail/htmlGenerator')
-const alertModel = require('../../mongo/models/alertModel')
-const AlertRepository = require('../models/repositories/AlertRepository')
+    , AlertRepository = require('../repositories/AlertRepository')
 
 /**
  * Classe responsável por gerenciar e oferecer serviços de envio (ex: email) e armazenamento de alertas, além de método de testes. 

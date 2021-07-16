@@ -5,9 +5,6 @@ const alertSchema = new mongoose.Schema({
     empresaId: {
         type: Number
     },
-    to: {
-        type: []
-    },
     subject: {
         type: String,
         trim: true

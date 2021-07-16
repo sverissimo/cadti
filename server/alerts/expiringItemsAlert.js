@@ -1,9 +1,9 @@
 //@ts-check
 const
-    sendMail = require('../mail/sendMail'),
-    AlertFactory = require('./AlertFactory'),
-    Recipients = require('./Recipients')
-const AlertService = require('./services/AlertService')
+    AlertFactory = require('./AlertFactory')
+    , Recipients = require('./models/Recipients')
+    , AlertService = require('./services/AlertService')
+    , RecipientService = require('./services/RecipientService')
 
 /**
  * Identifica seguros prestes a vencer e chama o método ../mail/mailSender para enviar alertas
@@ -22,19 +22,18 @@ const expiringItemsAlert = async (type = 'laudos') => {
         empresas = alertObject.getEmpresas(expiringItems)
 
     //Acrescenta recipients ao objeto pq o ProcuraracaoAlert (que implementa o método addProcsName) precisa para adicionar os nomes dos procuradores.
-    alertObject.recipients = await recipients.getAllRecipients()
-
+    alertObject.recipients = await new RecipientService().getAllRecipients()
 
     for (let empresa of empresas) {
         const
             { codigo_empresa, razao_social } = empresa,
-            { to, vocativo } = recipients.setRecipients(codigo_empresa, razao_social),
+            { to, vocativo } = recipients.setRecipients(codigo_empresa, razao_social, alertObject.recipients),
             expiringEmpresaItems = alertObject.getEmpresaExpiringItems(codigo_empresa),
             message = alertObject.createMessage(expiringEmpresaItems),
             alertService = new AlertService()
 
-        //alertService.mockAlert({ to, subject, vocativo, message })
-        alertService.saveAlert({ codigo_empresa, subject, vocativo, message })
+        alertService.mockAlert({ to, subject, vocativo, message })
+        //alertService.saveAlert({ codigo_empresa, subject, vocativo, message })
         await new Promise(r => setTimeout(r, 2000));
     }
     return

@@ -1,7 +1,7 @@
 //@ts-check
 const
-    alertModel = require("../../../mongo/models/alertModel")
-    , { conn } = require("../../../mongo/mongoConfig")
+    alertModel = require("../../mongo/models/alertModel")
+    , { conn } = require("../../mongo/mongoConfig")
 
 class AlertRepository {
 
