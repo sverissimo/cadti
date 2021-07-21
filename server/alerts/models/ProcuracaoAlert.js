@@ -13,7 +13,7 @@ class ProcuracaoAlert extends Alert {
     constructor() {
         super()
         this.subject = 'Vencimento de procurações.'
-        this.prazos = [1]
+        this.prazos = [0, 1]
         this.dbQuery = procuracoes
         this.messageIntro = 'As procurações abaixo se encontram próximas do vencimento:'
         this.mailFields = ['procuradores', 'vencimento']

@@ -63,7 +63,7 @@ router.put('/', async (req, res) => {
         delete doc._id
         //console.log("doc", doc)
         if (!preventSocket) {
-            console.log("shouldnt have preventsocekt", preventSocket)
+            console.log("shouldn't have preventSocket", preventSocket)
             io.sockets.emit(socketEvent, { [socketProp]: [doc], collection: 'parametros', primaryKey: 'id' })
         }
         res.status(200).send('Dados atualizados com sucesso.')

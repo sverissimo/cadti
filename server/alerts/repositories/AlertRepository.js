@@ -17,6 +17,11 @@ class AlertRepository {
         }
     }
 
+    async getAlertsFromDB() {
+        const allAlerts = await alertModel.find()
+        return allAlerts
+    }
+
     /**
     * Busca todos os itens de uma tabela do Postgresql, com base na query de cada child class     
     * @param {string} dbQuery

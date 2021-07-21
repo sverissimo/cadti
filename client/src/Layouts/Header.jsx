@@ -37,6 +37,7 @@ const sections = [
     { title: 'Relatórios', link: '/relatorios' },
     { title: 'Solicitações ', link: '/solicitacoes' },
     { title: 'Editar Conta', link: '/editAccount', icon: 'person' },
+    { title: 'Avisos', link: '/avisos', icon: 'notifications' },
 ]
 
 const adminSections = [
@@ -138,39 +139,38 @@ const Header = props => {
             </Toolbar>
             <Toolbar component="nav" variant="dense" className={toolbarSecondary}>
                 {sections.map(({ link, title, icon }, i) => (
-                    title === 'Editar Conta' ? null
-                        :
-                        <Link
-                            component={RouterLink}
-                            to={link}
-                            key={i}
-                            color="inherit"
-                            noWrap
-                            variant="body2"
-                            href=""
-                            style={{
-                                fontFamily: 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif',
-                                fontSize: '15px',
-                                backgroundColor: selected(link).bgColor,
-                                borderBottom: selected(link).borderB,
-                                fontWeight: selected(link).fontW,
-                                borderTop: selected(link).borderT
-                            }}
-                            className={toolbarLink}
-                            onClick={() => setSelected(link)}
-                        >
-                            {
-                                title === 'Solicitações ' ?
+                    !icon &&
+                    <Link
+                        component={RouterLink}
+                        to={link}
+                        key={i}
+                        color="inherit"
+                        noWrap
+                        variant="body2"
+                        href=""
+                        style={{
+                            fontFamily: 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif',
+                            fontSize: '15px',
+                            backgroundColor: selected(link).bgColor,
+                            borderBottom: selected(link).borderB,
+                            fontWeight: selected(link).fontW,
+                            borderTop: selected(link).borderT
+                        }}
+                        className={toolbarLink}
+                        onClick={() => setSelected(link)}
+                    >
+                        {
+                            title === 'Solicitações ' ?
 
-                                    <StyledBadge badgeContent={logCounter} color='secondary'>
-                                        <span>
-                                            {title}
-                                        </span>
-                                    </StyledBadge>
-                                    :
-                                    title
-                            }
-                        </Link>
+                                <StyledBadge badgeContent={logCounter} color='secondary'>
+                                    <span>
+                                        {title}
+                                    </span>
+                                </StyledBadge>
+                                :
+                                title
+                        }
+                    </Link>
                 ))}
                 {
                     user.role === 'admin' ?                     //Apenas usuários admin podem visualizar essas opções
@@ -195,8 +195,17 @@ const Header = props => {
                                 {sections[6].icon}
                             </span>
                         </Link>
-
                 }
+                <Link component={RouterLink} to={sections[7].link}>
+                    <span
+                        className="material-icons adminLink"
+                        style={{ color: 'white', cursor: 'pointer' }}
+                        title={sections[7].title}
+                    >
+                        {sections[7].icon}
+                    </span>
+                </Link>
+
             </Toolbar>
         </React.Fragment >
     )

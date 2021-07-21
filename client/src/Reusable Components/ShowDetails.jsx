@@ -18,7 +18,7 @@ export default function ShowDetails({ data, tab, title, header, close, empresas,
         [table2, setTable2] = useState(),
         [tables, setTables] = useState([]),
         element = createFormPattern(tab, data) || [], //Element é o form com a adição do campo value, inserindo data para cada objeto(field)
-        obs = element.find(el => el.field === 'obs'), //Informações adicionais no showDetails fora dos campos padrão (obs, equip, acess)
+        obs = element.find(el => el.field === 'obs'), //Informações adicionais no showDetails fora dos campos padrão (obs, equip, acessibilidade)
         equipamentos = element.find(el => el.field === 'equipamentos'),
         acessibilidade = element.find(el => el.field === 'acessibilidade')
 
@@ -248,7 +248,7 @@ export default function ShowDetails({ data, tab, title, header, close, empresas,
                     )}
             </main>
             {
-                //As tabelas aparecem nos detalhes das empresas, caso tenhamj procuradores e/ou alterações de contrato cadastrados
+                //As tabelas aparecem nos detalhes das empresas, caso tenham procuradores e/ou alterações de contrato cadastrados
                 tables[0] &&
                 tables.map((table, i) =>
                     <section key={i}>

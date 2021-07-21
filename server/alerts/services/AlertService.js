@@ -20,6 +20,11 @@ class AlertService {
         this.dbQuery = alertObject.dbQuery
     }
 
+    async getAllAlerts() {
+        const allAlerts = await new AlertRepository().getAlertsFromDB()
+        return allAlerts
+    }
+
     /**
     * Busca todos os itens de uma tabela do Postgresql, com base na query de cada child class     
     * @returns {Promise} 

@@ -24,6 +24,8 @@ import UserAuth from './Auth/UserAuth'
 import Users from './Users/Users'
 import EditAccount from './Users/EditAccount'
 import Compartilhamento from './Veiculos/Compartilhamento'
+import Avisos from './Avisos/Avisos'
+
 //import UnderConstruction from './UnderConstruction'
 
 
@@ -60,6 +62,8 @@ const Routes = ({ user }) => {
             <Route path='/solicitacoes/procuradores' exact component={Procuradores} />
             <Route path='/userAuth' exact component={UserAuth} />
             <Route path='/editAccount' exact component={EditAccount} />
+            <Route path='/avisos' exact component={Avisos} />
+
             <Route path='/parametros'>
                 {user.role === 'admin' ? <Parametros /> : <Redirect to='/' />}
             </Route>

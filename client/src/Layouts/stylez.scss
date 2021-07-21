@@ -54,6 +54,14 @@ div.loading {
     z-index: 15;
 }
 
+tr.clickable {
+    &:hover {
+        background-color: #ddd;
+        font-weight: 500;
+    }
+    cursor: pointer;
+}
+
 .flex {
     display: flex;
     flex-direction: row;

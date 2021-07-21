@@ -45,6 +45,7 @@ const
     updateVehicleStatus = require('./taskManager/veiculos/updateVehicleStatus'),
     emitSocket = require('./emitSocket'),
     parametros = require('./parametros/parametros'),
+    alerts = require('./alerts/routes'),
     getFormattedDate = require('./getDate'),
     authRouter = require('./auth/authRouter'),
     authToken = require('./auth/authToken'),
@@ -266,6 +267,9 @@ app.post('/api/altContrato', (req, res) => {
 
 //********************************** PARÂMETROS DO SISTEMA ********************************* */
 app.use('/api/parametros', parametros)
+
+//********************************** AVISOS/ALERTAS DO SISTEMA ********************************* */
+app.use('/api/avisos', alerts)
 
 //************************************USUÁRIOS DO SISTEMA *********************** */
 app.get('/api/users', checkPermissions, getUsers)

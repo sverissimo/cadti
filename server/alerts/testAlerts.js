@@ -1,4 +1,4 @@
-const expiringItemsAlert = require("./expiringItemsAlert");
+const expiringItemsAlert = require(".");
 
 expiringItemsAlert('seguros')
 expiringItemsAlert('procuracoes')
