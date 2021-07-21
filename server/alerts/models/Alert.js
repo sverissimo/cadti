@@ -1,8 +1,4 @@
 //@ts-check
-const
-    { pool } = require('../../config/pgConfig'),
-    moment = require('moment')
-
 
 class Alert {
 
@@ -33,62 +29,16 @@ class Alert {
     /** @type {string} Orientação para onde no sistema achar a resolução do alerta*/
     tipPath;
 
-
-    /**
-     * Busca todos os itens de uma tabela do Postgresql, com base na query de cada child class     
-     */
-    async getCollection() {
-        const
-            data = await pool.query(this.dbQuery),
-            collection = data.rows
-        return collection
-    }
-
-    /**
-     * Verifica itens de collections com vencimento em um determinado prazo (dias) ou em múltiplos prazos (alertas múltiplos).
-     * @param {Array} collection Tabela do Postgresql na qual será feita a verificação do vencimento
-     * @param {Array} prazos array de prazos, em dias. 
-     */
-    checkExpiring(collection, prazos) {
-        const expiringItems = collection.filter(el => {
-            const
-                checkPrazo = (/** @type {moment.DurationInputArg1} */ prazo) => moment(el.vencimento || el.validade).isSame(moment().add(prazo, 'days'), 'days'),
-                vencendo = prazos.some(p => checkPrazo(p))
-
-            return vencendo
-        })
-        this.expiringItems = expiringItems
-        return expiringItems
-    }
-
-
-    /**
-     * Filtra as empresas das quais um ou mais elementos estão próximos do vencimento (ex: seguros, procurações, etc)
-     * @param {Array} expiringItems - elementos a vencer
-     * @returns {Array} array de objetos com as props codigo_empresa e razao_social
-     * */
-    getEmpresas(expiringItems) {
-        //const empresas = new Set(expiringItems.map(e => e.codigo_empresa))
-        const codigosEmpresas = []
-        const empresas = expiringItems
-            .filter(e => !codigosEmpresas.includes(e.codigo_empresa) && codigosEmpresas.push(e.codigo_empresa))
-            .map(({ codigo_empresa, empresa, razao_social }) => ({ codigo_empresa, razao_social: empresa || razao_social }))
-
-        return empresas
-    }
-
-
     /**Filtra os itens (ex: apólice, procuração, etc) que estão a vencer por empresa, para concentrar todos de uma determinada empresa em um só e-mail.
     * @param {Number} codigo_empresa Código da empresa/delegatário no banco de dados Posgresql
     * @returns Retorna uma array objetos, por ex: apólices de seguros ou procurações a vencer agrupadas por empresa
     */
-    getEmpresaExpiringItems(codigo_empresa) {
-        const expiringEmpresaItems = this.expiringItems
+    getEmpresaExpiringItems(codigo_empresa, expiringItems) {
+        const expiringEmpresaItems = expiringItems
             .filter(a => a.codigo_empresa === codigo_empresa)
-            .map((item) => {
+            .map((/** @type {{ any }} */ item) => {
                 const obj = {}
                 this.mailFields.forEach(f => Object.assign(obj, { [f]: item[f] }))
-                this.addProcsName(obj)
                 return obj
             })
 
@@ -117,11 +67,6 @@ class Alert {
             return message
         }
     }
-    /**
-     * Adiciona os nomes dos procuradores em um objeto que tenha array de procurador_id. Método específico para as subClasses que implementarem (ex: ProcuracaoAlert)
-     * @param {object} obj - item a expirar (criado pelo método this.getEmpresaExpiringItems)
-     */
-    addProcsName(obj) { void 0 }
 }
 
 module.exports = Alert

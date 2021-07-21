@@ -10,8 +10,8 @@ class Recipients {
     /** 
      * Retorna um objeto com vocativo os e-mails de todos os sócios e procuradores de uma empresa
      * 
-     * @param {*} codigo_empresa  - Código do delegatário
-     * @param {*} razao_social  - Razão Social do delegatário
+     * @param {number} codigo_empresa  - Código do delegatário
+     * @param {string} razao_social  - Razão Social do delegatário
      * @throws Gera erro se o método this.getAllRecipients não tiver sido chamado e portanto this.socios/procuradores === undefined
      * @returns array de strings (vocativo e e-mails de destinatários)
      */

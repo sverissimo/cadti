@@ -13,7 +13,8 @@ class LaudoAlert extends Alert {
     constructor() {
         super()
         this.subject = 'Vencimento de laudos de segurança veicular (veículos acima de 15 anos).'
-        this.prazos = [5, 7, 8, 150]
+        this.prazos = [4, 6, 7, 149]
+        //this.prazos = [5, 7, 8, 150]
         this.dbQuery = laudos
         this.messageIntro = 'Os laudos listados abaixo se encontram próximos do vencimento:'
         this.mailFields = ['id', 'empresa_laudo', 'placa', 'validade']

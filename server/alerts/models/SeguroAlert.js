@@ -11,8 +11,8 @@ class SeguroAlert extends Alert {
     constructor() {
         super()
         this.subject = 'Vencimento de apólices de seguro.'
-        this.prazos = [11, 17, 26, 74, 77]
-        //this.prazos = [1]
+        //this.prazos = [11, 17, 26, 74, 77]
+        this.prazos = [10, 16, 25, 73, 76]
         this.dbQuery = seguros
         this.messageIntro = 'Os seguros listados abaixo se encontram próximos do vencimento:'
         this.mailFields = ['apolice', 'vencimento', 'segurados']

@@ -1,7 +1,9 @@
 //@ts-check
 
-const sendMail = require("../../mail/sendMail");
-const Recipients = require("../Recipients");
+const
+    sendMail = require("../../mail/sendMail")
+    , RecipientService = require("../services/RecipientService")
+
 
 /**
  * Entidade de alerta de usuário
@@ -18,7 +20,6 @@ class UserAlert {
         this.subject = subject
         this.vocativo = vocativo
         this.message = message
-        this.recipients = new Recipients()
     }
 
     /**
@@ -28,7 +29,7 @@ class UserAlert {
         if (!this.message || !this.to)
             throw new Error('É preciso haver um remetente e uma mensagem.')
         if (this.to === 'all') {
-            const allUsers = await this.recipients.getAllRecipients()
+            const allUsers = await new RecipientService().getAllRecipients()
             this.to = allUsers
         }
         sendMail({ to: this.to, subject: this.subject, vocativo: this.vocativo, message: this.message, footer: true })
