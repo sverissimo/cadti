@@ -11,16 +11,15 @@ const Avisos = props => {
         })
 
     //Adiciona tecla de atalho ('Esc') para fechar o aviso
-    const escFunction = e => {
+    const escFunction = useCallback(e => {
         if (e.key === 'Escape')
             setState({ ...state, showAviso: false })
-        console.log(state)
-        void 0
-    }
+    }, [state])
+
     useEffect(() => {
         document.addEventListener('keydown', escFunction, false)
         return () => document.removeEventListener('keydown', escFunction, false)
-    }, [])
+    }, [escFunction])
 
     //Set the tableData to render
     useEffect(() => {
@@ -43,7 +42,7 @@ const Avisos = props => {
         const
             tableHeaders = ['Destinatário', 'Assunto', 'Lida', 'Data de criação do aviso']
             , table = { tableHeaders, arrayOfRows }
-        setState({ ...state, table })
+        setState(s => ({ ...s, table }))
 
         return () => void 0
     }, [avisos])
