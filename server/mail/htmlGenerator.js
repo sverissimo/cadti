@@ -8,7 +8,7 @@ const
 
 /**
  * Gera o html formatado para o envio de e-mails.
- * @param {Object} message - contém o vocativo e a mensagem, dividida em intro, tableData, tableHEader tip e tipPath
+ * @param {Object} message - contém o vocativo e a mensagem, dividida em intro, tableData, tableHeader tip e tipPath
  * Ver classe Alert.js em ../alerts
  * @returns {String} html - retorna um html formatado em formato de string.
  */

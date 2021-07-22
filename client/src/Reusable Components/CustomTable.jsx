@@ -3,7 +3,7 @@ import moment from 'moment'
 import downloadFile from '../Utils/downloadFile'
 import DeleteIcon from '@material-ui/icons/Delete';
 
-export default function StandardTable({ table, docsCollection, length, title, style, idIndex = 0, clickable, filePK, deleteIconProperties = {}, deleteFunction }) {
+export default function StandardTable({ table, docsCollection, length, title, style, idIndex = 0, clickable, openInfo, filePK, deleteIconProperties = {}, deleteFunction }) {
     const { tableHeaders, arrayOfRows, docs } = table
 
     const dateFormat = value => {
@@ -34,7 +34,7 @@ export default function StandardTable({ table, docsCollection, length, title, st
             <tbody>
                 {
                     arrayOfRows.map((el, j) =>
-                        <tr key={j} className={clickable ? 'clickable' : ''}>
+                        <tr key={j} className={clickable ? 'clickable' : ''} onClick={() => clickable ? openInfo(j) : void 0}>
                             {
                                 el.map((obj, i) =>
                                     <td key={i} style={{ ...style, width: obj.field === 'numeroSei' && '200px' }} className={obj.type === 'link' && obj.fileId ? 'link2' : 'review'}
@@ -52,6 +52,6 @@ export default function StandardTable({ table, docsCollection, length, title, st
                         </tr>
                     )}
             </tbody>
-        </table>
+        </table >
     )
 }

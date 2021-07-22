@@ -1,6 +1,6 @@
 import React from 'react'
-import avisosTable from '../Forms/avisosTable'
 import CustomTable from '../Reusable Components/CustomTable'
+import Aviso from './Aviso'
 import styles from './avisos.module.scss'
 
 
@@ -8,27 +8,9 @@ const { container, tableContainer } = styles
 
 const AvisosTemplate = props => {
     const
-        { avisos } = props
-        , tableHeaders = ['Destinatário', 'Assunto', 'Lida', 'Data de criação do aviso']
-        , arrayOfRows = []
-    let
-        row = []
-        , column = {}
+        { data, openAviso, close } = props
+        , { table, showAviso, aviso } = data
 
-    console.log("🚀 ~ file: AvisosTemplate.jsx ~ line 11 ~ avisos", avisos)
-    avisos.forEach(av => {
-        avisosTable.forEach(at => {
-            if (av.hasOwnProperty([at.field])) {
-                Object.assign(column, { ...at, value: av[at.field] })
-            }
-            row.push(column)
-            column = {}
-        })
-        arrayOfRows.push(row)
-        row = []
-    })
-
-    const table = { tableHeaders, arrayOfRows }
     return (
         <>
             <header className='flex center'>
@@ -36,16 +18,24 @@ const AvisosTemplate = props => {
             </header>
             <main className={container}>
                 <div className={tableContainer}>
-                    <CustomTable
-                        length={tableHeaders.length}
-                        title='whatever'
-                        table={table}
-                        style={{ textAlign: 'center', padding: '8px 0' }}
-                        idIndex={1}
-                        clickable={true}
-                        filePK='fileId'
-                        docsCollection='empresaDocs'
-                    />
+                    {table &&
+                        <CustomTable
+                            length={table?.tableHeaders.length}
+                            title='whatever'
+                            table={table}
+                            style={{ textAlign: 'center', padding: '8px 0' }}
+                            idIndex={1}
+                            clickable={true}
+                            filePK='fileId'
+                            docsCollection='empresaDocs'
+                            openInfo={openAviso}
+                        />}
+                    {showAviso &&
+                        <Aviso
+                            aviso={aviso}
+                            close={close}
+                        />
+                    }
                 </div>
             </main>
         </>
