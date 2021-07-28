@@ -1,19 +1,21 @@
 const avisosTable = [
     {
         field: 'vocativo',
-        label: 'Destinatário',
+        title: 'Destinatário',
     },
     {
         field: 'subject',
-        label: 'Assunto',
+        title: 'Assunto',
+
     },
     {
         field: 'read',
-        label: 'Lida',
+        title: 'Lida',
+        hidden: true
     },
     {
         field: 'createdAt',
-        label: 'Data de criação do aviso',
+        title: 'Data de criação do aviso',
         type: 'date',
         format: value => value ? value : 'Nenhuma data informada'
     },

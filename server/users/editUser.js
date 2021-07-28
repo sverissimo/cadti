@@ -12,13 +12,13 @@ const editUser = async (req, res) => {
         query = { '_id': id, 'cpf': cpf },
         options = { new: true, select: '-password, -__v' }
 
-    let hasedPassword
+    let hashedPassword
     if (password) {
-        hasedPassword = await bcrypt.hashSync(password, 10)
-        /* const confirmPass = bcrypt.compareSync(confirmPassword, hasedPassword)
-        if (!QconfirmPass)
+        hashedPassword = await bcrypt.hashSync(password, 10)
+        /* const confirmPass = bcrypt.compareSync(confirmPassword, hashedPassword)
+        if (!confirmPass)
             return res.status(422).send('Senhas não conferem.') */
-        user.password = hasedPassword
+        user.password = hashedPassword
     }
 
     const updatedUser = await UserModel.findOneAndUpdate(query, user, options)

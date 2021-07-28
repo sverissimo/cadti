@@ -20,8 +20,11 @@ class AlertService {
         this.dbQuery = alertObject.dbQuery
     }
 
-    async getAllAlerts() {
-        const allAlerts = await new AlertRepository().getAlertsFromDB()
+    async getAllAlerts(user) {
+
+        const
+            { empresas } = user
+            , allAlerts = await new AlertRepository().getAlertsFromDB(empresas)
         return allAlerts
     }
 
@@ -37,6 +40,18 @@ class AlertService {
         const collection = new AlertRepository().getCollection(this.dbQuery)
         return collection
     }
+
+    /**
+    * Altera o status do aviso (lida ou não lida)
+    * @param {string} id 
+    * @param {boolean} readStatus
+    * @returns {Promise<string>}
+    */
+    async changeReadStatus(id, readStatus) {
+        const result = await new AlertRepository().changeReadStatus(id, readStatus)
+        return result
+    }
+
 
     /**
      * Verifica itens de collections com vencimento em um determinado prazo (dias) ou em múltiplos prazos (alertas múltiplos).

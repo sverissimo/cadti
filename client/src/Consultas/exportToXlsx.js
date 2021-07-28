@@ -13,25 +13,25 @@ const exportToXlsx = (subject, form, rd, procuracoes) => {
         fileExtension = '.xlsx',
         fileName = subject
 
-    let formatedData = formatData(form, rawData, subject)
+    let formattedData = formatData(form, rawData, subject)
     if (subject === 'procuradores')
-        formatedData = addProcuracao(formatedData, procuracoes)
-    console.log("🚀 ~ file: exportToXlsx.js ~ line 19 ~ exportToXlsx ~ formatedData", formatedData)
+        formattedData = addProcuracao(formattedData, procuracoes)
+
 
     const
-        ws = XLSX.utils.json_to_sheet(formatedData)
-        , widths = fitToColumn(formatedData)
+        ws = XLSX.utils.json_to_sheet(formattedData)
+        , widths = fitToColumn(formattedData)
 
     ws['!cols'] = widths.map(w => ({ wch: w }))
-    //console.log(fitToColumn(formatedData))
+    //console.log(fitToColumn(formattedData))
 
     //Obtém o cumprimento máximo/médio dos valores das células para formatar o arquivo de excel
-    function fitToColumn(formatedData) {
+    function fitToColumn(formattedData) {
         const
-            numberOfColumns = Object.keys(formatedData[0]).length
+            numberOfColumns = Object.keys(formattedData[0]).length
             , widths = new Array(numberOfColumns)
 
-        formatedData.forEach(obj => {
+        formattedData.forEach(obj => {
             Object.values(obj).forEach((v, i) => {
                 /* let width = v ? v.toString().length : 7
                 width > 50 ? width = 50 : void 0
@@ -46,7 +46,7 @@ const exportToXlsx = (subject, form, rd, procuracoes) => {
             });
         })
         const w = widths.map(w => {
-            const average = Math.ceil(w / formatedData.length) + 2
+            const average = Math.ceil(w / formattedData.length) + 2
             if (average < 7)
                 return 7
             else
@@ -79,6 +79,7 @@ function formatData(form, data, subject) {
             Object.entries(obj).forEach(([key, value]) => {
 
                 const formField = form.find(f => f.field === key)
+                console.log("🚀 ~ file: exportToXlsx.js ~ line 82 ~ Object.entries ~ formField", formField)
                 if (key !== 'procuradorId') {
                     if (!formField) {
                         delete obj[key]

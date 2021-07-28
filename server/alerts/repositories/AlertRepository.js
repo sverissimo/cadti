@@ -17,10 +17,25 @@ class AlertRepository {
         }
     }
 
-    async getAlertsFromDB() {
-        const allAlerts = await alertModel.find()
-        return allAlerts
+    /**
+     * Recupera os alertas do MongoDB. O filtro é aplicável se fornecido um array de empresas.
+     * @param {number[]} empresas 
+     * @returns 
+     */
+    async getAlertsFromDB(empresas) {
+
+        let filter = {}
+        if (empresas instanceof Array && empresas.length)
+            filter = {
+                $or: [
+                    { 'empresaId': { $in: empresas } },
+                    { 'codigo_empresa': { $in: empresas } }
+                ]
+            }
+        const alerts = await alertModel.find(filter)
+        return alerts
     }
+
 
     /**
     * Busca todos os itens de uma tabela do Postgresql, com base na query de cada child class     
@@ -36,6 +51,24 @@ class AlertRepository {
     }
 
 
+    /**
+    * Altera o status do aviso (lida ou não lida)
+    * @param {string} id 
+    * @param {boolean} readStatus
+    * @returns {Promise<string>}
+    */
+    async changeReadStatus(id, readStatus) {
+        try {
+            const update = await alertModel.findOneAndUpdate({ '_id': id }, { read: readStatus })
+            console.log("🚀 ~ file: AlertRepository.js ~ line 46 ~ AlertRepository ~ markAsRead ~ update", update)
+
+            return `${id} updated.`
+        }
+        catch (err) {
+            return err.message
+        }
+    }
+
     save({ codigo_empresa, subject, vocativo, message }) {
         const
             alertObject = { codigo_empresa, subject, vocativo, message }
@@ -46,6 +79,18 @@ class AlertRepository {
                 console.log(err)
             else
                 console.log(doc)
+        })
+    }
+
+    /**
+     * 
+     * @param {string} id 
+     */
+    async deleteAlert(id) {
+        alertModel.deleteOne({ _id: id }, (err, doc) => {
+            if (err)
+                console.log(err)
+            return doc
         })
     }
 }

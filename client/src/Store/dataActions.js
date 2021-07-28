@@ -166,8 +166,6 @@ export const insertData = (dataFromServer, collection) => (dispatch, getState) =
 export const updateData = (dataFromServer, collection, id) => (dispatch, getState) => {
 
     //Se a collection for vehicleDocs, o que vem do servidor são os ids
-    let i = 0
-    if (i > 0) return
     let data = humps.camelizeKeys(dataFromServer)
     id = humps.camelize(id)
 
@@ -181,19 +179,19 @@ export const updateData = (dataFromServer, collection, id) => (dispatch, getStat
     return
 }
 
-export const updateDocs = (ids, metadata, collection, primarykey) => (dispatch, getState) => {
+export const updateDocs = (ids, metadata, collection, primaryKey) => (dispatch, getState) => {
 
     const stateCollection = getState().data[collection]
 
     if (ids && ids[0] && metadata) {
-        let selectedDocs = stateCollection.filter(doc => ids.some(id => id === doc[primarykey]))
+        let selectedDocs = stateCollection.filter(doc => ids.some(id => id === doc[primaryKey]))
 
         selectedDocs.forEach(doc => {
             const meta = Object.assign({}, doc.metadata, metadata)
             doc.metadata = meta
         })
 
-        const payload = { collection, data: selectedDocs, id: primarykey }
+        const payload = { collection, data: selectedDocs, id: primaryKey }
         dispatch({ type: 'UPDATE_DATA', payload })
     }
 
