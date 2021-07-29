@@ -79,7 +79,7 @@ function formatData(form, data, subject) {
             Object.entries(obj).forEach(([key, value]) => {
 
                 const formField = form.find(f => f.field === key)
-                console.log("🚀 ~ file: exportToXlsx.js ~ line 82 ~ Object.entries ~ formField", formField)
+
                 if (key !== 'procuradorId') {
                     if (!formField) {
                         delete obj[key]

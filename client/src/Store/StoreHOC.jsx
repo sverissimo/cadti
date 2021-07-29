@@ -21,7 +21,7 @@ export default function (requestArray, WrappedComponent) {
     let collections = []
 
     //Qualquer que seja o componente, essas duas coleções do Mongo devem estar presentes
-    const requiredCollections = ['logs', 'parametros']
+    const requiredCollections = ['logs', 'parametros', 'avisos']
     requiredCollections.forEach(c => {
         if (!requestArray.includes(c))
             requestArray.push(c)

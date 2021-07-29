@@ -84,10 +84,12 @@ const dataReducer = (state = {}, action) => {
                 if (!id)
                     return
 
-                if (!collection.match('Docs') && collection !== 'users') id = Number(id)
+                if (!collection.match('Docs') && collection !== 'users' && collection !== 'avisos')
+                    id = Number(id)
                 if (collection === 'laudos')
                     id = id.toString()
 
+                console.log("🚀 ~ file: dataReducer.js ~ line 83 ~ dataReducer ~ updatedData", { id, updatedData })
                 const
                     element = updatedData.find(el => el[tablePK] === id),
                     index = updatedData.findIndex(el => el[tablePK] === element[tablePK])

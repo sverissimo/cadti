@@ -72,7 +72,6 @@ export const getData = (collectionsArray = []) => {
 export const insertData = (dataFromServer, collection) => (dispatch, getState) => {
 
     let data = humps.camelizeKeys(dataFromServer)
-    console.log("🚀 ~ file: dataActions.js ~ line 73 ~ insertData ~ data", data)
 
     const
         payload = { collection, data },

@@ -213,7 +213,7 @@ class Procuradores extends Component {
             const
                 getData = await axios.get(`/api/getOne?table=procuradores&key=cpf_procurador&value='${addedProc.cpfProcurador}'`),
                 existingProc = humps.camelizeKeys(getData?.data[0])
-            console.log("🚀 ~ file: Procuradores.jsx ~ line 222 ~ Procuradores ~ addProc= ~ existingProc", existingProc)
+
             if (existingProc?.procuradorId) {
 
                 //Acrescenta a empresa no array de empresas de cada procurador

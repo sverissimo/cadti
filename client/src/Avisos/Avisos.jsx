@@ -1,12 +1,12 @@
 import React, { useEffect, useState, useCallback } from 'react'
 import StoreHOC from '../Store/StoreHOC'
-import AvisosTemplate from './AvisosTemplate'
-import removePDF from '../Utils/removePDFButton'
 import axios from 'axios'
 import { bindActionCreators } from 'redux'
 import { updateData, deleteOne } from '../Store/dataActions'
 import { connect } from 'react-redux'
-
+import AvisosTemplate from './AvisosTemplate'
+import removePDF from '../Utils/removePDFButton'
+import ConfirmDialog from '../Reusable Components/ConfirmDialog'
 
 const Avisos = props => {
     const
@@ -58,33 +58,62 @@ const Avisos = props => {
             .then(r => console.log(r))
     }
 
-    const deleteAviso = id => {
+    const confirmDelete = data => {
+        setState({
+            ...state,
+            openConfirmDialog: true,
+            confirmType: 'delete',
+            idToDelete: data?.id
+        })
+    }
 
-        console.log("🚀 ~ file: Avisos.jsx ~ line 64 ~ id", id)
-        /* axios.delete(`/api/avisos/${id}`)
+    const deleteAviso = id => {
+        axios.delete(`/api/avisos/${id}`)
             .then(r => console.log(r))
-            .catch(err => console.log(err)) */
+            .catch(err => console.log(err))
         props.deleteOne(id, 'id', 'avisos')
+        closeConfirmDialog()
     }
 
     const formatDataToExport = data => {
         data instanceof Array &&
-            data.forEach(obj => delete obj.message)
+            data.forEach(obj => {
+                if (obj.read === true)
+                    obj.read = 'Lida'
+                if (obj.read === false)
+                    obj.read = "Não lida"
+                delete obj.message
+            })
         return data
     }
 
-    const toggleAviso = () => setState({ ...state, showAviso: !state.showAviso })
+    const
+        toggleAviso = () => setState({ ...state, showAviso: !state.showAviso })
+        , closeConfirmDialog = () => setState({ ...state, openConfirmDialog: false })
 
     return (
-        <AvisosTemplate
-            avisos={avisos}
-            data={state}
-            formatDataToExport={formatDataToExport}
-            openAviso={openAviso}
-            toggleReadMessage={toggleReadMessage}
-            close={toggleAviso}
-            deleteAviso={deleteAviso}
-        />
+        <>
+            <AvisosTemplate
+                avisos={avisos}
+                data={state}
+                formatDataToExport={formatDataToExport}
+                openAviso={openAviso}
+                toggleReadMessage={toggleReadMessage}
+                close={toggleAviso}
+                confirmDelete={confirmDelete}
+                deleteAviso={deleteAviso}
+            />
+            {
+                state.openConfirmDialog &&
+                <ConfirmDialog
+                    open={state.openConfirmDialog}
+                    close={closeConfirmDialog}
+                    confirm={deleteAviso}
+                    type={state.confirmType}
+                    id={state.idToDelete}
+                />
+            }
+        </>
     )
 }
 

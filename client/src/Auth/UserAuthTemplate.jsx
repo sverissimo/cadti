@@ -3,6 +3,7 @@ import TextField from '@material-ui/core/TextField';
 import './userAuth.scss'
 import CustomButton from '../Reusable Components/CustomButton';
 import MenuItem from '@material-ui/core/MenuItem';
+import { SuggestedBrowsers } from "./SuggestedBrowsers";
 
 const UserAuthTemplate = ({ data, changeTab, handleInput, handleSubmit }) => {
     const { title, form, buttonLabel, tab } = data
@@ -97,6 +98,7 @@ const UserAuthTemplate = ({ data, changeTab, handleInput, handleSubmit }) => {
                     }
                 </footer>
             </div>
+            <SuggestedBrowsers />
         </div>
     );
 };

@@ -70,3 +70,22 @@
     /* border: 1px solid blue !important;
     border-radius: 10px !important; */
 }
+
+.webBrowsers {
+    &__title {
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+    &__container {
+        display: flex;
+        background-color: ivory;
+        border-radius: 5px;
+        padding: 5px 0;
+        justify-content: space-evenly;
+        opacity: 0.8;
+    }
+    &__logo {
+        margin: 0;
+        cursor: pointer;
+    }
+}

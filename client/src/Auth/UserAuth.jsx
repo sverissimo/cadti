@@ -22,6 +22,7 @@ const UserAuth = props => {
         handleSubmit()
     }
     document.addEventListener('keypress', signIn)
+    console.log(window.navigator.userAgent)
     return () => document.removeEventListener('keypress', signIn)
   })
 

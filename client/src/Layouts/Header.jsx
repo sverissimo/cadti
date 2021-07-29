@@ -53,11 +53,20 @@ const StyledBadge = withStyles((theme) => ({
     },
 }))(Badge);
 
+const StyledBadge2 = withStyles((theme) => ({
+    badge: {
+        right: -2,
+        top: 2.5,
+        padding: '0',
+    },
+}))(Badge);
+
+
 const Header = props => {
 
     const
         logs = props?.logs,
-        { parametros } = props,
+        { parametros, avisos } = props,
         { pathname } = props.location,
         { user } = props,
         demand = localStorage.getItem('demand'),
@@ -65,8 +74,9 @@ const Header = props => {
         { toolbarTitle, toolbarSecondary, toolbarLink } = classes
 
     const
-        [path, setSelected] = useState(document.location.pathname),
-        [logCounter, setLogCounter] = useState()
+        [path, setSelected] = useState(document.location.pathname)
+        , [logCounter, setLogCounter] = useState()
+        , [avisosCounter, setAvisosCounter] = useState()
 
     //Atualiza o menu superior, destacando a aba selecionada e atualizando o número de solicitações em aberto
     useEffect(() => {
@@ -79,6 +89,19 @@ const Header = props => {
         }
         setSelected(pathname)
     }, [pathname, logCounter, logs])
+
+    //Atualiza o menu superior com o número de avisos não lidos
+    useEffect(() => {
+        if (Array.isArray(avisos)) {
+            const count = avisos
+                .filter(aviso => aviso?.read === false)
+                .length
+
+            setAvisosCounter(count)
+        }
+        //setSelected(pathname)
+    }, [setAvisosCounter, avisos])
+
 
     const selected = link => {
         let
@@ -197,13 +220,15 @@ const Header = props => {
                         </Link>
                 }
                 <Link component={RouterLink} to={sections[7].link}>
-                    <span
-                        className="material-icons adminLink"
-                        style={{ color: 'white', cursor: 'pointer' }}
-                        title={sections[7].title}
-                    >
-                        {sections[7].icon}
-                    </span>
+                    <StyledBadge2 badgeContent={avisosCounter} color='secondary'>
+                        <span
+                            className="material-icons avisosLink"
+                            style={{ color: 'white', cursor: 'pointer' }}
+                            title={sections[7].title}
+                        >
+                            {sections[7].icon}
+                        </span>
+                    </StyledBadge2>
                 </Link>
 
             </Toolbar>
@@ -215,6 +240,7 @@ function mapStateToProps(state) {
     return {
         logs: state.data?.logs,
         parametros: state.data?.parametros,
+        avisos: state.data?.avisos,
         user: state.user
     }
 }

@@ -1,10 +1,7 @@
 import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
-import MailOutlineOutlinedIcon from '@material-ui/icons/MailOutlineOutlined';
 import MaterialTable from 'material-table'
 import React from 'react'
 import exportToXlsx from '../Consultas/exportToXlsx'
-import CustomTable from '../Reusable Components/CustomTable'
-import dataToReturn from '../Utils/createFormPattern'
 import Aviso from './Aviso'
 import styles from './avisos.module.scss'
 import avisosTable from './avisosTable'
@@ -14,7 +11,7 @@ const { container, tableContainer } = styles
 
 const AvisosTemplate = props => {
     const
-        { data, avisos, openAviso, toggleReadMessage, close, formatDataToExport, deleteAviso } = props
+        { data, avisos, openAviso, toggleReadMessage, close, formatDataToExport, confirmDelete } = props
         , { showAviso, aviso } = data
 
     return (
@@ -51,7 +48,7 @@ const AvisosTemplate = props => {
 
                         }}
                         localization={{
-                            header: { actions: '' },
+                            header: { actions: 'Opções' },
                             body: {
                                 emptyDataSourceMessage: 'Registro não encontrado.',
                                 editRow: { deleteText: 'Tem certeza que deseja apagar esse registro ?' },
@@ -73,7 +70,6 @@ const AvisosTemplate = props => {
                                 previousTooltip: 'Página anterior',
                                 nextTooltip: 'Próxima Página',
                                 lastTooltip: 'Última Página',
-
                             }
                         }}
                         actions={[
@@ -83,17 +79,14 @@ const AvisosTemplate = props => {
                                 iconProps: { color: rowData.read ? 'disabled' : 'primary', zindex: 10 },
                                 tooltip: !rowData.read ? 'Marcar como lida' : 'Marcar como não lida',
                                 onClick: toggleReadMessage
-                            })
-                        ]}
-                        editable={{
-                            //isDeleteHidden: rowData => user.role === 'empresa',
-                            onRowDelete: oldData => {
-                                setTimeout(async () => {
-                                    console.log(oldData)
-                                    await deleteAviso(oldData?.id)
-                                }, 500);
+                            }),
+                            {
+                                icon: 'deleteOutline',
+                                iconProps: { color: 'error' },
+                                tooltip: 'Apagar aviso',
+                                onClick: (event, rowData) => confirmDelete(rowData)
                             }
-                        }}
+                        ]}
                     />
 
                     {showAviso &&

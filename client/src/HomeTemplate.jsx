@@ -99,4 +99,4 @@ function Home(props) {
     )
 }
 
-export default StoreHOC(['logs', 'parametros'], Home)
+export default StoreHOC(['logs', 'parametros', 'avisos'], Home)
