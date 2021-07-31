@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: AlertService.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: AlertService.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>//@ts-check
+const
+    fs = require('fs')
+    , path = require('path')
+    , htmlGenerator = require('../../mail/htmlGenerator')
+    , AlertRepository = require('../repositories/AlertRepository')
+    , moment = require('moment')
+/**
+ * Classe responsável por gerenciar e oferecer serviços de envio (ex: email) e armazenamento de alertas, além de método de testes. 
+ */
+class AlertService {
+
+    /**@type{String} */
+    dbQuery;
+
+    /**Constructor
+     * @param {{dbQuery?: string}} alertObject 
+     */
+    constructor(alertObject) {
+        this.dbQuery = alertObject.dbQuery
+    }
+
+    async getAllAlerts(user) {
+
+        const
+            { empresas } = user
+            , allAlerts = await new AlertRepository().getAlertsFromDB(empresas)
+        return allAlerts
+    }
+
+    /**
+    * Busca todos os itens de uma tabela do Postgresql, com base na query de cada child class     
+    * @returns {Promise} 
+    * @throws {console.error('this.dbQuery needed.');}
+    */
+    async getCollection() {
+        if (!this.dbQuery)
+            throw new Error('this.dbQuery needed.');
+
+        const collection = new AlertRepository().getCollection(this.dbQuery)
+        return collection
+    }
+
+    /**
+    * Altera o status do aviso (lida ou não lida)
+    * @param {string} id 
+    * @param {boolean} readStatus
+    * @returns {Promise&lt;string>}
+    */
+    async changeReadStatus(id, readStatus) {
+        const result = await new AlertRepository().changeReadStatus(id, readStatus)
+        return result
+    }
+
+
+    /**
+     * Verifica itens de collections com vencimento em um determinado prazo (dias) ou em múltiplos prazos (alertas múltiplos).
+     * @param {Array} collection Tabela do Postgresql na qual será feita a verificação do vencimento
+     * @param {Array} prazos array de prazos, em dias. 
+     */
+    checkExpiring(collection, prazos) {
+
+        function checkPrazo(el, prazo) {
+            const
+                today = moment()
+                , expiringDate = el.vencimento || el.validade
+
+            if (!expiringDate) {
+                return null
+            }
+
+            const prazoExpiring = moment(expiringDate).isSame(today.add(prazo, 'days'), 'days')
+            return prazoExpiring
+        }
+
+        const expiringItems = collection.filter(el => prazos.some(p => checkPrazo(el, p)))
+        return expiringItems
+    }
+
+    /**
+     * Filtra as empresas das quais um ou mais elementos estão próximos do vencimento (ex: seguros, procurações, etc)
+     * @param {Array} expiringItems - elementos a vencer
+     * @returns {Array} array de objetos com as props codigo_empresa e razao_social
+     * */
+    getEmpresasToNotify(expiringItems) {
+
+        const codigosEmpresas = []
+        const empresas = expiringItems
+            .filter(e => !codigosEmpresas.includes(e.codigo_empresa) &amp;&amp; codigosEmpresas.push(e.codigo_empresa))
+            .map(({ codigo_empresa, empresa, razao_social }) => ({ codigo_empresa, razao_social: empresa || razao_social }))
+
+        return empresas
+    }
+
+    mockAlert({ to, subject, vocativo, message, html = null }) {
+
+        vocativo = typeof vocativo === 'string' &amp;&amp; vocativo
+            .replace(/\./g, '')
+            .replace(/\//g, '')
+            .replace(/:/g, '')
+
+        html = htmlGenerator({ vocativo, message })
+            + '&lt;br />&lt;h5>Raw data:&lt;/h5>'
+            + JSON.stringify(message)
+
+        const
+            filePath = path.join(__dirname, '..', 'mockAlertFiles')
+            , fileName = filePath + `\\fakeEmail_${vocativo}.html`
+
+        fs.writeFileSync(fileName, html)
+
+        console.log("🚀 ~ file: AlertService.js ~ line 15 ~ mockAlert ~ to, subject, vocativo", { fileName, to, vocativo, subject })
+        return 'alright.'
+    }
+
+    saveAlert({ codigo_empresa, subject, vocativo, message }) {
+        const
+            alertObject = { codigo_empresa, subject, vocativo, message: JSON.stringify(message) }
+            , alertRepository = new AlertRepository()
+
+        alertRepository.save(alertObject)
+    }
+}
+
+module.exports = AlertService
+
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AlertService.html">AlertService</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Fri Jul 30 2021 23:18:01 GMT-0300 (GMT-03:00)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

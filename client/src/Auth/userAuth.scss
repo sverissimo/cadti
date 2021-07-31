@@ -73,16 +73,19 @@
 
 .webBrowsers {
     &__title {
-        font-size: 0.8rem;
+        margin-top: 3rem;
         font-weight: 600;
+        font-size: 1.1rem;
+        text-align: center;
     }
     &__container {
         display: flex;
-        background-color: ivory;
+        background-color: white;
         border-radius: 5px;
-        padding: 5px 0;
+        padding: 10px 0 5px 0;
+        width: 280px;
         justify-content: space-evenly;
-        opacity: 0.8;
+        opacity: 0.75;
     }
     &__logo {
         margin: 0;

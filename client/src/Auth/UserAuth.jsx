@@ -22,7 +22,11 @@ const UserAuth = props => {
         handleSubmit()
     }
     document.addEventListener('keypress', signIn)
-    console.log(window.navigator.userAgent)
+    const webBrowser = window.navigator.userAgent
+
+    //Detecta o Browser do usuário e muda estado para renderizar sugestão caso não seja compatível
+    if (!webBrowser.match('Chrome'))
+      setState({ ...state, browserNotCompatible: true })
     return () => document.removeEventListener('keypress', signIn)
   })
 

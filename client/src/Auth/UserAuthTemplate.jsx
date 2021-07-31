@@ -6,7 +6,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import { SuggestedBrowsers } from "./SuggestedBrowsers";
 
 const UserAuthTemplate = ({ data, changeTab, handleInput, handleSubmit }) => {
-    const { title, form, buttonLabel, tab } = data
+    const { title, form, buttonLabel, tab, browserNotCompatible } = data
 
     useEffect(() => {
         setTimeout(() => {
@@ -98,7 +98,10 @@ const UserAuthTemplate = ({ data, changeTab, handleInput, handleSubmit }) => {
                     }
                 </footer>
             </div>
-            <SuggestedBrowsers />
+            {
+                browserNotCompatible &&
+                <SuggestedBrowsers />
+            }
         </div>
     );
 };
