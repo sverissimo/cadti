@@ -53,16 +53,17 @@ class AlertRepository {
 
     /**
     * Altera o status do aviso (lida ou não lida)
-    * @param {string} id 
+    * @param {string[]} ids 
     * @param {boolean} readStatus
     * @returns {Promise<string>}
     */
-    async changeReadStatus(id, readStatus) {
+    async changeReadStatus(ids, readStatus) {
         try {
-            const update = await alertModel.findOneAndUpdate({ '_id': id }, { read: readStatus })
+            //const update = await alertModel.findOneAndUpdate({ '_id': id }, { read: readStatus })
+            const update = await alertModel.updateMany({ '_id': { $in: ids } }, { read: readStatus })
             console.log("🚀 ~ file: AlertRepository.js ~ line 46 ~ AlertRepository ~ markAsRead ~ update", update)
 
-            return `${id} updated.`
+            return `${ids.toString()} updated.`
         }
         catch (err) {
             return err.message
@@ -84,10 +85,11 @@ class AlertRepository {
 
     /**
      * 
-     * @param {string} id 
+     * @param {Array<string>} ids 
      */
-    async deleteAlert(id) {
-        alertModel.deleteOne({ _id: id }, (err, doc) => {
+    async deleteAlerts(ids) {
+        // @ts-ignore
+        alertModel.deleteMany({ _id: { $in: ids } }, (err, doc) => {
             if (err)
                 console.log(err)
             return doc

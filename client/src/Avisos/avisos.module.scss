@@ -8,3 +8,16 @@
 .tableContainer {
     width: 80%;
 }
+
+th > span .MuiIconButton-colorSecondary {
+    background-color: red !important;
+}
+
+.avisosHeader {
+    display: flex;
+    margin-left: 10%;
+    justify-content: space-between;
+    height: 50px;
+    width: 80%;
+    margin-right: 7rem;
+}

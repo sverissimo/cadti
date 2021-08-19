@@ -33,6 +33,7 @@ export const SuggestedBrowsers = () => {
                             key={index}
                             href={webBrowser.href}
                             target='_blank'
+                            rel="noopener noreferrer"
                         >
                             <img
                                 className='webBrowsers__logo'

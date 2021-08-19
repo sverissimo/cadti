@@ -1,0 +1,47 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    background-color: ivory;
+    position: absolute;
+    bottom: 1%;
+    right: 1%;
+    height: 60%;
+    width: 45%;
+    border: 1px solid red;
+    z-index: 12;
+    border-radius: 1%;
+    box-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.1), 0px 1px 1px 0px rgba(0, 0, 0, 0.06),
+        0px 1px 3px 0px rgba(0, 0, 0, 0.05);
+}
+
+.avisoInputs {
+    &__container {
+        width: 100% !important;
+        padding: 1rem;
+    }
+    &__inputDiv {
+        margin: 1rem 0;
+        //padding-bottom: 1rem;
+        //border-bottom: 1px solid #ccc;
+    }
+}
+
+.fk {
+    width: 100%;
+}
+.fk2 {
+    z-index: 13;
+}
+.Zbar {
+    width: 100% !important;
+    height: 1.8rem !important;
+    background-color: gray;
+    border-bottom: 1px solid #ccc;
+    padding-top: 0.2rem;
+    &__title {
+        font-weight: 500;
+        color: honeydew;
+        margin-left: 0.4rem;
+    }
+}

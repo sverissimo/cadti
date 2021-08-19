@@ -43,12 +43,12 @@ class AlertService {
 
     /**
     * Altera o status do aviso (lida ou não lida)
-    * @param {string} id 
+    * @param {string[]} ids 
     * @param {boolean} readStatus
     * @returns {Promise<string>}
     */
-    async changeReadStatus(id, readStatus) {
-        const result = await new AlertRepository().changeReadStatus(id, readStatus)
+    async changeReadStatus(ids, readStatus) {
+        const result = await new AlertRepository().changeReadStatus(ids, readStatus)
         return result
     }
 

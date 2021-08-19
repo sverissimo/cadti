@@ -4,9 +4,10 @@ const AlertRepository = require('./repositories/AlertRepository')
 const
     express = require('express')
     , router = express.Router()
+    , controller = new AlertController()
 
 router.get('/', async (req, res) => {
-    const alerts = await new AlertController().getAlerts(req)
+    const alerts = await controller.getAlerts(req)
     res.send(alerts)
 })
 
@@ -18,17 +19,23 @@ router.post('/', async (req, res) => {
 
 router.patch('/changeReadStatus/', async (req, res) => {
     const
-        { id, read } = req.query
-        , result = await new AlertController().changeReadStatus(id, read)
-    console.log("🚀 ~ file: routes.js ~ line 16 ~ router.get ~ result", { id, result })
-
+        { ids, read } = req.body
+        , result = await controller.changeReadStatus(ids, read)
     res.send(result)
 })
 
-router.delete('/:id', (req, res) => {
-    const { id } = req.params
-    new AlertRepository().deleteAlert(id)
+router.delete('/', (req, res) => {
+    console.log("🚀 ~ file: routes.js ~ line 28 ~ router.delete ~ req", { b: req.body, c: req.data })
+    const ids = req.body
+    new AlertRepository().deleteAlerts(ids)
         .then(r => res.send(r))
 })
+
+/* router.delete('/:id', (req, res) => {
+    const { ids } = req.body
+    new AlertRepository().deleteAlert(ids)
+        .then(r => res.send(r))
+})
+ */
 
 module.exports = router

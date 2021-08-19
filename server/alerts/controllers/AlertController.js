@@ -16,12 +16,12 @@ class AlertController {
 
     /**
     * Marca mensagem como lida
-    * @param {string} id 
+    * @param {string[]} ids 
     * @param {boolean} readStatus
     * @returns {Promise<string>}
     */
-    async changeReadStatus(id, readStatus) {
-        const result = await new AlertService({}).changeReadStatus(id, readStatus)
+    async changeReadStatus(ids, readStatus) {
+        const result = await new AlertService({}).changeReadStatus(ids, readStatus)
         return result
     }
 }

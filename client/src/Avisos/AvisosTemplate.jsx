@@ -1,27 +1,67 @@
 import DeleteOutlineIcon from '@material-ui/icons/DeleteOutline';
-import MaterialTable from 'material-table'
+import MaterialTable, { MTableBodyRow } from 'material-table'
 import React from 'react'
 import exportToXlsx from '../Consultas/exportToXlsx'
+import CheckBoxFilter from '../Reusable Components/CheckBoxFilter';
+import CustomButton2 from '../Reusable Components/CustomButton2';
 import Aviso from './Aviso'
 import styles from './avisos.module.scss'
+import './avisos.scss'
 import avisosTable from './avisosTable'
 
 
-const { container, tableContainer } = styles
+const { container, tableContainer, avisosHeader } = styles
 
 const AvisosTemplate = props => {
     const
-        { data, avisos, openAviso, toggleReadMessage, close, formatDataToExport, confirmDelete } = props
-        , { showAviso, aviso } = data
+        { data, openAviso, close, formatDataToExport, toggleReadMessage, confirmDelete, toggleSelect,
+            showUnreadOnly, toggleNewAviso } = props
+        , { avisos, showAviso, aviso, rowsSelected, allAreUnread, unreadOnly } = data
 
     return (
         <>
+            <header className={avisosHeader}>
+                <CustomButton2
+                    variant="outlined"
+                    iconName='add'
+                    label='novo aviso'
+                    className='none'
+                    //style={{ margin: '10px 0 10px 0' }}
+                    onClick={toggleNewAviso}
+                />
+                <CheckBoxFilter
+                    title='Mostrar somente avisos não lidos'
+                    checked={unreadOnly}
+                    toggleChecked={showUnreadOnly}
+                />
+            </header>
             <main className={container}>
                 <div className={tableContainer}>
                     <MaterialTable
                         title={`Avisos`}
                         columns={avisosTable}
                         data={avisos}
+                        components={{
+                            Row: props => {
+                                const
+                                    propsCopy = { ...props }
+                                    , { data, actions } = propsCopy
+
+                                const markAsReadAction = actions.find(a => a.name === 'markAsRead');
+                                if (data.read === true) {
+                                    markAsReadAction.icon = 'draftsOutlinedIcon'
+                                    markAsReadAction.iconProps = { color: 'disabled', zindex: 11 }
+                                }
+                                else {
+                                    markAsReadAction.iconProps = { color: 'primary', zindex: 11 }
+                                    markAsReadAction.icon = 'mailOutlined'
+                                }
+                                //propsCopy.actions.find(a => a.name === 'remove').disabled = propsCopy.data.id < 100;
+                                return <MTableBodyRow
+                                    {...propsCopy}
+                                />
+                            }
+                        }}
                         onRowClick={openAviso}
                         style={{ fontFamily: 'Segoe UI', fontSize: '14px' }}
                         icons={{
@@ -31,6 +71,9 @@ const AvisosTemplate = props => {
                         }}
                         options={{
                             filtering: true,
+                            selection: true,
+                            selectionProps: {},
+                            search: rowsSelected ? false : true,
                             exportFileName: 'avisos',
                             exportButton: true,
                             exportCsv: (columns, data) => {
@@ -47,6 +90,7 @@ const AvisosTemplate = props => {
                             pageSize: 20,
 
                         }}
+                        onSelectionChange={rows => toggleSelect(rows)}
                         localization={{
                             header: { actions: 'Opções' },
                             body: {
@@ -58,12 +102,12 @@ const AvisosTemplate = props => {
                             toolbar: {
                                 searchTooltip: 'Procurar',
                                 searchPlaceholder: 'Procurar',
+                                nRowsSelected: '{0} avisos selecionados',
                                 exportCSVName: 'Salvar como arquivo do excel',
                                 exportAriaLabel: 'Exportar',
                                 exportTitle: 'Exportar'
                             },
                             pagination: {
-
                                 labelRowsSelect: 'Resultados por página',
                                 labelDisplayedRows: ' {from}-{to} a {count}',
                                 firstTooltip: 'Primeira página',
@@ -73,17 +117,21 @@ const AvisosTemplate = props => {
                             }
                         }}
                         actions={[
-                            rowData =>
-                            ({
-                                icon: rowData.read ? 'draftsOutlinedIcon' : 'mailOutlined',
-                                iconProps: { color: rowData.read ? 'disabled' : 'primary', zindex: 10 },
-                                tooltip: !rowData.read ? 'Marcar como lida' : 'Marcar como não lida',
-                                onClick: toggleReadMessage
-                            }),
                             {
+                                name: 'markAsRead',
+                                icon: rowsSelected && allAreUnread ? 'draftsOutlinedIcon' : 'mailOutlined',
+                                tooltip: rowsSelected && allAreUnread ? 'Marcar como lida' : 'Marcar como não lida',
+                                onClick: (event, data) => toggleReadMessage(data),
+                                position: rowsSelected ? 'auto' : 'row'
+                                //iconProps: { color: data?.tableData?.read ? 'disabled' : 'primary' },
+                                //tooltip: !rowData.read ? 'Marcar como lida' : 'Marcar como não lida',                                 
+                            },
+                            {
+                                name: 'remove',
                                 icon: 'deleteOutline',
                                 iconProps: { color: 'error' },
                                 tooltip: 'Apagar aviso',
+                                position: rowsSelected ? 'auto' : 'row',
                                 onClick: (event, rowData) => confirmDelete(rowData)
                             }
                         ]}
