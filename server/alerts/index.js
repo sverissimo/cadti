@@ -1,17 +1,24 @@
 //@ts-check
+
 const
     AlertFactory = require('./AlertFactory')
     , AlertService = require('./services/AlertService')
     , RecipientService = require('./services/RecipientService')
 
+/** 
+ * @file index.js é o ponto de entrada do micro serviço de geração de alertas/avisos. Os alertas podem ser gerados e salvos no banco de dados MongoDB ou enviados por e-mail, conforme os métodos/serviços selecionados
+ * @author Sandro Veríssimo 
+ */
+
+
 /**
- * Identifica seguros prestes a vencer e chama o método ../mail/mailSender para enviar alertas
- * @param {string} type - tipo de alerta a ser criado.
- * */
+* Identifica seguros prestes a vencer e chama o método ../mail/mailSender para enviar alertas
+* @param {string} type - tipo de alerta a ser criado.
+* */
 const main = async (type = 'laudos') => {
 
     const
-        alertObject = new AlertFactory(type).createAlert()
+        alertObject = await new AlertFactory(type).createAlert()
         , subject = alertObject.subject
         , recipientService = new RecipientService()
         , alertService = new AlertService(alertObject)

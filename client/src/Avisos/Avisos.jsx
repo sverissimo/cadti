@@ -154,6 +154,17 @@ const Avisos = props => {
 
     }
 
+    const handleSubmit = () => {
+        const
+            { from, to, subject, avisoText } = state
+            , vocativo = to
+            , requestObject = { from, to, vocativo, subject, message: avisoText }
+
+        axios.post('/alerts/userAlerts/?type=saveAlert', requestObject)
+            .then(r => console.log(r))
+            .catch(err => console.log(err))
+    }
+
     const
         showUnreadOnly = () => setState({ ...state, unreadOnly: !state.unreadOnly })
         , toggleAviso = () => setState({ ...state, showAviso: !state.showAviso })
@@ -182,6 +193,7 @@ const Avisos = props => {
                     data={state}
                     handleChange={handleChange}
                     toggleNewAviso={toggleNewAviso}
+                    handleSubmit={handleSubmit}
                 />
             }
             {

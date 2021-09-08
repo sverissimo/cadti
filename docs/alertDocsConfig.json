@@ -1,0 +1,27 @@
+{
+    "source": {
+        "include": [
+            "./server/alerts"
+        ],
+        "exclude": [
+            "./server/alerts/altContratoAlert.js",
+            "./server/alerts/routes.js",
+            "./server/alerts/testAlerts.js",
+            "./server/alerts/userAlerts"
+        ],
+        "includePattern": ".js$",
+        "excludePattern": "(node_modules/|docs)"
+    },
+    "plugins": [
+        "plugins/markdown"
+    ],
+    "templates": {
+        "cleverLinks": true,
+        "monospaceLinks": true
+    },
+    "opts": {
+        "recurse": true,
+        "destination": "docs/alertDocs/",
+        "template": "alertDocs/custom_template"
+    }
+}

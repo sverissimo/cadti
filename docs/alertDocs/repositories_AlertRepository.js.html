@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: repositories/AlertRepository.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: repositories/AlertRepository.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>//@ts-check
+const
+    alertModel = require("../../mongo/models/alertModel")
+    , parametrosModel = require("../../mongo/models/parametrosModel/parametrosModel")
+    , { conn } = require("../../mongo/mongoConfig")
+    , { pool } = require('../../config/pgConfig')
+
+
+class AlertRepository {
+
+    //Construtor para testes em ambiente de produção apenas
+    constructor() {
+        if (!process.env.DB &amp;&amp; process.env.NODE_ENV !== 'production') {
+            conn.on('error', console.error.bind(console, 'connection error:'))
+            conn.once('open', () => {
+                console.log('Testing alert... Mongo connected to the server.')
+            })
+        }
+    }
+
+    /**
+     * Recupera os prazos de alertas do MongoDB, conforme o tipo de alerta passado como arg.
+     * @param {string} alertType
+     * @returns {Promise}
+     */
+    async getPrazos(alertType) {
+        alertType = alertType
+            .replace('laudos', 'Laudo')
+            .replace('procuracoes', 'Procuracao')
+            .replace('seguros', 'Seguro')
+
+        const
+            alertTypeDeadline = `prazoAlerta${alertType}`
+            , parametros = await parametrosModel.find()
+            // @ts-ignore
+            , prazosParaAlerta = parametros[0].prazosAlerta &amp;&amp; parametros[0].prazosAlerta[alertTypeDeadline]
+
+        return prazosParaAlerta
+    }
+
+    /**
+     * Recupera os alertas do MongoDB. O filtro é aplicável se fornecido um array de empresas.
+     * @param {number[]} empresas 
+     * @returns {Promise&lt;Array>}
+     */
+    async getAlertsFromDB(empresas) {
+
+        let filter = {}
+        if (empresas instanceof Array &amp;&amp; empresas.length)
+            filter = {
+                $or: [
+                    { 'empresaId': { $in: empresas } },
+                    { 'codigo_empresa': { $in: empresas } }
+                ]
+            }
+        const alerts = await alertModel.find(filter)
+        return alerts
+    }
+
+
+    /**
+    * Busca todos os itens de uma tabela do Postgresql, com base na query de cada child class     
+    * @param {string} dbQuery
+    * @returns {Promise} 
+    * @throws {InvalidArgumentException}
+    */
+    async getCollection(dbQuery) {
+        if (!dbQuery)
+            throw new Error('dbQuery obrigatório.')
+        const
+            data = await pool.query(dbQuery)
+            , collection = data.rows
+        return collection
+    }
+
+
+    /**
+    * Altera o status do aviso (lida ou não lida)
+    * @param {string[]} ids 
+    * @param {boolean} readStatus
+    * @returns {Promise&lt;string>}
+    */
+    async changeReadStatus(ids, readStatus) {
+        try {
+            //const update = await alertModel.findOneAndUpdate({ '_id': id }, { read: readStatus })
+            const update = await alertModel.updateMany({ '_id': { $in: ids } }, { read: readStatus })
+            console.log("🚀 ~ file: AlertRepository.js ~ line 46 ~ AlertRepository ~ markAsRead ~ update", update)
+
+            return `${ids.toString()} updated.`
+        }
+        catch (err) {
+            return err.message
+        }
+    }
+
+    save({ codigo_empresa, subject, vocativo, message }) {
+        const
+            alertObject = { codigo_empresa, subject, vocativo, message }
+            , alertDoc = new alertModel(alertObject)
+
+        alertDoc.save((err, doc) => {
+            if (err)
+                console.log(err)
+            else
+                console.log(doc)
+        })
+    }
+
+    /**
+     * 
+     * @param {Array&lt;string>} ids 
+     */
+    async deleteAlerts(ids) {
+        // @ts-ignore
+        alertModel.deleteMany({ _id: { $in: ids } }, (err, doc) => {
+            if (err)
+                console.log(err)
+            return doc
+        })
+    }
+}
+
+module.exports = AlertRepository</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">CADTI - Microsserviço de alertas / avisos </a></h2><h3>Modules</h3><ul><li><a href="module-AlertFactory.html">AlertFactory</a></li><li><a href="module-AlertService.html">AlertService</a></li><li><a href="module-RecipientService.html">RecipientService</a></li></ul><h3>Classes</h3><ul><li><a href="Alert.html">Alert</a></li><li><a href="LaudoAlert.html">LaudoAlert</a></li><li><a href="module-AlertFactory-AlertFactory.html">AlertFactory</a></li><li><a href="module-AlertService-AlertService.html">AlertService</a></li><li><a href="ProcuracaoAlert.html">ProcuracaoAlert</a></li><li><a href="SeguroAlert.html">SeguroAlert</a></li></ul><h3>Global</h3><ul><li><a href="global.html#main">main</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Tue Sep 07 2021 20:57:03 GMT-0300 (GMT-03:00)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

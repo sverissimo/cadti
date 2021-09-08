@@ -1,21 +1,27 @@
-const AlertController = require('./controllers/AlertController')
-const AlertRepository = require('./repositories/AlertRepository')
-
 const
     express = require('express')
     , router = express.Router()
+    , AlertController = require('./controllers/AlertController')
+    , AlertRepository = require('./repositories/AlertRepository')
+    , userAlerts = require('./userAlerts/')
     , controller = new AlertController()
+
 
 router.get('/', async (req, res) => {
     const alerts = await controller.getAlerts(req)
     res.send(alerts)
 })
 
+//Testes
 router.post('/', async (req, res) => {
     const { body } = req
     const result = await new AlertRepository().save(body)
     res.send(result)
 })
+
+//User alerts
+router.post('/userAlerts', userAlerts)
+
 
 router.patch('/changeReadStatus/', async (req, res) => {
     const

@@ -19,7 +19,6 @@ const CustomButton2 = (
             size={size}
             variant={variant}
             color={color}
-            className='customButton'
             style={{ marginTop: '1rem', ...style }}
             onClick={onClick}
         >
@@ -29,7 +28,7 @@ const CustomButton2 = (
                     {iconName}
                 </Icon>
             }
-            <span >
+            <span style={{ margin: '0.1rem 0 0 0.4rem' }}>
                 {label}
             </span>
         </Button>

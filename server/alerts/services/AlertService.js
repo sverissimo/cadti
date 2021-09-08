@@ -1,22 +1,29 @@
 //@ts-check
+/**
+ * @module AlertService
+ */
+
 const
     fs = require('fs')
     , path = require('path')
     , htmlGenerator = require('../../mail/htmlGenerator')
     , AlertRepository = require('../repositories/AlertRepository')
     , moment = require('moment')
+    , Alert = require('../models/Alert')
 /**
  * Classe responsável por gerenciar e oferecer serviços de envio (ex: email) e armazenamento de alertas, além de método de testes. 
  */
 class AlertService {
 
-    /**@type{String} */
     dbQuery;
 
     /**Constructor
-     * @param {{dbQuery?: string}} alertObject 
+     * @param {Alert} alertObject Objeto instanciado da de uma subclasse herdada da classe Alert.js
      */
     constructor(alertObject) {
+        /**
+         * @property {String} dbQuery - script de SQL para buscar as entradas no banco Postgresql
+         */
         this.dbQuery = alertObject.dbQuery
     }
 
@@ -31,7 +38,7 @@ class AlertService {
     /**
     * Busca todos os itens de uma tabela do Postgresql, com base na query de cada child class     
     * @returns {Promise} 
-    * @throws {console.error('this.dbQuery needed.');}
+    * @throws Gera um erro se não houver se o objeto instanciado não tiver a prop dbQuery definida
     */
     async getCollection() {
         if (!this.dbQuery)
@@ -43,15 +50,14 @@ class AlertService {
 
     /**
     * Altera o status do aviso (lida ou não lida)
-    * @param {string[]} ids 
-    * @param {boolean} readStatus
+    * @param {string[]} ids Array de ids dos respectivos avisos/alertas
+    * @param {boolean} readStatus Boolean que representa se o aviso foi lido ou não
     * @returns {Promise<string>}
     */
     async changeReadStatus(ids, readStatus) {
         const result = await new AlertRepository().changeReadStatus(ids, readStatus)
         return result
     }
-
 
     /**
      * Verifica itens de collections com vencimento em um determinado prazo (dias) ou em múltiplos prazos (alertas múltiplos).

@@ -5,15 +5,23 @@ const
     procuracoes = getAllProcs()
 
 
+/**
+ * Classe instanciada de Alert com métodos específicos para o alerta sobre o vencimento de procurações
+ * @extends Alert
+ */
 class ProcuracaoAlert extends Alert {
 
-    /** @type {{ procuradores: any[]; }} */
+    /** @type {Object} */
     recipients;
 
-    constructor() {
+    /**
+     * 
+     * @param {Array<number>} prazos 
+     */
+    constructor(prazos) {
         super()
         this.subject = 'Vencimento de procurações.'
-        this.prazos = [0, 1]
+        this.prazos = prazos
         this.dbQuery = procuracoes
         this.messageIntro = 'As procurações abaixo se encontram próximas do vencimento:'
         this.mailFields = ['procuradores', 'vencimento']

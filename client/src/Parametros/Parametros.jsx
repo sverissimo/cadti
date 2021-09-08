@@ -5,20 +5,22 @@ import StoreHOC from '../Store/StoreHOC'
 import ReactToast from '../Reusable Components/ReactToast'
 
 import ParametrosTemplate from './ParametrosTemplate'
-import { distancias, nomes, parametrosIdade, motivosBaixa } from '../Forms/parametrosForm'
+import { distancias, nomes, parametrosIdade, motivosBaixa, prazosAviso } from '../Forms/parametrosForm'
+import { checkInputErrors } from '../Utils/checkInputErrors'
 
 const Parametros = props => {
     //A prop 'params' são os nomes das propriedades do objeto do estado inicial, seja o nome de uma prop do DB seja do arquivo ./defaultParams.js
     const
         [state, setState] = useState({
-            options: ['Idade e prazos para baixa', 'Distância mínima entre poltronas', 'Nomenclaturas', 'Motivos para baixa do veículo'],
-            params: ['idadeBaixa', 'distanciaPoltronas', 'nomes', 'motivosBaixa'],
-            forms: [parametrosIdade, distancias, nomes, motivosBaixa]
+            options: ['Idade e prazos para baixa', 'Distância mínima entre poltronas', 'Nomenclaturas', 'Motivos para baixa do veículo', 'Prazos para avisos automáticos do sistema'],
+            params: ['idadeBaixa', 'distanciaPoltronas', 'nomes', 'motivosBaixa', 'prazosAlerta'],
+            forms: [parametrosIdade, distancias, nomes, motivosBaixa, prazosAviso],
         }),
+
         { toastMsg, toastStatus, confirmToast } = state,
         { outsider } = props
 
-    //QUando renderizado pelo componente Config de veículos, a prop outsider é definida como true, o state é configurado para a opção Motivo da baixa
+    //Quando renderizado pelo componente Config de veículos, a prop outsider é definida como true, o state é configurado para a opção Motivo da baixa
     useEffect(() => {
         if (outsider) {
             const
@@ -139,6 +141,7 @@ const Parametros = props => {
             parametro = params[tab]
 
         let requestObj = {}
+
         //Se o estado modificável for uma array de strings (ex: tab===3), o requestObj é uma array
         if (tab === 3) {
             newState.forEach((prop, i) => {         //Tira campos vazios do request
@@ -147,6 +150,25 @@ const Parametros = props => {
             })
             setState({ ...state, newState })
             requestObj = newState
+        }
+        //Para a alteração de prazos, é necessário transformar o string input em array de números antes de enviar
+        else if (tab === 4) {
+            for (let obj of form) {
+                let prazos = state[obj.field]
+
+                if (!Array.isArray(prazos))
+                    prazos = prazos.split(',')
+                prazos = prazos.map(p => Number(p))
+
+                Object.assign(requestObj, { [obj.field]: prazos })
+            }
+
+            //validação
+            const errors = checkInputErrors()
+            if (errors) {
+                alert(`Os prazos devem ser informados em números de dias e separados por vírgula. Favor verificar o preenchimento.`)
+                return
+            }
         }
         else
             keys.forEach(k => Object.assign(requestObj, { [k]: state[k] }))

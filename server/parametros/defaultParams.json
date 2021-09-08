@@ -1,0 +1,37 @@
+{
+    "_id": "ObjectId(\"6053b841b9bab61ac02beafc\")",
+    "distanciaPoltronas": {
+        "comercial": 65,
+        "comercialExecutivo": 65,
+        "convencional": 70,
+        "convencionalExecutivo": 79,
+        "leito": 105,
+        "leitoExecutivo": 79,
+        "semiLeito": 95,
+        "semiLeitoExecutivo": 79
+    },
+    "idadeBaixa": {
+        "idadeMaxCad": 10,
+        "difIdade": 1,
+        "idadeBaixaAut": 18,
+        "diaBaixaAut": "30/04",
+        "prazoAvisoBaixa": 15
+    },
+    "nomes": {
+        "secretaria": "Secretaria de Estado de Infraestrutura e Mobilidade",
+        "subsecretaria": "Subsecretaria de Transportes e Mobilidade",
+        "superintendencia": "Superintendência de Transporte Intermunicipal e Metropolitano",
+        "diretoria": "Diretoria de Gestão do Transporte Intermunicipal",
+        "sistema": "Sistema de Cadastro do Transporte Intermunicipal de Minas Gerais",
+        "siglaSecretaria": "Seinfra",
+        "siglaSistema": "CadTI - MG"
+    },
+    "motivosBaixa": [
+        "Baixado pela fiscalização",
+        "Fim do contrato com delegatário",
+        "Venda do veículo"
+    ],
+    "createdAt": "ISODate(\"2021-03-18T20:29:53.695Z\")",
+    "updatedAt": "ISODate(\"2021-07-05T21:05:43.702Z\")",
+    "__v": 0
+}

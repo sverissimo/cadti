@@ -1,6 +1,9 @@
 //@ts-check
 const RecipientsRepository = require('../repositories/RecipientsRepository');
 
+/**
+ * @module RecipientService
+ */
 
 class RecipientService {
 

@@ -1,5 +1,6 @@
-const expiringItemsAlert = require(".");
+const main = require(".");
 
-expiringItemsAlert('seguros')
-expiringItemsAlert('procuracoes')
-expiringItemsAlert('laudos')
+main('seguros')
+main('procuracoes')
+main('laudos')
+return

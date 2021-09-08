@@ -1,33 +1,41 @@
 //@ts-check
 
+/**
+ * Classe parent das subclasses de alerta.  
+ */
 class Alert {
 
-    /** @type {any[]} Elementos prestes a vencer*/
+    /** @property {any[]} expiringItems Elementos prestes a vencer*/
     expiringItems = []
 
-    /** @type {string} Assunto da mensagem (e-mail)*/
+    /**
+     * @property {string} subject Assunto da mensagem (e-mail)     
+     */
     subject;
 
-    /** @type {number[]} Prazos para a criação e envio de alertas */
+    /** @property {number[]} prazos Prazos para a criação e envio de alertas */
     prazos;
 
-    /** @type {string} Query SELECT passada para o banco de dados*/
+    /** @property {string} dbQuery Query SELECT passada para o banco de dados*/
     dbQuery;
 
-    /** @type {any[]} Campos correspondentes no DB que devem aparecer na tabela que consta na mensagem*/
+    /** @property {any[]} mailFields Campos correspondentes no DB que devem aparecer na tabela que consta na mensagem*/
     mailFields = []
 
-    /** @type {string} Texto de introdução da mensagem*/
+    /** @property {string} messageIntro Texto de introdução da mensagem*/
     messageIntro;
 
-    /** @type {string[]} Cabeçalho da tabela contida na mensagem*/
+    /** @property {string[]} mailHeaders Cabeçalho da tabela contida na mensagem*/
     mailHeaders;
 
-    /** @type {string} Orientação para como resolver o alerta*/
+    /** @property {string} messageTip Orientação para como resolver o alerta*/
     messageTip;
 
-    /** @type {string} Orientação para onde no sistema achar a resolução do alerta*/
+    /** @property {string} tipPath Orientação para onde no sistema achar a resolução do alerta*/
     tipPath;
+
+    /** @property {*} recipients Orientação para onde no sistema achar a resolução do alerta*/
+    recipients;
 
     /**Filtra os itens (ex: apólice, procuração, etc) que estão a vencer por empresa, para concentrar todos de uma determinada empresa em um só e-mail.
     * @param {Number} codigo_empresa Código da empresa/delegatário no banco de dados Posgresql

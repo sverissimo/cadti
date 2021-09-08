@@ -28,9 +28,10 @@
 
 <header>
     
-        <h2><span class="attribs"><span class="type-signature"></span></span>AlertService<span class="signature">(alertObject)</span><span class="type-signature"></span></h2>
+        <h2><span class="attribs"><span class="type-signature"></span></span>
+            <span class="ancestors"><a href="module-AlertService.html">AlertService</a>~</span>AlertService<span class="signature">(alertObject)</span><span class="type-signature"></span></h2>
         
-            <div class="class-description">Classe responsável por gerenciar e oferecer serviços de envio (ex: email) e armazenamento de alertas, além de método de testes.</div>
+            <div class="class-description"><p>Classe responsável por gerenciar e oferecer serviços de envio (ex: email) e armazenamento de alertas, além de método de testes.</p></div>
         
     
 </header>
@@ -53,7 +54,7 @@
 
 
 <div class="description">
-    Constructor
+    <p>Constructor</p>
 </div>
 
 
@@ -94,13 +95,18 @@
 
             <td class="type">
             
+                
+<span class="param-type"><a href="Alert.html">Alert</a></span>
+
+
+            
             </td>
 
             
 
             
 
-            <td class="description last"></td>
+            <td class="description last"><p>Objeto instanciado da de uma subclasse herdada da classe Alert.js</p></td>
         </tr>
 
     
@@ -141,7 +147,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="AlertService.js.html">AlertService.js</a>, <a href="AlertService.js.html#line11">line 11</a>
+        <a href="services_AlertService.js.html">services/AlertService.js</a>, <a href="services_AlertService.js.html#line16">line 16</a>
     </li></ul></dd>
     
 
@@ -202,6 +208,58 @@
 
 
 
+    <h5 class="subsection-title">Properties:</h5>
+
+    
+
+<table class="props">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>dbQuery</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">String</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last"><p>script de SQL para buscar as entradas no banco Postgresql</p></td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
 <dl class="details">
 
     
@@ -231,7 +289,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="AlertService.js.html">AlertService.js</a>, <a href="AlertService.js.html#line14">line 14</a>
+        <a href="services_AlertService.js.html">services/AlertService.js</a>, <a href="services_AlertService.js.html#line27">line 27</a>
     </li></ul></dd>
     
 
@@ -259,7 +317,7 @@
     
 
     
-    <h4 class="name" id="changeReadStatus"><span class="type-signature">(async) </span>changeReadStatus<span class="signature">(id, readStatus)</span><span class="type-signature"> &rarr; {Promise.&lt;string>}</span></h4>
+    <h4 class="name" id="changeReadStatus"><span class="type-signature">(async) </span>changeReadStatus<span class="signature">(ids, readStatus)</span><span class="type-signature"> &rarr; {Promise.&lt;string>}</span></h4>
     
 
     
@@ -267,7 +325,7 @@
 
 
 <div class="description">
-    Altera o status do aviso (lida ou não lida)
+    <p>Altera o status do aviso (lida ou não lida)</p>
 </div>
 
 
@@ -303,13 +361,13 @@
 
         <tr>
             
-                <td class="name"><code>id</code></td>
+                <td class="name"><code>ids</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">string</span>
+<span class="param-type">Array.&lt;string></span>
 
 
             
@@ -319,7 +377,7 @@
 
             
 
-            <td class="description last"></td>
+            <td class="description last"><p>Array de ids dos respectivos avisos/alertas</p></td>
         </tr>
 
     
@@ -342,7 +400,7 @@
 
             
 
-            <td class="description last"></td>
+            <td class="description last"><p>Boolean que representa se o aviso foi lido ou não</p></td>
         </tr>
 
     
@@ -383,7 +441,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="AlertService.js.html">AlertService.js</a>, <a href="AlertService.js.html#line50">line 50</a>
+        <a href="services_AlertService.js.html">services/AlertService.js</a>, <a href="services_AlertService.js.html#line57">line 57</a>
     </li></ul></dd>
     
 
@@ -445,7 +503,7 @@
 
 
 <div class="description">
-    Verifica itens de collections com vencimento em um determinado prazo (dias) ou em múltiplos prazos (alertas múltiplos).
+    <p>Verifica itens de collections com vencimento em um determinado prazo (dias) ou em múltiplos prazos (alertas múltiplos).</p>
 </div>
 
 
@@ -497,7 +555,7 @@
 
             
 
-            <td class="description last">Tabela do Postgresql na qual será feita a verificação do vencimento</td>
+            <td class="description last"><p>Tabela do Postgresql na qual será feita a verificação do vencimento</p></td>
         </tr>
 
     
@@ -520,7 +578,7 @@
 
             
 
-            <td class="description last">array de prazos, em dias.</td>
+            <td class="description last"><p>array de prazos, em dias.</p></td>
         </tr>
 
     
@@ -561,7 +619,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="AlertService.js.html">AlertService.js</a>, <a href="AlertService.js.html#line61">line 61</a>
+        <a href="services_AlertService.js.html">services/AlertService.js</a>, <a href="services_AlertService.js.html#line67">line 67</a>
     </li></ul></dd>
     
 
@@ -605,7 +663,7 @@
 
 
 <div class="description">
-    Busca todos os itens de uma tabela do Postgresql, com base na query de cada child class
+    <p>Busca todos os itens de uma tabela do Postgresql, com base na query de cada child class</p>
 </div>
 
 
@@ -649,7 +707,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="AlertService.js.html">AlertService.js</a>, <a href="AlertService.js.html#line36">line 36</a>
+        <a href="services_AlertService.js.html">services/AlertService.js</a>, <a href="services_AlertService.js.html#line43">line 43</a>
     </li></ul></dd>
     
 
@@ -677,6 +735,8 @@
         
 
     <div class="param-desc">
+    
+        <p>Gera um erro se não houver se o objeto instanciado não tiver a prop dbQuery definida</p>
     
     </div>
 
@@ -721,7 +781,7 @@
 
 
 <div class="description">
-    Filtra as empresas das quais um ou mais elementos estão próximos do vencimento (ex: seguros, procurações, etc)
+    <p>Filtra as empresas das quais um ou mais elementos estão próximos do vencimento (ex: seguros, procurações, etc)</p>
 </div>
 
 
@@ -773,7 +833,7 @@
 
             
 
-            <td class="description last">elementos a vencer</td>
+            <td class="description last"><p>elementos a vencer</p></td>
         </tr>
 
     
@@ -814,7 +874,7 @@
     
     <dt class="tag-source">Source:</dt>
     <dd class="tag-source"><ul class="dummy"><li>
-        <a href="AlertService.js.html">AlertService.js</a>, <a href="AlertService.js.html#line85">line 85</a>
+        <a href="services_AlertService.js.html">services/AlertService.js</a>, <a href="services_AlertService.js.html#line91">line 91</a>
     </li></ul></dd>
     
 
@@ -843,7 +903,7 @@
 
         
 <div class="param-desc">
-    array de objetos com as props codigo_empresa e razao_social
+    <p>array de objetos com as props codigo_empresa e razao_social</p>
 </div>
 
 
@@ -882,13 +942,13 @@
 </div>
 
 <nav>
-    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="AlertService.html">AlertService</a></li></ul>
+    <h2><a href="index.html">CADTI - Microsserviço de alertas / avisos </a></h2><h3>Modules</h3><ul><li><a href="module-AlertFactory.html">AlertFactory</a></li><li><a href="module-AlertService.html">AlertService</a></li><li><a href="module-RecipientService.html">RecipientService</a></li></ul><h3>Classes</h3><ul><li><a href="Alert.html">Alert</a></li><li><a href="LaudoAlert.html">LaudoAlert</a></li><li><a href="module-AlertFactory-AlertFactory.html">AlertFactory</a></li><li><a href="module-AlertService-AlertService.html">AlertService</a></li><li><a href="ProcuracaoAlert.html">ProcuracaoAlert</a></li><li><a href="SeguroAlert.html">SeguroAlert</a></li></ul><h3>Global</h3><ul><li><a href="global.html#main">main</a></li></ul>
 </nav>
 
 <br class="clear">
 
 <footer>
-    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Fri Jul 30 2021 23:18:01 GMT-0300 (GMT-03:00)
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 3.6.7</a> on Tue Sep 07 2021 20:57:03 GMT-0300 (GMT-03:00)
 </footer>
 
 <script> prettyPrint(); </script>

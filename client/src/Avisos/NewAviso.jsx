@@ -4,8 +4,9 @@ import avisoInputs from './avisoInputs'
 import './newAviso.scss'
 import { makeStyles } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
-//import TextArea from '../Reusable Components/TextArea'
 import ReactQuill from 'react-quill'
+import EditorToolbar, { modules, formats } from "./EditorToolbar";
+import CustomButton2 from '../Reusable Components/CustomButton2'
 
 const useStyles = makeStyles(theme => ({
     textField: {
@@ -15,13 +16,13 @@ const useStyles = makeStyles(theme => ({
 
 //import styles from './avisos.module.scss'
 
-const NewAviso = ({ data, handleChange, toggleNewAviso }) => {
+const NewAviso = ({ data, handleChange, toggleNewAviso, handleSubmit }) => {
     const { textField } = useStyles()
 
     return (
-        <div className='container'>
-            <header className="Zbar">
-                <span className='Zbar__title'>
+        <div className='newAviso__container'>
+            <header className="newAviso__bar">
+                <span className='newAviso__bar__title'>
                     Novo aviso
                 </span>
                 <ClosePopUpButton
@@ -31,29 +32,14 @@ const NewAviso = ({ data, handleChange, toggleNewAviso }) => {
             <section className='avisoInputs__container'>
                 {avisoInputs.map(({ field, label, disabled }, i) =>
                     <div key={i} className='avisoInputs__inputDiv'>
-                        {/*  <span>
-                            {label}
-                        </span>
-                        <input
-                            type="text"
-                            id={i}
-                            name={field}
-                            label={label}
-                            value={data[field]}
-                            onChange={handleChange}
-                            disabled={disabled}
-                        /> */}
-
                         <TextField
                             name={field}
                             label={label}
                             onChange={handleChange}
-                            //className={textField}
                             className='fk'
                             value={data[field] || ''}
                             disabled={disabled}
                             InputLabelProps={{
-
                                 style: {
                                     fontSize: '0.7rem',
                                     fontWeight: 400,
@@ -72,21 +58,35 @@ const NewAviso = ({ data, handleChange, toggleNewAviso }) => {
                                 autoComplete: 'off'
                             }}
                             variant='filled'
-
                         />
                     </div>
                 )}
             </section>
-            <section>
 
-                <ReactQuill
-                    className='fk2'
-                    onChange={handleChange}
-                    //className={textField}
-                    name='avisoText'
-                    value={data.avisoText || ''}
-                />
+            <section className='textEditor__container'>
+                <div className="textEditor__wrapper">
+                    <EditorToolbar />
+                    <ReactQuill
+                        theme='snow'
+                        className='textEditor__editor'
+                        onChange={handleChange}
+                        //className={textField}
+                        name='avisoText'
+                        value={data.avisoText || ''}
+                        //placeholder={"Escrever aviso..."}
+                        modules={modules}
+                        formats={formats}
+                    />
+                </div>
             </section>
+            <footer className='newAviso__footer'>
+                <CustomButton2
+                    label='enviar'
+                    iconName='send'
+                    style={{ marginTop: '0.5rem' }}
+                    onClick={handleSubmit}
+                />
+            </footer>
             {/* <section className='flexColumn avisos__Text'>
                 <TextArea
                     id='avisoText'

@@ -5,15 +5,23 @@ const
     laudos = getAllLaudos()
 
 
-//**Classe instanciada de Alert com métodos específicos para o alerta sobre o vencimento de laudos 
+/**
+ * Classe instanciada de Alert com métodos específicos para o alerta sobre o vencimento de laudos.
+ * @extends Alert
+ */
+
 class LaudoAlert extends Alert {
 
     apolices = []
 
-    constructor() {
+    /**
+     * 
+     * @param {Array<number>} prazos 
+     */
+    constructor(prazos) {
         super()
         this.subject = 'Vencimento de laudos de segurança veicular.'
-        this.prazos = [4, 6, 7, 149]
+        this.prazos = prazos
         //this.prazos = [5, 7, 8, 150]
         this.dbQuery = laudos
         this.messageIntro = 'Os laudos listados abaixo se encontram próximos do vencimento:'

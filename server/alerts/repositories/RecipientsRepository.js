@@ -9,7 +9,7 @@ class RecipientsRepository {
 
     /**
      * Obtém todos os sócios e procuradores do banco de dados
-     * @returns Promise<{procuradores: Array, socios: Array}>
+     * @returns Promise<Object>
      */
     getAllRecipients = async () => {
 

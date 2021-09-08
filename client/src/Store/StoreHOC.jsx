@@ -122,7 +122,7 @@ export default function (requestArray, WrappedComponent) {
 
             if (!validSession || this.props.redux.sessionExpired) {
                 setTimeout(() => {
-                    this.props.history.push('/')
+                    this.props.history instanceof Array && this.props.history.push('/')
                     this.props.logUserOut()
                 }, 1200)
                 return <ReactToast open={true} close={this.toast} msg='Sessão expirada.' status='error' />

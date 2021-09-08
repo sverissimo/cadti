@@ -1,6 +1,7 @@
 //@ts-check
 const
     alertModel = require("../../mongo/models/alertModel")
+    , parametrosModel = require("../../mongo/models/parametrosModel/parametrosModel")
     , { conn } = require("../../mongo/mongoConfig")
     , { pool } = require('../../config/pgConfig')
 
@@ -18,9 +19,29 @@ class AlertRepository {
     }
 
     /**
+     * Recupera os prazos de alertas do MongoDB, conforme o tipo de alerta passado como arg.
+     * @param {string} alertType
+     * @returns {Promise}
+     */
+    async getPrazos(alertType) {
+        alertType = alertType
+            .replace('laudos', 'Laudo')
+            .replace('procuracoes', 'Procuracao')
+            .replace('seguros', 'Seguro')
+
+        const
+            alertTypeDeadline = `prazoAlerta${alertType}`
+            , parametros = await parametrosModel.find()
+            // @ts-ignore
+            , prazosParaAlerta = parametros[0].prazosAlerta && parametros[0].prazosAlerta[alertTypeDeadline]
+
+        return prazosParaAlerta
+    }
+
+    /**
      * Recupera os alertas do MongoDB. O filtro é aplicável se fornecido um array de empresas.
      * @param {number[]} empresas 
-     * @returns 
+     * @returns {Promise<Array>}
      */
     async getAlertsFromDB(empresas) {
 
@@ -41,9 +62,11 @@ class AlertRepository {
     * Busca todos os itens de uma tabela do Postgresql, com base na query de cada child class     
     * @param {string} dbQuery
     * @returns {Promise} 
-    * @throws {console.error('dbQuery needed.');}
+    * @throws {InvalidArgumentException}
     */
     async getCollection(dbQuery) {
+        if (!dbQuery)
+            throw new Error('dbQuery obrigatório.')
         const
             data = await pool.query(dbQuery)
             , collection = data.rows

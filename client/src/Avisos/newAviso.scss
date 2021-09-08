@@ -1,47 +1,129 @@
-.container {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    background-color: ivory;
-    position: absolute;
-    bottom: 1%;
-    right: 1%;
-    height: 60%;
-    width: 45%;
-    border: 1px solid red;
-    z-index: 12;
-    border-radius: 1%;
-    box-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.1), 0px 1px 1px 0px rgba(0, 0, 0, 0.06),
-        0px 1px 3px 0px rgba(0, 0, 0, 0.05);
+.newAviso {
+    &__container {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        background-color: #fff;
+        position: absolute;
+        bottom: 1%;
+        right: 2%;
+        height: 60%;
+        width: 45%;
+        //border: 1px solid red;
+        z-index: 12;
+        box-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.2), 0px 1px 1px 0px rgba(0, 0, 0, 0.14),
+            0px 1px 3px 0px rgba(0, 0, 0, 0.12);
+        /* box-shadow: 0px 2px 1px -1px rgba(0, 0, 0, 0.1), 0px 1px 1px 0px rgba(0, 0, 0, 0.06),
+            0px 1px 3px 0px rgba(0, 0, 0, 0.05); */
+    }
+    &__bar {
+        width: 100% !important;
+        height: 1.8rem !important;
+        background-color: rgb(84, 83, 83);
+        border-bottom: 1px solid #ccc;
+        border-radius: 9px 9px 0 0;
+        padding-top: 0.2rem;
+        &__title {
+            font-weight: 500;
+            color: honeydew;
+            margin-left: 0.4rem;
+        }
+    }
+    &__footer {
+        display: flex;
+        width: 100%;
+        justify-content: flex-end;
+        padding-right: 1rem;
+    }
 }
 
 .avisoInputs {
     &__container {
         width: 100% !important;
-        padding: 1rem;
+        padding: 0.3rem 1rem;
     }
     &__inputDiv {
-        margin: 1rem 0;
+        margin-bottom: 0.5rem;
         //padding-bottom: 1rem;
         //border-bottom: 1px solid #ccc;
     }
 }
-
 .fk {
     width: 100%;
 }
-.fk2 {
-    z-index: 13;
+
+.quill {
+    display: flex;
+    flex-direction: column-reverse;
+    text-shadow: 0 0 0 0 !important;
+    margin: 0 1rem !important;
 }
-.Zbar {
-    width: 100% !important;
-    height: 1.8rem !important;
-    background-color: gray;
-    border-bottom: 1px solid #ccc;
-    padding-top: 0.2rem;
-    &__title {
-        font-weight: 500;
-        color: honeydew;
-        margin-left: 0.4rem;
+.ql-container.ql-snow {
+    border: 1px solid #ccc !important;
+}
+
+.ql-editor {
+    min-height: 20vh !important;
+    height: 60%;
+}
+
+#toolbar {
+    margin: 0 1rem !important;
+    span {
+        font-size: 0.7rem;
+    }
+    .ql-font {
+        span[data-label="Arial"]::before {
+            font-family: "Arial";
+        }
+        span[data-label="Comic Sans"]::before {
+            font-family: "Comic Sans";
+        }
+        span[data-label="Courier New"]::before {
+            font-family: "Courier New";
+        }
+        span[data-label="Georgia"]::before {
+            font-family: "Georgia";
+        }
+        span[data-label="Helvetica"]::before {
+            font-family: "Helvetica";
+        }
+        span[data-label="Lucida"]::before {
+            font-family: "Lucida";
+        }
+        span[data-label="Roboto"]::before {
+            font-family: "Roboto";
+        }
+        span[data-label="Sans Serif"]::before {
+            font-family: "sans-serif";
+        }
     }
 }
+.ql-font {
+    &-arial {
+        font-family: "Arial";
+    }
+    &-comic-sans {
+        font-family: "Comic Sans";
+    }
+    &-courier-new {
+        font-family: "Courier New";
+    }
+    &-georgia {
+        font-family: "Georgia";
+    }
+    &-helvetica {
+        font-family: "Helvetica";
+    }
+    &-lucida {
+        font-family: "Lucida";
+    }
+    &-roboto {
+        font-family: "Roboto";
+    }
+    &-sans-serif {
+        font-family: "Sans Serif";
+    }
+}
+
+/* Set content font-families */
