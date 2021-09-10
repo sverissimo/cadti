@@ -1,10 +1,8 @@
 //@ts-check
-
 /**
  * Factory simples de objetos instanciados de alerta
  * @module AlertFactory
  */
-
 
 const
     SeguroAlert = require("./models/SeguroAlert")
@@ -12,6 +10,7 @@ const
     , LaudoAlert = require("./models/LaudoAlert")
     , AlertRepository = require("./repositories/AlertRepository")
     , Alert = require("./models/Alert");
+
 
 /**      
  * @throws {InvalidArgumentException}
@@ -33,15 +32,18 @@ class AlertFactory {
         if (!this.alertType)
             throw new Error('AlertFactory: é necessário um tipo de alerta para ser instanciado.')
 
-        const prazos = await new AlertRepository().getPrazos(this.alertType)
-        console.log("🚀 ~ file: AlertFactory.js ~ line 26 ~ AlertFactory ~ createAlert ~ prazos", { type: this.alertType, prazos })
+        const
+            prazos = await new AlertRepository().getPrazos(this.alertType)
+            , from = await new AlertRepository().getSystemName()
+
+
         switch (this.alertType) {
             case 'seguros':
-                return new SeguroAlert(prazos)
+                return new SeguroAlert(from, prazos)
             case 'procuracoes':
-                return new ProcuracaoAlert(prazos)
+                return new ProcuracaoAlert(from, prazos)
             case 'laudos':
-                return new LaudoAlert(prazos)
+                return new LaudoAlert(from, prazos)
             default: return new Alert()
         }
     }

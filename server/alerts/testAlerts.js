@@ -3,4 +3,7 @@ const main = require(".");
 main('seguros')
 main('procuracoes')
 main('laudos')
-return
+
+setTimeout(() => {
+    process.exit()
+}, 10000);

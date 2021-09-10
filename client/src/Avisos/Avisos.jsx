@@ -12,6 +12,7 @@ import NewAviso from './NewAviso'
 const Avisos = props => {
     const
         originalAvisos = props.redux.avisos
+        , remetentePadrao = props.redux.parametros[0]?.nomes?.siglaSistema
         , [state, setState] = useState({
             unreadOnly: false,
             showAviso: false,
@@ -59,8 +60,8 @@ const Avisos = props => {
             , aviso = state.avisos[index]
 
         toggleReadMessage(rowData)
-
-        aviso.message = JSON.parse(aviso.message)
+        if (aviso.from === remetentePadrao || !aviso.from)
+            aviso.message = JSON.parse(aviso.message)
         setState({ ...state, aviso, showAviso: true })
     }
 
@@ -85,14 +86,13 @@ const Avisos = props => {
         if (data?.length > 1)
             setState({ ...state, allAreUnread })
 
-
         for (let a of updatedAvisos) {
             if (ids.includes(a.id))
                 a.read = updatedReadStatus
         }
+
         const update = { ids, read: updatedReadStatus }
         axios.patch(`/api/avisos/changeReadStatus`, update)
-            .then(r => console.log(r))
             .catch(err => {
                 alert(err?.message)
                 throw new Error(err)
@@ -156,10 +156,16 @@ const Avisos = props => {
 
     const handleSubmit = () => {
         const
-            { from, to, subject, avisoText } = state
+            { to, subject, avisoText } = state
             , vocativo = to
-            , requestObject = { from, to, vocativo, subject, message: avisoText }
+            , { user } = props
+        let from
+        if (user.role === 'admin')
+            from = 'Administrador do sistema'
+        if (user.role === 'tecnico')
+            from = 'Equipe técnica'
 
+        const requestObject = { from, to, vocativo, subject, message: avisoText }
         axios.post('/alerts/userAlerts/?type=saveAlert', requestObject)
             .then(r => console.log(r))
             .catch(err => console.log(err))
@@ -177,6 +183,7 @@ const Avisos = props => {
             <AvisosTemplate
                 avisos={state.avisos}
                 data={state}
+                defaultFrom={remetentePadrao}
                 formatDataToExport={formatDataToExport}
                 showUnreadOnly={showUnreadOnly}
                 openAviso={openAviso}
@@ -190,6 +197,7 @@ const Avisos = props => {
             {
                 state.writeNewAviso &&
                 <NewAviso
+                    empresas={props.redux.empresas}
                     data={state}
                     handleChange={handleChange}
                     toggleNewAviso={toggleNewAviso}
@@ -210,7 +218,7 @@ const Avisos = props => {
     )
 }
 
-const collections = ['avisos']
+const collections = ['avisos', 'empresas']
 function mapStateToProps(state) {
     return {
         avisos: state.data?.avisos,

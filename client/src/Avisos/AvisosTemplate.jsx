@@ -8,6 +8,7 @@ import Aviso from './Aviso'
 import styles from './avisos.module.scss'
 import './avisos.scss'
 import avisosTable from './avisosTable'
+import CustomAviso from './CustomAviso';
 
 
 const { container, tableContainer, avisosHeader } = styles
@@ -15,7 +16,7 @@ const { container, tableContainer, avisosHeader } = styles
 const AvisosTemplate = props => {
     const
         { data, openAviso, close, formatDataToExport, toggleReadMessage, confirmDelete, toggleSelect,
-            showUnreadOnly, toggleNewAviso } = props
+            showUnreadOnly, toggleNewAviso, defaultFrom } = props
         , { avisos, showAviso, aviso, rowsSelected, allAreUnread, unreadOnly } = data
 
     return (
@@ -26,7 +27,6 @@ const AvisosTemplate = props => {
                     iconName='add'
                     label='novo aviso'
                     className='none'
-                    //style={{ margin: '10px 0 10px 0' }}
                     onClick={toggleNewAviso}
                 />
                 <CheckBoxFilter
@@ -137,11 +137,19 @@ const AvisosTemplate = props => {
                         ]}
                     />
 
-                    {showAviso &&
-                        <Aviso
-                            aviso={aviso}
-                            close={close}
-                        />
+                    {showAviso ?
+                        aviso.from === defaultFrom || !aviso.from ?
+                            <Aviso
+                                aviso={aviso}
+                                close={close}
+                            />
+                            :
+                            <CustomAviso
+                                aviso={aviso}
+                                close={close}
+                            />
+                        :
+                        null
                     }
                 </div>
             </main>

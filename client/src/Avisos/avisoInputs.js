@@ -6,7 +6,10 @@ const avisoInputs = [
     },
     {
         label: 'Para',
-        field: 'to'
+        field: 'to',
+        autoComplete: true,
+        collection: 'empresas',
+        itemProp: 'razaoSocial'
     },
     {
         label: 'Assunto',

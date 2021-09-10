@@ -1,5 +1,11 @@
 const avisosTable = [
     {
+        field: 'from',
+        title: 'Remetente',
+        label: 'Remetente',
+        render: rowData => rowData.from ? rowData.from : 'Aviso automático do sistema'
+    },
+    {
         field: 'vocativo',
         title: 'Destinatário',
         label: 'Destinatário',

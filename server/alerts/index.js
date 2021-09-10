@@ -20,6 +20,7 @@ const main = async (type = 'laudos') => {
     const
         alertObject = await new AlertFactory(type).createAlert()
         , subject = alertObject.subject
+        , from = alertObject.from
         , recipientService = new RecipientService()
         , alertService = new AlertService(alertObject)
         , collection = await alertService.getCollection()
@@ -39,7 +40,7 @@ const main = async (type = 'laudos') => {
             message = alertObject.createMessage(expiringEmpresaItems)
 
         //alertService.mockAlert({ to, subject, vocativo, message })
-        alertService.saveAlert({ codigo_empresa, subject, vocativo, message })
+        alertService.saveAlert({ codigo_empresa, from, subject, vocativo, message })
         await new Promise(r => setTimeout(r, 2000));
     }
     return

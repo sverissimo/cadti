@@ -7,6 +7,7 @@ import TextField from '@material-ui/core/TextField'
 import ReactQuill from 'react-quill'
 import EditorToolbar, { modules, formats } from "./EditorToolbar";
 import CustomButton2 from '../Reusable Components/CustomButton2'
+import AutoComplete from '../Utils/autoComplete'
 
 const useStyles = makeStyles(theme => ({
     textField: {
@@ -16,7 +17,7 @@ const useStyles = makeStyles(theme => ({
 
 //import styles from './avisos.module.scss'
 
-const NewAviso = ({ data, handleChange, toggleNewAviso, handleSubmit }) => {
+const NewAviso = ({ data, empresas, handleChange, toggleNewAviso, handleSubmit }) => {
     const { textField } = useStyles()
 
     return (
@@ -30,7 +31,7 @@ const NewAviso = ({ data, handleChange, toggleNewAviso, handleSubmit }) => {
                 />
             </header>
             <section className='avisoInputs__container'>
-                {avisoInputs.map(({ field, label, disabled }, i) =>
+                {avisoInputs.map(({ field, label, autoComplete, collection, itemProp, disabled }, i) =>
                     <div key={i} className='avisoInputs__inputDiv'>
                         <TextField
                             name={field}
@@ -55,10 +56,20 @@ const NewAviso = ({ data, handleChange, toggleNewAviso, handleSubmit }) => {
                                     height: '7px',
                                     fontFamily: '\'Segoe UI\', Tahoma, Geneva, Verdana, sans-serif'
                                 },
+                                list: field || '',
                                 autoComplete: 'off'
                             }}
                             variant='filled'
                         />
+                        {
+                            autoComplete &&
+                            <AutoComplete
+                                field={field}
+                                collection={data[collection] || empresas}
+                                itemProp={itemProp}
+                                value={data[field] || ''}
+                            />
+                        }
                     </div>
                 )}
             </section>

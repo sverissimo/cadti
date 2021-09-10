@@ -5,6 +5,10 @@ const alertSchema = new mongoose.Schema({
     empresaId: {
         type: Number
     },
+    from: {
+        type: String,
+        trim: true
+    },
     subject: {
         type: String,
         trim: true

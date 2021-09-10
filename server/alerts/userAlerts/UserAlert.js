@@ -9,6 +9,7 @@ const
  * Entidade de alerta de usuário
  */
 class UserAlert {
+
     /**
      * 
      * @param {object} alertObject - Objeto contendo as props para criar o alert.
@@ -20,6 +21,7 @@ class UserAlert {
         this.subject = subject
         this.vocativo = vocativo
         this.message = message
+
     }
 
     /**

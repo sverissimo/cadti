@@ -18,11 +18,11 @@ class LaudoAlert extends Alert {
      * 
      * @param {Array<number>} prazos 
      */
-    constructor(prazos) {
+    constructor(from, prazos) {
         super()
         this.subject = 'Vencimento de laudos de segurança veicular.'
+        this.from = from
         this.prazos = prazos
-        //this.prazos = [5, 7, 8, 150]
         this.dbQuery = laudos
         this.messageIntro = 'Os laudos listados abaixo se encontram próximos do vencimento:'
         this.mailFields = ['id', 'empresa_laudo', 'placa', 'validade']

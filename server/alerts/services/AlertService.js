@@ -119,9 +119,9 @@ class AlertService {
         return 'alright.'
     }
 
-    saveAlert({ codigo_empresa, subject, vocativo, message }) {
+    saveAlert({ codigo_empresa, from, subject, vocativo, message }) {
         const
-            alertObject = { codigo_empresa, subject, vocativo, message: JSON.stringify(message) }
+            alertObject = { codigo_empresa, from, subject, vocativo, message: JSON.stringify(message) }
             , alertRepository = new AlertRepository()
 
         alertRepository.save(alertObject)

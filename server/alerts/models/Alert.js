@@ -9,6 +9,11 @@ class Alert {
     expiringItems = []
 
     /**
+     * @property {string} from - valor padrão para o remetente, no caso de alertas disparados automaticamente pelo sistema
+     */
+    from;
+
+    /**
      * @property {string} subject Assunto da mensagem (e-mail)     
      */
     subject;

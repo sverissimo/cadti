@@ -1,3 +1,4 @@
+const axios = require("axios");
 
-console.log(__dirname)
-
+axios.get('http://localhost:3001/api/parametros')
+    .then(r => console.log(r))

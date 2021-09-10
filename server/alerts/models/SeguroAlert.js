@@ -15,10 +15,10 @@ class SeguroAlert extends Alert {
     * 
     * @param {Array<number>} prazos 
     */
-    constructor(prazos) {
+    constructor(from, prazos) {
         super()
         this.subject = 'Vencimento de apólices de seguro.'
-        //this.prazos = [11, 17, 26, 74, 77]
+        this.from = from
         this.prazos = prazos
         this.dbQuery = seguros
         this.messageIntro = 'Os seguros listados abaixo se encontram próximos do vencimento:'

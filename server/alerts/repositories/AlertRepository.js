@@ -73,6 +73,17 @@ class AlertRepository {
         return collection
     }
 
+    /**
+    * Busca o nome do sistema na coleção "parametros" do mongoDB para adicionar ao atributo "from" da classe Alert.js como padrão.
+    * @returns {Promise<string>} - Retorna a sigla do sistema
+    */
+    async getSystemName() {
+        const
+            parametros = await parametrosModel.find()
+            // @ts-ignore
+            , systemName = parametros[0].nomes.siglaSistema
+        return systemName
+    }
 
     /**
     * Altera o status do aviso (lida ou não lida)
@@ -93,9 +104,9 @@ class AlertRepository {
         }
     }
 
-    save({ codigo_empresa, subject, vocativo, message }) {
+    save({ codigo_empresa, from, subject, vocativo, message }) {
         const
-            alertObject = { codigo_empresa, subject, vocativo, message }
+            alertObject = { codigo_empresa, from, subject, vocativo, message }
             , alertDoc = new alertModel(alertObject)
 
         alertDoc.save((err, doc) => {

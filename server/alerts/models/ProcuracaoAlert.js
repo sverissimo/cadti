@@ -18,9 +18,10 @@ class ProcuracaoAlert extends Alert {
      * 
      * @param {Array<number>} prazos 
      */
-    constructor(prazos) {
+    constructor(from, prazos) {
         super()
         this.subject = 'Vencimento de procurações.'
+        this.from = from
         this.prazos = prazos
         this.dbQuery = procuracoes
         this.messageIntro = 'As procurações abaixo se encontram próximas do vencimento:'
