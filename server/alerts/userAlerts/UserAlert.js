@@ -4,24 +4,32 @@ const
     sendMail = require("../../mail/sendMail")
     , RecipientService = require("../services/RecipientService")
 
-
 /**
  * Entidade de alerta de usuário
  */
 class UserAlert {
 
     /**
+     * @property {number} codigo_empresa - Código da empresa (padrão = 1, convenção que significa todas as empresas)
+     */
+    codigo_empresa = 1
+    /**
      * 
+     * @property {string} vocativo - Nome da empresa ( padrão = "Todos os delegatários")
+     */
+    vocativo = "Todos os delegatários"
+
+    /**     
      * @param {object} alertObject - Objeto contendo as props para criar o alert.
      */
     constructor(alertObject) {
-        const { from, to, subject, vocativo, message } = alertObject
+        const { from, to, subject, vocativo, message, codigo_empresa } = alertObject
         this.from = from
         this.to = to
         this.subject = subject
-        this.vocativo = vocativo
+        this.vocativo = vocativo || this.vocativo
         this.message = message
-
+        this.codigo_empresa = codigo_empresa || this.codigo_empresa
     }
 
     /**

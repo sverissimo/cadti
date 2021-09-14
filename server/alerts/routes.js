@@ -31,7 +31,7 @@ router.patch('/changeReadStatus/', async (req, res) => {
 })
 
 router.delete('/', (req, res) => {
-    console.log("🚀 ~ file: routes.js ~ line 28 ~ router.delete ~ req", { b: req.body, c: req.data })
+    //console.log("🚀 ~ file: routes.js ~ line 28 ~ router.delete ~ req", { b: req.body, c: req.data })
     const ids = req.body
     new AlertRepository().deleteAlerts(ids)
         .then(r => res.send(r))

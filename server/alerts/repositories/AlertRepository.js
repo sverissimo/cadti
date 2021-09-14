@@ -50,7 +50,8 @@ class AlertRepository {
             filter = {
                 $or: [
                     { 'empresaId': { $in: empresas } },
-                    { 'codigo_empresa': { $in: empresas } }
+                    { 'codigo_empresa': { $in: empresas } },
+                    { 'codigo_empresa': 1 }
                 ]
             }
         const alerts = await alertModel.find(filter)
@@ -105,9 +106,12 @@ class AlertRepository {
     }
 
     save({ codigo_empresa, from, subject, vocativo, message }) {
+        console.log("🚀 ~ file: AlertRepository.js ~ line 108 ~ AlertRepository ~ save ~ { codigo_empresa, from, subject, vocativo, message }", { codigo_empresa, from, subject, vocativo, message })
+
         const
             alertObject = { codigo_empresa, from, subject, vocativo, message }
             , alertDoc = new alertModel(alertObject)
+
 
         alertDoc.save((err, doc) => {
             if (err)

@@ -1,6 +1,4 @@
-//@ts-check
 const UserModel = require("../mongo/models/userModel")
-const path = require('path')
 
 const verifyUser = async (req, res) => {
     const

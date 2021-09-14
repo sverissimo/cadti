@@ -16,8 +16,10 @@ const index = async (req, res, next) => {
         alertObject = req.body
         , { type } = req.query
         , userAlert = new UserAlert(alertObject)
+        , role = req.user && req.user.role
 
-    console.log("🚀 ~ file: index.js ~ line 14 ~ index ~ alertObject", { type, alertObject })
+    if (role !== 'admin' && role !== 'tecnico')
+        return res.status(403).send('O usuário não possui permissão para acessar essa parte do sistema.')
 
     try {
         if (type === 'mail') {
@@ -25,7 +27,8 @@ const index = async (req, res, next) => {
             res.status(200).send('Message was sent...')
         }
         if (type === 'saveAlert') {
-            const newAlert = new AlertRepository().save({ ...userAlert, codigo_empresa: 9060 })
+            // @ts-ignore
+            const newAlert = new AlertRepository().save(userAlert)
             res.send(newAlert)
         }
         else

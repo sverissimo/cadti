@@ -11,24 +11,28 @@ import avisosTable from './avisosTable'
 import CustomAviso from './CustomAviso';
 
 
-const { container, tableContainer, avisosHeader } = styles
+const { container, tableContainer, avisosHeader, avisosHeaderAdmin } = styles
 
 const AvisosTemplate = props => {
     const
         { data, openAviso, close, formatDataToExport, toggleReadMessage, confirmDelete, toggleSelect,
-            showUnreadOnly, toggleNewAviso, defaultFrom } = props
+            showUnreadOnly, toggleNewAviso, defaultFrom, userRole } = props
         , { avisos, showAviso, aviso, rowsSelected, allAreUnread, unreadOnly } = data
 
+        , adminView = userRole === 'admin' || userRole === 'tecnico'
     return (
         <>
-            <header className={avisosHeader}>
-                <CustomButton2
-                    variant="outlined"
-                    iconName='add'
-                    label='novo aviso'
-                    className='none'
-                    onClick={toggleNewAviso}
-                />
+            <header className={adminView ? avisosHeaderAdmin : avisosHeader}>
+                {
+                    adminView &&
+                    <CustomButton2
+                        variant="outlined"
+                        iconName='add'
+                        label='novo aviso'
+                        className='none'
+                        onClick={toggleNewAviso}
+                    />
+                }
                 <CheckBoxFilter
                     title='Mostrar somente avisos não lidos'
                     checked={unreadOnly}

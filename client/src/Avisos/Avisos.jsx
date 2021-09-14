@@ -20,6 +20,7 @@ const Avisos = props => {
             rowsSelected: false,
             from: props?.user?.name
         })
+        , userRole = props?.user?.role
 
 
     //Adiciona tecla de atalho ('Esc') para fechar o aviso
@@ -183,6 +184,7 @@ const Avisos = props => {
             <AvisosTemplate
                 avisos={state.avisos}
                 data={state}
+                userRole={userRole}
                 defaultFrom={remetentePadrao}
                 formatDataToExport={formatDataToExport}
                 showUnreadOnly={showUnreadOnly}
@@ -195,7 +197,7 @@ const Avisos = props => {
                 toggleNewAviso={toggleNewAviso}
             />
             {
-                state.writeNewAviso &&
+                state.writeNewAviso && (userRole === 'admin' || userRole === 'tecnico') &&
                 <NewAviso
                     empresas={props.redux.empresas}
                     data={state}
