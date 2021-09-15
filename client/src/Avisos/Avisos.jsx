@@ -2,18 +2,19 @@ import React, { useEffect, useState, useCallback } from 'react'
 import StoreHOC from '../Store/StoreHOC'
 import axios from 'axios'
 import { bindActionCreators } from 'redux'
-import { updateData, deleteOne } from '../Store/dataActions'
+import { deleteOne } from '../Store/dataActions'
 import { connect } from 'react-redux'
 import AvisosTemplate from './AvisosTemplate'
 import removePDF from '../Utils/removePDFButton'
 import ConfirmDialog from '../Reusable Components/ConfirmDialog'
 import NewAviso from './NewAviso'
+import { editUser } from '../Store/userActions'
 
 const Avisos = props => {
     const
         originalAvisos = props.redux.avisos
         , remetentePadrao = props.redux.parametros[0]?.nomes?.siglaSistema
-        , { name, role: userRole, messagesRead } = props?.user
+        , { name, role: userRole, messagesRead, deletedMessages } = props?.user
         , [state, setState] = useState({
             unreadOnly: false,
             showAviso: false,
@@ -41,6 +42,7 @@ const Avisos = props => {
         let avisos = [...originalAvisos]
             .sort((a, b) => new Date(b?.createdAt) - new Date(a?.createdAt)) //ordena por mais recente primeiro
         for (let a of avisos) {
+            //Marca como lida o não lida dependendo do usuário logado
             if (Array.isArray(messagesRead) && messagesRead.includes(a.id))
                 a.read = true
             else
@@ -74,7 +76,7 @@ const Avisos = props => {
     }
 
     //Marca todos os avisos como lidos ou não lidos
-    const toggleReadMessage = (data) => {
+    const toggleReadMessage = data => {
         //Se for selecionado apenas um aviso, o arg é objeto, transformar em array
         if (data instanceof Array === false)
             data = [data]
@@ -111,14 +113,8 @@ const Avisos = props => {
                 throw new Error(err)
             })
 
-
-        /*const update = { ids, read: updatedReadStatus }        
-         axios.patch(`/api/avisos/changeReadStatus`, update)
-            .catch(err => {
-                alert(err?.message)
-                throw new Error(err)
-            }) */
-        props.updateData(updatedAvisos, 'avisos', 'id')
+        //Atualiza a prop messagesRead do user no store (redux)
+        props.editUser({ ...props.user, messagesRead })
     }
 
     const confirmDelete = data => {
@@ -134,11 +130,15 @@ const Avisos = props => {
     }
 
     const deleteAviso = () => {
-        const ids = state.idsToDelete
+        const
+            { _id, cpf } = props.user
+            , ids = state.idsToDelete
 
-        axios.delete(`/api/avisos/`, { data: ids })
-            .then(r => console.log(r))
-            .catch(err => console.log(err))
+        //Esse método não apaga o aviso, apenas armazena o id do aviso na prop deletedMessages do usuário
+        axios.patch('/api/avisos/deleteUserMessages', { id: _id, cpf, deletedMessages: [...ids, ...deletedMessages] })
+        /*  axios.delete(`/api/avisos/`, { data: ids })
+             .then(r => console.log(r))
+             .catch(err => console.log(err)) */
 
         for (let id of ids) {
             props.deleteOne(id, 'id', 'avisos')
@@ -172,7 +172,6 @@ const Avisos = props => {
             const { name, value } = e.target
             setState({ ...state, [name]: value })
         }
-
     }
 
     const handleSubmit = () => {
@@ -249,7 +248,7 @@ function mapStateToProps(state) {
 }
 
 function mapDispatchToProps(dispatch) {
-    return bindActionCreators({ updateData, deleteOne }, dispatch)
+    return bindActionCreators({ deleteOne, editUser }, dispatch)
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(StoreHOC(collections, Avisos))

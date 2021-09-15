@@ -30,8 +30,8 @@ class AlertService {
     async getAllAlerts(user) {
 
         const
-            { empresas } = user
-            , allAlerts = await new AlertRepository().getAlertsFromDB(empresas)
+            { empresas, deletedMessages } = user
+            , allAlerts = await new AlertRepository().getAlertsFromDB(empresas, deletedMessages)
         return allAlerts
     }
 

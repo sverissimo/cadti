@@ -30,7 +30,8 @@ const userSchema = new mongoose.Schema({
         default: true
     },
     empresas: { type: [] },
-    messagesRead: { type: [] }
+    messagesRead: { type: [] },
+    deletedMessages: { type: [] }
 },
     { timestamps: true })
 

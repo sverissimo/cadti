@@ -24,16 +24,16 @@ router.post('/userAlerts', userAlerts)
 
 
 router.patch('/changeReadStatus/', async (req, res) => {
-    console.log('fkkkkkkkkkkkkkkkkkkkkk')
     controller.changeUserReadStatus(req, res)
-    /* const
-        { ids, read } = req.body
-        , result = await controller.changeReadStatus(ids, read) 
-    res.json(result)*/
 })
 
+router.patch('/deleteUserMessages/', async (req, res) => {
+    controller.deleteUserAlerts(req, res)
+})
+
+
 router.delete('/', (req, res) => {
-    //console.log("🚀 ~ file: routes.js ~ line 28 ~ router.delete ~ req", { b: req.body, c: req.data })
+
     const ids = req.body
     new AlertRepository().deleteAlerts(ids)
         .then(r => res.send(r))

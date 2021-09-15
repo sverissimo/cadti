@@ -36,11 +36,20 @@ class AlertController {
         * @returns {Promise}
         */
     async changeUserReadStatus(req, res) {
-        const result = await editUser(req, res)
-        return result
-        //return 'updated message read status.'
+        await editUser(req, res)
+        return 'updated message read status.'
     }
 
+    /**
+       * Apaga uma ou mais mensagens para um determinado usuário.
+       * @param {any} req
+       * @param {any} res
+       * @returns {Promise}
+       */
+    async deleteUserAlerts(req, res) {
+        await editUser(req, res)
+        return 'Message(s) deleted.'
+    }
 }
 
 module.exports = AlertController

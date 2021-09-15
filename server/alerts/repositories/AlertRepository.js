@@ -43,7 +43,8 @@ class AlertRepository {
      * @param {number[]} empresas 
      * @returns {Promise<Array>}
      */
-    async getAlertsFromDB(empresas) {
+    async getAlertsFromDB(empresas, deletedMessages) {
+        console.log("🚀 ~ file: AlertRepository.js ~ line 47 ~ AlertRepository ~ getAlertsFromDB ~ deletedMessages", deletedMessages)
 
         let filter = {}
         if (empresas instanceof Array && empresas.length)
@@ -52,7 +53,8 @@ class AlertRepository {
                     { 'empresaId': { $in: empresas } },
                     { 'codigo_empresa': { $in: empresas } },
                     { 'codigo_empresa': 1 }
-                ]
+                ],
+                '_id': { $nin: deletedMessages }
             }
         const alerts = await alertModel.find(filter)
         return alerts
