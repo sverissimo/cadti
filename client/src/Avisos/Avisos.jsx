@@ -13,14 +13,15 @@ const Avisos = props => {
     const
         originalAvisos = props.redux.avisos
         , remetentePadrao = props.redux.parametros[0]?.nomes?.siglaSistema
+        , { name, role: userRole, messagesRead } = props?.user
         , [state, setState] = useState({
             unreadOnly: false,
             showAviso: false,
-            writeNewAviso: true,
+            writeNewAviso: false,
             rowsSelected: false,
-            from: props?.user?.name
+            from: name,
+
         })
-        , userRole = props?.user?.role
 
 
     //Adiciona tecla de atalho ('Esc') para fechar o aviso
@@ -39,6 +40,12 @@ const Avisos = props => {
     useEffect(() => {
         let avisos = [...originalAvisos]
             .sort((a, b) => new Date(b?.createdAt) - new Date(a?.createdAt)) //ordena por mais recente primeiro
+        for (let a of avisos) {
+            if (Array.isArray(messagesRead) && messagesRead.includes(a.id))
+                a.read = true
+            else
+                a.read = false
+        }
 
         const
             allAreUnread = avisos.every(a => a.read === false)
@@ -51,7 +58,7 @@ const Avisos = props => {
             avisos = avisos.filter(a => a.read === false)
 
         setState(s => ({ ...s, avisos }))
-    }, [props.redux.avisos, state.unreadOnly, originalAvisos])
+    }, [props.redux.avisos, state.unreadOnly, messagesRead])
 
 
     //Abre o aviso
@@ -92,12 +99,25 @@ const Avisos = props => {
                 a.read = updatedReadStatus
         }
 
-        const update = { ids, read: updatedReadStatus }
-        axios.patch(`/api/avisos/changeReadStatus`, update)
+        const
+            { _id, cpf } = props.user
+            , messagesRead = updatedAvisos
+                .filter(a => a.read === true)
+                .map(a => a.id)
+
+        axios.patch(`/api/avisos/changeReadStatus`, { id: _id, cpf, messagesRead })
             .catch(err => {
                 alert(err?.message)
                 throw new Error(err)
             })
+
+
+        /*const update = { ids, read: updatedReadStatus }        
+         axios.patch(`/api/avisos/changeReadStatus`, update)
+            .catch(err => {
+                alert(err?.message)
+                throw new Error(err)
+            }) */
         props.updateData(updatedAvisos, 'avisos', 'id')
     }
 

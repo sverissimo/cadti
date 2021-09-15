@@ -1,5 +1,8 @@
 //@ts-check
-const AlertService = require("../services/AlertService");
+const
+    AlertService = require("../services/AlertService")
+    , editUser = require("../../users/editUser")
+
 
 class AlertController {
 
@@ -24,6 +27,20 @@ class AlertController {
         const result = await new AlertService({}).changeReadStatus(ids, readStatus)
         return result
     }
+
+
+    /**
+        * Marca mensagem como lida' para um determinado usuário
+        * @param {any} req
+        * @param {any} res
+        * @returns {Promise}
+        */
+    async changeUserReadStatus(req, res) {
+        const result = await editUser(req, res)
+        return result
+        //return 'updated message read status.'
+    }
+
 }
 
 module.exports = AlertController

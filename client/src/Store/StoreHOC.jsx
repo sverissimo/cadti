@@ -10,7 +10,7 @@ import Loading from '../Layouts/Loading'
 import { configVehicleForm } from '../Forms/configVehicleForm'
 import ReactToast from '../Reusable Components/ReactToast'
 import { getCookie } from '../Utils/documentCookies'
-import { logUser, logUserOut } from './userActions'
+import { logUser, editUser, logUserOut } from './userActions'
 import { getEnvironment } from '../getEnvironment'
 
 const socketIO = require('socket.io-client')
@@ -81,6 +81,7 @@ export default function (requestArray, WrappedComponent) {
             socket.on('updateAny', ({ updatedObjects, collection, primaryKey }) => this.props.updateData(updatedObjects, collection, primaryKey))
             socket.on('updateDocs', ({ ids, metadata, collection, primaryKey }) => this.props.updateDocs(ids, metadata, collection, primaryKey))
             socket.on('updateElements', ({ collection, updatedCollection }) => this.props.updateCollection(updatedCollection, collection))
+            socket.on('updateUser', updatedUser => this.props.editUser(updatedUser))
 
             socket.on('deleteOne', ({ id, tablePK, collection }) => {
                 console.log({ id, tablePK, collection })
@@ -152,7 +153,7 @@ export default function (requestArray, WrappedComponent) {
     }
 
     function mapDispatchToProps(dispatch) {
-        return bindActionCreators({ getData, insertData, updateData, updateCollection, deleteOne, updateDocs, logUser, logUserOut }, dispatch)
+        return bindActionCreators({ getData, insertData, updateData, updateCollection, deleteOne, updateDocs, logUser, editUser, logUserOut }, dispatch)
     }
 
     return connect(mapStateToProps, mapDispatchToProps)(With)

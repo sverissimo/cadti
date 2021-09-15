@@ -24,10 +24,12 @@ router.post('/userAlerts', userAlerts)
 
 
 router.patch('/changeReadStatus/', async (req, res) => {
-    const
+    console.log('fkkkkkkkkkkkkkkkkkkkkk')
+    controller.changeUserReadStatus(req, res)
+    /* const
         { ids, read } = req.body
-        , result = await controller.changeReadStatus(ids, read)
-    res.send(result)
+        , result = await controller.changeReadStatus(ids, read) 
+    res.json(result)*/
 })
 
 router.delete('/', (req, res) => {

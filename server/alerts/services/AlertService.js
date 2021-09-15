@@ -18,7 +18,7 @@ class AlertService {
     dbQuery;
 
     /**Constructor
-     * @param {Alert} alertObject Objeto instanciado da de uma subclasse herdada da classe Alert.js
+     * @param {object} alertObject Objeto instanciado da de uma subclasse herdada da classe Alert.js
      */
     constructor(alertObject) {
         /**

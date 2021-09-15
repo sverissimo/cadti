@@ -29,7 +29,8 @@ const userSchema = new mongoose.Schema({
         type: Boolean,
         default: true
     },
-    empresas: { type: [] }
+    empresas: { type: [] },
+    messagesRead: { type: [] }
 },
     { timestamps: true })
 

@@ -18,8 +18,12 @@ const AvisosTemplate = props => {
         { data, openAviso, close, formatDataToExport, toggleReadMessage, confirmDelete, toggleSelect,
             showUnreadOnly, toggleNewAviso, defaultFrom, userRole } = props
         , { avisos, showAviso, aviso, rowsSelected, allAreUnread, unreadOnly } = data
-
         , adminView = userRole === 'admin' || userRole === 'tecnico'
+
+    let avisosTableToRender = avisosTable
+    if (!adminView)
+        avisosTableToRender = avisosTable && avisosTable.filter(a => a.field !== 'vocativo')
+
     return (
         <>
             <header className={adminView ? avisosHeaderAdmin : avisosHeader}>
@@ -43,7 +47,7 @@ const AvisosTemplate = props => {
                 <div className={tableContainer}>
                     <MaterialTable
                         title={`Avisos`}
-                        columns={avisosTable}
+                        columns={avisosTableToRender}
                         data={avisos}
                         components={{
                             Row: props => {

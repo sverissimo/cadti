@@ -22,6 +22,7 @@ const editUser = async (req, res) => {
     }
 
     const updatedUser = await UserModel.findOneAndUpdate(query, user, options)
+    console.log("🚀 ~ file: editUser.js ~ line 25 ~ editUser ~ updatedUser", { updatedUser })
 
     if (!updatedUser)
         return res.status(404).send('Usuário não encontrado na base do CADTI.')
@@ -31,8 +32,10 @@ const editUser = async (req, res) => {
         return res.status(403).send('O usuário não possui acesso para esta parte do CadTI.')
 
     const update = { updatedObjects: [updatedUser], collection: 'users', primaryKey: 'id' }
-    io.sockets.emit('updateAny', update)
-    res.status(200).send('Dados de usuário atualizados com sucesso!')
+    await io.sockets.emit('updateAny', update)
+    await io.sockets.emit('updateUser', updatedUser)
+    //res.status(200).send('Dados de usuário atualizados com sucesso!')
+    res.status(200).send(updatedUser)
 }
 
 module.exports = editUser
