@@ -29,8 +29,6 @@ export const getData = (collectionsArray = []) => {
                     })
                 })
                 .catch(err => {
-                    //if (err.response.status === 401 || err.response.status === 403) {
-                    //console.log(err?.response, err?.response?.data)
                     console.log(err?.response?.data)
                     globalState = { ...globalState, sessionExpired: true }
                 })

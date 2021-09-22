@@ -269,7 +269,7 @@ app.use('/api/parametros', parametros)
 
 //********************************** AVISOS/ALERTAS DO SISTEMA ********************************* */
 app.use('/api/avisos', alerts)
-app.post('/alerts/:type', userAlerts)
+//app.post('/alerts/:type', userAlerts)
 
 //************************************USUÁRIOS DO SISTEMA *********************** */
 app.get('/api/users', checkPermissions, getUsers)

@@ -1,9 +1,11 @@
+const AlertService = require('./services/AlertService')
+
 const
     express = require('express')
     , router = express.Router()
     , AlertController = require('./controllers/AlertController')
     , AlertRepository = require('./repositories/AlertRepository')
-    , userAlerts = require('./userAlerts/')
+    //, userAlerts = require('./userAlerts/')
     , controller = new AlertController()
 
 
@@ -20,7 +22,13 @@ router.post('/', async (req, res) => {
 })
 
 //User alerts
-router.post('/userAlerts', userAlerts)
+router.post('/userAlerts', async (req, res) => {
+    const alert = new AlertService({})
+    await alert.saveUserAlert(req)
+    res.send('Novo aviso criado com sucesso.')
+},
+    //userAlerts
+)
 
 
 router.patch('/changeReadStatus/', async (req, res) => {

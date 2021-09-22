@@ -2,6 +2,7 @@
 const
     AlertService = require("../services/AlertService")
     , editUser = require("../../users/editUser")
+    , getUser = require("../../auth/getUser")
 
 
 class AlertController {
@@ -12,7 +13,7 @@ class AlertController {
     async getAlerts(req) {
 
         const
-            { user } = req
+            user = await getUser(req)
             , alerts = await new AlertService({}).getAllAlerts(user)
         return alerts
     }

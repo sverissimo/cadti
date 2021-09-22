@@ -111,8 +111,9 @@ export default function (requestArray, WrappedComponent) {
                 request = await Axios.get('/getUser'),
                 user = request?.data
 
-            if (user)
+            if (user) {
                 this.props.logUser(user)
+            }
         }
 
         toast = () => this.setState({ confirmToast: !this.state.confirmToast })

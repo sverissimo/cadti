@@ -40,6 +40,7 @@ const Parametros = props => {
             })
         }
         return () => void 0
+        //eslint-disable-next-line react-hooks/exhaustive-deps
     }, [outsider])
 
     //Seleciona o conjunto de parâmetros p editar

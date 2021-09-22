@@ -102,7 +102,7 @@ const AvisosTemplate = props => {
                         localization={{
                             header: { actions: 'Opções' },
                             body: {
-                                emptyDataSourceMessage: 'Registro não encontrado.',
+                                emptyDataSourceMessage: 'Nenhum aviso encontrado.',
                                 editRow: { deleteText: 'Tem certeza que deseja apagar esse registro ?' },
                                 deleteTooltip: 'Apagar',
                                 filterRow: { filterTooltip: 'Filtrar' }

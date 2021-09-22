@@ -1,4 +1,5 @@
 //@ts-check
+const mongoose = require("mongoose")
 const
     alertModel = require("../../mongo/models/alertModel")
     , parametrosModel = require("../../mongo/models/parametrosModel/parametrosModel")
@@ -44,17 +45,19 @@ class AlertRepository {
      * @returns {Promise<Array>}
      */
     async getAlertsFromDB(empresas, deletedMessages) {
-        console.log("🚀 ~ file: AlertRepository.js ~ line 47 ~ AlertRepository ~ getAlertsFromDB ~ deletedMessages", deletedMessages)
+        console.log("🚀 ~ file: AlertRepository.js ~ line 48 ~ AlertRepository ~ getAlertsFromDB ~ deletedMessages", deletedMessages)
+        //deletedMessages = deletedMessages.map(m => new mongoose.mongo.ObjectID(m))        
 
-        let filter = {}
+        let filter = { _id: { $nin: deletedMessages } }
         if (empresas instanceof Array && empresas.length)
+            //@ts-ignore    
             filter = {
+                _id: { $nin: deletedMessages },
                 $or: [
                     { 'empresaId': { $in: empresas } },
                     { 'codigo_empresa': { $in: empresas } },
                     { 'codigo_empresa': 1 }
-                ],
-                '_id': { $nin: deletedMessages }
+                ]
             }
         const alerts = await alertModel.find(filter)
         return alerts
@@ -108,19 +111,32 @@ class AlertRepository {
     }
 
     save({ codigo_empresa, from, subject, vocativo, message }) {
-        console.log("🚀 ~ file: AlertRepository.js ~ line 108 ~ AlertRepository ~ save ~ { codigo_empresa, from, subject, vocativo, message }", { codigo_empresa, from, subject, vocativo, message })
-
         const
             alertObject = { codigo_empresa, from, subject, vocativo, message }
             , alertDoc = new alertModel(alertObject)
 
-
         alertDoc.save((err, doc) => {
             if (err)
                 console.log(err)
-            else
-                console.log(doc)
+            console.log(doc)
         })
+    }
+
+
+    async saveUserAlert(req) {
+        const
+            //io = req.app.get('io')
+            //, { codigo_empresa, from, subject, vocativo, message } = req.body
+            //, alertObject = { codigo_empresa, from, subject, vocativo, message: JSON.stringify(message) }
+            { alertObject } = req.body
+            , alertDoc = new alertModel(alertObject)
+
+        try {
+            const result = await alertDoc.save()
+            return result
+        } catch (error) {
+            console.log(error)
+        }
     }
 
     /**

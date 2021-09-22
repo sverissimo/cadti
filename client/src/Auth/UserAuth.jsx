@@ -13,22 +13,17 @@ import confirmEmailMsg from "./confirmEmailMsg";
 const UserAuth = props => {
 
   const
-    [state, setState] = useState({ tab: 0, ...userAuthForms[0] }),
-    { tab, endPoint, toastMsg, toastStatus, confirmToast } = state
+    [state, setState] = useState({ tab: 0, ...userAuthForms[0] })
+    , { tab, endPoint, toastMsg, toastStatus, confirmToast } = state
+    , webBrowser = window.navigator.userAgent
+
 
   useEffect(() => {
-    const signIn = e => {
-      if (e.key === 'Enter')
-        handleSubmit()
-    }
-    document.addEventListener('keypress', signIn)
-    const webBrowser = window.navigator.userAgent
-
     //Detecta o Browser do usuário e muda estado para renderizar sugestão caso não seja compatível
     if (!webBrowser.match('Chrome'))
       setState({ ...state, browserNotCompatible: true })
-    return () => document.removeEventListener('keypress', signIn)
-  })
+    //eslint-disable-next-line
+  }, [])
 
 
   const changeTab = tab => setState({ ...state, tab, ...userAuthForms[tab] })
@@ -42,14 +37,14 @@ const UserAuth = props => {
   }
 
   const login = async () => {
-    //Efetua o login com as informações preencidas pelo usuário
+    //Efetua o login com as informações preenchidas pelo usuário
     try {
       await axios.post(endPoint, state)
       //caso as credenciais (usuário/senha) estejam certas, um token foi armazenado. Faz-se então uma requisição GET dos dados do usuário
       const
         getUser = await axios.get('/getUser'),
         userFound = getUser?.data
-      //Ao se descodificar o token, se as credenciais estiverem certas e o token válido, retorna o usuárui, armazena na globalStore e cria cookie local.      
+      //Ao se descodificar o token, se as credenciais estiverem certas e o token válido, retorna o usuário, armazena na globalStore e cria cookie local.      
 
       setCookie('loggedIn', true)
       props.logUser(userFound)
@@ -120,6 +115,15 @@ const UserAuth = props => {
     if (tab === 2)
       retrievePassword()
   }
+  //Tecla de atalho "Enter" para entrar
+  useEffect(() => {
+    const signIn = e => {
+      if (e.key === 'Enter')
+        handleSubmit()
+    }
+    document.addEventListener('keypress', signIn)
+    return () => document.removeEventListener('keypress', signIn)
+  })
 
   const toast = (toastMsg, toastStatus) => setState({ ...state, confirmToast: !state.confirmToast, toastMsg, toastStatus })
 

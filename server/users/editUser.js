@@ -17,12 +17,13 @@ const editUser = async (req, res) => {
         hashedPassword = await bcrypt.hashSync(password, 10)
         /* const confirmPass = bcrypt.compareSync(confirmPassword, hashedPassword)
         if (!confirmPass)
-            return res.status(422).send('Senhas não conferem.') */
+        return res.status(422).send('Senhas não conferem.') */
         user.password = hashedPassword
     }
 
     const updatedUser = await UserModel.findOneAndUpdate(query, user, options)
 
+    console.log("🚀 ~ file: editUser.js ~ line 1 ~ editUser ~ query, user", query, user)
     if (!updatedUser)
         return res.status(404).send('Usuário não encontrado na base do CADTI.')
 

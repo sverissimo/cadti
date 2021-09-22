@@ -14,14 +14,15 @@ const Avisos = props => {
     const
         originalAvisos = props.redux.avisos
         , remetentePadrao = props.redux.parametros[0]?.nomes?.siglaSistema
-        , { name, role: userRole, messagesRead, deletedMessages } = props?.user
+        , { name, role: userRole } = props?.user
+        , messagesRead = props?.user?.messagesRead || []
+        , deletedMessages = props?.user?.deletedMessages || []
         , [state, setState] = useState({
             unreadOnly: false,
             showAviso: false,
-            writeNewAviso: false,
+            writeNewAviso: true,
             rowsSelected: false,
-            from: name,
-
+            from: name
         })
 
 
@@ -60,7 +61,7 @@ const Avisos = props => {
             avisos = avisos.filter(a => a.read === false)
 
         setState(s => ({ ...s, avisos }))
-    }, [props.redux.avisos, state.unreadOnly, messagesRead])
+    }, [props.redux.avisos, state.unreadOnly, messagesRead, originalAvisos])
 
 
     //Abre o aviso
@@ -102,12 +103,12 @@ const Avisos = props => {
         }
 
         const
-            { _id, cpf } = props.user
+            { id, cpf } = props.user
             , messagesRead = updatedAvisos
                 .filter(a => a.read === true)
                 .map(a => a.id)
 
-        axios.patch(`/api/avisos/changeReadStatus`, { id: _id, cpf, messagesRead })
+        axios.patch(`/api/avisos/changeReadStatus`, { id, cpf, messagesRead })
             .catch(err => {
                 alert(err?.message)
                 throw new Error(err)
@@ -131,11 +132,12 @@ const Avisos = props => {
 
     const deleteAviso = () => {
         const
-            { _id, cpf } = props.user
+            { _id, id, cpf } = props.user
             , ids = state.idsToDelete
+            , allDeletedMessages = [...ids, ...deletedMessages]
 
         //Esse método não apaga o aviso, apenas armazena o id do aviso na prop deletedMessages do usuário
-        axios.patch('/api/avisos/deleteUserMessages', { id: _id, cpf, deletedMessages: [...ids, ...deletedMessages] })
+        axios.patch('/api/avisos/deleteUserMessages', { id: id || _id, cpf, deletedMessages: allDeletedMessages })
         /*  axios.delete(`/api/avisos/`, { data: ids })
              .then(r => console.log(r))
              .catch(err => console.log(err)) */
@@ -143,6 +145,8 @@ const Avisos = props => {
         for (let id of ids) {
             props.deleteOne(id, 'id', 'avisos')
         }
+
+        props.editUser({ ...props.user, deletedMessages: allDeletedMessages })
         setState({ ...state, openConfirmDialog: false, rowsSelected: false })
     }
 
@@ -186,7 +190,7 @@ const Avisos = props => {
             from = 'Equipe técnica'
 
         const requestObject = { from, to, vocativo, subject, message: avisoText }
-        axios.post('/alerts/userAlerts/?type=saveAlert', requestObject)
+        axios.post('/api/avisos/userAlerts/?type=saveAlert', requestObject)
             .then(r => console.log(r))
             .catch(err => console.log(err))
     }

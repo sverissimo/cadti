@@ -93,14 +93,23 @@ const Header = props => {
     //Atualiza o menu superior com o número de avisos não lidos
     useEffect(() => {
         if (Array.isArray(avisos)) {
-            const count = avisos
-                .filter(aviso => aviso?.read === false)
-                .length
+
+            const
+                { messagesRead } = user
+                , count = avisos
+                    .filter(aviso => {
+                        if (!messagesRead)
+                            return true
+                        else
+                            return !messagesRead.includes(aviso?.id)
+                    }
+                    )
+                    .length
 
             setAvisosCounter(count)
         }
         //setSelected(pathname)
-    }, [setAvisosCounter, avisos])
+    }, [setAvisosCounter, avisos, user])
 
 
     const selected = link => {

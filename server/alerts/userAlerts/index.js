@@ -2,6 +2,7 @@
 const
     UserAlert = require("./UserAlert")
     , AlertRepository = require("../repositories/AlertRepository")
+    , AlertService = require("../services/AlertService")
 
 
 /**
@@ -28,7 +29,8 @@ const index = async (req, res, next) => {
         }
         if (type === 'saveAlert') {
             // @ts-ignore
-            const newAlert = new AlertRepository().save(userAlert)
+            //            const newAlert = new AlertRepository().save(userAlert)
+            const newAlert = new AlertService().saveUserAlert(req)
             res.send(newAlert)
         }
         else

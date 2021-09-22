@@ -9,7 +9,8 @@ const
     , htmlGenerator = require('../../mail/htmlGenerator')
     , AlertRepository = require('../repositories/AlertRepository')
     , moment = require('moment')
-    , Alert = require('../models/Alert')
+    , Alert = require('../models/Alert');
+const UserAlert = require('../userAlerts/UserAlert');
 /**
  * Classe responsável por gerenciar e oferecer serviços de envio (ex: email) e armazenamento de alertas, além de método de testes. 
  */
@@ -117,6 +118,22 @@ class AlertService {
 
         console.log("🚀 ~ file: AlertService.js ~ line 15 ~ mockAlert ~ to, subject, vocativo", { fileName, to, vocativo, subject })
         return 'alright.'
+    }
+
+    //Salva os avisos criados manualmente pelos usuários de role admin ou tecnico
+    async saveUserAlert(req) {
+        const
+            io = req.app.get('io')
+            , alertObject = new UserAlert(req.body)
+            , alertRepository = new AlertRepository()
+        if (alertObject.message)
+            alertObject.message = JSON.stringify(alertObject.message)
+
+        req.body.alertObject = alertObject
+        const newAlert = await alertRepository.saveUserAlert(req)
+        console.log("🚀 ~ file: AlertService.js ~ line 130 ~ AlertService ~ saveUserAlert ~ newAlert", newAlert)
+
+        io.sockets.emit('insertElements', { insertedObjects: [newAlert], collection: 'avisos', })
     }
 
     saveAlert({ codigo_empresa, from, subject, vocativo, message }) {
