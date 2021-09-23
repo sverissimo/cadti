@@ -8,6 +8,7 @@
         bottom: 1%;
         right: 2%;
         height: 60%;
+        max-height: 29.6rem;
         width: 45%;
         //border: 1px solid red;
         z-index: 12;
@@ -63,7 +64,7 @@
 }
 
 .ql-editor {
-    min-height: 20vh !important;
+    min-height: 13rem !important;
     height: 60%;
 }
 

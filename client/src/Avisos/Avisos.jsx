@@ -20,7 +20,7 @@ const Avisos = props => {
         , [state, setState] = useState({
             unreadOnly: false,
             showAviso: false,
-            writeNewAviso: true,
+            writeNewAviso: false,
             rowsSelected: false,
             from: name
         })
