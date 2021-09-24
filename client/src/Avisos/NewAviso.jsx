@@ -1,12 +1,12 @@
 import React from 'react'
 import ClosePopUpButton from '../Reusable Components/ClosePopUpButton'
 import avisoInputs from './avisoInputs'
-import './newAviso.scss'
 import TextField from '@material-ui/core/TextField'
 import ReactQuill from 'react-quill'
 import EditorToolbar, { modules, formats } from "./EditorToolbar";
 import CustomButton2 from '../Reusable Components/CustomButton2'
 import AutoComplete from '../Utils/autoComplete'
+import './newAviso.scss'
 
 /* const useStyles = makeStyles(theme => ({
     textField: {

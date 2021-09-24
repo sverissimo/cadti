@@ -9,6 +9,7 @@ import removePDF from '../Utils/removePDFButton'
 import ConfirmDialog from '../Reusable Components/ConfirmDialog'
 import NewAviso from './NewAviso'
 import { editUser } from '../Store/userActions'
+import ReactToast from '../Reusable Components/ReactToast'
 
 const Avisos = props => {
     const
@@ -22,14 +23,20 @@ const Avisos = props => {
             showAviso: false,
             writeNewAviso: false,
             rowsSelected: false,
+            toast: false,
             from: name
         })
 
 
     //Adiciona tecla de atalho ('Esc') para fechar o aviso
     const escFunction = useCallback(e => {
-        if (e.key === 'Escape')
-            setState({ ...state, showAviso: false })
+        if (e.key === 'Escape') {
+            if (state.showAviso) {
+                setState({ ...state, showAviso: false })
+                return
+            }
+            setState({ ...state, writeNewAviso: false })
+        }
     }, [state])
 
     useEffect(() => {
@@ -193,6 +200,8 @@ const Avisos = props => {
         axios.post('/api/avisos/userAlerts/?type=saveAlert', requestObject)
             .then(r => console.log(r))
             .catch(err => console.log(err))
+        setState({ ...state, writeNewAviso: false, toast: true, subject: undefined, avisoText: undefined })
+
     }
 
     const
@@ -200,7 +209,7 @@ const Avisos = props => {
         , toggleAviso = () => setState({ ...state, showAviso: !state.showAviso })
         , closeConfirmDialog = () => setState({ ...state, openConfirmDialog: false })
         , toggleNewAviso = () => setState({ ...state, writeNewAviso: !state.writeNewAviso })
-
+        , toggleToast = () => setState({ ...state, toast: !state.toast })
 
     return (
         <>
@@ -239,6 +248,7 @@ const Avisos = props => {
                     id={state.idToDelete}
                 />
             }
+            <ReactToast open={state.toast} close={toggleToast} msg='Aviso criado com sucesso.' />
         </>
     )
 }

@@ -6,7 +6,7 @@
         "exclude": [
             "./server/alerts/altContratoAlert.js",
             "./server/alerts/routes.js",
-            "./server/alerts/testAlerts.js",
+            "./server/alerts/runAlerts.js",
             "./server/alerts/userAlerts"
         ],
         "includePattern": ".js$",

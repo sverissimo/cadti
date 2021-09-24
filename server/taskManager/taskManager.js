@@ -1,10 +1,13 @@
+
 const
     CronJob = require('cron').CronJob,
     moment = require('moment'),
     insertNewInsurances = require('./seguros/insertNewInsurances'),
     checkExpiredInsurances = require('./seguros/checkExpiredInsurances'),
     updateVehicleStatus = require('./veiculos/updateVehicleStatus'),
-    dailyAlerts = require('./dailyAlerts')
+    runAlerts = require('../alerts/runAlerts')
+//dailyAlerts = require('./dailyAlerts')
+
 
 let
     dailyTasks = { start: () => void 0 },
@@ -47,7 +50,10 @@ else {
 
     }, null, true, 'America/Sao_Paulo');
 
-    //dailyAlerts.start()
+    //Ativar alertas automáticos 20 segundos após a atualização de status.
+    setTimeout(() => {
+        runAlerts()
+    }, 20000);
 }
 
 module.exports = dailyTasks
