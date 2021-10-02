@@ -12,8 +12,8 @@ const Parametros = props => {
     //A prop 'params' são os nomes das propriedades do objeto do estado inicial, seja o nome de uma prop do DB seja do arquivo ./defaultParams.js
     const
         [state, setState] = useState({
-            options: ['Idade e prazos para baixa', 'Distância mínima entre poltronas', 'Nomenclaturas', 'Motivos para baixa do veículo', 'Prazos para avisos automáticos do sistema'],
-            params: ['idadeBaixa', 'distanciaPoltronas', 'nomes', 'motivosBaixa', 'prazosAlerta'],
+            options: ['Idade e prazos para baixa', 'Distância mínima entre poltronas', 'Nomenclaturas', 'Motivos para baixa do veículo', 'Prazos para avisos automáticos do sistema', 'Validação de campos'],
+            params: ['idadeBaixa', 'distanciaPoltronas', 'nomes', 'motivosBaixa', 'prazosAlerta', 'inputValidation'],
             forms: [parametrosIdade, distancias, nomes, motivosBaixa, prazosAviso],
         }),
 
@@ -27,7 +27,7 @@ const Parametros = props => {
                 { parametros } = props.redux
                 , data = parametros[0]['motivosBaixa']
 
-            if (data && parametros[0]?.id)
+            if (data && typeof data === 'object' && parametros[0]?.id)
                 data.id = parametros[0].id
 
             setState({
@@ -50,11 +50,16 @@ const Parametros = props => {
             { parametros } = props.redux,
             { options, forms, params } = state,
             tab = options.indexOf(value),
-            form = forms[tab],
-            data = parametros[0][params[tab]]
+            form = forms[tab]
 
-        if (data && parametros[0]?.id)
+        let data = parametros[0][params[tab]]
+
+        if (data && data instanceof Object && parametros[0]?.id)
             data.id = parametros[0].id
+        // Se o parâmetro alterado for o inputValidation, é preciso criar um objeto com id para enviar como request e alterar o coleção parametros do MongoDB
+        else if (typeof data === 'boolean')
+            data = { id: parametros[0].id, inputValidation: data }
+
 
         //Se for singleParams, criar uma cópia da data como newState e não usar spreadOperator
         if (tab === 3)
@@ -132,13 +137,22 @@ const Parametros = props => {
         return modified
     }
 
+
+    const toggleInputValidation = () => {
+        const
+            inputValidation = !state?.inputValidation
+            , modified = inputValidation !== state.initState.inputValidation
+        setState({ ...state, inputValidation, modified })
+    }
+
+
     //Salva as alterações feitas
     const handleSubmit = () => {
         const
-            { tab, forms, params, initState, newState } = state,
+            { tab, forms, params, initState, newState, inputValidation } = state,
             { id } = initState,
             form = forms[tab],
-            keys = form.map(f => f.field),
+            keys = form && form.map(f => f.field),
             parametro = params[tab]
 
         let requestObj = {}
@@ -163,7 +177,6 @@ const Parametros = props => {
 
                 Object.assign(requestObj, { [obj.field]: prazos })
             }
-
             //validação
             const errors = checkInputErrors()
             if (errors) {
@@ -171,17 +184,21 @@ const Parametros = props => {
                 return
             }
         }
+        else if (tab === 5)
+            requestObj = inputValidation
+
         else
             keys.forEach(k => Object.assign(requestObj, { [k]: state[k] }))
 
-        const modified = checkForChanges(null, null, requestObj)
-
-        axios.put('/api/parametros', { [parametro]: requestObj, id })
+        axios.patch('/api/parametros', { [parametro]: requestObj, id })
             .then(r => {
                 if (r.status === 200) {
                     toast(r.data)
                     setTimeout(() => {
-                        setState({ ...state, initState: requestObj, modified })
+                        if (tab === 5)
+                            setState({ ...state, initState: { id, inputValidation }, modified: false })
+                        else
+                            setState({ ...state, initState: requestObj, modified: false })
                     }, 1200);
                 }
             })
@@ -200,6 +217,7 @@ const Parametros = props => {
                 handleInput={handleInput}
                 handleSubmit={handleSubmit}
                 outsider={props.outsider}
+                toggleChecked={toggleInputValidation}
             />
             <ReactToast open={confirmToast} close={toast} msg={toastMsg} status={toastStatus} />
         </>

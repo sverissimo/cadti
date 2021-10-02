@@ -29,8 +29,31 @@
     "motivosBaixa": [
         "Baixado pela fiscalização",
         "Fim do contrato com delegatário",
+        "Impróprio para uso",
+        "Outros",
+        "Pedido do delegatário",
         "Venda do veículo"
     ],
+    "prazosAlerta": {
+        "prazoAlertaLaudo": [
+            1,
+            7,
+            15,
+            30
+        ],
+        "prazoAlertaProcuracao": [
+            1,
+            7,
+            15,
+            30
+        ],
+        "prazoAlertaSeguro": [
+            1,
+            7,
+            15,
+            30
+        ]
+    },
     "createdAt": "ISODate(\"2021-03-18T20:29:53.695Z\")",
     "updatedAt": "ISODate(\"2021-07-05T21:05:43.702Z\")",
     "__v": 0

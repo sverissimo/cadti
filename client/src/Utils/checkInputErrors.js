@@ -40,7 +40,8 @@ export const checkInputErrors = (sendState, dontSetDate) => {
             .replace('(cm)', '')
             .slice(0, -2) + '.'
 
-        if (sendState) return { openAlertDialog: true, alertType: 'inputError', customMsg: errString, errors }
+        if (sendState)
+            return { openAlertDialog: true, alertType: 'inputError', customMsg: errString, errors }
         return errors
     } else return null
 }

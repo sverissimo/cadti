@@ -12,8 +12,17 @@ const parametrosSchema = new mongoose.Schema({
     distanciaPoltronas: { type: distanciaSchema, default: {} },
     idadeBaixa: { type: idadeBaixaSchema, default: {} },
     nomes: { type: nomesSchema, default: {} },
-    motivosBaixa: { type: [], default: ['Baixado pela fiscalização', 'Fim do contrato com delegatário', 'Venda do veículo'] },
-    prazosAlerta: { type: prazosAlertaSchema, default: {} }
+    motivosBaixa: {
+        type: [],
+        default: ["Baixado pela fiscalização",
+            "Fim do contrato com delegatário",
+            "Impróprio para uso",
+            "Outros",
+            "Pedido do delegatário",
+            "Venda do veículo"]
+    },
+    prazosAlerta: { type: prazosAlertaSchema, default: {} },
+    inputValidation: { type: Boolean, default: true }
 },
     {
         timestamps: true,

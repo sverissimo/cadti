@@ -7,7 +7,7 @@ export default function AutoComplete({ collection = [], field, itemProp, value }
         //O id é o próprio field (ex:placa). Quando for diferente, o parentComponent deve passar o itemProp a ser renderizado.         
         if (!itemProp)
             itemProp = field
-        console.log({ itemProp })
+
         return (
             <datalist id={field} autoComplete='off'>
                 {

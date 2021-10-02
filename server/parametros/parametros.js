@@ -22,7 +22,7 @@ router.get('/', async (req, res) => {
     }
 })
 
-router.put('/', async (req, res) => {
+router.patch('/', async (req, res) => {
 
     const
         update = req.body,

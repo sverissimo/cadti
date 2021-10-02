@@ -12,6 +12,7 @@ import ReactToast from '../Reusable Components/ReactToast'
 import { getCookie } from '../Utils/documentCookies'
 import { logUser, editUser, logUserOut } from './userActions'
 import { getEnvironment } from '../getEnvironment'
+import checkBlankInputs from '../Utils/checkBlankInputs'
 
 const socketIO = require('socket.io-client')
 let socket
@@ -140,7 +141,7 @@ export default function (requestArray, WrappedComponent) {
             }
             //Carregadas as collections com a devida autenticação, renderiza o componente
             else
-                return <WrappedComponent {...this.props} />
+                return <WrappedComponent {...this.props} checkBlankInputs={checkBlankInputs} />
         }
     }
 

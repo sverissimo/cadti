@@ -1,6 +1,7 @@
 import React from 'react'
 import TextInput from '../Reusable Components/TextInput'
 import SimpleParams from './SimpleParams'
+import CheckBoxFilter from '../Reusable Components/CheckBoxFilter';
 import CustomButton from '../Reusable Components/CustomButton'
 
 import Crumbs from '../Reusable Components/Crumbs'
@@ -8,8 +9,8 @@ import MenuItem from '@material-ui/core/MenuItem'
 import TextField from '@material-ui/core/TextField'
 import './parametros.scss'
 
-const ParametrosTemplate = ({ data, selectOption, handleInput, handleSubmit, plusOne, removeOne, outsider }) => {
-    //console.log("🚀 ~ file: ParametrosTemplate.jsx ~ line 12 ~ ParametrosTemplate ~ outsider", outsider)
+const ParametrosTemplate = ({ data, selectOption, handleInput, handleSubmit, plusOne, removeOne, outsider, toggleChecked }) => {
+
     const { tab, options, selectedOption, form, modified } = data
 
     return (
@@ -64,6 +65,16 @@ const ParametrosTemplate = ({ data, selectOption, handleInput, handleSubmit, plu
                     handleInput={handleInput}
                     style={{ width: '100%', flexDirection: 'column' }}
                 />
+            }
+            {
+                tab === 5 &&
+                <div className="flex center">
+                    <CheckBoxFilter
+                        title='Habilitar validação de campos'
+                        checked={data.inputValidation}
+                        toggleChecked={toggleChecked}
+                    />
+                </div>
             }
             {/* Botão de salvar independe do formulário renderizado, desde que alguma opção tenha sido selecionada */}
             {

@@ -69,7 +69,7 @@ class VeiculosContainer extends PureComponent {
                 numeroDae = demand?.history && demand.history.reverse().find(e => e.hasOwnProperty('numeroDae'))?.numeroDae
 
             console.log("🚀 ~ file: CadVeiculo.jsx ~ line 75 ~ VeiculosContainer ~ componentDidMount ~ demandState", demandState)
-            //Adiciona existência de situações específicias no state: pendências ou reativação.
+            //Adiciona existência de situações específicas no state: pendências ou reativação.
             if (demand.status.match('Pendências')) {
                 existingPendencias = true
                 demandState.obs = undefined
@@ -111,11 +111,18 @@ class VeiculosContainer extends PureComponent {
             }
         }
 
+        //Checagem de erros de inputs
         const { errors } = this.state
         if (errors && errors[0]) {
-            await this.setState({ ...this.state, ...checkInputErrors('setState') })
-            return
+            console.log("🚀 ~ file: CadVeiculo.jsx ~ line 115 ~ VeiculosContainer ~ { errors }", { errors })
+            //await this.setState({ ...this.state, ...checkInputErrors('setState') })
+            //return
         }
+
+        //Checa se campos estão em branco
+        const blankFields = this.props.checkBlankInputs(cadVehicleForm[this.state.activeStep], this)
+        if (action === 'next')
+            console.log("🚀 ~ file: CadVeiculo.jsx ~ line 124 ~ VeiculosContainer ~ blankFields", blankFields)
 
         const prevActiveStep = this.state.activeStep
         if (action === 'next') this.setState({ activeStep: prevActiveStep + 1 });
@@ -310,8 +317,8 @@ class VeiculosContainer extends PureComponent {
 
     checkPlateConflict = async value => {
         const
-            checkExistance = await axios.get(`/api/alreadyExists?table=veiculos&column=placa&value=${value}`),
-            placaMatch = checkExistance?.data,
+            checkExistence = await axios.get(`/api/alreadyExists?table=veiculos&column=placa&value=${value}`),
+            placaMatch = checkExistence?.data,
             vehicle = placaMatch?.vehicleFound
 
         let customTitle, customMessage
@@ -450,7 +457,7 @@ class VeiculosContainer extends PureComponent {
         const vehicle = humps.decamelizeKeys(vReview)
         //console.log(vReview, '437')
 
-        //***************If it doesnt exist, post the new vehicle Object **************** */
+        //***************If it doesn't exist, post the new vehicle Object **************** */
         if (!existingVeiculoId)
             await axios.post('/api/cadastroVeiculo', vehicle)
                 .then(res => {
@@ -568,7 +575,7 @@ class VeiculosContainer extends PureComponent {
     render() {
         const
             { confirmToast, toastMsg, activeStep, openAlertDialog, alertType, steps, selectedEmpresa, dropDisplay, form,
-                demand, demandFiles, showPendencias, info, resetShared, customMessage, customTitle, obs, existingPendencias } = this.state,
+                demand, placa, demandFiles, showPendencias, info, resetShared, customMessage, customTitle, obs, existingPendencias } = this.state,
 
             { redux } = this.props
 
@@ -622,7 +629,7 @@ class VeiculosContainer extends PureComponent {
                 handleInput={this.handleInput}
                 addObs={demand && !existingPendencias && !showPendencias}  //Se tiver na aprovação, o campo info vira obs para registrar obs do veículo.
                 obs={obs}
-            //disabled={(typeof placa !== 'string' || placa === '')}
+                disabled={(typeof placa !== 'string' || placa === '')}
             />}
             <ReactToast open={confirmToast} close={this.toast} msg={toastMsg} />
             {openAlertDialog && <AlertDialog open={openAlertDialog} close={this.toggleDialog} alertType={alertType} customMessage={customMessage} customTitle={customTitle} />}
