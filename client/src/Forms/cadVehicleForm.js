@@ -46,7 +46,7 @@ export const cadVehicleForm = [[{
     margin: 'normal',
     zero: true,
     pattern: '^.{9,12}$',
-    minLength: 8,
+    minLength: 9,
     maxLength: 11
 },
 {
@@ -69,7 +69,7 @@ export const cadVehicleForm = [[{
     margin: 'normal',
     zero: true,
     pattern: '^.{9,12}$',
-    minLength: 8,
+    minLength: 9,
     maxLength: 11
 },
 {

@@ -13,6 +13,7 @@ import { getCookie } from '../Utils/documentCookies'
 import { logUser, editUser, logUserOut } from './userActions'
 import { getEnvironment } from '../getEnvironment'
 import checkBlankInputs from '../Utils/checkBlankInputs'
+import { checkInputErrors } from '../Utils/checkInputErrors'
 
 const socketIO = require('socket.io-client')
 let socket
@@ -139,9 +140,12 @@ export default function (requestArray, WrappedComponent) {
             if (collections.length === 0 || !collections.every(col => this.props.redux.hasOwnProperty(col))) {
                 return <Loading />
             }
-            //Carregadas as collections com a devida autenticação, renderiza o componente
+            //Carregadas as collections com a devida autenticação, renderiza o componente e passa as funções de validação de campos de formulários
             else
-                return <WrappedComponent {...this.props} checkBlankInputs={checkBlankInputs} />
+                return <WrappedComponent {...this.props}
+                    checkBlankInputs={checkBlankInputs}
+                    checkInputErrors={checkInputErrors}
+                />
         }
     }
 

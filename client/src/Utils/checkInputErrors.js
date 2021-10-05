@@ -41,7 +41,7 @@ export const checkInputErrors = (sendState, dontSetDate) => {
             .slice(0, -2) + '.'
 
         if (sendState)
-            return { openAlertDialog: true, alertType: 'inputError', customMsg: errString, errors }
+            return { openAlertDialog: true, alertType: 'inputError', customMsg: errString, customMessage: errString, errors }
         return errors
     } else return null
 }

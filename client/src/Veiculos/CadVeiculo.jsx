@@ -6,7 +6,6 @@ import StoreHOC from '../Store/StoreHOC'
 
 import { setDemand } from '../Utils/setDemand'
 import { handleFiles, removeFile } from '../Utils/handleFiles'
-import { checkInputErrors } from '../Utils/checkInputErrors'
 import { logGenerator } from '../Utils/logGenerator'
 
 import CadVeiculoTemplate from './CadVeiculoTemplate'
@@ -111,18 +110,26 @@ class VeiculosContainer extends PureComponent {
             }
         }
 
-        //Checagem de erros de inputs
-        const { errors } = this.state
-        if (errors && errors[0]) {
-            console.log("🚀 ~ file: CadVeiculo.jsx ~ line 115 ~ VeiculosContainer ~ { errors }", { errors })
-            //await this.setState({ ...this.state, ...checkInputErrors('setState') })
-            //return
-        }
+        //Validação de campos em branco ou inválidos
+        const { inputValidation } = this.props.redux.parametros[0] && this.props.redux.parametros[0]
 
-        //Checa se campos estão em branco
-        const blankFields = this.props.checkBlankInputs(cadVehicleForm[this.state.activeStep], this)
-        if (action === 'next')
-            console.log("🚀 ~ file: CadVeiculo.jsx ~ line 124 ~ VeiculosContainer ~ blankFields", blankFields)
+        if (action === 'next' && inputValidation) {
+            const
+                { checkBlankInputs, checkInputErrors } = this.props
+                , errors = checkInputErrors('sendState')
+                , blankFields = checkBlankInputs(cadVehicleForm[this.state.activeStep], this.state)
+            console.log("🚀 ~ file: CadVeiculo.jsx ~ line 120 ~ VeiculosContainer ~ errors", errors)
+
+            if (errors) {
+                this.setState({ ...this.state, ...errors })
+                return
+            }
+            if (blankFields) {
+                this.setState({ ...this.state, ...blankFields })
+                return
+            }
+
+        }
 
         const prevActiveStep = this.state.activeStep
         if (action === 'next') this.setState({ activeStep: prevActiveStep + 1 });
@@ -219,10 +226,6 @@ class VeiculosContainer extends PureComponent {
         //Se o veículo for reativado, o ano de fabricação de referência para cadastro é o da baixa automática, não a idadeMaxCad
         if (situacao && situacao.match('Reativação'))
             maxYear = currentYear - idadeBaixaAut
-
-        const errors = checkInputErrors()
-        if (errors) this.setState({ errors })
-        else this.setState({ errors: undefined })
 
         switch (name) {
             case 'modeloChassi':
@@ -632,7 +635,9 @@ class VeiculosContainer extends PureComponent {
                 disabled={(typeof placa !== 'string' || placa === '')}
             />}
             <ReactToast open={confirmToast} close={this.toast} msg={toastMsg} />
-            {openAlertDialog && <AlertDialog open={openAlertDialog} close={this.toggleDialog} alertType={alertType} customMessage={customMessage} customTitle={customTitle} />}
+            {openAlertDialog &&
+                <AlertDialog open={openAlertDialog} close={this.toggleDialog}
+                    alertType={alertType} customMessage={customMessage} customTitle={customTitle} />}
         </Fragment>
     }
 }
