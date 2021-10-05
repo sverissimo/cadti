@@ -32,6 +32,9 @@ const checkWeight = (component, name) => {
         pbt = undefined
     else
         pbt = pbt.toFixed(3)
+
+    if (!pbt || !cmt)
+        return
     //Avalia se o PBT é maior que o CMT
     if (+cmt >= pbt) {
         //console.log('Cmt, pbt ok.', cmt, pbt)
@@ -47,9 +50,7 @@ const checkWeight = (component, name) => {
             customMessage = `O número de poltronas e os pesos dianteiro e traseiro informados formam um peso bruto total de ${pbtString}t, superior à 
                 Carga Máxima de tração permitida: modelo ${modeloChassi} -> ${cmtString}t.`
         component.setState({ openAlertDialog: true, customTitle, customMessage, [name]: 0 })
-        setTimeout(() => {
-            document.getElementsByName(name)[0].focus()
-        }, 1550);
+
     }
 }
 

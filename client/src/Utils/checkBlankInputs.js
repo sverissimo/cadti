@@ -1,5 +1,9 @@
 
+//Checa se cada campo do formulário está preenchido.
 const checkBlankInputs = (form, state) => {
+
+    if (!form || !state)
+        return
 
     const
         customTitle = 'Preenchimento obrigatório.'
@@ -8,7 +12,9 @@ const checkBlankInputs = (form, state) => {
 
     form.forEach(element => {
         const value = state[element.field]
-        if (!value || value === '') {
+        if (element?.disabled || element.notRequired)
+            return
+        else if (!value || value === '') {
             customMsg += `${element.label}, `
             blankInputs.push(element.field)
         }

@@ -104,10 +104,23 @@ class AltDados extends Component {
     componentWillUnmount() { this.setState({}) }
 
     setActiveStep = async action => {
-        const { errors } = this.state
-        if (errors && errors[0]) {
-            this.setState({ ...this.state, ...checkInputErrors('setState') })
-            return
+        //Validação de campos em branco ou inválidos
+        const { inputValidation } = this.props.redux.parametros[0] && this.props.redux.parametros[0]
+
+        if (action === 'next' && inputValidation) {
+            const
+                { checkBlankInputs, checkInputErrors } = this.props
+                , errors = checkInputErrors('sendState')
+                , blankFields = checkBlankInputs(altForm[this.state.activeStep], this.state)
+
+            if (errors) {
+                this.setState({ ...this.state, ...errors })
+                return
+            }
+            if (blankFields) {
+                this.setState({ ...this.state, ...blankFields })
+                return
+            }
         }
 
         const prevActiveStep = this.state.activeStep

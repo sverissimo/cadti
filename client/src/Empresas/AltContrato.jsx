@@ -118,6 +118,36 @@ const AltContrato = props => {
     const setActiveStep = action => {
 
         let activeStep = state.activeStep
+        //Validação de campos em branco ou inválidos
+        const
+            { inputValidation } = props.redux.parametros[0] && props.redux.parametros[0]
+            //Retirados campos número do Contrato e vencimento do CRC a pedido da DGTI (passou p/ próxima tab)
+            , dadosEmpresaForm = JSON.parse(JSON.stringify(empresasForm))
+                .filter(el => el.field !== 'numeroContrato' && el.field !== 'vencimentoContrato')
+                .map(e => {
+                    if (e.field === 'razaoSocial')
+                        e.disabled = true
+                    return e
+                })
+            , forms = [dadosEmpresaForm, altContratoForm]
+
+        if (action === 'next' && inputValidation) {
+            const
+                { checkBlankInputs, checkInputErrors } = props
+                , errors = checkInputErrors('sendState')
+                , blankFields = checkBlankInputs(forms[activeStep], state)
+
+            if (errors) {
+                setState({ ...state, ...errors })
+                return
+            }
+            if (blankFields) {
+                setState({ ...state, ...blankFields })
+                return
+            }
+        }
+
+
         if (action === 'next') activeStep++
         if (action === 'back') activeStep--
         if (action === 'reset') activeStep = 0
@@ -162,17 +192,17 @@ const AltContrato = props => {
             if (selectedEmpresa?.codigoEmpresa) {
 
                 filteredSocios = JSON.parse(JSON.stringify(socios.filter(s => s.empresas && s.empresas[0] && s.empresas.some(e => e.codigoEmpresa === selectedEmpresa.codigoEmpresa))))
-                let aditionalSocios = JSON.parse(JSON.stringify(socios))
-                aditionalSocios = aditionalSocios
+                let additionalSocios = JSON.parse(JSON.stringify(socios))
+                additionalSocios = additionalSocios
                     .filter(s => {
                         if (s.empresas && s.empresas[0])
                             return s.empresas.includes(selectedEmpresa.codigoEmpresa)
                         else return null
                     })
 
-                aditionalSocios = filteredSocios.concat(aditionalSocios)
+                additionalSocios = filteredSocios.concat(additionalSocios)
                 const result = new Map()
-                for (const s of aditionalSocios) {
+                for (const s of additionalSocios) {
                     result.set(s.socioId, s)
                 }
                 filteredSocios = [...result.values()]
@@ -678,7 +708,7 @@ const AltContrato = props => {
             //O loop é para cada arquivo ter seu fieldName correto no campo metadata
             for (let pair of form) {
                 const name = pair[0]
-                console.log("🚀 ~ file: AltContrato.jsx ~ line 641 ~ submitFile ~ name", name)
+
                 //O CRC não precisa dos ids dos sócios nem do número de alteração em seu metadata
                 if (name === "altContratoDoc") {
                     const altContMeta = {

@@ -118,7 +118,6 @@ class VeiculosContainer extends PureComponent {
                 { checkBlankInputs, checkInputErrors } = this.props
                 , errors = checkInputErrors('sendState')
                 , blankFields = checkBlankInputs(cadVehicleForm[this.state.activeStep], this.state)
-            console.log("🚀 ~ file: CadVeiculo.jsx ~ line 120 ~ VeiculosContainer ~ errors", errors)
 
             if (errors) {
                 this.setState({ ...this.state, ...errors })
@@ -128,7 +127,6 @@ class VeiculosContainer extends PureComponent {
                 this.setState({ ...this.state, ...blankFields })
                 return
             }
-
         }
 
         const prevActiveStep = this.state.activeStep

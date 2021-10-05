@@ -9,7 +9,8 @@ export const altForm = [[{
 {
     field: 'compartilhado',
     label: 'Delegatário Compartilhado',
-    disabled: true
+    disabled: true,
+    notRequired: true
 },
 {
     field: 'utilizacao',

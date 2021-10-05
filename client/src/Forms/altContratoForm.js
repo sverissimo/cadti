@@ -17,6 +17,7 @@ export const altContratoForm = [
         field: 'numeroSei',
         label: 'Número do registro SEI (se houver)',
         maxLength: 30,
+        notRequired: true,
         width
     },
     {
