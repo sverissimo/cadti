@@ -1,59 +1,31 @@
-
 const
-    CronJob = require('cron').CronJob,
-    moment = require('moment'),
-    insertNewInsurances = require('./seguros/insertNewInsurances'),
-    checkExpiredInsurances = require('./seguros/checkExpiredInsurances'),
-    updateVehicleStatus = require('./veiculos/updateVehicleStatus'),
-    runAlerts = require('../alerts/runAlerts')
-//dailyAlerts = require('./dailyAlerts')
+    CronJob = require('cron').CronJob
+    , runAlerts = require('../alerts/runAlerts')
+    , runDbSync = require('../sync/runDbSync')
+    , updateSytemStatus = require('./updateSystemStatus')
 
+function taskManager() {
 
-let
-    dailyTasks = { start: () => void 0 },
-    i = 0
+    //DEVELOPMENT
+    if (process.env.NODE_ENV !== 'production')
+        return
 
-//DEVELOPMENT ==> 
-if (process.env.NODE_ENV !== 'production') {
-    dailyTasks = {
-        start: async () => {
-            //await insertNewInsurances()
-            //console.log('new insurances alright')   
+    //PRODUCTION
+    const dailyTasks = new CronJob('1 0 0 * * *', async function () {
 
-            /*   await checkExpiredInsurances()
-              console.log('updated expired insurances alright')
-  
-              updateVehicleStatus()
-              console.log('updated vehicle data alright') */
-        }
-    }
-}
-
-//PRODUCTION
-else {
-    dailyTasks = new CronJob('1 0 0 * * *', async function () {
-
-        // checa se um seguro registrado com início de vigência futura iniciou sua vigência. Caso positivo, resgata o seguro do MongoDB e insere no Postgresql 
-        await insertNewInsurances()
-        console.log('new insurances alright')
-
-        //Atualiza a tabela de seguros do Postgresql com aqueles que venceram o seguro, mudando o status de cada seguro para "Vencido"
-        await checkExpiredInsurances()
-        console.log('updated expired insurances alright')
-
-        //Atualiza a tabela de veículos do Postgresql de acordo com a situação do seguros do laudo e atualizando a situação de todos os veículos.
-        updateVehicleStatus()
-        console.log('updated vehicle data alright')
-
-        i++
-        console.log(`Updated ${i} times, once a day. ${moment()}`)
+        updateSytemStatus()
+        setTimeout(() => { runAlerts() }, 15000); //Ativar alertas automáticos 15 segundos após a atualização de status.
 
     }, null, true, 'America/Sao_Paulo');
 
-    //Ativar alertas automáticos 20 segundos após a atualização de status.
-    setTimeout(() => {
-        runAlerts()
-    }, 20000);
+
+    const dbSyncRoutine = new CronJob('0 44 * * * *', async function () {
+        runDbSync()
+    })
+
+    dailyTasks.start()
+    dbSyncRoutine.start()
+    void 0
 }
 
-module.exports = dailyTasks
+module.exports = taskManager

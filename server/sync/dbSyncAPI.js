@@ -7,7 +7,8 @@ const
     getCompartilhadoId = require('./getCompartilhadoID'),
     { accessParseDB, equipamentsParseDB } = require('./getEquip'),
     forceDbUpdate = require('./forceDbUpdate'),
-    { oldVehicles } = require('./oldVehicles')
+    { oldVehicles } = require('./oldVehicles'),
+    sendMail = require('../mail/sendMail')
 
 
 router.post('/createTable', (req, res) => {
@@ -64,6 +65,25 @@ router.get('/createRestorePoint', (req, res) => {
     backupDB.createNewBackup()
     console.log('###### Postgresql: new restore point created.')
     res.status(200).send('New restore point created.')
+})
+
+router.post('/notifyError', (req, res) => {
+
+    sendMail({ ...req.body, sendMail: true })
+    res.send('wtv')
+})
+
+router.get('/restoreDB', (req, res) => {
+    console.log('req')
+    try {
+        const backupDB = new BackupDB()
+        backupDB.restoreDB()
+        return res.status(200).send('CadTI Database restored to the last backup')
+    } catch (error) {
+        console.log(error)
+        res.status(error.status).send(error)
+    }
+
 })
 
 async function getEquipaIds() {

@@ -40,7 +40,6 @@ const
     oldVehiclesModel = require('./mongo/models/oldVehiclesModel'),
     segurosModel = require('./mongo/models/segurosModel'),
     dbSync = require('./sync/dbSyncAPI'),
-    dailyTasks = require('./taskManager/taskManager'),
     deleteVehiclesInsurance = require('./deleteVehiclesInsurance'),
     updateVehicleStatus = require('./taskManager/veiculos/updateVehicleStatus'),
     emitSocket = require('./emitSocket'),
@@ -58,13 +57,13 @@ const
     userSockets = require('./auth/userSockets'),
     deleteSockets = require('./auth/deleteSockets'),
     altContratoAlert = require('./alerts/altContratoAlert'),
-    userAlerts = require('./alerts/userAlerts'),
     fileBackup = require('./fileBackup/fileBackup'),
     prepareBackup = require('./fileBackup/prepareBackup'),
-    { permanentBackup } = require('./fileBackup/permanentBackup')
+    { permanentBackup } = require('./fileBackup/permanentBackup'),
+    taskManager = require('./taskManager/taskManager')
 
 
-dailyTasks.start()
+taskManager()
 dotenv.config()
 
 app.use(morgan('dev'))

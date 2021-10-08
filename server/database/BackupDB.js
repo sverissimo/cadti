@@ -3,7 +3,7 @@ const { createDBQuery } = require('./createDbQuery')
  */
 //@ts-check
 const
-    { execSync } = require('child_process')
+    { execSync, exec } = require('child_process')
     , fs = require('fs')
     , date = new Date()
     , day = date.getDate()
@@ -14,7 +14,7 @@ const
 if (!process.env.DB_USER)
     dotenv.config({ path: '../../.env' })
 
-const { DB_USER, DB_PASS, CREATE_DB_PATH, DB_BACKUP_PATH } = process.env
+const { DB_USER, DB_PASS, CREATE_DB_PATH, DB_BACKUP_PATH, FILE_SECRET } = process.env
 
 
 class BackupDB {
@@ -46,13 +46,13 @@ class BackupDB {
     }
 
     restoreDB() {
-        const { path, fileName } = this
-            //, b = execSync(`pg_restore "host=localhost port=5432 dbname=sismob_db user=postgres password=${FILE_SECRET}" > ${path + fileName}`, { encoding: 'utf-8' })
-            , restoreDBQuery = `psql --host=localhost --port=5432 --dbname=sismob_db --username=${DB_USER} --password=${DB_PASS} --file=${path + fileName}`
-            , runRestore = execSync(restoreDBQuery)
+        const { path, safetyName } = this
+            //, restoreDBQuery = execSync(`pg_restore "host=localhost port=5432 dbname=sismob_db user=postgres password=${FILE_SECRET}" > ${path + safetyName}`, { encoding: 'utf-8' })
+            , restoreDBQuery = `psql --host=localhost --port=5432 --dbname=sismob_db --username=${DB_USER} --password=${DB_PASS} --file=${path + safetyName}`
 
-        console.log("🚀 ~ file: BackupDB.js ~ line 46 ~ BackupDB ~ restoreDB ~ restoreDBQuery", restoreDBQuery)
-        console.log(runRestore)
+        exec(restoreDBQuery, (err, stdout, stderr) => {
+            console.log({ err, stdout, stderr })
+        })
     }
 }
 

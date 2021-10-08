@@ -4,10 +4,9 @@ function runAlerts() {
     main('seguros')
     main('procuracoes')
     main('laudos')
-
-    setTimeout(() => {
-        process.exit()
-    }, 30000);
+    /*    setTimeout(() => {
+           process.exit()
+       }, 30000); */
 }
 
 //Development / tests
