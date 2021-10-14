@@ -2,7 +2,7 @@ const
     CronJob = require('cron').CronJob
     , runAlerts = require('../alerts/runAlerts')
     , runDbSync = require('../sync/runDbSync')
-    , updateSytemStatus = require('./updateSystemStatus')
+    , updateSystemStatus = require('./updateSystemStatus')
 
 function taskManager() {
 
@@ -13,13 +13,13 @@ function taskManager() {
     //PRODUCTION
     const dailyTasks = new CronJob('1 0 0 * * *', async function () {
 
-        updateSytemStatus()
+        updateSystemStatus()
         setTimeout(() => { runAlerts() }, 15000); //Ativar alertas automáticos 15 segundos após a atualização de status.
 
     }, null, true, 'America/Sao_Paulo');
 
 
-    const dbSyncRoutine = new CronJob('0 44 * * * *', async function () {
+    const dbSyncRoutine = new CronJob('0 58 23 * * *', async function () {
         runDbSync()
     })
 
