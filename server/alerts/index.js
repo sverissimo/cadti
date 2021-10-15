@@ -28,6 +28,7 @@ const main = async (type = 'laudos') => {
 
         , expiringItems = alertService.checkExpiring(collection, prazos)
         , empresasToNotify = alertService.getEmpresasToNotify(expiringItems)
+        , allMessages = []
 
     //Acrescenta recipients ao objeto pq o ProcuraracaoAlert (que implementa o método addProcsName) precisa para adicionar os nomes dos procuradores.
     alertObject.recipients = await recipientService.getAllRecipients()
@@ -37,12 +38,18 @@ const main = async (type = 'laudos') => {
             { codigo_empresa, razao_social } = empresa,
             { to, vocativo } = recipientService.setRecipients(codigo_empresa, razao_social, alertObject.recipients),
             expiringEmpresaItems = alertObject.getEmpresaExpiringItems(codigo_empresa, expiringItems),
-            message = alertObject.createMessage(expiringEmpresaItems)
+            message = alertObject.createMessage(expiringEmpresaItems),
+            { tip, tipPath, ...data } = message
+        allMessages.push({ ...data, vocativo })
 
         //alertService.mockAlert({ to, subject, vocativo, message })
-        alertService.saveAlert({ codigo_empresa, from, subject, vocativo, message })
-        await new Promise(r => setTimeout(r, 2000));
+        //alertService.saveAlert({ codigo_empresa, from, subject, vocativo, message })
+        //await new Promise(r => setTimeout(r, 2000));
     }
+    alertService.sendAlertsToAdmin(allMessages)
+    setTimeout(() => {
+        process.exit()
+    }, 1800);
     return
 }
 

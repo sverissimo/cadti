@@ -16,10 +16,10 @@ const
 function htmlGenerator({ vocativo, message }) {
 
     const
-        { intro, tableData, tableHeaders, tip, tipPath } = message,
+        { intro, tableData, tableHeaders, tip, tipPath, customFooter } = message,
         table = tableGenerator(tableData, tableHeaders)
 
-    const html = `
+    let html = `
     <html lang="pt-br">
         ${header}
         <h3>
@@ -32,14 +32,18 @@ function htmlGenerator({ vocativo, message }) {
         <table>
             ${table}
         </table>
-        </br>
+        </br>`
+    if (tip) //Acrescenta orientação aou usuário se houver
+        html += `        
         <p>
             ${tip}, acesse ${linkParaCadTI} na opção ${tipPath}
         </p>
-        ${footer}
-    </html>
-    `
-
+        `
+    html += ` 
+        
+    ${customFooter || footer}
+        </html>
+        `
     return html
 }
 

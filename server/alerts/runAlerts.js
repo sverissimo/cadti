@@ -10,6 +10,6 @@ function runAlerts() {
 }
 
 //Development / tests
-//runAlerts()
+runAlerts()
 
 module.exports = runAlerts

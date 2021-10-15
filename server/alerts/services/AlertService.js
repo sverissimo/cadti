@@ -9,8 +9,9 @@ const
     , htmlGenerator = require('../../mail/htmlGenerator')
     , AlertRepository = require('../repositories/AlertRepository')
     , moment = require('moment')
-    , Alert = require('../models/Alert');
-const UserAlert = require('../userAlerts/UserAlert');
+    , Alert = require('../models/Alert')
+    , tableGenerator = require('../../mail/templates/tableGenerator')
+    , UserAlert = require('../userAlerts/UserAlert');
 /**
  * Classe responsável por gerenciar e oferecer serviços de envio (ex: email) e armazenamento de alertas, além de método de testes. 
  */
@@ -106,9 +107,10 @@ class AlertService {
             .replace(/\//g, '')
             .replace(/:/g, '')
 
-        html = htmlGenerator({ vocativo, message })
-            + '<br /><h5>Raw data:</h5>'
-            + JSON.stringify(message)
+        if (!html)
+            html = htmlGenerator({ vocativo, message })
+                + '<br /><h5>Raw data:</h5>'
+                + JSON.stringify(message)
 
         const
             filePath = path.join(__dirname, '..', 'mockAlertFiles')
@@ -143,7 +145,45 @@ class AlertService {
 
         alertRepository.save(alertObject)
     }
+
+    /**
+     * Organiza e envia todos os alertas em um único para os técnicos/admins do sistema
+     * @param {Array} allMessages - Array de objetos com todas os avisos/alertas disparados em um dia
+     */
+    sendAlertsToAdmin(allMessages) {
+
+        if (!allMessages[0])
+            return
+        const
+            intro = allMessages[0].intro
+            , tableHeaders = allMessages[0].tableHeaders
+            , allTableData = []
+        tableHeaders.unshift('Empresa')
+
+        for (let m of allMessages) {
+            m.tableData.forEach(obj => {
+                const td = Object.assign({ empresa: m.vocativo }, obj)
+                allTableData.push(td)
+            })
+        }
+
+
+        const
+            message = {
+                intro,
+                tableData: allTableData,
+                tableHeaders,
+                customFooter: 'Aviso automático do CadTI'
+            }
+        //console.log("🚀 ~ file: AlertService.js ~ line 165 ~ AlertService ~ sendAlertsToAdmin ~ message ", JSON.stringify(message))
+
+        const html = htmlGenerator({ vocativo: 'Equipe DGTI', message })
+        this.mockAlert({ to: 'me', subject: 'Testing...', vocativo: 'Equipe DGTI', message, html })
+        //console.log("🚀 ~ file: AlertService.js ~ line 180 ~ AlertService ~ sendAlertsToAdmin ~ html", html)
+
+    }
 }
 
+//unifiedTable = tableGenerator(allTableData, tableHeaders)
 module.exports = AlertService
 
