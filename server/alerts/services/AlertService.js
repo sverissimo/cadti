@@ -9,12 +9,13 @@ const
     , htmlGenerator = require('../../mail/htmlGenerator')
     , AlertRepository = require('../repositories/AlertRepository')
     , moment = require('moment')
-    , Alert = require('../models/Alert')
-    , tableGenerator = require('../../mail/templates/tableGenerator')
-    , UserAlert = require('../userAlerts/UserAlert');
+    , UserAlert = require('../userAlerts/UserAlert')
+    , sendMail = require('../../mail/sendMail')
+
+
 /**
- * Classe responsável por gerenciar e oferecer serviços de envio (ex: email) e armazenamento de alertas, além de método de testes. 
- */
+* Classe responsável por gerenciar e oferecer serviços de envio (ex: email) e armazenamento de alertas, além de método de testes. 
+*/
 class AlertService {
 
     dbQuery;
@@ -154,10 +155,13 @@ class AlertService {
 
         if (!allMessages[0])
             return
+
         const
             intro = allMessages[0].intro
+            , subject = allMessages[0].subject
             , tableHeaders = allMessages[0].tableHeaders
             , allTableData = []
+            , to = ['sandro.verissimo@infraestrutura.mg.gov.br', 'sandro@inhell.com', 'sandroverissimo@live.com']
         tableHeaders.unshift('Empresa')
 
         for (let m of allMessages) {
@@ -177,8 +181,9 @@ class AlertService {
             }
         //console.log("🚀 ~ file: AlertService.js ~ line 165 ~ AlertService ~ sendAlertsToAdmin ~ message ", JSON.stringify(message))
 
-        const html = htmlGenerator({ vocativo: 'Equipe DGTI', message })
-        this.mockAlert({ to: 'me', subject: 'Testing...', vocativo: 'Equipe DGTI', message, html })
+        //const html = htmlGenerator({ vocativo: 'Equipe DGTI', message })
+        //this.mockAlert({ to: 'me', subject, vocativo: 'Equipe DGTI', message, html })
+        sendMail({ to, subject, vocativo: 'Equipe DGTI', message, sendMail: true })
         //console.log("🚀 ~ file: AlertService.js ~ line 180 ~ AlertService ~ sendAlertsToAdmin ~ html", html)
 
     }

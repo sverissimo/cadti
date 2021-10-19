@@ -40,7 +40,8 @@ const main = async (type = 'laudos') => {
             expiringEmpresaItems = alertObject.getEmpresaExpiringItems(codigo_empresa, expiringItems),
             message = alertObject.createMessage(expiringEmpresaItems),
             { tip, tipPath, ...data } = message
-        allMessages.push({ ...data, vocativo })
+
+        allMessages.push({ ...data, subject, vocativo })
 
         //alertService.mockAlert({ to, subject, vocativo, message })
         //alertService.saveAlert({ codigo_empresa, from, subject, vocativo, message })
