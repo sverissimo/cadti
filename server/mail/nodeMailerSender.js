@@ -3,18 +3,22 @@ const
     mailConfig = require("./config/mailConfig")
 
 
-async function nodeMailerSender({ to, subject, html }) {
+function nodeMailerSender({ to, subject, html }) {
 
-    let transporter = nodemailer.createTransport(mailConfig)
+    const transporter = nodemailer.createTransport(mailConfig)
 
-    let info = await transporter.sendMail({
+    transporter.sendMail({
         from: 'Seinfra - CadTI',
         to,
         subject,
         html
+    }, (err, info) => {
+        if (err)
+            console.log({ err })
+        if (info)
+            console.log({ info })
     })
-    console.log("Message sent: %s", info, info.messageId);
-    return info
+    //console.log({ to, subject, html })
 }
 
 module.exports = nodeMailerSender

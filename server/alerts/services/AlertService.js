@@ -12,7 +12,6 @@ const
     , UserAlert = require('../userAlerts/UserAlert')
     , sendMail = require('../../mail/sendMail')
 
-
 /**
 * Classe responsável por gerenciar e oferecer serviços de envio (ex: email) e armazenamento de alertas, além de método de testes. 
 */
@@ -160,8 +159,8 @@ class AlertService {
             intro = allMessages[0].intro
             , subject = allMessages[0].subject
             , tableHeaders = allMessages[0].tableHeaders
-            , allTableData = []
-            , to = ['sandro.verissimo@infraestrutura.mg.gov.br', 'sandro@inhell.com', 'sandroverissimo@live.com']
+            , allTableData = []            
+            , to =   ['sandroverissimo@live.com', 'sandro.verissimo@infraestrura.mg.gov.br','sverissimo2@gmail.com']
         tableHeaders.unshift('Empresa')
 
         for (let m of allMessages) {
@@ -170,7 +169,6 @@ class AlertService {
                 allTableData.push(td)
             })
         }
-
 
         const
             message = {
@@ -185,7 +183,6 @@ class AlertService {
         //this.mockAlert({ to: 'me', subject, vocativo: 'Equipe DGTI', message, html })
         sendMail({ to, subject, vocativo: 'Equipe DGTI', message, sendMail: true })
         //console.log("🚀 ~ file: AlertService.js ~ line 180 ~ AlertService ~ sendAlertsToAdmin ~ html", html)
-
     }
 }
 

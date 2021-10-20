@@ -48,9 +48,9 @@ const main = async (type = 'laudos') => {
         //await new Promise(r => setTimeout(r, 2000));
     }
     alertService.sendAlertsToAdmin(allMessages)
-    setTimeout(() => {
+    /* setTimeout(() => {
         process.exit()
-    }, 1800);
+    }, 1800); */
     return
 }
 

@@ -1,9 +1,9 @@
 const main = require(".");
 
 function runAlerts() {
-    main('seguros')
-    main('procuracoes')
-    main('laudos')
+     main('seguros')
+    //main('laudos') 
+    //main('procuracoes')
     /*    setTimeout(() => {
            process.exit()
        }, 30000); */
