@@ -13,7 +13,7 @@ router.get('/', async (req, res) => {
         const initiateDB = new parametrosModel({})
         initiateDB.save((err, doc) => {
             if (err) console.log(err)
-            console.log(doc)
+            console.log("🚀 ~ file: parametros.js ~ line 17 ~ initiateDB.save ~ doc", doc)
             res.send([doc])
         })
     }
@@ -22,6 +22,7 @@ router.get('/', async (req, res) => {
     }
 })
 
+//Altera o objeto parâmetros no MongoDB
 router.patch('/', async (req, res) => {
 
     const

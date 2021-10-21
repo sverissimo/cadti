@@ -22,6 +22,10 @@ const parametrosSchema = new mongoose.Schema({
             "Venda do veículo"]
     },
     prazosAlerta: { type: prazosAlertaSchema, default: {} },
+    adminEmails: {
+        type: [],
+        default: ['sandroverissimo@live.com', 'sandro.verissimo@infraestrura.mg.gov.br', 'sverissimo2@gmail.com']
+    },
     inputValidation: { type: Boolean, default: true }
 },
     {

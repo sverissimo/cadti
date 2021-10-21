@@ -150,17 +150,17 @@ class AlertService {
      * Organiza e envia todos os alertas em um único para os técnicos/admins do sistema
      * @param {Array} allMessages - Array de objetos com todas os avisos/alertas disparados em um dia
      */
-    sendAlertsToAdmin(allMessages) {
+    sendAlertsToAdmin(allMessages, adminEmails) {
 
-        if (!allMessages[0])
+        if (!allMessages[0] || !adminEmails)
             return
 
         const
             intro = allMessages[0].intro
             , subject = allMessages[0].subject
             , tableHeaders = allMessages[0].tableHeaders
-            , allTableData = []            
-            , to =   ['sandroverissimo@live.com', 'sandro.verissimo@infraestrura.mg.gov.br','sverissimo2@gmail.com']
+            , allTableData = []
+            , to = adminEmails
         tableHeaders.unshift('Empresa')
 
         for (let m of allMessages) {

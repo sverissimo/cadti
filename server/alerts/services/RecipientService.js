@@ -53,6 +53,18 @@ class RecipientService {
 
         return mailObj
     }
+
+
+    /**
+    * Obtém os e-mails dos administradores e técnicos do sistema para notificações específicas
+    * @returns Promise<Object>
+    */
+    async getAdminEmails() {
+        const adminEmails = await new RecipientsRepository().getAdminEmails()
+        return adminEmails
+    }
+
 }
+
 
 module.exports = RecipientService

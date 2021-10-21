@@ -17,6 +17,7 @@ const
 * */
 const main = async (type = 'laudos') => {
 
+
     const
         alertObject = await new AlertFactory(type).createAlert()
         , subject = alertObject.subject
@@ -28,7 +29,9 @@ const main = async (type = 'laudos') => {
 
         , expiringItems = alertService.checkExpiring(collection, prazos)
         , empresasToNotify = alertService.getEmpresasToNotify(expiringItems)
+        , adminEmails = await recipientService.getAdminEmails()
         , allMessages = []
+
 
     //Acrescenta recipients ao objeto pq o ProcuraracaoAlert (que implementa o método addProcsName) precisa para adicionar os nomes dos procuradores.
     alertObject.recipients = await recipientService.getAllRecipients()
@@ -44,13 +47,13 @@ const main = async (type = 'laudos') => {
         allMessages.push({ ...data, subject, vocativo })
 
         //alertService.mockAlert({ to, subject, vocativo, message })
-        //alertService.saveAlert({ codigo_empresa, from, subject, vocativo, message })
-        //await new Promise(r => setTimeout(r, 2000));
+        alertService.saveAlert({ codigo_empresa, from, subject, vocativo, message })
+        await new Promise(r => setTimeout(r, 2000));
     }
-    alertService.sendAlertsToAdmin(allMessages)
+    //Aguarda 2min para enviar o alerta para os Admins, o que equivale a 60 loops acima, equivalente a 60 empresas notificadas
     /* setTimeout(() => {
-        process.exit()
-    }, 1800); */
+        alertService.sendAlertsToAdmin(allMessages, adminEmails)
+    }, 120000); */
     return
 }
 

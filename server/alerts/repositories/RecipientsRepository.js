@@ -4,6 +4,8 @@ const
     , { socios: getSocsQuery } = require('../../queries')
     , { procuradores: getProcuradores } = require('../../allGetQueries')
     , getProcsQuery = getProcuradores()
+    , parametrosModel = require('../../mongo/models/parametrosModel/parametrosModel')
+
 
 class RecipientsRepository {
 
@@ -28,6 +30,19 @@ class RecipientsRepository {
             )
 
         return allRecipients
+    }
+
+
+    /**
+     * Obtém os e-mails dos administradores e técnicos do sistema para notificações específicas
+     * @returns Promise<Object>
+     */
+    async getAdminEmails() {
+
+        const query = await parametrosModel.find()
+            //@ts-ignore
+            , adminEmails = query[0] && query[0].adminEmails
+        return adminEmails
     }
 }
 
