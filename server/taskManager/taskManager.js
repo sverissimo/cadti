@@ -11,20 +11,23 @@ function taskManager() {
         return
 
     //PRODUCTION
-    const dailyTasks = new CronJob('1 0 0 * * *', async function () {
+    const dbSyncRoutine = new CronJob('0 58 23 * * *', function () {
+        runDbSync()
+    }, null, true, 'America/Sao_Paulo')
 
+    const updateStatus = new CronJob('1 0 0 * * *', function () {
         updateSystemStatus()
-        setTimeout(() => { runAlerts() }, 15000); //Ativar alertas automáticos 15 segundos após a atualização de status.
+    }, null, true, 'America/Sao_Paulo');
 
+    const createAlerts = new CronJob('2 0 0 * * *', function () {
+        runAlerts()
     }, null, true, 'America/Sao_Paulo');
 
 
-    const dbSyncRoutine = new CronJob('0 58 23 * * *', async function () {
-        runDbSync()
-    })
-
-    dailyTasks.start()
     dbSyncRoutine.start()
+    updateStatus.start()
+    createAlerts.start()
+
     void 0
 }
 
