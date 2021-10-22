@@ -4,6 +4,7 @@ const
     , updateVehicleStatus = require('./veiculos/updateVehicleStatus')
     , moment = require('moment')
 
+let i = 0
 const updateSystemStatus = async () => {
     // checa se um seguro registrado com início de vigência futura iniciou sua vigência. Caso positivo, resgata o seguro do MongoDB e insere no Postgresql 
     await insertNewInsurances()

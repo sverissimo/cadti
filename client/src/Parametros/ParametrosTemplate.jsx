@@ -44,7 +44,7 @@ const ParametrosTemplate = ({ data, selectOption, handleInput, handleSubmit, plu
                 </header>
             }
             {
-                form && tab !== 3 &&
+                form && tab !== 3 && tab !== 5 &&
                 <main className='configForm'>
                     <TextInput
                         form={form}
@@ -56,7 +56,7 @@ const ParametrosTemplate = ({ data, selectOption, handleInput, handleSubmit, plu
             }
             {/* Formulário simples que representa uma array de strings no DB / estado local  */}
             {
-                tab === 3 &&
+                (tab === 3 || tab === 6) &&
                 <SimpleParams
                     form={form}
                     data={data}

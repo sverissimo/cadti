@@ -11,15 +11,15 @@ function taskManager() {
         return
 
     //PRODUCTION
-    const dbSyncRoutine = new CronJob('0 58 23 * * *', function () {
+    const dbSyncRoutine = new CronJob('1 0 0 * * *', function () {
         runDbSync()
     }, null, true, 'America/Sao_Paulo')
 
-    const updateStatus = new CronJob('1 0 0 * * *', function () {
+    const updateStatus = new CronJob('1 2 0 * * *', function () {
         updateSystemStatus()
     }, null, true, 'America/Sao_Paulo');
 
-    const createAlerts = new CronJob('2 0 0 * * *', function () {
+    const createAlerts = new CronJob('1 3 0 * * *', function () {
         runAlerts()
     }, null, true, 'America/Sao_Paulo');
 

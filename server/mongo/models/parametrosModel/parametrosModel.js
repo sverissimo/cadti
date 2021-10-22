@@ -24,7 +24,15 @@ const parametrosSchema = new mongoose.Schema({
     prazosAlerta: { type: prazosAlertaSchema, default: {} },
     adminEmails: {
         type: [],
-        default: ['sandroverissimo@live.com', 'sandro.verissimo@infraestrura.mg.gov.br', 'sverissimo2@gmail.com']
+        default: [
+            'cristina.souza@infraestrutura.mg.gov.br',
+            'poliana.gomes@infraestrutura.mg.gov.br',
+            'rozana.almeida@infraestrutura.mg.gov.br',
+            'veber.junior@infraestrutura.mg.gov.br',
+            'grasiele.soares@infraestrutura.mg.gov.br',
+            'leandro.alvarenga@infraestrutura.mg.gov.br',
+            'sandro.verissimo@infraestrutura.mg.gov.br',
+            'sverissimo2@gmail.com']
     },
     inputValidation: { type: Boolean, default: true }
 },

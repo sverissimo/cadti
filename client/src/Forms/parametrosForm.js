@@ -134,3 +134,12 @@ export const prazosAviso = [
         maxLength: 50,
     }
 ]
+
+
+
+export const adminEmails = [
+    {
+        field: 'adminEmails',
+        label: 'Editar e-mails para envio de alertas diários',
+    }
+]

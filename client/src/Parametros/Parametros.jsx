@@ -5,16 +5,16 @@ import StoreHOC from '../Store/StoreHOC'
 import ReactToast from '../Reusable Components/ReactToast'
 
 import ParametrosTemplate from './ParametrosTemplate'
-import { distancias, nomes, parametrosIdade, motivosBaixa, prazosAviso } from '../Forms/parametrosForm'
+import { distancias, nomes, parametrosIdade, motivosBaixa, prazosAviso, adminEmails } from '../Forms/parametrosForm'
 import { checkInputErrors } from '../Utils/checkInputErrors'
 
 const Parametros = props => {
     //A prop 'params' são os nomes das propriedades do objeto do estado inicial, seja o nome de uma prop do DB seja do arquivo ./defaultParams.js
     const
         [state, setState] = useState({
-            options: ['Idade e prazos para baixa', 'Distância mínima entre poltronas', 'Nomenclaturas', 'Motivos para baixa do veículo', 'Prazos para avisos automáticos do sistema', 'Validação de campos'],
-            params: ['idadeBaixa', 'distanciaPoltronas', 'nomes', 'motivosBaixa', 'prazosAlerta', 'inputValidation'],
-            forms: [parametrosIdade, distancias, nomes, motivosBaixa, prazosAviso],
+            options: ['Idade e prazos para baixa', 'Distância mínima entre poltronas', 'Nomenclaturas', 'Motivos para baixa do veículo', 'Prazos para avisos automáticos do sistema', 'Validação de campos', 'Emails para notificação automática'],
+            params: ['idadeBaixa', 'distanciaPoltronas', 'nomes', 'motivosBaixa', 'prazosAlerta', 'inputValidation', 'adminEmails'],
+            forms: [parametrosIdade, distancias, nomes, motivosBaixa, prazosAviso, adminEmails],
         }),
 
         { toastMsg, toastStatus, confirmToast } = state,
@@ -62,7 +62,7 @@ const Parametros = props => {
 
 
         //Se for singleParams, criar uma cópia da data como newState e não usar spreadOperator
-        if (tab === 3)
+        if (tab === 3 || tab === 6)
             setState({ ...state, initState: data, newState: data, [name]: value, tab, form, modified: false })
         else
             setState({ ...state, ...data, initState: data, [name]: value, tab, form, newState: undefined, modified: false })
@@ -99,7 +99,7 @@ const Parametros = props => {
         let modified
 
         //Para tabs que a data é uma array de strings, o função checkForChanges recebe outros parâmetros e o estado atualizado é uma array, não props
-        if (tab === 3) {
+        if (tab === 3 || tab === 6) {
             const tempState = [...state.newState]
             tempState[name] = value
 
@@ -158,7 +158,7 @@ const Parametros = props => {
         let requestObj = {}
 
         //Se o estado modificável for uma array de strings (ex: tab===3), o requestObj é uma array
-        if (tab === 3) {
+        if (tab === 3 || tab === 6) {
             newState.forEach((prop, i) => {         //Tira campos vazios do request
                 if (prop === '')
                     newState.splice(i, 1)
