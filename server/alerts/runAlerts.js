@@ -1,6 +1,8 @@
 const main = require(".");
 
 function runAlerts() {
+       const d = new Date()
+       console.log(`###########################Alerts about seguros, procs and laudos started running at ${d}`)
        main('seguros')
 
        setTimeout(() => {

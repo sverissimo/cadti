@@ -51,9 +51,9 @@ const main = async (type = 'laudos') => {
         await new Promise(r => setTimeout(r, 2000));
     }
     //Aguarda 2min para enviar o alerta para os Admins, o que equivale a 60 loops acima, equivalente a 60 empresas notificadas
-    /* setTimeout(() => {
+    setTimeout(() => {
         alertService.sendAlertsToAdmin(allMessages, adminEmails)
-    }, 120000); */
+    }, 120000);
     return
 }
 

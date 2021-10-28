@@ -11,15 +11,20 @@ function taskManager() {
         return
 
     //PRODUCTION
+    const d = new Date()
+    
     const dbSyncRoutine = new CronJob('1 0 0 * * *', function () {
+        console.log(`---- DB_Sync SGTI/CadTI CALLED at ${d} ----`)
         runDbSync()
     }, null, true, 'America/Sao_Paulo')
 
     const updateStatus = new CronJob('1 2 0 * * *', function () {
+        console.log(`---- updateSystemStatus CALLED at ${d} ----`)
         updateSystemStatus()
     }, null, true, 'America/Sao_Paulo');
 
     const createAlerts = new CronJob('1 3 0 * * *', function () {
+        console.log(`---- runAlerts CALLED at ${d} ----`)
         runAlerts()
     }, null, true, 'America/Sao_Paulo');
 
