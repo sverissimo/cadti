@@ -73,12 +73,14 @@ const Avisos = props => {
 
     //Abre o aviso
     const openAviso = (event, rowData) => {
+
         const
             index = rowData?.tableData?.id
             , aviso = state.avisos[index]
 
-        toggleReadMessage(rowData)
-        if (aviso.from === remetentePadrao || !aviso.from)
+        if (aviso && !aviso?.read)  //ao abrir o aviso, muda o status de lido do aviso apenas se não estiver lido
+            toggleReadMessage(rowData)
+        if ((aviso.from === remetentePadrao || !aviso.from) && aviso.message && typeof aviso.message === 'string')
             aviso.message = JSON.parse(aviso.message)
         setState({ ...state, aviso, showAviso: true })
     }

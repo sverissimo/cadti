@@ -28,7 +28,7 @@ const average = array => {
 const countExpired = vehicles => {
 
     return vehicles
-        .filter(r => !r.vencimento || (moment(r.vencimento).isValid() && moment(r.vencimento).isBefore(moment()) && r.veiculoId && r))
+        .filter(r => !r.vencimento || (moment(r.vencimento).isValid() && moment(r.vencimento).isBefore(moment(), 'day') && r.veiculoId && r))
         .length
 }
 

@@ -24,11 +24,11 @@ class BackupDB {
         this.safetyName = `safetyBackup_${this.fullDate}.sql`
         this.path = DB_BACKUP_PATH
     }
-    /*  async createDB() {
-         const c = execSync(`psql --host=localhost --port=5432 --dbname=sismob_db --username=${DB_USER} --password=${DB_PASS} --file=${CREATE_DB_PATH}`)
-         console.log("🚀 ~ file: BackupDB.js ~ line 26 ~ BackupDB ~ createDB ~ result", c)
-     }
-  */
+    async createDB() {
+        const c = execSync(`psql --host=localhost --port=5432 --dbname=sismob_db --username=${DB_USER} --password=${DB_PASS} --file=${CREATE_DB_PATH}`)
+        console.log("🚀 ~ file: BackupDB.js ~ line 26 ~ BackupDB ~ createDB ~ result", c)
+    }
+
     createSafetyBackup() {
         const
             { path, safetyName } = this
@@ -55,7 +55,14 @@ class BackupDB {
         })
     }
 }
-
+if (process.argv[2] && process.argv[2] === 'restore') {
+    //const backupManager = new BackupDB()
+    console.log('Alright, restoring Postgresql DB now...')
+    const backupManager = new BackupDB()
+    backupManager.createSafetyBackup()
+    backupManager.createNewBackup()
+    backupManager.restoreDB()
+}
 
 module.exports = { BackupDB }
 
