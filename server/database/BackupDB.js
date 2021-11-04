@@ -56,9 +56,10 @@ class BackupDB {
     }
 }
 if (process.argv[2] && process.argv[2] === 'restore') {
-    //const backupManager = new BackupDB()
+
     console.log('Alright, restoring Postgresql DB now...')
     const backupManager = new BackupDB()
+
     backupManager.createSafetyBackup()
     backupManager.createNewBackup()
     backupManager.restoreDB()
