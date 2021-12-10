@@ -45,7 +45,7 @@ class AlertRepository {
      * @returns {Promise<Array>}
      */
     async getAlertsFromDB(empresas, deletedMessages) {
-        console.log("🚀 ~ file: AlertRepository.js ~ line 48 ~ AlertRepository ~ getAlertsFromDB ~ deletedMessages", deletedMessages)
+
         //deletedMessages = deletedMessages.map(m => new mongoose.mongo.ObjectID(m))        
 
         let filter = { _id: { $nin: deletedMessages } }

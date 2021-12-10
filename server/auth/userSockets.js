@@ -33,11 +33,8 @@ const userSockets = async ({ req, res, table, condition = '', event, collection,
         const
             socket = sockets[id],
             { empresas } = socket
-        console.log("🚀 ~ file: userSockets.js ~ line 36 ~ userSockets ~ socket", { socket })
 
-        /* if(event === 'userUpdate')
-        io.sockets.to(id).emit()
-         */
+
         //Se tem a prop empresa filtra os dados apenas com essas empresas e emite um evento para cada usuário, conforme suas permissões
         if (empresas) {
             filteredData = filterData(table, data, empresas, event, collection)

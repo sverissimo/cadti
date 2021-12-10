@@ -14,16 +14,18 @@ const
 if (!process.env.DB_USER)
     dotenv.config({ path: '../../.env' })
 
-const { DB_USER, DB_PASS, CREATE_DB_PATH, DB_BACKUP_PATH, FILE_SECRET } = process.env
+const { DB_USER, DB_PASS, CREATE_DB_PATH, DB_BACKUP_PATH } = process.env
 
 
 class BackupDB {
+
     constructor() {
         this.fullDate = day + month + year
         this.fileName = `backup_PG_${this.fullDate}.sql`
         this.safetyName = `safetyBackup_${this.fullDate}.sql`
         this.path = DB_BACKUP_PATH
     }
+
     async createDB() {
         const c = execSync(`psql --host=localhost --port=5432 --dbname=sismob_db --username=${DB_USER} --password=${DB_PASS} --file=${CREATE_DB_PATH}`)
         console.log("🚀 ~ file: BackupDB.js ~ line 26 ~ BackupDB ~ createDB ~ result", c)
@@ -49,6 +51,7 @@ class BackupDB {
         const { path, safetyName } = this
             //, restoreDBQuery = execSync(`pg_restore "host=localhost port=5432 dbname=sismob_db user=postgres password=${FILE_SECRET}" > ${path + safetyName}`, { encoding: 'utf-8' })
             , restoreDBQuery = `psql --host=localhost --port=5432 --dbname=sismob_db --username=${DB_USER} --password=${DB_PASS} --file=${path + safetyName}`
+        //, restoreDBQuery = `psql -U ${DB_USER} -d tst -1 -f ${path + safetyName}` ######### ESSE FOI TESTADO E VERIFICADO NO AMBIENTE DEV ##############
 
         exec(restoreDBQuery, (err, stdout, stderr) => {
             console.log({ err, stdout, stderr })
@@ -67,8 +70,8 @@ if (process.argv[2] && process.argv[2] === 'restore') {
 
 module.exports = { BackupDB }
 
-/* const a = new BackupDB()
-console.log(a) */
+//const a = new BackupDB()
+//console.log(a)
 //a.createDB()
 //a.createSafetyBackup()
 //a.createNewBackup()

@@ -1,6 +1,6 @@
 const
     { getUpdatedData } = require('./getUpdatedData'),
-    { fieldParser } = require('./fieldParser')
+    { fieldParser } = require('./utils/fieldParser')
 
 
 const apiGetRouter = (req, res) => {

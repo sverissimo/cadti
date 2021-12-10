@@ -3,8 +3,6 @@ const
     express = require('express'),
     app = express(),
     server = require('http').createServer(app),
-    app2 = express(),
-    server2 = require('http').createServer(app2),
     io = require('socket.io').listen(server),
     path = require('path'),
     fs = require('fs'),
@@ -16,27 +14,23 @@ const
     Grid = require('gridfs-stream')
 Grid.mongo = mongoose.mongo
 
-
 //Componentes do sistema
 const
     counter = require('./config/counter'),
     { pool } = require('./config/pgConfig'),
     { setCorsHeader } = require('./config/setCorsHeader'),
-    { apiGetRouter } = require('./apiGetRouter'),
+    { componentRouter } = require('./components/routes'),
     { storage, uploadMetadata } = require('./mongo/mongoUpload'),
     { mongoDownload, getFilesMetadata, getOneFileMetadata } = require('./mongo/mongoDownload'),
-    { logHandler } = require('./logHandler'),
     { cadEmpresa } = require('./cadEmpresa'),
     { cadSocios } = require('./cadSocios'),
     { cadProcuradores } = require('./cadProcuradores'),
     { seguros, lookup } = require('./queries'),
-    { fieldParser } = require('./fieldParser'),
+    { fieldParser } = require('./utils/fieldParser'),
     { getUpdatedData } = require('./getUpdatedData'),
     { empresaChunks, vehicleChunks } = require('./mongo/models/chunksModel'),
     { parseRequestBody } = require('./parseRequest'),
-    altContratoModel = require('./mongo/models/altContratoModel'),
     filesModel = require('./mongo/models/filesModel'),
-    logsModel = require('./mongo/models/logsModel'),
     oldVehiclesModel = require('./mongo/models/oldVehiclesModel'),
     segurosModel = require('./mongo/models/segurosModel'),
     dbSync = require('./sync/dbSyncAPI'),
@@ -56,7 +50,6 @@ const
     removeEmpresa = require('./users/removeEmpresa'),
     userSockets = require('./auth/userSockets'),
     deleteSockets = require('./auth/deleteSockets'),
-    altContratoAlert = require('./alerts/altContratoAlert'),
     fileBackup = require('./fileBackup/fileBackup'),
     prepareBackup = require('./fileBackup/prepareBackup'),
     { permanentBackup } = require('./fileBackup/permanentBackup'),
@@ -187,38 +180,9 @@ app.put('/api/updateFilesMetadata', async (req, res) => {
         }
     )
 })
-
-//************************************ LOGS RECORDING ************************** */
-
-app.post('/api/logs', logHandler, (req, res) => {
-    const
-        { collection } = req.body,
-        { id, doc } = res.locals,
-        insertedObjects = [doc]
-
-    let event
-    //Se a solicitação é nova, insere no socket pelo event 'insert' (StoreHOC ouvindo no client)
-    if (!id)
-        event = 'insertElements'
-    //Senão, apenas atualiza os objetos no store do client pelo socket
-    else
-        event = 'updateLogs'
-
-    userSockets({ req, res, event, collection, mongoData: insertedObjects })
-})
-
-app.get('/api/logs', (req, res) => {
-
-    const { filter } = req
-
-    logsModel.find(filter)
-        .then(doc => res.send(doc))
-        .catch(err => console.log(err))
-})
-
 //************************************BACKUP - SAVE FILES *************************************** */
-
 //app.post('/files/save', fileBackup)
+
 
 //************************************CADASTRO PROVISÓRIO DE SEGUROS**************** */
 app.post('/api/cadSeguroMongo', (req, res) => {
@@ -237,31 +201,6 @@ app.post('/api/cadSeguroMongo', (req, res) => {
     })
 })
 
-//***************************  CADASTRO DE ALTERAÇÕES DE CONTRATO SOCIAL**************** */
-app.get('/api/altContrato', (req, res) => {
-
-    const { filter } = req
-    altContratoModel.find(filter)
-        .then(doc => res.send(doc))
-        .catch(err => console.log(err))
-})
-
-app.post('/api/altContrato', (req, res) => {
-
-    const { razaoSocial, ...body } = req.body
-    console.log({ body })
-
-    const newDoc = new altContratoModel(body)
-    newDoc.save((err, doc) => {
-        if (err) {
-            console.log(err)
-            return res.send(err)
-        }
-        altContratoAlert({ ...body, razaoSocial })
-        console.log('line 233 Server = doc', doc)
-        userSockets({ req, res, event: 'insertElements', collection: 'altContrato', mongoData: [doc] })
-    })
-})
 
 //********************************** PARÂMETROS DO SISTEMA ********************************* */
 app.use('/api/parametros', parametros)
@@ -274,12 +213,14 @@ app.use('/api/avisos', alerts)
 app.get('/api/users', checkPermissions, getUsers)
 app.use('/users', users)
 
-//************************************ GET METHOD ROUTES *********************** */
-const routes = 'empresas|socios|veiculos|modelosChassi|carrocerias|equipamentos|seguros|seguradoras|procuradores|procuracoes|empresasLaudo|laudos|acessibilidade|allVehicleFields|compartilhados'
 
-app.get(`/api/${routes}`, apiGetRouter);
-app.get('/api/lookUpTable/:table', lookup);
+/***************************  ROUTER PARA OS PRINCIPAIS COMPONENTES DO SISTEMA ************************* 
+tabelas: acessibilidade, altContrato, empresas, equipamentos, empresas_laudo, laudos, modelos(chassi/carroc), procuradores, 
+procuracoes, seguradoras, seguros, socios, solicitacoes(logs), veiculos, lookup(marcas chassi/carroc)
+*/
+app.use('/api', componentRouter)
 
+//Verifica existência de sócios
 app.post('/api/checkSocios', async (req, res) => {
     //Checa se o(s) cpf(s) informado(s) também é sócio de alguma outra empresa do sistema
     const
@@ -346,18 +287,6 @@ app.get('/api/getOne', async (req, res) => {
         , el = await getUpdatedData(table, condition)
     console.log({ el, condition })
     return res.json(el)
-
-
-    /* 
-    , queryString = `SELECT * FROM public.${table} WHERE ${key} = ${value}`
-    console.log(queryString)
-    pool.query(queryString, (err, table) => {
-        if (err) res.send(err)
-        if (table && table.rows && table.rows[0])
-            return res.json(table.rows);
-        else
-            return res.send('Não encontrado.');        
-    }) */
 });
 
 //get one dischargedVehicle
@@ -1114,5 +1043,3 @@ app.use((error, req, res, next) => {
 
 server.listen(process.env.PORT || 3001, () => {
 })
-
-server2.listen(process.env.PORT2 || 3002, () => console.log('backup server on.'))
