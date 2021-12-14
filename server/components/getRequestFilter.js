@@ -35,13 +35,6 @@ const getRequestFilter = (req, res, next) => {
     //Se o usuário não for admin e se tiver empresas autorizadas a representar, filtra essas empresas antes de enviar dados
     if (role === 'empresa' && empresas[0]) {
 
-        //Se a tabela for allVehicleFields, muda p/ fazer o filtro depois volta para o request do getUpdatedData
-        let originalTable
-        if (table === 'allVehicleFields') {
-            originalTable = 'allVehicleFields'
-            table = 'veiculos'
-        }
-
         //Verifica se a tabela necessita de filtro ou se é uma lookup table
         const applyFilter = fieldParser.find(el => el.table === table && el.codigo_empresa)
 
@@ -51,8 +44,6 @@ const getRequestFilter = (req, res, next) => {
         res.locals.condition = condition
         console.log("🚀 ~ file: getRequestFilter.js ~ line 52 ~ getRequestFilter ~ condition", condition)
 
-        if (originalTable)
-            table = originalTable
     }
     return next()
 }

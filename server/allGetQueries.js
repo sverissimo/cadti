@@ -1,4 +1,4 @@
-const allVehicleFields = (condition = '') => `
+const veiculos = (condition = '') => `
         SELECT veiculos.*,
         (extract(year from current_date) - ano_carroceria) as indicador_idade,   
         marca_chassi.marca as marca_chassi,
@@ -55,7 +55,7 @@ const allVehicleFields = (condition = '') => `
         ORDER BY veiculos.veiculo_id DESC
     `
 
-const veiculos = (condition = '') => `
+/* const veiculos = (condition = '') => `
         SELECT veiculos.*,	
             (extract(year from current_date) - ano_carroceria) as indicador_idade,   
             marca_chassi.marca as marca_chassi,
@@ -87,7 +87,7 @@ const veiculos = (condition = '') => `
             ON public.seguradora.id = seguros.seguradora_id   
         ${condition}
         ORDER BY veiculos.veiculo_id DESC
-    `
+    ` */
 
 const seguros = (condition = '') => `
         SELECT seguros.*,
@@ -195,6 +195,6 @@ const
 
 
 module.exports = {
-    empresas, socios, procuradores, procuracoes, veiculos, allVehicleFields, seguros, seguradora, laudos, empresasLaudo, compartilhados,
+    empresas, socios, procuradores, procuracoes, veiculos, seguros, seguradora, laudos, empresasLaudo, compartilhados,
     acessibilidade, equipamentos, seguradoras, carrocerias, modelosChassi: modeloChassi
 }

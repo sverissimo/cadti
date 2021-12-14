@@ -27,8 +27,10 @@ router
     .get(altContrato.list)
     .post(altContrato.create)
 
-router.get('/logs', solicitacoes.list)
-router.post('/logs', logHandler, solicitacoes.create)
+router
+    .route('/logs')
+    .get(solicitacoes.list)
+    .post(logHandler, solicitacoes.create)
 
 router.use(getRequestFilter)
 
@@ -39,7 +41,7 @@ router.get('/procuradores', procuradores.list)
 
 router.get('/lookUpTable/:table', lookup);
 
-const routes = 'modelosChassi|carrocerias|equipamentos|seguros|seguradoras|procuracoes|empresasLaudo|laudos|acessibilidade|compartilhados|allVehicleFields'
+const routes = 'modelosChassi|carrocerias|equipamentos|seguros|seguradoras|procuracoes|empresasLaudo|laudos|acessibilidade|compartilhados'
 router.get(`/${routes}`, entityRepository.list);
 
 module.exports = { componentRouter: router }

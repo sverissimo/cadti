@@ -37,7 +37,7 @@ export const getData = (collectionsArray = []) => {
         if (['acessibilidade', 'equipamentos'].every(p => globalState.hasOwnProperty(p))) {
             const { acessibilidade, equipamentos } = globalState
 
-            let veiculos = globalState.veiculos || globalState.allVehicleFields || getState().data?.veiculos || getState().data?.allVehicleFields
+            let veiculos = globalState.veiculos || getState().data?.veiculos
             const updatedData = idsToString(veiculos, equipamentos, acessibilidade)
             globalState.veiculos = updatedData
         }

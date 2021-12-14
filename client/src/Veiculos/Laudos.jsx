@@ -22,7 +22,7 @@ let i = 1 //prevent more than 1 re-render in specific functions/conditions
 const Laudos = props => {
     const
         { user } = props,
-        { allVehicleFields: veiculos, empresas, empresasLaudo, laudos, vehicleDocs, logs } = props.redux,
+        { veiculos, empresas, empresasLaudo, laudos, vehicleDocs, logs } = props.redux,
         demand = props?.location?.state?.demand
 
     const initState = Object.freeze({
@@ -474,5 +474,5 @@ const Laudos = props => {
     )
 }
 
-const collections = ['allVehicleFields', 'empresas', 'empresasLaudo', 'laudos', 'getFiles/vehicleDocs']
+const collections = ['veiculos', 'empresas', 'empresasLaudo', 'laudos', 'getFiles/vehicleDocs']
 export default StoreHOC(collections, Laudos)

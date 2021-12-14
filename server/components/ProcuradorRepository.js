@@ -20,9 +20,9 @@ class ProcuradorRepository {
                 , emps = ''
             const
                 { table } = res.locals
-                , { empresas } = req.user && req.user
+                , { empresas, role } = req.user && req.user
 
-            if (empresas && empresas[0]) {
+            if (empresas && empresas[0] && role === 'empresa') {
                 console.log("🚀 ~ file: ProcuradorRepository.js ~ line 26 ~ ProcuradorRepository ~ list ~ empresas", empresas)
                 condition = `WHERE procuradores.procurador_id = 0`
                 emps = ''
