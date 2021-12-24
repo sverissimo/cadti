@@ -215,8 +215,8 @@ app.use('/users', users)
 
 
 /***************************  ROUTER PARA OS PRINCIPAIS COMPONENTES DO SISTEMA ************************* 
-tabelas: acessibilidade, altContrato, empresas, equipamentos, empresas_laudo, laudos, modelos(chassi/carroc), procuradores, 
-procuracoes, seguradoras, seguros, socios, solicitacoes(logs), veiculos, lookup(marcas chassi/carroc)
+tabelas: acessibilidade, altContrato, empresas, equipamentos, empresas_laudo, laudos, modelos(chassi/carroceria), procuradores, 
+procuracoes, seguradoras, seguros, socios, solicitacoes(logs), veiculos, lookup(marcas chassi/carroceria)
 */
 app.use('/api', componentRouter)
 
@@ -407,35 +407,6 @@ app.post('/api/baixaVeiculo', async (req, res) => {
 })
 
 //************************************ OTHER METHOD ROUTES *********************** */
-
-app.post('/api/cadastroVeiculo', (req, res) => {
-
-    const
-        reqObj = req.body,
-        { keys, values } = parseRequestBody(reqObj)
-
-    //console.log("🚀 ~ file: server.js ~ line 438 ~ app.post ~ reqObj", reqObj)
-    console.log(`INSERT INTO public.veiculos(${keys}) VALUES(${values}) RETURNING veiculo_id`)
-    pool.query(
-        `INSERT INTO public.veiculos (${keys}) VALUES (${values}) RETURNING veiculo_id`, (err, table) => {
-
-            if (err) res.send(err)
-            if (table && table.rows && table.rows.length === 0) { res.send(table.rows); return }
-
-            if (table && table.rows) {
-                const
-                    id = table.rows[0].veiculo_id,
-                    condition = `WHERE veiculo_id = '${id}'`
-                userSockets({
-                    req, res,
-                    table: 'veiculos',
-                    event: 'insertVehicle',
-                    condition,
-                    veiculo_id: id
-                })
-            }
-        })
-})
 
 app.post('/api/cadEmpresa', cadEmpresa)
 app.post('/api/cadSocios', cadSocios)
@@ -748,17 +719,6 @@ app.put('/api/editSocios', async (req, res, next) => {
         })
     })
 
-    //Remove permissões de usuário, se for o caso
-    /*    if (cpfsToRemove && cpfsToRemove[0]) {
-           console.log("🚀 ~ file: server.js ~ line 783 ~ pool.query ~ cpfsToAdd[0]", cpfsToAdd[0])
-           console.log("🚀 ~ file: server.js ~ line 783 ~ pool.query ~ cpfsToRemove", cpfsToRemove)
-   
-           removeEmpresa({ representantes: cpfsToRemove, codigoEmpresa })
-       }
-    */
-    //removeEmpresa({ representantes: cpfsToRemove, codigoEmpresa })
-    //console.log("🚀 ~ file: server.js ~ line 795 ~ pool.query ~ queryString", queryString)
-
     pool.query(queryString, async (err, t) => {
         if (err) console.log(err)
         if (t) {
@@ -854,34 +814,6 @@ app.put('/api/editProc', (req, res) => {
                  removeEmpresa(updateRequest); */
         }
         else res.send('something went wrong with your update...')
-    })
-})
-
-app.put('/api/updateVehicle', (req, res) => {
-
-    const { requestObject, table, tablePK, id } = req.body
-    let query = ''
-    if (Object.keys(requestObject).length < 1) {
-        res.send('Nothing to update...')
-        return
-    }
-    Object.entries(requestObject).forEach(([k, v]) => {
-        if (k === 'equipamentos_id' || k === 'acessibilidade_id') v = `[${v}]`
-        if (k === 'compartilhado_id' && v === 'NULL') query += `${k} = NULL, `
-        else query += `${k} = '${v}', `
-    })
-
-    query = `UPDATE ${table} SET ` +
-        query.slice(0, query.length - 2)
-
-    const condition = ` WHERE ${tablePK} = '${id}'`
-
-    query = query + condition + ` RETURNING veiculos.veiculo_id`
-    console.log(query)
-    pool.query(query, (err, t) => {
-        if (err) console.log(err)
-        if (t && t.rows)
-            userSockets({ req, res, table: 'veiculos', condition, event: 'updateVehicle' })
     })
 })
 

@@ -460,7 +460,7 @@ class VeiculosContainer extends PureComponent {
 
         //***************If it doesn't exist, post the new vehicle Object **************** */
         if (!existingVeiculoId)
-            await axios.post('/api/cadastroVeiculo', vehicle)
+            await axios.post('/api/veiculos', vehicle)
                 .then(res => {
                     veiculoId = res.data
                 })
@@ -479,7 +479,7 @@ class VeiculosContainer extends PureComponent {
                     ...vehicle,
                     situacao
                 }
-            await axios.put('/api/updateVehicle', { requestObject, table, tablePK, id: veiculoId, codigoEmpresa }) //CodigoEmpresa para F5 sockets
+            await axios.put('/api/veiculos', { requestObject, table, tablePK, id: veiculoId, codigoEmpresa }) //CodigoEmpresa para F5 sockets
         }
 
         //******************Inserir número da DAE na info da solicitação************** */

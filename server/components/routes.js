@@ -7,7 +7,8 @@ const
     , ProcuradorRepository = require('./ProcuradorRepository')
     , SocioRepository = require('./SociosRepository')
     , Solicitacoes = require('./solicitacoes/Solicitacoes')
-    , Veiculos = require('./Veiculos')
+    , VeiculoController = require('./veiculos/VeiculoController')
+    //, Veiculos = require('./veiculos/VeiculoRepository')
     , { logHandler } = require('../logHandler')
     , { lookup } = require('../queries')
 
@@ -16,7 +17,7 @@ const router = require('express').Router()
 const
     altContrato = new AltContrato()
     , solicitacoes = new Solicitacoes()
-    , veiculos = new Veiculos()
+    , veiculoController = new VeiculoController()
     , empresas = new Empresas()
     , socios = new SocioRepository()
     , procuradores = new ProcuradorRepository()
@@ -34,7 +35,11 @@ router
 
 router.use(getRequestFilter)
 
-router.get('/veiculos', veiculos.list)
+router.route('/veiculos')
+    .get(veiculoController.list)
+    .post(veiculoController.create)
+    .put(veiculoController.update)
+
 router.get('/empresas', empresas.list)
 router.get('/socios', socios.list)
 router.get('/procuradores', procuradores.list)

@@ -393,7 +393,7 @@ const AltContrato = props => {
             socioIds = [],
             toastMsg = 'Solicitação de alteração contratual enviada.'
 
-        //Se não houver nenhuma altreração, alerta e retorna
+        //Se não houver nenhuma alteração, alerta e retorna
         if (!demand && !altContrato && !empresaUpdates && !form && !socioUpdates) {
             alert('Nenhuma modificação registrada!')
             return
@@ -462,7 +462,7 @@ const AltContrato = props => {
         if (approved === false)
             toastMsg = 'Solicitação indeferida.'
 
-        //***********************ERROR --- Se for p aprovar, o filesIds vai sepre ser undefined */
+        //***********************ERROR --- Se for p aprovar, o filesIds vai sempre ser undefined */
         // AO CRIAR A DEMANDA, NÃO ESTÁ PREENCHENDO A ARRAY DE SÓCIOS E ESTÁ DANDO TEMP: FALSE DE CARA
 
         else if (!approved) {

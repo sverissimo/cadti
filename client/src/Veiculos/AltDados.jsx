@@ -448,7 +448,7 @@ class AltDados extends Component {
                 table = 'veiculos',
                 tablePK = 'veiculo_id'
 
-            await axios.put('/api/updateVehicle', { requestObject, table, tablePK, id: veiculoId, codigoEmpresa }) //CodigoEmpresa para F5 sockets
+            await axios.put('/api/veiculos', { requestObject, table, tablePK, id: veiculoId, codigoEmpresa }) //CodigoEmpresa para F5 sockets
         }
 
         //******************Clear the state ********************** */

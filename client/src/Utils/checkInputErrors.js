@@ -22,7 +22,7 @@ export const checkInputErrors = (sendState, dontSetDate) => {
     }
     if (inputs && !dontSetDate) {
         inputs.forEach(el => {
-            if (el.type === 'date') {
+            if (el.type === 'date' && el.name !== 'dataJunta') {
                 if (!moment(el.value, 'YYYY-MM-DD', true).isValid()) {
                     const parent = el.parentNode
                     const l = parent.previousSibling

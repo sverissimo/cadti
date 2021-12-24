@@ -2,6 +2,9 @@
 const
     { request, response } = require("express")
     , { getUpdatedData } = require("../getUpdatedData")
+    , { pool: PgPool } = require("../config/pgConfig")
+    , { parseRequestBody } = require("../parseRequest")
+
 
 /**
  * Classe parent genérica que estabelece o método get padrão
@@ -14,6 +17,14 @@ class EntityRepository {
      * @type {string}
      */
     condition;
+
+    /**
+     * @property pool - conexão com o postgreSql, em config/pgPool
+     */
+    pool = PgPool;
+
+
+    parseRequestBody = parseRequestBody;
 
     /**
      * Lista as entradas de uma determinada tabela

@@ -24,6 +24,7 @@ export const altContratoForm = [
         field: 'dataJunta',
         label: 'Data de registro na Junta Comercial',
         type: 'date',
+        notRequired: true,
         width
     },
     {
