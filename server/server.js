@@ -435,7 +435,7 @@ app.post('/api/cadProcuracao', (req, res) => {
         })
 })
 
-app.post('/api/empresaFullCad', cadEmpresa, (req, res, next) => {
+app.post('/api/empresaFullCad', cadEmpresa, async (req, res, next) => {
     const
         id = res.locals.codigoEmpresa,
         table = 'empresas',
@@ -443,7 +443,7 @@ app.post('/api/empresaFullCad', cadEmpresa, (req, res, next) => {
         event = 'insertEmpresa'
 
     console.log("🚀 ~ file: server.js ~ line 488 ~ app.post ~ req.codigo_empresa", id)
-    userSockets({ req, res, noResponse: true, table, condition, event })
+    await userSockets({ req, res, noResponse: true, table, condition, event })
 
     if (!req.body.socios)
         return res.json({ codigo_empresa: id })

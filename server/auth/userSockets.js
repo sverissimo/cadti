@@ -46,9 +46,10 @@ const userSockets = async ({ req, res, table, condition = '', event, collection,
                 io.sockets.to(id).emit(event, filteredData)
         }
     })
+
     //Os usuários admin fazem join('admin') no server. Basta enviar todos os dados sem filtro para a room 'admin'    
     data = formatData({ data, event, collection, table })
-    //console.log("🚀 ~ file: userSockets.js ~ line 49 ~ userSockets ~ data", data)
+
     await io.sockets.to('admin').emit(event, data)
 
     //console.log("🚀 ~ file: userSockets.js ~ line 57 ~ userSockets ~ data", data)
@@ -58,7 +59,7 @@ const userSockets = async ({ req, res, table, condition = '', event, collection,
     if (veiculo_id)
         return res.send('' + veiculo_id)
     if (table === 'procuradores' || table === 'socios') {
-        //console.log('dataaaaa', codigoEmpresa, data)
+        //console.log('data', codigoEmpresa, data)
         if (codigoEmpresa)
             insertEmpresa({ representantes: data, codigoEmpresa })
         //Se o CodigoEmpresa está salvo em res.locals é pq o request foi empresaFullCad, precisa retornar id da emp e socios
@@ -68,8 +69,8 @@ const userSockets = async ({ req, res, table, condition = '', event, collection,
     }
     else
         return res.send('Dados atualizados.')
-
 }
+
 //Trata as tabelas do Postgresql que não possuem a coluna codigo_empresa
 const filterData = (table, data, codigosEmpresa, event, collection) => {
     //console.log("🚀 ~ file: userSockets.js ~ line 73 ~ filterData ~ table, data, codigosEmpresa, event, collection", table, data, codigosEmpresa, event, collection)
@@ -85,7 +86,7 @@ const filterData = (table, data, codigosEmpresa, event, collection) => {
             temp = data.filter(s => s.empresas && s.empresas.match(codigoEmpresa.toString()))
             //console.log("🚀 ~ file: userSockets.js ~ line 71 ~ filterData ~ data", data, typeof data[0].empresas)
         }
-        //Se for table codiogo_empresa, se collection empresaID, se mongoCoreData (AltContrato), codigoEmpresa 
+        //Se for table codigo_empresa, se collection empresaID, se mongoCoreData (AltContrato), codigoEmpresa 
         else
             temp = data.filter(d => d.codigo_empresa === codigoEmpresa || d.empresaId === codigoEmpresa || d.codigoEmpresa === codigoEmpresa)
 
@@ -102,16 +103,16 @@ const filterData = (table, data, codigosEmpresa, event, collection) => {
 
 //Formata os dados do jeito que o client espera receber
 const formatData = ({ data, event, collection, table }) => {
-    let formatedData
+    let formattedData
 
     if (event === 'insertElements')
-        formatedData = { insertedObjects: data, collection: collection || table }
+        formattedData = { insertedObjects: data, collection: collection || table }
     else if (event === 'updateElements' && table === 'laudos')
-        formatedData = { updatedCollection: data, collection: table }
+        formattedData = { updatedCollection: data, collection: table }
     else
-        formatedData = data
+        formattedData = data
 
-    return formatedData
+    return formattedData
 }
 
 module.exports = userSockets

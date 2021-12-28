@@ -66,6 +66,7 @@ class ConsultasContainer extends Component {
         await this.setState({ tab: value })
         return
     }
+
     showDetails = async (e, elementDetails) => {
         const
             { redux } = this.props,

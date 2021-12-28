@@ -7,7 +7,7 @@ const cadSocios = (req, res, next) => {
 
     console.log("🚀 ~ file: cadSocios.js ~ line 9 ~ cadSocios ~ socios", req.body)
     const socios = parseRequestBody(req.body.socios)
-    let promisseArray = []
+    let promiseArray = []
 
     socios.forEach(s => {
         const { keys, values } = s
@@ -22,15 +22,15 @@ const cadSocios = (req, res, next) => {
                 }
             })
         })
-        promisseArray.push(sp)
+        promiseArray.push(sp)
         sp = ''
     })
 
-    if (promisseArray.length === 0)
+    if (promiseArray.length === 0)
         next()
     let condition = '', ids = []
 
-    Promise.all(promisseArray)
+    Promise.all(promiseArray)
         .then(array => {
             if (array && array[0])
                 array.forEach(a => {

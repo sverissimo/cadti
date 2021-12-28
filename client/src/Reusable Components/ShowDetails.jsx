@@ -114,9 +114,11 @@ export default function ShowDetails({ data, tab, title, header, close, empresas,
             procs.forEach(proc => {
                 procuracaoForm.forEach(fieldObj => {
                     const { field } = fieldObj
+
                     //insere o cabeçalho da tabela (apenas uma vez)
                     if (!tableHeaders.some(t => t === fieldObj.title))
                         tableHeaders.push(fieldObj.title)
+
                     //insere as linhas (também apenas uma vez)
                     if (proc.hasOwnProperty(field) && !row.some(o => o.hasOwnProperty(field))) {
 

@@ -589,11 +589,13 @@ const AltContrato = props => {
 
         if (!altEmpresa)
             return
+
         //Apaga propriedades === null ou inexistentes
         for (let prop in selectedEmpresa) {
             if (altEmpresa[prop] && altEmpresa[prop] === selectedEmpresa[prop])
                 delete altEmpresa[prop]
         }
+
         //Prepara o objeto e envia o request
         const shouldUpdate = Object.keys(altEmpresa).length > 0
         if (shouldUpdate) {
