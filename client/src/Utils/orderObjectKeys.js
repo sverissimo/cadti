@@ -1,6 +1,6 @@
 //@ts-check
 
-import { vehicleFieldsOrder, seguroFieldsOrder } from "../Consultas/fieldsOrder"
+import { vehicleFieldsOrder, seguroFieldsOrder, empresaFieldsOrder, procuradorFieldsOrder, sociosFieldsOrder } from "../Consultas/fieldsOrder"
 
 /**
  * @param {string} subject
@@ -11,7 +11,16 @@ const orderObjectKeys = (subject, rawData) => {
 
     let keys
 
-    if (subject === 'veículos' && rawData[0].veiculoId) {
+    if (subject === 'empresas') {
+        keys = empresaFieldsOrder
+    }
+    else if (subject === 'socios') {
+        keys = sociosFieldsOrder
+    }
+    else if (subject === 'procuradores') {
+        keys = procuradorFieldsOrder
+    }
+    else if (subject === 'veículos' && rawData[0].veiculoId) {
         keys = vehicleFieldsOrder
     }
     else if (subject === 'seguros')

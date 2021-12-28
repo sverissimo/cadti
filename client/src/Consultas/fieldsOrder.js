@@ -1,3 +1,43 @@
+export const empresaFieldsOrder = [
+    'codigoEmpresa',
+    'razaoSocial',
+    'situacao',
+    'createdAt',
+    'vencimentoContrato',
+    'numeroContrato',
+    'cnpj',
+    'inscricaoEstadual',
+    'rua',
+    'numero',
+    'complemento',
+    'bairro',
+    'cidade',
+    'estado',
+    'cep',
+    'telefone',
+    'email',
+    'frota',
+]
+
+export const sociosFieldsOrder = [
+    'nomeSocio',
+    'cpfSocio',
+    'razaoSocial',
+    'share',
+    'createdAt',
+    'emailSocio',
+    'telSocio',
+]
+
+export const procuradorFieldsOrder = [
+    'nomeProcurador',
+    'cpfProcurador',
+    'emailProcurador',
+    'telProcurador',
+    'codigoEmpresa',
+    'razaoSocial',
+    'createdAt'
+]
 
 export const seguroFieldsOrder = ["id", "apolice", "seguradoraId", "dataEmissao", "vencimento", "createdAt", "situacao", "seguradora", "codigoEmpresa", "empresa", "segurados", "placas", "veiculos"]
 

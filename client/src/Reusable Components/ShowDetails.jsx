@@ -11,6 +11,8 @@ import { procuracaoForm } from '../Forms/procuracaoForm'
 import { stringBR } from '../Veiculos/checkWeight'
 
 export default function ShowDetails({ data, tab, title, header, close, empresas, procuracoes, procuradores, empresaDocs, altContrato }) {
+
+
     //data é o objeto (row) do campo de dados de uma determinada tabela
     const
         //    [procs, setProcs] = useState(),

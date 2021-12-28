@@ -436,6 +436,7 @@ const AltContrato = props => {
                             if (ids[0])
                                 socioIds = socioIds.concat(ids)         //A array de ids de sócios vai para a metadata dos arquivos
                         })
+
                 //Update/delete dos modificados
                 if (oldSocios[0]) {
                     //atualiza os sócios. Status 'deleted' não são apagados, apenas têm sua coluna 'empresas' atualizada.
@@ -448,6 +449,7 @@ const AltContrato = props => {
                     const ids = oldSocios.map(s => s.socio_id)
                     socioIds = socioIds.concat(ids)             //A array de ids de sócios vai para a metadata dos arquivos                    
                 }
+
                 if (socioIds[0]) {
                     const unchangedSociosIds = filteredSocios
                         .filter(s => s?.socioId && !socioIds.includes(s.socioId) && s?.status !== 'deleted')
@@ -467,12 +469,14 @@ const AltContrato = props => {
 
         else if (!approved) {
             //Adiciona os demais sócios para o metadata dos arquivos, para relacionar as alterações contratuais com todos os sócios 
-            const unchangedSociosIds = filteredSocios
-                .filter(s => s?.socioId && !socioIds.includes(s.socioId) && s?.status !== 'deleted')
-                .map(s => s.socioId)
+            const
+                unchangedSociosIds = filteredSocios
+                    .filter(s => s?.socioId && !socioIds.includes(s.socioId) && s?.status !== 'deleted')
+                    .map(s => s.socioId)
                 , allSociosIds = socioIds.concat(unchangedSociosIds)
 
             files = await submitFile(codigoEmpresa, allSociosIds) //A função deve retornar o array de ids dos files para incorporar no log.
+
             if (files instanceof Array) {
                 fileIds = files.map(f => f.id)
                 log.history.files = fileIds
