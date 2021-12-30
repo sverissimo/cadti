@@ -2,9 +2,10 @@ import * as FileSaver from 'file-saver';
 import * as XLSX from 'xlsx';
 import moment from 'moment'
 import orderObjectKeys from '../Utils/orderObjectKeys';
-import addProcuracao from './addProcuracao';
+import addProcuracaoAndFormat from './addProcuracao';
 
 const exportToXlsx = (subject, form, rd, procuracoes) => {
+
     //Demanda da DGTI de reordenar colunas da tabela veículos
     let rawData = orderObjectKeys(subject, rd) || rd
 
@@ -15,10 +16,9 @@ const exportToXlsx = (subject, form, rd, procuracoes) => {
 
     let formattedData = formatData(form, rawData, subject)
 
-    if (subject === 'procuradores') {
-        const completeData = addProcuracao(rawData, procuracoes)
-        formattedData = formatData(form, completeData, subject)
-    }
+    //A tabela de procuradores faz um right join com a de procuracoes, por isso tem uma regra específica
+    if (subject === 'procuradores')
+        formattedData = addProcuracaoAndFormat(rawData, procuracoes)
 
     const
         ws = XLSX.utils.json_to_sheet(formattedData)
@@ -63,7 +63,7 @@ const exportToXlsx = (subject, form, rd, procuracoes) => {
     FileSaver.saveAs(data, fileName + fileExtension);
 }
 
-function formatData(form, data, subject) {
+export function formatData(form, data, subject) {
 
     const rawData = JSON.parse(JSON.stringify(data))
 
@@ -97,27 +97,6 @@ function formatData(form, data, subject) {
             })
         }
         return rawData
-
-        /* rawData.forEach((obj, i) => {
-            Object.entries(obj).forEach(([key, value]) => {
-
-                const formField = form.find(f => f.field === key)
-
-                if (key !== 'procuradorId') {
-                    if (!formField) {
-                        delete obj[key]
-                        return
-
-                    } else {
-                        const header = formField?.label
-                        value = formatValue(value)
-                        obj[header] = value
-                        delete obj[key]
-                    }
-                }
-            })
-        })
-    } */
     }
 }
 
