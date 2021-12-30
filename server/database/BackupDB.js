@@ -5,10 +5,6 @@ const { createDBQuery } = require('./createDbQuery')
 const
     { execSync, exec } = require('child_process')
     , fs = require('fs')
-    , date = new Date()
-    , day = date.getDate()
-    , month = date.toLocaleDateString('en-US', { month: 'short' })
-    , year = date.getFullYear()
     , dotenv = require('dotenv')
 
 if (!process.env.DB_USER)
@@ -20,9 +16,15 @@ const { DB_USER, DB_PASS, CREATE_DB_PATH, DB_BACKUP_PATH } = process.env
 class BackupDB {
 
     constructor() {
-        this.fullDate = day + month + year
-        this.fileName = `backup_PG_${this.fullDate}.sql`
-        this.safetyName = `safetyBackup_${this.fullDate}.sql`
+        const
+            date = new Date()
+            , day = date.getDate()
+            , month = date.toLocaleDateString('en-US', { month: 'short' })
+            , year = date.getFullYear()
+            , fullDate = day + month + year
+
+        this.fileName = `backup_PG_${fullDate}.sql`
+        this.safetyName = `safetyBackup_${fullDate}.sql`
         this.path = DB_BACKUP_PATH
     }
 

@@ -1,6 +1,7 @@
 import { formatDate } from '../Utils/formatValues'
 
 const addProcuracao = (rawData, procuracoes) => {
+
     //Foi solicitado linhas em duplicidade caso um procurador represente mais de uma empresa
     let result = []
     rawData.forEach(obj => {

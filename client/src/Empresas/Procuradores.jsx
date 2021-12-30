@@ -218,7 +218,7 @@ class Procuradores extends Component {
 
                 //Acrescenta a empresa no array de empresas de cada procurador
                 addedProc.empresas = existingProc.empresas
-                //Se não tiver nenhuma empresa ou se o único códigoEmpresa na array for ===0 (quer dizer q tinha mas venceu ou foi exluído):
+                //Se não tiver nenhuma empresa ou se o único códigoEmpresa na array for ===0 (quer dizer q tinha mas venceu ou foi excluído):
                 //Nesse caso, a array de empresas no DB será um array de apenas 1 item, com o códigoEmpresa atual
                 if ((addedProc.empresas[0] === 0 && addedProc.empresas.length === 1) || !addedProc.empresas)
                     addedProc.empresas = [empresaId]
@@ -354,10 +354,7 @@ class Procuradores extends Component {
             if (!v || v === '') delete novaProcuracao[k]
         })
 
-        let procuracaoId
-
-        await axios.post('/api/cadProcuracao', novaProcuracao)
-            .then(r => procuracaoId = r.data[0].procuracao_id)
+        const procuracaoId = await axios.post('/api/cadProcuracao', novaProcuracao)
 
         novaProcuracao.procuracaoId = procuracaoId
         const log = {

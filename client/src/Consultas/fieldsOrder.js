@@ -36,7 +36,8 @@ export const procuradorFieldsOrder = [
     'telProcurador',
     'codigoEmpresa',
     'razaoSocial',
-    'createdAt'
+    'createdAt',
+    'procuradorId'
 ]
 
 export const seguroFieldsOrder = ["id", "apolice", "seguradoraId", "dataEmissao", "vencimento", "createdAt", "situacao", "seguradora", "codigoEmpresa", "empresa", "segurados", "placas", "veiculos"]

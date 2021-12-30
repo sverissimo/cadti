@@ -19,16 +19,21 @@
 			"codigos",
 			"CRLV",
 			"nombre",
+			"parametros",
 			"Parametros",
 			"procuraracao",
 			"promise",
 			"renavam",
+			"reseted",
 			"socio",
 			"socios",
 			"socs",
 			"stylez",
 			"veiculos",
 			"venc"
+		],
+		"cSpell.ignoreWords": [
+			"reseted"
 		]
 	}
 }

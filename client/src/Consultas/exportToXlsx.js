@@ -14,9 +14,11 @@ const exportToXlsx = (subject, form, rd, procuracoes) => {
         fileName = subject
 
     let formattedData = formatData(form, rawData, subject)
-    if (subject === 'procuradores')
-        formattedData = addProcuracao(formattedData, procuracoes)
 
+    if (subject === 'procuradores') {
+        const completeData = addProcuracao(rawData, procuracoes)
+        formattedData = formatData(form, completeData, subject)
+    }
 
     const
         ws = XLSX.utils.json_to_sheet(formattedData)
@@ -75,7 +77,28 @@ function formatData(form, data, subject) {
 
     if (Array.isArray(rawData)) {
 
-        rawData.forEach((obj, i) => {
+        for (let obj of rawData) {
+            Object.entries(obj).forEach(([key, value]) => {
+
+                const formField = form.find(f => f.field === key)
+
+                if (key !== 'procuradorId') {
+                    if (!formField) {
+                        delete obj[key]
+                        return
+
+                    } else {
+                        const header = formField?.label
+                        value = formatValue(value)
+                        obj[header] = value
+                        delete obj[key]
+                    }
+                }
+            })
+        }
+        return rawData
+
+        /* rawData.forEach((obj, i) => {
             Object.entries(obj).forEach(([key, value]) => {
 
                 const formField = form.find(f => f.field === key)
@@ -94,8 +117,8 @@ function formatData(form, data, subject) {
                 }
             })
         })
+    } */
     }
-    return rawData
 }
 
 export default exportToXlsx

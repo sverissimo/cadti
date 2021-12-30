@@ -10,7 +10,7 @@ export const getEnvironment = () => {
     else {
         return {
             env: 'production',
-            webSocketHost: 'ws://200.198.42.167'
+            webSocketHost: 'ws://www.cadti.mg.gov.br:80'
         }
     }
 }

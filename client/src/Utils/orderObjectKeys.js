@@ -14,7 +14,7 @@ const orderObjectKeys = (subject, rawData) => {
     if (subject === 'empresas') {
         keys = empresaFieldsOrder
     }
-    else if (subject === 'socios') {
+    else if (subject === 'socios' || subject === 'sócios') {
         keys = sociosFieldsOrder
     }
     else if (subject === 'procuradores') {
@@ -43,15 +43,3 @@ const orderObjectKeys = (subject, rawData) => {
 }
 
 export default orderObjectKeys
-
-
-/* const
-        keys = Object.keys(rawData[0])
-        , ap = keys.indexOf(insertedProp)
-        , seg = keys.indexOf(insertAfter)
-        , orderedArray = []
-
-    keys.splice(seg, 0, insertedProp)
-    keys.splice(ap, 1)
-
-    console.log("🚀 ~ file: orderObjectKeys.js ~ line 6 ~ orderObjectKeys ~ keys", keys) */

@@ -6,7 +6,6 @@ import { sociosForm } from '../Forms/sociosForm'
 import { seguroForm } from '../Forms/seguroForm'
 import { procuradorConsultasForm } from '../Forms/procuradorConsultasForm'
 import orderObjectKeys from './orderObjectKeys'
-import { empresaFieldsOrder } from '../Consultas/fieldsOrder'
 
 //Essa função seleciona e formata todos os campos que aparecem no componente ShowDetails e na exportação do arquivo de excel no ConsultasContainer
 const dataToReturn = (tab, data) => {

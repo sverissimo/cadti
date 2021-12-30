@@ -19,7 +19,7 @@ const
     counter = require('./config/counter'),
     { pool } = require('./config/pgConfig'),
     { setCorsHeader } = require('./config/setCorsHeader'),
-    { componentRouter } = require('./components/routes'),
+    { componentRouter } = require('./domain/routes'),
     { storage, uploadMetadata } = require('./mongo/mongoUpload'),
     { mongoDownload, getFilesMetadata, getOneFileMetadata } = require('./mongo/mongoDownload'),
     { cadEmpresa } = require('./cadEmpresa'),
@@ -54,6 +54,7 @@ const
     prepareBackup = require('./fileBackup/prepareBackup'),
     { permanentBackup } = require('./fileBackup/permanentBackup'),
     taskManager = require('./taskManager/taskManager')
+const ProcuracaoRepository = require('./domain/ProcuracaoRepository')
 
 
 taskManager()
@@ -412,27 +413,54 @@ app.post('/api/cadEmpresa', cadEmpresa)
 app.post('/api/cadSocios', cadSocios)
 app.post('/api/cadProcuradores', cadProcuradores)
 
-app.post('/api/cadProcuracao', (req, res) => {
+app.post('/api/cadProcuracao', async (req, res) => {
 
     let parseProc = req.body.procuradores.toString()
     parseProc = '[' + parseProc + ']'
     req.body.procuradores = parseProc
 
-    const { keys, values } = parseRequestBody(req.body)
-    pool.query(
-        `INSERT INTO public.procuracoes (${keys}) VALUES (${values}) RETURNING *`, (err, table) => {
-            if (err) res.send(err)
-            if (table && table.rows && table.rows.length === 0) { res.send(table.rows); return }
-            else if (table.rows.length > 0) {
-                const updatedData = {
-                    insertedObjects: table.rows,
-                    collection: 'procuracoes'
-                }
-                io.sockets.emit('insertElements', updatedData)
-                res.json(table.rows)
-            }
-            return
+    try {
+        const
+            procuracaoRepository = new ProcuracaoRepository()
+            , procuracaoId = await procuracaoRepository.save(req.body)
+            , condition = `WHERE procuracoes.procuracao_id = ${procuracaoId}`
+
+
+        //@ts-ignore
+        //Atualiza os dados no frontEnd por meio de webSockets
+        userSockets({
+            req,
+            table: 'procuracoes',
+            event: 'insertElements',
+            condition,
+            noResponse: true
         })
+
+        res.status(201).send(JSON.stringify(procuracaoId))
+
+    } catch (error) {
+        console.log("🚀 ~ file: server.js ~ line 442 ~ app.post ~ error", error)
+        res.status(500).send(error)
+    }
+
+
+    /* 
+    
+        const { keys, values } = parseRequestBody(req.body)
+        pool.query(
+            `INSERT INTO public.procuracoes (${keys}) VALUES (${values}) RETURNING *`, (err, table) => {
+                if (err) res.send(err)
+                if (table && table.rows && table.rows.length === 0) { res.send(table.rows); return }
+                else if (table.rows.length > 0) {
+                    const updatedData = {
+                        insertedObjects: table.rows,
+                        collection: 'procuracoes'
+                    }
+                    io.sockets.emit('insertElements', updatedData)
+                    res.json(table.rows)
+                }
+                return
+            }) */
 })
 
 app.post('/api/empresaFullCad', cadEmpresa, async (req, res, next) => {
