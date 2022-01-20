@@ -3,34 +3,32 @@ import moment from 'moment'
 
 import ShowLocalFiles from '../Reusable Components/ShowLocalFiles'
 import FileCopyOutlinedIcon from '@material-ui/icons/FileCopyOutlined';
-
 import PeopleIcon from '@material-ui/icons/People';
 import './empresasReview.scss'
 
-export default function Revisao({ data, forms, filesForm, files, demandFiles }) {
 
-    const { filteredSocios } = data
+export default function EmpresaReview({ data, forms, filesForm, files, demandFiles }) {
+
+    const
+        { filteredSocios } = data
+        , tablesSubtitles = ['Dados da empresa', 'Informações sobre a alteração do contrato social']
+
     //Para cada formulário, roda o State do componente(container) e atribui a propriedade value em cada campo 
     forms.forEach(form => {
         form.forEach(objField => {
             Object.entries(data).forEach(([k, v]) => {
-                if (objField.field === k)
-                    objField.value = v
+                if (objField.field === k) {
+                    if (objField.type === 'date') {                 //Formatando as datas                        
+                        if (v && moment(v, true).isValid())
+                            objField.value = moment(v).format('DD/MM/YYYY')
+                    }
+                    else
+                        objField.value = v
+                }
+
             })
         })
     })
-
-    //Consertando a data - (campo 'Vencimento do contrato')
-    const i = forms[0].findIndex(el => el.field === 'vencimentoContrato')
-    if (i !== -1) {
-        let venc = forms[0][i].value
-        if (venc && moment(venc).isValid()) {
-            venc = moment(venc).format('DD/MM/YYYY')
-            forms[0][i].value = venc
-        }
-    }
-
-    const tablesSubtitles = ['Dados da empresa', 'Informações sobre a alteração do contrato social']
 
     return (
         <>
@@ -70,7 +68,7 @@ export default function Revisao({ data, forms, filesForm, files, demandFiles }) 
                     <section title='Sócios' className='flexColumn socios__review__container'>
                         <h3 className='review__subtitle'>
                             <PeopleIcon className='socios__review__icon' />
-                        Sócios
+                            Sócios
                         </h3>
                         {filteredSocios.map(({ nomeSocio, status, outsider }, i) =>
                             <div key={i}

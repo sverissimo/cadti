@@ -1,23 +1,21 @@
 //@ts-check
 const
-    EntityRepository = require('./EntityRepository')
-    , getRequestFilter = require('./getRequestFilter')
-    , AltContrato = require('./altContrato/AltContrato')
-    , Empresas = require('./Empresas')
-    , ProcuradorRepository = require('./ProcuradorRepository')
-    , SocioRepository = require('./SociosRepository')
-    , Solicitacoes = require('./solicitacoes/Solicitacoes')
-    , VeiculoController = require('./veiculos/VeiculoController')
-    //, Veiculos = require('./veiculos/VeiculoRepository')
+    EntityRepository = require('../domain/EntityRepository')
+    , getRequestFilter = require('../domain/getRequestFilter')
+    , AltContrato = require('../domain/altContrato/AltContrato')
+    , Empresas = require('../domain/Empresas')
+    , ProcuradorRepository = require('../domain/ProcuradorRepository')
+    , SocioRepository = require('../domain/SociosRepository')
+    , Solicitacoes = require('../domain/solicitacoes/Solicitacoes')
     , { logHandler } = require('../logHandler')
     , { lookup } = require('../queries')
+    , veiculoRoutes = require('./veiculoRoutes')
 
 const router = require('express').Router()
 
 const
     altContrato = new AltContrato()
     , solicitacoes = new Solicitacoes()
-    , veiculoController = new VeiculoController()
     , empresas = new Empresas()
     , socios = new SocioRepository()
     , procuradores = new ProcuradorRepository()
@@ -35,10 +33,12 @@ router
 
 router.use(getRequestFilter)
 
+router.use('/veiculos', veiculoRoutes)
+/* 
 router.route('/veiculos')
     .get(veiculoController.list)
     .post(veiculoController.create)
-    .put(veiculoController.update)
+    .put(veiculoController.update) */
 
 router.get('/empresas', empresas.list)
 router.get('/socios', socios.list)
@@ -49,4 +49,4 @@ router.get('/lookUpTable/:table', lookup);
 const routes = 'modelosChassi|carrocerias|equipamentos|seguros|seguradoras|procuracoes|empresasLaudo|laudos|acessibilidade|compartilhados'
 router.get(`/${routes}`, entityRepository.list);
 
-module.exports = { componentRouter: router }
+module.exports = router

@@ -19,13 +19,13 @@ const
     counter = require('./config/counter'),
     { pool } = require('./config/pgConfig'),
     { setCorsHeader } = require('./config/setCorsHeader'),
-    { componentRouter } = require('./domain/routes'),
+    router = require('./routes/routes'),
     { storage, uploadMetadata } = require('./mongo/mongoUpload'),
     { mongoDownload, getFilesMetadata, getOneFileMetadata } = require('./mongo/mongoDownload'),
     { cadEmpresa } = require('./cadEmpresa'),
     { cadSocios } = require('./cadSocios'),
     { cadProcuradores } = require('./cadProcuradores'),
-    { seguros, lookup } = require('./queries'),
+    { seguros } = require('./queries'),
     { fieldParser } = require('./utils/fieldParser'),
     { getUpdatedData } = require('./getUpdatedData'),
     { empresaChunks, vehicleChunks } = require('./mongo/models/chunksModel'),
@@ -219,7 +219,7 @@ app.use('/users', users)
 tabelas: acessibilidade, altContrato, empresas, equipamentos, empresas_laudo, laudos, modelos(chassi/carroceria), procuradores, 
 procuracoes, seguradoras, seguros, socios, solicitacoes(logs), veiculos, lookup(marcas chassi/carroceria)
 */
-app.use('/api', componentRouter)
+app.use('/api', router)
 
 //Verifica existência de sócios
 app.post('/api/checkSocios', async (req, res) => {

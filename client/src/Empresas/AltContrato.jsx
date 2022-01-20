@@ -402,7 +402,7 @@ const AltContrato = props => {
         //A alteração de dados da empresa não precisa de aprovação. Se for só isso, não gera demanda
         if (empresaUpdates) {
             axios.put('/api/editTableRow', empresaUpdates)
-            toastMsg = 'Dados da empresa alterados com sucesso.'
+            //toastMsg = 'Dados da empresa alterados com sucesso.'
             if (!socioUpdates && !altContrato && !form) {
                 toast('Dados da empresa atualizados!')
                 setTimeout(() => { resetState() }, 750);

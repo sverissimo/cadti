@@ -387,6 +387,7 @@ class EmpresasContainer extends Component {
                 lastStep={steps.length - 1}
                 handleSubmit={this.handleSubmit}
                 setActiveStep={this.setActiveStep}
+                buttonLabel='Cadastrar empresa'
             />
             <ReactToast open={confirmToast} close={this.toast} msg={toastMsg} />
             {

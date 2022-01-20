@@ -4,7 +4,7 @@ const { pool } = require("../../config/pgConfig");
 const { getUpdatedData } = require("../../getUpdatedData");
 const { parseRequestBody } = require("../../parseRequest");
 
-class CustomPostgresRepositoryImpl {
+class VeiculoDaoImpl {
     /**
      * @property pool - conexão com o postgreSql, em config/pgPool
      */
@@ -24,17 +24,19 @@ class CustomPostgresRepositoryImpl {
 
     parseRequestBody = parseRequestBody;
 
-    /**
-     * Lista as entradas de uma determinada tabela     
-     * @param {string} table
-     * @param {string} condition
-     * @returns {Promise<void>}
-    */
-    async list(table, condition) {
+    constructor(table, primaryKey) {
+        this.table = table
+        this.primaryKey = primaryKey
+    }
 
+    /** Lista as entradas de uma determinada tabela
+  * @param table {string} 
+  * @param condition {string}
+  * @returns {Promise<void | any>}         
+ */
+    async getVehicles(table, condition) {
         try {
             const data = await getUpdatedData(table, condition || '')
-            console.log("🚀 ~ file: EntityRepository.js ~ line 21", { table })
             return data
 
         } catch (error) {
@@ -43,9 +45,9 @@ class CustomPostgresRepositoryImpl {
         }
     }
 
-
     /**      
      * @param {object} entity 
+     * @returns {Promise<number>} id (promise)
      */
     async save(entity) {
 
@@ -65,7 +67,7 @@ class CustomPostgresRepositoryImpl {
 
         } catch (error) {
             client.query('ROLLBACK')
-            console.log("🚀 ~ file: CustomPostgresRepositoryImpl.js ~ line 19 ~ CustomPostgresRepositoryImpl ~ save ~ error", { error })
+            console.log("🚀 ~ file: VeiculoDaoImpl.js ~ line 19 ~ VeiculoDaoImpl ~ save ~ error", { error })
             throw new Error(error)
         }
         finally {
@@ -77,4 +79,4 @@ class CustomPostgresRepositoryImpl {
 
 }
 
-module.exports = CustomPostgresRepositoryImpl
+module.exports = VeiculoDaoImpl

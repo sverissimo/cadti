@@ -23,7 +23,7 @@ const useStyles = makeStyles(theme => ({
 }))
 
 export default function StepperButtons({ activeStep, setActiveStep, lastStep, handleSubmit, disabled, demand, uniqueStep, declineButtonLabel,
-    setShowPendencias, showPendencias, handleInput, info, obs, addObs }) {
+    setShowPendencias, showPendencias, handleInput, info, obs, addObs, buttonLabel }) {
 
     const classes = useStyles(), { backButton, button, textField } = classes
 
@@ -56,7 +56,7 @@ export default function StepperButtons({ activeStep, setActiveStep, lastStep, ha
                         disabled={activeStep === 0}
                     >
                         Voltar
-                </Button>
+                    </Button>
                     <Button
                         variant="contained"
                         color="primary"
@@ -66,7 +66,7 @@ export default function StepperButtons({ activeStep, setActiveStep, lastStep, ha
                         disabled={disabled}
                     >
                         Avançar
-                </Button>
+                    </Button>
                 </>
                 :
                 <div style={{ display: 'flex', flexDirection: 'column', width: '100%' }}>
@@ -106,7 +106,7 @@ export default function StepperButtons({ activeStep, setActiveStep, lastStep, ha
                                 disabled={activeStep === 0}
                             >
                                 Voltar
-                        </Button>}
+                            </Button>}
                         <div style={{ display: 'flex', justifyContent: 'flex-end', width: '100%' }}>
                             {
                                 !demand || role === 'empresa' ?
@@ -116,7 +116,7 @@ export default function StepperButtons({ activeStep, setActiveStep, lastStep, ha
                                         className={button}
                                         onClick={() => handleSubmit()}
                                     >
-                                        Enviar solicitação
+                                        {buttonLabel || 'Enviar solicitação'}
                                     </Button>
                                     :
                                     <>

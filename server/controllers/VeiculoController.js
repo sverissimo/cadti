@@ -1,8 +1,9 @@
 //@ts-check
 const
     { request, response } = require('express')
-    , VeiculoRepository = require("./VeiculoRepository")
-    , userSockets = require('../../auth/userSockets')
+    , VeiculoRepository = require("../repositories/VeiculoRepository")
+    , userSockets = require('../auth/userSockets')
+
 
 
 class VeiculoController {
