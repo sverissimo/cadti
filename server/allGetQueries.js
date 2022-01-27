@@ -53,6 +53,7 @@ const veiculos = (condition = '') => `
             )			        
         ${condition}
         ORDER BY veiculos.veiculo_id DESC
+        limit 10
     `
 
 /* const veiculos = (condition = '') => `

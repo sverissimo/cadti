@@ -391,10 +391,10 @@ class AltDados extends Component {
                 }
             })
         })
-        tempObj = Object.assign(tempObj, { codigoEmpresa, compartilhadoId, pbt, equipamentosId, acessibilidadeId })
+        tempObj = Object.assign(tempObj, { compartilhadoId, pbt, equipamentosId, acessibilidadeId })
 
         if (demand && getUpdatedValues)
-            tempObj = getUpdatedValues(originalVehicle, tempObj)  //Save only real changes to the request Object (method from setDemand())
+            tempObj = getUpdatedValues(originalVehicle, tempObj)  //Save only real changes to the request Object (method from setDemand())        
 
         //remove invalid fields for update
         let { delegatario, compartilhado, ...camelizedRequest } = tempObj
@@ -411,6 +411,7 @@ class AltDados extends Component {
             this.setState({ openAlertDialog: true, customTitle: 'Nenhuma alteração', customMessage: 'Não foi realizada nenhuma alteração na solicitação aberta. Para prosseguir, altere algum dos campos ou adicione uma justificativa.' })
             return
         }
+
         //******************Inserir número da DAE na info da solicitação************** */
         let { info } = this.state
         if (typeof info === 'string')
@@ -418,6 +419,9 @@ class AltDados extends Component {
 
         //******************GenerateLog********************** */
         const requestObject = humps.decamelizeKeys(camelizedRequest)
+        requestObject.codigoEmpresa = codigoEmpresa
+        requestObject.veiculoId = veiculoId
+
         let
             history = {
                 alteracoes: camelizedRequest,
@@ -442,13 +446,12 @@ class AltDados extends Component {
 
         //*********************if approved, putRequest to update DB  ********************** */
         if (demand && approved && !showPendencias) {
-            if (selectedEmpresa.codigoEmpresa !== codigoEmpresa) requestObject.apolice = 'Seguro não cadastrado'
 
-            const
-                table = 'veiculos',
-                tablePK = 'veiculo_id'
+            if (selectedEmpresa.codigoEmpresa !== codigoEmpresa)
+                requestObject.apolice = 'Seguro não cadastrado'
 
-            await axios.put('/api/veiculos', { requestObject, table, tablePK, id: veiculoId, codigoEmpresa }) //CodigoEmpresa para F5 sockets
+            console.log("🚀 ~ file: AltDados.jsx ~ line 450 ~ AltDados ~ handleSubmit= ~ requestObject", requestObject)
+            await axios.put('/api/veiculos', requestObject) //CodigoEmpresa para F5 sockets
         }
 
         //******************Clear the state ********************** */

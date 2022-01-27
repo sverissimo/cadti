@@ -1002,4 +1002,5 @@ app.use((error, req, res, next) => {
 });
 
 server.listen(process.env.PORT || 3001, () => {
+    console.info('NodeJS server running on port ' + (process.env.PORT || 3001))
 })

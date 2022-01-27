@@ -71,10 +71,7 @@ class CustomPostgresRepositoryImpl {
         finally {
             client.release()
         }
-
-
     }
-
 }
 
 module.exports = CustomPostgresRepositoryImpl

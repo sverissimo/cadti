@@ -1,26 +1,34 @@
 //@ts-check
 const
-    EntityRepository = require("../domain/EntityRepository")
-    , VeiculoDaoImpl = require("../infrastructure/repository/VeiculoDaoImpl")
+    VeiculoDaoImpl = require("../infrastructure/VeiculoDaoImpl")
+    , { pool } = require("../config/pgConfig")
 
 /**
  * Classe que corresponde ao repositório de veículos. Herda os métodos get e pool (pgConfig) da classe parent EntityRepository
  */
-class VeiculoRepository extends EntityRepository {
+class VeiculoRepository {
+    /* 
+        /** Lista as entradas de uma determinada tabela
+         * @param table {string} 
+         * @param condition {string}
+         * @returns {Promise<void | any>}         
+        */
 
-    constructor() {
-        super()
-        //this.repository = new repositoryClass()
+    async findOne(id) {
+        try {
+            const data = await new VeiculoDaoImpl().findOne(id)
+            return data
+
+        } catch (error) {
+            console.log({ error: error.message })
+            throw new Error(error.message)
+        }
+
     }
 
-    /** Lista as entradas de uma determinada tabela
-     * @param table {string} 
-     * @param condition {string}
-     * @returns {Promise<void | any>}         
-    */
-    async getVehicles(table, condition) {
+    async list() {
         try {
-            const data = await new VeiculoDaoImpl().getVehicles(table, condition || '')
+            const data = await new VeiculoDaoImpl().list()
             return data
 
         } catch (error) {
@@ -29,7 +37,6 @@ class VeiculoRepository extends EntityRepository {
         }
     }
 
-
     /**
      * @param vehicle {Object}      
      * @returns {Promise<void | number>} Retorna o id do veículo criado / throws an error.
@@ -37,7 +44,7 @@ class VeiculoRepository extends EntityRepository {
     async create(vehicle) {
 
         try {
-            const veiculoId = await new VeiculoDaoImpl('veiculos', 'veiculo_id').save(vehicle)
+            const veiculoId = await new VeiculoDaoImpl().save(vehicle)
             return veiculoId
 
         } catch (error) {
@@ -47,10 +54,11 @@ class VeiculoRepository extends EntityRepository {
     }
 
     async update(reqBody) {
+        console.log("🚀 ~ file: VeiculoRepository.js ~ line 57 ~ VeiculoRepository ~ update ~ reqBody", reqBody)
         const
-            client = await this.pool.connect()
-            , { requestObject, table, tablePK, id } = reqBody
-            , condition = ` WHERE ${table}.${tablePK} = '${id}'`
+            client = await pool.connect()
+            , { table, tablePK, veiculoId, ...requestObject } = reqBody
+            , condition = ` WHERE ${table || 'veiculos'}.${tablePK || 'veiculo_id'} = ${veiculoId}`
 
         let query = ''
 
@@ -64,10 +72,11 @@ class VeiculoRepository extends EntityRepository {
             else query += `${k} = '${v}', `
         })
 
-        query = `UPDATE ${table} SET ` +
+        query = `UPDATE ${table || 'veiculos'} SET ` +
             query.slice(0, query.length - 2)
 
         query = query + condition + ` RETURNING veiculos.veiculo_id`
+        console.log("🚀 ~ file: VeiculoRepository.js ~ line 79 ~ VeiculoRepository ~ update ~ query", { query })
 
         try {
             await client.query('BEGIN')

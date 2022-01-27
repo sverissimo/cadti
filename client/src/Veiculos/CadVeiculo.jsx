@@ -473,13 +473,12 @@ class VeiculosContainer extends PureComponent {
             if (demand && approved && !showPendencias)
                 situacao = 'Seguro não cadastrado'
             const
-                table = 'veiculos',
-                tablePK = 'veiculo_id',
                 requestObject = {
                     ...vehicle,
                     situacao
                 }
-            await axios.put('/api/veiculos', { requestObject, table, tablePK, id: veiculoId, codigoEmpresa }) //CodigoEmpresa para F5 sockets
+
+            await axios.put('/api/veiculos', { ...requestObject, veiculoId, codigoEmpresa }) //CodigoEmpresa para F5 sockets
         }
 
         //******************Inserir número da DAE na info da solicitação************** */

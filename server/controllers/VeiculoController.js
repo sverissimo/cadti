@@ -5,41 +5,63 @@ const
     , userSockets = require('../auth/userSockets')
 
 
-
 class VeiculoController {
 
-    /**
-     * 
+    /**      
      * @param {request} req 
      * @param {response} res 
-     * @returns {Promise<void>}
+     * @returns {Promise<any>}
      */
-    async list(req, res) {
+    async findOne(req, res) {
+        const
+            veiculoRepository = new VeiculoRepository()
+            , { id } = req.params
 
         try {
+            const veiculo = await veiculoRepository.findOne(id)
+            return res.status(200).json(veiculo)
+
+        } catch (e) {
+            console.log(e.name + ': ' + e.message)
+            res.status(500).send(e)
+        }
+    }
+
+
+    /**     
+     * @param {request} req 
+     * @param {response} res 
+     * @returns {Promise<any>}
+     */
+    async list(req, res) {
+        try {
             const
-                { table, condition } = res.locals
-                , veiculoRepository = new VeiculoRepository()
-                , veiculos = await veiculoRepository.getVehicles(table, condition)
+                veiculoRepository = new VeiculoRepository()
+                , veiculos = await veiculoRepository.list()
             res.status(200).json(veiculos)
 
-        } catch (error) {
-            console.log({ error: error.message })
-            res.status(400).send(error)
+        } catch (e) {
+            console.log(e.name + ': ' + e.message)
+            res.status(500).send(e)
         }
     }
 
     /**
      * @param {request} req 
      * @param {response} res 
-     * @returns {Promise<void>}
+     * @returns {Promise<void | res>}
      */
     async create(req, res) {
-
+        const veiculo = req.body
         try {
-            const
-                veiculoRepository = new VeiculoRepository()
-                , veiculoId = await veiculoRepository.create(req.body)
+            const veiculoRepository = new VeiculoRepository()
+                , exists = await veiculoRepository.findOne({ placa: veiculo.placa })
+            console.log("🚀 ~ file: VeiculoController.js ~ line 59 ~ VeiculoController ~ create ~ exists", exists)
+
+            if (exists.length)
+                return res.status(409).send('A placa informada já está cadastrada no sistema.')
+
+            const veiculoId = await veiculoRepository.create(veiculo)
                 , condition = `WHERE veiculos.veiculo_id = '${veiculoId}'`
 
             //@ts-ignore
@@ -71,10 +93,9 @@ class VeiculoController {
 
         const
             veiculoRepository = new VeiculoRepository()
-            , { id } = req.body
-            , condition = `WHERE veiculos.veiculo_id = '${id}'`
-            , updateObject = { ...req.body, condition }
-            , veiculoId = await veiculoRepository.update(updateObject)
+            , { codigoEmpresa, ...veiculo } = req.body
+            , condition = `WHERE veiculos.veiculo_id = '${req.body.veiculoId}'`
+            , veiculoId = await veiculoRepository.update(veiculo)
 
         //@ts-ignore
         userSockets({ req, noResponse: true, table: 'veiculos', condition, event: 'updateVehicle' })
