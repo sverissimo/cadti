@@ -10,19 +10,14 @@ const
  * Classe parent genérica que estabelece o método get padrão
  */
 class EntityRepository {
-
-
     /**
      * @property condition - prop para a child class utilizar caso necessário;
      * @type {string}
      */
     condition;
 
-    /**
-     * @property pool - conexão com o postgreSql, em config/pgPool
-     */
+    /** @property pool - conexão com o postgreSql, em config/pgPool */
     pool = PgPool;
-
 
     parseRequestBody = parseRequestBody;
 
@@ -37,7 +32,6 @@ class EntityRepository {
             const
                 { condition, table } = res.locals
                 , data = await getUpdatedData(table, condition || '')
-            console.log("🚀 ~ file: EntityRepository.js ~ line 21", { table })
             res.json(data)
 
         } catch (error) {

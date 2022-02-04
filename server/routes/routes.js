@@ -34,11 +34,6 @@ router
 router.use(getRequestFilter)
 
 router.use('/veiculos', veiculoRoutes)
-/* 
-router.route('/veiculos')
-    .get(veiculoController.list)
-    .post(veiculoController.create)
-    .put(veiculoController.update) */
 
 router.get('/empresas', empresas.list)
 router.get('/socios', socios.list)

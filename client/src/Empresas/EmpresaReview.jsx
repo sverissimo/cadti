@@ -10,8 +10,17 @@ import './empresasReview.scss'
 export default function EmpresaReview({ data, forms, filesForm, files, demandFiles }) {
 
     const
-        { filteredSocios } = data
+        { filteredSocios, selectedEmpresa } = data
         , tablesSubtitles = ['Dados da empresa', 'Informações sobre a alteração do contrato social']
+
+    let alteredFields = data.alteredFields || []
+
+    //Identifica campos modificados    
+    if (!alteredFields.length)
+        for (let key in selectedEmpresa) {
+            if (data[key] !== selectedEmpresa[key] && data[key] !== '')
+                alteredFields.push(key)
+        }
 
     //Para cada formulário, roda o State do componente(container) e atribui a propriedade value em cada campo 
     forms.forEach(form => {
@@ -50,8 +59,12 @@ export default function EmpresaReview({ data, forms, filesForm, files, demandFil
                                     </thead>
                                     <tbody>
                                         <tr>
-                                            {form.map(({ value }, k) =>
-                                                <td className='review' key={k}>
+                                            {form.map(({ field, value }, k) =>
+                                                <td
+                                                    className='review'
+                                                    key={k}
+                                                    style={{ color: alteredFields.includes(field) ? 'red' : '#000' }}
+                                                >
                                                     {value}
                                                 </td>
                                             )}

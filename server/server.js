@@ -584,10 +584,12 @@ app.put('/api/editElements', (req, res) => {
 
 //Edita um ou mais colunas de uma única linha da tabela
 app.put('/api/editTableRow', async (req, res) => {
+    console.log("🚀 ~ file: server.js ~ line 587 ~ app.put ~ req", req.body)
 
     const
         { id, table, updates, tablePK } = req.body,
-        columns = Object.keys(updates)
+        columns = Object.keys(updates);
+
 
     let query = `UPDATE ${table} SET `
 

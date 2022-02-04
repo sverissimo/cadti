@@ -12,13 +12,13 @@ class VeiculoController {
      * @param {response} res 
      * @returns {Promise<any>}
      */
-    async findOne(req, res) {
+    async find(req, res) {
         const
             veiculoRepository = new VeiculoRepository()
-            , { id } = req.params
+            , filter = req.params.id || req.query
 
         try {
-            const veiculo = await veiculoRepository.findOne(id)
+            const veiculo = await veiculoRepository.find(filter)
             return res.status(200).json(veiculo)
 
         } catch (e) {
@@ -26,7 +26,6 @@ class VeiculoController {
             res.status(500).send(e)
         }
     }
-
 
     /**     
      * @param {request} req 
@@ -55,8 +54,7 @@ class VeiculoController {
         const veiculo = req.body
         try {
             const veiculoRepository = new VeiculoRepository()
-                , exists = await veiculoRepository.findOne({ placa: veiculo.placa })
-            console.log("🚀 ~ file: VeiculoController.js ~ line 59 ~ VeiculoController ~ create ~ exists", exists)
+                , exists = await veiculoRepository.find({ placa: veiculo.placa })
 
             if (exists.length)
                 return res.status(409).send('A placa informada já está cadastrada no sistema.')
@@ -94,7 +92,7 @@ class VeiculoController {
         const
             veiculoRepository = new VeiculoRepository()
             , { codigoEmpresa, ...veiculo } = req.body
-            , condition = `WHERE veiculos.veiculo_id = '${req.body.veiculoId}'`
+            , condition = `WHERE veiculos.veiculo_id = '${req.body.veiculo_id}'`
             , veiculoId = await veiculoRepository.update(veiculo)
 
         //@ts-ignore

@@ -3,6 +3,9 @@ const allGetQueries = require("../allGetQueries");
 const { pool } = require("../config/pgConfig");
 const { parseRequestBody } = require("../parseRequest");
 
+/**Implementação do DAO no banco de dados postgresql na porta 5432 (config/pgPool)
+ * @abstract @class
+ */
 class PostgresDao {
     /*** @property pool - conexão com o postgreSql, em config/pgPool     */
     pool = pool;
@@ -22,7 +25,31 @@ class PostgresDao {
     parseRequestBody = parseRequestBody;
 
 
-    async findOne(filter) {
+    /** Lista as entradas de uma determinada tabela. A classe child já terá as props default(this.table)
+     * Caso o objeto seja instanciado dessa classe, o método get pode ser informado como parâmetro
+     * @param table {string}      
+     * @returns {Promise<void | any>}
+     */
+    async list(table = this.table) {
+        try {
+
+            const
+                queryGenerator = allGetQueries[table]
+                , query = queryGenerator()
+                , response = await pool.query(query)
+                , data = response.rows
+
+            return data
+
+        } catch (e) { this.handleError(e) }
+    }
+
+
+    /**Busca um ou mais registros com base no parâmetro informado em req.params ou req.query
+    * @param {string | object} filter - Id ou filtro (objeto key/value para servir de param para a busca)
+    * @returns {Promise<any[]>} 
+    */
+    async find(filter) {
         let key, value
 
         if (typeof filter === 'object')
@@ -44,32 +71,9 @@ class PostgresDao {
     }
 
 
-    /** Lista as entradas de uma determinada tabela. A classe child já terá as props default(this.table)
-     * Caso o objeto seja instanciado dessa classe, o método get pode ser informado como parâmetro
-     * @param table {string}      
-     * @returns {Promise<void | any>}         
-     */
-    async list(table = this.table) {
-        try {
-
-            const
-                queryGenerator = allGetQueries[table]
-                , query = queryGenerator()
-                , response = await pool.query(query)
-                , data = response.rows
-
-            return data
-
-        } catch (error) {
-            console.log({ error: error.message })
-            throw new Error(error.message)
-        }
-    }
-
     /**      
      * @param {object} entity 
-     * @returns {Promise<number>} id (promise)
-     */
+     * @returns {Promise<number>} id (promise)     */
     async save(entity) {
 
         const
@@ -88,57 +92,61 @@ class PostgresDao {
 
         } catch (error) {
             client.query('ROLLBACK')
-            console.log("🚀 ~ file: PostgresDao.js ~ line 19 ~ PostgresDao ~ save ~ error", { error })
-            throw new Error(error)
+            this.handleError(error)
         }
         finally {
             client.release()
         }
     }
 
-    async update(reqBody) {
+    /**@param {object} requestBody */
+    async update(requestBody) {
         const
             client = await pool.connect()
-            , { requestObject, table, tablePK, id } = reqBody
-            , condition = ` WHERE ${table}.${tablePK} = '${id}'`
+            , { id, ...update } = requestBody
+            , condition = ` WHERE ${this.table}.${this.primaryKey} = '${requestBody[this.primaryKey]}'`
 
         let query = ''
 
-        if (Object.keys(requestObject).length < 1)
+        if (Object.keys(update).length < 1)
             return 'Nothing to update...'
 
 
-        Object.entries(requestObject).forEach(([k, v]) => {
-            if (k === 'equipamentos_id' || k === 'acessibilidade_id') v = `[${v}]`
-            if (k === 'compartilhado_id' && v === 'NULL') query += `${k} = NULL, `
-            else query += `${k} = '${v}', `
+        Object.entries(update).forEach(([key, value]) => {
+            query += `${key} = '${value}', `
         })
 
-        query = `UPDATE ${table} SET ` +
+        query = `UPDATE ${this.table} SET ` +
             query.slice(0, query.length - 2)
 
-        query = query + condition + ` RETURNING veiculos.veiculo_id`
+        query = query + condition + ` RETURNING ${this.table}.${this.primaryKey}`
 
         try {
             await client.query('BEGIN')
-            const
-                res = await client.query(query)
-                , veiculoId = res.rows[0].veiculo_id
+            const res = await client.query(query)
+
+            this.id = res.rows[0][this.primaryKey]
 
             await client.query('COMMIT')
 
-            return veiculoId
+            return this.id
 
         } catch (error) {
 
-            console.log("🚀 ~ file: VeiculoRepository.js ~ line 54 ~ VeiculoRepository ~ create ~ error", error.message)
             await client.query('ROLLBACK')
+            console.log("🚀 ~ file: PostgresDao.js ~ line 135 ~ PostgresDao ~ update ~ error", error)
             throw new Error(error.message)
 
         } finally {
-            console.log("🚀 ~ file: VeiculoRepository.js ~ line 67 ~ VeiculoRepository ~ create ~ CLIENT RELEASED!!!!!!!!!!!!")
             client.release()
         }
+    }
+
+
+    /**@param {Error} error - Javascript Error class*/
+    handleError(error) {
+        console.error({ module: 'PostgresDao.js', error: error.name, errorMessage: error.message })
+        throw new Error(error.message)
     }
 }
 

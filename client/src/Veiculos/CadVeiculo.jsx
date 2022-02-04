@@ -468,17 +468,12 @@ class VeiculosContainer extends PureComponent {
 
         //***************Else, if it exists, get existing Id and update status******************* */
         else {
-            veiculoId = existingVeiculoId
-
             if (demand && approved && !showPendencias)
                 situacao = 'Seguro não cadastrado'
-            const
-                requestObject = {
-                    ...vehicle,
-                    situacao
-                }
+            vehicle.veiculo_id = existingVeiculoId
+            vehicle.situacao = situacao
 
-            await axios.put('/api/veiculos', { ...requestObject, veiculoId, codigoEmpresa }) //CodigoEmpresa para F5 sockets
+            await axios.put('/api/veiculos', vehicle) //CodigoEmpresa para F5 sockets
         }
 
         //******************Inserir número da DAE na info da solicitação************** */

@@ -59,16 +59,20 @@ const AltContrato = props => {
         if (demand && demand.history[0]) {
             const
                 { empresaDocs } = props.redux,
-                { altContrato, socioUpdates, files } = demand?.history[0],
+                { altContrato, altEmpresa, socioUpdates, files } = demand?.history[0],
                 selectedEmpresa = empresas.find(e => e.codigoEmpresa === demand.empresaId),
-                altContratoFields = {}
+                alteredFields = []
+
+            //Identifica campos modificados    
+            for (let key in selectedEmpresa) {
+                if (altEmpresa && altEmpresa[key] && altEmpresa[key] !== selectedEmpresa[key])
+                    alteredFields.push(key)
+            }
+            const updatedEmpresa = { ...selectedEmpresa, ...altEmpresa }
 
             let
                 filteredSocios = JSON.parse(JSON.stringify(socios.filter(s => s.empresas[0] && s.empresas.some(e => e.codigoEmpresa === selectedEmpresa.codigoEmpresa)))),
                 demandFiles
-
-            if (altContrato)
-                altContratoForm.forEach(({ field }) => altContratoFields[field] = altContrato[field])
 
             if (socioUpdates && socioUpdates[0]) {
                 const newSocios = []
@@ -95,7 +99,10 @@ const AltContrato = props => {
             if (files)
                 demandFiles = empresaDocs.filter(d => files.includes(d.id))
 
-            setState({ ...state, ...altContrato, ...selectedEmpresa, selectedEmpresa, demand, demandFiles, filteredSocios, activeStep: 3 })
+            setState({
+                ...state, ...altContrato, ...updatedEmpresa, selectedEmpresa, demand, alteredFields,
+                demandFiles, filteredSocios, activeStep: 3
+            })
         }
 
         return () => void 0
@@ -107,8 +114,8 @@ const AltContrato = props => {
     useEffect(() => {
         if (state.selectedEmpresa) {
             const
-                codigoEmpresa = state.selectedEmpresa.codigoEmpresa,
-                originalSocios = JSON.parse(JSON.stringify(socios.filter(s => s.empresas && s.empresas.some(e => e.codigoEmpresa === codigoEmpresa)))) || []
+                codigoEmpresa = state.selectedEmpresa.codigoEmpresa
+                , originalSocios = JSON.parse(JSON.stringify(socios.filter(s => s.empresas && s.empresas.some(e => e.codigoEmpresa === codigoEmpresa)))) || []
 
             setState({ ...state, originalSocios })
         }
@@ -388,7 +395,7 @@ const AltContrato = props => {
             altEmpresa = createRequestObj(empresasForm),
             empresaUpdates = updateEmpresa(altEmpresa),
             socioUpdates = checkSocioUpdates(approved),
-            log = createLog({ demand, altContrato, socioUpdates, approved })
+            log = createLog({ demand, altEmpresa, altContrato, socioUpdates, approved })
         let
             socioIds = [],
             toastMsg = 'Solicitação de alteração contratual enviada.'
@@ -399,19 +406,13 @@ const AltContrato = props => {
             return
         }
 
-        //A alteração de dados da empresa não precisa de aprovação. Se for só isso, não gera demanda
-        if (empresaUpdates) {
-            axios.put('/api/editTableRow', empresaUpdates)
-            //toastMsg = 'Dados da empresa alterados com sucesso.'
-            if (!socioUpdates && !altContrato && !form) {
-                toast('Dados da empresa atualizados!')
-                setTimeout(() => { resetState() }, 750);
-                return
-            }
-        }
-
         //Ao aprovar a solicitação(demanda)
         if (demand && approved) {
+
+            //Registra as alterações de dados da empresa            
+            if (demand.history[0].altEmpresa)
+                axios.put('/api/editTableRow', empresaUpdates)
+
             //Registrar as alterações contratuais
             if (altContrato)
                 axios.post('/api/altContrato', altContrato)
@@ -426,7 +427,6 @@ const AltContrato = props => {
                         codigoEmpresa,
                         cpfsToAdd,
                     }
-                //console.log("🚀 ~ file: AltContrato.jsx ~ line 306 ~ newSocios, oldSocios", newSocios, oldSocios)
 
                 //Post request dos novos sócios
                 if (newSocios[0])
@@ -457,7 +457,7 @@ const AltContrato = props => {
                         , allSociosIds = socioIds.concat(unchangedSociosIds)
                     Object.assign(log, { metadata: { socios: allSociosIds } })
                 }
-                toastMsg = 'Alteração de contrato social aprovada.'
+                toastMsg = 'Dados atualizados'
             }
         }
         let files, fileIds
@@ -482,7 +482,6 @@ const AltContrato = props => {
                 log.history.files = fileIds
             }
         }
-        //console.log("🚀 ~ file: AltContrato.jsx ~ line 438 ~ log", log)
 
         logGenerator(log)                               //Generate the demand
             .then(r => {
@@ -590,7 +589,6 @@ const AltContrato = props => {
         if (!altEmpresa)
             return
 
-        //Apaga propriedades === null ou inexistentes
         for (let prop in selectedEmpresa) {
             if (altEmpresa[prop] && altEmpresa[prop] === selectedEmpresa[prop])
                 delete altEmpresa[prop]
@@ -609,7 +607,7 @@ const AltContrato = props => {
         }
     }
 
-    const createLog = ({ demand, altContrato, approved, socioUpdates }) => {
+    const createLog = ({ demand, altEmpresa, altContrato, approved, socioUpdates }) => {
         const
             { selectedEmpresa, info } = state,
             { codigoEmpresa } = selectedEmpresa
@@ -621,6 +619,7 @@ const AltContrato = props => {
                 history: {
                     altContrato,
                     info,
+                    altEmpresa,
                     ...socioUpdates
                 },
                 empresaId: codigoEmpresa,
@@ -675,6 +674,7 @@ const AltContrato = props => {
 
         //Adiciona a data de solicitação (não de cadastro) no sistema, em caso de alteração do contrato é necessário verificar        
         const keys = Object.keys(returnObj)
+
         if (keys.length > 1) {
             //Se tiver aprovando, pega o createdAt do log(demanda) e salva, para manter a data da solicitação.
             if (keys.includes('numeroAlteracao') && demand) {
