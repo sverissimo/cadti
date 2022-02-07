@@ -16,6 +16,8 @@ import checkBlankInputs from '../Utils/checkBlankInputs'
 import { checkInputErrors } from '../Utils/checkInputErrors'
 
 const socketIO = require('socket.io-client')
+const { webSocketHost, options } = getEnvironment()
+
 let socket
 
 export default function (requestArray, WrappedComponent) {
@@ -55,10 +57,10 @@ export default function (requestArray, WrappedComponent) {
                 await this.props.getData(request)
 
             //**************************Socket management*****************************
-            if (!socket) {
-                const { webSocketHost } = getEnvironment()
-                socket = socketIO(webSocketHost)
-            }
+
+            if (!socket)
+                socket = socketIO({ url: webSocketHost, options })
+
             //Conecta o usuário em um socket, passando suas informações   
             socket.on('connect', () => socket.emit('userDetails', this.props?.user))
 
@@ -98,14 +100,15 @@ export default function (requestArray, WrappedComponent) {
 
         componentWillUnmount() {
             document.removeEventListener('keypress', this.quitFn)
-            if (!socket) socket = socketIO(':3001')
-            const clearAll = ['insertVehicle', 'insertInsurance', 'insertEmpresa', 'insertSocios', 'insertFiles', 'addElements',
-                'insertElements', 'insertProcuradores', 'updateVehicle', 'updateInsurance', 'updateSocios', 'updateLogs', 'deleteOne',
-                'updateDocs', 'updateAny']
-
-            clearAll.forEach(el => socket.off(el))
-            socket.disconnect()
-            socket = undefined
+            /*  if (!socket)
+                 socket = socketIO({ url: webSocketHost, options })
+             const clearAll = ['insertVehicle', 'insertInsurance', 'insertEmpresa', 'insertSocios', 'insertFiles', 'addElements',
+                 'insertElements', 'insertProcuradores', 'updateVehicle', 'updateInsurance', 'updateSocios', 'updateLogs', 'deleteOne',
+                 'updateDocs', 'updateAny']
+ 
+             clearAll.forEach(el => socket.off(el))
+             socket.disconnect()
+             socket = undefined */
         }
 
         getUser = async () => {

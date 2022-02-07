@@ -11,7 +11,7 @@ const updateVehicleApolice = (vehicles, apolice) => {
         value: apolice
     }
     console.log('Update vehicle insurance request: ', request)
-    axios.put('http://localhost:3001/api/updateInsurances', request)
+    axios.put('https://localhost:3001/api/updateInsurances', request)
         .then(r => console.log('Seguro que passa a viger cadastrado nos veículos', r.data))
 }
 

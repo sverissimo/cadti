@@ -1,11 +1,16 @@
 //Node modules
 const
-    express = require('express'),
-    app = express(),
-    server = require('http').createServer(app),
-    io = require('socket.io').listen(server),
-    path = require('path'),
     fs = require('fs'),
+    express = require('express'),
+    httpsOptions = {
+        key: fs.readFileSync("./certificates/localhost.key"),
+        cert: fs.readFileSync("./certificates/localhost.crt"),
+    },
+    app = express(),
+    productionServer = require('https').createServer(httpsOptions, app),
+    devServer = require('http').createServer(app),
+
+    path = require('path'),
     dotenv = require('dotenv'),
     mongoose = require('mongoose'),
     { conn } = require('./mongo/mongoConfig'),
@@ -53,8 +58,8 @@ const
     fileBackup = require('./fileBackup/fileBackup'),
     prepareBackup = require('./fileBackup/prepareBackup'),
     { permanentBackup } = require('./fileBackup/permanentBackup'),
-    taskManager = require('./taskManager/taskManager')
-const ProcuracaoRepository = require('./domain/ProcuracaoRepository')
+    taskManager = require('./taskManager/taskManager'),
+    ProcuracaoRepository = require('./domain/ProcuracaoRepository')
 
 
 taskManager()
@@ -76,6 +81,16 @@ app.use(authToken)
 app.get('/getUser', getUser)
 
 //*************************IO SOCKETS CONNECTION / CONFIG********************* */
+let server
+if (process.env.NODE_ENV === 'development') {
+    server = devServer
+    console.log('Socket listening to devServer...');
+}
+else {
+    server = productionServer
+    console.log('Socket listening to server...');
+}
+const io = server && require('socket.io').listen(server)
 io.on('connection', socket => {
     if (socket.handshake.headers.authorization === process.env.FILE_SECRET) {
         app.set('backupSocket', socket)
@@ -1003,6 +1018,8 @@ app.use((error, req, res, next) => {
     });
 });
 
+
 server.listen(process.env.PORT || 3001, () => {
     console.info('NodeJS server running on port ' + (process.env.PORT || 3001))
 })
+

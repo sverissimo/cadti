@@ -24,3 +24,6 @@ mintty.exe.stackdump
 
 
 *.code-workspace
+certificates/localhost.key
+certificates/localhost.crt
+client/src/getEnvironment.js

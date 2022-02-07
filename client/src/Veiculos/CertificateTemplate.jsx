@@ -146,7 +146,7 @@ const CertificateTemplate = ({ vehicle, nomes, checkMulti, redirect, delega, car
                         PORTE OBRIGATÓRIO
                     </h1>
                     <p className="certFooter__text">
-                        Este certificado pode ser verificado em <span className='link' onClick={() => redirect()}> http://www.cadti.mg.gov.br </span>
+                        Este certificado pode ser verificado em <span className='link' onClick={() => redirect()}> https://www.cadti.mg.gov.br </span>
                     </p>
                 </footer>
             </div>
