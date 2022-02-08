@@ -25,7 +25,7 @@ const login = async (req, res) => {
         return res.status(403).send('O usuário não possui vinculação com nenhuma empresa do sistema.')
 
     const
-        { password, __v, ...user } = userFound,
+        { password, deletedMessages, __v, ...user } = userFound,
         accessToken = jwt.sign({ user }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '60m' })
 
     res.cookie('aToken', accessToken, { maxAge: 1000 * 60 * 60, httpOnly: true })

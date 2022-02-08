@@ -84,13 +84,14 @@ app.get('/getUser', getUser)
 let server
 if (process.env.NODE_ENV === 'development') {
     server = devServer
-    console.log('Socket listening to devServer...');
+    console.log('Socket listening to devServer...')
 }
 else {
     server = productionServer
-    console.log('Socket listening to server...');
+    console.log('Socket listening to https server...')
 }
-const io = server && require('socket.io').listen(server)
+//const io = server && require('socket.io').listen(server)
+const io = server && require('socket.io').listen(devServer)
 io.on('connection', socket => {
     if (socket.handshake.headers.authorization === process.env.FILE_SECRET) {
         app.set('backupSocket', socket)

@@ -88,7 +88,7 @@ export default function (requestArray, WrappedComponent) {
             socket.on('updateUser', updatedUser => this.props.editUser(updatedUser))
 
             socket.on('deleteOne', ({ id, tablePK, collection }) => {
-                console.log({ id, tablePK, collection })
+                //console.log({ id, tablePK, collection })
                 this.props.deleteOne(id, tablePK, collection)
             })
 
@@ -100,15 +100,14 @@ export default function (requestArray, WrappedComponent) {
 
         componentWillUnmount() {
             document.removeEventListener('keypress', this.quitFn)
-            /*  if (!socket)
-                 socket = socketIO({ url: webSocketHost, options })
-             const clearAll = ['insertVehicle', 'insertInsurance', 'insertEmpresa', 'insertSocios', 'insertFiles', 'addElements',
-                 'insertElements', 'insertProcuradores', 'updateVehicle', 'updateInsurance', 'updateSocios', 'updateLogs', 'deleteOne',
-                 'updateDocs', 'updateAny']
- 
-             clearAll.forEach(el => socket.off(el))
-             socket.disconnect()
-             socket = undefined */
+            /* if (!socket)
+                socket = socketIO({ url: webSocketHost, options }) */
+
+            if (socket?.connected) {
+                socket.off()
+                socket.disconnect()
+                socket = undefined
+            }
         }
 
         getUser = async () => {
