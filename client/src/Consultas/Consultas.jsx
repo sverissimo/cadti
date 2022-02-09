@@ -213,15 +213,14 @@ class ConsultasContainer extends Component {
     showCertificate = async vehicle => {
 
         const
-            { laudos, parametros } = this.props.redux,
-            { veiculoId, anoCarroceria, situacao, vencimento } = vehicle,
+            { parametros } = this.props.redux,
+            { anoCarroceria, situacao, vencimento } = vehicle,
             seguroVencido = moment(vencimento).isBefore(),
             currentYear = new Date().getFullYear(),
             isOld = currentYear - anoCarroceria >= 16
 
         if (isOld) {
-            const hasLaudo = laudos.find(l => l.veiculoId === veiculoId),
-                validLaudo = moment(hasLaudo?.validade).isAfter(moment())
+            const validLaudo = moment(vehicle.vencimentoLaudo).isAfter(moment())
 
             if (!validLaudo) {
                 await this.setState({

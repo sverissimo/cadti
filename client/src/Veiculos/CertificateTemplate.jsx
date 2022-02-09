@@ -36,6 +36,7 @@ const CertificateTemplate = ({ vehicle, nomes, checkMulti, redirect, delega, car
         { title: 'Informações gerais', form: info },
         { title: 'Observações', form: obs }
     ]
+
     return (
         <Fragment>
             <div id='pdfPage' className='A4'>
@@ -69,10 +70,14 @@ const CertificateTemplate = ({ vehicle, nomes, checkMulti, redirect, delega, car
                                                 }
                                                 variant={el.field === 'equipamentosId' || (el.field === 'observacoes' && el.value && el.value.length > 50) ? 'outlined' : 'standard'}
                                                 value={
-                                                    el.type === 'date' ? !moment(el.value).isValid() ? ''
+                                                    el.type === 'date' ?
+                                                        !moment(el.value, true).isValid() ?
+                                                            ''
+                                                            :
+                                                            el.value && moment(el.value).format('DD/MM/YYYY')
                                                         :
-                                                        moment(el.value).format('DD/MM/YYYY') :
-                                                        el.field === 'dataExpedicao' ? moment().format('DD-MM-YYYY')
+                                                        el.field === 'dataExpedicao' ?
+                                                            moment().format('DD-MM-YYYY')
                                                             :
                                                             el.format ? el.format(el.value)
                                                                 :

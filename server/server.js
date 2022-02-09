@@ -91,7 +91,7 @@ else {
     console.log('Socket listening to https server...')
 }
 //const io = server && require('socket.io').listen(server)
-const io = server && require('socket.io').listen(devServer)
+const io = server && require('socket.io').listen(server)
 io.on('connection', socket => {
     if (socket.handshake.headers.authorization === process.env.FILE_SECRET) {
         app.set('backupSocket', socket)
