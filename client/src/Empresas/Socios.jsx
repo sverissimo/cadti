@@ -104,15 +104,6 @@ class AltSocios extends Component {
             keys = ['telSocio', 'emailSocio'],
             editSocio = filteredSocios[index]
 
-        /* if (!editSocio?.telSocio && !editSocio?.emailSocio) {
-            console.log(false)
-            return
-        }
-        else if (editSocio.telSocio === originalSocio.telSocio && editSocio.emailSocio === originalSocio.emailSocio) {
-            console.log(false)
-            return
-        } */
-
         const requestObject = { socioId: editSocio.socioId }
         keys.forEach(k => { if (editSocio[k]) requestObject[k] = editSocio[k] })
         const requestArray = [humps.decamelizeKeys(requestObject)]

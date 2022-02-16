@@ -1,7 +1,9 @@
 //@ts-check
-const allGetQueries = require("../allGetQueries");
-const { pool } = require("../config/pgConfig");
-const { parseRequestBody } = require("../parseRequest");
+const
+    { pool } = require("../config/pgConfig")
+    , format = require('pg-format')
+    , allGetQueries = require("../allGetQueries")
+    , { parseRequestBody } = require("../utils/parseRequest")
 
 /**Implementação do DAO no banco de dados postgresql na porta 5432 (config/pgPool)
  * @abstract @class
@@ -24,17 +26,17 @@ class PostgresDao {
     * @property parseRequestBody - função para formatar objeto em arrays de columns/values para o query do SQL     */
     parseRequestBody = parseRequestBody;
 
+    pgFormat = format
 
     /** Lista as entradas de uma determinada tabela. A classe child já terá as props default(this.table)
-     * Caso o objeto seja instanciado dessa classe, o método get pode ser informado como parâmetro
-     * @param table {string}      
+     * Caso o objeto seja instanciado dessa classe, o método get pode ser informado como parâmetro     
      * @returns {Promise<void | any>}
      */
-    async list(table = this.table) {
+    async list() {
         try {
 
             const
-                queryGenerator = allGetQueries[table]
+                queryGenerator = allGetQueries[this.table]
                 , query = queryGenerator()
                 , response = await pool.query(query)
                 , data = response.rows
@@ -140,6 +142,26 @@ class PostgresDao {
         } finally {
             client.release()
         }
+    }
+
+
+    //@ts-ignore
+    async saveMany(entities) {
+
+        const
+            keysAndValuesArray = this.parseRequestBody(entities)
+
+        //@ts-ignore
+        const
+            { keys, values } = keysAndValuesArray
+            , query = format(`INSERT INTO ${this.table} (${keys}) VALUES %L`, values) + ` RETURNING ${this.primaryKey}`
+        console.log("🚀 ~ file: PostgresDao.js ~ line 157 ~ PostgresDao ~ saveMany ~ query", query)
+
+
+        const { rows } = await this.pool.query(query)
+            , ids = rows.map((row) => row[this.primaryKey])
+
+        return ids
     }
 
 

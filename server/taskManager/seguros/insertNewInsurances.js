@@ -5,7 +5,7 @@ const
     { seguros } = require('../../queries'),
     updateVehicleApolice = require('../veiculos/updateVehicleApolice'),
     markAsUpdated = require('./markAsUpdated'),
-    { parseRequestBody } = require('../../parseRequest'),
+    { parseRequestBody } = require('../../utils/parseRequest'),
     deleteVehiclesInsurance = require('../../deleteVehiclesInsurance')
 
 

@@ -68,10 +68,13 @@ const AltContrato = props => {
                 if (altEmpresa && altEmpresa[key] && altEmpresa[key] !== selectedEmpresa[key])
                     alteredFields.push(key)
             }
-            const updatedEmpresa = { ...selectedEmpresa, ...altEmpresa }
+
+            const
+                updatedEmpresa = { ...selectedEmpresa, ...altEmpresa }
+                , selectSocios = socios.filter(s => s.empresas && s.empresas[0] && s.empresas.some(e => e.codigoEmpresa === selectedEmpresa.codigoEmpresa))
 
             let
-                filteredSocios = JSON.parse(JSON.stringify(socios.filter(s => s.empresas[0] && s.empresas.some(e => e.codigoEmpresa === selectedEmpresa.codigoEmpresa)))),
+                filteredSocios = JSON.parse(JSON.stringify(selectSocios)),
                 demandFiles
 
             if (socioUpdates && socioUpdates[0]) {
@@ -115,7 +118,7 @@ const AltContrato = props => {
         if (state.selectedEmpresa) {
             const
                 codigoEmpresa = state.selectedEmpresa.codigoEmpresa
-                , originalSocios = JSON.parse(JSON.stringify(socios.filter(s => s.empresas && s.empresas.some(e => e.codigoEmpresa === codigoEmpresa)))) || []
+                , originalSocios = JSON.parse(JSON.stringify(socios.filter(s => s.empresas && s.empresas[0] && s.empresas.some(e => e.codigoEmpresa === codigoEmpresa)))) || []
 
             setState({ ...state, originalSocios })
         }
@@ -410,7 +413,7 @@ const AltContrato = props => {
         if (demand && approved) {
 
             //Registra as alterações de dados da empresa            
-            if (demand.history[0].altEmpresa)
+            if (demand.history[0].altEmpresa && empresaUpdates)
                 axios.put('/api/editTableRow', empresaUpdates)
 
             //Registrar as alterações contratuais
@@ -429,16 +432,14 @@ const AltContrato = props => {
                     }
 
                 //Post request dos novos sócios
-                if (newSocios[0])
-                    await axios.post('/api/cadSocios', { socios: newSocios, codigoEmpresa })
-                        .then(async r => {
-                            const ids = r?.data.map(s => s.socio_id)
-                            if (ids[0])
-                                socioIds = socioIds.concat(ids)         //A array de ids de sócios vai para a metadata dos arquivos
-                        })
+                if (newSocios[0]) {
+                    const socioIdPromise = await axios.post('/api/socios', { socios: newSocios, codigoEmpresa })
+                    socioIds.push(socioIdPromise.data)         //A array de ids de sócios vai para a metadata dos arquivos
+                }
 
                 //Update/delete dos modificados
                 if (oldSocios[0]) {
+                    console.log("🚀 ~ file: AltContrato.jsx ~ line 442 ~ oldSocios", oldSocios)
                     //atualiza os sócios. Status 'deleted' não são apagados, apenas têm sua coluna 'empresas' atualizada.
                     await axios.put('/api/editSocios', { requestArray: oldSocios, ...requestInfo })
 

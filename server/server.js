@@ -34,7 +34,7 @@ const
     { fieldParser } = require('./utils/fieldParser'),
     { getUpdatedData } = require('./getUpdatedData'),
     { empresaChunks, vehicleChunks } = require('./mongo/models/chunksModel'),
-    { parseRequestBody } = require('./parseRequest'),
+    { parseRequestBody } = require('./utils/parseRequest'),
     filesModel = require('./mongo/models/filesModel'),
     oldVehiclesModel = require('./mongo/models/oldVehiclesModel'),
     segurosModel = require('./mongo/models/segurosModel'),
@@ -44,7 +44,7 @@ const
     emitSocket = require('./emitSocket'),
     parametros = require('./parametros/parametros'),
     alerts = require('./alerts/routes'),
-    getFormattedDate = require('./getDate'),
+    getFormattedDate = require('./utils/getDate'),
     authRouter = require('./auth/authRouter'),
     authToken = require('./auth/authToken'),
     getUser = require('./auth/getUser'),
@@ -59,7 +59,8 @@ const
     prepareBackup = require('./fileBackup/prepareBackup'),
     { permanentBackup } = require('./fileBackup/permanentBackup'),
     taskManager = require('./taskManager/taskManager'),
-    ProcuracaoRepository = require('./domain/ProcuracaoRepository')
+    { GenericRepository } = require('./repositories/Repository')
+const { Controller } = require('./controllers/Controller')
 
 
 taskManager()
@@ -91,7 +92,7 @@ else {
     console.log('Socket listening to https server...')
 }
 //const io = server && require('socket.io').listen(server)
-const io = server && require('socket.io').listen(devServer)
+const io = server && require('socket.io').listen(server)
 io.on('connection', socket => {
     if (socket.handshake.headers.authorization === process.env.FILE_SECRET) {
         app.set('backupSocket', socket)
@@ -429,56 +430,6 @@ app.post('/api/cadEmpresa', cadEmpresa)
 app.post('/api/cadSocios', cadSocios)
 app.post('/api/cadProcuradores', cadProcuradores)
 
-app.post('/api/cadProcuracao', async (req, res) => {
-
-    let parseProc = req.body.procuradores.toString()
-    parseProc = '[' + parseProc + ']'
-    req.body.procuradores = parseProc
-
-    try {
-        const
-            procuracaoRepository = new ProcuracaoRepository()
-            , procuracaoId = await procuracaoRepository.save(req.body)
-            , condition = `WHERE procuracoes.procuracao_id = ${procuracaoId}`
-
-
-        //@ts-ignore
-        //Atualiza os dados no frontEnd por meio de webSockets
-        userSockets({
-            req,
-            table: 'procuracoes',
-            event: 'insertElements',
-            condition,
-            noResponse: true
-        })
-
-        res.status(201).send(JSON.stringify(procuracaoId))
-
-    } catch (error) {
-        console.log("🚀 ~ file: server.js ~ line 442 ~ app.post ~ error", error)
-        res.status(500).send(error)
-    }
-
-
-    /* 
-    
-        const { keys, values } = parseRequestBody(req.body)
-        pool.query(
-            `INSERT INTO public.procuracoes (${keys}) VALUES (${values}) RETURNING *`, (err, table) => {
-                if (err) res.send(err)
-                if (table && table.rows && table.rows.length === 0) { res.send(table.rows); return }
-                else if (table.rows.length > 0) {
-                    const updatedData = {
-                        insertedObjects: table.rows,
-                        collection: 'procuracoes'
-                    }
-                    io.sockets.emit('insertElements', updatedData)
-                    res.json(table.rows)
-                }
-                return
-            }) */
-})
-
 app.post('/api/empresaFullCad', cadEmpresa, async (req, res, next) => {
     const
         id = res.locals.codigoEmpresa,
@@ -493,7 +444,10 @@ app.post('/api/empresaFullCad', cadEmpresa, async (req, res, next) => {
         return res.json({ codigo_empresa: id })
 
     next()
-}, cadSocios)
+}, async (req, res) => {
+    const socioController = new Controller('socios', 'socio_id')
+    await socioController.saveMany(req, res)
+})
 
 app.post('/api/cadSeguro', (req, res) => {
     let parsed = []
@@ -600,7 +554,7 @@ app.put('/api/editElements', (req, res) => {
 
 //Edita um ou mais colunas de uma única linha da tabela
 app.put('/api/editTableRow', async (req, res) => {
-    console.log("🚀 ~ file: server.js ~ line 587 ~ app.put ~ req", req.body)
+    //    console.log("🚀 ~ file: server.js ~ line 587 ~ app.put ~ req", req.body)
 
     const
         { id, table, updates, tablePK } = req.body,
@@ -744,6 +698,7 @@ app.put('/api/updateInsurances', async (req, res) => {
 app.put('/api/editSocios', async (req, res, next) => {
 
     const { requestArray, table, codigoEmpresa, cpfsToAdd, cpfsToRemove } = req.body
+    console.log("🚀 ~ file: server.js ~ line 701 ~ app.put ~ req.body", req.body)
 
     let
         queryString = '',

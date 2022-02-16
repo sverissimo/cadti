@@ -233,8 +233,8 @@ export default function ShowDetails({ data, tab, title, header, close, empresas,
                                         stringBR(value)
                                         : type !== 'date' ?
                                             value || ''
-                                            : moment(value).isValid() ?
-                                                moment(value).format('DD/MM/YYYY')
+                                            : moment(value, true).isValid() ?
+                                                value && moment(value).format('DD/MM/YYYY')
                                                 : ''
                                 }
                                 InputLabelProps={{ shrink: true, style: { fontSize: '0.9rem', fontWeight: 500 } }}

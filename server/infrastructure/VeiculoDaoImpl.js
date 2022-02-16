@@ -12,6 +12,11 @@ class VeiculoDaoImpl extends PostgresDao {
      * @type {string}     */
     primaryKey = 'veiculo_id';
 
+    constructor() {
+        super()
+    }
+
+    /**@override */
     async update(reqBody) {
 
         const

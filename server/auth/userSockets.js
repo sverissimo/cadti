@@ -39,12 +39,15 @@ const userSockets = async ({ req, res, table, condition = '', event, collection,
         //Se tem a prop empresa filtra os dados apenas com essas empresas e emite um evento para cada usuário, conforme suas permissões
         if (empresas) {
             filteredData = filterData(table, data, empresas, event, collection)
+            console.log("🚀 ~ file: userSockets.js ~ line 42 ~ userSockets ~ filteredData", filteredData)
             if (filteredData[0]) {
                 //    console.log("🚀 ~ file: userSockets.js ~ line 41 ~ userSockets ~ filteredData", filteredData)
                 io.sockets.to(id).emit(event, filteredData)
             }
             else if (filteredData instanceof Object && Object.keys(filteredData).length > 0)
                 io.sockets.to(id).emit(event, filteredData)
+            else
+                console.log('~UserSockets.js~ 49- No valid filteredData: ', filterData)
         }
     })
 
@@ -63,9 +66,10 @@ const userSockets = async ({ req, res, table, condition = '', event, collection,
         //console.log('data', codigoEmpresa, data)
         if (codigoEmpresa)
             insertEmpresa({ representantes: data, codigoEmpresa })
-        //Se o CodigoEmpresa está salvo em res.locals é pq o request foi empresaFullCad, precisa retornar id da emp e socios
+
+        //res.locals só tem no EmpresaFullCad. 
         if (res.locals.codigoEmpresa)
-            data = { codigo_empresa: codigoEmpresa, socioIds: data.map(s => s.socio_id) }
+            data = { codigo_empresa: codigoEmpresa, ids: data }
         return res.send(data)
     }
     else

@@ -224,17 +224,18 @@ class EmpresasContainer extends Component {
 
         empresa.situacao = 'Ativo'
 
-        Object.entries(empresa).forEach(([k, v]) => {
-            if (!v || v === '') delete empresa[k]
-        })
-
-        socios.forEach(s => {
-            delete s.edit
-            Object.entries(s).forEach(([k, v]) => {
-                if (!v || v === '') delete socios[k]
-            })
-        })
-
+        /*   Object.entries(empresa).forEach(([k, v]) => {
+              if (!v || v === '') delete empresa[k]
+          })
+  
+          socios.forEach(s => {
+              delete s.edit
+              Object.entries(s).forEach(([k, v]) => {
+                  if (!v || v === '')
+                      socios[k] = 'NULL'
+              })
+          })
+   */
         empresa = humps.decamelizeKeys(empresa)
         socios = humps.decamelizeKeys(socios)
         if (!socios || !socios[0]) {
@@ -243,13 +244,15 @@ class EmpresasContainer extends Component {
         }
         else
             console.log(socios)
-        await axios.post('/api/empresaFullCad', { empresa, socios })
-            .then(res => {
-                empresaId = res.data.codigo_empresa
-                socioIds = res.data.socioIds
-                console.log("🚀 ~ file: EmpresasContainer.jsx ~ line 249 ~ EmpresasContainer ~ handleSubmit= ~ empresaId", empresaId)
-                this.submitFile(empresaId, socioIds, form)
-            })
+
+        const response = await axios.post('/api/empresas', { empresa, socios })
+
+        empresaId = response.data.codigo_empresa
+        socioIds = response.data.socio_ids
+        console.log("🚀 ~ file: EmpresasContainer.jsx ~ line 249 ~ EmpresasContainer ~ handleSubmit= ~ empresaId", { empresaId, socioIds })
+
+        this.submitFile(empresaId, socioIds, form)
+
         this.toast()
         this.resetState()
     }

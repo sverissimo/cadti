@@ -42,6 +42,23 @@ export const getData = (collectionsArray = []) => {
             globalState.veiculos = updatedData
         }
 
+        //Add Laudos e empresasLaudo na tabela de veículos (para desonerar o servidor backEnd)
+        //Se houver mais de um laudo para o mesmo veículo, pega o com maior data de validade, pois o order da query laudos é por validade DESC
+        if (globalState.veiculos && globalState.veiculos.length && collectionsArray.includes('laudos')) {
+
+            const laudos = globalState.laudos || []
+
+            for (let v of globalState.veiculos) {
+                for (let l of laudos) {
+                    if (v.veiculoId === l.veiculoId) {
+                        v.numeroLaudo = l.id
+                        v.empresaLaudo = l.empresaLaudo
+                        v.vencimentoLaudo = l.validade
+                    }
+                }
+            }
+        }
+
         //JSON Parsing do array de empresas dos sócios, que são strings no postgresql
         if (globalState.socios && Array.isArray(globalState.socios)) {
             const socs = [...globalState.socios]

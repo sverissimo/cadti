@@ -46,7 +46,7 @@ class VeiculoRepository {
             return veiculoId
 
         } catch (error) {
-            console.log("🚀 ~ file: VeiculoRepository.js ~ line 54 ~ VeiculoRepository ~ create ~ error", error.message)
+            console.log("🚀 ~ file: VeiculoRepository.js ~ line 49 ~ VeiculoRepository ~ create ~ error", error.message)
             throw new Error(error.message)
         }
     }
@@ -57,7 +57,7 @@ class VeiculoRepository {
             return veiculoId
 
         } catch (error) {
-            console.log("🚀 ~ file: VeiculoRepository.js ~ line 54 ~ VeiculoRepository ~ create ~ error", error.message)
+            console.log("🚀 ~ file: VeiculoRepository.js ~ line 60 ~ VeiculoRepository ~ update ~ error", error.message)
             throw new Error(error.message)
         }
     }

@@ -1,6 +1,6 @@
 const
     { pool } = require('./config/pgConfig'),
-    { parseRequestBody } = require('./parseRequest')
+    { parseRequestBody } = require('./utils/parseRequest')
 
 const cadEmpresa = (req, res, next) => {
     const
@@ -35,7 +35,7 @@ const cadEmpresa = (req, res, next) => {
                         empresas = [{ codigoEmpresa, share }]
 
                     obj.empresas = JSON.stringify(empresas)
-                    console.log("🚀 ~ file: cadEmpresa.js ~ line 28 ~ pool.query ~ OBJempresas", obj.empresas)
+
                 })
                 next()
             }

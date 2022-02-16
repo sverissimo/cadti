@@ -354,7 +354,7 @@ class Procuradores extends Component {
             if (!v || v === '') delete novaProcuracao[k]
         })
 
-        const procuracaoId = await axios.post('/api/cadProcuracao', novaProcuracao)
+        const procuracaoId = await axios.post('/api/procuracoes', novaProcuracao)
 
         novaProcuracao.procuracaoId = procuracaoId
         const log = {
