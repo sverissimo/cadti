@@ -2,35 +2,37 @@
 const
     { request, response } = require("express")
     , { Repository } = require("../repositories/Repository")
-    , { fieldParser } = require("../utils/fieldParser");
-const userSockets = require("../auth/userSockets");
-const { EntityDaoImpl } = require("../infrastructure/EntityDaoImpl");
+    , { fieldParser } = require("../utils/fieldParser")
+    , userSockets = require("../auth/userSockets")
+    , { EntityDaoImpl } = require("../infrastructure/EntityDaoImpl")
+    , { CustomSocket } = require("../sockets/CustomSocket")
 
-/**
+
+/**Classe parent de controlador para os requests de acesso ao banco de dados Postgresql.
  * @class
  */
 class Controller {
 
     /**
-     * @property {string} table
-     * @type {string}     */
+     * @property {} table @type {string}     */
     table;
-
     /**
-     * @property {string} primaryKey
-     * @type {string}     */
+     * @property {} primaryKey @type {string}     */
     primaryKey;
 
-
     /**
-    * @property {string} primaryKey
-    * @type {string}     */
-    event;
+     *  @property {} repository @type {Repository}     */
+    repository;
 
-
-    constructor(table, primaryKey) {
-        this.table = table
-        this.primaryKey = primaryKey
+    /**     
+     * @param {string} [table]
+     * @param {string} [primaryKey]
+     * @param {Repository} [repository]
+     */
+    constructor(table, primaryKey, repository) {
+        this.table = this.table || table
+        this.primaryKey = this.primaryKey || primaryKey
+        this.repository = repository || new Repository(this.table, this.primaryKey)
         this.save = this.save.bind(this)
         this.saveMany = this.saveMany.bind(this)
     }
@@ -40,15 +42,16 @@ class Controller {
      * @param {response} res 
      * @returns {Promise<any>}
      */
-    async find(req, res) {
+    list = async (req, res) => {
 
-        const
-            filter = req.params.id || req.query
-            , repository = new Repository(this.table, this.primaryKey)
+        const { filter } = res.locals
+
+        if (req.params.id || Object.keys(req.query).length)
+            return this.find(req, res)
 
         try {
-            const entity = await repository.find(filter)
-            return res.status(200).json(entity)
+            const collection = await this.repository.list(filter)
+            res.status(200).json(collection)
 
         } catch (e) {
             console.log(e.name + ': ' + e.message)
@@ -62,12 +65,12 @@ class Controller {
      * @param {response} res 
      * @returns {Promise<any>}
      */
-    list = async (req, res) => {
+    async find(req, res) {
 
-        const repository = new Repository(this.table, this.primaryKey)
+        const filter = req.params.id || req.query
         try {
-            const collection = await repository.list()
-            res.status(200).json(collection)
+            const entity = await this.repository.find(filter)
+            return res.status(200).json(entity)
 
         } catch (e) {
             console.log(e.name + ': ' + e.message)
@@ -76,19 +79,31 @@ class Controller {
     }
 
     async save(req, res) {
+        console.log("🚀 ~ file: Controller.js ~ line 80 ~ Controller ~ save ~ req", req.body)
+
         const { user } = req
         if (user.role !== 'admin')
             return res.status(403).send('É preciso permissão de administrador para acessar essa parte do cadTI.')
 
-        const
-            entityDaoImpl = new EntityDaoImpl(this.table, this.primaryKey)
-            , id = await entityDaoImpl.saveMany(req.body)
+        try {
+            const id = await this.repository.save(req.body)
+            res.status(201).json(id)
 
-        res.send(id)
-        const condition = `WHERE ${this.primaryKey} = '${id}'`
+            const
+                createdEntity = this.repository.find(id)
+                , socket = new CustomSocket(req)
+            socket.emit('insertElements', createdEntity)
 
-        //@ts-ignore
-        await userSockets({ req, res, table: this.table, condition, event: this.event || 'insertElements', noResponse: true })
+
+            /* const condition = `WHERE ${this.table}.${this.primaryKey} = '${id}'`
+
+            //@ts-ignore
+            await userSockets({ req, table: this.table, condition, event: this.event || 'insertElements', noResponse: true }) */
+
+        } catch (error) {
+
+        }
+
     }
 
     /**
@@ -146,8 +161,26 @@ class Controller {
             id = `'${id}'`
 
         const singleSocket = req.headers.referer && req.headers.referer.match('/veiculos/config')
-
     }
+
+
+    /** Retorna a condição de filtro para passar como parâmetro para a função que gera o webSocket de atualização de dados
+     * @param {number| string|Array<number | string>} id 
+     */
+    getSocketFilter(id) {
+        let socketFilter
+
+        if (Array.isArray(id)) {
+            const ids = id
+            ids.forEach(id => socketFilter = `socio_id = '${id}' OR `)
+            socketFilter = 'WHERE ' + socketFilter
+            socketFilter = socketFilter.slice(0, socketFilter.length - 3)
+            return socketFilter
+        }
+        socketFilter = `WHERE ${this.primaryKey} = ${id}`
+        return socketFilter
+    }
+
 }
 
 module.exports = { Controller }

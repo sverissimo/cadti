@@ -5,7 +5,8 @@ const
 
 class SocioDaoImpl extends PostgresDao {
 
-
+    table = 'socios'
+    primaryKey = 'socio_id'
 
 }
 

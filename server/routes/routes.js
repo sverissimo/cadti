@@ -34,6 +34,7 @@ router
     .get(solicitacoes.list)
     .post(logHandler, solicitacoes.create)
 
+//Middleware qua define a tabela e cria filtros para os SQL queries conforme permissões de usuário
 router.use(getRequestFilter)
 
 router.use('/veiculos', veiculoRoutes)
@@ -44,7 +45,7 @@ router
     .post(empresas.saveEmpresaAndSocios)
 
 router
-    .route('/socios')
+    .route('/socios/:id?')
     .get(socios.list)
     .post(socios.saveMany)
 

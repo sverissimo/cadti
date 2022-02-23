@@ -1,39 +1,11 @@
 //@ts-check
 const VeiculoDaoImpl = require("../infrastructure/VeiculoDaoImpl")
+const { Repository } = require("./Repository")
 
 /**Classe que corresponde ao repositório de veículos. Herda os métodos get e pool (pgConfig) da classe parent EntityRepository
  *  @class
  */
-class VeiculoRepository {
-
-    /** Busca com base no id ou parâmetro informado
-     * @param filter {string | object}
-     * @returns {Promise<any[]>}         
-    */
-    async find(filter) {
-        try {
-            const data = await new VeiculoDaoImpl().find(filter)
-            return data
-
-        } catch (error) {
-            console.log({ error: error.message })
-            throw new Error(error.message)
-        }
-    }
-
-    /**Lista as entradas de uma determinada tabela
-     * @returns {Promise<any[]>}
-     */
-    async list() {
-        try {
-            const data = await new VeiculoDaoImpl().list()
-            return data
-
-        } catch (error) {
-            console.log({ error: error.message })
-            throw new Error(error.message)
-        }
-    }
+class VeiculoRepository extends Repository {
 
     /**
      * @param vehicle {Object}      
@@ -51,6 +23,11 @@ class VeiculoRepository {
         }
     }
 
+    /**
+     * @override
+     * @param {Object} vehicle 
+     * @returns {Promise<string>} 
+     */
     async update(vehicle) {
         try {
             const veiculoId = await new VeiculoDaoImpl().update(vehicle)

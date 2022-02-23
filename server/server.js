@@ -27,8 +27,6 @@ const
     router = require('./routes/routes'),
     { storage, uploadMetadata } = require('./mongo/mongoUpload'),
     { mongoDownload, getFilesMetadata, getOneFileMetadata } = require('./mongo/mongoDownload'),
-    { cadEmpresa } = require('./cadEmpresa'),
-    { cadSocios } = require('./cadSocios'),
     { cadProcuradores } = require('./cadProcuradores'),
     { seguros } = require('./queries'),
     { fieldParser } = require('./utils/fieldParser'),
@@ -58,9 +56,8 @@ const
     fileBackup = require('./fileBackup/fileBackup'),
     prepareBackup = require('./fileBackup/prepareBackup'),
     { permanentBackup } = require('./fileBackup/permanentBackup'),
-    taskManager = require('./taskManager/taskManager'),
-    { GenericRepository } = require('./repositories/Repository')
-const { Controller } = require('./controllers/Controller')
+    taskManager = require('./taskManager/taskManager')
+    , { SocioDaoImpl } = require('./infrastructure/SocioDaoImpl')
 
 
 taskManager()
@@ -426,28 +423,7 @@ app.post('/api/baixaVeiculo', async (req, res) => {
 
 //************************************ OTHER METHOD ROUTES *********************** */
 
-app.post('/api/cadEmpresa', cadEmpresa)
-app.post('/api/cadSocios', cadSocios)
 app.post('/api/cadProcuradores', cadProcuradores)
-
-app.post('/api/empresaFullCad', cadEmpresa, async (req, res, next) => {
-    const
-        id = res.locals.codigoEmpresa,
-        table = 'empresas',
-        condition = `WHERE empresas.codigo_empresa = ${id}`,
-        event = 'insertEmpresa'
-
-    console.log("🚀 ~ file: server.js ~ line 488 ~ app.post ~ req.codigo_empresa", id)
-    await userSockets({ req, res, noResponse: true, table, condition, event })
-
-    if (!req.body.socios)
-        return res.json({ codigo_empresa: id })
-
-    next()
-}, async (req, res) => {
-    const socioController = new Controller('socios', 'socio_id')
-    await socioController.saveMany(req, res)
-})
 
 app.post('/api/cadSeguro', (req, res) => {
     let parsed = []
@@ -702,15 +678,18 @@ app.put('/api/editSocios', async (req, res, next) => {
 
     let
         queryString = '',
-        keys = new Set(),
         socioIds = []
+
+    const keys = await new SocioDaoImpl().getEntityPropsNames()
+    console.log("🚀 ~ file: server.js ~ line 708 ~ app.put ~  keys", keys)
 
     requestArray.forEach(o => {
         socioIds.push(o.socio_id)
-        Object.keys(o).forEach(k => keys.add(k))
+
         keys.forEach(key => {
-            if (key !== 'socio_id' && key !== 'cpf_socio' && o[key] && o[key] !== '') {
+            if (key !== 'socio_id' && key !== 'cpf_socio' && (o[key] || o[key] === '')) {
                 const value = o[key]
+
                 queryString += `
                     UPDATE ${table} 
                     SET ${key} = '${value}'

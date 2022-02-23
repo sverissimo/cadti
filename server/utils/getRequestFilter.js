@@ -8,7 +8,7 @@ const getRequestFilter = (req, res, next) => {
 
     let
         table = url.replace('/', '')
-        , condition
+        , filter
 
     if (table === 'seguradoras')
         table = table.slice(0, -1)
@@ -19,8 +19,14 @@ const getRequestFilter = (req, res, next) => {
     }
 
     //Se o método não for GET, passa para o próximo router
-    if (req.method !== 'GET')
+    if (req.method !== 'GET') {
+        /* const { user } = req
+        if (!user || user.role === 'empresa')
+            return res.status(403).send('Esse usuário não possui permissões para acessar essa parte do cadTI.') */
+
         return next()
+    }
+
 
     //Se o usuário não é válido ou o role não está definido, retorna 403
     if (!user || !role)
@@ -38,10 +44,10 @@ const getRequestFilter = (req, res, next) => {
         const applyFilter = fieldParser.find(el => el.table === table && el.codigo_empresa)
 
         if (applyFilter)
-            condition = `WHERE ${table}.codigo_empresa IN (${empresas})`
+            filter = `WHERE ${table}.codigo_empresa IN (${empresas})`
 
-        res.locals.condition = condition
-        console.log("🚀 ~ file: getRequestFilter.js ~ line 52 ~ getRequestFilter ~ condition", condition)
+        res.locals.filter = filter
+        //console.log("🚀 ~ file: getRequestFilter.js ~ line 52 ~ getRequestFilter ~ filter", filter)
 
     }
     return next()

@@ -6,7 +6,7 @@ const veiculos = (condition = '') => `
             modelo_chassi.cmt,	
             marca_carroceria.marca as marca_carroceria,
             modelo_carroceria.modelo as modelo_carroceria,
-            d.razao_social as empresa,
+            empresas.razao_social as empresa,
             d2.razao_social as compartilhado,
             seguradora.seguradora,
             seguros.data_emissao,
@@ -20,8 +20,8 @@ const veiculos = (condition = '') => `
          ON veiculos.modelo_carroceria_id = public.modelo_carroceria.id
         LEFT JOIN public.marca_carroceria
             ON public.marca_carroceria.id = public.modelo_carroceria.marca_id
-        LEFT JOIN public.empresas d
-            ON veiculos.codigo_empresa = d.codigo_empresa
+        LEFT JOIN public.empresas
+            ON veiculos.codigo_empresa = empresas.codigo_empresa
         LEFT JOIN public.empresas d2
             ON veiculos.compartilhado_id = d2.codigo_empresa
         LEFT JOIN public.seguros
@@ -37,17 +37,17 @@ const seguros = (condition = '') => `
                 s.seguradora,
                 array_to_json(array_agg(v.veiculo_id)) veiculos,
                 array_to_json(array_agg(v.placa)) placas,
-                d.razao_social empresa,
+                empresas.razao_social empresa,
                 cardinality(array_remove(array_agg(v.placa), null)) as segurados
         FROM seguros
         LEFT JOIN veiculos v
             ON seguros.apolice = v.apolice
-        LEFT JOIN empresas d
-            ON d.codigo_empresa = seguros.codigo_empresa
+        LEFT JOIN empresas
+            ON empresas.codigo_empresa = seguros.codigo_empresa
         LEFT JOIN seguradora s
             ON s.id = seguros.seguradora_id
             ${condition}
-        GROUP BY seguros.apolice, d.razao_social, s.seguradora, d.codigo_empresa, seguros.id
+        GROUP BY seguros.apolice, empresas.razao_social, s.seguradora, empresas.codigo_empresa, seguros.id
         ORDER BY seguros.vencimento ASC
         `
 
@@ -84,17 +84,17 @@ const procuradores = (condition = '') => `
         `
 const procuracoes = (condition = '') => `
 		SELECT public.procuracoes.*,
-		d.razao_social
+		empresas.razao_social
 		FROM procuracoes
-		LEFT JOIN empresas d
-		ON d.codigo_empresa = procuracoes.codigo_empresa
+		LEFT JOIN empresas
+		ON empresas.codigo_empresa = procuracoes.codigo_empresa
 		${condition}
         ORDER BY vencimento DESC      
 		`
 
 const seguradora = (condition = '') => `
         SELECT * FROM public.seguradora
-        ${condition}
+        --${condition}
         order by seguradora.seguradora asc
         `
 
@@ -117,13 +117,13 @@ const carrocerias = (condition = '') => `
 const laudos = (condition = '') => `
     SELECT laudos.*,
         emp.empresa as empresa_laudo,
-		d.razao_social razao_social,
+		empresas.razao_social razao_social,
 		v.placa placa
     FROM laudos
     LEFT JOIN empresa_laudo emp
         ON emp.id = laudos.empresa_id
-	LEFT JOIN empresas d
-		ON d.codigo_empresa = laudos.codigo_empresa
+	LEFT JOIN empresas
+		ON empresas.codigo_empresa = laudos.codigo_empresa
 	LEFT JOIN veiculos v
 		ON v.veiculo_id = laudos.veiculo_id
     ${condition}
@@ -150,7 +150,7 @@ module.exports = {
         modelo_chassi.cmt,
         marca_carroceria.marca as marca_carroceria,
         modelo_carroceria.modelo as modelo_carroceria,
-        d.razao_social as empresa,
+        empresas.razao_social as empresa,
         d2.razao_social as compartilhado,
         d2.codigo_empresa as codigo_compartilhado,
         seguradora.seguradora,
@@ -169,9 +169,9 @@ module.exports = {
         ON veiculos.modelo_carroceria_id = public.modelo_carroceria.id
         LEFT JOIN public.marca_carroceria
         ON public.marca_carroceria.id = public.modelo_carroceria.marca_id
-        LEFT JOIN public.empresas d
-        ON veiculos.codigo_empresa = d.codigo_empresa       
-        LEFT JOIN public.empresas d2
+        LEFT JOIN public.empresas
+        ON veiculos.codigo_empresa = empresas.codigo_empresa       
+        LEFT JOIN public.empresas
         ON veiculos.compartilhado_id = d2.codigo_empresa       		
         LEFT JOIN public.seguros
         ON veiculos.apolice = seguros.apolice

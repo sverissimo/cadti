@@ -4,16 +4,10 @@ const VeiculoController = require('../controllers/VeiculoController')
 
 const
     router = require('express').Router()
-    , veiculoController = new VeiculoController()
+    , veiculoController = new VeiculoController('veiculos', 'veiculo_id')
 
 router.route('/:id?')
-    .get((req, res) =>
-        req.params.id || Object.keys(req.query).length
-            ?
-            veiculoController.find(req, res)
-            :
-            veiculoController.list(req, res)
-    )
+    .get(veiculoController.list)
     .post(veiculoController.create)
     .put(veiculoController.update)
 

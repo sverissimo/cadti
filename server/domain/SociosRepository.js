@@ -2,21 +2,23 @@
 const
     { request, response } = require("express")
     , { getUpdatedData } = require("../getUpdatedData")
+const { Controller } = require("../controllers/Controller")
 
 
-class SocioRepository {
+class SocioRepository extends Controller {
 
     /**
     * Lista as entradas de uma determinada tabela
+    * @override
     * @param req {any} 
     * @param res {response}
     * @returns {Promise<void>}
    */
-    async list(req, res) {
+    list = async (req, res) => {
 
         try {
             let
-                condition = res.locals.condition || ''
+                filter = res.locals.filter || ''
                 , emps = ''
             const
                 { table } = res.locals
@@ -24,10 +26,10 @@ class SocioRepository {
 
             if (empresas && empresas[0] && role === 'empresa') {
                 empresas.forEach(e => emps += ` or socios.empresas LIKE '%${e}%'`)
-                condition += emps
+                filter += emps
             }
 
-            const data = await getUpdatedData(table, condition || '')
+            const data = await getUpdatedData(table, filter || '')
             res.json(data)
 
         } catch (error) {

@@ -11,8 +11,8 @@ class EmpresaDaoImpl extends PostgresDao {
         const
             client = await this.pool.connect()
             , parsedEmpresa = this.parseRequestBody(empresa)
-            , empresaQuery = `INSERT INTO empresas (${parsedEmpresa.keys}) VALUES (${parsedEmpresa.values}) RETURNING codigo_empresa`
-        console.log("🚀 ~ file: EmpresaDaoImpl.js ~ line 15 ~ EmpresaDaoImpl ~ saveEmpresaAndSocios ~ empresaQuery", empresaQuery)
+            , empresaQuery = `INSERT INTO empresas (${parsedEmpresa.keys}) VALUES (${parsedEmpresa.values}) RETURNING empresas.codigo_empresa`
+        console.log("🚀 ~ file: EmpresaDaoImpl.js ~ line 15 ~ EmpresaDaoImpl ~ saveEmpresaAndSocios ~ empresaQuery", empresaQuery);
 
 
         try {
@@ -25,6 +25,8 @@ class EmpresaDaoImpl extends PostgresDao {
                 , parsedSocios = this.parseRequestBody(updatedSocios)
 
             const sociosQuery = this.pgFormat(`INSERT INTO socios (${parsedSocios.keys}) VALUES %L`, parsedSocios.values) + ` RETURNING socio_id`
+                .replace('\'DEFAULT\'', 'DEFAULT')
+            //    .replace(/'\'DEFAULT\'', 'DEFAULT'/g)
             console.log("🚀 ~ file: EmpresaDaoImpl.js ~ line 28 ~ EmpresaDaoImpl ~ saveEmpresaAndSocios ~ sociosQuery", sociosQuery)
 
             const socioResponse = await client.query(sociosQuery)

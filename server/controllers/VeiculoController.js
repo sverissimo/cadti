@@ -3,47 +3,13 @@ const
     { request, response } = require('express')
     , VeiculoRepository = require("../repositories/VeiculoRepository")
     , userSockets = require('../auth/userSockets')
+    , { Controller } = require('./Controller')
 
+/**
+ * @class 
+ */
+class VeiculoController extends Controller {
 
-class VeiculoController {
-
-    /**      
-     * @param {request} req 
-     * @param {response} res 
-     * @returns {Promise<any>}
-     */
-    async find(req, res) {
-        const
-            veiculoRepository = new VeiculoRepository()
-            , filter = req.params.id || req.query
-
-        try {
-            const veiculo = await veiculoRepository.find(filter)
-            return res.status(200).json(veiculo)
-
-        } catch (e) {
-            console.log(e.name + ': ' + e.message)
-            res.status(500).send(e)
-        }
-    }
-
-    /**     
-     * @param {request} req 
-     * @param {response} res 
-     * @returns {Promise<any>}
-     */
-    async list(req, res) {
-        try {
-            const
-                veiculoRepository = new VeiculoRepository()
-                , veiculos = await veiculoRepository.list()
-            res.status(200).json(veiculos)
-
-        } catch (e) {
-            console.log(e.name + ': ' + e.message)
-            res.status(500).send(e)
-        }
-    }
 
     /**
      * @param {request} req 
@@ -83,11 +49,12 @@ class VeiculoController {
 
 
     /**
+     * @override
      * @param {request} req 
      * @param {response} res 
      * @returns {Promise<void>}
      */
-    async update(req, res) {
+    update = async (req, res) => {
 
         const
             veiculoRepository = new VeiculoRepository()

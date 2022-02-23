@@ -222,34 +222,20 @@ class EmpresasContainer extends Component {
             }
         })
 
-        empresa.situacao = 'Ativo'
-
-        /*   Object.entries(empresa).forEach(([k, v]) => {
-              if (!v || v === '') delete empresa[k]
-          })
-  
-          socios.forEach(s => {
-              delete s.edit
-              Object.entries(s).forEach(([k, v]) => {
-                  if (!v || v === '')
-                      socios[k] = 'NULL'
-              })
-          })
-   */
-        empresa = humps.decamelizeKeys(empresa)
-        socios = humps.decamelizeKeys(socios)
         if (!socios || !socios[0]) {
             console.log('Warning: No socios were registered!!!')
             socios = undefined
         }
-        else
-            console.log(socios)
+
+        empresa.situacao = 'Ativo'
+        empresa = humps.decamelizeKeys(empresa)
+        socios = humps.decamelizeKeys(socios)
 
         const response = await axios.post('/api/empresas', { empresa, socios })
 
         empresaId = response.data.codigo_empresa
         socioIds = response.data.socio_ids
-        console.log("🚀 ~ file: EmpresasContainer.jsx ~ line 249 ~ EmpresasContainer ~ handleSubmit= ~ empresaId", { empresaId, socioIds })
+        //console.log("🚀 ~ file: EmpresasContainer.jsx ~ line 249 ~ EmpresasContainer ~ handleSubmit= ~ empresaId", { empresaId, socioIds })
 
         this.submitFile(empresaId, socioIds, form)
 

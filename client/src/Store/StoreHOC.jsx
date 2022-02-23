@@ -67,8 +67,8 @@ export default function (requestArray, WrappedComponent) {
             //********************Listen to socket events and call dataActions*********************** */
             socket.on('insertVehicle', insertedObjects => this.props.insertData(insertedObjects, 'veiculos'))
             socket.on('insertInsurance', insertedObjects => this.props.insertData(insertedObjects, 'seguros'))
-            socket.on('insertEmpresa', insertedObjects => this.props.insertData(insertedObjects, 'empresas'))
-            socket.on('insertSocios', insertedObjects => this.props.insertData(insertedObjects, 'socios'))
+            //socket.on('insertEmpresa', insertedObjects => this.props.insertData(insertedObjects, 'empresas'))
+            //socket.on('insertSocios', insertedObjects => this.props.insertData(insertedObjects, 'socios'))
             socket.on('insertProcuradores', insertedObjects => this.props.insertData(insertedObjects, 'procuradores'))
             socket.on('insertElements', ({ insertedObjects, collection }) => this.props.insertData(insertedObjects, collection))
 

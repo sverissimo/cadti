@@ -12,7 +12,7 @@ const parseRequestBody = (body) => {
         const keys = Array.from(uniqueKeys)
 
         body.forEach((obj) => {
-            const objValues = keys.map(k => obj[k] ? obj[k] : 'DEFAULT')
+            const objValues = keys.map(k => obj[k] ? obj[k] : null)
             values.push(objValues)
         })
 
@@ -24,13 +24,15 @@ const parseRequestBody = (body) => {
 
     } else {
         let values = []
-        const keys = Object.keys(body).toString()
+            , keys = Object.keys(body)
+        keys = keys.filter(k => body[k]).toString()
 
         Object.entries(body).forEach(([k, v]) => {
-            if (v instanceof Array)
-                v = JSON.stringify(v)
+            if (!v)
+                if (v instanceof Array)
+                    v = JSON.stringify(v)
             if (v)
-                values.push(('\'' + v + '\'').toString())
+                values.push(('\'' + v + '\''))
         })
         values = values.toString().replace(/'\['/g, '').replace(/'\]'/g, '')
         return { keys, values }

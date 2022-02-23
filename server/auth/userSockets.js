@@ -18,7 +18,7 @@ const userSockets = async ({ req, res, table, condition = '', event, collection,
         codigoEmpresa = codigo_empresa
 
     //Se houver uma nova empresa cadastrada, o codigoEmpresa veio dentro do mesmo request e salvo em res.locals
-    if (!codigoEmpresa && (table === 'empresas' || table === 'socios'))
+    if (!codigoEmpresa && res && (table === 'empresas' || table === 'socios'))
         codigoEmpresa = res.locals.codigoEmpresa
 
     //console.log("🚀 ~ file: userSockets.js ~ line 24 ~ userSockets ~ table & codigoEmpresa", table, codigoEmpresa)
@@ -67,9 +67,9 @@ const userSockets = async ({ req, res, table, condition = '', event, collection,
         if (codigoEmpresa)
             insertEmpresa({ representantes: data, codigoEmpresa })
 
-        //res.locals só tem no EmpresaFullCad. 
+        /* //res.locals só tem no EmpresaFullCad. 
         if (res.locals.codigoEmpresa)
-            data = { codigo_empresa: codigoEmpresa, ids: data }
+            data = { codigo_empresa: codigoEmpresa, ids: data } */
         return res.send(data)
     }
     else

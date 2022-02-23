@@ -20,7 +20,7 @@ class ProcuracaoController extends Controller {
 
     constructor() {
         super()
-        this.repository = new Repository()
+        this.repository = new Repository(this.table, this.primaryKey)
     }
 
     /**
