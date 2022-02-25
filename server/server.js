@@ -63,7 +63,11 @@ const
 taskManager()
 dotenv.config()
 
-app.use(morgan('dev'))
+if (process.env.NODE_ENV === 'production')
+    app.use(morgan(`:method :url :status :response-time ms [:date[clf]]`))
+else
+    app.use(morgan('dev'))
+
 app.use(express.json({ limit: '50mb' }))
 app.use(express.urlencoded({ extended: true }))
 app.use(express.static('client/build'))
@@ -488,78 +492,6 @@ app.post('/api/addElement', (req, res) => {
         }
     })
 })
-
-app.put('/api/editElements', (req, res) => {
-    const
-        { user } = req,
-        { table, tablePK, column, requestArray } = req.body,
-        { collection } = fieldParser.find(el => el.table === table)
-    let
-        queryString = ''
-
-    //Checa permissão de admin
-    if (user.role === 'empresa')
-        return res.status(403).send('Esse usuário não possui permissões para acessar essa parte do cadTI.')
-    //Request vazio
-    if (!requestArray && !requestArray[0])
-        return res.send('nothing to update...')
-
-    requestArray.forEach(obj => {
-        queryString += `
-        UPDATE ${table}
-        SET ${column} = '${obj[column]}' 
-        WHERE ${tablePK} = ${obj.id || obj[tablePK]};             
-        `
-    });
-    console.log("🚀 ~ file: server.js ~ line 630 ~ app.put ~ queryString", queryString)
-    const
-        primaryKey = collection === 'empresas' ? 'codigoEmpresa' : 'id',
-        obj = requestArray[0]
-
-    pool.query(queryString, (err, tb) => {
-        if (err) console.log(err)
-        pool.query(`SELECT * FROM ${table} WHERE ${tablePK} = ${obj.id || obj[tablePK]}`, (err, t) => {
-            if (err) console.log(err)
-            if (t && t.rows) {
-                io.sockets.emit('updateAny', { collection, updatedObjects: t.rows, primaryKey })
-                res.send(t.rows)
-            } else res.send('Nothing was returned from the dataBase...')
-        })
-    })
-})
-
-//Edita um ou mais colunas de uma única linha da tabela
-app.put('/api/editTableRow', async (req, res) => {
-    //    console.log("🚀 ~ file: server.js ~ line 587 ~ app.put ~ req", req.body)
-
-    const
-        { id, table, updates, tablePK } = req.body,
-        columns = Object.keys(updates);
-
-
-    let query = `UPDATE ${table} SET `
-
-    columns.forEach(col => {
-        query += `${col} = '${updates[col]}', `
-    })
-
-    query = query.slice(0, query.length - 2)
-    const condition = ` WHERE ${table}.${tablePK} = ${id} `
-
-    query += condition
-
-    const
-        socketEvent = 'updateAny',
-        pgQuery = pool.query(query)
-
-    pgQuery
-        .then(async () => {
-            await emitSocket({ table, io, socketEvent, condition, primaryKey: tablePK })
-            res.send(`${table} updated.`)
-        })
-        .catch(e => console.log(e))
-})
-
 
 //Atualiza um elemento da tabela 'seguros'
 app.put('/api/updateInsurance', async (req, res) => {

@@ -17,7 +17,7 @@ class VeiculoDaoImpl extends PostgresDao {
     }
 
     /**@override */
-    async update(reqBody) {
+    update = async (reqBody) => {
 
         const
             client = await this.pool.connect()

@@ -55,6 +55,7 @@ class PostgresDao {
     * @returns {Promise<any[]>} 
     */
     async find(filter) {
+
         let key
             , value
             , condition = `WHERE ${this.table}.${key || this.primaryKey} = $1`
@@ -62,16 +63,20 @@ class PostgresDao {
         value = [filter]
 
         if (Array.isArray(filter)) {
-            condition = `WHERE ${this.primaryKey} IN (${filter.join()})`
+            condition = `WHERE ${this.table}.${this.primaryKey} IN (${filter.join()})`
             value = ''
         }
         else if (typeof filter === 'object')
             [[key, value]] = Object.entries(filter)
 
+        //console.log("🚀 ~ file: PostgresDao.js ~ line 72 ~ PostgresDao ~ find ~ condition", condition)
+
         const
             queryGenerator = allGetQueries[this.table]
             , query = queryGenerator(condition)
-            , response = await pool.query(query, value)
+        console.log("🚀 ~ file: PostgresDao.js ~ line 77 ~ PostgresDao ~ find ~ query", query)
+        const response = await pool.query(query, value)
+            //  , response = await pool.query(query, value)
             , data = response.rows
 
         return data
@@ -107,46 +112,69 @@ class PostgresDao {
         }
     }
 
-    /**@param {object} requestBody */
-    async update(requestBody) {
+    /**@param {object | Array<object>} requestBody */
+    update = async (requestBody) => {
+
         const
             client = await pool.connect()
-            , { id, ...update } = requestBody
-            , condition = ` WHERE ${this.table}.${this.primaryKey} = '${requestBody[this.primaryKey]}'`
-
-        let query = ''
-
-        if (Object.keys(update).length < 1)
-            return 'Nothing to update...'
-
-
-        Object.entries(update).forEach(([key, value]) => {
-            query += `${key} = '${value}', `
-        })
-
-        query = `UPDATE ${this.table} SET ` +
-            query.slice(0, query.length - 2)
-
-        query = query + condition + ` RETURNING ${this.table}.${this.primaryKey}`
+            , query = this.createUpdateQuery(requestBody)
 
         try {
             await client.query('BEGIN')
-            const res = await client.query(query)
-
-            this.id = res.rows[0][this.primaryKey]
-
+            await client.query(query)
             await client.query('COMMIT')
 
-            return this.id
+            return true
 
         } catch (error) {
-
             await client.query('ROLLBACK')
-            console.log("🚀 ~ file: PostgresDao.js ~ line 135 ~ PostgresDao ~ update ~ error", error)
+            console.log("🚀 ~ file: PostgresDao.js ~ line 135 ~ PostgresDao ~ update ~ ROLLBACK ~ error", error)
             throw new Error(error.message)
 
         } finally {
             client.release()
+        }
+    }
+
+    createUpdateQuery = (requestBody, table = this.table, primaryKey = this.primaryKey) => {
+
+        const
+            isObject = requestBody && !Array.isArray(requestBody) && typeof requestBody === 'object'
+            , isArray = Array.isArray(requestBody)
+
+        let query = ''
+        console.log("🚀 ~ file: PostgresDao.js ~ line 151 ~ PostgresDao ~ this.primaryKey", primaryKey)
+
+        if (!isObject && !isArray)
+            throw new Error('Invalid update object format! Expected object or array')
+        if (isObject)
+            query = createQuery(requestBody, table, primaryKey)
+
+        if (isArray)
+            for (let obj of requestBody) {
+                query += createQuery(obj, table, primaryKey)
+            }
+
+        return query
+
+        function createQuery(obj, table, primaryKey) {
+            const
+                { id: objID, [primaryKey]: uniquePK, ...update } = obj
+                , id = objID || uniquePK
+
+            let sqlQuery = `UPDATE ${table} SET `
+
+            Object.keys(update).forEach(key => {
+                sqlQuery += `
+                ${key} = '${obj[key]}', `
+            })
+
+            sqlQuery = sqlQuery.slice(0, sqlQuery.length - 2)
+
+            sqlQuery += `
+                WHERE ${primaryKey} = ${id};
+            `
+            return sqlQuery
         }
     }
 
@@ -161,6 +189,7 @@ class PostgresDao {
         const
             { keys, values } = keysAndValuesArray
             , query = format(`INSERT INTO ${this.table} (${keys}) VALUES %L`, values) + ` RETURNING ${this.primaryKey}`
+        console.log("🚀 ~ file: PostgresDao.js ~ line 196 ~ PostgresDao ~ saveMany ~ this.primaryKey", this.primaryKey)
         console.log("🚀 ~ file: PostgresDao.js ~ line 157 ~ PostgresDao ~ saveMany ~ query", query)
 
 

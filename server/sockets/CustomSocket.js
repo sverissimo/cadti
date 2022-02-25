@@ -1,6 +1,5 @@
 //@ts-check
 const { request } = require("express");
-const { Repository } = require("../repositories/Repository");
 
 /**
  * @class CustomSocket
@@ -16,28 +15,33 @@ class CustomSocket {
     io;
 
     /**
-     * @property {} codigo_empresa @type {number | string} */
-    codigoEmpresa;
-
-    /**
-     * @param {request} req
-     * @param {string} [table]
+     * @param {request} req     
      */
-    constructor(req, table) {
+    constructor(req) {
         this.io = req.app.get('io')
         this.ids = Object.keys(this.io.sockets.sockets)
-        this.codigoEmpresa = req.body.codigoEmpresa || req.body.codigo_empresa
-        this.table = table || req.url.replace('/', '')
+        this.table = req.url.replace('/', '')
     }
 
     /**      
-     * @param {string} event 
-     * @param {Object | any[]} data
-     * @param {number | string} [codigoEmpresa ]     
+    * @param {string} event 
+    * @param {Object | any[]} data
+    * @param {string} [table]
+    * @param {string} [primaryKey] 
+    * @param {number | string} [codigoEmpresa ]     
      */
-    async emit(event, data, codigoEmpresa = this.codigoEmpresa) {
-        const formattedData = { insertedObjects: data, collection: this.table }
-        this.io.sockets.to('admin').to('tecnico').emit(event, formattedData)
+    async emit(event, data, table, primaryKey, codigoEmpresa) {
+
+        const formattedData = {
+            data,
+            collection: table || this.table,
+            primaryKey
+        }
+
+        this.io.sockets
+            .to('admin')
+            .to('tecnico')
+            .emit(event, formattedData)
     }
 }
 

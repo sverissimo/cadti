@@ -68,7 +68,8 @@ const empresas = (condition = '') => `
             ON v.codigo_empresa = empresas.codigo_empresa
         ${condition}
         GROUP BY empresas.codigo_empresa
-        ORDER BY frota DESC
+        --ORDER BY frota DESC
+        ORDER BY codigo_empresa DESC
         `
 
 const compartilhados = (condition = 'WHERE situacao != \'Desativada\'') => ` 
@@ -94,7 +95,7 @@ const procuracoes = (condition = '') => `
 
 const seguradora = (condition = '') => `
         SELECT * FROM public.seguradora
-        --${condition}
+        ${condition}
         order by seguradora.seguradora asc
         `
 
@@ -104,6 +105,7 @@ const modeloChassi = (condition = '') => `
         FROM modelo_chassi 
         LEFT JOIN marca_chassi
             ON public.marca_chassi.id = public.modelo_chassi.marca_id
+        ${condition}
 		`
 
 const carrocerias = (condition = '') => `
@@ -112,6 +114,7 @@ const carrocerias = (condition = '') => `
 		FROM modelo_carroceria
 		LEFT JOIN marca_carroceria
 			ON public.marca_carroceria.id = public.modelo_carroceria.marca_id
+        ${condition}
 		`
 
 const laudos = (condition = '') => `
@@ -131,10 +134,10 @@ const laudos = (condition = '') => `
 `
 
 const
-    acessibilidade = condition => `SELECT * FROM acessibilidade`,
-    equipamentos = condition => `SELECT * FROM equipamentos`,
-    seguradoras = condition => `SELECT * FROM seguradora`,
-    empresasLaudo = condition => `SELECT * from empresa_laudo ORDER BY id ASC`
+    acessibilidade = (condition = '') => `SELECT * FROM acessibilidade ${condition}`,
+    equipamentos = (condition = '') => `SELECT * FROM equipamentos ${condition}`,
+    seguradoras = (condition = '') => `SELECT * FROM seguradora ${condition}`,
+    empresasLaudo = (condition = '') => `SELECT * from empresa_laudo ${condition} ORDER BY id ASC `
 
 
 module.exports = {

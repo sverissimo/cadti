@@ -48,7 +48,7 @@ router.patch('/', async (req, res) => {
     if (update.id) {
         query._id = update.id
         socketEvent = 'updateAny'
-        socketProp = 'updatedObjects'
+        socketProp = 'data'
         //Apaga o campo id do update, senão não mexe no ID
         delete update.id
     }

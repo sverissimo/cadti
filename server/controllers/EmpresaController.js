@@ -12,9 +12,11 @@ class EmpresaController extends Controller {
     table = 'empresas'
     primaryKey = 'codigo_empresa'
 
-    constructor() {
+    constructor(table, primaryKey, repository) {
         super()
-        this.repository = new Repository(this.table, this.primaryKey)
+        this.table = this.table || table
+        this.primaryKey = this.primaryKey || primaryKey
+        this.repository = repository || new Repository(this.table, this.primaryKey)
     }
 
     /**     

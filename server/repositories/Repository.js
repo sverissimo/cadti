@@ -35,6 +35,7 @@ class Repository {
         this.entityManager = new EntityDaoImpl(this.table, this.primaryKey)
         this.list = this.list.bind(this)
         this.find = this.find.bind(this)
+        this.update = this.update.bind(this)
     }
 
     /** Lista todos os objetos (rows) de uma tabela
@@ -54,7 +55,7 @@ class Repository {
 
 
     /** Busca com base no id ou parâmetro informado
-    * @param {string | object} filter
+    * @param {string | object | Array<string | number>} filter - Id ou filtro (objeto key/value para servir de param para a busca ou array de ids)
     * @returns {Promise<any[]>} Promise, collection
     */
     async find(filter) {
@@ -86,10 +87,19 @@ class Repository {
     }
     /**
         * @param {Object} element 
-        * @returns {Promise<string>} 
+        * @returns {Promise<any>} 
         */
     async update(element) {
-        return ''
+        try {
+            const
+                entityManager = new EntityDaoImpl(this.table, this.primaryKey)
+                , result = await entityManager.update(element)
+            console.log("🚀 ~ file: Repository.js ~ line 97 ~ Repository ~ update ~ result", result)
+            return result
+        } catch (error) {
+            console.log("🚀 ~ file: Repository.97 ~ line 97 ~ Repository ~ update ~ error", error.message)
+            throw new Error(error.message)
+        }
     }
 }
 

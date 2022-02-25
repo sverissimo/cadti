@@ -111,10 +111,8 @@ class ConsultasContainer extends Component {
                     let sociosArray = []
                     selectedFiles = empresaDocs
                         .filter(f => socio.empresas.some(e => e.codigoEmpresa === f.metadata.empresaId && f.metadata.fieldName !== 'crc'))
-                    console.log("🚀 ~ file: Consultas.jsx ~ line 114 ~ ConsultasContainer ~ selectedFiles", selectedFiles)
                     selectedFiles.forEach(f => {
                         if (f.metadata.socios && f.metadata.socios.includes(id)) {
-                            console.log("🚀 ~ file: Consultas.jsx ~ line 129 ~ ConsultasContainer ~ id", id)
                             sociosArray.push(f)
                         }
                     })
@@ -197,11 +195,13 @@ class ConsultasContainer extends Component {
             codigoEmpresa = data
             const reqBody = {
                 table,
-                tablePK,
-                column: 'situacao',
-                requestArray: [{ situacao: 'Desativada', id: codigoEmpresa }]
+                tablePK: 'codigo_empresa',
+                update: {
+                    codigo_empresa: codigoEmpresa,
+                    situacao: 'Desativada'
+                }
             }
-            console.log(reqBody)
+
             axios.put('/api/editElements', reqBody)
             this.closeConfirmDialog()
         }

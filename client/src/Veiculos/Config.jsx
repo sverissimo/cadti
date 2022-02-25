@@ -263,12 +263,15 @@ class VehicleConfig extends PureComponent {
     handleSubmit = async updatedObj => {
         const
             { staticData } = this.state,
-            { field, table } = staticData,
-            tablePK = 'id',
-            column = humps.decamelize(field),
-            editedElements = [humps.decamelizeKeys(updatedObj)]
+            { table } = staticData,
 
-        await axios.put('/api/editElements', { requestArray: editedElements, table, tablePK, column })
+            update = humps.decamelizeKeys(updatedObj)
+
+        await axios.put('/api/editElements', {
+            table,
+            tablePK: 'id',
+            update
+        })
             .catch(err => console.log(err))
 
         this.setState({ updatedObj: undefined })

@@ -82,7 +82,7 @@ export default function (requestArray, WrappedComponent) {
             socket.on('updateSocios', updatedObjects => this.props.updateCollection(updatedObjects, 'socios'))
             socket.on('updateProcuradores', ({ collection, data, primaryKey }) => this.props.updateData(data, collection, primaryKey))
             socket.on('updateLogs', updatedObjects => this.props.updateData(updatedObjects, 'logs', 'id'))
-            socket.on('updateAny', ({ updatedObjects, collection, primaryKey }) => this.props.updateData(updatedObjects, collection, primaryKey))
+            socket.on('updateAny', ({ data, collection, primaryKey }) => this.props.updateData(data, collection, primaryKey))
             socket.on('updateDocs', ({ ids, metadata, collection, primaryKey }) => this.props.updateDocs(ids, metadata, collection, primaryKey))
             socket.on('updateElements', ({ collection, updatedCollection }) => this.props.updateCollection(updatedCollection, collection))
             socket.on('updateUser', updatedUser => this.props.editUser(updatedUser))

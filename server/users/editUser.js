@@ -31,7 +31,7 @@ const editUser = async (req, res) => {
     if ((role && role !== 'admin' || !role) && updatedUser.cpf !== userCpf)
         return res.status(403).send('O usuário não possui acesso para esta parte do CadTI.')
 
-    const update = { updatedObjects: [updatedUser], collection: 'users', primaryKey: 'id' }
+    const update = { data: [updatedUser], collection: 'users', primaryKey: 'id' }
     await io.sockets.emit('updateAny', update)
 
     res.status(200).send('Dados de usuário atualizados com sucesso!')

@@ -396,7 +396,6 @@ const AltContrato = props => {
             { codigoEmpresa } = selectedEmpresa,
             altContrato = createRequestObj(altContratoForm),
             altEmpresa = createRequestObj(empresasForm),
-            empresaUpdates = updateEmpresa(altEmpresa),
             socioUpdates = checkSocioUpdates(approved),
             log = createLog({ demand, altEmpresa, altContrato, socioUpdates, approved })
         let
@@ -404,7 +403,7 @@ const AltContrato = props => {
             toastMsg = 'Solicitação de alteração contratual enviada.'
 
         //Se não houver nenhuma alteração, alerta e retorna
-        if (!demand && !altContrato && !empresaUpdates && !form && !socioUpdates) {
+        if (!demand && !altContrato && !altEmpresa && !form && !socioUpdates) {
             alert('Nenhuma modificação registrada!')
             return
         }
@@ -413,8 +412,12 @@ const AltContrato = props => {
         if (demand && approved) {
 
             //Registra as alterações de dados da empresa            
-            if (demand.history[0].altEmpresa && empresaUpdates)
-                axios.put('/api/editTableRow', empresaUpdates)
+            if (demand.history[0].altEmpresa && altEmpresa)
+                axios.put('/api/editElements', {
+                    table: 'empresas',
+                    tablePK: 'codigo_empresa',
+                    update: humps.decamelizeKeys(altEmpresa)
+                })
 
             //Registrar as alterações contratuais
             if (altContrato)
@@ -582,31 +585,6 @@ const AltContrato = props => {
         else return null
     }
 
-    const updateEmpresa = altEmpresa => {
-        const
-            { selectedEmpresa } = state,
-            { codigoEmpresa } = selectedEmpresa
-
-        if (!altEmpresa)
-            return
-
-        for (let prop in selectedEmpresa) {
-            if (altEmpresa[prop] && altEmpresa[prop] === selectedEmpresa[prop])
-                delete altEmpresa[prop]
-        }
-
-        //Prepara o objeto e envia o request
-        const shouldUpdate = Object.keys(altEmpresa).length > 0
-        if (shouldUpdate) {
-            const requestObj = {
-                id: codigoEmpresa,
-                table: 'empresas',
-                tablePK: 'codigo_empresa',
-                updates: humps.decamelizeKeys(altEmpresa)
-            }
-            return requestObj
-        }
-    }
 
     const createLog = ({ demand, altEmpresa, altContrato, approved, socioUpdates }) => {
         const
@@ -675,6 +653,7 @@ const AltContrato = props => {
 
         //Adiciona a data de solicitação (não de cadastro) no sistema, em caso de alteração do contrato é necessário verificar        
         const keys = Object.keys(returnObj)
+        console.log("🚀 ~ file: AltContrato.jsx ~ line 681 ~ returnObj", returnObj)
 
         if (keys.length > 1) {
             //Se tiver aprovando, pega o createdAt do log(demanda) e salva, para manter a data da solicitação.
