@@ -41,15 +41,15 @@ class EmpresaController extends Controller {
                 , { codigo_empresa, socio_ids } = await empresaDaoImpl.saveEmpresaAndSocios({ empresa, socios })
 
                 , updatedEmpresa = await this.repository.find(codigo_empresa)
-            req.body.codigoEmpresa = codigo_empresa
-            const socket = new CustomSocket(req)
-            await socket.emit('insertElements', updatedEmpresa)
+
+            const empresaSocket = new CustomSocket(req)
+            empresaSocket.emit('insertElements', updatedEmpresa, 'empresas', 'codigo_empresa', codigo_empresa)
 
             const socioRepository = new Repository('socios', 'socio_id')
                 , updatedSocios = await socioRepository.find(socio_ids)
-                , socioSockets = new CustomSocket(req, 'socios')
+                , socioSockets = new CustomSocket(req)
 
-            socioSockets.emit('insertElements', updatedSocios)
+            socioSockets.emit('insertElements', updatedSocios, 'socios', 'id', codigo_empresa)
             return res.status(201).send({ codigo_empresa, socio_ids })
 
         } catch (error) {

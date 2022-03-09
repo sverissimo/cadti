@@ -28,11 +28,16 @@ const parseRequestBody = (body) => {
         keys = keys.filter(k => body[k]).toString()
 
         Object.entries(body).forEach(([k, v]) => {
-            if (!v)
-                if (v instanceof Array)
-                    v = JSON.stringify(v)
-            if (v)
-                values.push(('\'' + v + '\''))
+            if (v instanceof Array) {
+                if (k === 'equipamentos_id' || key === 'acessibilidade_id')
+                    v = `'${JSON.stringify(v)}'::json`
+                if (k === 'empresas')
+                    v = `array${JSON.stringify(v)}`
+            }
+            else
+                v = `'${v}'`
+
+            values.push(v)
         })
         values = values.toString().replace(/'\['/g, '').replace(/'\]'/g, '')
         return { keys, values }

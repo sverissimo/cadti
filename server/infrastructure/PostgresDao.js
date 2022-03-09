@@ -60,24 +60,28 @@ class PostgresDao {
             , value
             , condition = `WHERE ${this.table}.${key || this.primaryKey} = $1`
 
-        value = [filter]
-
         if (Array.isArray(filter)) {
             condition = `WHERE ${this.table}.${this.primaryKey} IN (${filter.join()})`
             value = ''
         }
-        else if (typeof filter === 'object')
+        else if (typeof filter === 'object') {
             [[key, value]] = Object.entries(filter)
 
-        //console.log("🚀 ~ file: PostgresDao.js ~ line 72 ~ PostgresDao ~ find ~ condition", condition)
+            condition = `WHERE ${this.table}.${key} = '${value}'`
+            value = undefined
+        }
+        else
+            value = [filter]
 
         const
             queryGenerator = allGetQueries[this.table]
             , query = queryGenerator(condition)
-        console.log("🚀 ~ file: PostgresDao.js ~ line 77 ~ PostgresDao ~ find ~ query", query)
+
+        //@ts-ignore
         const response = await pool.query(query, value)
             //  , response = await pool.query(query, value)
             , data = response.rows
+        console.log("🚀 ~ file: PostgresDao.js ~ line 84 ~ PostgresDao ~ find ~ data", data)
 
         return data
     }

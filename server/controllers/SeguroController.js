@@ -28,9 +28,9 @@ class SeguroController extends Controller {
 
         const
             vehicleIds = req.body.vehicleIds || []
-            , deletedVehicleIds = req.body.deletedVehicleIds || []
+            , deletedVehicles = req.body.deletedVehicles || []
             , { update } = req.body
-            , { codigo_empresa, id } = update
+            , { id } = update
 
         try {
 
@@ -38,20 +38,20 @@ class SeguroController extends Controller {
             await entityManager.updateInsurance(req.body)
 
             const
-                allUpdatedVehicleIds = vehicleIds.concat(deletedVehicleIds)
+                allUpdatedVehicleIds = vehicleIds.concat(deletedVehicles)
                 , updatedVehicles = await new Repository('veiculos', 'veiculo_id').find(allUpdatedVehicleIds)
+                , { codigo_empresa } = updatedVehicles[0]
                 , veiculoSocket = new CustomSocket(req)
 
             veiculoSocket.emit('updateAny', updatedVehicles, 'veiculos', 'veiculo_id', codigo_empresa)
 
-            const updatedInsurance = await new Repository('seguros', 'id').find(id)
-            req.body.codigoEmpresa = codigo_empresa
-            const seguroSocket = new CustomSocket(req)
+            const
+                updatedInsurance = await new Repository('seguros', 'id').find(id)
+                , seguroSocket = new CustomSocket(req)
+
             await seguroSocket.emit('updateAny', updatedInsurance, 'seguros', 'id', codigo_empresa)
 
             return res.status(200).send('Seguro e veículos atualizados.')
-
-
 
         } catch (error) {
             console.log("🚀 ~ file: EmpresaController.js ~ line 30 ~ EmpresaController ~ saveEmpresaAndSocios ~ error", error)

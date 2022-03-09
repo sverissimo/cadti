@@ -13,7 +13,7 @@ class SeguroDaoImpl extends PostgresDao {
             , seguroQuery = this.createUpdateQuery(update, 'seguros', 'id')
 
         let
-            { vehicleIds, deletedVehicleIds } = requestBody
+            { vehicleIds, deletedVehicles: deletedVehicleIds } = requestBody
             , newVehicles = []
             , deletedVehicles = []
             , veiculoQuery
@@ -38,7 +38,8 @@ class SeguroDaoImpl extends PostgresDao {
             veiculoQuery = this.createUpdateQuery(vehicleUpdates, 'veiculos', 'veiculo_id')
 
         //console.log("🚀 ~ file: SeguroDaoImpl.js ~ line 21 ~ SeguroDaoImpl ~ saveEmpresaAndSocios ~ seguroQuery", seguroQuery)
-        //console.log("🚀 ~ file: SeguroDaoImpl.js ~ line 22 ~ SeguroDaoImpl ~ updateInsurance ~ veiculoQuery", veiculoQuery)
+        console.log("🚀 ~ file: SeguroDaoImpl.js ~ line 22 ~ SeguroDaoImpl ~ updateInsurance ~ veiculoQuery", veiculoQuery)
+        return
 
         const client = await this.pool.connect()
 

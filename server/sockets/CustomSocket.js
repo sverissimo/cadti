@@ -30,18 +30,37 @@ class CustomSocket {
     * @param {string} [primaryKey] 
     * @param {number | string} [codigoEmpresa ]     
      */
-    async emit(event, data, table, primaryKey, codigoEmpresa) {
+    emit(event, data, table, primaryKey, codigoEmpresa) {
 
         const formattedData = {
             data,
             collection: table || this.table,
-            primaryKey
+            primaryKey: primaryKey || 'id'
         }
 
         this.io.sockets
             .to('admin')
             .to('tecnico')
             .emit(event, formattedData)
+
+        const authorizedUsers = this.getSocketRecipients(codigoEmpresa)
+        for (let user of authorizedUsers) {
+            this.io.sockets
+                .to(user)
+                .emit(event, formattedData)
+        }
+    }
+
+    /**
+     * @param {string | number} codigoEmpresa     */
+    getSocketRecipients(codigoEmpresa) {
+
+        const
+            { sockets } = this.io.sockets
+            , socketIds = Object.keys(sockets)
+            , authorizedSockets = socketIds.filter(id => sockets[id].empresas && sockets[id].empresas.includes(codigoEmpresa))
+
+        return authorizedSockets
     }
 }
 

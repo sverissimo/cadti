@@ -16,31 +16,35 @@ class VeiculoDaoImpl extends PostgresDao {
         super()
     }
 
+
     /**@override */
     update = async (reqBody) => {
 
-        const
-            client = await this.pool.connect()
-            , { veiculo_id, ...requestObject } = reqBody
-            , condition = ` WHERE ${this.table}.${this.primaryKey} = ${reqBody[this.primaryKey]}`
+        const { veiculo_id, ...requestObject } = reqBody
+
+        if (!veiculo_id)
+            throw new Error('Must have a veiculo_id param to perform update in this implementation - VeiculoDaoImpl.js')
+
+        const client = await this.pool.connect()
+            , condition = ` WHERE veiculos.veiculo_id = ${veiculo_id}`
 
         let query = ''
 
-        if (Object.keys(requestObject).length < 1)
-            return 'Nothing to update...'
-
-
         Object.entries(requestObject).forEach(([k, v]) => {
-            if (k === 'equipamentos_id' || k === 'acessibilidade_id') v = `[${v}]`
-            if (k === 'compartilhado_id' && v === 'NULL') query += `${k} = NULL, `
-            else query += `${k} = '${v}', `
+            if (k === 'equipamentos_id' || k === 'acessibilidade_id')
+                query += `${k} = '${JSON.stringify(v)}'::json, `
+
+            else if (k === 'compartilhado_id' && v === 'NULL')
+                query += `${k} = NULL, `
+
+            else
+                query += `${k} = '${v}', `
         })
 
-        query = `UPDATE ${this.table} SET ` +
-            query.slice(0, query.length - 2)
+        query = `UPDATE veiculos SET ` + query.slice(0, query.length - 2)
 
         query = query + condition + ` RETURNING veiculos.veiculo_id`
-        console.log("🚀 ~ file: VeiculoRepository.js ~ line 79 ~ VeiculoRepository ~ update ~ query", { query })
+        console.log("🚀 ~ file: VeiculoRepository.js ~ line 49 ~ VeiculoRepository ~ update ~ query", { query })
 
         try {
             await client.query('BEGIN')
@@ -54,9 +58,9 @@ class VeiculoDaoImpl extends PostgresDao {
 
         } catch (error) {
 
-            console.log("🚀 ~ file: VeiculoRepository.js ~ line 54 ~ VeiculoRepository ~ create ~ error", error.message)
+            console.log("🚀 ~ file: VeiculoRepository.js ~ line 63 ~ VeiculoRepository ~ create ~ error", error.message)
             await client.query('ROLLBACK')
-            throw new Error(error.message)
+            throw error
 
         } finally {
             client.release()

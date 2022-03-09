@@ -96,8 +96,8 @@ class Seguro extends Component {
         this.setState({ seguros: filteredInsurances, allVehicles, frota, ownedPlacas, allPlates })
     }
 
-    //Verifica se o seguro já existe e preenche os camopos automaticamente (plain obj to state)
-    checkExistance = async inputValue => {
+    //Verifica se o seguro já existe e preenche os campos automaticamente (plain obj to state)
+    checkExistence = async inputValue => {
 
         const
             seguros = JSON.parse(JSON.stringify(this.props.redux.seguros)),
@@ -132,7 +132,6 @@ class Seguro extends Component {
             //Se passar as placas como argumento se trata do filtro do searchBar. Senão é a renderização depois de preencher a apólice
             if (!placas)
                 placas = insurance.placas
-            console.log("🚀 ~ file: Seguros.jsx ~ line 133 ~ Seguro ~ placas", placas)
 
             let renderedPlacas = []
 
@@ -197,7 +196,7 @@ class Seguro extends Component {
 
             case 'apolice':
                 if (!allVehicles) this.filterInsurances()
-                await this.checkExistance(value)
+                await this.checkExistence(value)
                 this.renderPlacas()
                 break
 
@@ -417,72 +416,90 @@ class Seguro extends Component {
         this.renderPlacas()
     }
 
-    updateInsurance = () => {
+    handleSubmit = async approved => {
         const
-            { insurance, dataEmissao, vencimento, seguradoraId } = this.state,
-            { id, veiculos } = insurance
+            { insurance, deletedVehicles, seguradoraId, apolice, numeroDae, selectedEmpresa, demand, apoliceDoc, info, dataEmissao, vencimento } = this.state
+            , { codigoEmpresa } = selectedEmpresa
+            , { veiculos: vehicleIds } = insurance
+            , errorsFound = this.checkForErrors(insurance)
 
-        let updates = {}
+        if (errorsFound)
+            return
+
         const
-            emissaoDidChange = !moment(dataEmissao).isSame(moment(insurance.dataEmissao)),
-            vencimentoDidChange = !moment(vencimento).isSame(moment(insurance.vencimento)),
-            seguradoraDidChange = seguradoraId !== insurance.seguradoraId
+            seguro = this.setInsuranceStatus({ apolice, seguradoraId, codigoEmpresa, dataEmissao, vencimento })
+            , cadSeguro = humps.decamelizeKeys(seguro)
 
-        if (!emissaoDidChange && !vencimentoDidChange && seguradoraDidChange) return null
+        if (!demand) {
+            const log = {
+                empresaId: selectedEmpresa?.codigoEmpresa,
+                history: {
+                    ...humps.camelizeKeys(cadSeguro),
+                    seguradora: this.state.seguradora,
+                    vehicleIds,
+                    info: numeroDae ? `Nº Documento Arrecadação Estadual: ${numeroDae}` : 'Número do DAE não informado',
+                    numeroDae,
+                    files: apoliceDoc,
+                    deletedVehicles
+                },
+                demandFiles: this.state.demandFiles,
+                metadata: {
+                    fieldName: 'apoliceDoc',
+                    apolice,
+                    empresaId: selectedEmpresa?.codigoEmpresa,
+                },
+                historyLength: 0,
+                approved
+            }
 
-        if (emissaoDidChange) updates.data_emissao = dataEmissao
-        if (vencimentoDidChange) updates.vencimento = vencimento
-        if (seguradoraDidChange) updates.seguradora_id = seguradoraId
-
-        const requestObj = {
-            id,
-            columns: Object.keys(updates),
-            updates,
-            vehicleIds: veiculos
+            await logGenerator(log)
+            this.confirmAndResetState('Solicitação de cadastro de seguro enviada')
+            return
         }
-        axios.put('/api/updateInsurance', requestObj)
-            .then(r => console.log(r.data))
+        if (approved)
+            this.approveInsurance(cadSeguro)
+        else {
+            const log = {
+                id: demand.id,
+                history: { info },
+                declined: true
+            }
+            logGenerator(log)
+            this.confirmAndResetState('Solicitação indeferida!')
+        }
     }
 
-    handleSubmit = async approved => {
-
-        const { seguradora, insurance, errors, deletedVehicles, seguradoraId, apolice, numeroDae,
-            dataEmissao, vencimento, selectedEmpresa, demand, demandFiles, apoliceDoc, info } = this.state
-
-        let vehicleIds = []
-
+    checkForErrors(insurance) {
+        const { errors, seguradora } = this.state
         //Checar erros de preenchimento ou campos vazios
         if (errors && errors[0]) {
             this.setState({ ...this.state, ...checkInputErrors('setState') })
-            return
+            return true
         }
         if (!seguradora || seguradora === '') {
             this.setState({ openAlertDialog: true, alertType: 'seguradoraNotFound', seguradora: undefined })
-            return
+            return true
         }
         if (!insurance?.veiculos || !insurance.veiculos[0]) {
             this.setState({
                 openAlertDialog: true, customTitle: 'Nenhum veículo inserido',
                 customMsg: 'Não foi inserido nenhum veículo para o seguro informado. Para inserir, digite a placa no campo "Insira a placa" ou clique para selecionar a(s) placa(s) do(s) veículo(s) coberto(s) por esse seguro.'
             })
-            return
+            return true
         }
+    }
 
-        //Create seguro object e checar datas
+    setInsuranceStatus(cadSeguro) {
         const
-            cadSeguro = {
-                apolice,
-                seguradora_id: seguradoraId,
-                codigo_empresa: selectedEmpresa.codigoEmpresa
-            },
-            emis = moment(dataEmissao, 'YYYY-MM-DD', true),
-            venc = moment(vencimento, 'YYYY-MM-DD', true),
-            validEmissao = emis.isValid(),
-            validVenc = venc.isValid(),
-            invalido = venc.isSameOrBefore(emis, 'day'),
-            vencido = venc.isBefore(moment(), 'day'),
-            pendente = emis.isAfter(moment(), 'day'),
-            vigente = emis.isSameOrBefore(moment(), 'day')
+            { dataEmissao, vencimento } = cadSeguro
+            , emis = moment(dataEmissao, 'YYYY-MM-DD', true)
+            , venc = moment(vencimento, 'YYYY-MM-DD', true)
+            , validEmissao = emis.isValid()
+            , validVenc = venc.isValid()
+            , invalido = venc.isSameOrBefore(emis, 'day')
+            , vencido = venc.isBefore(moment(), 'day')
+            , pendente = emis.isAfter(moment(), 'day')
+            , vigente = emis.isSameOrBefore(moment(), 'day')
 
         if (invalido) {
             alert('A data de vencimento informada é anterior ao início da vigência.')
@@ -497,70 +514,19 @@ class Seguro extends Component {
         if (vigente)
             cadSeguro.situacao = 'Vigente'
         if (validEmissao)
-            cadSeguro.data_emissao = dataEmissao
+            cadSeguro.dataEmissao = dataEmissao
         if (validVenc)
             cadSeguro.vencimento = vencimento
 
-        //*******************Create a new demand
-        if (!demand) {
-            // New or existing, insurance will be in state if the all fields are filled and update every plate added or removed.
-            if (insurance)
-                vehicleIds = insurance.veiculos
-
-            let { codigoEmpresa, ...seguro } = cadSeguro
-            seguro.seguradora = seguradora
-            seguro = humps.camelizeKeys(seguro)
-
-            const log = {
-                empresaId: selectedEmpresa?.codigoEmpresa,
-                history: {
-                    ...seguro,
-                    vehicleIds,
-                    info: `Nº Documento Arrecadação Estadual: ${numeroDae}`,
-                    numeroDae,
-                    files: apoliceDoc
-                },
-                demandFiles,
-                metadata: {
-                    fieldName: 'apoliceDoc',
-                    apolice,
-                    empresaId: selectedEmpresa?.codigoEmpresa,
-                },
-                historyLength: 0,
-                approved
-            }
-            //Registrar os veiculos apagados pela demanda
-            if (deletedVehicles[0])
-                log.history.deletedVehicles = deletedVehicles
-
-            logGenerator(log)
-            this.confirmAndResetState('Solicitação de cadastro de seguro enviada')
-            return
-        }
-
-        //Se a demanda já existe e for indeferida
-        if (approved === false) {
-            const log = {
-                id: demand.id,
-                history: {
-                    info
-                },
-                declined: true
-            }
-            logGenerator(log)
-                .then(r => console.log(r))
-            this.confirmAndResetState('Solicitação indeferida!')
-        }
-        //Aprovar demanda
-        if (approved === true)
-            this.approveInsurance(cadSeguro)
+        return cadSeguro
     }
 
     approveInsurance = async cadSeguro => {
         const
-            { seguros } = this.props.redux,
-            { apolice, vencimento, dataEmissao, seguradoraId, insurance, demand, demandFiles } = this.state,
-            vehicleIds = insurance.veiculos
+            { seguros } = this.props.redux
+            , { apolice, vencimento, dataEmissao, seguradoraId, insurance, demand, demandFiles } = this.state
+            , { deletedVehicles } = demand.history[0]
+            , vehicleIds = insurance.veiculos || demand.history[0].vehicleIds
 
         //****************************** Cria o body para os requests****************************** */
         const body = {
@@ -568,19 +534,24 @@ class Seguro extends Component {
             column: 'apolice',
             value: apolice,
             tablePK: 'veiculo_id',
-            ids: vehicleIds
+            ids: vehicleIds,
+            deletedVehicles
         }
         //********************************** CREATE/UPDATE INSURANCE **********************************
         const insuranceExists = seguros.find(s => s.apolice === apolice)
+        console.log("🚀 ~ file: Seguros.jsx ~ line 542 ~ Seguro ~ insuranceExists", insuranceExists)
 
         if (insuranceExists) {
             const
                 de = moment(insuranceExists.dataEmissao).isSame(moment(dataEmissao)),
                 v = moment(insuranceExists.vencimento).isSame(moment(vencimento)),
                 vExists = JSON.stringify(vehicleIds) === JSON.stringify(insuranceExists.veiculos)
+            console.log("🚀 ~ file: Seguros.jsx ~ line 548 ~ Seguro ~ JSON.stringify(insuranceExists.veiculos)", JSON.stringify(insuranceExists.veiculos))
+            console.log("🚀 ~ file: Seguros.jsx ~ line 548 ~ Seguro ~  JSON.stringify(vehicleIds)", JSON.stringify(vehicleIds))
 
-            console.log("🚀 ~ file: Seguros.jsx ~ line 579 ~ Seguro ~ JSON.stringify(vehicleIds)", insuranceExists)
-
+            console.log("🚀 ~ file: Seguros.jsx ~ line 548 ~ Seguro ~ vExists", vExists)
+            console.log("🚀 ~ file: Seguros.jsx ~ line 551 ~ Seguro ~ de && v ", de && v)
+            return
             //Evitar seguro repetido de ser cadastrado
             if (de && v && vExists) {
                 this.setState({
@@ -592,22 +563,15 @@ class Seguro extends Component {
             }
             //Se o seguro novo tiver o mesmo número de apólice e já estiver vigente, apenas atualiza o registro do Postgresql
             if (cadSeguro.situacao === 'Vigente') {
-                let updates = { dataEmissao, vencimento, seguradoraId, situacao: cadSeguro.situacao }
-                updates = humps.decamelizeKeys(updates)
-                const
-                    columns = Object.keys(updates),
-                    requestObj = {
-                        id: insuranceExists?.id,
-                        vehicleIds,
-                        columns,
-                        updates,
-                    }
-                await axios.put('/api/updateInsurance', { ...requestObj })
 
-                //Se algum veículo não está no novo seguro de mesmo n de apolice, deve ser excluido o número de apólice dele
-                const deletedVehicles = demand?.history[0]?.deletedVehicles
-                if (deletedVehicles)
-                    body.deletedVehicles = deletedVehicles
+                const update = humps.decamelizeKeys({
+                    id: insuranceExists?.id,
+                    seguradoraId,
+                    situacao: cadSeguro.situacao,
+                    dataEmissao,
+                    vencimento
+                })
+                axios.put('/api/seguros', { update, vehicleIds, deletedVehicles })
             }
         }
         //console.log(JSON.stringify(body))
@@ -617,7 +581,7 @@ class Seguro extends Component {
             console.log({ ...cadSeguro })
             await axios.post('/api/cadSeguroMongo', { ...cadSeguro })
         }
-        //Se o seguro cadastrado já estiver vigente já cadastra direto no Postgrtesql (tabela seguros) e atualiza a tabela de veículos
+        //Se o seguro cadastrado já estiver vigente já cadastra direto no PostgreSQL (tabela seguros) e atualiza a tabela de veículos
         if (cadSeguro.situacao === 'Vigente' && !insuranceExists)
             await axios.post('/api/cadSeguro', cadSeguro)
                 .then(r => {

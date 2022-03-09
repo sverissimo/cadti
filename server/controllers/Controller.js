@@ -90,11 +90,12 @@ class Controller {
             res.status(201).json(id)
 
             const
-                createdEntity = this.repository.find(id)
+                createdEntity = await this.repository.find(id)
+                , { codigo_empresa } = createdEntity[0]
                 , socket = new CustomSocket(req)
-            socket.emit('insertElements', createdEntity)
+            socket.emit('insertElements', createdEntity, this.table, this.primaryKey, codigo_empresa)
         } catch (error) {
-
+            throw error
         }
 
     }
@@ -133,9 +134,15 @@ class Controller {
             { body } = req
             , { codigo_empresa } = body
 
+        if (Object.keys(body).length <= 1)
+            return res.status(409).send('Nothing to update...')
+
         try {
-            const
-                repository = new Repository(this.table, this.primaryKey)
+            const repository = new Repository(this.table, this.primaryKey)
+                , exists = await repository.find(req.body.veiculo_id)
+
+            if (!exists.length)
+                return res.status(409).send('Não foi encontrado nenhum registro na base de dados para atualização.')
 
             await repository.update(body)  //boolean
             res.send(`${this.table} updated.`)

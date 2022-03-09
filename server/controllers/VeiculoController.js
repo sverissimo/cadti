@@ -19,7 +19,7 @@ class VeiculoController extends Controller {
     async create(req, res) {
         const veiculo = req.body
         try {
-            const veiculoRepository = new VeiculoRepository()
+            const veiculoRepository = new VeiculoRepository('veiculos', 'veiculo_id')
                 , exists = await veiculoRepository.find({ placa: veiculo.placa })
 
             if (exists.length)
@@ -52,19 +52,33 @@ class VeiculoController extends Controller {
      * @override
      * @param {request} req 
      * @param {response} res 
-     * @returns {Promise<void>}
+     * @returns {Promise<void | res>}
      */
     update = async (req, res) => {
 
         const
-            veiculoRepository = new VeiculoRepository()
+            veiculoRepository = new VeiculoRepository('veiculos', 'veiculo_id')
             , { codigoEmpresa, ...veiculo } = req.body
             , condition = `WHERE veiculos.veiculo_id = '${req.body.veiculo_id}'`
-            , veiculoId = await veiculoRepository.update(veiculo)
+
+        if (Object.keys(veiculo).length <= 1)
+            return res.status(409).send('Nothing to update...')
+
+        try {
+            const exists = await veiculoRepository.find(req.body.veiculo_id)
+            if (!exists.length)
+                return res.status(409).send('Veículo não cadastrado na base de dados.')
+
+            const veiculoId = await veiculoRepository.update(veiculo)
+            res.send(JSON.stringify(veiculoId))
+        } catch (error) {
+            console.log("🚀 ~ file: VeiculoController.js ~ line 72 ~ VeiculoController ~ update= ~ error", error)
+            throw error
+        }
+
 
         //@ts-ignore
         userSockets({ req, noResponse: true, table: 'veiculos', condition, event: 'updateVehicle' })
-        res.send(JSON.stringify(veiculoId))
     }
 }
 

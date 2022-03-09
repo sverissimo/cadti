@@ -61,7 +61,7 @@ export async function logGenerator(obj) {
     if (obj?.id && log.veiculoId) delete log.veiculoId
     delete log.historyLength
 
-    //**********************If given by the component which called this fuction, overwrite logRoutesConfig*/
+    //**********************If given by the component which called this function, overwrite logRoutesConfig*/
     if (!obj.id || obj.subject) log.subject = obj?.subject || logConfig?.subject
 
     //*************************IF DECLINED, UPDATE LOG AND RETURN LOG*/    
@@ -93,7 +93,7 @@ export async function logGenerator(obj) {
     logRoutes = JSON.parse(JSON.stringify(logRoutesConfig))
     logConfig = logRoutes.find(e => path.match(e.path))
 
-    //**********************request and return promisse**********************
+    //**********************request and return promise**********************
 
     //console.log(JSON.stringify(filteredLog))
     const post = axios.post('/api/logs', { log: filteredLog, collection, codigoEmpresa })
