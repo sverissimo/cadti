@@ -311,10 +311,9 @@ app.get('/api/getOne', async (req, res) => {
 //get one dischargedVehicle
 app.get('/api/getOldVehicles', async (req, res) => {
     const
-        { placa } = req.query,
-        query = { Placa: placa },
-        result = await oldVehiclesModel.find(query).exec()
-    console.log(placa)
+        placa = req.query.placa.toUpperCase()
+        , query = { "Placa": { $in: [placa, placa.replace('-', '')] } }
+        , result = await oldVehiclesModel.find(query).exec()
     res.send(result)
 })
 
@@ -367,7 +366,7 @@ app.get('/api/alreadyExists', async (req, res) => {
     const
         { table, column, value } = req.query,
         query = `SELECT * FROM ${table} WHERE ${column} = '${value}'`,
-        mongoQuery = { 'Placa': value }
+        mongoQuery = { "Placa": { $in: [value, value.replace('-', '')] } }
     let
         v,
         old,

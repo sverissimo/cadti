@@ -6,7 +6,7 @@ const runDbSync = () => {
     const pathToFile = process.env.DB_SYNC_PATH
     console.log({ pathToFile })
 
-    exec(`python ${pathToFile} veiculos local`, (err, stdout, stdin) => {
+    exec(`python ${pathToFile} veiculos`, (err, stdout, stdin) => {
         if (err)
             console.log({ err })
         console.log({ stdout, stdin })
@@ -18,7 +18,7 @@ const runDbSync = () => {
 if (process.argv[2]) {
     const d = new Date()
     console.log(`*************************DB_Sync SGTI/CadTI started at ${d}`)
-    console.log('RunningDBSYNC tests, should be in development /tests environment. Arg passed: ', process.argv[2])
+    console.log('Running DB_SYNC tests, should be in development /tests environment. Arg passed: ', process.argv[2])
 
     if (!process.env.DB_SYNC_PATH)
         dotenv.config({ path: '../../.env' })

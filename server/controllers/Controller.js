@@ -139,7 +139,7 @@ class Controller {
 
         try {
             const repository = new Repository(this.table, this.primaryKey)
-                , exists = await repository.find(req.body.veiculo_id)
+                , exists = await repository.find(req.body[this.primaryKey])
 
             if (!exists.length)
                 return res.status(409).send('Não foi encontrado nenhum registro na base de dados para atualização.')

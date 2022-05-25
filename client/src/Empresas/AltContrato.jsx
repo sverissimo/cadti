@@ -15,6 +15,7 @@ import { sociosForm } from '../Forms/sociosForm'
 import AlertDialog from '../Reusable Components/AlertDialog'
 import altContratoFiles from '../Forms/altContratoFiles'
 
+
 const
     stepTitles = ['Alterar dados da empresa', 'Informações sobre alteração do contrato social', 'Informações sobre sócios', 'Revisão'],
     subtitles = ['Utilize os campos abaixo caso deseje editar os dados da empresa',
@@ -169,6 +170,10 @@ const AltContrato = props => {
             { name, value } = e.target,
             { filteredSocios } = state
 
+        if (name === 'razaoSocialEdit') {
+            setState(s => ({ ...s, razaoSocial: value }))
+        }
+
         if (name !== 'cpfSocio')
             return
 
@@ -226,7 +231,7 @@ const AltContrato = props => {
             }
 
             if (selectedEmpresa)
-                setState({ ...state, ...selectedEmpresa, selectedEmpresa, filteredSocios, [name]: value })
+                setState({ ...state, ...selectedEmpresa, selectedEmpresa, razaoSocialEdit: selectedEmpresa.razaoSocial, filteredSocios, [name]: value })
             else
                 setState({ ...state, selectedEmpresa: undefined, filteredSocios: undefined, [name]: value })
         }
@@ -653,7 +658,6 @@ const AltContrato = props => {
 
         //Adiciona a data de solicitação (não de cadastro) no sistema, em caso de alteração do contrato é necessário verificar        
         const keys = Object.keys(returnObj)
-        console.log("🚀 ~ file: AltContrato.jsx ~ line 681 ~ returnObj", returnObj)
 
         if (keys.length > 1) {
             //Se tiver aprovando, pega o createdAt do log(demanda) e salva, para manter a data da solicitação.
@@ -662,7 +666,16 @@ const AltContrato = props => {
                 returnObj.codigoEmpresa = codigoEmpresa     //Insere codigoEmpresa para userSocket.js filtrar no backEnd
                 returnObj.razaoSocial = razaoSocial         //Insere razão social para o altContratoAlert no backEnd.
             }
+
+            //Se alterada a razão social, a alteração está salva no state
+            if (state.razaoSocial)
+                returnObj.razaoSocial = state.razaoSocial
+            if (state.razaoSocialEdit)
+                returnObj.razaoSocial = state.razaoSocialEdit
+
+            console.log("🚀 ~ file: AltContrato.jsx ~ line 676 ~ returnObj", returnObj)
             return returnObj
+
         }
         //Se keys.length não for 2 ou mais, retorna null (uma prop é o codigoEmpresa, acrescentado no início da função(this))
         else

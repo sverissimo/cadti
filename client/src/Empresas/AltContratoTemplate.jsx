@@ -22,8 +22,8 @@ const AltContratoTemplate = (
     const dadosEmpresaForm = JSON.parse(JSON.stringify(empresasForm))
         .filter(el => el.field !== 'numeroContrato' && el.field !== 'vencimentoContrato')
         .map(e => {
-            if (e.field === 'razaoSocial')
-                e.disabled = true
+            if (e.field === 'razaoSocial' && !data.demand)
+                e.field = 'razaoSocialEdit'
             return e
         })
 

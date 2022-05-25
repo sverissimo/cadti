@@ -68,8 +68,8 @@ const empresas = (condition = '') => `
             ON v.codigo_empresa = empresas.codigo_empresa
         ${condition}
         GROUP BY empresas.codigo_empresa
-        --ORDER BY frota DESC
-        ORDER BY codigo_empresa DESC
+        ORDER BY frota DESC
+        --ORDER BY codigo_empresa DESC
         `
 
 const compartilhados = (condition = 'WHERE situacao != \'Desativada\'') => ` 

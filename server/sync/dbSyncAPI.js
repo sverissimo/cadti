@@ -1,7 +1,6 @@
 const
     express = require('express'),
     router = express.Router(),
-    fs = require('fs'),
     { pool } = require('../config/pgConfig'),
     { BackupDB } = require('../database/BackupDB'),
     getCompartilhadoId = require('./getCompartilhadoID'),
@@ -17,7 +16,7 @@ router.post('/createTable', (req, res) => {
         , backupDB = new BackupDB()
 
     backupDB.createSafetyBackup()
-    console.log(query.substring(0, 150))
+    //console.log(query.substring(0, 150))
 
     pool.query(query).then(() => res.send('createTable alright'))
 })
