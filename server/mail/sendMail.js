@@ -22,23 +22,8 @@ async function sendMail({ to, subject, vocativo, message, footer = null, sendMai
   if (sendMail)
     nodeMailerSender({ to, subject, html })
   else
-    testMailSender({ vocativo, html })
-
-  /*   try {
-      if (sendMail)
-        await nodeMailerSender({ to, subject, html })
-      else
-        await testMailSender({ vocativo, html })
-      return
-    } 
-    catch (error) {
-      console.log(error)
-    }
-  */
+    testMailSender({ vocativo, html })  
 }
 
-
-//autoCall for testing purposes
-//main().catch(console.error);
 
 module.exports = sendMail

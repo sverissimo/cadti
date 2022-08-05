@@ -1,12 +1,8 @@
-const
-    nodemailer = require("nodemailer"),
-    mailConfig = require("./config/mailConfig")
+const createTransporter = require("./createTransporter")
 
+async function nodeMailerSender({ to, subject, html }) {
 
-function nodeMailerSender({ to, subject, html }) {
-
-    const transporter = nodemailer.createTransport(mailConfig)
-
+    const transporter = await createTransporter()
     transporter.sendMail({
         from: 'Seinfra - CadTI',
         to,
