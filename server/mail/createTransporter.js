@@ -13,7 +13,7 @@ const createTransporter = async () => {
         process.env.GOOGLE_CLIENT_ID,
         process.env.GOOGLE_CLIENT_SECRET,
         "https://developers.google.com/oauthplayground"
-    );
+    );    
 
     oauth2Client.setCredentials({
         refresh_token: process.env.GOOGLE_REFRESH_TOKEN
@@ -22,11 +22,12 @@ const createTransporter = async () => {
     const accessToken = await new Promise((resolve, reject) => {
         oauth2Client.getAccessToken((err, token) => {
             if (err) {
+                console.log("🚀 ~ file: createTransporter.js ~ line 25 ~ oauth2Client.getAccessToken ~ err", err)
                 reject();
             }
             resolve(token);
         });
-    });
+    });    
 
     const transporter = nodemailer.createTransport({
         service: "gmail",

@@ -100,7 +100,7 @@ class AlertService {
         return empresas
     }
 
-    mockAlert({ to, subject, vocativo, message, html = null }) {
+    mockAlert({ to, subject, vocativo, message, html = '' }) {
 
         vocativo = typeof vocativo === 'string' && vocativo
             .replace(/\./g, '')

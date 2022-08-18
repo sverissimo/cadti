@@ -2,9 +2,10 @@
 const
     fs = require('fs'),
     express = require('express'),
+    
     httpsOptions = {
-        key: fs.readFileSync("./certificates/localhost.key"),
-        cert: fs.readFileSync("./certificates/localhost.crt"),
+        key: fs.readFileSync("/sismob/certificates/localhost.key"),
+        cert: fs.readFileSync("/sismob/certificates/localhost.crt"),
     },
     app = express(),
     productionServer = require('https').createServer(httpsOptions, app),
