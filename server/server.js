@@ -2,7 +2,7 @@
 const
     fs = require('fs'),
     express = require('express'),
-    
+
     httpsOptions = {
         key: fs.readFileSync("/sismob/certificates/localhost.key"),
         cert: fs.readFileSync("/sismob/certificates/localhost.crt"),
@@ -260,45 +260,6 @@ app.post('/api/checkSocios', async (req, res) => {
     res.send(checkSocios)
 })
 
-//************************************ SPECIAL VEHICLE ROUTES *********************** */
-//Busca os veículos de uma empresa incluindo todos os de outras empresas que lhe são compartilhados ou que estão em sua apolice apesar d n ser compartilhado
-app.get('/api/allVehicles', async (req, res) => {
-    const
-        { codigoEmpresa } = req.query,
-        segCondition = `WHERE seguros.codigo_empresa = ${codigoEmpresa} `,
-        seguros = await getUpdatedData('seguros', segCondition) || []
-
-    let vehicleIds = []
-
-    //Pega todos os veículos assegurados, pertencentes ou não à frota, com compartilhamento ou não(irregulares)
-    seguros.forEach(s => {
-        if (s.veiculos && s.veiculos[0])
-            vehicleIds.push(...s.veiculos)
-    })
-    if (!vehicleIds[0])
-        vehicleIds = 0
-
-    const vQuery = `
-    SELECT veiculos.veiculo_id, veiculos.placa, veiculos.codigo_empresa, e.razao_social as empresa, e2.razao_social as compartilhado
-    FROM veiculos
-    LEFT JOIN empresas e
-        ON veiculos.codigo_empresa = e.codigo_empresa
-    LEFT JOIN empresas e2
-        ON veiculos.compartilhado_id = e2.codigo_empresa
-    WHERE veiculos.codigo_empresa = ${codigoEmpresa} 
-        OR veiculos.compartilhado_id = ${codigoEmpresa}
-        OR veiculos.veiculo_id IN (${vehicleIds})
-            `
-    //console.log("🚀 ~ file: server.js ~ line 288 ~ app.get ~ vQuery ", vQuery)
-
-    pool.query(vQuery, (err, t) => {
-        if (err) console.log(err)
-        if (t && t.rows)
-            res.send(t.rows)
-        else res.send([])
-    })
-})
-
 //get one element
 app.get('/api/getOne', async (req, res) => {
     const
@@ -309,6 +270,7 @@ app.get('/api/getOne', async (req, res) => {
     return res.json(el)
 });
 
+//************************************ SPECIAL VEHICLE ROUTES *********************** */
 //get one dischargedVehicle
 app.get('/api/getOldVehicles', async (req, res) => {
     const
@@ -885,8 +847,10 @@ app.use((error, req, res, next) => {
     });
 });
 
+if (require.main === module) {
+    server.listen(process.env.PORT || 3001, () => {
+        console.info('NodeJS server running on port ' + (process.env.PORT || 3001))
+    })
+}
 
-server.listen(process.env.PORT || 3001, () => {
-    console.info('NodeJS server running on port ' + (process.env.PORT || 3001))
-})
-
+module.exports = app

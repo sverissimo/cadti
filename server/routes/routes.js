@@ -1,4 +1,5 @@
 const { SeguroController } = require('../controllers/SeguroController')
+const VeiculoController = require('../controllers/VeiculoController')
 
 //@ts-check
 const router = require('express').Router()
@@ -35,7 +36,9 @@ router
 //Middleware qua define a tabela e cria filtros para os SQL queries conforme permissões de usuário
 router.use(getRequestFilter)
 
-router.use('/veiculos', veiculoRoutes)
+router.use(/\/veiculos|\/\w+Vehicle\w+/, veiculoRoutes)
+//router.use(/\/veiculos/, veiculoRoutes)
+//router.get(/\w+Vehicle\w+/, new VeiculoController().getAllVehicles)
 
 router.put('/seguros', seguroController.updateInsurance)
 
@@ -65,14 +68,13 @@ router
 router.get('/lookUpTable/:table', lookup);
 
 const routes = 'modelosChassi|carrocerias|equipamentos|seguros|seguradoras|procuracoes|empresasLaudo|laudos|acessibilidade|compartilhados'
-router.get(`/${routes}`, (req, res) => {
+router.get(`/${routes}/:id`, (req, res) => {
+    console.log("🚀 ~ file: routes.js:70 ~ router.get ~ req", req.params)
     const
-        { primaryKey } = req.body
-        , { table } = res.locals //assigned on getRequestFilter.js
+        { table } = res.locals //assigned on getRequestFilter.js
+        , controller = new Controller(table)
 
-        , controller = new Controller(table, primaryKey)
     controller.list(req, res)
-
 })
 
 router.put('/editElements', (req, res) => {

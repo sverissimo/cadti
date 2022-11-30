@@ -45,6 +45,7 @@
   },
   "devDependencies": {
     "googleapis": "^105.0.0",
-    "jest": "^24.9.0"
+    "jest": "^24.9.0",
+    "supertest": "^6.3.1"
   }
 }
