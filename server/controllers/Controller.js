@@ -6,6 +6,10 @@ const
     , userSockets = require("../auth/userSockets")
     , { EntityDaoImpl } = require("../infrastructure/EntityDaoImpl")
     , { CustomSocket } = require("../sockets/CustomSocket")
+    , deleteSockets = require("../auth/deleteSockets")
+    , { pool } = require("../config/pgConfig")
+    , removeEmpresa = require("../users/removeEmpresa");
+const { getUpdatedData } = require("../getUpdatedData");
 
 
 /**Classe parent de controlador para os requests de acesso ao banco de dados Postgresql.
@@ -77,6 +81,14 @@ class Controller {
             console.log(e.name + ': ' + e.message)
             res.status(500).send(e)
         }
+    }
+
+    async getOne(req, res) {
+        const { table, key, value } = req.query
+        const condition = `WHERE ${key} = ${value}`
+        console.log({ condition })
+        const el = await getUpdatedData(table, condition)
+        return res.json(el)
     }
 
     async save(req, res) {
@@ -165,12 +177,14 @@ class Controller {
         }
     }
 
+    //*************************REFACTOR THIS PLEASE!!!!!!!!!!!!!!!!! */
+    delete = (req, res) => {
 
-    delete = async (req, res) => {
         let { id } = req.query
         const
             { user } = req,
             { table, tablePK, codigoEmpresa } = req.query,
+            //@ts-ignore
             { collection } = fieldParser.find(f => f.table === table)
 
         if (user.role !== 'admin' && collection !== 'procuracoes')
@@ -180,7 +194,57 @@ class Controller {
             id = `'${id}'`
 
         const singleSocket = req.headers.referer && req.headers.referer.match('/veiculos/config')
+
+        const query = ` DELETE FROM public.${table} WHERE ${tablePK} = ${id}`
+        //console.log(query, '\n\n', req.query)
+        console.log({ table, tablePK, codigoEmpresa })
+        pool.query(query, async (err, t) => {
+            if (err)
+                console.log(err)
+            else if (t && id) {
+                if (singleSocket) {
+                    const io = req.app.get('io')
+                    io.sockets.emit('deleteOne', { id, tablePK, collection })
+                }
+                else {
+                    id = id.replace(/\'/g, '')
+                    deleteSockets({ req, noResponse: true, table, tablePK, event: 'deleteOne', id, codigoEmpresa })
+                    updateUserPermissions()
+                }
+                res.send(`${id} deleted from ${table}`)
+            }
+            else res.send('no id found.')
+        })
+
+        //*****************************ATUALIZA PERMISSÕES DE USUÁRIOS ******************************** 
+        //Se a tabela for socios ou procuradores, chama a função para atualizar a permissão de usuários
+        const updateUserPermissions = () => {
+
+            const { codigoEmpresa, cpf_socio, cpf_procurador } = req.query
+
+            if (table === 'socios' || table === 'procuradores')
+                removeEmpresa({ representantes: [{ cpf_socio, cpf_procurador }], codigoEmpresa })
+        }
     }
+
+
+    /****TODO: REMOVE THIS SECTION ********
+    
+    delete = async (req, res) => {
+            let { id } = req.query
+            const
+                { user } = req,
+                { table, tablePK, codigoEmpresa } = req.query,
+                { collection } = fieldParser.find(f => f.table === table)
+    
+            if (user.role !== 'admin' && collection !== 'procuracoes')
+                return res.status(403).send('É preciso permissão de administrador para acessar essa parte do cadTI.')
+    
+            if (table === 'laudos')
+                id = `'${id}'`
+    
+            const singleSocket = req.headers.referer && req.headers.referer.match('/veiculos/config')
+        } */
 }
 
 module.exports = { Controller }

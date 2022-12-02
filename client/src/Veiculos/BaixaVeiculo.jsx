@@ -189,7 +189,7 @@ class BaixaVeiculo extends Component {
             })
 
             //Salva o veículo baixado no MongoDB
-            axios.post('/api/baixaVeiculo', discharged)
+            axios.patch('/api/baixaVeiculo', discharged)
             //Apaga o veículo baixado do Postgresql
             await axios.delete(`/api/delete?table=${table}&tablePK=${tablePK}&id=${veiculoId}&codigoEmpresa=${codigoEmpresa}`)
                 .then(r => console.log(r))

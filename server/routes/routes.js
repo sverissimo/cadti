@@ -1,11 +1,10 @@
-const { SeguroController } = require('../controllers/SeguroController')
-const VeiculoController = require('../controllers/VeiculoController')
-
 //@ts-check
 const router = require('express').Router()
     , { Controller } = require('../controllers/Controller')
     , { EmpresaController } = require('../controllers/EmpresaController')
     , ProcuracaoController = require('../controllers/ProcuracaoController')
+    , { SeguroController } = require('../controllers/SeguroController')
+    , { SocioController } = require('../controllers/SocioController')
 
     , getRequestFilter = require('../utils/getRequestFilter')
     , AltContrato = require('../domain/altContrato/AltContrato')
@@ -15,13 +14,15 @@ const router = require('express').Router()
     , { lookup } = require('../queries')
     , veiculoRoutes = require('./veiculoRoutes')
 
-    , altContrato = new AltContrato()
+const
+    altContrato = new AltContrato()
     , solicitacoes = new Solicitacoes()
     , empresas = new EmpresaController('empresas', 'codigo_empresa')
-    , socios = new Controller('socios', 'socio_id')
-    , procuradores = new ProcuradorRepository()
+    , socioController = new SocioController()
     , procuracaoController = new ProcuracaoController()
+    , procuradores = new ProcuradorRepository()
     , seguroController = new SeguroController('seguros', 'id')
+
 
 router
     .route('/altContrato')
@@ -36,11 +37,12 @@ router
 //Middleware qua define a tabela e cria filtros para os SQL queries conforme permissões de usuário
 router.use(getRequestFilter)
 
-router.use(/\/veiculos|\/\w+Vehicle\w+/, veiculoRoutes)
-//router.use(/\/veiculos/, veiculoRoutes)
-//router.get(/\w+Vehicle\w+/, new VeiculoController().getAllVehicles)
+router.use(/\/veiculos|\/\w+Vehicle(\w+)?|\/baixaVeiculo/, veiculoRoutes)
 
-router.put('/seguros', seguroController.updateInsurance)
+router
+    .route('/seguros')
+    .post(seguroController.save)
+    .put(seguroController.updateInsurance)
 
 router
     .route('/empresas/:id?')
@@ -50,18 +52,20 @@ router
 
 router
     .route('/socios/:id?')
-    .get(socios.list)
-    .post(socios.saveMany)
+    .get(socioController.list)
+    .post(socioController.saveMany)
+    .put(socioController.updateSocios)
+
+router.post('/checkSocios', socioController.checkSocios)
 
 router.get('/procuradores', procuradores.list)
+
 router
     .route('/procuracoes/:id?')
     .get((req, res) => {
         req.params.id || Object.keys(req.query).length
-            ?
-            procuracaoController.find(req, res)
-            :
-            procuracaoController.list(req, res)
+            ? procuracaoController.find(req, res)
+            : procuracaoController.list(req, res)
     })
     .post(procuracaoController.save)
 
@@ -77,6 +81,9 @@ router.get(`/${routes}/:id`, (req, res) => {
     controller.list(req, res)
 })
 
+
+router.get('/getOne', new Controller().getOne)
+
 router.put('/editElements', (req, res) => {
     const
         { table, tablePK: primaryKey, update } = req.body
@@ -84,7 +91,10 @@ router.put('/editElements', (req, res) => {
     req.body = update
 
     return controller.update(req, res)
-
 })
+
+router.delete('/delete', new Controller().delete)
+
+
 
 module.exports = router

@@ -583,7 +583,7 @@ class Seguro extends Component {
         }
         //Se o seguro cadastrado já estiver vigente já cadastra direto no PostgreSQL (tabela seguros) e atualiza a tabela de veículos
         if (cadSeguro.situacao === 'Vigente' && !insuranceExists)
-            await axios.post('/api/cadSeguro', cadSeguro)
+            await axios.post('/api/seguros', cadSeguro)
                 .then(r => {
                     if (r.status === 200)
                         console.log(r.status, 'cadSeguroOk')

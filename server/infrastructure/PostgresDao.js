@@ -57,8 +57,8 @@ class PostgresDao {
     async find(filter) {
 
         let key
-            , value
-            , condition = `WHERE ${this.table}.${key || this.primaryKey} = $1`
+        let value
+        let condition = `WHERE ${this.table}.${this.primaryKey} = $1`
 
         if (Array.isArray(filter)) {
             condition = `WHERE ${this.table}.${this.primaryKey} IN (${filter.join()})`
@@ -200,19 +200,20 @@ class PostgresDao {
         const { rows } = await this.pool.query(query)
             , ids = rows.map((row) => row[this.primaryKey])
 
+        console.log("🚀 ~ file: PostgresDao.js:201 ~ PostgresDao ~ saveMany ~ rows", ids)
         return ids
     }
 
     /**Retorna o nome das colunas do banco de dados Postgresql     
      * @param {string | any} table 
      */
-    async getEntityPropsNames(table) {
+    async getEntityPropsNames(table = this.table) {
 
         const query = `
         SELECT column_name
         FROM information_schema.columns 
         WHERE table_schema = 'public'
-        AND table_name = '${table || this.table}'`
+        AND table_name = '${table}'`
         console.log("🚀 ~ file: PostgresDao.js ~ line 173 ~ PostgresDao ~ getEntityPropsNames ~ query", query)
 
         const { rows } = await this.pool.query(query)

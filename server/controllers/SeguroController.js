@@ -5,6 +5,7 @@ const
     , { Controller } = require("./Controller")
     , { Repository } = require("../repositories/Repository")
     , { CustomSocket } = require("../sockets/CustomSocket")
+const { pool } = require("../config/pgConfig")
 const { EntityDaoImpl } = require("../infrastructure/EntityDaoImpl")
 const { SeguroDaoImpl } = require("../infrastructure/SeguroDaoImpl")
 const VeiculoRepository = require("../repositories/VeiculoRepository")
@@ -19,6 +20,31 @@ class SeguroController extends Controller {
         this.repository = repository || new Repository(this.table, this.primaryKey)
     }
 
+    /**
+     * @override
+     */
+    save = async (req, res) => {
+
+        let parsed = []
+
+        const keys = Object.keys(req.body).toString(),
+            values = Object.values(req.body)
+
+        values.forEach(v => {
+            parsed.push(('\'' + v + '\''))
+        })
+        //@ts-ignore
+        parsed = parsed.toString().replace(/'\['/g, '').replace(/'\]'/g, '')
+        pool.query(
+            `INSERT INTO public.seguros (${keys}) VALUES (${parsed}) RETURNING *`, (err, table) => {
+                if (err)
+                    console.log(err)
+                if (table && table.rows && table.rows.length === 0)
+                    return res.send(table.rows)
+                if (table && table.rows.length > 0)
+                    res.send('Seguro cadastrado.')
+            })
+    }
     /**     
      * @param {request} req 
      * @param {response} res 
@@ -54,7 +80,6 @@ class SeguroController extends Controller {
             return res.status(200).send('Seguro e veículos atualizados.')
 
         } catch (error) {
-            console.log("🚀 ~ file: EmpresaController.js ~ line 30 ~ EmpresaController ~ saveEmpresaAndSocios ~ error", error)
             res.status(500).send(error)
         }
     }

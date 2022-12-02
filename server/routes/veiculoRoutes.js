@@ -7,16 +7,34 @@ const
 
 router.route('/:id?')
     .get(
-        (req, res) =>
-            req.baseUrl.match('veiculos') ?
-                veiculoController.list(req, res)
-                : veiculoController.getAllVehicles(req, res) //Busca os veículos de uma empresa incluindo todos os de outras empresas que lhe são compartilhados ou que estão em sua apolice apesar d n ser compartilhado        
+        (req, res) => {
+            const targetPath = req.baseUrl.replace('/api', '')
+
+            switch (targetPath) {
+                case '/veiculos':
+                    return veiculoController.list(req, res)
+                case '/allVehicles':
+                    return veiculoController.getAllVehicles(req, res) //Busca os veículos de uma empresa incluindo todos os de outras empresas que lhe são compartilhados ou que estão em sua apolice apesar d n ser compartilhado        
+                case '/getOldVehicles':
+                    return veiculoController.getOldVehicles(req, res)
+                default:
+                    return res.send('Route not found.')
+            }
+        }
     )
     .post(veiculoController.create)
     .put(veiculoController.update)
+    .patch((req, res) => {
+        const targetPath = req.baseUrl.replace('/api', '')
 
-
-
-
+        switch (targetPath) {
+            case '/reactivateVehicle':
+                return veiculoController.reactivateVehicle(req, res);
+            case '/baixaVeiculo':
+                return veiculoController.baixaVeiculo(req, res);
+            default:
+                return res.send('Patch route not found.');
+        }
+    })
 
 module.exports = router

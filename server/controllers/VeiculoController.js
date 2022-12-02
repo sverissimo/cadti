@@ -6,6 +6,7 @@ const
     , { Controller } = require('./Controller')
 const { pool } = require('../config/pgConfig')
 const { getUpdatedData } = require('../getUpdatedData')
+const oldVehiclesModel = require('../mongo/models/oldVehiclesModel')
 
 /**
  * @class 
@@ -125,6 +126,64 @@ class VeiculoController extends Controller {
                 res.send(t.rows)
             else res.send([])
         })
+    }
+
+    getOldVehicles = async (req, res) => {
+
+        if (!req.query.placa) {
+            return res.status(400).send('É obrigatório informar a placa para essa consulta.')
+        }
+
+        const placa = req.query.placa.toUpperCase()
+        const query = { "Placa": { $in: [placa, placa.replace('-', '')] } }
+        const result = await oldVehiclesModel.find(query).exec()
+        res.send(result)
+    }
+
+    /**
+     * Busca pela placa e altera um registro da coleção OldVehicles no mongoDB
+     * A alteração é no atributo "Situação" que passa de 'Baixado' para 'Reativado'
+     */
+    reactivateVehicle = async (req, res) => {
+
+        if (!req.body.placa && !req.body.Placa) {
+            return res.status(400).send('É obrigatório informar a placa para essa solicitação.')
+        }
+
+        const { placa, Placa } = req.body
+        const filter = { Placa: placa || Placa }
+        const update = { 'Situação': 'Reativado' }
+
+        oldVehiclesModel.findOneAndUpdate(filter, update, (err, doc) => {
+            if (err)
+                console.log(err)
+            else
+                res.send('Veículo reativado.')
+        })
+    }
+
+
+    baixaVeiculo = async (req, res) => {
+
+        if (!req.body.placa && !req.body.Placa) {
+            return res.status(400).send('É obrigatório informar a placa para a baixa.')
+        }
+
+        const { placa, Placa, ...update } = req.body
+        const filter = { Placa: Placa || placa }
+
+        oldVehiclesModel.findOneAndUpdate(
+            filter,
+            update,
+            { upsert: true, new: true },
+            (err, doc) => {
+                if (err) {
+                    console.log(err)
+                    return res.status(500).send(err.message)
+                }
+                res.send(doc)
+            }
+        )
     }
 }
 

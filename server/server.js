@@ -30,7 +30,6 @@ const
     { mongoDownload, getFilesMetadata, getOneFileMetadata } = require('./mongo/mongoDownload'),
     { cadProcuradores } = require('./cadProcuradores'),
     { seguros } = require('./queries'),
-    { fieldParser } = require('./utils/fieldParser'),
     { getUpdatedData } = require('./getUpdatedData'),
     { empresaChunks, vehicleChunks } = require('./mongo/models/chunksModel'),
     { parseRequestBody } = require('./utils/parseRequest'),
@@ -40,7 +39,6 @@ const
     dbSync = require('./sync/dbSyncAPI'),
     deleteVehiclesInsurance = require('./deleteVehiclesInsurance'),
     updateVehicleStatus = require('./taskManager/veiculos/updateVehicleStatus'),
-    emitSocket = require('./emitSocket'),
     parametros = require('./parametros/parametros'),
     alerts = require('./alerts/routes'),
     getFormattedDate = require('./utils/getDate'),
@@ -53,12 +51,11 @@ const
     insertEmpresa = require('./users/insertEmpresa'),
     removeEmpresa = require('./users/removeEmpresa'),
     userSockets = require('./auth/userSockets'),
-    deleteSockets = require('./auth/deleteSockets'),
     fileBackup = require('./fileBackup/fileBackup'),
     prepareBackup = require('./fileBackup/prepareBackup'),
     { permanentBackup } = require('./fileBackup/permanentBackup'),
-    taskManager = require('./taskManager/taskManager')
-    , { SocioDaoImpl } = require('./infrastructure/SocioDaoImpl')
+    taskManager = require('./taskManager/taskManager'),
+    errorHandler = require('./utils/errorHandler')
 
 
 taskManager()
@@ -233,52 +230,11 @@ app.use('/api/avisos', alerts)
 app.get('/api/users', checkPermissions, getUsers)
 app.use('/users', users)
 
-
 /***************************  ROUTER PARA OS PRINCIPAIS COMPONENTES DO SISTEMA ************************* 
 tabelas: acessibilidade, altContrato, empresas, equipamentos, empresas_laudo, laudos, modelos(chassi/carroceria), procuradores, 
 procuracoes, seguradoras, seguros, socios, solicitacoes(logs), veiculos, lookup(marcas chassi/carroceria)
 */
 app.use('/api', router)
-
-//Verifica existência de sócios
-app.post('/api/checkSocios', async (req, res) => {
-    //Checa se o(s) cpf(s) informado(s) também é sócio de alguma outra empresa do sistema
-    const
-        { newCpfs } = req.body
-    if (!newCpfs || !newCpfs instanceof Array)
-        return res.send([])
-    const
-        cpfArray = newCpfs.map(cpf => `'${cpf}'`),
-        condition = `WHERE cpf_socio IN (${cpfArray})`,
-        checkSocios = await getUpdatedData('socios', condition)
-
-    //Parse da coluna empresas de string para JSON
-    checkSocios.forEach(s => {
-        if (s.empresas)
-            s.empresas = JSON.parse(s.empresas)
-    })
-    res.send(checkSocios)
-})
-
-//get one element
-app.get('/api/getOne', async (req, res) => {
-    const
-        { table, key, value } = req.query
-        , condition = `WHERE ${key} = ${value}`
-        , el = await getUpdatedData(table, condition)
-    console.log({ el, condition })
-    return res.json(el)
-});
-
-//************************************ SPECIAL VEHICLE ROUTES *********************** */
-//get one dischargedVehicle
-app.get('/api/getOldVehicles', async (req, res) => {
-    const
-        placa = req.query.placa.toUpperCase()
-        , query = { "Placa": { $in: [placa, placa.replace('-', '')] } }
-        , result = await oldVehiclesModel.find(query).exec()
-    res.send(result)
-})
 
 //get all dischargedVehicles and download excel spreadsheet
 app.get('/api/oldVehiclesXls', async (req, res) => {
@@ -307,21 +263,6 @@ app.get('/api/oldVehiclesXls', async (req, res) => {
     const stream = fs.createReadStream(fileName);
     stream.on('end', () => res.end());
     stream.pipe(res)
-})
-
-//reactivate discharged vehicle status in MongoDB
-app.patch('/api/reactivateVehicle', async (req, res) => {
-    const
-        { body } = req,
-        { placa, ...update } = body,
-        query = { Placa: placa }
-
-    oldVehiclesModel.findOneAndUpdate(query, update, (err, doc) => {
-        if (err)
-            console.log(err)
-        else
-            res.send('Veículo reativado.')
-    })
 })
 
 //Verifica tentativas de cadastro duplicado no DB
@@ -372,46 +313,7 @@ app.get('/api/alreadyExists', async (req, res) => {
     }
 })
 
-app.post('/api/baixaVeiculo', async (req, res) => {
-    const
-        placa = req.body.Placa,
-        filter = { Placa: placa },
-        update = req.body
-
-    oldVehiclesModel.findOneAndUpdate(filter, update, { upsert: true, new: true }, (err, doc) => {
-        if (err) {
-            console.log(err)
-            return res.status(500).send(err.message)
-        }
-        res.send(doc)
-    })
-})
-
-//************************************ OTHER METHOD ROUTES *********************** */
-
 app.post('/api/cadProcuradores', cadProcuradores)
-
-app.post('/api/cadSeguro', (req, res) => {
-    let parsed = []
-
-    const keys = Object.keys(req.body).toString(),
-        values = Object.values(req.body)
-
-    values.forEach(v => {
-        parsed.push(('\'' + v + '\''))
-    })
-
-    parsed = parsed.toString().replace(/'\['/g, '').replace(/'\]'/g, '')
-    pool.query(
-        `INSERT INTO public.seguros (${keys}) VALUES (${parsed}) RETURNING *`, (err, table) => {
-            if (err)
-                console.log(err)
-            if (table && table.rows && table.rows.length === 0)
-                return res.send(table.rows)
-            if (table && table.rows.length > 0)
-                res.send('Seguro cadastrado.')
-        })
-})
 
 app.post('/api/addElement', (req, res) => {
     const
@@ -565,47 +467,6 @@ app.put('/api/updateInsurances', async (req, res) => {
         res.send('No changes whatsoever.')
 })
 
-app.put('/api/editSocios', async (req, res, next) => {
-
-    const { requestArray, table, codigoEmpresa, cpfsToAdd, cpfsToRemove } = req.body
-    console.log("🚀 ~ file: server.js ~ line 701 ~ app.put ~ req.body", req.body)
-
-    let
-        queryString = '',
-        socioIds = []
-
-    const keys = await new SocioDaoImpl().getEntityPropsNames()
-    console.log("🚀 ~ file: server.js ~ line 708 ~ app.put ~  keys", keys)
-
-    requestArray.forEach(o => {
-        socioIds.push(o.socio_id)
-
-        keys.forEach(key => {
-            if (key !== 'socio_id' && key !== 'cpf_socio' && (o[key] || o[key] === '')) {
-                const value = o[key]
-
-                queryString += `
-                    UPDATE ${table} 
-                    SET ${key} = '${value}'
-                    WHERE socio_id = ${o.socio_id};
-                    `
-            }
-        })
-    })
-
-    pool.query(queryString, async (err, t) => {
-        if (err) console.log(err)
-        if (t) {
-            //Adiciona permissões, se for o caso
-            if (cpfsToAdd && cpfsToAdd[0])
-                insertEmpresa({ representantes: cpfsToAdd, codigoEmpresa })
-
-            userSockets({ req, res, table: 'socios', event: 'updateSocios' })
-            //const condition = `WHERE socios.socio_id IN (${socioIds})`
-        }
-    })
-})
-
 app.patch('/api/removeEmpresa', async (req, res) => {
     const { cpfsToRemove, codigoEmpresa } = req.body
 
@@ -753,52 +614,6 @@ app.get('/api/deleteManyFiles', async (req, res) => {
     //    io.sockets.emit('deleteOne', { tablePK: '_id', id, collection })
 })
 
-app.delete('/api/delete', (req, res) => {
-
-    let { id } = req.query
-    const
-        { user } = req,
-        { table, tablePK, codigoEmpresa } = req.query,
-        { collection } = fieldParser.find(f => f.table === table)
-
-    if (user.role !== 'admin' && collection !== 'procuracoes')
-        return res.status(403).send('É preciso permissão de administrador para acessar essa parte do cadTI.')
-
-    if (table === 'laudos')
-        id = `'${id}'`
-
-    const singleSocket = req.headers.referer && req.headers.referer.match('/veiculos/config')
-
-    const query = ` DELETE FROM public.${table} WHERE ${tablePK} = ${id}`
-    //console.log(query, '\n\n', req.query)
-    console.log({ table, tablePK, codigoEmpresa })
-    pool.query(query, async (err, t) => {
-        if (err)
-            console.log(err)
-        else if (t && id) {
-            if (singleSocket)
-                io.sockets.emit('deleteOne', { id, tablePK, collection })
-            else {
-                id = id.replace(/\'/g, '')
-                deleteSockets({ req, noResponse: true, table, tablePK, event: 'deleteOne', id, codigoEmpresa })
-                updateUserPermissions()
-            }
-            res.send(`${id} deleted from ${table}`)
-        }
-        else res.send('no id found.')
-    })
-
-    //*****************************ATUALIZA PERMISSÕES DE USUÁRIOS ******************************** */
-    //Se a tabela for socios ou procuradores, chama a função para atualizar a permissão de usuários
-    const updateUserPermissions = () => {
-
-        const { codigoEmpresa, cpf_socio, cpf_procurador } = req.query
-
-        if (table === 'socios' || table === 'procuradores')
-            removeEmpresa({ representantes: [{ cpf_socio, cpf_procurador }], codigoEmpresa })
-    }
-})
-
 app.delete('/api/removeProc', (req, res) => {
     const { codigo_empresa, procurador_id } = req.body
 
@@ -817,40 +632,17 @@ if (process.env.NODE_ENV === 'production') {
         res.sendFile(path.resolve(__dirname, '../client', 'build', 'index.html'))
     })
 }
+app.get('/a', (req, res) => {
+    throw new Error('not implemented')
+})
 
-//**********************************ERROR HANDLING*********************** */
-app.use((req, res, next) => {
-    const error = new Error("Not found.");
-    error.status = 404
-    next(error);
-});
-
-app.use((error, req, res, next) => {
-    res.status(error.status || 500);
-
-    const
-        { message, name } = error,
-        errorLines = error.stack.split('\n')
-
-    console.log(
-        '\n******************' +
-        '\nError name: ' + name +
-        '\nError message: ' + message +
-        '\nError line: ' + errorLines[1] +
-        //      '\nError line2: ' + errorLines[2] +
-        '\n*********************\n'
-    )
-
-    res.json({
-        errorStatus: error.status || 500,
-        errorMessage: message,
-    });
-});
+app.use(...errorHandler)
 
 if (require.main === module) {
     server.listen(process.env.PORT || 3001, () => {
         console.info('NodeJS server running on port ' + (process.env.PORT || 3001))
     })
 }
+
 
 module.exports = app

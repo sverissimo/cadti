@@ -449,7 +449,7 @@ const AltContrato = props => {
                 if (oldSocios[0]) {
                     console.log("🚀 ~ file: AltContrato.jsx ~ line 442 ~ oldSocios", oldSocios)
                     //atualiza os sócios. Status 'deleted' não são apagados, apenas têm sua coluna 'empresas' atualizada.
-                    await axios.put('/api/editSocios', { requestArray: oldSocios, ...requestInfo })
+                    await axios.put('/api/socios', { requestArray: oldSocios, ...requestInfo })
 
                     //remove as permissões de usuário dos sócios excluídos
                     if (cpfsToRemove[0])
