@@ -310,19 +310,20 @@ class Procuradores extends Component {
                 empresas: [codigoEmpresa]
             }
 
-            await axios.post('/api/cadProcuradores', { ...cadRequest, codigoEmpresa })
+            await axios.post('/api/procuradores', { ...cadRequest, codigoEmpresa })
                 .then(procs => {
                     procs.data.forEach(p => procIdArray.push(p.procurador_id))
                 })
         }
         //***************Update existing members ****************/
         const request = {
-            table: 'procuradores',
-            tablePK: 'procurador_id',
-            requestArray: oldMembers,
-            keys: procuradorForm.map(p => humps.decamelize(p.field)),
+            //table: 'procuradores', (REFACTORED ENDPOINT!!!)
+            //tablePK: 'procurador_id', NEED TO REFACTOR THIS TOO!!!
+            //keys: procuradorForm.map(p => humps.decamelize(p.field)), NO LONGER NEEDED!!
+            //requestArray: oldMembers, >> propName changed to procuradores
+            procuradores: oldMembers,
             codigoEmpresa,
-            updateUser: 'insertEmpresa'
+            updateUserPermission: true //Also refactored from updateUser:string to <prop>:boolean
         }
 
         if (oldMembers && oldMembers[0]) {
@@ -338,7 +339,8 @@ class Procuradores extends Component {
                 }
             })
 
-            axios.put('/api/editProc', request)
+            //EndPoint changed from /api/editProc to /api/procuradores
+            axios.put('/api/procuradores', request)
                 .then(r => console.log(r))
         }
 
@@ -416,13 +418,11 @@ class Procuradores extends Component {
                 filteredProcs = humps.decamelizeKeys(filteredProcs)
 
                 const request = {
-                    table: 'procuradores',
-                    tablePK: 'procurador_id',
-                    requestArray: filteredProcs,
-                    keys: ['empresas'],
-                    codigoEmpresa
+                    codigoEmpresa,
+                    procuradores: filteredProcs,
+                    updateUserPermission: false,
                 }
-                axios.put('/api/editProc', { ...request })
+                axios.put('/api/procuradores', request)
                     .then(r => console.log(r))
                 //Remove a permissão do usuário para a empresa selecionada, caso haja usuário com mesmo cpf cadastrado no sistema
                 await axios.patch('/api/removeEmpresa', { cpfsToRemove: filteredProcs, codigoEmpresa })

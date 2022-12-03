@@ -28,7 +28,6 @@ const
     router = require('./routes/routes'),
     { storage, uploadMetadata } = require('./mongo/mongoUpload'),
     { mongoDownload, getFilesMetadata, getOneFileMetadata } = require('./mongo/mongoDownload'),
-    { cadProcuradores } = require('./cadProcuradores'),
     { seguros } = require('./queries'),
     { getUpdatedData } = require('./getUpdatedData'),
     { empresaChunks, vehicleChunks } = require('./mongo/models/chunksModel'),
@@ -265,56 +264,6 @@ app.get('/api/oldVehiclesXls', async (req, res) => {
     stream.pipe(res)
 })
 
-//Verifica tentativas de cadastro duplicado no DB
-app.get('/api/alreadyExists', async (req, res) => {
-    const
-        { table, column, value } = req.query,
-        query = `SELECT * FROM ${table} WHERE ${column} = '${value}'`,
-        mongoQuery = { "Placa": { $in: [value, value.replace('-', '')] } }
-    let
-        v,
-        old,
-        foundOne
-
-    //Pesquisa entre veículos ativos e baixados
-    if (table === 'veiculos') {
-        v = await pool.query(query)
-        //Se ativo
-        if (v.rows && v.rows[0]) {
-            const
-                { veiculo_id, placa, situacao } = v.rows[0],
-                vehicleFound = { veiculoId: veiculo_id, placa, situacao }
-            foundOne = { vehicleFound, status: 'existing' }
-        }
-        //Se baixado
-        else {
-            old = await oldVehiclesModel.find(mongoQuery).lean()
-            console.log(old)
-            if (old.length > 0)
-                foundOne = { vehicleFound: old[0], status: 'discharged' }
-        }
-
-        //Retorna o veículo ou não impõe restrição
-        if (foundOne)
-            res.send(foundOne)
-        else
-            res.send(false)
-    }
-
-    //Se a tabela for outra, apenas verifica se existe conforme o critério passado pelo frontEnd
-    else {
-        const exists = await pool.query(query)
-        if (exists.rows && exists.rows[0])
-            foundOne = exists.rows[0]
-        if (foundOne)
-            res.send(true)
-        else
-            res.send(false)
-    }
-})
-
-app.post('/api/cadProcuradores', cadProcuradores)
-
 app.post('/api/addElement', (req, res) => {
     const
         { user } = req,
@@ -476,82 +425,6 @@ app.patch('/api/removeEmpresa', async (req, res) => {
     res.send('permission updated.')
 })
 
-app.put('/api/editProc', (req, res) => {
-
-    const { requestArray, table, tablePK, keys, codigoEmpresa, updateUser } = req.body
-    let queryString = '',
-        ids = '',
-        i = 0
-    console.log(updateUser === 'insertEmpresa', updateUser)
-    //Cria a string para o query no Postgresql
-    keys.forEach(key => {
-        requestArray.forEach(o => {
-            if (o.hasOwnProperty(key)) {
-                i++
-                console.log(i)
-                if (key !== 'procurador_id' && i < 2) {
-                    ids = ''
-                    queryString += `
-                    UPDATE ${table} 
-                    SET ${key} = CASE ${tablePK} 
-                    `
-                    requestArray.forEach(obj => {
-                        let value = obj[key]
-                        if (value) {
-                            if (key === 'empresas') value = `ARRAY[${value}]`
-                            else if (key !== 'codigo_empresa') value = '\'' + value + '\''
-                            if (key === 'data_fim') value += '::date'
-                            queryString += `WHEN ${obj.procurador_id} THEN ${value} `
-
-                            if (ids.split(' ').length <= requestArray.length) ids += obj.procurador_id + ', '
-                        }
-
-                    })
-                    ids = ids.slice(0, ids.length - 2)
-                    queryString += `
-                    END
-                    WHERE ${tablePK} IN (${ids});
-                    `
-                    ids = ids + ', '
-                }
-            }
-        })
-        i = 0
-    })
-    //Atualiza os procuradores com a string gerada acima
-    pool.query(queryString, (err, t) => {
-        console.log("🚀 ~ file: server.js ~ line 819 ~ pool.query ~ queryString", queryString)
-        if (err) console.log(err)
-
-        if (t) {
-            const ids = requestArray.map(el => el.procurador_id)
-            let query2 = 'SELECT * FROM procuradores',
-                condition = ` WHERE procurador_id = ${ids[0]}`
-
-            ids.forEach((id, i) => {
-                if (i > 0)
-                    condition += ` OR procurador_id = ${id}`
-            })
-            query2 += condition
-            //Depois de atualizado, faz um select dos procuradores e envia um socket para o client para atualizar em tempo real o estado global(redux)
-            pool.query(query2, (error, table) => {
-                if (error)
-                    console.log(error)
-                const update = { data: table.rows, collection: 'procuradores', primaryKey: 'procuradorId' }
-                io.sockets.emit('updateProcuradores', update)
-                res.send('Dados atualizados.')
-            })
-            //Atualiza o array de empresas dos usuários
-            const updateRequest = { representantes: requestArray, codigoEmpresa }
-            if (updateUser === 'insertEmpresa')
-                insertEmpresa(updateRequest)
-            /*  if (updateUser === 'removeEmpresa')
-                 removeEmpresa(updateRequest); */
-        }
-        else res.send('something went wrong with your update...')
-    })
-})
-
 app.delete('/api/deleteFile', async (req, res) => {
     const
         { id, collection } = req.query,
@@ -632,9 +505,6 @@ if (process.env.NODE_ENV === 'production') {
         res.sendFile(path.resolve(__dirname, '../client', 'build', 'index.html'))
     })
 }
-app.get('/a', (req, res) => {
-    throw new Error('not implemented')
-})
 
 app.use(...errorHandler)
 

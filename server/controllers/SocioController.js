@@ -1,10 +1,7 @@
 //@ts-check
-const { request, response } = require("express");
 const userSockets = require("../auth/userSockets");
 const { pool } = require("../config/pgConfig");
-const { Socio } = require("../domain/Socio");
 const { getUpdatedData } = require("../getUpdatedData");
-const { EntityDaoImpl } = require("../infrastructure/EntityDaoImpl");
 const { SocioDaoImpl } = require("../infrastructure/SocioDaoImpl");
 const insertEmpresa = require("../users/insertEmpresa");
 const { Controller } = require("./Controller");
@@ -19,7 +16,8 @@ class SocioController extends Controller {
         super('socios', 'socio_id');
     }
 
-    /*    async saveMany(req, res) {
+    /*    REFACTOR PARENT CLASS ANT THIS CLASS METHOD!!!!!!!!!!!!!!!!!!!!
+    async saveMany(req, res) {
    
            console.log("🚀 ~ file: SocioController.js:31 ~ SocioController ~ saveMany ~ req.body", req.body)
            const

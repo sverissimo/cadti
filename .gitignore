@@ -13,6 +13,7 @@ server/alerts/mockAlertFiles/*.html
 *.docx
 
 ecosystem.config.js
+/server/tests/mockData
 
 /client/debug.log
 oldVehicles.json

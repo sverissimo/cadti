@@ -178,7 +178,7 @@ class EmpresasContainer extends Component {
         switch (name) {
             case 'cnpj':
                 const
-                    query = await axios.get(`/api/alreadyExists?table=empresas&column=cnpj&value=${value}`),
+                    query = await axios.get(`/api/checkIfExists?table=empresas&column=cnpj&value=${value}`),
                     alreadyExists = query?.data  //Retorna true ou false
 
                 if (alreadyExists) {

@@ -1,3 +1,5 @@
+const ProcuradorController = require('../controllers/ProcuradorController')
+
 //@ts-check
 const router = require('express').Router()
     , { Controller } = require('../controllers/Controller')
@@ -8,7 +10,6 @@ const router = require('express').Router()
 
     , getRequestFilter = require('../utils/getRequestFilter')
     , AltContrato = require('../domain/altContrato/AltContrato')
-    , ProcuradorRepository = require('../domain/ProcuradorRepository')
     , Solicitacoes = require('../domain/solicitacoes/Solicitacoes')
     , { logHandler } = require('../utils/logHandler')
     , { lookup } = require('../queries')
@@ -19,8 +20,8 @@ const
     , solicitacoes = new Solicitacoes()
     , empresas = new EmpresaController('empresas', 'codigo_empresa')
     , socioController = new SocioController()
+    , procuradorController = new ProcuradorController()
     , procuracaoController = new ProcuracaoController()
-    , procuradores = new ProcuradorRepository()
     , seguroController = new SeguroController('seguros', 'id')
 
 
@@ -53,12 +54,17 @@ router
 router
     .route('/socios/:id?')
     .get(socioController.list)
-    .post(socioController.saveMany)
+    .post(socioController.saveMany) //REFACTOR
     .put(socioController.updateSocios)
 
 router.post('/checkSocios', socioController.checkSocios)
 
-router.get('/procuradores', procuradores.list)
+router
+    .route('/procuradores')
+    .get(procuradorController.list)
+    .post(procuradorController.saveMany)
+    .put(procuradorController.updateMany)
+    .delete(procuradorController.delete)
 
 router
     .route('/procuracoes/:id?')
@@ -83,6 +89,8 @@ router.get(`/${routes}/:id`, (req, res) => {
 
 
 router.get('/getOne', new Controller().getOne)
+router.get('/findMany', new Controller().findMany)
+router.get('/checkIfExists', new Controller().checkIfExists)
 
 router.put('/editElements', (req, res) => {
     const

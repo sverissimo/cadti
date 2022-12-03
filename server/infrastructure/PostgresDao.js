@@ -140,6 +140,16 @@ class PostgresDao {
         }
     }
 
+    updateMany = async (entityArray) => {
+        try {
+            const updateQuery = this.createUpdateQuery(entityArray)
+            const result = await this.pool.query(updateQuery)
+            return result
+        } catch (error) {
+            throw new Error(error.message)
+        }
+    }
+
     createUpdateQuery = (requestBody, table = this.table, primaryKey = this.primaryKey) => {
 
         const
@@ -198,7 +208,7 @@ class PostgresDao {
 
 
         const { rows } = await this.pool.query(query)
-            , ids = rows.map((row) => row[this.primaryKey])
+        const ids = rows.map((row) => row[this.primaryKey])
 
         console.log("🚀 ~ file: PostgresDao.js:201 ~ PostgresDao ~ saveMany ~ rows", ids)
         return ids

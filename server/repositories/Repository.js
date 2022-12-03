@@ -29,6 +29,7 @@ class Repository {
     constructor(table, primaryKey, daoImplementation) {
         if (!this.table)
             this.table = table
+
         if (!this.primaryKey)
             this.primaryKey = primaryKey
         //this.entityManager = daoImplementation || new EntityDaoImpl(this.table, this.primaryKey)
@@ -42,7 +43,6 @@ class Repository {
      * @returns {Promise<any[]>}
      */
     async list(filter) {
-
         try {
             const data = await this.entityManager.list(filter)
             return data

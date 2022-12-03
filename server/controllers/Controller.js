@@ -20,9 +20,14 @@ class Controller {
     /**
      * @property {} table @type {string}     */
     table;
+
     /**
      * @property {} primaryKey @type {string}     */
     primaryKey;
+
+    /**
+     * @property {} socketEvent @type {string}     */
+    socketEvent;
 
     /**
      *  @property {} repository @type {Repository}     */
@@ -33,10 +38,12 @@ class Controller {
      * @param {string} [primaryKey]
      * @param {Repository} [repository]
      */
-    constructor(table, primaryKey, repository) {
+    constructor(table = '', primaryKey = '', repository) {
         this.table = this.table || table
         this.primaryKey = this.primaryKey || primaryKey
         this.repository = repository || new Repository(this.table, this.primaryKey)
+        this.getOne = this.getOne.bind(this)
+        this.findMany = this.findMany.bind(this)
         this.save = this.save.bind(this)
         this.saveMany = this.saveMany.bind(this)
         this.update = this.update.bind(this)
@@ -47,8 +54,7 @@ class Controller {
      * @param {response} res 
      * @returns {Promise<any>}
      */
-    list = async (req, res) => {
-
+    list = async (req, res, next) => {
         const { filter } = res.locals
 
         if (req.params.id || Object.keys(req.query).length)
@@ -60,7 +66,7 @@ class Controller {
 
         } catch (e) {
             console.log(e.name + ': ' + e.message)
-            res.status(500).send(e)
+            next(e)
         }
     }
 
@@ -89,6 +95,47 @@ class Controller {
         console.log({ condition })
         const el = await getUpdatedData(table, condition)
         return res.json(el)
+    }
+
+    /**
+     * Método de busca que aceita chamadas de fora e de dentro do API
+     * req.body deve ter table:string, primaryKey:string e um array de ids 
+     * */
+    async findMany(req, res, next) {
+        const { table, primaryKey } = req.query
+        const ids = JSON.parse(req.query.ids)
+
+        if (!Array.isArray(ids) || ids.length === 0) {
+            return res.status(400).send('No valid ids sent to the server.')
+        }
+
+        if (table && primaryKey) {
+            this.repository = new Repository(table, primaryKey)
+        }
+
+        try {
+            const result = await this.repository.find(ids)
+            return res.send(result)
+        } catch (error) {
+            next(error);
+        }
+    }
+
+    async checkIfExists(req, res) {
+        const { table, column, value } = req.query;
+
+        if (!table || !column || !value)
+            return res.status(400).send('Bad request, missing some params...')
+
+        const query = `SELECT * FROM ${table} WHERE ${column} = '${value}'`;
+        const exists = await pool.query(query)
+
+        const doesExist = exists.rows && exists.rows[0]
+
+        if (doesExist) {
+            return res.send(true)
+        }
+        res.send(false)
     }
 
     async save(req, res) {
@@ -147,16 +194,17 @@ class Controller {
             , { codigo_empresa } = body
 
         if (Object.keys(body).length <= 1)
-            return res.status(409).send('Nothing to update...')
+            return res.status(400).send('Nothing to update...')
 
         try {
             const repository = new Repository(this.table, this.primaryKey)
                 , exists = await repository.find(req.body[this.primaryKey])
 
             if (!exists.length)
-                return res.status(409).send('Não foi encontrado nenhum registro na base de dados para atualização.')
+                return res.status(404).send('Não foi encontrado nenhum registro na base de dados para atualização.')
 
-            await repository.update(body)  //boolean
+            //returns Promise<boolean>
+            await repository.update(body)
             res.send(`${this.table} updated.`)
 
             let updates
@@ -178,30 +226,38 @@ class Controller {
     }
 
     //*************************REFACTOR THIS PLEASE!!!!!!!!!!!!!!!!! */
-    delete = (req, res) => {
+    delete = (req, res, next) => {
 
-        let { id } = req.query
-        const
-            { user } = req,
-            { table, tablePK, codigoEmpresa } = req.query,
-            //@ts-ignore
-            { collection } = fieldParser.find(f => f.table === table)
+        const { user } = req;
+        const { table, tablePK, codigoEmpresa } = req.query;
+        //@ts-ignore
+        const { collection } = fieldParser.find(f => f.table === table);
 
-        if (user.role !== 'admin' && collection !== 'procuracoes')
+        let { id } = req.query;
+
+        if (user.role !== 'admin' && collection !== 'procuracoes') {
             return res.status(403).send('É preciso permissão de administrador para acessar essa parte do cadTI.')
+        }
 
-        if (table === 'laudos')
+        if (!id) {
+            return res.status(400).send('No id provided.')
+        }
+
+        if (table === 'laudos') {
             id = `'${id}'`
+        }
 
         const singleSocket = req.headers.referer && req.headers.referer.match('/veiculos/config')
-
         const query = ` DELETE FROM public.${table} WHERE ${tablePK} = ${id}`
-        //console.log(query, '\n\n', req.query)
-        console.log({ table, tablePK, codigoEmpresa })
+
         pool.query(query, async (err, t) => {
-            if (err)
-                console.log(err)
-            else if (t && id) {
+            if (err) {
+                throw new Error(err.message)
+            };
+            if (t && t.rowCount === 0) {
+                return res.status(404).send('Resource not found.')
+            };
+            if (t && id) {
                 if (singleSocket) {
                     const io = req.app.get('io')
                     io.sockets.emit('deleteOne', { id, tablePK, collection })
@@ -212,8 +268,9 @@ class Controller {
                     updateUserPermissions()
                 }
                 res.send(`${id} deleted from ${table}`)
+            } else {
+                res.send('no id found.')
             }
-            else res.send('no id found.')
         })
 
         //*****************************ATUALIZA PERMISSÕES DE USUÁRIOS ******************************** 
@@ -225,6 +282,28 @@ class Controller {
             if (table === 'socios' || table === 'procuradores')
                 removeEmpresa({ representantes: [{ cpf_socio, cpf_procurador }], codigoEmpresa })
         }
+    }
+
+    //FIX and REFACTOR - userFilter???
+    emitSocket = async ({ io, ids, event }) => {
+
+        let condition = ''
+        ids.forEach(id => condition += `${this.primaryKey} = '${id}' OR `)
+        condition = 'WHERE ' + condition
+        condition = condition.slice(0, condition.length - 3)
+        console.log("🚀 ~ file: Controller.js:294 ~ Controller ~ emitSocket= ~ condition", condition)
+
+        const data = await getUpdatedData(this.table, condition)
+        console.log("🚀 ~ file: Controller.js:296 ~ Controller ~ emitSocket= ~ data", data)
+
+        /*  io.sockets.emit(
+             event || this.socketEvent,
+             {
+                 collection: this.table,
+                 primaryKey: this.primaryKey,
+                 updatedObjects: data
+             }
+         ) */
     }
 
 

@@ -318,7 +318,7 @@ class VeiculosContainer extends PureComponent {
 
     checkPlateConflict = async value => {
         const
-            checkExistence = await axios.get(`/api/alreadyExists?table=veiculos&column=placa&value=${value}`),
+            checkExistence = await axios.get(`/api/checkVehicleExistence?placa=${value}`),
             placaMatch = checkExistence?.data,
             vehicle = placaMatch?.vehicleFound
 

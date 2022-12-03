@@ -6,37 +6,23 @@ const
 
 class ProcuradorRepository {
 
-    /**
-    * Lista as entradas de uma determinada tabela
-    * @param req {any} 
-    * @param res {response}
-    * @returns {Promise<void>}
-   */
-    async list(req, res) {
+    async list({ empresas, role, condition }) {
 
         try {
-            let
-                { condition } = res.locals
-                , emps = ''
-            const
-                { table } = res.locals
-                , { empresas, role } = req.user && req.user
-
+            let emps = ''
             if (empresas && empresas[0] && role === 'empresa') {
-                console.log("🚀 ~ file: ProcuradorRepository.js ~ line 26 ~ ProcuradorRepository ~ list ~ empresas", empresas)
                 condition = `WHERE procuradores.procurador_id = 0`
-                emps = ''
                 empresas.forEach(e => emps += ` or ${e} = ANY(procuradores.empresas)`)
                 condition += emps
+                emps = ''
             }
 
-            const data = await getUpdatedData(table, condition || '')
-
-            res.json(data)
+            const data = await getUpdatedData('procuradores', condition || '')
+            return data
 
         } catch (error) {
             console.log({ error: error.message })
-            res.status(400).send(error)
+            throw new Error(error.message)
         }
     }
 }

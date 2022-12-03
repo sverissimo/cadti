@@ -1,15 +1,14 @@
 const parseRequestBody = (body) => {
 
     if (body instanceof (Array)) {
-        const
-            uniqueKeys = new Set()
-            , values = []
+        const uniqueKeys = new Set()
+        const values = []
 
         body.forEach(obj => {
             Object.keys(obj).forEach(k => uniqueKeys.add(k))
         })
 
-        const keys = Array.from(uniqueKeys)
+        const keys = [...uniqueKeys]
 
         body.forEach((obj) => {
             const objValues = keys.map(k => obj[k] ? obj[k] : null)
@@ -20,11 +19,10 @@ const parseRequestBody = (body) => {
             const result = { keys, values }
             return result
         }
-
-
     } else {
-        let values = []
-            , keys = Object.keys(body)
+        let values = [];
+        let keys = Object.keys(body);
+
         keys = keys.filter(k => body[k]).toString()
 
         Object.entries(body).forEach(([k, v]) => {

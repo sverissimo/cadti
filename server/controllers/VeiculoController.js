@@ -185,6 +185,36 @@ class VeiculoController extends Controller {
             }
         )
     }
+
+    /** Pesquisa entre veículos ativos e baixados */
+    checkVehicleExistence = async (req, res) => {
+        const { placa } = req.query;
+        const queryString = `SELECT * FROM veiculos WHERE placa = '${placa}'`;
+        const regularQuery = await pool.query(queryString);
+
+        let foundOne;
+
+        if (regularQuery.rows && regularQuery.rows[0]) {
+            const { veiculo_id, placa, situacao } = regularQuery.rows[0];
+            const vehicleFound = { veiculoId: veiculo_id, placa, situacao };
+
+            foundOne = { vehicleFound, status: 'existing' };
+        }
+        //Se não encontrado veículo ativo, procura entre os baixados
+        else {
+            const dischargedQuery = { "Placa": { $in: [placa, placa.replace('-', '')] } };
+            let old = await oldVehiclesModel.find(dischargedQuery).lean();
+
+            if (old.length > 0) {
+                foundOne = { vehicleFound: old[0], status: 'discharged' }
+            }
+        };
+        if (!foundOne) {
+            return res.send(false)
+        };
+
+        res.send(foundOne)
+    }
 }
 
 module.exports = VeiculoController
