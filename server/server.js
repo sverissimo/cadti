@@ -28,16 +28,10 @@ const
     router = require('./routes/routes'),
     { storage, uploadMetadata } = require('./mongo/mongoUpload'),
     { mongoDownload, getFilesMetadata, getOneFileMetadata } = require('./mongo/mongoDownload'),
-    { seguros } = require('./queries'),
-    { getUpdatedData } = require('./getUpdatedData'),
     { empresaChunks, vehicleChunks } = require('./mongo/models/chunksModel'),
-    { parseRequestBody } = require('./utils/parseRequest'),
     filesModel = require('./mongo/models/filesModel'),
     oldVehiclesModel = require('./mongo/models/oldVehiclesModel'),
-    segurosModel = require('./mongo/models/segurosModel'),
     dbSync = require('./sync/dbSyncAPI'),
-    deleteVehiclesInsurance = require('./deleteVehiclesInsurance'),
-    updateVehicleStatus = require('./taskManager/veiculos/updateVehicleStatus'),
     parametros = require('./parametros/parametros'),
     alerts = require('./alerts/routes'),
     getFormattedDate = require('./utils/getDate'),
@@ -47,14 +41,14 @@ const
     users = require('./users/users'),
     getUsers = require('./users/getUsers'),
     checkPermissions = require('./auth/checkPermissions'),
-    insertEmpresa = require('./users/insertEmpresa'),
-    removeEmpresa = require('./users/removeEmpresa'),
-    userSockets = require('./auth/userSockets'),
     fileBackup = require('./fileBackup/fileBackup'),
     prepareBackup = require('./fileBackup/prepareBackup'),
     { permanentBackup } = require('./fileBackup/permanentBackup'),
     taskManager = require('./taskManager/taskManager'),
-    errorHandler = require('./utils/errorHandler')
+    errorHandler = require('./utils/errorHandler'),
+    { SeguroService } = require('./services/SeguroService'),
+    { Controller } = require('./controllers/Controller'),
+    { VeiculoService } = require('./services/VeiculoService')
 
 
 taskManager()
@@ -199,25 +193,6 @@ app.put('/api/updateFilesMetadata', async (req, res) => {
 //************************************BACKUP - SAVE FILES *************************************** */
 //app.post('/files/save', fileBackup)
 
-
-//************************************CADASTRO PROVISÓRIO DE SEGUROS**************** */
-app.post('/api/cadSeguroMongo', (req, res) => {
-    const
-        { user, body } = req,
-        role = user && user.role,
-        segModel = new segurosModel(body)
-
-    if (role === 'empresa')
-        return res.status(403).send('O usuário não possui permissões para esse cadastro no cadTI.')
-
-    segModel.save(function (err, doc) {
-        if (err) console.log(err)
-        if (doc) res.locals = { doc }
-        res.send('saved in mongoDB')
-    })
-})
-
-
 //********************************** PARÂMETROS DO SISTEMA ********************************* */
 app.use('/api/parametros', parametros)
 
@@ -229,10 +204,7 @@ app.use('/api/avisos', alerts)
 app.get('/api/users', checkPermissions, getUsers)
 app.use('/users', users)
 
-/***************************  ROUTER PARA OS PRINCIPAIS COMPONENTES DO SISTEMA ************************* 
-tabelas: acessibilidade, altContrato, empresas, equipamentos, empresas_laudo, laudos, modelos(chassi/carroceria), procuradores, 
-procuracoes, seguradoras, seguros, socios, solicitacoes(logs), veiculos, lookup(marcas chassi/carroceria)
-*/
+
 app.use('/api', router)
 
 //get all dischargedVehicles and download excel spreadsheet
@@ -264,166 +236,11 @@ app.get('/api/oldVehiclesXls', async (req, res) => {
     stream.pipe(res)
 })
 
-app.post('/api/addElement', (req, res) => {
-    const
-        { user } = req,
-        { table, requestElement } = req.body,
-        { keys, values } = parseRequestBody(requestElement)
-
-    if (user.role !== 'admin')
-        return res.status(403).send('É preciso permissão de administrador para acessar essa parte do cadTI.')
-    console.log("🚀 ~ file: server.js ~ line 550 ~ app.post ~ user.role", user.role)
-
-    let queryString = `INSERT INTO public.${table} (${keys}) VALUES (${values}) RETURNING *`
-    console.log("🚀 ~ file: server.js ~ line 561 ~ app.post ~ queryString", queryString)
-
-    pool.query(queryString, async (err, t) => {
-        if (err) console.log(err)
-
-        if (t && t.rows) {
-            if (table !== 'laudos')
-                io.sockets.emit('addElements', { insertedObjects: t.rows, table })
-            //Se a tabela for laudos
-            else {
-                //Emite sockets para atualização dos laudos                        
-                const
-                    { veiculo_id, codigo_empresa } = requestElement,
-                    condition = `WHERE laudos.codigo_empresa = ${codigo_empresa}`
-
-                userSockets({ req, noResponse: true, table, condition, event: 'updateElements' })
-
-                //Atualiza status do veículo e emite sockets para atualização dos laudos
-                if (veiculo_id) {
-                    req.body.codigoEmpresa = codigo_empresa     //Passa o codigo p o body para o userSockets acessar
-                    await updateVehicleStatus([veiculo_id])
-                    const vCondition = `WHERE veiculos.veiculo_id = ${veiculo_id}`
-                    userSockets({ req, noResponse: true, table: 'veiculos', event: 'updateVehicle', condition: vCondition })
-                }
-                return res.send(t.rows)
-            }
-            res.send('Dados inseridos')
-        }
-    })
-})
-
+app.post('/api/addElement', new Controller().addElement)
 //Atualiza um elemento da tabela 'seguros'
-app.put('/api/updateInsurance', async (req, res) => {
-
-    const { columns, updates, id, vehicleIds } = req.body
-
-    let queryString = ''
-    columns.forEach(col => {
-        queryString += `
-                UPDATE seguros
-                SET ${col} = '${updates[col]}'
-                WHERE id = ${id};
-        `
-    })
-
-    await pool.query(queryString, (err, t) => {
-        if (err) console.log(err)
-        pool.query(seguros, (err, t) => {
-            if (err) console.log(err)
-            if (t && t.rows) io.sockets.emit('updateInsurance', t.rows)
-        })
-    })
-
-    let
-        condition = '',
-        query = `
-            SELECT * FROM veiculos
-            WHERE `
-
-    if (vehicleIds && vehicleIds[0]) {
-        vehicleIds.forEach(id => {
-            condition = condition + `veiculos.veiculo_id = '${id}' OR `
-        })
-        condition = condition.slice(0, condition.length - 3)
-        query = query + condition
-
-        await pool.query(query, (err, t) => {
-            if (err) console.log(err)
-            if (t && t.rows) {
-                const data = getUpdatedData('veiculos', `WHERE ${condition}`)
-                data.then(async res => {
-                    await io.sockets.emit('updateVehicle', res)
-                    pool.query(seguros, (err, t) => {
-                        if (err) console.log(err)
-                        if (t && t.rows) io.sockets.emit('updateInsurance', t.rows)
-                    })
-                })
-            }
-        })
-        res.send(vehicleIds)
-    } else res.send('No changes whatsoever.')
-})
-
+app.put('/api/updateInsurance', SeguroService.updateInsurance)
 //Atualiza um ou mais elementos da tabela 'veículos
-app.put('/api/updateInsurances', async (req, res) => {
-
-    const { column, value, placas, deletedVehicles } = req.body
-    let { table, ids, tablePK } = req.body
-
-    if (!table)
-        table = 'veiculos'
-    if (placas) {
-        tablePK = 'placa'
-        ids = placas
-    }
-
-    let condition = ''
-
-    //Se houver veículos para apagar, chamar o método para isso
-    if (deletedVehicles) {
-        await deleteVehiclesInsurance(deletedVehicles)
-
-        deletedVehicles.forEach(id => {
-            condition = condition + `veiculo_id = '${id}' OR `
-        })
-        condition = condition.slice(0, condition.length - 3)
-        console.log("🚀 ~ file: server.js ~ line 727 ~ app.put ~ condition", condition)
-
-        userSockets({ req, res, table: 'veiculos', condition: `WHERE ${condition}`, event: 'updateVehicle', noResponse: true })
-    }
-
-    //Se não houver nenhum id, a intenção era só apagar o n de apólice do(s) veículo(s). Nesse caso res = 'no changes'
-    if (ids && ids[0]) {
-        let query = `
-                UPDATE ${table}
-                SET ${column} = '${value}'         
-                WHERE `
-
-        condition = ''
-        ids.forEach(id => {
-            condition = condition + `${tablePK} = '${id}' OR `
-        })
-
-        condition = condition.slice(0, condition.length - 3)
-
-        query = query + condition + ` RETURNING *`
-        //console.log(query)
-        await pool.query(query, async (err, t) => {
-            if (err) console.log(err)
-            if (t && t.rows) {
-                await updateVehicleStatus(ids)
-                condition = 'WHERE ' + condition     //Adaptando para o userSocket fazer o getUpdatedData
-                await userSockets({ req, res, table: 'veiculos', condition, event: 'updateVehicle', noResponse: true }) //noResponse é p não enviar res p o client, sendo a função abaixo vai faze-lo
-                userSockets({ req, res, table: 'seguros', event: 'updateInsurance' }) //Atualiza os seguros com o join da coluna apolice dos veiculos atualizada
-            }
-        })
-    }
-    else
-        res.send('No changes whatsoever.')
-})
-
-app.patch('/api/removeEmpresa', async (req, res) => {
-    const { cpfsToRemove, codigoEmpresa } = req.body
-
-    if (cpfsToRemove && cpfsToRemove[0])
-        await removeEmpresa({ representantes: cpfsToRemove, codigoEmpresa })
-
-    res.send('permission updated.')
-})
+app.put('/api/updateInsurances', VeiculoService.updateInsurance)
 
 app.delete('/api/deleteFile', async (req, res) => {
     const

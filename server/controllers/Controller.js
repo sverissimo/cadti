@@ -10,6 +10,8 @@ const
     , { pool } = require("../config/pgConfig")
     , removeEmpresa = require("../users/removeEmpresa");
 const { getUpdatedData } = require("../getUpdatedData");
+const updateVehicleStatus = require("../taskManager/veiculos/updateVehicleStatus");
+const { parseRequestBody } = require("../utils/parseRequest");
 
 
 /**Classe parent de controlador para os requests de acesso ao banco de dados Postgresql.
@@ -89,14 +91,6 @@ class Controller {
         }
     }
 
-    async getOne(req, res) {
-        const { table, key, value } = req.query
-        const condition = `WHERE ${key} = ${value}`
-        console.log({ condition })
-        const el = await getUpdatedData(table, condition)
-        return res.json(el)
-    }
-
     /**
      * Método de busca que aceita chamadas de fora e de dentro do API
      * req.body deve ter table:string, primaryKey:string e um array de ids 
@@ -119,6 +113,14 @@ class Controller {
         } catch (error) {
             next(error);
         }
+    }
+
+    async getOne(req, res) {
+        const { table, key, value } = req.query
+        const condition = `WHERE ${key} = ${value}`
+        console.log({ condition })
+        const el = await getUpdatedData(table, condition)
+        return res.json(el)
     }
 
     async checkIfExists(req, res) {
@@ -148,10 +150,10 @@ class Controller {
             const id = await this.repository.save(req.body)
             res.status(201).json(id)
 
-            const
-                createdEntity = await this.repository.find(id)
-                , { codigo_empresa } = createdEntity[0]
-                , socket = new CustomSocket(req)
+            const createdEntity = await this.repository.find(id)
+            const { codigo_empresa } = createdEntity[0]
+            const socket = new CustomSocket(req)
+
             socket.emit('insertElements', createdEntity, this.table, this.primaryKey, codigo_empresa)
         } catch (error) {
             throw error
@@ -304,6 +306,50 @@ class Controller {
                  updatedObjects: data
              }
          ) */
+    }
+
+    addElement = (req, res) => {
+        const io = req.app.get('io')
+        const { user } = req
+        const { table, requestElement } = req.body
+        //@ts-ignore
+        const { keys, values } = parseRequestBody(requestElement)
+
+        if (user.role !== 'admin')
+            return res.status(403).send('É preciso permissão de administrador para acessar essa parte do cadTI.')
+        console.log("🚀 ~ file: server.js ~ line 550 ~ app.post ~ user.role", user.role)
+
+        let queryString = `INSERT INTO public.${table} (${keys}) VALUES (${values}) RETURNING *`
+        console.log("🚀 ~ file: server.js ~ line 561 ~ app.post ~ queryString", queryString)
+
+        pool.query(queryString, async (err, t) => {
+            if (err) console.log(err)
+
+            if (t && t.rows) {
+                if (table !== 'laudos')
+                    io.sockets.emit('addElements', { insertedObjects: t.rows, table })
+                //Se a tabela for laudos
+                else {
+                    //Emite sockets para atualização dos laudos                        
+                    const
+                        { veiculo_id, codigo_empresa } = requestElement,
+                        condition = `WHERE laudos.codigo_empresa = ${codigo_empresa}`
+                    //@ts-ignore
+                    userSockets({ req, noResponse: true, table, condition, event: 'updateElements' })
+
+                    //Atualiza status do veículo e emite sockets para atualização dos laudos
+                    if (veiculo_id) {
+                        req.body.codigoEmpresa = codigo_empresa     //Passa o codigo p o body para o userSockets acessar
+                        await updateVehicleStatus([veiculo_id])
+                        const vCondition = `WHERE veiculos.veiculo_id = ${veiculo_id}`
+                        //@ts-ignore
+                        userSockets({ req, noResponse: true, table: 'veiculos', event: 'updateVehicle', condition: vCondition })
+                    }
+                    return res.send(t.rows)
+                }
+                res.send('Dados inseridos')
+            }
+        })
     }
 
 

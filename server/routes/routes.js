@@ -1,6 +1,8 @@
-const ProcuradorController = require('../controllers/ProcuradorController')
-
 //@ts-check
+const { SeguroService } = require('../services/SeguroService')
+const ProcuradorController = require('../controllers/ProcuradorController')
+const removeEmpresa = require('../users/removeEmpresa')
+
 const router = require('express').Router()
     , { Controller } = require('../controllers/Controller')
     , { EmpresaController } = require('../controllers/EmpresaController')
@@ -40,10 +42,10 @@ router.use(getRequestFilter)
 
 router.use(/\/veiculos|\/\w+Vehicle(\w+)?|\/baixaVeiculo/, veiculoRoutes)
 
-router
-    .route('/seguros')
+router.route('/seguros')
     .post(seguroController.save)
     .put(seguroController.updateInsurance)
+router.post('/cadSeguroMongo', SeguroService.saveUpComingInsurances)
 
 router
     .route('/empresas/:id?')
@@ -68,23 +70,23 @@ router
 
 router
     .route('/procuracoes/:id?')
-    .get((req, res) => {
+    .get((req, res, next) => {
         req.params.id || Object.keys(req.query).length
             ? procuracaoController.find(req, res)
-            : procuracaoController.list(req, res)
+            : procuracaoController.list(req, res, next)
     })
     .post(procuracaoController.save)
 
 router.get('/lookUpTable/:table', lookup);
 
 const routes = 'modelosChassi|carrocerias|equipamentos|seguros|seguradoras|procuracoes|empresasLaudo|laudos|acessibilidade|compartilhados'
-router.get(`/${routes}/:id`, (req, res) => {
+router.get(`/${routes}/:id`, (req, res, next) => {
     console.log("🚀 ~ file: routes.js:70 ~ router.get ~ req", req.params)
     const
         { table } = res.locals //assigned on getRequestFilter.js
         , controller = new Controller(table)
 
-    controller.list(req, res)
+    controller.list(req, res, next)
 })
 
 
@@ -102,6 +104,16 @@ router.put('/editElements', (req, res) => {
 })
 
 router.delete('/delete', new Controller().delete)
+
+router.patch('/removeEmpresa', async (req, res) => {
+    const { cpfsToRemove, codigoEmpresa } = req.body
+
+    if (cpfsToRemove && cpfsToRemove[0])
+        await removeEmpresa({ representantes: cpfsToRemove, codigoEmpresa })
+
+    res.send('permission updated.')
+})
+
 
 
 
