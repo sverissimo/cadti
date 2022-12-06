@@ -112,7 +112,7 @@ export default function (requestArray, WrappedComponent) {
 
         getUser = async () => {
             const
-                request = await Axios.get('/getUser'),
+                request = await Axios.get('/api/users/getUser'),
                 user = request?.data
 
             if (user) {

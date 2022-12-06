@@ -2,6 +2,9 @@
 const { SeguroService } = require('../services/SeguroService')
 const ProcuradorController = require('../controllers/ProcuradorController')
 const removeEmpresa = require('../users/removeEmpresa')
+const parametros = require('../parametros/parametros')
+const { userRoutes } = require('../users/userRoutes')
+const alertRoutes = require('../alerts/alertRoutes')
 
 const router = require('express').Router()
     , { Controller } = require('../controllers/Controller')
@@ -37,10 +40,14 @@ router
     .get(solicitacoes.list)
     .post(logHandler, solicitacoes.create)
 
+router.use('/avisos', alertRoutes)
+router.use('/users', userRoutes)
+router.use('/parametros', parametros)
+
 //Middleware qua define a tabela e cria filtros para os SQL queries conforme permissões de usuário
 router.use(getRequestFilter)
 
-router.use(/\/veiculos|\/\w+Vehicle(\w+)?|\/baixaVeiculo/, veiculoRoutes)
+router.use(/\/veiculos|\/\w+Vehicle(\w+)?|\/baixaVeiculo|\/updateInsurances/, veiculoRoutes)
 
 router.route('/seguros')
     .post(seguroController.save)
@@ -93,7 +100,7 @@ router.get(`/${routes}/:id`, (req, res, next) => {
 router.get('/getOne', new Controller().getOne)
 router.get('/findMany', new Controller().findMany)
 router.get('/checkIfExists', new Controller().checkIfExists)
-
+router.post('/api/addElement', new Controller().addElement)
 router.put('/editElements', (req, res) => {
     const
         { table, tablePK: primaryKey, update } = req.body
@@ -113,8 +120,5 @@ router.patch('/removeEmpresa', async (req, res) => {
 
     res.send('permission updated.')
 })
-
-
-
 
 module.exports = router

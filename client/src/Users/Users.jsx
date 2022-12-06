@@ -26,19 +26,19 @@ const Users = props => {
         if (socio)
             user.empresas = [socio.codigoEmpresa]
 
-        axios.post('/users/addUser', user)
+        axios.post('/api/users', user)
             .then(r => console.log(r.data))
-            .catch(err => toast(err?.response?.data || 'Erro'))
+            .catch(err => toast(' Erro!'))
     }
     const editUsers = user => {
-        axios.put('/users/editUser', user)
+        axios.put('/api/users', user)
             .then(r => console.log(r.data))
             .catch(err => console.log(err))
     }
 
     const deleteUser = user => {
         const { id } = user
-        axios.delete(`/users/deleteUser?id=${id}`)
+        axios.delete(`/api/users?id=${id}`)
             .then(r => console.log(r.data))
             .catch(err => console.log(err))
     }

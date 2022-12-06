@@ -23,57 +23,40 @@ Grid.mongo = mongoose.mongo
 //Componentes do sistema
 const
     counter = require('./config/counter'),
-    { pool } = require('./config/pgConfig'),
     { setCorsHeader } = require('./config/setCorsHeader'),
     router = require('./routes/routes'),
+    { createSocketConnection } = require('./sockets/createSocketConnection'),
     { storage, uploadMetadata } = require('./mongo/mongoUpload'),
     { mongoDownload, getFilesMetadata, getOneFileMetadata } = require('./mongo/mongoDownload'),
     { empresaChunks, vehicleChunks } = require('./mongo/models/chunksModel'),
     filesModel = require('./mongo/models/filesModel'),
     oldVehiclesModel = require('./mongo/models/oldVehiclesModel'),
     dbSync = require('./sync/dbSyncAPI'),
-    parametros = require('./parametros/parametros'),
-    alerts = require('./alerts/routes'),
     getFormattedDate = require('./utils/getDate'),
     authRouter = require('./auth/authRouter'),
     authToken = require('./auth/authToken'),
-    getUser = require('./auth/getUser'),
-    users = require('./users/users'),
-    getUsers = require('./users/getUsers'),
-    checkPermissions = require('./auth/checkPermissions'),
     fileBackup = require('./fileBackup/fileBackup'),
     prepareBackup = require('./fileBackup/prepareBackup'),
     { permanentBackup } = require('./fileBackup/permanentBackup'),
     taskManager = require('./taskManager/taskManager'),
-    errorHandler = require('./utils/errorHandler'),
-    { SeguroService } = require('./services/SeguroService'),
-    { Controller } = require('./controllers/Controller'),
-    { VeiculoService } = require('./services/VeiculoService')
+    errorHandler = require('./utils/errorHandler')
 
 
 taskManager()
 dotenv.config()
 
-if (process.env.NODE_ENV === 'production')
-    app.use(morgan(`:method :url :status :response-time ms [:date[clf]]`))
-else
-    app.use(morgan('dev'))
-
 app.use(express.json({ limit: '50mb' }))
 app.use(express.urlencoded({ extended: true }))
 app.use(express.static('client/build'))
 app.use(setCorsHeader)
+app.use(morgan('dev'))
+if (process.env.NODE_ENV === 'production') {
+    app.use(morgan(':method :url :status :response-time ms [:date]'))
+}
 
-//**********************************    Counter ****************************/
-/* let i = 0
-app.use(counter(i)) */
-
-//************************************ AUTH AND USERS  *********************** */
 app.use('/auth', authRouter)
 app.use(authToken)
-app.get('/getUser', getUser)
 
-//*************************IO SOCKETS CONNECTION / CONFIG********************* */
 let server
 if (process.env.NODE_ENV === 'development') {
     server = devServer
@@ -83,29 +66,9 @@ else {
     server = productionServer
     console.log('Socket listening to https server...')
 }
-//const io = server && require('socket.io').listen(server)
-const io = server && require('socket.io').listen(server)
-io.on('connection', socket => {
-    if (socket.handshake.headers.authorization === process.env.FILE_SECRET) {
-        app.set('backupSocket', socket)
-        console.log('new backup socket connected.')
-    }
-    socket.on('userDetails', user => {
-        if (user.role !== 'empresa') {
-            socket.join('admin')
-            console.log('admin')
-        }
-        else if (user.empresas) {
-            const { empresas } = user
-            console.log('Array de empresas: ', empresas)
-            socket.empresas = empresas
-        }
-    })
-})
 
+const io = createSocketConnection(app, server)
 app.set('io', io)
-
-//************************************ BINARY DATA *********************** */
 
 let gfs
 conn.on('error', console.error.bind(console, 'connection error:'))
@@ -127,7 +90,6 @@ app.post('/api/empresaUpload', prepareBackup, empresaUpload.any(), uploadMetadat
         res.json({ file: filesArray })
     } else res.send('No uploads whatsoever...')
 })
-
 
 app.post('/api/vehicleUpload', prepareBackup, vehicleUpload.any(), uploadMetadata, (req, res) => {
     //Passa os arquivos para a função fileBackup que envia por webSocket para a máquina local.
@@ -190,20 +152,6 @@ app.put('/api/updateFilesMetadata', async (req, res) => {
         }
     )
 })
-//************************************BACKUP - SAVE FILES *************************************** */
-//app.post('/files/save', fileBackup)
-
-//********************************** PARÂMETROS DO SISTEMA ********************************* */
-app.use('/api/parametros', parametros)
-
-//********************************** AVISOS/ALERTAS DO SISTEMA ********************************* */
-app.use('/api/avisos', alerts)
-//app.post('/alerts/:type', userAlerts)
-
-//************************************USUÁRIOS DO SISTEMA *********************** */
-app.get('/api/users', checkPermissions, getUsers)
-app.use('/users', users)
-
 
 app.use('/api', router)
 
@@ -235,12 +183,6 @@ app.get('/api/oldVehiclesXls', async (req, res) => {
     stream.on('end', () => res.end());
     stream.pipe(res)
 })
-
-app.post('/api/addElement', new Controller().addElement)
-//Atualiza um elemento da tabela 'seguros'
-app.put('/api/updateInsurance', SeguroService.updateInsurance)
-//Atualiza um ou mais elementos da tabela 'veículos
-app.put('/api/updateInsurances', VeiculoService.updateInsurance)
 
 app.delete('/api/deleteFile', async (req, res) => {
     const
@@ -304,17 +246,6 @@ app.get('/api/deleteManyFiles', async (req, res) => {
     //    io.sockets.emit('deleteOne', { tablePK: '_id', id, collection })
 })
 
-app.delete('/api/removeProc', (req, res) => {
-    const { codigo_empresa, procurador_id } = req.body
-
-    pool.query(`
-    DELETE FROM public.procuracoes    
-    WHERE codigo_empresa = ${codigo_empresa}
-    AND WHERE procurador_id = ${procurador_id}
-`
-    )
-})
-
 app.use('/sync', dbSync)
 
 if (process.env.NODE_ENV === 'production') {
@@ -330,6 +261,5 @@ if (require.main === module) {
         console.info('NodeJS server running on port ' + (process.env.PORT || 3001))
     })
 }
-
 
 module.exports = app

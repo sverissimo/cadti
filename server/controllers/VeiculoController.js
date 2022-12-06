@@ -1,18 +1,14 @@
 //@ts-check
-const
-    { request, response } = require('express')
-    , VeiculoRepository = require("../repositories/VeiculoRepository")
-    , userSockets = require('../auth/userSockets')
-    , { Controller } = require('./Controller')
+const { request, response } = require('express')
+const VeiculoRepository = require("../repositories/VeiculoRepository")
+const userSockets = require('../auth/userSockets')
+const { Controller } = require('./Controller')
 const { pool } = require('../config/pgConfig')
 const { getUpdatedData } = require('../getUpdatedData')
 const oldVehiclesModel = require('../mongo/models/oldVehiclesModel')
 
-/**
- * @class 
- */
+/** * @class  */
 class VeiculoController extends Controller {
-
 
     /**
      * @param {request} req 
@@ -50,7 +46,6 @@ class VeiculoController extends Controller {
         }
     }
 
-
     /**
      * @override
      * @param {request} req 
@@ -78,13 +73,9 @@ class VeiculoController extends Controller {
             console.log("🚀 ~ file: VeiculoController.js ~ line 72 ~ VeiculoController ~ update= ~ error", error)
             throw error
         }
-
-
         //@ts-ignore
         userSockets({ req, noResponse: true, table: 'veiculos', condition, event: 'updateVehicle' })
     }
-
-
 
     getAllVehicles = async (req, res) => {
 
@@ -133,7 +124,6 @@ class VeiculoController extends Controller {
         if (!req.query.placa) {
             return res.status(400).send('É obrigatório informar a placa para essa consulta.')
         }
-
         const placa = req.query.placa.toUpperCase()
         const query = { "Placa": { $in: [placa, placa.replace('-', '')] } }
         const result = await oldVehiclesModel.find(query).exec()
@@ -168,7 +158,6 @@ class VeiculoController extends Controller {
         if (!req.body.placa && !req.body.Placa) {
             return res.status(400).send('É obrigatório informar a placa para a baixa.')
         }
-
         const { placa, Placa, ...update } = req.body
         const filter = { Placa: Placa || placa }
 
@@ -188,31 +177,29 @@ class VeiculoController extends Controller {
 
     /** Pesquisa entre veículos ativos e baixados */
     checkVehicleExistence = async (req, res) => {
-        const { placa } = req.query;
-        const queryString = `SELECT * FROM veiculos WHERE placa = '${placa}'`;
-        const regularQuery = await pool.query(queryString);
+        const { placa } = req.query
+        const queryString = `SELECT * FROM veiculos WHERE placa = '${placa}'`
+        const regularQuery = await pool.query(queryString)
 
-        let foundOne;
+        let foundOne
 
         if (regularQuery.rows && regularQuery.rows[0]) {
-            const { veiculo_id, placa, situacao } = regularQuery.rows[0];
-            const vehicleFound = { veiculoId: veiculo_id, placa, situacao };
-
-            foundOne = { vehicleFound, status: 'existing' };
+            const { veiculo_id, placa, situacao } = regularQuery.rows[0]
+            const vehicleFound = { veiculoId: veiculo_id, placa, situacao }
+            foundOne = { vehicleFound, status: 'existing' }
         }
         //Se não encontrado veículo ativo, procura entre os baixados
         else {
-            const dischargedQuery = { "Placa": { $in: [placa, placa.replace('-', '')] } };
-            let old = await oldVehiclesModel.find(dischargedQuery).lean();
+            const dischargedQuery = { "Placa": { $in: [placa, placa.replace('-', '')] } }
+            let old = await oldVehiclesModel.find(dischargedQuery).lean()
 
             if (old.length > 0) {
                 foundOne = { vehicleFound: old[0], status: 'discharged' }
             }
-        };
+        }
         if (!foundOne) {
             return res.send(false)
-        };
-
+        }
         res.send(foundOne)
     }
 }

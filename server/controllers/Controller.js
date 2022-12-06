@@ -230,25 +230,22 @@ class Controller {
     //*************************REFACTOR THIS PLEASE!!!!!!!!!!!!!!!!! */
     delete = (req, res, next) => {
 
-        const { user } = req;
-        const { table, tablePK, codigoEmpresa } = req.query;
+        const { user } = req
+        const { table, tablePK, codigoEmpresa } = req.query
         //@ts-ignore
-        const { collection } = fieldParser.find(f => f.table === table);
+        const { collection } = fieldParser.find(f => f.table === table)
 
-        let { id } = req.query;
+        let { id } = req.query
 
         if (user.role !== 'admin' && collection !== 'procuracoes') {
             return res.status(403).send('É preciso permissão de administrador para acessar essa parte do cadTI.')
         }
-
         if (!id) {
             return res.status(400).send('No id provided.')
         }
-
         if (table === 'laudos') {
             id = `'${id}'`
         }
-
         const singleSocket = req.headers.referer && req.headers.referer.match('/veiculos/config')
         const query = ` DELETE FROM public.${table} WHERE ${tablePK} = ${id}`
 

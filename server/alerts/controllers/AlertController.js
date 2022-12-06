@@ -1,55 +1,36 @@
 //@ts-check
-const
-    AlertService = require("../services/AlertService")
-    , editUser = require("../../users/editUser")
-    , getUser = require("../../auth/getUser")
-
+const AlertService = require("../services/AlertService")
+const { UserService } = require("../../services/UserService")
 
 class AlertController {
 
-    /**
-     * @param {any} req
-     */
-    async getAlerts(req) {
-
-        const
-            user = await getUser(req)
-            , alerts = await new AlertService({}).getAllAlerts(user)
-        return alerts
+    async getAlerts(req, res, next) {
+        try {
+            const filter = { _id: req.user._id }
+            const user = await UserService.find(filter)
+            const alerts = await new AlertService({}).getAllAlerts(user)
+            res.send(alerts)
+        } catch (error) {
+            next(error)
+        }
     }
 
-    /**
-    * Marca mensagem como lida
-    * @param {string[]} ids 
-    * @param {boolean} readStatus
-    * @returns {Promise<string>}
-    */
-    async changeReadStatus(ids, readStatus) {
-        const result = await new AlertService({}).changeReadStatus(ids, readStatus)
-        return result
+    async changeReadStatus(req, res, next) {
+        try {
+            //@ts-ignore
+            const user = { ...req.user, ...req.body }
+            await UserService.editUser(user)
+            return res.status(204).end()
+        } catch (error) {
+            next(error)
+        }
     }
 
-
-    /**
-        * Marca mensagem como lida' para um determinado usuário
-        * @param {any} req
-        * @param {any} res
-        * @returns {Promise}
-        */
-    async changeUserReadStatus(req, res) {
-        await editUser(req, res)
-        return 'updated message read status.'
-    }
-
-    /**
-       * Apaga uma ou mais mensagens para um determinado usuário.
-       * @param {any} req
-       * @param {any} res
-       * @returns {Promise}
-       */
-    async deleteUserAlerts(req, res) {
-        await editUser(req, res)
-        return 'Message(s) deleted.'
+    /** O aviso/alerta não é apagado, apenas marcado como apagado em user>>messagesDeleted. */
+    async deleteUserAlerts(req, res, next) {
+        if (!req.body.deletedMessages)
+            return res.status(400).send('Nenhuma mensagem para apagar.')
+        await this.changeReadStatus(req, res, next)
     }
 }
 

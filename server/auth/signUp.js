@@ -32,7 +32,7 @@ const signUp = async (req, res) => {
             console.log(error)
         }
 
-    //Retorna o array de códigos das empresas nas quais o usuário possui vículo de sócio
+    //Retorna o array de códigos das empresas nas quais o usuário possui vínculo de sócio
     empresasSocio = empresasSocio.map(e => e.codigoEmpresa)
     const empresas = empresasProcuracao.concat(empresasSocio)
 
@@ -46,15 +46,15 @@ const signUp = async (req, res) => {
     //Cria o hash da password
     const
         salt = await bcrypt.genSalt(10),
-        hasedPassword = await bcrypt.hash(password, salt),
-        confirmPass = bcrypt.compareSync(confirmPassword, hasedPassword)
+        hashedPassword = await bcrypt.hash(password, salt),
+        confirmPass = bcrypt.compareSync(confirmPassword, hashedPassword)
 
     // confere confirmação de senha
     if (!confirmPass)
         return res.status(422).send('Senhas não conferem.')
 
     //Salva o usuário no DB
-    newUser = new UserModel({ ...user, password: hasedPassword }),
+    newUser = new UserModel({ ...user, password: hashedPassword }),
         storedUser = await newUser.save()
 
     res.send(storedUser)

@@ -42,8 +42,9 @@ const UserAuth = props => {
       await axios.post(endPoint, state)
       //caso as credenciais (usuário/senha) estejam certas, um token foi armazenado. Faz-se então uma requisição GET dos dados do usuário
       const
-        getUser = await axios.get('/getUser'),
+        getUser = await axios.get('/api/users/getUser'),
         userFound = getUser?.data
+      console.log("🚀 ~ file: UserAuth.jsx:47 ~ login ~ userFound", userFound)
       //Ao se descodificar o token, se as credenciais estiverem certas e o token válido, retorna o usuário, armazena na globalStore e cria cookie local.      
 
       setCookie('loggedIn', true)

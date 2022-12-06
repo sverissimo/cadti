@@ -1,3 +1,5 @@
+const { VeiculoService } = require('../services/VeiculoService')
+
 //@ts-check
 const
     router = require('express').Router()
@@ -38,5 +40,8 @@ router.route('/:id?')
                 return res.send('Patch route not found.');
         }
     })
+
+router.put('/api/updateInsurances', VeiculoService.updateInsurance) //REFACTOR
+
 
 module.exports = router
