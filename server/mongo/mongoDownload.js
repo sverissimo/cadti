@@ -16,59 +16,52 @@ const mongoDownload = (req, res, gfs) => {
             return res.status(404).json({ responseMessage: err })
 
         else {
-            const readstream = gfs.createReadStream({ filename: file.filename })
+            const readStream = gfs.createReadStream({ filename: file.filename })
 
             res.set({
                 'Content-Type': file.contentType,
                 'Content-Disposition': 'attachment',
             })
-            return readstream.pipe(res)
+            return readStream.pipe(res)
         }
     })
 }
 
-const getFilesMetadata = async (req, res) => {
+const getFilesMetadata = async ({ user, collection, fieldName = '' }) => {
+    const { empresas, role } = user
+    const condition = role === 'empresa' ? `WHERE empresas.codigo_empresa IN (${empresas})` : ''
+    let filesCollectionModel
+    let filter = {}
+    let fieldObject = {}
 
-    let
-        filesCollection,
-        fieldName = {},
-        filter = {}
-    const
-        { user } = req,
-        empresas = user && user.empresas,
-        role = user && user.role,
-        condition = role === 'empresa' && `WHERE empresas.codigo_empresa IN (${empresas})` || '',
-
-        //Query para obter todas as placas de veículos de uma determinada empresa
-        query = `SELECT empresas.codigo_empresa,
-            array_remove(array_agg(v.veiculo_id), null) frota			
-            FROM public.empresas
-            LEFT JOIN veiculos v
-                ON v.codigo_empresa = empresas.codigo_empresa
-            ${condition}
-            GROUP BY empresas.codigo_empresa
-            ORDER BY frota DESC`
-
-    const
-        request = await pool.query(query),
-        result = request && request.rows
-
-    if (req.params.collection === 'vehicleDocs') filesCollection = filesModel
-    if (req.params.collection === 'empresaDocs') filesCollection = empresaModel
-    if (req.query.fieldName)
-        fieldName = { 'metadata.fieldName': req.query.fieldName }
-
+    if (collection === 'vehicleDocs') filesCollectionModel = filesModel
+    if (collection === 'empresaDocs') filesCollectionModel = empresaModel
+    if (fieldName) {
+        fieldObject = { 'metadata.fieldName': fieldName }
+    }
     //Filtro de permissão de usuários 
     if (role === 'empresa' && empresas[0]) {
-        if (req.params.collection === 'empresaDocs')
+        if (collection === 'empresaDocs')
             filter = { 'metadata.empresaId': { $in: empresas } }
         else {
-            const frota = result[0] && result[0].frota
+            //Query para obter todas as placas de veículos de uma determinada empresa
+            const query = `SELECT empresas.codigo_empresa,
+                            array_remove(array_agg(v.veiculo_id), null) frota			
+                            FROM public.empresas
+                            LEFT JOIN veiculos v
+                                ON v.codigo_empresa = empresas.codigo_empresa
+                            ${condition}
+                            GROUP BY empresas.codigo_empresa
+                            ORDER BY frota DESC`
+
+            const request = await pool.query(query)
+            const result = request && request.rows
+            const frota = result[0] && result[0].frota ? result[0].frota : []
             filter = { 'metadata.veiculoId': { $in: frota } }
         }
     }
-
-    filesCollection.find({ ...filter, ...fieldName }).sort({ uploadDate: -1 }).exec((err, doc) => res.send(doc))
+    const files = await filesCollectionModel.find({ ...filter, ...fieldObject }).sort({ uploadDate: -1 })
+    return files
 }
 
 const getOneFileMetadata = async (req, res) => {

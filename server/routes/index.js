@@ -44,6 +44,7 @@ router.use('/avisos', alertRoutes)
 router.use('/users', userRoutes)
 router.use('/parametros', parametros)
 
+//router.use(/\/w+Upload|\/\w+File(\w+)?/, fileRoutes)
 //Middleware qua define a tabela e cria filtros para os SQL queries conforme permissões de usuário
 router.use(getRequestFilter)
 

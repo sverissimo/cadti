@@ -61,7 +61,6 @@ class UserController extends Controller {
     }
 
     editUser = async (req, res) => {
-
         const role = req.user && req.user.role
         const userCpf = req.user.cpf
         const io = req.app.get('io')

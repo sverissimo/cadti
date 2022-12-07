@@ -1,8 +1,6 @@
-//Node modules
 const
     fs = require('fs'),
     express = require('express'),
-
     httpsOptions = {
         key: fs.readFileSync("/sismob/certificates/localhost.key"),
         cert: fs.readFileSync("/sismob/certificates/localhost.crt"),
@@ -10,11 +8,9 @@ const
     app = express(),
     productionServer = require('https').createServer(httpsOptions, app),
     devServer = require('http').createServer(app),
-
     path = require('path'),
     dotenv = require('dotenv'),
     mongoose = require('mongoose'),
-    { conn } = require('./mongo/mongoConfig'),
     morgan = require('morgan'),
     xlsx = require('xlsx'),
     Grid = require('gridfs-stream')
@@ -22,12 +18,9 @@ Grid.mongo = mongoose.mongo
 
 //Componentes do sistema
 const
-    counter = require('./config/counter'),
     { setCorsHeader } = require('./config/setCorsHeader'),
-    router = require('./routes/routes'),
+    router = require('./routes'),
     { createSocketConnection } = require('./sockets/createSocketConnection'),
-    { storage, uploadMetadata } = require('./mongo/mongoUpload'),
-    { mongoDownload, getFilesMetadata, getOneFileMetadata } = require('./mongo/mongoDownload'),
     { empresaChunks, vehicleChunks } = require('./mongo/models/chunksModel'),
     filesModel = require('./mongo/models/filesModel'),
     oldVehiclesModel = require('./mongo/models/oldVehiclesModel'),
@@ -35,11 +28,9 @@ const
     getFormattedDate = require('./utils/getDate'),
     authRouter = require('./auth/authRouter'),
     authToken = require('./auth/authToken'),
-    fileBackup = require('./fileBackup/fileBackup'),
-    prepareBackup = require('./fileBackup/prepareBackup'),
-    { permanentBackup } = require('./fileBackup/permanentBackup'),
     taskManager = require('./taskManager/taskManager'),
-    errorHandler = require('./utils/errorHandler')
+    errorHandler = require('./utils/errorHandler'),
+    { fileRouter: useFileRouter } = require('./routes/fileRoutes')
 
 
 taskManager()
@@ -70,89 +61,7 @@ else {
 const io = createSocketConnection(app, server)
 app.set('io', io)
 
-let gfs
-conn.on('error', console.error.bind(console, 'connection error:'))
-conn.once('open', () => {
-    gfs = Grid(conn.db)
-    gfs.collection('vehicleDocs')
-    console.log('Mongo connected to the server.')
-})
-
-const { vehicleUpload, empresaUpload } = storage()
-
-app.post('/api/empresaUpload', prepareBackup, empresaUpload.any(), uploadMetadata, (req, res) => {
-    //Passa os arquivos para a função fileBackup que envia por webSocket para a máquina local.
-    const { filesArray } = req
-    fileBackup(req, filesArray)
-
-    if (filesArray && filesArray[0]) {
-        io.sockets.emit('insertFiles', { insertedObjects: filesArray, collection: 'empresaDocs' })
-        res.json({ file: filesArray })
-    } else res.send('No uploads whatsoever...')
-})
-
-app.post('/api/vehicleUpload', prepareBackup, vehicleUpload.any(), uploadMetadata, (req, res) => {
-    //Passa os arquivos para a função fileBackup que envia por webSocket para a máquina local.
-    const { filesArray } = req
-    fileBackup(req, filesArray)
-
-    if (filesArray && filesArray[0]) {
-        io.sockets.emit('insertFiles', { insertedObjects: filesArray, collection: 'vehicleDocs' })
-        res.json({ file: filesArray })
-    } else res.send('No uploads whatsoever...')
-})
-
-app.get('/api/mongoDownload/', (req, res) => mongoDownload(req, res, gfs))
-
-app.get('/api/getFiles/:collection', (req, res) => getFilesMetadata(req, res, gfs))
-
-app.get('/api/getOneFile/', getOneFileMetadata)
-
-app.put('/api/updateFilesMetadata', async (req, res) => {
-
-    const
-        { collection, ids, metadata, id, md5 } = req.body,
-        update = {}
-
-    if (!ids) {
-        res.send('no file sent to the server')
-        return
-    }
-
-    Object.entries(metadata).forEach(([k, v]) => {
-        update['metadata.' + k] = v
-    })
-
-    parsedIds = ids.map(id => new mongoose.mongo.ObjectId(id))
-    res.locals.fileIds = ids
-    res.locals.collection = collection
-
-    permanentBackup(req, res)
-
-    gfs.collection(collection)
-
-    gfs.files.updateMany(
-        { "_id": { $in: parsedIds } },
-        { $set: { ...update } },
-
-        async (err, doc) => {
-            if (err) console.log(err)
-            if (doc) {
-                const data = {
-                    collection,
-                    metadata,
-                    ids,
-                    primaryKey: 'id'
-                }
-
-                io.sockets.emit('updateDocs', data)
-                res.send({ doc, ids })
-                return
-            }
-        }
-    )
-})
-
+useFileRouter(app)
 app.use('/api', router)
 
 //get all dischargedVehicles and download excel spreadsheet

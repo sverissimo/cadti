@@ -1,10 +1,8 @@
-const { VeiculoService } = require('../services/VeiculoService')
-
 //@ts-check
-const
-    router = require('express').Router()
-    , VeiculoController = require('../controllers/VeiculoController')
-    , veiculoController = new VeiculoController('veiculos', 'veiculo_id')
+const router = require('express').Router()
+const { VeiculoService } = require('../services/VeiculoService')
+const VeiculoController = require('../controllers/VeiculoController')
+const veiculoController = new VeiculoController('veiculos', 'veiculo_id')
 
 
 router.route('/:id?')
