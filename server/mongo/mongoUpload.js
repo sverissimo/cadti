@@ -41,12 +41,12 @@ const storage = () => {
     })
 
     const empresaStorage = new GridFsStorage({
-
         url: mongoURI,
         file: (req, file) => {
             gfs.collection('empresaDocs')
 
             let { metadata } = req.body
+            console.log("🚀 ~ file: mongoUpload.js:50 ~ storage ~ metadata", metadata)
             metadata = JSON.parse(metadata)
 
             let fileInfo = {

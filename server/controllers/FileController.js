@@ -5,6 +5,8 @@ const fileBackup = require("../fileBackup/fileBackup")
 const { permanentBackup } = require("../fileBackup/permanentBackup")
 const { conn } = require("../mongo/mongoConfig")
 const { mongoDownload, getFilesMetadata, getOneFileMetadata } = require("../mongo/mongoDownload")
+const { empresaChunks, vehicleChunks } = require('../mongo/models/chunksModel')
+const { filesModel } = require('../mongo/models/filesModel')
 
 //@ts-ignore
 Grid.mongo = mongoose.mongo
@@ -97,6 +99,69 @@ class FileController {
                 }
             }
         )
+    }
+
+    static deleteFile = async (req, res) => {
+        const { id, collection } = req.query
+        const fileId = new mongoose.mongo.ObjectId(id)
+
+        let chunks
+        gfs.collection(collection)
+
+        gfs.files.deleteOne({ _id: fileId }, (err, result) => {
+            if (err) console.log(err)
+            if (result) console.log(result)
+        })
+
+        if (collection === 'empresaDocs') chunks = empresaChunks
+        if (collection === 'vehicleDocs') chunks = vehicleChunks
+
+        chunks.deleteMany({ files_id: fileId }, (err, result) => {
+            if (err) console.log(err)
+            if (result) {
+                console.log(result)
+                res.json(result)
+            }
+        })
+        const io = req.app.get('io')
+        io.sockets.emit('deleteOne', { tablePK: '_id', id, collection })
+    }
+
+    //REFACTOR! Obs: no frondEnd client is requesting this. Keep it?
+    static deleteMany = async (req, res) => {
+        const
+            { id } = req.query
+
+        console.log(id, typeof id)
+        const docsToDelete = { 'metadata.veiculoId': id }
+
+        gfs.collection('vehicleDocs')
+
+        const getIds = await filesModel.filesModel.find(docsToDelete).select('_ids')
+
+        const ids = getIds.map(e => new mongoose.mongo.ObjectId(e._id))
+
+        //let chunks
+        gfs.collection('vehicleDocs')
+        let r
+        ids.forEach(fileId => {
+            gfs.files.deleteOne({ _id: fileId }, (err, result) => {
+                if (err)
+                    console.log(err)
+                if (result)
+                    r = result
+            })
+            //        if (collection === 'empresaDocs') chunks = empresaChunks
+            //      if (collection === 'vehicleDocs') chunks = vehicleChunks
+
+            vehicleChunks.deleteMany({ files_id: fileId }, (err, result) => {
+                if (err) console.log(err)
+                if (result) {
+                }
+            })
+        })
+        res.send(r || 'no files deleted.')
+        //    io.sockets.emit('deleteOne', { tablePK: '_id', id, collection })
     }
 }
 

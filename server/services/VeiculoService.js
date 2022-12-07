@@ -1,8 +1,12 @@
 //@ts-check
+const fs = require('fs')
+const xlsx = require('xlsx')
 const userSockets = require("../auth/userSockets")
 const { pool } = require("../config/pgConfig")
 const deleteVehiclesInsurance = require("../deleteVehiclesInsurance")
 const updateVehicleStatus = require("../taskManager/veiculos/updateVehicleStatus")
+const oldVehiclesModel = require('../mongo/models/oldVehiclesModel')
+const getFormattedDate = require('../utils/getDate')
 
 class VeiculoService {
 
@@ -66,6 +70,26 @@ class VeiculoService {
         //Se não houver nenhum id, a intenção era só apagar o n de apólice do(s) veículo(s). Nesse caso res = 'no changes'
         else
             res.send('No changes whatsoever.')
+    }
+
+    getOldVehiclesXls = async () => {
+        try {
+            const dischargedVehicles = await oldVehiclesModel.find().select('-__v -_id').lean()
+            const currentDate = getFormattedDate()
+            const fileName = `Veículos baixados - ${currentDate}.xlsx`
+            const wb = xlsx.utils.book_new()
+            const wb_opts = { bookType: 'xlsx', type: 'binary' }
+            const ws = xlsx.utils.json_to_sheet(dischargedVehicles)
+
+            xlsx.utils.book_append_sheet(wb, ws, 'Veículos baixados')
+            //@ts-ignore
+            xlsx.writeFile(wb, fileName, wb_opts);
+
+            const stream = fs.createReadStream(fileName);
+            return { fileName, stream }
+        } catch (error) {
+            throw new Error(error.message)
+        }
     }
 }
 

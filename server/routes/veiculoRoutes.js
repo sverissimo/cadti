@@ -19,8 +19,10 @@ router.route('/:id?')
                     return veiculoController.getOldVehicles(req, res)
                 case '/checkVehicleExistence':
                     return veiculoController.checkVehicleExistence(req, res)
+                case '/oldVehiclesXls':
+                    return veiculoController.getOldVehiclesXls(req, res, next)
                 default:
-                    return res.send('Route not found.')
+                    return res.send('Vehicle route not found.')
             }
         }
     )

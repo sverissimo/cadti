@@ -16,7 +16,6 @@ const prepareBackup = (req, res, next) => {
                 file = files[f]
                 , fBinary = fs.readFileSync(file.path)
 
-            console.log("🚀 ~ file: server.js ~ line 154 ~ form.parse ~ file", file.name)
             binaryFiles.push(fBinary)
         }
         req.app.set('binaryFiles', binaryFiles)

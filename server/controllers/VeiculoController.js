@@ -1,13 +1,17 @@
 //@ts-check
+const fs = require('fs')
 const { request, response } = require('express')
+const xlsx = require('xlsx')
+const { pool } = require('../config/pgConfig')
 const VeiculoRepository = require("../repositories/VeiculoRepository")
 const userSockets = require('../auth/userSockets')
 const { Controller } = require('./Controller')
-const { pool } = require('../config/pgConfig')
 const { getUpdatedData } = require('../getUpdatedData')
 const oldVehiclesModel = require('../mongo/models/oldVehiclesModel')
+const getFormattedDate = require('../utils/getDate')
+const { VeiculoService } = require('../services/VeiculoService')
 
-/** * @class  */
+/** @class */
 class VeiculoController extends Controller {
 
     /**
@@ -202,6 +206,23 @@ class VeiculoController extends Controller {
         }
         res.send(foundOne)
     }
+    getOldVehiclesXls = async (req, res, next) => {
+        const { user } = req
+        if (!user || user.role === 'empresa') {
+            res.status(403).send('Não há permissão para esse usuário acessar essa parte do CadTI.')
+        }
+        try {
+            const { fileName, stream } = await new VeiculoService().getOldVehiclesXls()
+            res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+            res.setHeader("Content-Disposition", "attachment; filename=" + fileName);
+
+            stream.on('end', () => res.end());
+            stream.pipe(res)
+        } catch (error) {
+            next(error)
+        }
+    }
 }
+
 
 module.exports = VeiculoController
