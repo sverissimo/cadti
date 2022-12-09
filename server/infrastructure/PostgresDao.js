@@ -1,28 +1,23 @@
 //@ts-check
-const
-    { pool } = require("../config/pgConfig")
-    , format = require('pg-format')
-    , allGetQueries = require("../allGetQueries")
-    , { parseRequestBody } = require("../utils/parseRequest");
-
+const { pool } = require("../config/pgConfig")
+const format = require('pg-format')
+const allGetQueries = require("../allGetQueries")
+const { parseRequestBody } = require("../utils/parseRequest");
 
 /**Implementação do DAO no banco de dados postgresql na porta 5432 (config/pgPool)
  * @abstract @class
  */
 class PostgresDao {
     /*** @property pool - conexão com o postgreSql, em config/pgPool     */
-    pool = pool;
-
+    static pool = pool;
     /**
     * @property table - nome da tabela vinculada à entidade
     * @type {string}     */
     table;
-
     /**
     * @property primaryKey - nome da coluna referente ao ID da tabela
     * @type {string}     */
     primaryKey;
-
     /**
     * @property parseRequestBody - função para formatar objeto em arrays de columns/values para o query do SQL     */
     parseRequestBody = parseRequestBody;
@@ -30,73 +25,63 @@ class PostgresDao {
     pgFormat = format
 
     /** Lista as entradas de uma determinada tabela. A classe child já terá as props default(this.table)
-     * Caso o objeto seja instanciado dessa classe, o método get pode ser informado como parâmetro     
-     * @param {String} userFilter - Filtro de permissões de usuários, conforme user logado no sistema, 
+     * Caso o objeto seja instanciado dessa classe, o método get pode ser informado como parâmetro
+     * @param {String} userFilter - Filtro de permissões de usuários, conforme user logado no sistema,
      * @returns {Promise<void | any>}
      */
     list = async (userFilter) => {
-
         try {
-            const
-                queryGenerator = allGetQueries[this.table]
-                , query = queryGenerator(userFilter)
-
+            const queryGenerator = allGetQueries[this.table]
+            const query = queryGenerator(userFilter)
             const response = await pool.query(query)
-                , data = response.rows
+            const data = response.rows
 
             return data
-
-        } catch (e) { this.handleError(e) }
+        } catch (e) {
+            throw new Error(e.message)
+        }
     }
-
 
     /**Busca um ou mais registros com base no parâmetro informado em req.params ou req.query
     * @param {string | object | Array<string | number>} filter - Id ou filtro (objeto key/value para servir de param para a busca ou array de ids)
-    * @returns {Promise<any[]>} 
+    * @returns {Promise<any[]>}
     */
     async find(filter) {
-
         let key
         let value
         let condition = `WHERE ${this.table}.${this.primaryKey} = $1`
-
+        // Verifica o tipo de filtro
         if (Array.isArray(filter)) {
             condition = `WHERE ${this.table}.${this.primaryKey} IN (${filter.join()})`
             value = ''
         }
         else if (typeof filter === 'object') {
             [[key, value]] = Object.entries(filter)
-
             condition = `WHERE ${this.table}.${key} = '${value}'`
             value = undefined
         }
-        else
+        else {
             value = [filter]
-
-        const
-            queryGenerator = allGetQueries[this.table]
-            , query = queryGenerator(condition)
-
-        //@ts-ignore
-        const response = await pool.query(query, value)
-            //  , response = await pool.query(query, value)
-            , data = response.rows
-        console.log("🚀 ~ file: PostgresDao.js ~ line 84 ~ PostgresDao ~ find ~ data", data)
-
-        return data
+        }
+        try {
+            const queryGenerator = allGetQueries[this.table]
+            const query = queryGenerator(condition)
+            //@ts-ignore
+            const response = await pool.query(query, value)
+            const data = response.rows
+            return data
+        } catch (error) {
+            throw new Error(error.message)
+        }
     }
 
-
-    /**      
-     * @param {object} entity 
+    /**
+     * @param {object} entity
      * @returns {Promise<number>} id (promise)     */
     async save(entity) {
-
-        const
-            client = await this.pool.connect()
-            , { keys, values } = this.parseRequestBody(entity)
-            , query = `INSERT INTO ${this.table} (${keys}) VALUES (${values}) RETURNING ${this.primaryKey}`
-        console.log("🚀 ~ file: PostgresDao.js ~ line 86 ~ PostgresDao ~ save ~ query", query)
+        const client = await PostgresDao.pool.connect()
+        const { keys, values } = this.parseRequestBody(entity)
+        const query = `INSERT INTO ${this.table} (${keys}) VALUES (${values}) RETURNING ${this.primaryKey}`
 
         try {
             client.query('BEGIN')
@@ -109,7 +94,7 @@ class PostgresDao {
 
         } catch (error) {
             client.query('ROLLBACK')
-            this.handleError(error)
+            throw new Error(error.message)
         }
         finally {
             client.release()
@@ -118,10 +103,8 @@ class PostgresDao {
 
     /**@param {object | Array<object>} requestBody */
     update = async (requestBody) => {
-
-        const
-            client = await pool.connect()
-            , query = this.createUpdateQuery(requestBody)
+        const client = await pool.connect()
+        const query = this.createUpdateQuery(requestBody)
 
         try {
             await client.query('BEGIN')
@@ -143,7 +126,7 @@ class PostgresDao {
     updateMany = async (entityArray) => {
         try {
             const updateQuery = this.createUpdateQuery(entityArray)
-            const result = await this.pool.query(updateQuery)
+            const result = await PostgresDao.pool.query(updateQuery)
             return result
         } catch (error) {
             throw new Error(error.message)
@@ -192,41 +175,29 @@ class PostgresDao {
         }
     }
 
-
     //@ts-ignore
     async saveMany(entities) {
-
-        const
-            keysAndValuesArray = this.parseRequestBody(entities)
-
-        //@ts-ignore
-        const
-            { keys, values } = keysAndValuesArray
-            , query = format(`INSERT INTO ${this.table} (${keys}) VALUES %L`, values) + ` RETURNING ${this.primaryKey}`
-        console.log("🚀 ~ file: PostgresDao.js ~ line 196 ~ PostgresDao ~ saveMany ~ this.primaryKey", this.primaryKey)
-        console.log("🚀 ~ file: PostgresDao.js ~ line 157 ~ PostgresDao ~ saveMany ~ query", query)
-
-
-        const { rows } = await this.pool.query(query)
+        const keysAndValuesArray = this.parseRequestBody(entities)
+        const { keys, values } = keysAndValuesArray
+        const query = format(`INSERT INTO ${this.table} (${keys}) VALUES %L`, values) + ` RETURNING ${this.primaryKey}`
+        const { rows } = await PostgresDao.pool.query(query)
         const ids = rows.map((row) => row[this.primaryKey])
-
-        console.log("🚀 ~ file: PostgresDao.js:201 ~ PostgresDao ~ saveMany ~ rows", ids)
         return ids
     }
 
-    /**Retorna o nome das colunas do banco de dados Postgresql     
-     * @param {string | any} table 
+    /**Retorna o nome das colunas do banco de dados Postgresql
+     * @param {string | any} table
      */
     async getEntityPropsNames(table = this.table) {
 
         const query = `
         SELECT column_name
-        FROM information_schema.columns 
+        FROM information_schema.columns
         WHERE table_schema = 'public'
         AND table_name = '${table}'`
         console.log("🚀 ~ file: PostgresDao.js ~ line 173 ~ PostgresDao ~ getEntityPropsNames ~ query", query)
 
-        const { rows } = await this.pool.query(query)
+        const { rows } = await PostgresDao.pool.query(query)
         console.log("🚀 ~ file: PostgresDao.js ~ line 179 ~ PostgresDao ~ getEntityPropsNames ~ rows", rows)
 
         if (rows.length) {
@@ -238,7 +209,6 @@ class PostgresDao {
             return propNames
         }
     }
-
 
     /**@param {Error} error - Javascript Error class*/
     handleError(error) {

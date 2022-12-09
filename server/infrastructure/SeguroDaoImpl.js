@@ -1,10 +1,16 @@
-const { Socio } = require("../domain/Socio")
+//@ts-check
 const PostgresDao = require("./PostgresDao")
 
 class SeguroDaoImpl extends PostgresDao {
 
+    constructor() {
+        super()
+        this.table = 'seguros'
+        this.primaryKey = 'id'
+    }
+
     /** Método que implementa uma transaction com as operações de cadastro da empresa e dos sócios
-     * @param {object} requestBody 
+     * @param {object} requestBody
      * @returns {Promise<any>}     */
     async updateInsurance(requestBody) {
 

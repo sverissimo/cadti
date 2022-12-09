@@ -1,13 +1,17 @@
+//@ts-check
+/**
+ * @typedef {object} parsedBody
+ * @property {string|string[]} keys
+ * @property {string|string[]} values
+ *  @returns {parsedBody} */
 const parseRequestBody = (body) => {
-
     if (body instanceof (Array)) {
         const uniqueKeys = new Set()
         const values = []
-
         body.forEach(obj => {
-            Object.keys(obj).forEach(k => uniqueKeys.add(k))
+            Object.keys(obj)
+                .forEach(k => uniqueKeys.add(k))
         })
-
         const keys = [...uniqueKeys]
 
         body.forEach((obj) => {
@@ -15,29 +19,32 @@ const parseRequestBody = (body) => {
             values.push(objValues)
         })
 
-        if (keys[0] && values[0]) {
-            const result = { keys, values }
-            return result
-        }
-    } else {
-        let values = [];
-        let keys = Object.keys(body);
+        const result = { keys, values }
+        return result
 
-        keys = keys.filter(k => body[k]).toString()
+    } else {
+        const keys = Object.keys(body)
+            .filter(k => !!body[k])
+            .join()
+        const valuesArray = [];
 
         Object.entries(body).forEach(([k, v]) => {
-            if (v instanceof Array) {
-                if (k === 'equipamentos_id' || key === 'acessibilidade_id')
+            if (Array.isArray(v)) {
+                if (k === 'equipamentos_id' || k === 'acessibilidade_id') {
                     v = `'${JSON.stringify(v)}'::json`
-                if (k === 'empresas')
+                }
+                if (k === 'empresas') {
                     v = `array${JSON.stringify(v)}`
-            }
-            else
+                }
+            } else {
                 v = `'${v}'`
-
-            values.push(v)
+            }
+            valuesArray.push(v)
         })
-        values = values.toString().replace(/'\['/g, '').replace(/'\]'/g, '')
+
+        const values = String(valuesArray)
+            .replace(/'\['/g, '')
+            .replace(/'\]'/g, '')
         return { keys, values }
     }
 }

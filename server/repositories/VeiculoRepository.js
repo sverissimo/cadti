@@ -7,38 +7,36 @@ const { Repository } = require("./Repository")
  */
 class VeiculoRepository extends Repository {
 
+    constructor() {
+        super()
+        this.entityManager = new VeiculoDaoImpl()
+    }
     /**
-     * @param vehicle {Object}      
+     * @param vehicle {Object}
      * @returns {Promise<void | number>} Retorna o id do veículo criado / throws an error.
      */
     async create(vehicle) {
-
         try {
             const veiculoId = await new VeiculoDaoImpl().save(vehicle)
             return veiculoId
-
         } catch (error) {
-            console.log("🚀 ~ file: VeiculoRepository.js ~ line 49 ~ VeiculoRepository ~ create ~ error", error.message)
             throw new Error(error.message)
         }
     }
 
     /**
      * @override
-     * @param {Object} vehicle 
-     * @returns {Promise<string>} 
+     * @param {Object} vehicle
+     * @returns {Promise<string>}
      */
     async update(vehicle) {
         try {
             const veiculoId = await new VeiculoDaoImpl().update(vehicle)
             return veiculoId
-
         } catch (error) {
-            console.log("🚀 ~ file: VeiculoRepository.js ~ line 60 ~ VeiculoRepository ~ update ~ error", error.message)
             throw new Error(error.message)
         }
     }
 }
-
 
 module.exports = VeiculoRepository

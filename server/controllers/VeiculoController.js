@@ -1,35 +1,31 @@
 //@ts-check
-const fs = require('fs')
 const { request, response } = require('express')
-const xlsx = require('xlsx')
-const { pool } = require('../config/pgConfig')
 const VeiculoRepository = require("../repositories/VeiculoRepository")
 const userSockets = require('../auth/userSockets')
 const { Controller } = require('./Controller')
-const { getUpdatedData } = require('../getUpdatedData')
 const oldVehiclesModel = require('../mongo/models/oldVehiclesModel')
-const getFormattedDate = require('../utils/getDate')
 const { VeiculoService } = require('../services/VeiculoService')
 
 /** @class */
 class VeiculoController extends Controller {
 
     /**
-     * @param {request} req 
-     * @param {response} res 
+     * @param {request} req
+     * @param {response} res
      * @returns {Promise<void | res>}
      */
-    async create(req, res) {
+    async create(req, res, next) {
         const veiculo = req.body
         try {
-            const veiculoRepository = new VeiculoRepository('veiculos', 'veiculo_id')
-                , exists = await veiculoRepository.find({ placa: veiculo.placa })
+            const veiculoRepository = new VeiculoRepository()
+            const exists = await veiculoRepository.find({ placa: veiculo.placa })
 
-            if (exists.length)
+            if (exists.length) {
                 return res.status(409).send('A placa informada já está cadastrada no sistema.')
+            }
 
             const veiculoId = await veiculoRepository.create(veiculo)
-                , condition = `WHERE veiculos.veiculo_id = '${veiculoId}'`
+            const condition = `WHERE veiculos.veiculo_id = '${veiculoId}'`
 
             //@ts-ignore
             //Atualiza os dados no frontEnd por meio de webSockets
@@ -42,26 +38,22 @@ class VeiculoController extends Controller {
                 noResponse: true
             })
 
-            res.status(201).send(JSON.stringify(veiculoId))
-
+            res.status(201).send(String(veiculoId))
         } catch (error) {
-            console.error("🚀 ~ file: VeiculoController.js ~ line 64 ~ VeiculoController ~ create ~ error", error)
-            res.status(500).send(error.message)
+            next(error)
         }
     }
 
     /**
      * @override
-     * @param {request} req 
-     * @param {response} res 
+     * @param {request} req
+     * @param {response} res
      * @returns {Promise<void | res>}
      */
-    update = async (req, res) => {
-
-        const
-            veiculoRepository = new VeiculoRepository('veiculos', 'veiculo_id')
-            , { codigoEmpresa, ...veiculo } = req.body
-            , condition = `WHERE veiculos.veiculo_id = '${req.body.veiculo_id}'`
+    update = async (req, res, next) => {
+        const veiculoRepository = new VeiculoRepository()
+        const { codigoEmpresa, ...veiculo } = req.body
+        const condition = `WHERE veiculos.veiculo_id = '${req.body.veiculo_id}'`
 
         if (Object.keys(veiculo).length <= 1)
             return res.status(409).send('Nothing to update...')
@@ -81,49 +73,21 @@ class VeiculoController extends Controller {
         userSockets({ req, noResponse: true, table: 'veiculos', condition, event: 'updateVehicle' })
     }
 
-    getAllVehicles = async (req, res) => {
+    getAllVehicles = async (req, res, next) => {
+        try {
+            const { codigoEmpresa } = req.query
+            if (!codigoEmpresa) {
+                return res.status(400).send('Código da empresa obrigatório para esse request.')
+            }
 
-        const { codigoEmpresa } = req.query
-        if (!codigoEmpresa) {
-            return res.status(400).send('Código da empresa obrigatório para esse request.')
+            const allVehiclesUsedByEmpresa = await VeiculoService.getAllVehicles(codigoEmpresa)
+            return res.send(allVehiclesUsedByEmpresa)
+        } catch (error) {
+            next(error)
         }
-
-        const segCondition = `WHERE seguros.codigo_empresa = ${codigoEmpresa} `
-        const seguros = await getUpdatedData('seguros', segCondition) || []
-
-        let vehicleIds = []
-
-        //Pega todos os veículos assegurados, pertencentes ou não à frota, com compartilhamento ou não(irregulares)
-        seguros.forEach(s => {
-            if (s.veiculos && s.veiculos[0])
-                vehicleIds.push(...s.veiculos)
-        })
-        if (!vehicleIds[0])
-            //@ts-ignore
-            vehicleIds = 0
-
-        const vQuery = `
-        SELECT veiculos.veiculo_id, veiculos.placa, veiculos.codigo_empresa, e.razao_social as empresa, e2.razao_social as compartilhado
-        FROM veiculos
-        LEFT JOIN empresas e
-            ON veiculos.codigo_empresa = e.codigo_empresa
-        LEFT JOIN empresas e2
-            ON veiculos.compartilhado_id = e2.codigo_empresa
-        WHERE veiculos.codigo_empresa = ${codigoEmpresa} 
-            OR veiculos.compartilhado_id = ${codigoEmpresa}
-            OR veiculos.veiculo_id IN (${vehicleIds})
-                `
-        //console.log("🚀 ~ file: server.js ~ line 288 ~ app.get ~ vQuery ", vQuery)
-
-        pool.query(vQuery, (err, t) => {
-            if (err) console.log(err)
-            if (t && t.rows)
-                res.send(t.rows)
-            else res.send([])
-        })
     }
 
-    getOldVehicles = async (req, res) => {
+    getOldVehicles = async (req, res, next) => {
 
         if (!req.query.placa) {
             return res.status(400).send('É obrigatório informar a placa para essa consulta.')
@@ -139,7 +103,6 @@ class VeiculoController extends Controller {
      * A alteração é no atributo "Situação" que passa de 'Baixado' para 'Reativado'
      */
     reactivateVehicle = async (req, res) => {
-
         if (!req.body.placa && !req.body.Placa) {
             return res.status(400).send('É obrigatório informar a placa para essa solicitação.')
         }
@@ -148,6 +111,7 @@ class VeiculoController extends Controller {
         const filter = { Placa: placa || Placa }
         const update = { 'Situação': 'Reativado' }
 
+        //@ts-ignore
         oldVehiclesModel.findOneAndUpdate(filter, update, (err, doc) => {
             if (err)
                 console.log(err)
@@ -156,9 +120,7 @@ class VeiculoController extends Controller {
         })
     }
 
-
     baixaVeiculo = async (req, res) => {
-
         if (!req.body.placa && !req.body.Placa) {
             return res.status(400).send('É obrigatório informar a placa para a baixa.')
         }
@@ -180,42 +142,31 @@ class VeiculoController extends Controller {
     }
 
     /** Pesquisa entre veículos ativos e baixados */
-    checkVehicleExistence = async (req, res) => {
+    checkVehicleExistence = async (req, res, next) => {
         const { placa } = req.query
-        const queryString = `SELECT * FROM veiculos WHERE placa = '${placa}'`
-        const regularQuery = await pool.query(queryString)
+        try {
+            const vehicleFound = await VeiculoService.checkVehicleExistence(placa)
 
-        let foundOne
-
-        if (regularQuery.rows && regularQuery.rows[0]) {
-            const { veiculo_id, placa, situacao } = regularQuery.rows[0]
-            const vehicleFound = { veiculoId: veiculo_id, placa, situacao }
-            foundOne = { vehicleFound, status: 'existing' }
-        }
-        //Se não encontrado veículo ativo, procura entre os baixados
-        else {
-            const dischargedQuery = { "Placa": { $in: [placa, placa.replace('-', '')] } }
-            let old = await oldVehiclesModel.find(dischargedQuery).lean()
-
-            if (old.length > 0) {
-                foundOne = { vehicleFound: old[0], status: 'discharged' }
+            if (!vehicleFound) {
+                return res.send('Veículo não encontrado.')
             }
+            return res.send(vehicleFound)
+        } catch (error) {
+            next(error)
         }
-        if (!foundOne) {
-            return res.send(false)
-        }
-        res.send(foundOne)
     }
+
     getOldVehiclesXls = async (req, res, next) => {
         const { user } = req
+
         if (!user || user.role === 'empresa') {
             res.status(403).send('Não há permissão para esse usuário acessar essa parte do CadTI.')
         }
         try {
-            const { fileName, stream } = await new VeiculoService().getOldVehiclesXls()
+            const { fileName, stream } = await VeiculoService.getOldVehiclesXls()
+
             res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
             res.setHeader("Content-Disposition", "attachment; filename=" + fileName);
-
             stream.on('end', () => res.end());
             stream.pipe(res)
         } catch (error) {
@@ -223,6 +174,5 @@ class VeiculoController extends Controller {
         }
     }
 }
-
 
 module.exports = VeiculoController

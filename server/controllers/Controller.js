@@ -1,41 +1,35 @@
 //@ts-check
-const
-    { request, response } = require("express")
-    , { Repository } = require("../repositories/Repository")
-    , { fieldParser } = require("../utils/fieldParser")
-    , userSockets = require("../auth/userSockets")
-    , { EntityDaoImpl } = require("../infrastructure/EntityDaoImpl")
-    , { CustomSocket } = require("../sockets/CustomSocket")
-    , deleteSockets = require("../auth/deleteSockets")
-    , { pool } = require("../config/pgConfig")
-    , removeEmpresa = require("../users/removeEmpresa");
+const { request, response } = require("express")
+const { Repository } = require("../repositories/Repository")
+const { fieldParser } = require("../utils/fieldParser")
+const userSockets = require("../auth/userSockets")
+const { EntityDaoImpl } = require("../infrastructure/EntityDaoImpl")
+const { CustomSocket } = require("../sockets/CustomSocket")
+const deleteSockets = require("../auth/deleteSockets")
+const { pool } = require("../config/pgConfig")
+const removeEmpresa = require("../users/removeEmpresa");
 const { getUpdatedData } = require("../getUpdatedData");
 const updateVehicleStatus = require("../taskManager/veiculos/updateVehicleStatus");
 const { parseRequestBody } = require("../utils/parseRequest");
-
 
 /**Classe parent de controlador para os requests de acesso ao banco de dados Postgresql.
  * @class
  */
 class Controller {
-
     /**
      * @property {} table @type {string}     */
     table;
-
     /**
      * @property {} primaryKey @type {string}     */
     primaryKey;
-
     /**
      * @property {} socketEvent @type {string}     */
     socketEvent;
-
     /**
      *  @property {} repository @type {Repository}     */
     repository;
 
-    /**     
+    /**
      * @param {string} [table]
      * @param {string} [primaryKey]
      * @param {Repository} [repository]
@@ -51,49 +45,44 @@ class Controller {
         this.update = this.update.bind(this)
     }
 
-    /**     
-     * @param {request} req 
-     * @param {response} res 
+    /**
+     * @param {request} req
+     * @param {response} res
      * @returns {Promise<any>}
      */
     list = async (req, res, next) => {
         const { filter } = res.locals
 
-        if (req.params.id || Object.keys(req.query).length)
-            return this.find(req, res)
-
+        if (req.params.id || Object.keys(req.query).length) {
+            return this.find(req, res, next)
+        }
         try {
             const collection = await this.repository.list(filter)
             res.status(200).json(collection)
-
         } catch (e) {
             console.log(e.name + ': ' + e.message)
             next(e)
         }
     }
 
-
-    /**     
-     * @param {request} req 
-     * @param {response} res 
+    /**
+     * @param {request} req
+     * @param {response} res
      * @returns {Promise<any>}
      */
-    async find(req, res) {
-
+    async find(req, res, next) {
         const filter = req.params.id || req.query
         try {
             const entity = await this.repository.find(filter)
             return res.status(200).json(entity)
-
-        } catch (e) {
-            console.log(e.name + ': ' + e.message)
-            res.status(500).send(e)
+        } catch (error) {
+            next(error)
         }
     }
 
     /**
      * Método de busca que aceita chamadas de fora e de dentro do API
-     * req.body deve ter table:string, primaryKey:string e um array de ids 
+     * req.body deve ter table:string, primaryKey:string e um array de ids
      * */
     async findMany(req, res, next) {
         const { table, primaryKey } = req.query
@@ -111,27 +100,31 @@ class Controller {
             const result = await this.repository.find(ids)
             return res.send(result)
         } catch (error) {
-            next(error);
+            next(error)
         }
     }
 
-    async getOne(req, res) {
-        const { table, key, value } = req.query
-        const condition = `WHERE ${key} = ${value}`
-        console.log({ condition })
-        const el = await getUpdatedData(table, condition)
-        return res.json(el)
+    async getOne(req, res, next) {
+        try {
+            const { table, key, value } = req.query
+            const condition = `WHERE ${key} = ${value}`
+            const el = await getUpdatedData(table, condition)
+            return res.json(el)
+
+        } catch (error) {
+            next(error)
+        }
     }
 
-    async checkIfExists(req, res) {
+    async checkIfExists(req, res, next) {
         const { table, column, value } = req.query;
 
-        if (!table || !column || !value)
+        if (!table || !column || !value) {
             return res.status(400).send('Bad request, missing some params...')
+        }
 
         const query = `SELECT * FROM ${table} WHERE ${column} = '${value}'`;
-        const exists = await pool.query(query)
-
+        const exists = await pool.query(query).catch(e => next(e))
         const doesExist = exists.rows && exists.rows[0]
 
         if (doesExist) {
@@ -140,8 +133,7 @@ class Controller {
         res.send(false)
     }
 
-    async save(req, res) {
-
+    async save(req, res, next) {
         const { user } = req
         if (user.role !== 'admin')
             return res.status(403).send('É preciso permissão de administrador para acessar essa parte do cadTI.')
@@ -156,41 +148,43 @@ class Controller {
 
             socket.emit('insertElements', createdEntity, this.table, this.primaryKey, codigo_empresa)
         } catch (error) {
-            throw error
+            next(error)
         }
 
     }
 
-    /**      
-     * @param {request} req 
-     * @param {response} res 
+    /**
+     * @param {request} req
+     * @param {response} res
      * @returns {Promise<any>}
      */
-    async saveMany(req, res) {
+    async saveMany(req, res, next) {
+        try {
 
-        const
-            entityDaoImpl = new EntityDaoImpl(this.table, this.primaryKey)
-            , entities = req.body.socios || req.body.procuradores
-            , ids = await entityDaoImpl.saveMany(entities)
+            const entityDaoImpl = new EntityDaoImpl(this.table, this.primaryKey)
+            const entities = req.body.socios || req.body.procuradores
+            const ids = await entityDaoImpl.saveMany(entities)
 
-        res.send(ids)
+            res.send(ids)
 
-        let condition
-        ids.forEach(id => condition = `${this.primaryKey} = '${id}' OR `)
-        condition = 'WHERE ' + condition
-        condition = condition.slice(0, condition.length - 3)
-        //@ts-ignore
-        await userSockets({ req, res, table: this.table, condition, event: this.event || 'insertElements', noResponse: true })
-
+            let condition
+            ids.forEach(id => condition = `${this.primaryKey} = '${id}' OR `)
+            condition = 'WHERE ' + condition
+            condition = condition.slice(0, condition.length - 3)
+            //@ts-ignore
+            await userSockets({ req, res, table: this.table, condition, event: this.event || 'insertElements', noResponse: true })
+        } catch (error) {
+            next(error)
+        }
     }
 
-
-    /**      
-     * @param {request} req 
-     * @param {response} res 
+    /**
+     * @param {request} req
+     * @param {response} res
      * @returns {Promise<any>}
+     * REFACTOR?
      */
-    update = async (req, res) => {
+    update = async (req, res, next) => {
         const
             { body } = req
             , { codigo_empresa } = body
@@ -222,8 +216,7 @@ class Controller {
             socket.emit('updateAny', updates, this.table, this.primaryKey, codigo_empresa)
 
         } catch (error) {
-            console.log("🚀 ~ file: Controller.js ~ line 148 ~ Controller ~ update= ~ error", error)
-            res.status(500).send(error)
+            next(error)
         }
     }
 
@@ -272,7 +265,7 @@ class Controller {
             }
         })
 
-        //*****************************ATUALIZA PERMISSÕES DE USUÁRIOS ******************************** 
+        //*****************************ATUALIZA PERMISSÕES DE USUÁRIOS ********************************
         //Se a tabela for socios ou procuradores, chama a função para atualizar a permissão de usuários
         const updateUserPermissions = () => {
 
@@ -305,7 +298,7 @@ class Controller {
          ) */
     }
 
-    addElement = (req, res) => {
+    addElement = (req, res, next) => {
         const io = req.app.get('io')
         const { user } = req
         const { table, requestElement } = req.body
@@ -327,7 +320,7 @@ class Controller {
                     io.sockets.emit('addElements', { insertedObjects: t.rows, table })
                 //Se a tabela for laudos
                 else {
-                    //Emite sockets para atualização dos laudos                        
+                    //Emite sockets para atualização dos laudos
                     const
                         { veiculo_id, codigo_empresa } = requestElement,
                         condition = `WHERE laudos.codigo_empresa = ${codigo_empresa}`
@@ -351,20 +344,20 @@ class Controller {
 
 
     /****TODO: REMOVE THIS SECTION ********
-    
-    delete = async (req, res) => {
+
+    delete = async (req, res, next) => {
             let { id } = req.query
             const
                 { user } = req,
                 { table, tablePK, codigoEmpresa } = req.query,
                 { collection } = fieldParser.find(f => f.table === table)
-    
+
             if (user.role !== 'admin' && collection !== 'procuracoes')
                 return res.status(403).send('É preciso permissão de administrador para acessar essa parte do cadTI.')
-    
+
             if (table === 'laudos')
                 id = `'${id}'`
-    
+
             const singleSocket = req.headers.referer && req.headers.referer.match('/veiculos/config')
         } */
 }
