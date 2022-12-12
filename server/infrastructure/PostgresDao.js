@@ -179,6 +179,7 @@ class PostgresDao {
     async saveMany(entities) {
         const keysAndValuesArray = this.parseRequestBody(entities)
         const { keys, values } = keysAndValuesArray
+        console.log("🚀 ~ file: PostgresDao.js:182 ~ PostgresDao ~ saveMany ~ keysAndValuesArray", keysAndValuesArray)
         const query = format(`INSERT INTO ${this.table} (${keys}) VALUES %L`, values) + ` RETURNING ${this.primaryKey}`
         const { rows } = await PostgresDao.pool.query(query)
         const ids = rows.map((row) => row[this.primaryKey])
@@ -189,23 +190,18 @@ class PostgresDao {
      * @param {string | any} table
      */
     async getEntityPropsNames(table = this.table) {
-
         const query = `
         SELECT column_name
         FROM information_schema.columns
         WHERE table_schema = 'public'
         AND table_name = '${table}'`
-        console.log("🚀 ~ file: PostgresDao.js ~ line 173 ~ PostgresDao ~ getEntityPropsNames ~ query", query)
 
         const { rows } = await PostgresDao.pool.query(query)
-        console.log("🚀 ~ file: PostgresDao.js ~ line 179 ~ PostgresDao ~ getEntityPropsNames ~ rows", rows)
 
         if (rows.length) {
-
             let propNames = rows.map(r => r.column_name)
 
             propNames = propNames.filter(p => p !== 'id' && p !== 'created_at' && !p.match('_id'))
-
             return propNames
         }
     }

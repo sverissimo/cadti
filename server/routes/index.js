@@ -64,7 +64,7 @@ router
 router
     .route('/socios/:id?')
     .get(socioController.list)
-    .post(socioController.saveMany) //REFACTOR
+    .post(socioController.saveMany)
     .put(socioController.updateSocios)
 
 router.post('/checkSocios', socioController.checkSocios)
@@ -80,7 +80,7 @@ router
     .route('/procuracoes/:id?')
     .get((req, res, next) => {
         req.params.id || Object.keys(req.query).length
-            ? procuracaoController.find(req, res)
+            ? procuracaoController.find(req, res, next)
             : procuracaoController.list(req, res, next)
     })
     .post(procuracaoController.save)
@@ -102,13 +102,13 @@ router.get('/getOne', new Controller().getOne)
 router.get('/findMany', new Controller().findMany)
 router.get('/checkIfExists', new Controller().checkIfExists)
 router.post('/api/addElement', new Controller().addElement)
-router.put('/editElements', (req, res) => {
+router.put('/editElements', (req, res, next) => {
     const
         { table, tablePK: primaryKey, update } = req.body
         , controller = new Controller(table, primaryKey)
     req.body = update
 
-    return controller.update(req, res)
+    return controller.update(req, res, next)
 })
 
 router.delete('/delete', new Controller().delete)

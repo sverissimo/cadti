@@ -64,7 +64,7 @@ const AltContrato = props => {
                 selectedEmpresa = empresas.find(e => e.codigoEmpresa === demand.empresaId),
                 alteredFields = []
 
-            //Identifica campos modificados    
+            //Identifica campos modificados
             for (let key in selectedEmpresa) {
                 if (altEmpresa && altEmpresa[key] && altEmpresa[key] !== selectedEmpresa[key])
                     alteredFields.push(key)
@@ -324,7 +324,7 @@ const AltContrato = props => {
             existingSocios = checkSocios?.data
 
         sObject.status = 'new'
-        //Se já existe, informar id, empresas e 
+        //Se já existe, informar id, empresas e
         if (existingSocios[0]) {
             const
                 { socio_id, empresas } = existingSocios[0],
@@ -416,7 +416,7 @@ const AltContrato = props => {
         //Ao aprovar a solicitação(demanda)
         if (demand && approved) {
 
-            //Registra as alterações de dados da empresa            
+            //Registra as alterações de dados da empresa
             if (demand.history[0].altEmpresa && altEmpresa)
                 axios.put('/api/editElements', {
                     table: 'empresas',
@@ -449,14 +449,14 @@ const AltContrato = props => {
                 if (oldSocios[0]) {
                     console.log("🚀 ~ file: AltContrato.jsx ~ line 442 ~ oldSocios", oldSocios)
                     //atualiza os sócios. Status 'deleted' não são apagados, apenas têm sua coluna 'empresas' atualizada.
-                    await axios.put('/api/socios', { requestArray: oldSocios, ...requestInfo })
+                    await axios.put('/api/socios', { socios: oldSocios, ...requestInfo })
 
                     //remove as permissões de usuário dos sócios excluídos
                     if (cpfsToRemove[0])
                         await axios.patch('/api/removeEmpresa', { cpfsToRemove, codigoEmpresa })
 
                     const ids = oldSocios.map(s => s.socio_id)
-                    socioIds = socioIds.concat(ids)             //A array de ids de sócios vai para a metadata dos arquivos                    
+                    socioIds = socioIds.concat(ids)             //A array de ids de sócios vai para a metadata dos arquivos
                 }
 
                 if (socioIds[0]) {
@@ -477,7 +477,7 @@ const AltContrato = props => {
         // AO CRIAR A DEMANDA, NÃO ESTÁ PREENCHENDO A ARRAY DE SÓCIOS E ESTÁ DANDO TEMP: FALSE DE CARA
 
         else if (!approved) {
-            //Adiciona os demais sócios para o metadata dos arquivos, para relacionar as alterações contratuais com todos os sócios 
+            //Adiciona os demais sócios para o metadata dos arquivos, para relacionar as alterações contratuais com todos os sócios
             const
                 unchangedSociosIds = filteredSocios
                     .filter(s => s?.socioId && !socioIds.includes(s.socioId) && s?.status !== 'deleted')
@@ -656,7 +656,7 @@ const AltContrato = props => {
             }
         })
 
-        //Adiciona a data de solicitação (não de cadastro) no sistema, em caso de alteração do contrato é necessário verificar        
+        //Adiciona a data de solicitação (não de cadastro) no sistema, em caso de alteração do contrato é necessário verificar
         const keys = Object.keys(returnObj)
 
         if (keys.length > 1) {
@@ -693,7 +693,7 @@ const AltContrato = props => {
     }
 
     const submitFile = async (empresaId, socioIds) => {
-        //Essa função só é chamada ao CRIAR a demanda. Por isso, tempFile é true e o SocioIds deve ser preenchido aqui        
+        //Essa função só é chamada ao CRIAR a demanda. Por isso, tempFile é true e o SocioIds deve ser preenchido aqui
         const
             { form, numeroAlteracao } = state,
             files = []

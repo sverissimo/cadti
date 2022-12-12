@@ -108,7 +108,7 @@ class AltSocios extends Component {
         keys.forEach(k => { if (editSocio[k]) requestObject[k] = editSocio[k] })
         const requestArray = [humps.decamelizeKeys(requestObject)]
 
-        await axios.put('/api/socios', { requestArray, table, keys, codigoEmpresa })  //O envio do codigoEmpresa é para uso do userSockets.js
+        await axios.put('/api/socios', { socios: requestArray, table, keys, codigoEmpresa })  //O envio do codigoEmpresa é para uso do userSockets.js
             .then(r => console.log(r.data))
             .catch(err => console.log(err))
     }

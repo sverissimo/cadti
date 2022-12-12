@@ -23,13 +23,13 @@ class UserService {
         return updatedUser
     }
 
-    /**     
+    /**
      * @typedef {Object} User
      * @property {string} name
      * @property {string} email
      * @property {string} password
      * @property {string} passwordHash
-     *      
+     *
      * @param {User} user     */
     static addUser = async (user) => {
         const { name, email, password, passwordHash } = user
@@ -55,25 +55,27 @@ class UserService {
         const options = { new: true, select: '-password, -__v' }
 
         let hashedPassword = ''
-
-        if (password) {
-            hashedPassword = await bcrypt.hashSync(password, 10)
-            user.password = hashedPassword
+        try {
+            if (password) {
+                hashedPassword = await bcrypt.hashSync(password, 10)
+                user.password = hashedPassword
+            }
+            const updatedUser = await UserModel.findOneAndUpdate(query, user, options)
+            return updatedUser
+        } catch (error) {
+            throw new Error(error.message)
         }
-        const updatedUser = await UserModel.findOneAndUpdate(query, user, options)
-        return updatedUser
     }
 
     static deleteUser = async id => {
         const query = { '_id': id }
         UserModel.deleteOne(query, (err, doc) => {
             if (err) {
-                throw new Error(err)
+                throw new Error(err.message)
             }
             return 'deleted.'
         })
     }
-
 }
 
 module.exports = { UserService }

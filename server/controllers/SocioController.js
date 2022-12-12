@@ -3,6 +3,7 @@ const userSockets = require("../auth/userSockets");
 const { pool } = require("../config/pgConfig");
 const { getUpdatedData } = require("../getUpdatedData");
 const { SocioDaoImpl } = require("../infrastructure/SocioDaoImpl");
+const { SocioService } = require("../services/SocioService");
 const insertEmpresa = require("../users/insertEmpresa");
 const { Controller } = require("./Controller");
 
@@ -16,78 +17,60 @@ class SocioController extends Controller {
         super('socios', 'socio_id');
     }
 
-    /*    REFACTOR PARENT CLASS ANT THIS CLASS METHOD!!!!!!!!!!!!!!!!!!!!
-    async saveMany(req, res) {
-   
-           console.log("🚀 ~ file: SocioController.js:31 ~ SocioController ~ saveMany ~ req.body", req.body)
-           const
-               { codigo_empresa: codigoEmpresa, ...socios } = req.body
-               , updatedSocios = new Socio().addEmpresaAndShareArray(codigoEmpresa, socios)
-               , socioDaoImpl = new EntityDaoImpl(this.table, this.primaryKey)
-               , ids = await socioDaoImpl.saveMany(updatedSocios)
-   
-           res.send(ids)
-       } */
-
     /**Verifica existência de sócios */
-    checkSocios = async (req, res) => {
+    checkSocios = async (req, res, next) => {
         const { newCpfs } = req.body
 
         if (!Array.isArray(newCpfs)) {
             return res.send([])
         }
-
-        //Checa se o(s) cpf(s) informado(s) também é sócio de alguma outra empresa do sistema    
-        const cpfArray = newCpfs.map(cpf => `'${cpf}'`)
-        const condition = `WHERE cpf_socio IN (${cpfArray})`
-        const checkSocios = await getUpdatedData('socios', condition)
-
-        //Parse da coluna empresas de string para JSON
-        checkSocios.forEach(s => {
-            if (s.empresas)
-                s.empresas = JSON.parse(s.empresas)
-        })
-        res.send(checkSocios)
+        try {
+            const socios = await SocioService.checkSocios(newCpfs)
+            return res.send(socios)
+        } catch (error) {
+            next(error)
+        }
     }
 
     updateSocios = async (req, res, next) => {
+        const { socios, codigoEmpresa, cpfsToAdd } = req.body
 
-        const { requestArray, table, codigoEmpresa, cpfsToAdd, cpfsToRemove } = req.body
-        let
-            queryString = '',
-            socioIds = []
-
-        const keys = await new SocioDaoImpl().getEntityPropsNames()
-        //console.log("🚀 ~ file: server.js ~ line 708 ~ app.put ~  keys", keys)
-
-        requestArray.forEach(o => {
-            socioIds.push(o.socio_id)
-            //@ts-ignore
-            keys.forEach(key => {
-                if (key !== 'socio_id' && key !== 'cpf_socio' && (o[key] || o[key] === '')) {
-                    const value = o[key]
-
-                    queryString += `
-                        UPDATE ${table} 
-                        SET ${key} = '${value}'
-                        WHERE socio_id = ${o.socio_id};
-                        `
-                }
+        try {
+            const result = await SocioService.updateSocios({
+                socios,
+                codigoEmpresa,
+                cpfsToAdd
             })
-        })
+            console.log("🚀 ~ file: SocioController.js:57 ~ SocioController ~ updateSocios= ~ result", result)
+            //@ts-ignore
+            userSockets({ req, res, table: 'socios', event: 'updateSocios', noResponse: true })
+            return res.status(204).end()
+        } catch (error) {
+            next(error)
+        }
+    }
 
-        pool.query(queryString, async (err, t) => {
-            if (err) console.log(err)
-            if (t) {
-                //Adiciona permissões, se for o caso
-                if (cpfsToAdd && cpfsToAdd[0])
-                    insertEmpresa({ representantes: cpfsToAdd, codigoEmpresa })
+    /**
+     * @override
+     */
+    async saveMany(req, res, next) {
+        const { codigo_empresa, codigoEmpresa, socios } = req.body
+        try {
+            const ids = await SocioService.saveMany({
+                socios,
+                codigoEmpresa: codigoEmpresa || codigo_empresa,
+            })
+            let condition
 
-                //@ts-ignore
-                userSockets({ req, res, table: 'socios', event: 'updateSocios', noResponse: true })
-                res.send('Socios updated.')
-            }
-        })
+            ids.forEach(id => condition = `${this.primaryKey} = '${id}' OR `)
+            condition = 'WHERE ' + condition
+            condition = condition.slice(0, condition.length - 3)
+            //@ts-ignore
+            await userSockets({ req, res, table: this.table, condition, event: this.event || 'insertElements', noResponse: true })
+            return res.status(201).send(ids)
+        } catch (error) {
+            next(error)
+        }
     }
 }
 

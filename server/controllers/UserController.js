@@ -4,15 +4,6 @@ const { Controller } = require("./Controller");
 
 class UserController extends Controller {
 
-    find = async (req, res, next) => {
-        try {
-            const users = await UserService.list()
-            res.send(users)
-        }
-        catch (error) {
-            console.log(error)
-        }
-    }
 
     getUsers = async (req, res, next) => {
         try {
@@ -20,7 +11,7 @@ class UserController extends Controller {
             res.send(users)
         }
         catch (error) {
-            console.log(error)
+            next(error)
         }
     }
 
@@ -60,26 +51,28 @@ class UserController extends Controller {
         }
     }
 
-    editUser = async (req, res) => {
-        const role = req.user && req.user.role
-        const userCpf = req.user.cpf
-        const io = req.app.get('io')
-        const user = req.body
-        const updatedUser = await UserService.editUser(user)
+    editUser = async (req, res, next) => {
+        const { user } = req
+        const role = user && user.role
+        const userUpdate = req.body
 
         //Se não for admin nem se for o próprio usuário atualizando sua conta, responde 403
-        if ((role && role !== 'admin' || !role) && updatedUser.cpf !== userCpf) {
+        if ((role && role !== 'admin' || !role) && user.cpf !== userUpdate.cpf) {
             return res.status(403).send('O usuário não possui acesso para esta parte do CadTI.')
         }
+        try {
+            const updatedUser = await UserService.editUser(userUpdate)
+            if (!updatedUser) {
+                return res.status(404).send('Usuário não encontrado na base do CADTI.')
+            }
 
-        if (!updatedUser) {
-            return res.status(404).send('Usuário não encontrado na base do CADTI.')
+            const io = req.app.get('io')
+            const update = { data: [updatedUser], collection: 'users', primaryKey: 'id' }
+            await io.sockets.emit('updateAny', update)
+            res.status(200).send('Dados de usuário atualizados com sucesso!')
+        } catch (error) {
+            next(error)
         }
-
-        const update = { data: [updatedUser], collection: 'users', primaryKey: 'id' }
-        await io.sockets.emit('updateAny', update)
-
-        res.status(200).send('Dados de usuário atualizados com sucesso!')
     }
 
     deleteUser = async (req, res, next) => {
