@@ -77,6 +77,19 @@ class Repository {
             throw new Error(error.message)
         }
     }
+
+    /**
+     * @param {any[]} elements
+     * @returns {Promise<any>}
+     */
+    async updateMany(elements) {
+        try {
+            const result = await this.entityManager.updateMany(elements)
+            return result
+        } catch (error) {
+            throw new Error(error.message)
+        }
+    }
 }
 
 module.exports = { Repository }

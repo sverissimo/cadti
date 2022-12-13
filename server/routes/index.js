@@ -5,6 +5,8 @@ const removeEmpresa = require('../users/removeEmpresa')
 const parametros = require('../parametros/parametros')
 const { userRoutes } = require('../users/userRoutes')
 const alertRoutes = require('../alerts/alertRoutes')
+const { seguroRoutes } = require('./seguroRoutes')
+const { socioRoutes } = require('./socioRoutes')
 
 const router = require('express').Router()
     , { Controller } = require('../controllers/Controller')
@@ -50,10 +52,8 @@ router.use(getRequestFilter)
 
 router.use(/\/veiculos|\/\w+Vehicle(\w+)?|\/baixaVeiculo|\/updateInsurances/, veiculoRoutes)
 
-router.route('/seguros')
-    .post(seguroController.save)
-    .put(seguroController.updateInsurance)
-router.post('/cadSeguroMongo', SeguroService.saveUpComingInsurances)
+seguroRoutes(router)
+socioRoutes(router)
 
 router
     .route('/empresas/:id?')
@@ -61,14 +61,14 @@ router
     .post(empresas.saveEmpresaAndSocios)
     .patch(empresas.update)
 
-router
+/* router
     .route('/socios/:id?')
     .get(socioController.list)
     .post(socioController.saveMany)
     .put(socioController.updateSocios)
 
 router.post('/checkSocios', socioController.checkSocios)
-
+ */
 router
     .route('/procuradores')
     .get(procuradorController.list)

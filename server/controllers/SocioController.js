@@ -1,10 +1,6 @@
 //@ts-check
 const userSockets = require("../auth/userSockets");
-const { pool } = require("../config/pgConfig");
-const { getUpdatedData } = require("../getUpdatedData");
-const { SocioDaoImpl } = require("../infrastructure/SocioDaoImpl");
 const { SocioService } = require("../services/SocioService");
-const insertEmpresa = require("../users/insertEmpresa");
 const { Controller } = require("./Controller");
 
 class SocioController extends Controller {

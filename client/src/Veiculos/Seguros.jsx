@@ -124,7 +124,7 @@ class Seguro extends Component {
         else this.setState({ dataEmissao: '', vencimento: '', deletedVehicles: [], insurance: {} })
     }
 
-    //Marca as placas que possuem compartilhamento por outra empresa. Acionado ao se informar a apólice (caso já exista)   
+    //Marca as placas que possuem compartilhamento por outra empresa. Acionado ao se informar a apólice (caso já exista)
     renderPlacas = placas => {
         const { allVehicles, insurance, ownedPlacas } = this.state
 
@@ -571,7 +571,7 @@ class Seguro extends Component {
                     dataEmissao,
                     vencimento
                 })
-                axios.put('/api/seguros', { update, vehicleIds, deletedVehicles })
+                axios.put('/api/seguros', { update, vehicleIds, deletedVehicleIds: deletedVehicles })
             }
         }
         //console.log(JSON.stringify(body))
@@ -589,7 +589,7 @@ class Seguro extends Component {
                         console.log(r.status, 'cadSeguroOk')
                 })
 
-        //A atualização da coluna "apólice" da tabela veículos vai sempre ocorrer. Independente de ser um novo número ou não de apolice, 
+        //A atualização da coluna "apólice" da tabela veículos vai sempre ocorrer. Independente de ser um novo número ou não de apolice,
         //novos veículos podem ser adicionados ou excluídos
         await axios.put('/api/updateInsurances', body)
             .then(res => {

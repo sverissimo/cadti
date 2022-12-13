@@ -1,61 +1,47 @@
 //@ts-check
-const { pool } = require("../config/pgConfig")
-const { getUpdatedData } = require("../getUpdatedData")
+const { SeguroDaoImpl } = require("../infrastructure/SeguroDaoImpl")
 const segurosModel = require("../mongo/models/segurosModel")
-const { seguros } = require("../queries")
-/**REFACTOR!!!!!!!!!!!!! */
+const VeiculoRepository = require("../repositories/VeiculoRepository")
 
 class SeguroService {
 
-    static updateInsurance = async (req, res) => {
-        const { columns, updates, id, vehicleIds } = req.body
-        const io = req.app.get('io')
+    static updateInsurance = async ({ update, vehicleIds, deletedVehicleIds }) => {
+        const seguroDao = new SeguroDaoImpl()
+        const veiculoRepository = new VeiculoRepository()
 
-        let queryString = ''
-        columns.forEach(col => {
-            queryString += `
-                    UPDATE seguros
-                    SET ${col} = '${updates[col]}'
-                    WHERE id = ${id};
-            `
-        })
+        try {
+            const insuranceQueryResult = await seguroDao.update(update)
+            const vehiclesToUpdate = vehicleIds
+                .map(veiculo_id => ({
+                    veiculo_id,
+                    apolice: update.apolice,
+                }))
+                .filter(v => !!v.veiculo_id)
+            const vehiclesToRemoveInsurance = deletedVehicleIds
+                .map(veiculo_id => ({
+                    veiculo_id,
+                    apolice: 'Seguro não cadastrado'
+                }))
+                .filter(v => !!v.veiculo_id)
 
-        await pool.query(queryString, (err, t) => {
-            if (err) console.log(err)
-            pool.query(seguros, (err, t) => {
-                if (err) console.log(err)
-                if (t && t.rows) io.sockets.emit('updateInsurance', t.rows)
-            })
-        })
+            const vehicleUpdates = vehiclesToUpdate.concat(vehiclesToRemoveInsurance)
+            const vehicleQueryResult = await veiculoRepository.updateMany(vehicleUpdates)
 
-        let
-            condition = '',
-            query = `
-                SELECT * FROM veiculos
-                WHERE `
+            let updatedInsurance, updatedVehicles
 
-        if (vehicleIds && vehicleIds[0]) {
-            vehicleIds.forEach(id => {
-                condition = condition + `veiculos.veiculo_id = '${id}' OR `
-            })
-            condition = condition.slice(0, condition.length - 3)
-            query = query + condition
+            if (insuranceQueryResult) {
+                updatedInsurance = await seguroDao.find(update.id)
+            }
 
-            await pool.query(query, (err, t) => {
-                if (err) console.log(err)
-                if (t && t.rows) {
-                    const data = getUpdatedData('veiculos', `WHERE ${condition}`)
-                    data.then(async res => {
-                        await io.sockets.emit('updateVehicle', res)
-                        pool.query(seguros, (err, t) => {
-                            if (err) console.log(err)
-                            if (t && t.rows) io.sockets.emit('updateInsurance', t.rows)
-                        })
-                    })
-                }
-            })
-            res.send(vehicleIds)
-        } else res.send('No changes whatsoever.')
+            if (vehicleQueryResult) {
+                const allVehicleIds = [...vehicleIds, ...deletedVehicleIds]
+                updatedVehicles = await veiculoRepository.find(allVehicleIds)
+            }
+
+            return { updatedInsurance, updatedVehicles }
+        } catch (error) {
+            throw new Error(error)
+        }
     }
 
     static saveUpComingInsurances = (req, res) => {

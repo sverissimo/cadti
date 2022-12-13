@@ -108,10 +108,10 @@ class PostgresDao {
 
         try {
             await client.query('BEGIN')
-            await client.query(query)
+            const result = await client.query(query)
             await client.query('COMMIT')
 
-            return true
+            return !!result.rowCount
 
         } catch (error) {
             await client.query('ROLLBACK')
@@ -125,39 +125,44 @@ class PostgresDao {
 
     updateMany = async (entityArray) => {
         try {
-            const updateQuery = this.createUpdateQuery(entityArray)
+            let updateQuery = this.createUpdateQuery(entityArray)
             const result = await PostgresDao.pool.query(updateQuery)
-            return result
+            return !!result.rowCount || Array.isArray(result) && result.some(r => !!r.rowCount)
         } catch (error) {
             throw new Error(error.message)
         }
     }
 
+    /**
+     * @param {object|Array} requestBody
+     * @param {string} table
+     * @param {string} primaryKey
+     * @returns {string}
+     */
     createUpdateQuery = (requestBody, table = this.table, primaryKey = this.primaryKey) => {
 
-        const
-            isObject = requestBody && !Array.isArray(requestBody) && typeof requestBody === 'object'
-            , isArray = Array.isArray(requestBody)
-
+        const isObject = requestBody && !Array.isArray(requestBody) && typeof requestBody === 'object'
+        const isArray = Array.isArray(requestBody)
         let query = ''
-        console.log("🚀 ~ file: PostgresDao.js ~ line 151 ~ PostgresDao ~ this.primaryKey", primaryKey)
 
-        if (!isObject && !isArray)
+        if (!isObject && !isArray) {
             throw new Error('Invalid update object format! Expected object or array')
-        if (isObject)
+        }
+        if (isObject) {
             query = createQuery(requestBody, table, primaryKey)
+        }
 
-        if (isArray)
+        if (isArray) {
             for (let obj of requestBody) {
                 query += createQuery(obj, table, primaryKey)
             }
+        }
 
         return query
 
         function createQuery(obj, table, primaryKey) {
-            const
-                { id: objID, [primaryKey]: uniquePK, ...update } = obj
-                , id = objID || uniquePK
+            const { id: objID, [primaryKey]: uniquePK, ...update } = obj
+            const id = objID || uniquePK
 
             let sqlQuery = `UPDATE ${table} SET `
 
