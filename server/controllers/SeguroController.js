@@ -6,10 +6,10 @@ const { SeguroService } = require("../services/SeguroService")
 
 class SeguroController extends Controller {
 
-    constructor(table, primaryKey, repository) {
+    constructor(repository) {
         super()
-        this.table = this.table || table
-        this.primaryKey = this.primaryKey || primaryKey
+        this.table = 'seguros'
+        this.primaryKey = 'id'
         this.repository = repository || new Repository(this.table, this.primaryKey)
     }
 
