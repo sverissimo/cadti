@@ -182,13 +182,25 @@ class PostgresDao {
 
     //@ts-ignore
     async saveMany(entities) {
+        console.log("🚀 ~ file: PostgresDao.js:185 ~ PostgresDao ~ saveMany ~ entities", entities)
         const keysAndValuesArray = this.parseRequestBody(entities)
         const { keys, values } = keysAndValuesArray
-        console.log("🚀 ~ file: PostgresDao.js:182 ~ PostgresDao ~ saveMany ~ keysAndValuesArray", keysAndValuesArray)
         const query = format(`INSERT INTO ${this.table} (${keys}) VALUES %L`, values) + ` RETURNING ${this.primaryKey}`
         const { rows } = await PostgresDao.pool.query(query)
         const ids = rows.map((row) => row[this.primaryKey])
         return ids
+    }
+
+    delete = async (id) => {
+        //REFACTOR!!!
+        if (this.table === 'laudos') {
+            id = `'${id}'`
+        }
+
+        const query = ` DELETE FROM public.${this.table} WHERE ${this.primaryKey} = ${id}`
+
+        const result = await pool.query(query)
+        return !!result.rowCount
     }
 
     /**Retorna o nome das colunas do banco de dados Postgresql

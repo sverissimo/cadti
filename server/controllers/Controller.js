@@ -80,10 +80,6 @@ class Controller {
         }
     }
 
-    /**
-     * Método de busca que aceita chamadas de fora e de dentro do API
-     * req.body deve ter table:string, primaryKey:string e um array de ids
-     * */
     async findMany(req, res, next) {
         const { table, primaryKey } = req.query
         const ids = JSON.parse(req.query.ids)
@@ -220,14 +216,12 @@ class Controller {
         }
     }
 
-    //*************************REFACTOR THIS PLEASE!!!!!!!!!!!!!!!!! */
-    delete = (req, res, next) => {
+    delete = async (req, res, next) => {
 
         const { user } = req
         const { table, tablePK, codigoEmpresa } = req.query
         //@ts-ignore
         const { collection } = fieldParser.find(f => f.table === table)
-
         let { id } = req.query
 
         if (user.role !== 'admin' && collection !== 'procuracoes') {
@@ -236,44 +230,29 @@ class Controller {
         if (!id) {
             return res.status(400).send('No id provided.')
         }
-        if (table === 'laudos') {
-            id = `'${id}'`
-        }
-        const singleSocket = req.headers.referer && req.headers.referer.match('/veiculos/config')
-        const query = ` DELETE FROM public.${table} WHERE ${tablePK} = ${id}`
 
-        pool.query(query, async (err, t) => {
-            if (err) {
-                throw new Error(err.message)
-            };
-            if (t && t.rowCount === 0) {
-                return res.status(404).send('Resource not found.')
-            };
-            if (t && id) {
-                if (singleSocket) {
-                    const io = req.app.get('io')
-                    io.sockets.emit('deleteOne', { id, tablePK, collection })
-                }
-                else {
-                    id = id.replace(/\'/g, '')
-                    deleteSockets({ req, noResponse: true, table, tablePK, event: 'deleteOne', id, codigoEmpresa })
-                    updateUserPermissions()
-                }
-                res.send(`${id} deleted from ${table}`)
-            } else {
-                res.send('no id found.')
+        this.repository = new Repository(table, tablePK)
+        const result = await this.repository.delete(id)
+            .catch(err => next(err))
+        console.log("🚀 ~ file: Controller.js:237 ~ Controller ~ delete ~ result", result)
+
+        if (result) {
+            const singleSocket = req.headers.referer && req.headers.referer.match('/veiculos/config')
+            if (singleSocket) {
+                const io = req.app.get('io')
+                io.sockets.emit('deleteOne', { id, tablePK, collection })
             }
-        })
+            else {
+                id = id.replace(/\'/g, '')
+                deleteSockets({ req, noResponse: true, table, tablePK, event: 'deleteOne', id, codigoEmpresa })
+                const { cpf_socio, cpf_procurador } = req.query
 
-        //*****************************ATUALIZA PERMISSÕES DE USUÁRIOS ********************************
-        //Se a tabela for socios ou procuradores, chama a função para atualizar a permissão de usuários
-        const updateUserPermissions = () => {
-
-            const { codigoEmpresa, cpf_socio, cpf_procurador } = req.query
-
-            if (table === 'socios' || table === 'procuradores')
-                removeEmpresa({ representantes: [{ cpf_socio, cpf_procurador }], codigoEmpresa })
+                if (table === 'socios' || table === 'procuradores')
+                    removeEmpresa({ representantes: [{ cpf_socio, cpf_procurador }], codigoEmpresa })
+            }
+            return res.send(`${id} deleted from ${table}`)
         }
+        return res.status(404).send('Not found')
     }
 
     //FIX and REFACTOR - userFilter???

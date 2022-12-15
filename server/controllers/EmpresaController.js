@@ -5,6 +5,7 @@ const
     , { Controller } = require("./Controller")
     , { Repository } = require("../repositories/Repository")
     , { CustomSocket } = require("../sockets/CustomSocket")
+const { EmpresaService } = require("../services/EmpresaService")
 
 
 class EmpresaController extends Controller {
@@ -19,35 +20,29 @@ class EmpresaController extends Controller {
         this.repository = repository || new Repository(this.table, this.primaryKey)
     }
 
-    /**     
-     * @param {request} req 
-     * @param {response} res 
+    /**
+     * @param {request} req
+     * @param {response} res
      * @returns {Promise<any>}
      */
     saveEmpresaAndSocios = async (req, res) => {
-
-        //Se não tiver sócios no body, next()
         if (!req.body.socios) {
             req.body = req.body.empresa
-            console.log("🚀 ~ file: EmpresaController.js ~ line 30 ~ EmpresaController ~ saveEmpresaAndSocios= ~ req.body", req.body)
             await this.save(req, res)
             return
         }
 
         try {
-            const
-                { empresa, socios } = req.body
-                , empresaDaoImpl = new EmpresaDaoImpl()
-                , { codigo_empresa, socio_ids } = await empresaDaoImpl.saveEmpresaAndSocios({ empresa, socios })
-
-                , updatedEmpresa = await this.repository.find(codigo_empresa)
+            const { empresa, socios } = req.body
+            const { codigo_empresa, socio_ids } = await EmpresaService.saveEmpresaAndSocios({ empresa, socios })
+            const updatedEmpresa = await this.repository.find(codigo_empresa)
 
             const empresaSocket = new CustomSocket(req)
             empresaSocket.emit('insertElements', updatedEmpresa, 'empresas', 'codigo_empresa', codigo_empresa)
 
             const socioRepository = new Repository('socios', 'socio_id')
-                , updatedSocios = await socioRepository.find(socio_ids)
-                , socioSockets = new CustomSocket(req)
+            const updatedSocios = await socioRepository.find(socio_ids)
+            const socioSockets = new CustomSocket(req)
 
             socioSockets.emit('insertElements', updatedSocios, 'socios', 'id', codigo_empresa)
             return res.status(201).send({ codigo_empresa, socio_ids })

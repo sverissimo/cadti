@@ -90,6 +90,19 @@ class Repository {
             throw new Error(error.message)
         }
     }
+
+    /**
+     * @param {string|number} id
+     * @returns {Promise<boolean>}
+     */
+    async delete(id) {
+        try {
+            const result = await this.entityManager.delete(id)
+            return result
+        } catch (error) {
+            throw new Error(error.message)
+        }
+    }
 }
 
 module.exports = { Repository }

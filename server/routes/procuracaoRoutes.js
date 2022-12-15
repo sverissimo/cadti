@@ -6,13 +6,8 @@ const procuracaoController = new ProcuracaoController()
 
 /** @param {Router} router  */
 const procuracaoRoutes = router => {
-    router
-        .route('/procuracoes/:id?')
-        .get((req, res, next) => {
-            req.params.id || Object.keys(req.query).length
-                ? procuracaoController.find(req, res, next)
-                : procuracaoController.list(req, res, next)
-        })
+    router.route('/procuracoes/:id?')
+        .get(procuracaoController.list)
         .post(procuracaoController.save)
 }
 
