@@ -37,9 +37,12 @@ class SocioController extends Controller {
                 codigoEmpresa,
                 cpfsToAdd
             })
-            console.log("🚀 ~ file: SocioController.js:57 ~ SocioController ~ updateSocios= ~ result", result)
+
             //@ts-ignore
             userSockets({ req, res, table: 'socios', event: 'updateSocios', noResponse: true })
+            if (!result) {
+                return res.status(404).send('No socios found with request ids.')
+            }
             return res.status(204).end()
         } catch (error) {
             next(error)

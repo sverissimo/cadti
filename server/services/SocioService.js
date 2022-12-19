@@ -16,7 +16,7 @@ class SocioService {
 
     static updateSocios = async ({ socios, codigoEmpresa, cpfsToAdd }) => {
         try {
-            const result = await new SocioDaoImpl().updateSocios(socios)
+            const result = await new SocioDaoImpl().updateMany(socios)
             //Atualiza a permissão dos usuários conforme atualização dos sócios
             if (cpfsToAdd && cpfsToAdd[0]) {
                 insertEmpresa({ representantes: cpfsToAdd, codigoEmpresa })

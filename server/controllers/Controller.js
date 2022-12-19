@@ -234,7 +234,6 @@ class Controller {
         this.repository = new Repository(table, tablePK)
         const result = await this.repository.delete(id)
             .catch(err => next(err))
-        console.log("🚀 ~ file: Controller.js:237 ~ Controller ~ delete ~ result", result)
 
         if (result) {
             const singleSocket = req.headers.referer && req.headers.referer.match('/veiculos/config')
