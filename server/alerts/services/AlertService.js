@@ -13,7 +13,7 @@ const
     , sendMail = require('../../mail/sendMail')
 
 /**
-* Classe responsável por gerenciar e oferecer serviços de envio (ex: email) e armazenamento de alertas, além de método de testes. 
+* Classe responsável por gerenciar e oferecer serviços de envio (ex: email) e armazenamento de alertas, além de método de testes.
 */
 class AlertService {
 
@@ -38,8 +38,8 @@ class AlertService {
     }
 
     /**
-    * Busca todos os itens de uma tabela do Postgresql, com base na query de cada child class     
-    * @returns {Promise} 
+    * Busca todos os itens de uma tabela do Postgresql, com base na query de cada child class
+    * @returns {Promise}
     * @throws Gera um erro se não houver se o objeto instanciado não tiver a prop dbQuery definida
     */
     async getCollection() {
@@ -64,7 +64,7 @@ class AlertService {
     /**
      * Verifica itens de collections com vencimento em um determinado prazo (dias) ou em múltiplos prazos (alertas múltiplos).
      * @param {Array} collection Tabela do Postgresql na qual será feita a verificação do vencimento
-     * @param {Array} prazos array de prazos, em dias. 
+     * @param {Array} prazos array de prazos, em dias.
      */
     checkExpiring(collection, prazos) {
 
@@ -135,7 +135,7 @@ class AlertService {
         const newAlert = await alertRepository.saveUserAlert(req)
         console.log("🚀 ~ file: AlertService.js ~ line 130 ~ AlertService ~ saveUserAlert ~ newAlert", newAlert)
 
-        io.sockets.emit('insertElements', { insertedObjects: [newAlert], collection: 'avisos', })
+        io.sockets.emit('insertElements', { data: [newAlert], collection: 'avisos', })
     }
 
     saveAlert({ codigo_empresa, from, subject, vocativo, message }) {

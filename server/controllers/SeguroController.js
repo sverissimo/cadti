@@ -3,6 +3,7 @@ const { request, response } = require("express")
 const { Controller } = require("./Controller")
 const { Repository } = require("../repositories/Repository")
 const { SeguroService } = require("../services/SeguroService")
+const { CustomSocket } = require("../sockets/CustomSocket")
 
 class SeguroController extends Controller {
 
@@ -23,18 +24,16 @@ class SeguroController extends Controller {
         try {
             const updated = await SeguroService.updateInsurance({ update, vehicleIds, deletedVehicleIds })
             const { updatedInsurance, updatedVehicles } = updated
-            //REFACTOR: SEM FILTRO DE USUÁRIOS!!!!!!!!
-            const io = req.app.get('io')
-            io.sockets.emit('updateAny', {
-                data: updatedInsurance,
-                collection: 'seguros',
-                primaryKey: 'id',
-            })
-            io.sockets.emit('updateAny', {
-                data: updatedVehicles,
-                collection: 'veiculos',
-                primaryKey: 'veiculo_id',
-            })
+            //@ts-ignore
+            const codigoEmpresa = updatedInsurance.codigo_empresa || updatedVehicles.codigo_empresa
+
+            const socket = new CustomSocket(req)
+            if (updatedInsurance) {
+                socket.emit('updateAny', updatedInsurance, this.table, this.primaryKey, codigoEmpresa)
+            }
+            if (updatedInsurance) {
+                socket.emit('updateAny', updatedVehicles, 'veiculos', 'veiculo_id', codigoEmpresa)
+            }
 
             return res.status(200).send('Seguro e veículos atualizados.')
         } catch (error) {

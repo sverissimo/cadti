@@ -7,18 +7,13 @@ import { connect } from 'react-redux'
 import { getData, insertData, updateData, updateCollection, deleteOne, updateDocs } from './dataActions'
 
 import Loading from '../Layouts/Loading'
-import { configVehicleForm } from '../Forms/configVehicleForm'
 import ReactToast from '../Reusable Components/ReactToast'
 import { getCookie } from '../Utils/documentCookies'
 import { logUser, editUser, logUserOut } from './userActions'
-import { getEnvironment } from '../getEnvironment'
 import checkBlankInputs from '../Utils/checkBlankInputs'
 import { checkInputErrors } from '../Utils/checkInputErrors'
+import startSocket from './webSocketsClient'
 
-const socketIO = require('socket.io-client')
-const { webSocketHost, options } = getEnvironment()
-
-let socket
 
 export default function (requestArray, WrappedComponent) {
 
@@ -35,6 +30,7 @@ export default function (requestArray, WrappedComponent) {
     class With extends React.Component {
 
         state = { confirmToast: false }
+        socket;
 
         quitFn = e => {
             if (e.ctrlKey && e.keyCode === 17)
@@ -53,68 +49,26 @@ export default function (requestArray, WrappedComponent) {
                 }
             })
 
-            if (request[0])
+            if (request[0]) {
                 await this.props.getData(request)
+            }
 
-            //**************************Socket management*****************************
-
-            if (!socket)
-                socket = socketIO({ url: webSocketHost, options })
-
-            //Conecta o usuário em um socket, passando suas informações   
-            socket.on('connect', () => socket.emit('userDetails', this.props?.user))
-
-            //********************Listen to socket events and call dataActions*********************** */
-            socket.on('insertVehicle', insertedObjects => this.props.insertData(insertedObjects, 'veiculos'))
-            socket.on('insertInsurance', insertedObjects => this.props.insertData(insertedObjects, 'seguros'))
-            //socket.on('insertEmpresa', insertedObjects => this.props.insertData(insertedObjects, 'empresas'))
-            //socket.on('insertSocios', insertedObjects => this.props.insertData(insertedObjects, 'socios'))
-            socket.on('insertProcuradores', insertedObjects => this.props.insertData(insertedObjects, 'procuradores'))
-            socket.on('insertElements', ({ insertedObjects, collection }) => this.props.insertData(insertedObjects, collection))
-
-            socket.on('addElements', ({ insertedObjects, table }) => {
-                const { collection } = configVehicleForm.find(el => el.table === table)
-                this.props.insertData(insertedObjects, collection)
-            })
-
-            socket.on('updateVehicle', updatedObjects => this.props.updateData(updatedObjects, 'veiculos', 'veiculoId'))
-            socket.on('updateInsurance', updatedObjects => this.props.updateCollection(updatedObjects, 'seguros'))
-            socket.on('updateSocios', updatedObjects => this.props.updateCollection(updatedObjects, 'socios'))
-            socket.on('updateProcuradores', ({ collection, data, primaryKey }) => this.props.updateData(data, collection, primaryKey))
-            socket.on('updateLogs', updatedObjects => this.props.updateData(updatedObjects, 'logs', 'id'))
-            socket.on('updateAny', ({ data, collection, primaryKey }) => this.props.updateData(data, collection, primaryKey))
-            socket.on('updateDocs', ({ ids, metadata, collection, primaryKey }) => this.props.updateDocs(ids, metadata, collection, primaryKey))
-            socket.on('updateElements', ({ collection, updatedCollection }) => this.props.updateCollection(updatedCollection, collection))
-            socket.on('updateUser', updatedUser => this.props.editUser(updatedUser))
-
-            socket.on('deleteOne', ({ id, tablePK, collection }) => {
-                //console.log({ id, tablePK, collection })
-                this.props.deleteOne(id, tablePK, collection)
-            })
-
-            socket.on('insertFiles', object => {
-                const { insertedObjects, collection } = object
-                this.props.insertData(insertedObjects, collection)
-            })
+            const { user, editUser, ...dataActions } = this.props
+            this.socket = startSocket({ ...dataActions, user, editUser })
         }
 
         componentWillUnmount() {
             document.removeEventListener('keypress', this.quitFn)
-            /* if (!socket)
-                socket = socketIO({ url: webSocketHost, options }) */
-
-            if (socket?.connected) {
-                socket.off()
-                socket.disconnect()
-                socket = undefined
+            if (this.socket?.connected) {
+                this.socket.off()
+                this.socket.disconnect()
+                this.socket = undefined
             }
         }
 
         getUser = async () => {
-            const
-                request = await Axios.get('/api/users/getUser'),
-                user = request?.data
-
+            const request = await Axios.get('/api/users/getUser')
+            const user = request?.data
             if (user) {
                 this.props.logUser(user)
             }

@@ -51,7 +51,7 @@ const userSockets = async ({ req, res, table, condition = '', event, collection,
         }
     })
 
-    //Os usuários admin fazem join('admin') no server. Basta enviar todos os dados sem filtro para a room 'admin'    
+    //Os usuários admin fazem join('admin') no server. Basta enviar todos os dados sem filtro para a room 'admin'
     data = formatData({ data, event, collection, table })
 
     await io.sockets.to('admin').emit(event, data)
@@ -67,7 +67,7 @@ const userSockets = async ({ req, res, table, condition = '', event, collection,
         if (codigoEmpresa)
             insertEmpresa({ representantes: data, codigoEmpresa })
 
-        /* //res.locals só tem no EmpresaFullCad. 
+        /* //res.locals só tem no EmpresaFullCad.
         if (res.locals.codigoEmpresa)
             data = { codigo_empresa: codigoEmpresa, ids: data } */
         return res.send(data)
@@ -91,7 +91,7 @@ const filterData = (table, data, codigosEmpresa, event, collection) => {
             temp = data.filter(s => s.empresas && s.empresas.match(codigoEmpresa.toString()))
             //console.log("🚀 ~ file: userSockets.js ~ line 71 ~ filterData ~ data", data, typeof data[0].empresas)
         }
-        //Se for table codigo_empresa, se collection empresaID, se mongoCoreData (AltContrato), codigoEmpresa 
+        //Se for table codigo_empresa, se collection empresaID, se mongoCoreData (AltContrato), codigoEmpresa
         else
             temp = data.filter(d => d.codigo_empresa === codigoEmpresa || d.empresaId === codigoEmpresa || d.codigoEmpresa === codigoEmpresa)
 
@@ -111,7 +111,7 @@ const formatData = ({ data, event, collection, table }) => {
     let formattedData
 
     if (event === 'insertElements')
-        formattedData = { insertedObjects: data, collection: collection || table }
+        formattedData = { data, collection: collection || table }
     else if (event === 'updateElements' && table === 'laudos')
         formattedData = { updatedCollection: data, collection: table }
     else

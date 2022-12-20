@@ -15,7 +15,7 @@ class CustomSocket {
     io;
 
     /**
-     * @param {request} req     
+     * @param {request} req
      */
     constructor(req) {
         this.io = req.app.get('io')
@@ -23,12 +23,12 @@ class CustomSocket {
         this.table = req.url.replace('/', '')
     }
 
-    /**      
-    * @param {string} event 
+    /**
+    * @param {string} event
     * @param {Object | any[]} data
     * @param {string} [table]
-    * @param {string} [primaryKey] 
-    * @param {number | string} [codigoEmpresa ]     
+    * @param {string} [primaryKey]
+    * @param {number | string} [codigoEmpresa ]
      */
     emit(event, data, table, primaryKey, codigoEmpresa) {
 
@@ -37,6 +37,7 @@ class CustomSocket {
             collection: table || this.table,
             primaryKey: primaryKey || 'id'
         }
+        console.log("🚀 ~ file: CustomSocket.js:36 ~ CustomSocket ~ emit ~ formattedData", formattedData)
 
         this.io.sockets
             .to('admin')
@@ -52,13 +53,12 @@ class CustomSocket {
     }
 
     /**
-     * @param {string | number} codigoEmpresa     */
+     * @param {string|number|undefined} codigoEmpresa
+     */
     getSocketRecipients(codigoEmpresa) {
-
-        const
-            { sockets } = this.io.sockets
-            , socketIds = Object.keys(sockets)
-            , authorizedSockets = socketIds.filter(id => sockets[id].empresas && sockets[id].empresas.includes(codigoEmpresa))
+        const { sockets } = this.io.sockets
+        const socketIds = Object.keys(sockets)
+        const authorizedSockets = socketIds.filter(id => sockets[id].empresas && sockets[id].empresas.includes(codigoEmpresa))
 
         return authorizedSockets
     }

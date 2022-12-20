@@ -28,7 +28,6 @@ class ProcuradorController extends Controller {
 
     /**
      * Recebe um array de procuradores no request.body e retorna uma array de IDs
-     * @override
      * @returns {Promise<(number[]| undefined)>}
      * */
     saveMany = async (req, res, next) => {

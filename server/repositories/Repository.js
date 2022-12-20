@@ -67,7 +67,7 @@ class Repository {
 
     /**
     * @param {Object} element
-    * @returns {Promise<any>}
+    * @returns {Promise<boolean>}
     */
     async update(element) {
         try {
@@ -80,7 +80,7 @@ class Repository {
 
     /**
      * @param {any[]} elements
-     * @returns {Promise<any>}
+     * @returns {Promise<boolean>}
      */
     async updateMany(elements) {
         try {

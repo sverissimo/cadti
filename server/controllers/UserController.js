@@ -42,7 +42,7 @@ class UserController extends Controller {
         }
         try {
             const savedUser = await UserService.addUser(user)
-            const update = { insertedObjects: [savedUser], collection: 'users' }
+            const update = { data: [savedUser], collection: 'users' }
 
             io.sockets.emit('insertElements', update)
             res.status(201).send('saved.')

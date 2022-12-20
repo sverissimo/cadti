@@ -41,7 +41,6 @@ class Controller {
         this.getOne = this.getOne.bind(this)
         this.findMany = this.findMany.bind(this)
         this.save = this.save.bind(this)
-        this.saveMany = this.saveMany.bind(this)
         this.update = this.update.bind(this)
     }
 
@@ -154,63 +153,31 @@ class Controller {
      * @param {response} res
      * @returns {Promise<any>}
      */
-    async saveMany(req, res, next) {
-        try {
-
-            const entityDaoImpl = new EntityDaoImpl(this.table, this.primaryKey)
-            const entities = req.body.socios || req.body.procuradores
-            const ids = await entityDaoImpl.saveMany(entities)
-
-            res.send(ids)
-
-            let condition
-            ids.forEach(id => condition = `${this.primaryKey} = '${id}' OR `)
-            condition = 'WHERE ' + condition
-            condition = condition.slice(0, condition.length - 3)
-            //@ts-ignore
-            await userSockets({ req, res, table: this.table, condition, event: this.event || 'insertElements', noResponse: true })
-        } catch (error) {
-            next(error)
-        }
-    }
-
-    /**
-     * @param {request} req
-     * @param {response} res
-     * @returns {Promise<any>}
-     * REFACTOR?
-     */
     update = async (req, res, next) => {
-        const
-            { body } = req
-            , { codigo_empresa } = body
+        const { codigo_empresa } = req.body
 
-        if (Object.keys(body).length <= 1)
+        if (Object.keys(req.body).length <= 1) {
             return res.status(400).send('Nothing to update...')
+        }
 
         try {
             const repository = new Repository(this.table, this.primaryKey)
-                , exists = await repository.find(req.body[this.primaryKey])
-
-            if (!exists.length)
+            const result = await repository.update(req.body)
+            if (!result) {
                 return res.status(404).send('Não foi encontrado nenhum registro na base de dados para atualização.')
-
-            //returns Promise<boolean>
-            await repository.update(body)
-            res.send(`${this.table} updated.`)
-
-            let updates
-
-            if (Array.isArray(body)) {
-                const ids = body.map(el => el[this.primaryKey])
-                updates = await repository.find(ids)
             }
-            else
-                updates = await repository.find(body[this.primaryKey])
 
+            let filter = req.body[this.primaryKey]
+
+            if (Array.isArray(req.body)) {
+                filter = req.body.map(el => el[this.primaryKey])
+            }
+
+            const updates = await repository.find(filter)
             const socket = new CustomSocket(req)
             socket.emit('updateAny', updates, this.table, this.primaryKey, codigo_empresa)
 
+            res.status(204).end()
         } catch (error) {
             next(error)
         }
@@ -261,7 +228,6 @@ class Controller {
         ids.forEach(id => condition += `${this.primaryKey} = '${id}' OR `)
         condition = 'WHERE ' + condition
         condition = condition.slice(0, condition.length - 3)
-        console.log("🚀 ~ file: Controller.js:294 ~ Controller ~ emitSocket= ~ condition", condition)
 
         const data = await getUpdatedData(this.table, condition)
         console.log("🚀 ~ file: Controller.js:296 ~ Controller ~ emitSocket= ~ data", data)
@@ -319,25 +285,6 @@ class Controller {
             }
         })
     }
-
-
-    /****TODO: REMOVE THIS SECTION ********
-
-    delete = async (req, res, next) => {
-            let { id } = req.query
-            const
-                { user } = req,
-                { table, tablePK, codigoEmpresa } = req.query,
-                { collection } = fieldParser.find(f => f.table === table)
-
-            if (user.role !== 'admin' && collection !== 'procuracoes')
-                return res.status(403).send('É preciso permissão de administrador para acessar essa parte do cadTI.')
-
-            if (table === 'laudos')
-                id = `'${id}'`
-
-            const singleSocket = req.headers.referer && req.headers.referer.match('/veiculos/config')
-        } */
 }
 
 module.exports = { Controller }

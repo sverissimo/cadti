@@ -1,6 +1,7 @@
 //@ts-check
 const userSockets = require("../auth/userSockets");
 const { SocioService } = require("../services/SocioService");
+const { CustomSocket } = require("../sockets/CustomSocket");
 const { Controller } = require("./Controller");
 
 class SocioController extends Controller {
@@ -10,7 +11,7 @@ class SocioController extends Controller {
     event = 'insertSocios'
 
     constructor() {
-        super('socios', 'socio_id');
+        super('socios', 'socio_id')
     }
 
     /**Verifica existência de sócios */
@@ -30,7 +31,6 @@ class SocioController extends Controller {
 
     updateSocios = async (req, res, next) => {
         const { socios, codigoEmpresa, cpfsToAdd } = req.body
-
         try {
             const result = await SocioService.updateSocios({
                 socios,
@@ -38,20 +38,21 @@ class SocioController extends Controller {
                 cpfsToAdd
             })
 
-            //@ts-ignore
-            userSockets({ req, res, table: 'socios', event: 'updateSocios', noResponse: true })
             if (!result) {
                 return res.status(404).send('No socios found with request ids.')
             }
+
+            const ids = socios.map(s => s.socio_id)
+            const updates = await this.repository.find(ids)
+            const socket = new CustomSocket(req)
+
+            socket.emit('updateAny', updates, this.table, this.primaryKey, codigoEmpresa)
             return res.status(204).end()
         } catch (error) {
             next(error)
         }
     }
 
-    /**
-     * @override
-     */
     async saveMany(req, res, next) {
         const { codigo_empresa, codigoEmpresa, socios } = req.body
         try {
@@ -59,13 +60,11 @@ class SocioController extends Controller {
                 socios,
                 codigoEmpresa: codigoEmpresa || codigo_empresa,
             })
-            let condition
 
-            ids.forEach(id => condition = `${this.primaryKey} = '${id}' OR `)
-            condition = 'WHERE ' + condition
-            condition = condition.slice(0, condition.length - 3)
-            //@ts-ignore
-            await userSockets({ req, res, table: this.table, condition, event: this.event || 'insertElements', noResponse: true })
+            const createdSocios = await this.repository.find(ids)
+            const socket = new CustomSocket(req)
+
+            socket.emit('insertElements', createdSocios, this.table, this.primaryKey, codigoEmpresa)
             return res.status(201).send(ids)
         } catch (error) {
             next(error)

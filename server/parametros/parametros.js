@@ -39,16 +39,14 @@ router.patch('/', async (req, res) => {
     if (user.role !== 'admin') //Restringe alteração de parâmetros ao admin
         return res.status(403).send('O usuário logado não possui permissão para alterar os parâmetros do sistema.')
 
-    let
-        socketEvent = 'insertElements',
-        socketProp = 'insertedObjects',
-        preventSocket
+    const socketProp = 'data'
+    let socketEvent = 'insertElements'
+    let preventSocket
 
     //Checa se já existe
     if (update.id) {
         query._id = update.id
         socketEvent = 'updateAny'
-        socketProp = 'data'
         //Apaga o campo id do update, senão não mexe no ID
         delete update.id
     }
