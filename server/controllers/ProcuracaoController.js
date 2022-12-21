@@ -1,8 +1,9 @@
 //@ts-check
 const { request, response } = require('express')
-const userSockets = require('../auth/userSockets')
 const { Controller } = require('./Controller')
 const { Repository } = require('../repositories/Repository')
+const { ProcuracaoService } = require('../services/ProcuracaoService')
+const { CustomSocket } = require('../sockets/CustomSocket')
 
 class ProcuracaoController extends Controller {
 
@@ -27,29 +28,49 @@ class ProcuracaoController extends Controller {
      * @param {response} res
      * @returns {Promise<void | res>}
      */
-    async save(req, res) {
+    async save(req, res, next) {
         const procuracao = req.body
-        procuracao.procuradores = JSON.stringify(procuracao.procuradores)
-
         try {
-            const procuracaoRepository = new Repository('procuracoes', 'procuracao_id')
-            const procuracaoId = await procuracaoRepository.save(procuracao)
-            const condition = `WHERE procuracoes.procuracao_id = ${procuracaoId}`
+            const { procuracaoId, procuradores, codigoEmpresa } = await ProcuracaoService.save(procuracao)
+            if (!procuracaoId) {
+                return res.status(400).send('ProcuracaoController: Could not save procuracao.')
+            }
+            const savedProcuracao = [{ procuracao_id: procuracaoId, ...procuracao }]
 
-            //@ts-ignore
-            //Atualiza os dados no frontEnd por meio de webSockets
-            userSockets({
-                req,
-                table: 'procuracoes',
-                event: 'insertElements',
-                condition,
-                noResponse: true
-            })
+            const io = req.app.get('io')
+            const procuradorSocket = new CustomSocket(io, 'procuradores')
+            const procuracaoSocket = new CustomSocket(io, 'procuracoes')
 
+            procuradorSocket.emit('updateAny', procuradores, codigoEmpresa, 'procurador_id')
+            procuracaoSocket.emit('insertElements', savedProcuracao, codigoEmpresa)
             res.status(201).send(JSON.stringify(procuracaoId))
+
         } catch (error) {
-            res.status(500).send(error)
+            next(error)
         }
+    }
+
+    /** @override          */
+    delete = async (req, res, next) => {
+        const { id } = req.query
+        if (!id) {
+            return res.status(400).send('No id provided.')
+        }
+
+        const { procuradores, codigoEmpresa } = await ProcuracaoService.deleteProcuracao(id)
+            .catch(err => next(err))
+
+        if (!procuradores) {
+            return res.status(404).send('Not found')
+        }
+
+        const io = req.app.get('io')
+        const procuracaoSocket = new CustomSocket(io, this.table)
+        const procuradorSocket = new CustomSocket(io, 'procuradores')
+
+        procuracaoSocket.delete(id, 'procuracao_id')
+        procuradorSocket.emit('updateAny', procuradores, codigoEmpresa, 'procurador_id')
+        res.send(`${id} deleted from ${this.table}`)
     }
 }
 

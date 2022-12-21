@@ -1,5 +1,4 @@
 //@ts-check
-const userSockets = require("../auth/userSockets");
 const { SocioService } = require("../services/SocioService");
 const { CustomSocket } = require("../sockets/CustomSocket");
 const { Controller } = require("./Controller");
@@ -44,9 +43,10 @@ class SocioController extends Controller {
 
             const ids = socios.map(s => s.socio_id)
             const updates = await this.repository.find(ids)
-            const socket = new CustomSocket(req)
+            const io = req.app.get('io')
+            const socket = new CustomSocket(io, this.table)
 
-            socket.emit('updateAny', updates, this.table, this.primaryKey, codigoEmpresa)
+            socket.emit('updateAny', updates, codigoEmpresa, this.primaryKey)
             return res.status(204).end()
         } catch (error) {
             next(error)
@@ -62,9 +62,10 @@ class SocioController extends Controller {
             })
 
             const createdSocios = await this.repository.find(ids)
-            const socket = new CustomSocket(req)
+            const io = req.app.get('io')
+            const socket = new CustomSocket(io, this.table)
 
-            socket.emit('insertElements', createdSocios, this.table, this.primaryKey, codigoEmpresa)
+            socket.emit('insertElements', createdSocios, codigoEmpresa)
             return res.status(201).send(ids)
         } catch (error) {
             next(error)

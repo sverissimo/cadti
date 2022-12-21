@@ -26,13 +26,16 @@ class SeguroController extends Controller {
             const { updatedInsurance, updatedVehicles } = updated
             //@ts-ignore
             const codigoEmpresa = updatedInsurance.codigo_empresa || updatedVehicles.codigo_empresa
+            const io = req.app.get('io')
 
-            const socket = new CustomSocket(req)
             if (updatedInsurance) {
-                socket.emit('updateAny', updatedInsurance, this.table, this.primaryKey, codigoEmpresa)
+                const seguroSocket = new CustomSocket(io, this.table)
+                seguroSocket.emit('updateAny', updatedInsurance, codigoEmpresa, this.primaryKey)
             }
+
             if (updatedInsurance) {
-                socket.emit('updateAny', updatedVehicles, 'veiculos', 'veiculo_id', codigoEmpresa)
+                const veiculoSocket = new CustomSocket(io, 'veiculos')
+                veiculoSocket.emit('updateAny', updatedVehicles, codigoEmpresa, 'veiculo_id',)
             }
 
             return res.status(200).send('Seguro e veículos atualizados.')

@@ -1,12 +1,9 @@
 //@ts-check
-const
-    { request, response } = require("express")
-    , { EmpresaDaoImpl } = require("../infrastructure/EmpresaDaoImpl")
-    , { Controller } = require("./Controller")
-    , { Repository } = require("../repositories/Repository")
-    , { CustomSocket } = require("../sockets/CustomSocket")
+const { request, response } = require("express")
+const { Controller } = require("./Controller")
+const { Repository } = require("../repositories/Repository")
+const { CustomSocket } = require("../sockets/CustomSocket")
 const { EmpresaService } = require("../services/EmpresaService")
-
 
 class EmpresaController extends Controller {
 
@@ -37,14 +34,15 @@ class EmpresaController extends Controller {
             const { codigo_empresa, socio_ids } = await EmpresaService.saveEmpresaAndSocios({ empresa, socios })
             const updatedEmpresa = await this.repository.find(codigo_empresa)
 
-            const empresaSocket = new CustomSocket(req)
-            empresaSocket.emit('insertElements', updatedEmpresa, 'empresas', 'codigo_empresa', codigo_empresa)
+            const io = req.app.get('io')
+            const empresaSocket = new CustomSocket(io, 'empresas')
+            empresaSocket.emit('insertElements', updatedEmpresa, codigo_empresa)
 
             const socioRepository = new Repository('socios', 'socio_id')
             const updatedSocios = await socioRepository.find(socio_ids)
-            const socioSockets = new CustomSocket(req)
+            const socioSockets = new CustomSocket(io, 'socios')
 
-            socioSockets.emit('insertElements', updatedSocios, 'socios', 'id', codigo_empresa)
+            socioSockets.emit('insertElements', updatedSocios, codigo_empresa)
             return res.status(201).send({ codigo_empresa, socio_ids })
 
         } catch (error) {

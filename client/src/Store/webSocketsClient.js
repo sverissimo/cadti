@@ -34,7 +34,7 @@ const startSocket = ({ insertData, updateData, updateCollection, deleteOne, upda
     socket.on('updateUser', updatedUser => editUser(updatedUser))
 
     socket.on('deleteOne', ({ id, tablePK, collection }) => {
-        //console.log({ id, tablePK, collection })
+        console.log({ id, tablePK, collection })
         deleteOne(id, tablePK, collection)
     })
 

@@ -178,7 +178,7 @@ class Procuradores extends Component {
             sObject = {}
 
         //***********************Check for errors *********************** */
-        /*       let { errors } = checkInputErrors('returnObj', 'Dont check the date, please!') || []      
+        /*       let { errors } = checkInputErrors('returnObj', 'Dont check the date, please!') || []
               if (errors && errors[0]) {
                   if (!expires)
                       await this.setState({ ...this.state, ...checkInputErrors('setState', 'dontCheckDate') })
@@ -237,7 +237,7 @@ class Procuradores extends Component {
             else
                 newMembers.push(addedProc)
         }
-        //console.log("🚀 ~ file: Procuradores.jsx ~ line 248 ~ Procuradores ~ addProc= ~ oldMembers", oldMembers)        
+        //console.log("🚀 ~ file: Procuradores.jsx ~ line 248 ~ Procuradores ~ addProc= ~ oldMembers", oldMembers)
 
         //Se o request não for de aprovação, cria a demanda
         if (approved === undefined) {
@@ -302,25 +302,19 @@ class Procuradores extends Component {
 
         //******************Post newMembers  *****************/
         if (newMembers.length > 0) {
-            newMembers.forEach(m => m.empresas = `{${codigoEmpresa}}`)  //Adiciona o código da empresa do procurador
+            newMembers.forEach(m => m.empresas = [codigoEmpresa])  //Adiciona o código da empresa do procurador
             newMembers = humps.decamelizeKeys(newMembers)
-            const cadRequest = {
-                table: 'procuradores', tablePK: 'procurador_id',
-                procuradores: newMembers,
-                empresas: [codigoEmpresa]
-            }
 
-            await axios.post('/api/procuradores', { ...cadRequest, codigoEmpresa })
+            await axios.post('/api/procuradores', {
+                codigoEmpresa,
+                procuradores: newMembers,
+            })
                 .then(procs => {
                     procs.data.forEach(p => procIdArray.push(p.procurador_id))
                 })
         }
         //***************Update existing members ****************/
         const request = {
-            //table: 'procuradores', (REFACTORED ENDPOINT!!!)
-            //tablePK: 'procurador_id', NEED TO REFACTOR THIS TOO!!!
-            //keys: procuradorForm.map(p => humps.decamelize(p.field)), NO LONGER NEEDED!!
-            //requestArray: oldMembers, >> propName changed to procuradores
             procuradores: oldMembers,
             codigoEmpresa,
             updateUserPermission: true //Also refactored from updateUser:string to <prop>:boolean
@@ -335,7 +329,7 @@ class Procuradores extends Component {
                 if (empresas && empresas[0]) {
                     if (!empresas.includes(codigoEmpresa))
                         m.empresas.push(codigoEmpresa)
-                    m.empresas = empresas.toString()      //Adiciona o código da empresa do procurador                                      
+                    m.empresas = empresas.toString()      //Adiciona o código da empresa do procurador
                 }
             })
 
@@ -395,7 +389,7 @@ class Procuradores extends Component {
 
         //Remove o código da empresa da array de empresas do procurador caso não haja outra procuração da mesma empresa
         if (procuradores[0]) {
-            //Checa se há outras procurações 
+            //Checa se há outras procurações
             const
                 outrasProcuracoes = procuracoes.filter(p => p.codigoEmpresa === codigoEmpresa && p.procuracaoId !== id),
                 dontRemove = new Set()
@@ -430,7 +424,7 @@ class Procuradores extends Component {
             }
         }
 
-        await axios.delete(`/api/delete?table=procuracoes&tablePK=procuracao_id&id=${id}&codigoEmpresa=${codigoEmpresa}`)
+        await axios.delete(`/api/procuracoes?id=${id}`)
             .then(r => console.log(r.data))
 
         if (selectedFile && selectedFile.hasOwnProperty('id'))

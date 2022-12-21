@@ -17,6 +17,7 @@ const { lookup } = require('../queries')
 const { logHandler } = require('../utils/logHandler')
 const { Controller } = require('../controllers/Controller')
 const removeEmpresa = require('../users/removeEmpresa')
+const { requireSeinfra } = require('../auth/checkPermissions')
 
 const altContrato = new AltContrato()
 const solicitacoes = new Solicitacoes()
@@ -56,7 +57,7 @@ router.get(`/${routes}/:id`, (req, res, next) => {
 router.get('/getOne', new Controller().getOne)
 router.get('/findMany', new Controller().findMany)
 router.get('/checkIfExists', new Controller().checkIfExists)
-router.delete('/delete', new Controller().delete)
+router.delete('/delete', requireSeinfra, new Controller().delete)
 router.post('/api/addElement', new Controller().addElement)
 router.put('/editElements', (req, res, next) => {
     const { table, tablePK: primaryKey, update } = req.body

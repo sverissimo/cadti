@@ -9,6 +9,7 @@ const procuracaoRoutes = router => {
     router.route('/procuracoes/:id?')
         .get(procuracaoController.list)
         .post(procuracaoController.save)
+        .delete(procuracaoController.delete)
 }
 
 module.exports = { procuracaoRoutes }

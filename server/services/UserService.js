@@ -2,7 +2,7 @@
 const bcrypt = require('bcrypt');
 const sendMail = require("../mail/sendMail")
 const newUserTemplate = require("../mail/templates/newUserTemplate")
-const UserModel = require("../mongo/models/userModel")
+const UserModel = require("../mongo/models/userModel");
 
 class UserService {
     static list = async () => {
@@ -65,6 +65,33 @@ class UserService {
         } catch (error) {
             throw new Error(error.message)
         }
+    }
+
+    /**
+     * @param {object[]} procuradores
+     * @param {number} codigoEmpresa
+     */
+    static addPermissions = async (procuradores, codigoEmpresa) => {
+        const cpfs = procuradores.map(p => p.cpf_procurador)
+        const filter = ({ 'cpf': { $in: cpfs } })
+        const users = await UserModel.find(filter)
+
+        const filteredCpfs = users.filter(user => !user.empresas.includes(codigoEmpresa))
+            .map(user => user.cpf)
+
+        const updateFilter = ({ 'cpf': { $in: filteredCpfs } })
+        const userUpdate = await UserModel.updateMany(updateFilter, { $push: { 'empresas': codigoEmpresa } })
+        return userUpdate
+    }
+
+    /**
+     * @param {string[]} cpfs
+     * @param {number} codigoEmpresa
+     */
+    static removePermissions = async (cpfs, codigoEmpresa) => {
+        const filter = ({ 'cpf': { $in: cpfs } })
+        const userUpdate = await UserModel.updateMany(filter, { $pull: { 'empresas': codigoEmpresa } })
+        return userUpdate
     }
 
     static deleteUser = async id => {

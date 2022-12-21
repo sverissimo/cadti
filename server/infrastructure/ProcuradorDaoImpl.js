@@ -1,4 +1,5 @@
 //@ts-check
+const format = require("pg-format")
 const PostgresDao = require("./PostgresDao")
 
 class ProcuradorDaoImpl extends PostgresDao {
@@ -10,19 +11,22 @@ class ProcuradorDaoImpl extends PostgresDao {
     }
 
     /**
-     * @param {object} param0
-     * @returns
+     * @param {any[]} procuradores
+     * @returns {Promise<object[]>}
      */
-    saveManyProcuradores = async ({ procuradores, empresas }) => {
-        const parsedEmpresas = JSON.stringify(empresas)
+    saveManyProcuradores = async (procuradores) => {
+        const parseEmpresas = e => JSON.stringify(e)
             .replace('[', '{')
             .replace(']', '}')
         const parsedProcuradores = procuradores.map(p => ({
-            empresas: parsedEmpresas,
-            ...p
+            ...p,
+            empresas: parseEmpresas(p.empresas)
         }))
-        const procuradorIds = await this.saveMany(parsedProcuradores)
-        return procuradorIds
+        const keysAndValuesArray = this.parseRequestBody(parsedProcuradores)
+        const { keys, values } = keysAndValuesArray
+        const query = format(`INSERT INTO ${this.table} (${keys}) VALUES %L`, values) + ` RETURNING *`
+        const { rows } = await PostgresDao.pool.query(query)
+        return rows
     }
 
     /**

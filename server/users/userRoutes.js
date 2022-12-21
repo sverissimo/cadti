@@ -1,18 +1,17 @@
-const
-    express = require('express'),
-    router = express.Router(),
-    checkPermissions = require('../auth/checkPermissions'),
-    { UserController } = require('../controllers/UserController'),
-    { generatePass } = require('../auth/changePass')
-
+//@ts-check
+const express = require('express')
+const router = express.Router()
+const { requireAdmin } = require('../auth/checkPermissions')
+const { UserController } = require('../controllers/UserController')
+const { generatePass } = require('../auth/changePass')
 const userController = new UserController()
 
 router.get('/getUser', userController.getUser)
 router.route('/')
-    .get(checkPermissions, userController.getUsers)
-    .post(checkPermissions, generatePass, userController.addUser)
+    .get(requireAdmin, userController.getUsers)
+    .post(requireAdmin, generatePass, userController.addUser)
     .put(userController.editUser)
-    .delete(checkPermissions, userController.deleteUser)
-//Essa rota não possui autenticação padrão porque o próprio usuário pode alterar seus dados.
+    .delete(requireAdmin, userController.deleteUser)
+//A rota PUT não possui autenticação padrão porque o próprio usuário pode alterar seus dados.
 
 module.exports = { userRoutes: router }

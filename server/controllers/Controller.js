@@ -3,7 +3,6 @@ const { request, response } = require("express")
 const { Repository } = require("../repositories/Repository")
 const { fieldParser } = require("../utils/fieldParser")
 const userSockets = require("../auth/userSockets")
-const { EntityDaoImpl } = require("../infrastructure/EntityDaoImpl")
 const { CustomSocket } = require("../sockets/CustomSocket")
 const deleteSockets = require("../auth/deleteSockets")
 const { pool } = require("../config/pgConfig")
@@ -137,11 +136,12 @@ class Controller {
             const id = await this.repository.save(req.body)
             res.status(201).json(id)
 
+            const io = req.app.get('io')
+            const socket = new CustomSocket(io, this.table)
             const createdEntity = await this.repository.find(id)
             const { codigo_empresa } = createdEntity[0]
-            const socket = new CustomSocket(req)
 
-            socket.emit('insertElements', createdEntity, this.table, this.primaryKey, codigo_empresa)
+            socket.emit('insertElements', createdEntity, codigo_empresa)
         } catch (error) {
             next(error)
         }
@@ -173,10 +173,11 @@ class Controller {
                 filter = req.body.map(el => el[this.primaryKey])
             }
 
+            const io = req.app.get('io')
+            const socket = new CustomSocket(io, this.table)
             const updates = await repository.find(filter)
-            const socket = new CustomSocket(req)
-            socket.emit('updateAny', updates, this.table, this.primaryKey, codigo_empresa)
 
+            socket.emit('updateAny', updates, codigo_empresa, this.primaryKey)
             res.status(204).end()
         } catch (error) {
             next(error)
@@ -219,27 +220,6 @@ class Controller {
             return res.send(`${id} deleted from ${table}`)
         }
         return res.status(404).send('Not found')
-    }
-
-    //FIX and REFACTOR - userFilter???
-    emitSocket = async ({ io, ids, event }) => {
-
-        let condition = ''
-        ids.forEach(id => condition += `${this.primaryKey} = '${id}' OR `)
-        condition = 'WHERE ' + condition
-        condition = condition.slice(0, condition.length - 3)
-
-        const data = await getUpdatedData(this.table, condition)
-        console.log("🚀 ~ file: Controller.js:296 ~ Controller ~ emitSocket= ~ data", data)
-
-        /*  io.sockets.emit(
-             event || this.socketEvent,
-             {
-                 collection: this.table,
-                 primaryKey: this.primaryKey,
-                 updatedObjects: data
-             }
-         ) */
     }
 
     addElement = (req, res, next) => {

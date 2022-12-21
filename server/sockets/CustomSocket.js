@@ -1,43 +1,34 @@
 //@ts-check
-const { request } = require("express");
 
-/**
- * @class CustomSocket
- */
 class CustomSocket {
-
-    /**
-     * @property {Array<string | number>} ids - Array de ids dos webSockets dos usuários conectados via wss.         */
+    /** @property {Array<string | number>} ids - Array de ids dos webSockets dos usuários conectados via wss.         */
     ids;
 
-    /**
-     * @property {any} io */
+    /** @property {any} io */
     io;
 
     /**
-     * @param {request} req
+     * @param {any} io
+     * @param {string} table
      */
-    constructor(req) {
-        this.io = req.app.get('io')
+    constructor(io, table) {
+        this.io = io
         this.ids = Object.keys(this.io.sockets.sockets)
-        this.table = req.url.replace('/', '')
+        this.table = table
     }
 
     /**
     * @param {string} event
     * @param {Object | any[]} data
-    * @param {string} [table]
     * @param {string} [primaryKey]
     * @param {number | string} [codigoEmpresa ]
      */
-    emit(event, data, table, primaryKey, codigoEmpresa) {
-
+    emit(event, data, codigoEmpresa, primaryKey = 'id') {
         const formattedData = {
             data,
-            collection: table || this.table,
-            primaryKey: primaryKey || 'id'
+            primaryKey,
+            collection: this.table,
         }
-        console.log("🚀 ~ file: CustomSocket.js:36 ~ CustomSocket ~ emit ~ formattedData", formattedData)
 
         this.io.sockets
             .to('admin')
@@ -52,13 +43,24 @@ class CustomSocket {
         }
     }
 
-    /**
-     * @param {string|number|undefined} codigoEmpresa
-     */
+    delete(id, primaryKey = 'id') {
+        const formattedData = {
+            id,
+            tablePK: primaryKey,
+            collection: this.table,
+        }
+
+        this.io.sockets.emit('deleteOne', formattedData)
+        //### NÃO FILTRAR, POIS NÃO ALTERA PARA USUÁRIO QUE NÃO TEM ACESSO AO ITEM APAGADO.
+    }
+
+
+    /** @param {string|number|undefined} codigoEmpresa */
     getSocketRecipients(codigoEmpresa) {
         const { sockets } = this.io.sockets
         const socketIds = Object.keys(sockets)
-        const authorizedSockets = socketIds.filter(id => sockets[id].empresas && sockets[id].empresas.includes(codigoEmpresa))
+        const authorizedSockets = socketIds.filter(id => sockets[id].empresas
+            && sockets[id].empresas.includes(codigoEmpresa))
 
         return authorizedSockets
     }

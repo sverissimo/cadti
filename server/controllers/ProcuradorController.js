@@ -3,6 +3,7 @@ const userSockets = require("../auth/userSockets");
 const { Controller } = require("./Controller");
 const ProcuradorRepository = require("../repositories/ProcuradorRepository");
 const insertEmpresa = require("../users/insertEmpresa");
+const { CustomSocket } = require("../sockets/CustomSocket");
 
 class ProcuradorController extends Controller {
 
@@ -11,7 +12,7 @@ class ProcuradorController extends Controller {
     webSocketEvent = 'insertProcuradores'
 
     constructor() {
-        super('socios', 'procurador_id');
+        super('procuradores', 'procurador_id');
     }
 
     /** @override */
@@ -27,22 +28,19 @@ class ProcuradorController extends Controller {
     }
 
     /**
-     * Recebe um array de procuradores no request.body e retorna uma array de IDs
+     * Recebe um objeto com array de procuradores e codigoEmpresa no request.body e retorna uma array de IDs
      * @returns {Promise<(number[]| undefined)>}
      * */
     saveMany = async (req, res, next) => {
         try {
-            const { procuradores, empresas } = req.body
-            const procuradorIds = await new ProcuradorRepository().saveMany({ procuradores, empresas })
-            let condition
+            const { procuradores, codigoEmpresa } = req.body
+            const savedProcuradores = await new ProcuradorRepository().saveMany(procuradores)
+            const io = req.app.get('io')
+            const socket = new CustomSocket(io, this.table)
+            socket.emit('insertElements', savedProcuradores, codigoEmpresa)
 
-            procuradorIds.forEach(id => condition = `${this.primaryKey} = '${id}' OR `)
-            condition = 'WHERE ' + condition
-            condition = condition.slice(0, condition.length - 3)
-            //@ts-ignore
-            await userSockets({ req, res, table: this.table, condition, event: this.event || 'insertElements', noResponse: true })
-
-            return res.status(201).send(procuradorIds)
+            const procuradoresId = savedProcuradores.map(p => p.procurador_id)
+            return res.status(201).send(procuradoresId)
         } catch (error) {
             next(error)
         }
@@ -64,14 +62,19 @@ class ProcuradorController extends Controller {
             }
 
             const io = req.app.get('io')
+            const socket = new CustomSocket(io, this.table)
             const ids = procuradores.map(p => p.procurador_id)
-            await this.emitSocket({ io, ids, event: 'updateProcuradores' })
+            const updates = await this.repository.find(ids)
+
+            socket.emit('updateAny', updates, codigoEmpresa, this.primaryKey)
 
             return res.status(204).end()
         } catch (error) {
             next(error)
         }
     }
+
+
 }
 
 module.exports = ProcuradorController

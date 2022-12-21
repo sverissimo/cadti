@@ -30,7 +30,10 @@ const parseRequestBody = (body) => {
 
         Object.entries(body).forEach(([k, v]) => {
             if (Array.isArray(v)) {
-                if (k === 'equipamentos_id' || k === 'acessibilidade_id') {
+                if (k === 'equipamentos_id'
+                    || k === 'acessibilidade_id'
+                    || k === 'procuradores'
+                ) {
                     v = `'${JSON.stringify(v)}'::json`
                 }
                 if (k === 'empresas') {

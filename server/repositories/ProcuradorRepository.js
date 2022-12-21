@@ -29,13 +29,13 @@ class ProcuradorRepository extends Repository {
     }
 
     /**
-     * @param procuradoresRequestObject {Object}
-     * @returns {Promise<number[]>} Retorna o id do veículo criado / throws an error.
+     * @param {any[]} procuradores
+     * @returns {Promise<object[]>} Retorna os procuradores criados.
      */
-    async saveMany({ procuradores, empresas }) {
+    async saveMany(procuradores) {
         try {
-            const procuradorIds = await new ProcuradorDaoImpl().saveManyProcuradores({ procuradores, empresas })
-            return procuradorIds
+            const savedProcuradores = await new ProcuradorDaoImpl().saveManyProcuradores(procuradores)
+            return savedProcuradores
         } catch (error) {
             throw new Error(error.message)
         }

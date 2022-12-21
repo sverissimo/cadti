@@ -52,7 +52,7 @@ class PostgresDao {
         let condition = `WHERE ${this.table}.${this.primaryKey} = $1`
         // Verifica o tipo de filtro
         if (Array.isArray(filter)) {
-            condition = `WHERE ${this.table}.${this.primaryKey} IN (${filter.join()})`
+            condition = format(`WHERE ${this.table}.${this.primaryKey} IN (%L)`, filter)
             value = ''
         }
         else if (typeof filter === 'object') {
@@ -82,12 +82,10 @@ class PostgresDao {
         const client = await PostgresDao.pool.connect()
         const { keys, values } = this.parseRequestBody(entity)
         const query = `INSERT INTO ${this.table} (${keys}) VALUES (${values}) RETURNING ${this.primaryKey}`
-
         try {
             client.query('BEGIN')
-            const
-                res = await client.query(query)
-                , id = res.rows[0][this.primaryKey]
+            const res = await client.query(query)
+            const id = res.rows[0][this.primaryKey]
 
             await client.query('COMMIT')
             return id
@@ -115,9 +113,7 @@ class PostgresDao {
 
         } catch (error) {
             await client.query('ROLLBACK')
-            console.log("🚀 ~ file: PostgresDao.js ~ line 135 ~ PostgresDao ~ update ~ ROLLBACK ~ error", error)
             throw new Error(error.message)
-
         } finally {
             client.release()
         }
@@ -182,7 +178,6 @@ class PostgresDao {
 
     //@ts-ignore
     async saveMany(entities) {
-        console.log("🚀 ~ file: PostgresDao.js:185 ~ PostgresDao ~ saveMany ~ entities", entities)
         const keysAndValuesArray = this.parseRequestBody(entities)
         const { keys, values } = keysAndValuesArray
         const query = format(`INSERT INTO ${this.table} (${keys}) VALUES %L`, values) + ` RETURNING ${this.primaryKey}`
@@ -198,7 +193,6 @@ class PostgresDao {
         }
 
         const query = ` DELETE FROM public.${this.table} WHERE ${this.primaryKey} = ${id}`
-
         const result = await pool.query(query)
         return !!result.rowCount
     }
