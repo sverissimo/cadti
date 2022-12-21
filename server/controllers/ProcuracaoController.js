@@ -52,7 +52,7 @@ class ProcuracaoController extends Controller {
 
     /** @override          */
     delete = async (req, res, next) => {
-        const { id } = req.query
+        const id = Number(req.query.id)
         if (!id) {
             return res.status(400).send('No id provided.')
         }

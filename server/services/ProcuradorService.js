@@ -34,13 +34,11 @@ class ProcuradorService {
     }
 
     /**
-     * @param {number[]} ids
+     * @param {any[]} procuradores
      * @param {number} codigoEmpresa
      * @returns {Promise<object[]|false>} procuradores | false
      */
-    static async removeProcuracao(ids, codigoEmpresa) {
-        const procuradorRepository = new ProcuradorRepository()
-        const procuradores = await procuradorRepository.find(ids)
+    static async removeProcuracao(procuradores, codigoEmpresa) {
 
         const updates = procuradores.map(({ procurador_id, empresas }) => {
             const updatedEmpresas = empresas.filter(e => e !== codigoEmpresa)
@@ -50,11 +48,13 @@ class ProcuradorService {
             }
         })
 
+        const procuradorRepository = new ProcuradorRepository()
         const result = await procuradorRepository.updateMany(updates)
-
         if (!result) {
             return false
         }
+
+        const ids = updates.map(({ procurador_id }) => procurador_id)
         const updatedProcuradores = await procuradorRepository.find(ids)
         return updatedProcuradores
     }
