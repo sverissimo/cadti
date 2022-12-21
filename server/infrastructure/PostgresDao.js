@@ -119,6 +119,7 @@ class PostgresDao {
         }
     }
 
+    /** @returns {Promise<boolean>} */
     updateMany = async (entityArray) => {
         try {
             let updateQuery = this.createUpdateQuery(entityArray)

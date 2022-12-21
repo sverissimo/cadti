@@ -25,9 +25,10 @@ class Repository {
     }
 
     /** Lista todos os objetos (rows) de uma tabela
-     * @returns {Promise<any[]>}
-     */
-    async list(filter) {
+    * @param {string} filter - filtro de permissões de usuário passado pela classe Controller.js
+    * @returns {Promise<any[]>} Objetos de uma tabela do DB
+    */
+    async list(filter = '') {
         try {
             const data = await this.entityManager.list(filter)
             return data
@@ -40,7 +41,7 @@ class Repository {
 
     /** Busca com base no id ou parâmetro informado
     * @param {string | object | Array<string | number>} filter - Id ou filtro (objeto key/value para servir de param para a busca ou array de ids)
-    * @returns {Promise<any[]>} Promise, collection
+    * @returns {Promise<any[]>} Array com registros do DB conforme filtro passado como parâmetro
     */
     async find(filter) {
         try {
@@ -54,7 +55,7 @@ class Repository {
 
     /**
      * @param {Object} entity
-     * @returns {Promise<number | string>}
+     * @returns {Promise<number | string>} ID do registro criado no DB.
      */
     async save(entity) {
         try {

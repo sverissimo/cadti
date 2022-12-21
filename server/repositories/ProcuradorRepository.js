@@ -1,5 +1,4 @@
 //@ts-check
-const { getUpdatedData } = require("../getUpdatedData")
 const { ProcuradorDaoImpl } = require("../infrastructure/ProcuradorDaoImpl")
 const { Repository } = require("./Repository")
 
@@ -10,18 +9,15 @@ class ProcuradorRepository extends Repository {
         this.entityManager = new ProcuradorDaoImpl()
     }
 
+    /**
+     * @override
+     * @param {object} empresas :number[], role: string
+     * @returns {Promise<object[]>} Retorna os procuradores criados.
+     */
     async list({ empresas, role }) {
         try {
-            let condition = ''
-            let emps = ''
-            if (empresas && empresas[0] && role === 'empresa') {
-                condition = `WHERE procuradores.procurador_id = 0`
-                empresas.forEach(e => emps += ` or ${e} = ANY(procuradores.empresas)`)
-                condition += emps
-            }
-
-            const data = await getUpdatedData('procuradores', condition)
-            return data
+            const procuradores = await this.entityManager.list({ empresas, role })
+            return procuradores
         } catch (error) {
             console.log({ error: error.message })
             throw new Error(error.message)
@@ -34,7 +30,7 @@ class ProcuradorRepository extends Repository {
      */
     async saveMany(procuradores) {
         try {
-            const savedProcuradores = await new ProcuradorDaoImpl().saveManyProcuradores(procuradores)
+            const savedProcuradores = await this.entityManager.saveMany(procuradores)
             return savedProcuradores
         } catch (error) {
             throw new Error(error.message)
@@ -43,11 +39,11 @@ class ProcuradorRepository extends Repository {
 
     /**
      * @param {object[]} procuradores
-     * @returns
+     * @returns {Promise<boolean>}
      */
     async updateMany(procuradores) {
         try {
-            const result = await new ProcuradorDaoImpl().updateManyProcuradores(procuradores)
+            const result = await this.entityManager.updateManyProcuradores(procuradores)
             return result
         } catch (error) {
             throw new Error(error)

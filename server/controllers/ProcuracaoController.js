@@ -1,25 +1,13 @@
 //@ts-check
 const { request, response } = require('express')
 const { Controller } = require('./Controller')
-const { Repository } = require('../repositories/Repository')
 const { ProcuracaoService } = require('../services/ProcuracaoService')
 const { CustomSocket } = require('../sockets/CustomSocket')
 
 class ProcuracaoController extends Controller {
 
-    /**
-    * @property table - nome da tabela vinculada à entidade
-    * @type {string}     */
-    table = 'procuracoes'
-
-    /**
-     * @property primaryKey - nome da coluna referente ao ID da tabela
-     * @type {string}     */
-    primaryKey = 'procuracao_id'
-
     constructor() {
-        super()
-        this.repository = new Repository(this.table, this.primaryKey)
+        super('procuracoes', 'procuracao_id')
     }
 
     /**

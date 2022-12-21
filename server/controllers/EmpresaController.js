@@ -1,20 +1,14 @@
 //@ts-check
 const { request, response } = require("express")
+const { CustomSocket } = require("../sockets/CustomSocket")
 const { Controller } = require("./Controller")
 const { Repository } = require("../repositories/Repository")
-const { CustomSocket } = require("../sockets/CustomSocket")
 const { EmpresaService } = require("../services/EmpresaService")
 
 class EmpresaController extends Controller {
 
-    table = 'empresas'
-    primaryKey = 'codigo_empresa'
-
-    constructor(table, primaryKey, repository) {
-        super()
-        this.table = this.table || table
-        this.primaryKey = this.primaryKey || primaryKey
-        this.repository = repository || new Repository(this.table, this.primaryKey)
+    constructor() {
+        super('empresas', 'codigo_empresa')
     }
 
     /**

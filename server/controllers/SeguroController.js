@@ -1,18 +1,15 @@
 //@ts-check
 const { request, response } = require("express")
 const { Controller } = require("./Controller")
-const { Repository } = require("../repositories/Repository")
 const { SeguroService } = require("../services/SeguroService")
 const { CustomSocket } = require("../sockets/CustomSocket")
+const { Repository } = require("../repositories/Repository")
 
 class SeguroController extends Controller {
 
-    constructor(repository) {
-        super()
-        this.table = 'seguros'
-        this.primaryKey = 'id'
-        this.repository = repository || new Repository(this.table, this.primaryKey)
-    }
+    table = 'seguros'
+    primaryKey = 'id'
+    repository = new Repository(this.table, this.primaryKey)
 
     /**
      * @param {request} req

@@ -5,10 +5,6 @@ const { Controller } = require("./Controller");
 
 class SocioController extends Controller {
 
-    table = 'socios'
-    primaryKey = 'socio_id'
-    event = 'insertSocios'
-
     constructor() {
         super('socios', 'socio_id')
     }

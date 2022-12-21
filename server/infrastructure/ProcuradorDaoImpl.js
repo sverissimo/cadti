@@ -1,5 +1,6 @@
 //@ts-check
 const format = require("pg-format")
+const { getUpdatedData } = require("../getUpdatedData")
 const PostgresDao = require("./PostgresDao")
 
 class ProcuradorDaoImpl extends PostgresDao {
@@ -11,10 +12,29 @@ class ProcuradorDaoImpl extends PostgresDao {
     }
 
     /**
-     * @param {any[]} procuradores
-     * @returns {Promise<object[]>}
-     */
-    saveManyProcuradores = async (procuradores) => {
+    * @override
+    * @param {object} empresas :number[], role: string
+    * @returns {Promise<object[]>} Retorna os procuradores criados.
+    */
+    list = async ({ empresas, role }) => {
+        let condition = ''
+        let emps = ''
+        if (empresas && empresas[0] && role === 'empresa') {
+            condition = `WHERE procuradores.procurador_id = 0`
+            empresas.forEach(e => emps += ` or ${e} = ANY(procuradores.empresas)`)
+            condition += emps
+        }
+
+        const data = await getUpdatedData('procuradores', condition)
+        return data
+    }
+
+    /**
+    * @override
+    * @param {any[]} procuradores
+    * @returns {Promise<object[]>} savedProcuradores
+    */
+    saveMany = async (procuradores) => {
         const parseEmpresas = e => JSON.stringify(e)
             .replace('[', '{')
             .replace(']', '}')
@@ -30,9 +50,9 @@ class ProcuradorDaoImpl extends PostgresDao {
     }
 
     /**
-     * @param {object[]} procuradores
-     * @returns
-     */
+    * @param {object[]} procuradores
+    * @returns
+    */
     updateManyProcuradores = async procuradores => {
         const parsedProcuradores = procuradores.map(procurador => {
             procurador.empresas = JSON.stringify(procurador.empresas)

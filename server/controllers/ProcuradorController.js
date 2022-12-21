@@ -1,9 +1,8 @@
 //@ts-check
-const userSockets = require("../auth/userSockets");
 const { Controller } = require("./Controller");
+const { CustomSocket } = require("../sockets/CustomSocket");
 const ProcuradorRepository = require("../repositories/ProcuradorRepository");
 const insertEmpresa = require("../users/insertEmpresa");
-const { CustomSocket } = require("../sockets/CustomSocket");
 
 class ProcuradorController extends Controller {
 
@@ -13,28 +12,28 @@ class ProcuradorController extends Controller {
 
     constructor() {
         super('procuradores', 'procurador_id');
+        this.repository = new ProcuradorRepository()
     }
 
     /** @override */
     list = async (req, res, next) => {
         try {
             const { empresas, role } = req.user && req.user
-            const procuradores = await new ProcuradorRepository().list({ empresas, role });
+            const procuradores = await this.repository.list({ empresas, role });
             res.send(procuradores)
-
         } catch (e) {
             next(e)
         }
     }
 
     /**
-     * Recebe um objeto com array de procuradores e codigoEmpresa no request.body e retorna uma array de IDs
-     * @returns {Promise<(number[]| undefined)>}
-     * */
+     * Recebe um objeto com array de procuradores e codigoEmpresa no request.body
+     * @returns {Promise<(number[]| undefined)>} IDs dos procuradores salvos
+     */
     saveMany = async (req, res, next) => {
         try {
             const { procuradores, codigoEmpresa } = req.body
-            const savedProcuradores = await new ProcuradorRepository().saveMany(procuradores)
+            const savedProcuradores = await this.repository.saveMany(procuradores)
             const io = req.app.get('io')
             const socket = new CustomSocket(io, this.table)
             socket.emit('insertElements', savedProcuradores, codigoEmpresa)
@@ -52,7 +51,7 @@ class ProcuradorController extends Controller {
             return res.status(400).send('Nothing to update...')
         }
         try {
-            const result = await new ProcuradorRepository().updateMany(procuradores)
+            const result = await this.repository.updateMany(procuradores)
             if (!result) {
                 return res.status(404).send('Resource not found.')
             }
@@ -73,8 +72,6 @@ class ProcuradorController extends Controller {
             next(error)
         }
     }
-
-
 }
 
 module.exports = ProcuradorController

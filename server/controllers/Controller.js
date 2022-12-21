@@ -16,10 +16,12 @@ const { parseRequestBody } = require("../utils/parseRequest");
  */
 class Controller {
     /**
-     * @property {} table @type {string}     */
+     * @property {} table - nome da tabela no DB vinculada à entidade
+     * @type {string}     */
     table;
     /**
-     * @property {} primaryKey @type {string}     */
+     * @property {} primaryKey - nome da coluna referente ao ID da tabela
+     * @type {string}     */
     primaryKey;
     /**
      * @property {} socketEvent @type {string}     */
@@ -49,6 +51,7 @@ class Controller {
      * @returns {Promise<any>}
      */
     list = async (req, res, next) => {
+        // filtro de permissões de usuário fornecido pelo middleware getRequestFilter.js
         const { filter } = res.locals
 
         if (req.params.id || Object.keys(req.query).length) {

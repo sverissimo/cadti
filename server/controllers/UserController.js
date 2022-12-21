@@ -1,9 +1,7 @@
 //@ts-check
 const { UserService } = require("../services/UserService");
-const { Controller } = require("./Controller");
 
-class UserController extends Controller {
-
+class UserController {
 
     getUsers = async (req, res, next) => {
         try {
