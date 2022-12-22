@@ -14,6 +14,7 @@ const { parseRequestBody } = require("../utils/parseRequest");
 /**Classe parent de controlador para os requests de acesso ao banco de dados Postgresql.
  * @class
  */
+//REFACTOR ADD ELEMENT/DELETE / USAGE OF POOL, USER SOCKETS ETC
 class Controller {
     /**
      * @property {} table - nome da tabela no DB vinculada à entidade
@@ -52,13 +53,13 @@ class Controller {
      */
     list = async (req, res, next) => {
         // filtro de permissões de usuário fornecido pelo middleware getRequestFilter.js
-        const { filter } = res.locals
+        const { userSQLFilter } = res.locals
 
         if (req.params.id || Object.keys(req.query).length) {
             return this.find(req, res, next)
         }
         try {
-            const collection = await this.repository.list(filter)
+            const collection = await this.repository.list(userSQLFilter)
             res.status(200).json(collection)
         } catch (e) {
             console.log(e.name + ': ' + e.message)
@@ -72,10 +73,26 @@ class Controller {
      * @returns {Promise<any>}
      */
     async find(req, res, next) {
-        const filter = req.params.id || req.query
+        const { noGetFilterRequired, empresasAllowed } = res.locals
+        const queryFilter = req.params.id || req.query || res.locals.paramsID
         try {
-            const entity = await this.repository.find(filter)
-            return res.status(200).json(entity)
+            const entities = await this.repository.find(queryFilter)
+            if (noGetFilterRequired) {
+                return res.json(entities)
+            }
+
+            const filteredEntities = entities.filter(el => {
+                if (empresasAllowed.includes(el.codigo_empresa)) {
+                    return true
+                }
+                else if (Array.isArray(el.empresas)) {
+                    return empresasAllowed.some(allowed => el.empresas.includes(allowed))
+                }
+            })
+            filteredEntities.length ?
+                res.json(filteredEntities)
+                :
+                res.status(404).send('Registro não encontrado.')
         } catch (error) {
             next(error)
         }
@@ -132,23 +149,22 @@ class Controller {
 
     async save(req, res, next) {
         const { user } = req
-        if (user.role !== 'admin')
+        if (user.role !== 'admin') {
             return res.status(403).send('É preciso permissão de administrador para acessar essa parte do cadTI.')
+        }
 
         try {
             const id = await this.repository.save(req.body)
-            res.status(201).json(id)
-
             const io = req.app.get('io')
             const socket = new CustomSocket(io, this.table)
             const createdEntity = await this.repository.find(id)
             const { codigo_empresa } = createdEntity[0]
 
             socket.emit('insertElements', createdEntity, codigo_empresa)
+            res.status(201).json(id)
         } catch (error) {
             next(error)
         }
-
     }
 
     /**
@@ -164,8 +180,7 @@ class Controller {
         }
 
         try {
-            const repository = new Repository(this.table, this.primaryKey)
-            const result = await repository.update(req.body)
+            const result = await this.repository.update(req.body)
             if (!result) {
                 return res.status(404).send('Não foi encontrado nenhum registro na base de dados para atualização.')
             }
@@ -178,7 +193,8 @@ class Controller {
 
             const io = req.app.get('io')
             const socket = new CustomSocket(io, this.table)
-            const updates = await repository.find(filter)
+            const updates = await this.repository.find(filter)
+            console.log("🚀 ~ file: Controller.js:181 ~ Controller ~ update= ~ updates", updates)
 
             socket.emit('updateAny', updates, codigo_empresa, this.primaryKey)
             res.status(204).end()

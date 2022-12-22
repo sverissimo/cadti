@@ -5,6 +5,7 @@ const VeiculoRepository = require("../repositories/VeiculoRepository")
 
 class SeguroService {
 
+    /** @returns {Promise<object>} updatedInsurance, updatedVehicles */
     static updateInsurance = async ({ update, vehicleIds, deletedVehicleIds }) => {
         const seguroDao = new SeguroDaoImpl()
         const veiculoRepository = new VeiculoRepository()

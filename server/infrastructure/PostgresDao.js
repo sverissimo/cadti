@@ -59,6 +59,7 @@ class PostgresDao {
             [[key, value]] = Object.entries(filter)
             condition = `WHERE ${this.table}.${key} = '${value}'`
             value = undefined
+            console.log("🚀 ~ file: PostgresDao.js:62 ~ PostgresDao ~ find ~ condition", condition)
         }
         else {
             value = [filter]

@@ -5,10 +5,16 @@ const userSockets = require('../auth/userSockets')
 const { Controller } = require('./Controller')
 const oldVehiclesModel = require('../mongo/models/oldVehiclesModel')
 const { VeiculoService } = require('../services/VeiculoService')
+const { CustomSocket } = require('../sockets/CustomSocket')
 
 /** @class */
+//REFACTOR SOCKETS, CONSTRUCTOR ETC
 class VeiculoController extends Controller {
 
+    constructor() {
+        super('veiculos', 'veiculo_id')
+        this.repository = new VeiculoRepository()
+    }
     /**
      * @param {request} req
      * @param {response} res
@@ -16,62 +22,24 @@ class VeiculoController extends Controller {
      */
     async create(req, res, next) {
         const veiculo = req.body
+        const { codigo_empresa: codigoEmpresa } = veiculo
         try {
-            const veiculoRepository = new VeiculoRepository()
-            const exists = await veiculoRepository.find({ placa: veiculo.placa })
+            const exists = await this.repository.find({ placa: veiculo.placa })
 
             if (exists.length) {
                 return res.status(409).send('A placa informada já está cadastrada no sistema.')
             }
 
-            const veiculoId = await veiculoRepository.create(veiculo)
-            const condition = `WHERE veiculos.veiculo_id = '${veiculoId}'`
+            const veiculoId = await this.repository.create(veiculo)
+            const io = req.app.get('io')
+            const veiculoSocket = new CustomSocket(io, this.table)
+            const updatedVeiculo = await this.repository.find(veiculoId)
 
-            //@ts-ignore
-            //Atualiza os dados no frontEnd por meio de webSockets
-            userSockets({
-                req,
-                table: 'veiculos',
-                event: 'insertVehicle',
-                condition,
-                veiculo_id: veiculoId,
-                noResponse: true
-            })
-
-            res.status(201).send(String(veiculoId))
+            veiculoSocket.emit('insertElements', updatedVeiculo, codigoEmpresa)
+            res.status(201).json(veiculoId)
         } catch (error) {
             next(error)
         }
-    }
-
-    /**
-     * @override
-     * @param {request} req
-     * @param {response} res
-     * @returns {Promise<void | res>}
-     */
-    update = async (req, res, next) => {
-        const veiculoRepository = new VeiculoRepository()
-        const { codigoEmpresa, ...veiculo } = req.body
-        const condition = `WHERE veiculos.veiculo_id = '${req.body.veiculo_id}'`
-
-        if (Object.keys(veiculo).length <= 1) {
-            return res.status(409).send('Nothing to update...')
-        }
-
-        try {
-            const exists = await veiculoRepository.find(req.body.veiculo_id)
-            if (!exists.length) {
-                return res.status(409).send('Veículo não cadastrado na base de dados.')
-            }
-
-            const veiculoId = await veiculoRepository.update(veiculo)
-            res.send(JSON.stringify(veiculoId))
-        } catch (error) {
-            next(error)
-        }
-        //@ts-ignore
-        userSockets({ req, noResponse: true, table: 'veiculos', condition, event: 'updateVehicle' })
     }
 
     getAllVehicles = async (req, res, next) => {

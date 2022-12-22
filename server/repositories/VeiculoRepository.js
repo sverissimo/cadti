@@ -8,6 +8,7 @@ const { Repository } = require("./Repository")
 class VeiculoRepository extends Repository {
 
     constructor() {
+        //super('veiculos', 'veiculo_id')
         super()
         this.entityManager = new VeiculoDaoImpl()
     }
@@ -17,21 +18,7 @@ class VeiculoRepository extends Repository {
      */
     async create(vehicle) {
         try {
-            const veiculoId = await new VeiculoDaoImpl().save(vehicle)
-            return veiculoId
-        } catch (error) {
-            throw new Error(error.message)
-        }
-    }
-
-    /**
-     * @override
-     * @param {Object} vehicle
-     * @returns {Promise<string>}
-     */
-    async update(vehicle) {
-        try {
-            const veiculoId = await new VeiculoDaoImpl().update(vehicle)
+            const veiculoId = await this.entityManager.save(vehicle)
             return veiculoId
         } catch (error) {
             throw new Error(error.message)

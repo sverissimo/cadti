@@ -1,6 +1,5 @@
 //@ts-check
 const router = require('express').Router()
-const getRequestFilter = require('../utils/getRequestFilter')
 const alertRoutes = require('../alerts/alertRoutes')
 const { empresaRoutes } = require('./empresaRoutes')
 const { procuradorRoutes } = require('./procuradorRoutes')
@@ -33,9 +32,6 @@ router.route('/logs')
 router.use('/avisos', alertRoutes)
 router.use('/users', userRoutes)
 router.use('/parametros', parametros)
-
-//Middleware qua define a tabela e cria filtros para os SQL queries conforme permissões de usuário
-router.use(getRequestFilter)
 router.use(/\/veiculos|\/\w+Vehicle(\w+)?|\/baixaVeiculo|\/updateInsurances/, veiculoRoutes)
 
 empresaRoutes(router)
@@ -46,11 +42,19 @@ socioRoutes(router)
 
 router.get('/lookUpTable/:table', lookup);
 
-const routes = 'modelosChassi|carrocerias|equipamentos|seguradoras|empresasLaudo|laudos|acessibilidade|compartilhados'
+const routes = /modelosChassi|carrocerias|equipamentos|seguradoras|empresasLaudo|laudos|acessibilidade|compartilhados|zyz/
 router.get(`/${routes}/:id`, (req, res, next) => {
-    const { table } = res.locals //assigned on getRequestFilter.js
-    const controller = new Controller(table)
 
+    //    let [_, table, id] = req.path.split('/')
+
+    let table = req.path.split('/')[1]
+    //REFACTOR!!!!
+    if (table === 'seguradoras') {
+        table = table.slice(0, -1)
+    }
+
+    req.params.id = req.path.split('/')[2]
+    const controller = new Controller(table, 'id')
     controller.list(req, res, next)
 })
 
@@ -63,7 +67,6 @@ router.put('/editElements', (req, res, next) => {
     const { table, tablePK: primaryKey, update } = req.body
     const controller = new Controller(table, primaryKey)
     req.body = update
-
     return controller.update(req, res, next)
 })
 

@@ -13,7 +13,6 @@ class VeiculoDaoImpl extends PostgresDao {
     /**@override */
     update = async (reqBody) => {
         const { veiculo_id, ...requestObject } = reqBody
-
         if (!veiculo_id) {
             throw new Error('Must have a veiculo_id param to perform update in this implementation - VeiculoDaoImpl.js')
         }
@@ -23,26 +22,22 @@ class VeiculoDaoImpl extends PostgresDao {
         let query = ''
 
         Object.entries(requestObject).forEach(([k, v]) => {
-            if (k === 'equipamentos_id' || k === 'acessibilidade_id')
+            if (k === 'equipamentos_id' || k === 'acessibilidade_id') {
                 query += `${k} = '${JSON.stringify(v)}'::json, `
-
-            else if (k === 'compartilhado_id' && v === 'NULL')
+            } else if (k === 'compartilhado_id' && v === 'NULL') {
                 query += `${k} = NULL, `
-
-            else
+            } else {
                 query += `${k} = '${v}', `
+            }
         })
 
         query = `UPDATE veiculos SET ` + query.slice(0, query.length - 2)
-        query = query + condition + ` RETURNING veiculos.veiculo_id`
-
+        query = query + condition
         try {
             await client.query('BEGIN')
-            const res = await client.query(query)
-            const veiculoId = res.rows[0].veiculo_id
-
+            const result = await client.query(query)
             await client.query('COMMIT')
-            return veiculoId
+            return !!result.rowCount
         } catch (error) {
             await client.query('ROLLBACK')
             throw new Error(error.message)

@@ -6,10 +6,6 @@ const insertEmpresa = require("../users/insertEmpresa");
 
 class ProcuradorController extends Controller {
 
-    table = 'procuradores'
-    primaryKey = 'procurador_id'
-    webSocketEvent = 'insertProcuradores'
-
     constructor() {
         super('procuradores', 'procurador_id');
         this.repository = new ProcuradorRepository()

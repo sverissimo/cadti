@@ -394,7 +394,7 @@ class AltDados extends Component {
         tempObj = Object.assign(tempObj, { compartilhadoId, pbt, equipamentosId, acessibilidadeId })
 
         if (demand && getUpdatedValues)
-            tempObj = getUpdatedValues(originalVehicle, tempObj)  //Save only real changes to the request Object (method from setDemand())        
+            tempObj = getUpdatedValues(originalVehicle, tempObj)  //Save only real changes to the request Object (method from setDemand())
 
         //remove invalid fields for update
         let { delegatario, compartilhado, ...camelizedRequest } = tempObj
@@ -418,10 +418,6 @@ class AltDados extends Component {
             info += `\n\n Nº Documento Arrecadação Estadual: ${numeroDae}`
 
         //******************GenerateLog********************** */
-        const requestObject = humps.decamelizeKeys(camelizedRequest)
-        requestObject.codigoEmpresa = codigoEmpresa
-        requestObject.veiculoId = veiculoId
-
         let
             history = {
                 alteracoes: camelizedRequest,
@@ -446,6 +442,9 @@ class AltDados extends Component {
 
         //*********************if approved, putRequest to update DB  ********************** */
         if (demand && approved && !showPendencias) {
+            const requestObject = humps.decamelizeKeys(camelizedRequest)
+            requestObject.codigo_empresa = codigoEmpresa
+            requestObject.veiculo_id = veiculoId
 
             if (selectedEmpresa.codigoEmpresa !== codigoEmpresa)
                 requestObject.apolice = 'Seguro não cadastrado'
