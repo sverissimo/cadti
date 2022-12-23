@@ -47,7 +47,7 @@ export const configVehicleForm = [
         field: 'seguradora',
         label: 'Seguradoras',
         name: 'seguradora',
-        table: 'seguradora'
+        table: 'seguradoras'
     },
     {
         collection: 'empresasLaudo',

@@ -96,7 +96,7 @@ const fieldParser = [
         column: 'seguradora',
         label: 'Seguradoras',
         name: 'seguradora',
-        table: 'seguradora'
+        table: 'seguradoras'
     },
     {
         collection: 'laudos',

@@ -45,15 +45,10 @@ router.get('/lookUpTable/:table', lookup);
 const routes = /modelosChassi|carrocerias|equipamentos|seguradoras|empresasLaudo|laudos|acessibilidade|compartilhados|zyz/
 router.get(`/${routes}/:id`, (req, res, next) => {
 
-    //    let [_, table, id] = req.path.split('/')
-
-    let table = req.path.split('/')[1]
-    //REFACTOR!!!!
-    if (table === 'seguradoras') {
-        table = table.slice(0, -1)
-    }
-
-    req.params.id = req.path.split('/')[2]
+    const [_, table, id] = req.path.split('/')
+    req.params.id = id
+    /* let table = req.path.split('/')[1]
+    req.params.id = req.path.split('/')[2] */
     const controller = new Controller(table, 'id')
     controller.list(req, res, next)
 })

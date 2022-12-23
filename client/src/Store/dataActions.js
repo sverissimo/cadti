@@ -187,8 +187,6 @@ export const updateData = (dataFromServer, collection, id) => (dispatch, getStat
     const { equipamentos, acessibilidade } = getState().data
     if (collection === 'veiculos' && equipamentos && acessibilidade)
         data = idsToString(data, equipamentos, acessibilidade)
-    if (collection === 'seguradora')
-        collection = 'seguradoras'
 
     const payload = { collection, data, id }
 

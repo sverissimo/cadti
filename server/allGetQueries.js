@@ -1,16 +1,17 @@
+//@ts-check
 const veiculos = (condition = '') => `
-        SELECT veiculos.*,	
-            (extract(year from current_date) - ano_carroceria) as indicador_idade,   
+        SELECT veiculos.*,
+            (extract(year from current_date) - ano_carroceria) as indicador_idade,
             marca_chassi.marca as marca_chassi,
             modelo_chassi.modelo_chassi,
-            modelo_chassi.cmt,	
+            modelo_chassi.cmt,
             marca_carroceria.marca as marca_carroceria,
             modelo_carroceria.modelo as modelo_carroceria,
             empresas.razao_social as empresa,
             d2.razao_social as compartilhado,
-            seguradora.seguradora,
+            seguradoras.seguradora,
             seguros.data_emissao,
-            seguros.vencimento      
+            seguros.vencimento
         FROM veiculos
         LEFT JOIN public.modelo_chassi
             ON veiculos.modelo_chassi_id = public.modelo_chassi.id
@@ -26,9 +27,9 @@ const veiculos = (condition = '') => `
             ON veiculos.compartilhado_id = d2.codigo_empresa
         LEFT JOIN public.seguros
             ON veiculos.apolice = seguros.apolice
-        LEFT JOIN public.seguradora
-            ON public.seguradora.id = seguros.seguradora_id   
-        ${condition}        
+        LEFT JOIN public.seguradoras
+            ON public.seguradoras.id = seguros.seguradora_id
+        ${condition}
         ORDER BY veiculos.veiculo_id DESC
     `
 
@@ -44,7 +45,7 @@ const seguros = (condition = '') => `
             ON seguros.apolice = v.apolice
         LEFT JOIN empresas
             ON empresas.codigo_empresa = seguros.codigo_empresa
-        LEFT JOIN seguradora s
+        LEFT JOIN seguradoras s
             ON s.id = seguros.seguradora_id
             ${condition}
         GROUP BY seguros.apolice, empresas.razao_social, s.seguradora, empresas.codigo_empresa, seguros.id
@@ -53,16 +54,16 @@ const seguros = (condition = '') => `
 
 const socios = (condition = '') => `
         SELECT public.socios.*, public.empresas.razao_social
-            FROM public.socios 
-        LEFT JOIN public.empresas 
+            FROM public.socios
+        LEFT JOIN public.empresas
             ON empresas.codigo_empresa = socios.codigo_empresa OR socios.empresas like '%' || empresas.codigo_empresa || '%'
         ${condition}
         ORDER BY nome_socio ASC
         `
 
-const empresas = (condition = '') => ` 
+const empresas = (condition = '') => `
         SELECT empresas.*,
-            cardinality (array_remove(array_agg(v.veiculo_id), null)) frota			
+            cardinality (array_remove(array_agg(v.veiculo_id), null)) frota
         FROM public.empresas
         LEFT JOIN veiculos v
             ON v.codigo_empresa = empresas.codigo_empresa
@@ -72,7 +73,7 @@ const empresas = (condition = '') => `
         --ORDER BY codigo_empresa DESC
         `
 
-const compartilhados = (condition = 'WHERE situacao != \'Desativada\'') => ` 
+const compartilhados = (condition = 'WHERE situacao != \'Desativada\'') => `
         SELECT empresas.codigo_empresa, empresas.razao_social
         FROM public.empresas
         WHERE situacao != \'Desativada\'
@@ -90,19 +91,19 @@ const procuracoes = (condition = '') => `
 		LEFT JOIN empresas
 		ON empresas.codigo_empresa = procuracoes.codigo_empresa
 		${condition}
-        ORDER BY vencimento DESC      
+        ORDER BY vencimento DESC
 		`
 
-const seguradora = (condition = '') => `
-        SELECT * FROM public.seguradora
+const seguradoras = (condition = '') => `
+        SELECT * FROM public.seguradoras
         ${condition}
-        order by seguradora.seguradora asc
+        order by seguradoras.seguradora asc
         `
 
 const modeloChassi = (condition = '') => `
         SELECT modelo_chassi.*,
             public.marca_chassi.marca as marca
-        FROM modelo_chassi 
+        FROM modelo_chassi
         LEFT JOIN marca_chassi
             ON public.marca_chassi.id = public.modelo_chassi.marca_id
         ${condition}
@@ -130,77 +131,15 @@ const laudos = (condition = '') => `
 	LEFT JOIN veiculos v
 		ON v.veiculo_id = laudos.veiculo_id
     ${condition}
-    ORDER BY validade DESC 
+    ORDER BY validade DESC
 `
 
-const
-    acessibilidade = (condition = '') => `SELECT * FROM acessibilidade ${condition}`,
-    equipamentos = (condition = '') => `SELECT * FROM equipamentos ${condition}`,
-    seguradoras = (condition = '') => `SELECT * FROM seguradora ${condition}`,
-    empresasLaudo = (condition = '') => `SELECT * from empresa_laudo ${condition} ORDER BY id ASC `
+const acessibilidade = (condition = '') => `SELECT * FROM acessibilidade ${condition}`
+const equipamentos = (condition = '') => `SELECT * FROM equipamentos ${condition}`
+const empresasLaudo = (condition = '') => `SELECT * from empresa_laudo ${condition} ORDER BY id ASC `
 
 
 module.exports = {
-    empresas, socios, procuradores, procuracoes, veiculos, seguros, seguradora, laudos, empresasLaudo, compartilhados,
+    empresas, socios, procuradores, procuracoes, veiculos, seguros, laudos, empresasLaudo, compartilhados,
     acessibilidade, equipamentos, seguradoras, carrocerias, modelosChassi: modeloChassi
 }
-
-/* const veiculosMax = (condition = '') => `
-        SELECT veiculos.*,
-        (extract(year from current_date) - ano_carroceria) as indicador_idade,   
-        marca_chassi.marca as marca_chassi,
-        modelo_chassi.modelo_chassi,
-        modelo_chassi.cmt,
-        marca_carroceria.marca as marca_carroceria,
-        modelo_carroceria.modelo as modelo_carroceria,
-        empresas.razao_social as empresa,
-        d2.razao_social as compartilhado,
-        d2.codigo_empresa as codigo_compartilhado,
-        seguradora.seguradora,
-        seguros.data_emissao,
-        seguros.vencimento,
-        lau.id as numero_laudo,
-        elau.empresa as empresa_laudo,
-        lau.validade as vencimento_laudo
-        
-        FROM veiculos
-        LEFT JOIN public.modelo_chassi
-        ON veiculos.modelo_chassi_id = public.modelo_chassi.id
-        LEFT JOIN public.marca_chassi
-        ON modelo_chassi.marca_id = marca_chassi.id
-        LEFT JOIN public.modelo_carroceria
-        ON veiculos.modelo_carroceria_id = public.modelo_carroceria.id
-        LEFT JOIN public.marca_carroceria
-        ON public.marca_carroceria.id = public.modelo_carroceria.marca_id
-        LEFT JOIN public.empresas
-        ON veiculos.codigo_empresa = empresas.codigo_empresa       
-        LEFT JOIN public.empresas
-        ON veiculos.compartilhado_id = d2.codigo_empresa       		
-        LEFT JOIN public.seguros
-        ON veiculos.apolice = seguros.apolice
-        LEFT JOIN public.seguradora
-        ON public.seguradora.id = seguros.seguradora_id 
-        LEFT JOIN public.laudos lau
-        ON veiculos.veiculo_id = (				
-            SELECT lau.veiculo_id 
-            WHERE lau.validade = (
-                SELECT MAX(validade)
-                FROM laudos				
-                WHERE veiculos.veiculo_id = laudos.veiculo_id				
-            )				
-        ) 
-        LEFT JOIN public.empresa_laudo elau
-        ON elau.id = (
-            SELECT lau.empresa_id
-            WHERE lau.validade = (
-                SELECT MAX(validade)
-                FROM laudos				
-                WHERE veiculos.veiculo_id = laudos.veiculo_id				
-            )		
-            )			        
-        ${condition}
-        where ano_carroceria < 2006 and lau.validade is not null   
-        ORDER BY veiculos.veiculo_id DESC
-        limit 10     
-    `
- */
