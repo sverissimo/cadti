@@ -48,6 +48,28 @@ class VeiculoDaoImpl extends PostgresDao {
     }
 
     /**
+     * @typedef {object} ApoliceUpdate
+     * @property {string} apolice
+     * @property {number[]} vehicleIds
+     * @property {number[]} deletedVehicleIds
+     * @param {ApoliceUpdate} apoliceUpdate
+     */
+    updateVehiclesInsurance = async ({ apolice, vehicleIds, deletedVehicleIds }) => {
+        const addQueryHeader = `
+                                UPDATE veiculos
+                                SET apolice = '${apolice}'
+                                WHERE veiculo_id IN(${vehicleIds})`
+        const deleteQueryHeader = `
+                                UPDATE veiculos
+                                SET apolice = 'Seguro não cadastrado'
+                                WHERE veiculo_id IN(${deletedVehicleIds})`
+
+        const query = addQueryHeader + '; ' + deleteQueryHeader
+        const result = await pool.query(query)
+        return !!result.rowCount || Array.isArray(result) && result.some(r => !!r.rowCount)
+    }
+
+    /**
      * Busca por todos os veículos utilizados por uma empresa, seja próprio ou em compartilhado.
      * @param {number} codigoEmpresa
      * @param {any[]} seguros

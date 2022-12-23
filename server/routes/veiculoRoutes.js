@@ -38,6 +38,4 @@ router.route('/:id?')
         }
     })
 
-router.put('/api/updateInsurances', VeiculoService.updateInsurance) //REFACTOR
-
 module.exports = router

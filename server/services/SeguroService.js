@@ -2,6 +2,7 @@
 const { SeguroDaoImpl } = require("../infrastructure/SeguroDaoImpl")
 const segurosModel = require("../mongo/models/segurosModel")
 const VeiculoRepository = require("../repositories/VeiculoRepository")
+const { VeiculoService } = require("./VeiculoService")
 
 class SeguroService {
 
@@ -12,23 +13,10 @@ class SeguroService {
 
         try {
             const insuranceQueryResult = await seguroDao.update(update)
-            const vehiclesToUpdate = vehicleIds
-                .map(veiculo_id => ({
-                    veiculo_id,
-                    apolice: update.apolice,
-                }))
-                .filter(v => !!v.veiculo_id)
-            const vehiclesToRemoveInsurance = deletedVehicleIds
-                .map(veiculo_id => ({
-                    veiculo_id,
-                    apolice: 'Seguro não cadastrado'
-                }))
-                .filter(v => !!v.veiculo_id)
-
-            const vehicleUpdates = vehiclesToUpdate.concat(vehiclesToRemoveInsurance)
-            const vehicleQueryResult = await veiculoRepository.updateMany(vehicleUpdates)
-
-            let updatedInsurance, updatedVehicles
+            const { apolice } = update
+            const vehicleQueryResult = await VeiculoService.updateVehiclesInsurance({ apolice, vehicleIds, deletedVehicleIds })
+            let updatedInsurance
+            let updatedVehicles
 
             if (insuranceQueryResult) {
                 updatedInsurance = await seguroDao.find(update.id)
@@ -39,7 +27,11 @@ class SeguroService {
                 updatedVehicles = await veiculoRepository.find(allVehicleIds)
             }
 
-            return { updatedInsurance, updatedVehicles }
+            return {
+                updatedInsurance,
+                updatedVehicles
+            }
+
         } catch (error) {
             throw new Error(error)
         }

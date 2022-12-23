@@ -1,11 +1,9 @@
 const jwt = require('jsonwebtoken')
-const { setUserPermissions } = require('./setUserPermissions')
 
 const authToken = (req, res, next) => {
     if (req.headers.authorization === process.env.FILE_SECRET) {
         console.log('Alright, you may pass...')
         req.user = { role: 'admin' }
-        setUserPermissions(req, res, req.user)
         return next()
     }
 

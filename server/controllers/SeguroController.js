@@ -19,8 +19,10 @@ class SeguroController extends Controller {
     updateInsurance = async (req, res, next) => {
         const { update, vehicleIds, deletedVehicleIds } = req.body
         try {
+
             const updated = await SeguroService.updateInsurance({ update, vehicleIds, deletedVehicleIds })
             const { updatedInsurance, updatedVehicles } = updated
+            res.status(200).send('Seguro e veículos atualizados.')
             //@ts-ignore
             const codigoEmpresa = updatedInsurance.codigo_empresa || updatedVehicles.codigo_empresa
             const io = req.app.get('io')
@@ -35,7 +37,7 @@ class SeguroController extends Controller {
                 veiculoSocket.emit('updateAny', updatedVehicles, codigoEmpresa, 'veiculo_id',)
             }
 
-            return res.status(200).send('Seguro e veículos atualizados.')
+
         } catch (error) {
             next(error)
         }
