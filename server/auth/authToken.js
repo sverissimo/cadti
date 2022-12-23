@@ -33,9 +33,6 @@ const authToken = (req, res, next) => {
         }
 
         req.user = user
-        console.log("🚀 ~ file: authToken.js:35 ~ jwt.verify ~ req.user", req.user)
-
-        setUserPermissions(req, res, user)
         next()
     })
 }

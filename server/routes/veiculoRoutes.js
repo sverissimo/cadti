@@ -2,7 +2,7 @@
 const router = require('express').Router()
 const { VeiculoService } = require('../services/VeiculoService')
 const VeiculoController = require('../controllers/VeiculoController')
-const veiculoController = new VeiculoController('veiculos', 'veiculo_id')
+const veiculoController = new VeiculoController()
 
 router.route('/:id?')
     .get((req, res, next) => {

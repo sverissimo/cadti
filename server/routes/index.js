@@ -42,13 +42,11 @@ socioRoutes(router)
 
 router.get('/lookUpTable/:table', lookup);
 
-const routes = /modelosChassi|carrocerias|equipamentos|seguradoras|empresasLaudo|laudos|acessibilidade|compartilhados|zyz/
+const routes = /|modelosChassi|carrocerias|equipamentos|seguradoras|empresasLaudo|laudos|acessibilidade|compartilhados|/
 router.get(`/${routes}/:id`, (req, res, next) => {
 
     const [_, table, id] = req.path.split('/')
     req.params.id = id
-    /* let table = req.path.split('/')[1]
-    req.params.id = req.path.split('/')[2] */
     const controller = new Controller(table, 'id')
     controller.list(req, res, next)
 })

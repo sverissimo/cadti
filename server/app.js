@@ -11,6 +11,7 @@ const authToken = require('./auth/authToken')
 const taskManager = require('./taskManager/taskManager')
 const errorHandler = require('./utils/errorHandler')
 const { fileRouter: useFileRouter } = require('./routes/fileRoutes')
+const { setUserPermissions } = require('./auth/setUserPermissions')
 
 taskManager()
 dotenv.config()
@@ -27,6 +28,7 @@ if (process.env.NODE_ENV === 'production') {
 }
 app.use('/auth', authRouter)
 app.use(authToken)
+app.use(setUserPermissions)
 app.use('/api', router)
 app.use('/sync', dbSync)
 useFileRouter(app)

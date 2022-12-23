@@ -2,8 +2,8 @@
 
 const { fieldParser } = require("../utils/fieldParser")
 
-const setUserPermissions = async (req, res, user) => {
-    const { role, empresas } = user
+const setUserPermissions = async (req, res, next) => {
+    const { role, empresas } = req.user
     if (role === 'admin' || role === 'tecnico') {
         res.locals.noGetFilterRequired = true
     }
@@ -25,10 +25,6 @@ const setUserPermissions = async (req, res, user) => {
         //Verifica se a tabela necessita de filtro ou se é uma lookup table
         let table = req.path.split('/')[2]
 
-        if (table === 'seguradoras') {
-            table = table.slice(0, -1)
-        }
-
         const shouldApplyFilter = fieldParser.find(el => el.table === table && el.codigo_empresa)
 
         if (shouldApplyFilter) {
@@ -41,6 +37,7 @@ const setUserPermissions = async (req, res, user) => {
             empresasAllowed: empresas,
         }
     }
+    next()
 }
 
 module.exports = { setUserPermissions }

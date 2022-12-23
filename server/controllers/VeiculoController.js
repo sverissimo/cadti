@@ -1,14 +1,11 @@
 //@ts-check
 const { request, response } = require('express')
-const VeiculoRepository = require("../repositories/VeiculoRepository")
-const userSockets = require('../auth/userSockets')
 const { Controller } = require('./Controller')
-const oldVehiclesModel = require('../mongo/models/oldVehiclesModel')
 const { VeiculoService } = require('../services/VeiculoService')
+const VeiculoRepository = require("../repositories/VeiculoRepository")
+const oldVehiclesModel = require('../mongo/models/oldVehiclesModel')
 const { CustomSocket } = require('../sockets/CustomSocket')
 
-/** @class */
-//REFACTOR SOCKETS, CONSTRUCTOR ETC
 class VeiculoController extends Controller {
 
     constructor() {
