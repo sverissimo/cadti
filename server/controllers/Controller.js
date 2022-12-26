@@ -130,18 +130,14 @@ class Controller {
         }
     }
 
-    async checkIfExists(req, res, next) {
-        const { table, column, value } = req.query;
-
+    async checkIfExists(req, res) {
+        const { table, column, value } = req.query
         if (!table || !column || !value) {
             return res.status(400).send('Bad request, missing some params...')
         }
 
-        const query = `SELECT * FROM ${table} WHERE ${column} = '${value}'`;
-        const exists = await pool.query(query).catch(e => next(e))
-        const doesExist = exists.rows && exists.rows[0]
-
-        if (doesExist) {
+        const itemExists = await new Repository(table, column).checkIfExists({ column, value })
+        if (itemExists) {
             return res.send(true)
         }
         res.send(false)
@@ -214,8 +210,8 @@ class Controller {
         if (user.role !== 'admin' && collection !== 'procuracoes') {
             return res.status(403).send('É preciso permissão de administrador para acessar essa parte do cadTI.')
         }
-        if (!id) {
-            return res.status(400).send('No id provided.')
+        if (!id || table) {
+            return res.status(400).send('Bad request: ID or table missing.')
         }
 
         this.repository = new Repository(table, tablePK)

@@ -53,6 +53,17 @@ class Repository {
         }
     }
 
+    /** @returns {Promise<boolean>} */
+    async checkIfExists({ column, value }) {
+        try {
+            const searchResult = await this.entityManager.find({ [column]: value })
+            const itemExists = !!searchResult.length
+            return itemExists
+        } catch (error) {
+            throw new Error(error.message)
+        }
+    }
+
     /**
      * @param {Object} entity
      * @returns {Promise<number | string>} ID do registro criado no DB.
