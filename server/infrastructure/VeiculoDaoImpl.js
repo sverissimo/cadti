@@ -55,16 +55,23 @@ class VeiculoDaoImpl extends PostgresDao {
      * @param {ApoliceUpdate} apoliceUpdate
      */
     updateVehiclesInsurance = async ({ apolice, vehicleIds, deletedVehicleIds }) => {
-        const addQueryHeader = `
-                                UPDATE veiculos
-                                SET apolice = '${apolice}'
-                                WHERE veiculo_id IN(${vehicleIds})`
-        const deleteQueryHeader = `
-                                UPDATE veiculos
-                                SET apolice = 'Seguro não cadastrado'
-                                WHERE veiculo_id IN(${deletedVehicleIds})`
+        let addQuery = ''
+        let deleteQuery = ''
+        if (vehicleIds && vehicleIds.length) {
+            addQuery = `
+                                    UPDATE veiculos
+                                    SET apolice = '${apolice}'
+                                    WHERE veiculo_id IN(${vehicleIds});`
+        }
+        if (deletedVehicleIds && deletedVehicleIds.length) {
+            deleteQuery = `
+                                    UPDATE veiculos
+                                    SET apolice = 'Seguro não cadastrado'
+                                    WHERE veiculo_id IN(${deletedVehicleIds})`
+        }
 
-        const query = addQueryHeader + '; ' + deleteQueryHeader
+        const query = addQuery + deleteQuery
+        console.log("🚀 ~ file: VeiculoDaoImpl.js:68 ~ VeiculoDaoImpl ~ updateVehiclesInsurance= ~ query", query)
         const result = await pool.query(query)
         return !!result.rowCount || Array.isArray(result) && result.some(r => !!r.rowCount)
     }
