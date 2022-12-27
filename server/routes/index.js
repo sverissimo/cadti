@@ -56,7 +56,7 @@ router.get(`/${routes}/:id`, (req, res, next) => {
 router.get('/getOne', new Controller().getOne)
 router.get('/findMany', new Controller().findMany)
 router.get('/checkIfExists', new Controller().checkIfExists)
-router.post('/api/addElement', new Controller().addElement)
+router.post('/addElement', new Controller().addElement)
 router.put('/editElements', (req, res, next) => {
     const { table, tablePK: primaryKey, update } = req.body
     const controller = new Controller(table, primaryKey)
@@ -75,10 +75,12 @@ router.patch('/removeEmpresa', async (req, res) => {
 
 router.delete('/delete', requireSeinfra, (req, res, next) => {
     const { table } = req.query
-    if (table === 'procuradores')
+    if (table === 'procuradores') {
         return new ProcuradorController().delete(req, res, next)
-    if (table === 'socios')
+    }
+    if (table === 'socios') {
         return new SocioController().delete(req, res, next)
+    }
 
     new Controller().delete(req, res, next)
 })

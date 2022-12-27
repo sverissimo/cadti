@@ -2,8 +2,8 @@
 const ProcuradorRepository = require("../repositories/ProcuradorRepository");
 const { Repository } = require("../repositories/Repository");
 const { ProcuradorService } = require("./ProcuradorService");
-const { SocioService } = require("./SocioService");
 const { UserService } = require("./UserService");
+const { isSocio, hasOtherProcuracao } = require("./utilServices");
 
 
 class ProcuracaoService {
@@ -39,14 +39,14 @@ class ProcuracaoService {
             const procuradores = await procuradorRepository.find(procuradorIds)
 
             if (procuradores && procuradores.length > 0) {
-                const cpfsInOtherProcuracoes = await ProcuracaoService.hasOtherProcuracao({
+                const cpfsInOtherProcuracoes = await hasOtherProcuracao({
                     procuradores,
                     procuracoes,
                     codigoEmpresa
                 })
 
                 const cpfProcuradores = procuradores.map(p => p.cpf_procurador)
-                const cpfSocios = await SocioService.isSocio(cpfProcuradores)
+                const cpfSocios = await isSocio(cpfProcuradores)
                 const cpfsToKeep = [...cpfsInOtherProcuracoes, ...cpfSocios]
 
                 const cpfsToRemoveProcuracao = cpfProcuradores.filter(cpf_procurador => !cpfsInOtherProcuracoes.includes(cpf_procurador))
@@ -67,43 +67,6 @@ class ProcuracaoService {
         }
     }
 
-    /**
-     * @typedef CheckProcuracaoInput
-     * @property {any[]} procuradores
-     * @property {any[]} [procuracoes]
-     * @property {number} [codigoEmpresa]
-     * @param {CheckProcuracaoInput} checkProcuracaoInput
-     * @return {Promise<string[]>} cpfsToKeep
-     */
-    static async hasOtherProcuracao({ procuradores, procuracoes, codigoEmpresa }) {
-        if (!procuracoes || !procuracoes.length) {
-            procuracoes = await new Repository('procuracoes', 'procuracao_id').list()
-        }
-
-        const cpfsToKeep = []
-        procuradores.forEach(({ procurador_id, cpf_procurador }) => {
-            //@ts-ignore
-            const procuracoesWithThisProcurador = procuracoes
-                .filter(p => {
-                    let filterCondition = p.procuradores.includes(procurador_id)
-                    if (codigoEmpresa) {
-                        filterCondition = filterCondition && p.codigo_empresa === codigoEmpresa
-                    }
-
-                    return filterCondition
-                })
-
-            const hasOtherProcuracoes = codigoEmpresa ?
-                procuracoesWithThisProcurador.length >= 2
-                :
-                procuracoesWithThisProcurador.length >= 1
-
-            if (hasOtherProcuracoes) {
-                cpfsToKeep.push(cpf_procurador)
-            }
-        })
-        return cpfsToKeep
-    }
 }
 
 module.exports = { ProcuracaoService }

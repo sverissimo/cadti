@@ -40,9 +40,9 @@ class SocioController extends Controller {
             const ids = socios.map(s => s.socio_id)
             const updates = await this.repository.find(ids)
             const io = req.app.get('io')
-            const socket = new CustomSocket(io, this.table)
+            const socket = new CustomSocket(io, this.table, this.primaryKey)
 
-            socket.emit('updateAny', updates, codigoEmpresa, this.primaryKey)
+            socket.emit('updateAny', updates, codigoEmpresa)
             return res.status(204).end()
         } catch (error) {
             next(error)
@@ -50,7 +50,6 @@ class SocioController extends Controller {
     }
 
     saveMany = async (req, res, next) => {
-        console.log("🚀 ~ file: SocioController.js:61 ~ SocioController ~ saveMany ~ this", this)
         const { codigo_empresa, codigoEmpresa, socios } = req.body
         try {
             const ids = await SocioService.saveMany({
@@ -60,13 +59,37 @@ class SocioController extends Controller {
 
             const createdSocios = await this.repository.find(ids)
             const io = req.app.get('io')
-            const socket = new CustomSocket(io, this.table)
+            const socket = new CustomSocket(io, this.table, this.primaryKey)
 
             socket.emit('insertElements', createdSocios, codigoEmpresa)
             return res.status(201).send(ids)
         } catch (error) {
             next(error)
         }
+    }
+
+    /** @override */
+    delete = async (req, res, next) => {
+        const { user } = req
+        const { id, codigoEmpresa } = req.query
+        if (user.role !== 'admin') {
+            return res.status(403).send('É preciso permissão de administrador para acessar essa parte do cadTI.')
+        }
+        if (!id) {
+            return res.status(400).send('Bad request: ID or table missing.')
+        }
+
+        const result = await SocioService.deleteSocio(id, codigoEmpresa)
+            .catch(err => next(err))
+
+        if (!result) {
+            return res.status(404).send('No entry found.')
+        }
+
+        const io = req.app.get('io')
+        const socket = new CustomSocket(io, this.table, this.primaryKey)
+        socket.delete(id, codigoEmpresa)
+        return res.status(204).end()
     }
 }
 

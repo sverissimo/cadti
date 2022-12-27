@@ -1,4 +1,5 @@
 //@ts-check
+const { freeAccessTables } = require("../auth/freeAccessTables");
 
 class CustomSocket {
     /** @property {Array<string | number>} ids - Array de ids dos webSockets dos usuários conectados via wss.         */
@@ -10,62 +11,72 @@ class CustomSocket {
     /**
      * @param {any} io
      * @param {string} table
+     * @param {string} [primaryKey]
      */
-    constructor(io, table) {
+    constructor(io, table, primaryKey = 'id') {
         this.io = io
         this.ids = Object.keys(this.io.sockets.sockets)
         this.table = table
+        this.primaryKey = primaryKey
     }
 
     /**
-    * @param {'insertElements'|'addElements'|'updateAny'|'deleteOne'} event
+    * @param {'insertElements'|'addElements'|'updateAny'} event
     * @param {Object | any[]} data
-    * @param {string} [primaryKey]
     * @param {number | string} [codigoEmpresa ]
      */
-    emit(event, data, codigoEmpresa, primaryKey = 'id') {
+    emit(event, data, codigoEmpresa) {
         const formattedData = {
             data,
-            primaryKey,
+            primaryKey: this.primaryKey,
             collection: this.table,
         }
 
-        this.io.sockets
-            .to('admin')
-            .to('tecnico')
-            .emit(event, formattedData)
-
-        const authorizedUsers = this.getSocketRecipients(codigoEmpresa)
-        for (let user of authorizedUsers) {
-            this.io.sockets
-                .to(user)
-                .emit(event, formattedData)
+        if (!this._shouldFilterRecipients()) {
+            this.io.sockets.emit(event, data)
+            return
         }
+
+        const authorizedUsers = this._getSocketRecipients(codigoEmpresa)
+        this._filterAndEmitSockets({
+            event,
+            data: formattedData,
+            recipients: authorizedUsers,
+        })
     }
 
     /**
      * @param {string|number} id
-     * @param {string} primaryKey
      * @param {number} codigoEmpresa
      */
-    delete(id, primaryKey = 'id', codigoEmpresa) {
+    delete(id, codigoEmpresa) {
         const data = {
             id,
-            tablePK: primaryKey,
+            tablePK: this.primaryKey,
             collection: this.table,
         }
 
-        const authorizedUsers = this.getSocketRecipients(codigoEmpresa)
-        this.emitSockets({
+        if (!this._shouldFilterRecipients()) {
+            this.io.sockets.emit('deleteOne', data)
+            return
+        }
+
+        const authorizedUsers = this._getSocketRecipients(codigoEmpresa)
+        this._filterAndEmitSockets({
             data,
             event: 'deleteOne',
             recipients: authorizedUsers,
         })
     }
 
+    _shouldFilterRecipients() {
+        if (freeAccessTables.includes(this.table)) {
+            return false
+        }
+    }
 
     /** @param {string|number|undefined} codigoEmpresa */
-    getSocketRecipients(codigoEmpresa) {
+    _getSocketRecipients(codigoEmpresa) {
         const { sockets } = this.io.sockets
         const socketIds = Object.keys(sockets)
         const authorizedSockets = socketIds.filter(id => sockets[id].empresas
@@ -74,7 +85,7 @@ class CustomSocket {
         return authorizedSockets
     }
 
-    emitSockets({ event, recipients, data }) {
+    _filterAndEmitSockets({ event, recipients, data }) {
         this.io.sockets
             .to('admin')
             .to('tecnico')

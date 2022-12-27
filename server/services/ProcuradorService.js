@@ -1,11 +1,9 @@
 //@ts-check
 const ProcuradorRepository = require("../repositories/ProcuradorRepository")
-const { SocioService } = require("./SocioService")
 const { UserService } = require("./UserService")
+const { isSocio, hasOtherProcuracao } = require("./utilServices")
 
 class ProcuradorService {
-
-
     /**
      * @param {number[]} ids
      * @param {number} codigoEmpresa
@@ -65,7 +63,7 @@ class ProcuradorService {
      * @param {number} codigoEmpresa
      * @returns {Promise<string|boolean>} Mensagem de erro ou boolean
      */
-    static async deleteProcurador(id, codigoEmpresa, hasOtherProcuracao) {
+    static async deleteProcurador(id, codigoEmpresa) {
         const procuradorRepository = new ProcuradorRepository()
         const procuradorToDelete = await procuradorRepository.find(id)
         if (!procuradorToDelete.length) {
@@ -78,8 +76,8 @@ class ProcuradorService {
         }
 
         const { cpf_procurador } = procuradorToDelete[0]
-        const isSocio = await SocioService.isSocio(cpf_procurador)
-        if (!isSocio.length) {
+        const isAlsoSocio = await isSocio(cpf_procurador)
+        if (!isAlsoSocio.length) {
             const permissionUpdate = await UserService.removePermissions([cpf_procurador], codigoEmpresa)
             console.log("ProcuradorService.js:79 ~ deleteProcurador ~ permissionUpdate: ", permissionUpdate)
         }

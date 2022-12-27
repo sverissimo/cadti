@@ -20,15 +20,15 @@ class Controller {
      * @property {} table - nome da tabela no DB vinculada à entidade
      * @type {string}     */
     table;
+
     /**
      * @property {} primaryKey - nome da coluna referente ao ID da tabela
      * @type {string}     */
     primaryKey;
+
     /**
-     * @property {} socketEvent @type {string}     */
-    socketEvent;
-    /**
-     *  @property {} repository @type {Repository}     */
+     * @property {} repository
+     * @type {Repository}     */
     repository;
 
     /**
@@ -152,7 +152,7 @@ class Controller {
         try {
             const id = await this.repository.save(req.body)
             const io = req.app.get('io')
-            const socket = new CustomSocket(io, this.table)
+            const socket = new CustomSocket(io, this.table, this.primaryKey)
             const createdEntity = await this.repository.find(id)
             const { codigo_empresa } = createdEntity[0]
 
@@ -188,11 +188,10 @@ class Controller {
             }
 
             const io = req.app.get('io')
-            const socket = new CustomSocket(io, this.table)
+            const socket = new CustomSocket(io, this.table, this.primaryKey)
             const updates = await this.repository.find(filter)
-            console.log("🚀 ~ file: Controller.js:181 ~ Controller ~ update= ~ updates", updates)
 
-            socket.emit('updateAny', updates, codigo_empresa, this.primaryKey)
+            socket.emit('updateAny', updates, codigo_empresa)
             res.status(204).end()
         } catch (error) {
             next(error)
@@ -200,14 +199,10 @@ class Controller {
     }
 
     delete = async (req, res, next) => {
-
         const { user } = req
-        const { table, tablePK, codigoEmpresa } = req.query
-        //@ts-ignore
-        const { collection } = fieldParser.find(f => f.table === table)
-        let { id } = req.query
+        const { table, tablePK, id, codigoEmpresa } = req.query
 
-        if (user.role !== 'admin' && collection !== 'procuracoes') {
+        if (user.role !== 'admin') {
             return res.status(403).send('É preciso permissão de administrador para acessar essa parte do cadTI.')
         }
         if (!id || !table) {
@@ -218,23 +213,16 @@ class Controller {
         const result = await this.repository.delete(id)
             .catch(err => next(err))
 
-        if (result) {
-            const singleSocket = req.headers.referer && req.headers.referer.match('/veiculos/config')
-            if (singleSocket) {
-                const io = req.app.get('io')
-                io.sockets.emit('deleteOne', { id, tablePK, collection })
-            }
-            else {
-                id = id.replace(/\'/g, '')
-                deleteSockets({ req, noResponse: true, table, tablePK, event: 'deleteOne', id, codigoEmpresa })
-                const { cpf_socio, cpf_procurador } = req.query
-
-                if (table === 'socios' || table === 'procuradores')
-                    removeEmpresa({ representantes: [{ cpf_socio, cpf_procurador }], codigoEmpresa })
-            }
-            return res.send(`${id} deleted from ${table}`)
+        if (!result) {
+            return res.status(404).send('Not found')
         }
-        return res.status(404).send('Not found')
+
+        const io = req.app.get('io')
+        //@ts-ignore
+        const { collection } = fieldParser.find(f => f.table === table)
+        const socket = new CustomSocket(io, collection, tablePK)
+        socket.delete(id, codigoEmpresa)
+        return res.send(`${id} deleted from ${table}`)
     }
 
     addElement = (req, res, next) => {

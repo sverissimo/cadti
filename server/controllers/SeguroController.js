@@ -28,13 +28,13 @@ class SeguroController extends Controller {
             const io = req.app.get('io')
 
             if (updatedInsurance) {
-                const seguroSocket = new CustomSocket(io, this.table)
-                seguroSocket.emit('updateAny', updatedInsurance, codigoEmpresa, this.primaryKey)
+                const seguroSocket = new CustomSocket(io, this.table, this.primaryKey)
+                seguroSocket.emit('updateAny', updatedInsurance, codigoEmpresa)
             }
 
             if (updatedInsurance) {
-                const veiculoSocket = new CustomSocket(io, 'veiculos')
-                veiculoSocket.emit('updateAny', updatedVehicles, codigoEmpresa, 'veiculo_id',)
+                const veiculoSocket = new CustomSocket(io, 'veiculos', 'veiculo_id')
+                veiculoSocket.emit('updateAny', updatedVehicles, codigoEmpresa)
             }
 
 

@@ -33,7 +33,7 @@ class ProcuradorController extends Controller {
             const { procuradores, codigoEmpresa } = req.body
             const savedProcuradores = await this.repository.saveMany(procuradores)
             const io = req.app.get('io')
-            const socket = new CustomSocket(io, this.table)
+            const socket = new CustomSocket(io, this.table, this.primaryKey)
             socket.emit('insertElements', savedProcuradores, codigoEmpresa)
 
             const procuradoresId = savedProcuradores.map(p => p.procurador_id)
@@ -59,11 +59,11 @@ class ProcuradorController extends Controller {
             }
 
             const io = req.app.get('io')
-            const socket = new CustomSocket(io, this.table)
+            const socket = new CustomSocket(io, this.table, this.primaryKey)
             const ids = procuradores.map(p => p.procurador_id)
             const updates = await this.repository.find(ids)
 
-            socket.emit('updateAny', updates, codigoEmpresa, this.primaryKey)
+            socket.emit('updateAny', updates, codigoEmpresa)
 
             return res.status(204).end()
         } catch (error) {
@@ -81,9 +81,8 @@ class ProcuradorController extends Controller {
         if (!id) {
             return res.status(400).send('Bad request: ID or table missing.')
         }
-        //Injection para prevenir circular dependencies
-        const { hasOtherProcuracao } = ProcuracaoService
-        const result = await ProcuradorService.deleteProcurador(id, codigoEmpresa, hasOtherProcuracao)
+
+        const result = await ProcuradorService.deleteProcurador(id, codigoEmpresa)
             .catch(err => next(err))
 
         if (!result) {
@@ -93,15 +92,9 @@ class ProcuradorController extends Controller {
             return res.status(409).send(result)
         }
 
-        if (result === true) {
-            const io = req.app.get('io')
-            const socket = new CustomSocket(io, this.table)
-
-            socket.delete(id, 'procurador_id', codigoEmpresa)
-
-            //   deleteSockets({ req, noResponse: true, table, tablePK, event: 'deleteOne', id, codigoEmpresa })
-
-        }
+        const io = req.app.get('io')
+        const socket = new CustomSocket(io, this.table, this.primaryKey)
+        socket.delete(id, codigoEmpresa)
         return res.status(204).end()
     }
 }

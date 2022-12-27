@@ -29,7 +29,7 @@ class VeiculoController extends Controller {
 
             const veiculoId = await this.repository.create(veiculo)
             const io = req.app.get('io')
-            const veiculoSocket = new CustomSocket(io, this.table)
+            const veiculoSocket = new CustomSocket(io, this.table, this.primaryKey)
             const updatedVeiculo = await this.repository.find(veiculoId)
 
             veiculoSocket.emit('insertElements', updatedVeiculo, codigoEmpresa)

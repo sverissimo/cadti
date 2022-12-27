@@ -26,10 +26,10 @@ class ProcuracaoController extends Controller {
             const savedProcuracao = [{ procuracao_id: procuracaoId, ...procuracao }]
 
             const io = req.app.get('io')
-            const procuradorSocket = new CustomSocket(io, 'procuradores')
-            const procuracaoSocket = new CustomSocket(io, 'procuracoes')
+            const procuracaoSocket = new CustomSocket(io, this.table, this.primaryKey)
+            const procuradorSocket = new CustomSocket(io, 'procuradores', 'procurador_id')
 
-            procuradorSocket.emit('updateAny', procuradores, codigoEmpresa, 'procurador_id')
+            procuradorSocket.emit('updateAny', procuradores, codigoEmpresa)
             procuracaoSocket.emit('insertElements', savedProcuracao, codigoEmpresa)
             res.status(201).send(JSON.stringify(procuracaoId))
 
@@ -53,11 +53,11 @@ class ProcuracaoController extends Controller {
         }
 
         const io = req.app.get('io')
-        const procuracaoSocket = new CustomSocket(io, this.table)
-        const procuradorSocket = new CustomSocket(io, 'procuradores')
+        const procuracaoSocket = new CustomSocket(io, this.table, this.primaryKey)
+        const procuradorSocket = new CustomSocket(io, 'procuradores', 'procurador_id')
 
-        procuracaoSocket.delete(id, 'procuracao_id', codigoEmpresa)
-        procuradorSocket.emit('updateAny', procuradores, codigoEmpresa, 'procurador_id')
+        procuracaoSocket.delete(id, codigoEmpresa)
+        procuradorSocket.emit('updateAny', procuradores, codigoEmpresa)
         res.send(`${id} deleted from ${this.table}`)
     }
 }
