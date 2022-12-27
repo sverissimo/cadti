@@ -49,7 +49,8 @@ class SocioController extends Controller {
         }
     }
 
-    async saveMany(req, res, next) {
+    saveMany = async (req, res, next) => {
+        console.log("🚀 ~ file: SocioController.js:61 ~ SocioController ~ saveMany ~ this", this)
         const { codigo_empresa, codigoEmpresa, socios } = req.body
         try {
             const ids = await SocioService.saveMany({

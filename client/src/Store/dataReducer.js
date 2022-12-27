@@ -28,6 +28,7 @@ const dataReducer = (state = {}, action) => {
 
         case 'UPDATE_DATA': {
             const { collection, data, id } = payload
+            console.log("🚀 ~ file: dataReducer.js:31 ~ dataReducer ~ payload", payload)
 
             if (state[collection] && data) {
                 const update = state[collection].map(v => {

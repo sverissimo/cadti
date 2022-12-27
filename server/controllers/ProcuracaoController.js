@@ -56,7 +56,7 @@ class ProcuracaoController extends Controller {
         const procuracaoSocket = new CustomSocket(io, this.table)
         const procuradorSocket = new CustomSocket(io, 'procuradores')
 
-        procuracaoSocket.delete(id, 'procuracao_id')
+        procuracaoSocket.delete(id, 'procuracao_id', codigoEmpresa)
         procuradorSocket.emit('updateAny', procuradores, codigoEmpresa, 'procurador_id')
         res.send(`${id} deleted from ${this.table}`)
     }

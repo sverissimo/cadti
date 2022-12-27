@@ -210,7 +210,7 @@ class Controller {
         if (user.role !== 'admin' && collection !== 'procuracoes') {
             return res.status(403).send('É preciso permissão de administrador para acessar essa parte do cadTI.')
         }
-        if (!id || table) {
+        if (!id || !table) {
             return res.status(400).send('Bad request: ID or table missing.')
         }
 

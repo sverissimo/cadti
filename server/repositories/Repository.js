@@ -105,7 +105,7 @@ class Repository {
 
     /**
      * @param {string|number} id
-     * @returns {Promise<boolean>}
+     * @returns {Promise<boolean>} result (boolean)
      */
     async delete(id) {
         try {

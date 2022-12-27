@@ -1,5 +1,6 @@
 //@ts-check
 const { SocioDaoImpl } = require("../infrastructure/SocioDaoImpl")
+const { Repository } = require("../repositories/Repository")
 const insertEmpresa = require("../users/insertEmpresa")
 
 //@ts-check
@@ -12,6 +13,20 @@ class SocioService {
     static async checkSocios(cpfs) {
         const socios = await new SocioDaoImpl().checkSocios(cpfs)
         return socios
+    }
+
+    /**
+     * @param {string|string[]} cpfs
+     * @return {Promise<string[]>} cpfSocios
+     */
+    static async isSocio(cpfs) {
+        try {
+            const socios = await new Repository('socios', 'cpf_socio').find(cpfs)
+            const cpfSocios = socios.map(s => s.cpf_socio)
+            return cpfSocios
+        } catch (error) {
+            throw new Error(error.message)
+        }
     }
 
     static updateSocios = async ({ socios, codigoEmpresa, cpfsToAdd }) => {
@@ -58,6 +73,31 @@ class SocioService {
         }
         return socios
     }
+
+    /* static async deleteProcurador(id, codigoEmpresa) {
+        const procuradorRepository = new ProcuradorRepository()
+        const procuradorToDelete = await procuradorRepository.find(id)
+        if (!procuradorToDelete.length) {
+            return false
+        }
+        const procuracoesUpdate = true
+
+        const { cpf_procurador } = procuradorToDelete[0]
+        const isSocio = await SocioService.isSocio(cpf_procurador)
+        const hasProcuracao = await ProcuracaoService.hasOtherProcuracao({
+            codigoEmpresa,
+            procuradores: procuradorToDelete,
+        })
+
+        if (!isSocio.length && !hasProcuracao.length) {
+            const permissionUpdate = await UserService.removePermissions(cpf_procurador, codigoEmpresa)
+            console.log("ProcuradorService.js:79 ~ deleteProcurador ~ permissionUpdate: ", permissionUpdate)
+        }
+
+
+        const result = await procuradorRepository.delete(id)
+        return result
+    } */
 }
 
 module.exports = { SocioService }

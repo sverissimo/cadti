@@ -13,7 +13,7 @@ const requireSeinfra = (req, res, next) => {
     }
 
     const role = req.user && req.user.role
-    if (role !== 'admin' || role !== 'tecnico') {
+    if (role !== 'admin' && role !== 'tecnico') {
         return res.status(403).send('O usuário não possui acesso para esta parte do CadTI.')
     }
     next()

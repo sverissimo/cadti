@@ -3,6 +3,8 @@ const { Controller } = require("./Controller");
 const { CustomSocket } = require("../sockets/CustomSocket");
 const ProcuradorRepository = require("../repositories/ProcuradorRepository");
 const insertEmpresa = require("../users/insertEmpresa");
+const { ProcuradorService } = require("../services/ProcuradorService");
+const { ProcuracaoService } = require("../services/ProcuracaoService");
 
 class ProcuradorController extends Controller {
 
@@ -67,6 +69,40 @@ class ProcuradorController extends Controller {
         } catch (error) {
             next(error)
         }
+    }
+
+    /** @override */
+    delete = async (req, res, next) => {
+        const { user } = req
+        const { id, codigoEmpresa } = req.query
+        if (user.role !== 'admin') {
+            return res.status(403).send('É preciso permissão de administrador para acessar essa parte do cadTI.')
+        }
+        if (!id) {
+            return res.status(400).send('Bad request: ID or table missing.')
+        }
+        //Injection para prevenir circular dependencies
+        const { hasOtherProcuracao } = ProcuracaoService
+        const result = await ProcuradorService.deleteProcurador(id, codigoEmpresa, hasOtherProcuracao)
+            .catch(err => next(err))
+
+        if (!result) {
+            return res.status(404).send('Not found')
+        }
+        if (typeof result === 'string') {
+            return res.status(409).send(result)
+        }
+
+        if (result === true) {
+            const io = req.app.get('io')
+            const socket = new CustomSocket(io, this.table)
+
+            socket.delete(id, 'procurador_id', codigoEmpresa)
+
+            //   deleteSockets({ req, noResponse: true, table, tablePK, event: 'deleteOne', id, codigoEmpresa })
+
+        }
+        return res.status(204).end()
     }
 }
 

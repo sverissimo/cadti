@@ -18,7 +18,7 @@ class CustomSocket {
     }
 
     /**
-    * @param {'insertElements'|'addElements'|'updateAny'} event
+    * @param {'insertElements'|'addElements'|'updateAny'|'deleteOne'} event
     * @param {Object | any[]} data
     * @param {string} [primaryKey]
     * @param {number | string} [codigoEmpresa ]
@@ -43,15 +43,24 @@ class CustomSocket {
         }
     }
 
-    delete(id, primaryKey = 'id') {
-        const formattedData = {
+    /**
+     * @param {string|number} id
+     * @param {string} primaryKey
+     * @param {number} codigoEmpresa
+     */
+    delete(id, primaryKey = 'id', codigoEmpresa) {
+        const data = {
             id,
             tablePK: primaryKey,
             collection: this.table,
         }
 
-        this.io.sockets.emit('deleteOne', formattedData)
-        //### NÃO FILTRAR, POIS NÃO ALTERA PARA USUÁRIO QUE NÃO TEM ACESSO AO ITEM APAGADO.
+        const authorizedUsers = this.getSocketRecipients(codigoEmpresa)
+        this.emitSockets({
+            data,
+            event: 'deleteOne',
+            recipients: authorizedUsers,
+        })
     }
 
 
@@ -63,6 +72,19 @@ class CustomSocket {
             && sockets[id].empresas.includes(codigoEmpresa))
 
         return authorizedSockets
+    }
+
+    emitSockets({ event, recipients, data }) {
+        this.io.sockets
+            .to('admin')
+            .to('tecnico')
+            .emit(event, data)
+
+        for (let user of recipients) {
+            this.io.sockets
+                .to(user)
+                .emit(event, data)
+        }
     }
 }
 

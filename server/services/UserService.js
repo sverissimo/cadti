@@ -90,7 +90,7 @@ class UserService {
      */
     static removePermissions = async (cpfs, codigoEmpresa) => {
         const filter = ({ 'cpf': { $in: cpfs } })
-        const userUpdate = await UserModel.updateMany(filter, { $pull: { 'empresas': codigoEmpresa } })
+        const userUpdate = await UserModel.updateMany(filter, { $pull: { 'empresas': Number(codigoEmpresa) } })
         return userUpdate
     }
 

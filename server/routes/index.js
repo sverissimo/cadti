@@ -17,6 +17,8 @@ const { logHandler } = require('../utils/logHandler')
 const { Controller } = require('../controllers/Controller')
 const removeEmpresa = require('../users/removeEmpresa')
 const { requireSeinfra } = require('../auth/checkPermissions')
+const ProcuradorController = require('../controllers/ProcuradorController')
+const { SocioController } = require('../controllers/SocioController')
 
 const altContrato = new AltContrato()
 const solicitacoes = new Solicitacoes()
@@ -54,7 +56,6 @@ router.get(`/${routes}/:id`, (req, res, next) => {
 router.get('/getOne', new Controller().getOne)
 router.get('/findMany', new Controller().findMany)
 router.get('/checkIfExists', new Controller().checkIfExists)
-router.delete('/delete', requireSeinfra, new Controller().delete)
 router.post('/api/addElement', new Controller().addElement)
 router.put('/editElements', (req, res, next) => {
     const { table, tablePK: primaryKey, update } = req.body
@@ -71,5 +72,18 @@ router.patch('/removeEmpresa', async (req, res) => {
     }
     res.send('permission updated.')
 })
+
+router.delete('/delete', requireSeinfra, (req, res, next) => {
+    const { table } = req.query
+    if (table === 'procuradores')
+        return new ProcuradorController().delete(req, res, next)
+    if (table === 'socios')
+        return new SocioController().delete(req, res, next)
+
+    new Controller().delete(req, res, next)
+})
+
+
+
 
 module.exports = router
