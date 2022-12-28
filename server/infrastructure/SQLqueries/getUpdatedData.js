@@ -1,13 +1,10 @@
-const
-   { pool } = require('./config/pgConfig'),
-   allGetQueries = require('./allGetQueries')
-
+//@ts-check
+const { pool } = require('../../config/pgConfig')
+const allGetQueries = require('./allGetQueries')
 
 const getUpdatedData = async (table, condition) => {
-
    const query = allGetQueries[table]
-   //console.log("🚀 ~ file: getUpdatedData.js ~ line 11 ~ getUpdatedData ~ query(condition)", query(condition))
-   //console.log("🚀 ~ file: getUpdatedData.js ~ line 23 ~ getUpdatedData ~ condition", condition)
+
    const data = () => new Promise((resolve, reject) => {
       pool.query(query(condition), (err, t) => {
          if (err) {
@@ -18,6 +15,7 @@ const getUpdatedData = async (table, condition) => {
             resolve(t.rows)
       })
    })
+
    return data()
 }
 

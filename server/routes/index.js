@@ -12,7 +12,7 @@ const veiculoRoutes = require('./veiculoRoutes')
 const AltContrato = require('../domain/altContrato/AltContrato')
 const parametros = require('../parametros/parametros')
 const Solicitacoes = require('../domain/solicitacoes/Solicitacoes')
-const { lookup } = require('../queries')
+const { lookup } = require('../infrastructure/SQLqueries/queries')
 const { logHandler } = require('../utils/logHandler')
 const { Controller } = require('../controllers/Controller')
 const removeEmpresa = require('../users/removeEmpresa')
@@ -44,7 +44,7 @@ socioRoutes(router)
 
 router.get('/lookUpTable/:table', lookup);
 
-const routes = /|modelosChassi|modeloCarroceria|carrocerias|equipamentos|seguradoras|empresasLaudo|laudos|acessibilidade|compartilhados|/
+const routes = /|modelosChassi|modeloCarroceria|carrocerias|equipamentos|seguradoras|empresasLaudo|acessibilidade|compartilhados|/
 router.get(`/${routes}/:id`, (req, res, next) => {
 
     const [_, table, id] = req.path.split('/')

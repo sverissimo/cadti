@@ -1,6 +1,7 @@
+//@ts-check
 const
     { pool } = require('../../config/pgConfig'),
-    { socios: allSocios, seguros: allSeguros } = require('../../queries')
+    { socios: allSocios, seguros: allSeguros } = require('../../infrastructure/SQLqueries/queries')
 
 
 class MailMessage {

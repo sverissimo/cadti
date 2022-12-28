@@ -1,6 +1,5 @@
 //@ts-check
-const { pool } = require("../config/pgConfig")
-const { getUpdatedData } = require("../getUpdatedData")
+const { getUpdatedData } = require("./SQLqueries/getUpdatedData")
 const PostgresDao = require("./PostgresDao")
 
 class SocioDaoImpl extends PostgresDao {

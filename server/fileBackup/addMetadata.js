@@ -1,5 +1,5 @@
 //@ts-check
-const { getUpdatedData } = require("../getUpdatedData")
+const { getUpdatedData } = require("../infrastructure/SQLqueries/getUpdatedData")
 
 
 //adiciona metadata para o backup

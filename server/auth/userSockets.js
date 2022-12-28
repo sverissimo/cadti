@@ -1,5 +1,5 @@
 const
-    { getUpdatedData } = require("../getUpdatedData")
+    { getUpdatedData } = require("../infrastructure/SQLqueries/getUpdatedData")
     , insertEmpresa = require('../users/insertEmpresa')
 
 //Condition é a string de filtro de busca para o postgres, noResponse é para não enviar res.send(pq a função é chamada no meio de outra)

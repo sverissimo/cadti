@@ -1,4 +1,4 @@
-const { pool } = require('./config/pgConfig')
+const { pool } = require('../../config/pgConfig')
 
 const laudos = `
 SELECT laudos.*,
@@ -29,8 +29,8 @@ ORDER BY seguros.vencimento ASC
 const socios = `
 		SELECT public.socios.*,
 				public.empresas.razao_social
-			FROM public.socios 
-		LEFT JOIN public.empresas 
+			FROM public.socios
+		LEFT JOIN public.empresas
 			ON empresas.codigo_empresa = socios.codigo_empresa
 		ORDER BY LOWER (nome_socio) ASC
 		`

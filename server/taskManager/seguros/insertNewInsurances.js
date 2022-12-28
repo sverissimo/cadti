@@ -2,7 +2,7 @@ const
     { pool } = require('../../config/pgConfig'),
     moment = require('moment'),
     segurosModel = require('../../mongo/models/segurosModel'),
-    { seguros } = require('../../queries'),
+    { seguros } = require('../../infrastructure/SQLqueries/queries'),
     updateVehicleApolice = require('../veiculos/updateVehicleApolice'),
     markAsUpdated = require('./markAsUpdated'),
     { parseRequestBody } = require('../../utils/parseRequest'),
@@ -45,14 +45,14 @@ const insertNewInsurances = async () => {
                 { veiculos, ...insuranceUpdate } = seguroObj,
                 { keys, values } = parseRequestBody(insuranceUpdate)
 
-            //Pegar a tabela seguros do Postgresql para verificar se uma apólice com o mesmo número já existe. 
+            //Pegar a tabela seguros do Postgresql para verificar se uma apólice com o mesmo número já existe.
             const
                 s = await pool.query(seguros),
                 segurosTable = s.rows,
                 apoliceToUpdate = segurosTable.find(s => s.apolice === seguroObj.apolice)
 
 
-            //Se já existe um seguro com o mesmo número de apólice no Postgresql, ele será substituído com os novos dados e mantendo a apólice 
+            //Se já existe um seguro com o mesmo número de apólice no Postgresql, ele será substituído com os novos dados e mantendo a apólice
             if (apoliceToUpdate) {
                 const
                     keysArray = keys.split(','),

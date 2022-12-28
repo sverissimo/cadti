@@ -1,5 +1,6 @@
 //@ts-check
 const router = require('express').Router()
+const { Controller } = require('../controllers/Controller')
 const VeiculoController = require('../controllers/VeiculoController')
 const veiculoController = new VeiculoController()
 
@@ -14,6 +15,8 @@ router.route('/:id?')
                 return veiculoController.getAllVehicles(req, res, next) //Busca os veículos de uma empresa incluindo todos os de outras empresas que lhe são compartilhados ou que estão em sua apolice apesar d n ser compartilhado
             case '/getOldVehicles':
                 return veiculoController.getOldVehicles(req, res, next)
+            case '/laudos':
+                return new Controller('laudos', 'id').list(req, res, next)
             case '/checkVehicleExistence':
                 return veiculoController.checkVehicleExistence(req, res, next)
             case '/oldVehiclesXls':

@@ -1,6 +1,7 @@
+//@ts-check
 const
     { pool } = require('../../config/pgConfig'),
-    { seguros } = require('../../queries'),
+    { seguros } = require('../../infrastructure/SQLqueries/queries'),
     moment = require('moment')
 
 //Determinar os seguros vencidos e atualizar seus status

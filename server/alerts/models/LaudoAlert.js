@@ -1,7 +1,7 @@
 //@ts-check
 const
     Alert = require("./Alert"),
-    { laudos: getAllLaudos } = require("../../allGetQueries"),
+    { laudos: getAllLaudos } = require("../../infrastructure/SQLqueries/allGetQueries"),
     laudos = getAllLaudos()
 
 
@@ -15,8 +15,8 @@ class LaudoAlert extends Alert {
     apolices = []
 
     /**
-     * 
-     * @param {Array<number>} prazos 
+     *
+     * @param {Array<number>} prazos
      */
     constructor(from, prazos) {
         super()

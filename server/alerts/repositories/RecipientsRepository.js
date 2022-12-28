@@ -1,8 +1,8 @@
 //@ts-check
 const
     { pool } = require('../../config/pgConfig')
-    , { socios: getSocsQuery } = require('../../queries')
-    , { procuradores: getProcuradores } = require('../../allGetQueries')
+    , { socios: getSocsQuery } = require('../../infrastructure/SQLqueries/queries')
+    , { procuradores: getProcuradores } = require('../../infrastructure/SQLqueries/allGetQueries')
     , getProcsQuery = getProcuradores()
     , parametrosModel = require('../../mongo/models/parametrosModel/parametrosModel')
 

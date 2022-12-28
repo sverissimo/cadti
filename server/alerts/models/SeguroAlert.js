@@ -1,10 +1,9 @@
 //@ts-check
 const Alert = require("./Alert")
-const { seguros } = require("../../queries")
-
+const { seguros } = require("../../infrastructure/SQLqueries/queries")
 
 /**
- * Classe instanciada de Alert com métodos específicos para o alerta sobre o vencimento de seguros 
+ * Classe instanciada de Alert com métodos específicos para o alerta sobre o vencimento de seguros
  * @extends Alert
  */
 class SeguroAlert extends Alert {
@@ -12,8 +11,8 @@ class SeguroAlert extends Alert {
     apolices = []
 
     /**
-    * 
-    * @param {Array<number>} prazos 
+    *
+    * @param {Array<number>} prazos
     */
     constructor(from, prazos) {
         super()

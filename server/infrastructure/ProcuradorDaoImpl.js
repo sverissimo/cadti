@@ -1,7 +1,7 @@
 //@ts-check
 const format = require("pg-format")
-const { getUpdatedData } = require("../getUpdatedData")
 const PostgresDao = require("./PostgresDao")
+const { getUpdatedData } = require("./SQLqueries/getUpdatedData")
 
 class ProcuradorDaoImpl extends PostgresDao {
 

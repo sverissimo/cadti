@@ -1,7 +1,7 @@
 const
     bcrypt = require('bcrypt'),
     UserModel = require('../mongo/models/userModel'),
-    { getUpdatedData } = require('../getUpdatedData')
+    { getUpdatedData } = require('../infrastructure/SQLqueries/getUpdatedData')
 
 //Cria um hash para a password e salva o usuário
 const signUp = async (req, res) => {

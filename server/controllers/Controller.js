@@ -3,7 +3,7 @@ const { request, response } = require("express")
 const { Repository } = require("../repositories/Repository")
 const { fieldParser } = require("../utils/fieldParser")
 const { CustomSocket } = require("../sockets/CustomSocket")
-const { getUpdatedData } = require("../getUpdatedData");
+const { getUpdatedData } = require("../infrastructure/SQLqueries/getUpdatedData");
 
 /**Classe parent de controlador para os requests de acesso ao banco de dados Postgresql.
  * @class

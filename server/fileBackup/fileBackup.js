@@ -1,6 +1,6 @@
 //const fs = require('fs')
 
-const { getUpdatedData } = require("../getUpdatedData")
+const { getUpdatedData } = require("../infrastructure/SQLqueries/getUpdatedData")
 
 
 const fileBackup = async (req, fields) => {
@@ -54,7 +54,7 @@ const fileBackup = async (req, fields) => {
 
     backupSocket.emit('fileBackup', { files: filesToSend, fields })
 
-    /*     
+    /*
     Testing multiple files
     let k = 0
     for (let f of filesToSend) {

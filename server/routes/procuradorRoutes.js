@@ -7,7 +7,7 @@ const procuradorController = new ProcuradorController()
 /** @param {Router} router  */
 const procuradorRoutes = router => {
     router
-        .route('/procuradores')
+        .route('/procuradores/:id?')
         .get(procuradorController.list)
         .post(procuradorController.saveMany)
         .put(procuradorController.updateMany)

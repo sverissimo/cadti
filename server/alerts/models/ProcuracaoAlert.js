@@ -1,7 +1,7 @@
 //@ts-check
 const
     Alert = require("./Alert"),
-    { procuracoes: getAllProcs } = require("../../allGetQueries"),
+    { procuracoes: getAllProcs } = require("../../infrastructure/SQLqueries/allGetQueries"),
     procuracoes = getAllProcs()
 
 
@@ -15,8 +15,8 @@ class ProcuracaoAlert extends Alert {
     recipients;
 
     /**
-     * 
-     * @param {Array<number>} prazos 
+     *
+     * @param {Array<number>} prazos
      */
     constructor(from, prazos) {
         super()

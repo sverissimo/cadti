@@ -1,7 +1,7 @@
 const
     { pool } = require('../../config/pgConfig'),
-    { getUpdatedData } = require('../../getUpdatedData'),
-    { laudos: laudosQuery } = require('../../queries'),
+    { getUpdatedData } = require('../../infrastructure/SQLqueries/getUpdatedData'),
+    { laudos: laudosQuery } = require('../../infrastructure/SQLqueries/queries'),
     moment = require('moment')
 
 
@@ -57,7 +57,7 @@ const getVehicleStatus = async vehicleIds => {
         laudoVencido
 
     if (!vehicleIds) {
-        console.log('no veic ids')
+        console.log('no veiculo ids')
         veiculos = await getUpdatedData('veiculos')
     }
     else {

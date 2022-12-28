@@ -1,4 +1,4 @@
-const { getUpdatedData } = require("../getUpdatedData")
+const { getUpdatedData } = require("../infrastructure/SQLqueries/getUpdatedData")
 const UserModel = require("../mongo/models/userModel")
 
 

@@ -1,7 +1,7 @@
 //@ts-check
 const { pool } = require("../config/pgConfig")
 const format = require('pg-format')
-const allGetQueries = require("../allGetQueries")
+const allGetQueries = require("./SQLqueries/allGetQueries")
 const { parseRequestBody } = require("../utils/parseRequest");
 
 /**Implementação do DAO no banco de dados postgresql na porta 5432 (config/pgPool)
@@ -196,6 +196,7 @@ class PostgresDao {
 
         const query = ` DELETE FROM public.${this.table} WHERE ${this.primaryKey} = ${id}`
         const result = await pool.query(query)
+        console.log("🚀 ~ file: PostgresDao.js:199 ~ PostgresDao ~ delete ~ query", query)
         return !!result.rowCount
     }
 
