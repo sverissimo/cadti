@@ -4,7 +4,12 @@ const
     { laudos: laudosQuery } = require('../../queries'),
     moment = require('moment')
 
-//Para cada veículo, pega os dados atualizados de getVehicleStatus e faz um request de atualização da situação de todos eles p o DB 
+
+/**
+ * Para cada veículo, pega os dados atualizados de getVehicleStatus e faz um request de atualização da situação de todos eles p o DB
+ * @param {Array<number>} vehicleIds
+ * @returns {Promise<void>}
+ */
 const updateVehicleStatus = async (vehicleIds) => {
 
     const
@@ -17,7 +22,7 @@ const updateVehicleStatus = async (vehicleIds) => {
     if (updates && updates[0]) {
 
         updates.forEach(({ id, situacao }) => {
-            params += ` 
+            params += `
             WHEN ${id} THEN '${situacao}'`
         })
 
@@ -104,6 +109,7 @@ const getVehicleStatus = async vehicleIds => {
             else
                 update.situacao = 'Ativo'
 
+            console.log("🚀 ~ file: updateVehicleStatus.js:113 ~ getVehicleStatus ~ update.situacao", update.situacao)
             if (v.situacao !== update.situacao)
                 updates.push(update)
 

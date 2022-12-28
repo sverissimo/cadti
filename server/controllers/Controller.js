@@ -2,14 +2,8 @@
 const { request, response } = require("express")
 const { Repository } = require("../repositories/Repository")
 const { fieldParser } = require("../utils/fieldParser")
-const userSockets = require("../auth/userSockets")
 const { CustomSocket } = require("../sockets/CustomSocket")
-const deleteSockets = require("../auth/deleteSockets")
-const { pool } = require("../config/pgConfig")
-const removeEmpresa = require("../users/removeEmpresa");
 const { getUpdatedData } = require("../getUpdatedData");
-const updateVehicleStatus = require("../taskManager/veiculos/updateVehicleStatus");
-const { parseRequestBody } = require("../utils/parseRequest");
 
 /**Classe parent de controlador para os requests de acesso ao banco de dados Postgresql.
  * @class
@@ -40,10 +34,7 @@ class Controller {
         this.table = this.table || table
         this.primaryKey = this.primaryKey || primaryKey
         this.repository = repository || new Repository(this.table, this.primaryKey)
-        this.getOne = this.getOne.bind(this)
-        this.findMany = this.findMany.bind(this)
         this.save = this.save.bind(this)
-        this.update = this.update.bind(this)
     }
 
     /**
@@ -67,12 +58,7 @@ class Controller {
         }
     }
 
-    /**
-     * @param {request} req
-     * @param {response} res
-     * @returns {Promise<any>}
-     */
-    async find(req, res, next) {
+    find = async (req, res, next) => {
         const { noGetFilterRequired, empresasAllowed } = res.locals
         const queryFilter = req.params.id || req.query || res.locals.paramsID
         try {
@@ -98,7 +84,7 @@ class Controller {
         }
     }
 
-    async findMany(req, res, next) {
+    findMany = async (req, res, next) => {
         const { table, primaryKey } = req.query
         const ids = JSON.parse(req.query.ids)
 
@@ -118,7 +104,7 @@ class Controller {
         }
     }
 
-    async getOne(req, res, next) {
+    getOne = async (req, res, next) => {
         try {
             const { table, key, value } = req.query
             const condition = `WHERE ${key} = ${value}`
@@ -130,7 +116,7 @@ class Controller {
         }
     }
 
-    async checkIfExists(req, res) {
+    checkIfExists = async (req, res) => {
         const { table, column, value } = req.query
         if (!table || !column || !value) {
             return res.status(400).send('Bad request, missing some params...')
@@ -143,7 +129,7 @@ class Controller {
         res.send(false)
     }
 
-    async save(req, res, next) {
+    save = async (req, res, next) => {
         const { user } = req
         if (user.role !== 'admin') {
             return res.status(403).send('É preciso permissão de administrador para acessar essa parte do cadTI.')
@@ -163,11 +149,6 @@ class Controller {
         }
     }
 
-    /**
-     * @param {request} req
-     * @param {response} res
-     * @returns {Promise<any>}
-     */
     update = async (req, res, next) => {
         const { codigo_empresa } = req.body
 
@@ -225,48 +206,20 @@ class Controller {
         return res.send(`${id} deleted from ${table}`)
     }
 
-    addElement = (req, res, next) => {
-        const io = req.app.get('io')
-        const { user } = req
+    addElement = async (req, res, next) => {
         const { table, requestElement } = req.body
         //@ts-ignore
-        const { keys, values } = parseRequestBody(requestElement)
+        const { collection } = fieldParser.find(f => f.table === table)
+        const repository = await new Repository(table, 'id')
+        const createdId = await repository.save(requestElement)
+            .catch(err => next(err))
 
-        if (user.role !== 'admin')
-            return res.status(403).send('É preciso permissão de administrador para acessar essa parte do cadTI.')
-        console.log("🚀 ~ file: server.js ~ line 550 ~ app.post ~ user.role", user.role)
+        const savedElement = await repository.find(createdId)
+        const io = req.app.get('io')
 
-        let queryString = `INSERT INTO public.${table} (${keys}) VALUES (${values}) RETURNING *`
-        console.log("🚀 ~ file: server.js ~ line 561 ~ app.post ~ queryString", queryString)
-
-        pool.query(queryString, async (err, t) => {
-            if (err) console.log(err)
-
-            if (t && t.rows) {
-                if (table !== 'laudos')
-                    io.sockets.emit('addElements', { insertedObjects: t.rows, table })
-                //Se a tabela for laudos
-                else {
-                    //Emite sockets para atualização dos laudos
-                    const
-                        { veiculo_id, codigo_empresa } = requestElement,
-                        condition = `WHERE laudos.codigo_empresa = ${codigo_empresa}`
-                    //@ts-ignore
-                    userSockets({ req, noResponse: true, table, condition, event: 'updateElements' })
-
-                    //Atualiza status do veículo e emite sockets para atualização dos laudos
-                    if (veiculo_id) {
-                        req.body.codigoEmpresa = codigo_empresa     //Passa o codigo p o body para o userSockets acessar
-                        await updateVehicleStatus([veiculo_id])
-                        const vCondition = `WHERE veiculos.veiculo_id = ${veiculo_id}`
-                        //@ts-ignore
-                        userSockets({ req, noResponse: true, table: 'veiculos', event: 'updateVehicle', condition: vCondition })
-                    }
-                    return res.send(t.rows)
-                }
-                res.send('Dados inseridos')
-            }
-        })
+        const socket = new CustomSocket(io, collection, 'id')
+        socket.emit('insertElements', savedElement)
+        return res.status(201).end()
     }
 }
 

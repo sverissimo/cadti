@@ -33,7 +33,7 @@ class CustomSocket {
         }
 
         if (!this._shouldFilterRecipients()) {
-            this.io.sockets.emit(event, data)
+            this.io.sockets.emit(event, formattedData)
             return
         }
 

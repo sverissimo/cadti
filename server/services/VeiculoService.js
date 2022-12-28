@@ -72,6 +72,23 @@ class VeiculoService {
         }
     }
 
+    /**
+     * @param {object} laudo
+     * @returns {Promise<string|number>} laudoId
+     */
+    static addLaudo = async (laudo) => {
+        try {
+            const repository = await new Repository('laudos', 'id')
+            const createdId = await repository.save(laudo)
+            const { veiculo_id } = laudo
+
+            await updateVehicleStatus([veiculo_id])
+            return createdId
+        } catch (error) {
+            throw new Error(error)
+        }
+    }
+
     static getOldVehiclesXls = async () => {
         try {
             const dischargedVehicles = await oldVehiclesModel.find().select('-__v -_id').lean()

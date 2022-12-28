@@ -350,10 +350,8 @@ const Laudos = props => {
                 requestElement.empresa_id = empresa.id  //Esse é id da empresa que emite o laudo
             requestElement.veiculo_id = veiculoId
             requestElement.codigo_empresa = empresaId    // Esse é o código da empresa/delegatário
-            const requestBody = { table: 'laudos', requestElement }
 
-            //Insert new laudo in "Laudos" table
-            await axios.post('/api/addElement', requestBody)
+            await axios.post('/api/laudos', requestElement)
                 .then(r => {
                     laudoId = r?.data[0]?.id
                     console.log(r.data)

@@ -1,6 +1,5 @@
 //@ts-check
 const router = require('express').Router()
-const { VeiculoService } = require('../services/VeiculoService')
 const VeiculoController = require('../controllers/VeiculoController')
 const veiculoController = new VeiculoController()
 
@@ -23,7 +22,16 @@ router.route('/:id?')
                 return res.send('Vehicle route not found.')
         }
     })
-    .post(veiculoController.create)
+
+    .post((req, res, next) => {
+        const targetPath = req.baseUrl.replace('/api', '')
+        if (targetPath === '/laudos') {
+            return veiculoController.addLaudo(req, res, next)
+        }
+
+        return veiculoController.create(req, res, next)
+    })
+
     .put(veiculoController.update)
     .patch((req, res) => {
         const targetPath = req.baseUrl.replace('/api', '')

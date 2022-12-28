@@ -5,6 +5,7 @@ const { VeiculoService } = require('../services/VeiculoService')
 const VeiculoRepository = require("../repositories/VeiculoRepository")
 const oldVehiclesModel = require('../mongo/models/oldVehiclesModel')
 const { CustomSocket } = require('../sockets/CustomSocket')
+const { Repository } = require('../repositories/Repository')
 
 class VeiculoController extends Controller {
 
@@ -51,6 +52,20 @@ class VeiculoController extends Controller {
         } catch (error) {
             next(error)
         }
+    }
+
+    addLaudo = async (req, res, next) => {
+        const laudo = req.body
+        const { codigo_empresa } = laudo
+        const laudoId = await VeiculoService.addLaudo(laudo)
+            .catch(err => next(err))
+
+        const savedElement = await new Repository('laudos', 'id').find(laudoId)
+        const io = req.app.get('io')
+        const socket = new CustomSocket(io, 'laudos', 'id')
+
+        socket.emit('insertElements', savedElement, codigo_empresa)
+        return res.status(201).send(laudoId)
     }
 
     getOldVehicles = async (req, res, next) => {

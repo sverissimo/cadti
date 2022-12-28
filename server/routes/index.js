@@ -34,7 +34,7 @@ router.route('/logs')
 router.use('/avisos', alertRoutes)
 router.use('/users', userRoutes)
 router.use('/parametros', parametros)
-router.use(/\/veiculos|\/\w+Vehicle(\w+)?|\/baixaVeiculo|\/updateInsurances/, veiculoRoutes)
+router.use(/\/veiculos|\/\w+Vehicle(\w+)?|\/baixaVeiculo|\/updateInsurances|\/laudos/, veiculoRoutes)
 
 empresaRoutes(router)
 procuracaoRoutes(router)
@@ -44,7 +44,7 @@ socioRoutes(router)
 
 router.get('/lookUpTable/:table', lookup);
 
-const routes = /|modelosChassi|carrocerias|equipamentos|seguradoras|empresasLaudo|laudos|acessibilidade|compartilhados|/
+const routes = /|modelosChassi|modeloCarroceria|carrocerias|equipamentos|seguradoras|empresasLaudo|laudos|acessibilidade|compartilhados|/
 router.get(`/${routes}/:id`, (req, res, next) => {
 
     const [_, table, id] = req.path.split('/')
@@ -56,7 +56,13 @@ router.get(`/${routes}/:id`, (req, res, next) => {
 router.get('/getOne', new Controller().getOne)
 router.get('/findMany', new Controller().findMany)
 router.get('/checkIfExists', new Controller().checkIfExists)
-router.post('/addElement', new Controller().addElement)
+router.post('/addElement', requireSeinfra, (req, res, next) => {
+    const { table } = req.body
+    if (table === 'laudos') {
+        //return new VeiculoController()
+    }
+    new Controller().addElement(req, res, next)
+})
 router.put('/editElements', (req, res, next) => {
     const { table, tablePK: primaryKey, update } = req.body
     const controller = new Controller(table, primaryKey)
@@ -84,8 +90,5 @@ router.delete('/delete', requireSeinfra, (req, res, next) => {
 
     new Controller().delete(req, res, next)
 })
-
-
-
 
 module.exports = router

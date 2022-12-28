@@ -137,9 +137,18 @@ const laudos = (condition = '') => `
 const acessibilidade = (condition = '') => `SELECT * FROM acessibilidade ${condition}`
 const equipamentos = (condition = '') => `SELECT * FROM equipamentos ${condition}`
 const empresasLaudo = (condition = '') => `SELECT * from empresa_laudo ${condition} ORDER BY id ASC `
+const marcaCarroceria = (condition = '') => `SELECT * from marca_carroceria ${condition} ORDER BY id ASC `
+const marcaChassi = (condition = '') => `SELECT * from marcaChassi ${condition} ORDER BY id ASC `
+
+const marca_carroceria = marcaCarroceria
+const marca_chassi = marcaChassi
+const modelo_carroceria = carrocerias
+const modelo_chassi = modeloChassi
+const empresa_laudo = empresasLaudo
 
 
 module.exports = {
     empresas, socios, procuradores, procuracoes, veiculos, seguros, laudos, empresasLaudo, compartilhados,
-    acessibilidade, equipamentos, seguradoras, carrocerias, modelosChassi: modeloChassi
+    acessibilidade, equipamentos, seguradoras, modelo_carroceria, modelo_chassi, empresa_laudo, marca_carroceria, marcaCarroceria,
+    marca_chassi, marcaChassi, carrocerias, modelosChassi: modeloChassi
 }
