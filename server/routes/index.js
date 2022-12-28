@@ -53,7 +53,6 @@ router.get(`/${routes}/:id`, (req, res, next) => {
     controller.list(req, res, next)
 })
 
-router.get('/getOne', new Controller().getOne)
 router.get('/findMany', new Controller().findMany)
 router.get('/checkIfExists', new Controller().checkIfExists)
 router.post('/addElement', requireSeinfra, (req, res, next) => {
@@ -71,6 +70,7 @@ router.put('/editElements', (req, res, next) => {
 })
 
 router.patch('/removeEmpresa', async (req, res) => {
+    //Refactor frontEnd to remove this route!
     const { cpfsToRemove, codigoEmpresa } = req.body
 
     if (cpfsToRemove && cpfsToRemove[0]) {

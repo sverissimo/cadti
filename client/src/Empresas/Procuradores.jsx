@@ -211,7 +211,7 @@ class Procuradores extends Component {
 
         for (let addedProc of addedProcs) {
             const
-                getData = await axios.get(`/api/getOne?table=procuradores&key=cpf_procurador&value='${addedProc.cpfProcurador}'`),
+                getData = await axios.get(`/api/procuradores?cpf_procurador=${addedProc.cpfProcurador}`),
                 existingProc = humps.camelizeKeys(getData?.data[0])
 
             if (existingProc?.procuradorId) {

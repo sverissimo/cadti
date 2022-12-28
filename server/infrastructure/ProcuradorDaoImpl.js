@@ -4,12 +4,8 @@ const PostgresDao = require("./PostgresDao")
 const { getUpdatedData } = require("./SQLqueries/getUpdatedData")
 
 class ProcuradorDaoImpl extends PostgresDao {
-
-    constructor() {
-        super()
-        this.table = 'procuradores'
-        this.primaryKey = 'procurador_id'
-    }
+    table = 'procuradores'
+    primaryKey = 'procurador_id'
 
     /**
     * @override

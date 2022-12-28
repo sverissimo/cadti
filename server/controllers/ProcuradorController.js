@@ -4,17 +4,17 @@ const { CustomSocket } = require("../sockets/CustomSocket");
 const ProcuradorRepository = require("../repositories/ProcuradorRepository");
 const insertEmpresa = require("../users/insertEmpresa");
 const { ProcuradorService } = require("../services/ProcuradorService");
-const { ProcuracaoService } = require("../services/ProcuracaoService");
 
 class ProcuradorController extends Controller {
-
-    constructor() {
-        super('procuradores', 'procurador_id');
-        this.repository = new ProcuradorRepository()
-    }
+    table = 'procuradores'
+    primaryKey = 'procurador_id'
+    repository = new ProcuradorRepository()
 
     /** @override */
     list = async (req, res, next) => {
+        if (req.params.id || Object.keys(req.query).length) {
+            return this.find(req, res, next)
+        }
         try {
             const { empresas, role } = req.user && req.user
             const procuradores = await this.repository.list({ empresas, role });

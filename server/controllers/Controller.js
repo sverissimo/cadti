@@ -3,12 +3,10 @@ const { request, response } = require("express")
 const { Repository } = require("../repositories/Repository")
 const { fieldParser } = require("../utils/fieldParser")
 const { CustomSocket } = require("../sockets/CustomSocket")
-const { getUpdatedData } = require("../infrastructure/SQLqueries/getUpdatedData");
 
 /**Classe parent de controlador para os requests de acesso ao banco de dados Postgresql.
  * @class
  */
-//REFACTOR ADD ELEMENT/DELETE / USAGE OF POOL, USER SOCKETS ETC
 class Controller {
     /**
      * @property {} table - nome da tabela no DB vinculada à entidade
@@ -34,7 +32,6 @@ class Controller {
         this.table = this.table || table
         this.primaryKey = this.primaryKey || primaryKey
         this.repository = repository || new Repository(this.table, this.primaryKey)
-        this.save = this.save.bind(this)
     }
 
     /**
@@ -44,6 +41,8 @@ class Controller {
      */
     list = async (req, res, next) => {
         // filtro de permissões de usuário fornecido pelo middleware getRequestFilter.js
+        console.log("🚀 ~ file: ProcuradorDaoImpl.js:16 ~ ProcuradorDaoImpl ~ list= ~ empresas", this.table, this.primaryKey)
+        console.log("🚀 ~ file: ProcuradorDaoImpl.js:16 ~ ProcuradorDaoImpl ~ list= ~ empresas", this.repository)
         const { userSQLFilter } = res.locals
 
         if (req.params.id || Object.keys(req.query).length) {
@@ -99,18 +98,6 @@ class Controller {
         try {
             const result = await this.repository.find(ids)
             return res.send(result)
-        } catch (error) {
-            next(error)
-        }
-    }
-
-    getOne = async (req, res, next) => {
-        try {
-            const { table, key, value } = req.query
-            const condition = `WHERE ${key} = ${value}`
-            const el = await getUpdatedData(table, condition)
-            return res.json(el)
-
         } catch (error) {
             next(error)
         }

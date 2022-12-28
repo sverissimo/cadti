@@ -16,7 +16,7 @@ class ProcuracaoController extends Controller {
      * @param {response} res
      * @returns {Promise<void | res>}
      */
-    async save(req, res, next) {
+    save = async (req, res, next) => {
         const procuracao = req.body
         try {
             const { procuracaoId, procuradores, codigoEmpresa } = await ProcuracaoService.save(procuracao)

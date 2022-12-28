@@ -3,18 +3,16 @@ const { ProcuradorDaoImpl } = require("../infrastructure/ProcuradorDaoImpl")
 const { Repository } = require("./Repository")
 
 class ProcuradorRepository extends Repository {
-
-    constructor() {
-        super()
-        this.entityManager = new ProcuradorDaoImpl()
-    }
+    table = 'procuradores'
+    primaryKey = 'procurador_id'
+    entityManager = new ProcuradorDaoImpl()
 
     /**
      * @override
      * @param {object} empresas :number[], role: string
      * @returns {Promise<object[]>} Retorna os procuradores criados.
      */
-    async list({ empresas, role }) {
+    list = async ({ empresas, role }) => {
         try {
             const procuradores = await this.entityManager.list({ empresas, role })
             return procuradores
@@ -28,7 +26,7 @@ class ProcuradorRepository extends Repository {
      * @param {any[]} procuradores
      * @returns {Promise<object[]>} Retorna os procuradores criados.
      */
-    async saveMany(procuradores) {
+    saveMany = async (procuradores) => {
         try {
             const savedProcuradores = await this.entityManager.saveMany(procuradores)
             return savedProcuradores
@@ -41,7 +39,7 @@ class ProcuradorRepository extends Repository {
      * @param {object[]} procuradores
      * @returns {Promise<boolean>}
      */
-    async updateMany(procuradores) {
+    updateMany = async (procuradores) => {
         try {
             const result = await this.entityManager.updateManyProcuradores(procuradores)
             return result
