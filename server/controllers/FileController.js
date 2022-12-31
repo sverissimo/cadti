@@ -1,28 +1,22 @@
 //@ts-check
 const mongoose = require('mongoose')
-const Grid = require("gridfs-stream")
 const fileBackup = require("../fileBackup/fileBackup")
 const { permanentBackup } = require("../fileBackup/permanentBackup")
-const { conn } = require("../mongo/mongoConfig")
 const { mongoDownload, getFilesMetadata, getOneFileMetadata } = require("../mongo/mongoDownload")
 const { empresaChunks, vehicleChunks } = require('../mongo/models/chunksModel')
 const { filesModel } = require('../mongo/models/filesModel')
+const Grid = require('gridfs-stream')
 
-//@ts-ignore
-Grid.mongo = mongoose.mongo
-
-let gfs
-conn.on('error', console.error.bind(console, 'connection error:'))
-conn.once('open', () => {
-    //@ts-ignore
-    gfs = Grid(conn.db)
-    gfs.collection('vehicleDocs')
-    console.log('Mongo connected to the server.')
-})
 
 class FileController {
 
-    static empresaUpload = (req, res) => {
+    /** @type {Grid.Grid} gfs     */
+    gfs
+    constructor() {
+        mongoose.connection.once('open', () => this.gfs = Grid(mongoose.connection.db, mongoose.mongo))
+    }
+
+    empresaUpload = (req, res) => {
         //Passa os arquivos para a função fileBackup que envia por webSocket para a máquina local.
         const io = req.app.get('io')
         const { filesArray } = req
@@ -34,7 +28,7 @@ class FileController {
         } else res.send('No uploads whatsoever...')
     }
 
-    static vehicleUpload = (req, res) => {
+    vehicleUpload = (req, res) => {
         //Passa os arquivos para a função fileBackup que envia por webSocket para a máquina local.
         const { filesArray } = req
         fileBackup(req, filesArray)
@@ -46,8 +40,8 @@ class FileController {
         } else res.send('No uploads whatsoever...')
     }
 
-    static mongoDownload = (req, res) => mongoDownload(req, res, gfs)
-    static getFiles = async (req, res) => {
+    mongoDownload = (req, res) => mongoDownload(req, res, this.gfs)
+    getFiles = async (req, res) => {
         const { user } = req
         const { collection } = req.params
         const { fieldName } = req.query
@@ -60,9 +54,9 @@ class FileController {
         return res.send(files)
     }
 
-    static getOneFileMetadata = (req, res) => getOneFileMetadata(req, res)
+    getOneFileMetadata = (req, res) => getOneFileMetadata(req, res)
 
-    static updateFilesMetadata = async (req, res) => {
+    updateFilesMetadata = async (req, res) => {
         const
             { collection, ids, metadata, id, md5 } = req.body,
             update = {}
@@ -79,8 +73,8 @@ class FileController {
         res.locals.collection = collection
 
         permanentBackup(req, res)
-        gfs.collection(collection)
-        gfs.files.updateMany(
+        this.gfs.collection(collection)
+        this.gfs.files.updateMany(
             { "_id": { $in: parsedIds } },
             { $set: { ...update } },
             async (err, doc) => {
@@ -101,14 +95,14 @@ class FileController {
         )
     }
 
-    static deleteFile = async (req, res) => {
+    deleteFile = async (req, res) => {
         const { id, collection } = req.query
         const fileId = new mongoose.mongo.ObjectId(id)
 
         let chunks
-        gfs.collection(collection)
+        this.gfs.collection(collection)
 
-        gfs.files.deleteOne({ _id: fileId }, (err, result) => {
+        this.gfs.files.deleteOne({ _id: fileId }, (err, result) => {
             if (err) console.log(err)
             if (result) console.log(result)
         })
@@ -128,24 +122,21 @@ class FileController {
     }
 
     //REFACTOR! Obs: no frondEnd client is requesting this. Keep it?
-    static deleteMany = async (req, res) => {
+    deleteMany = async (req, res) => {
         const
             { id } = req.query
 
         console.log(id, typeof id)
         const docsToDelete = { 'metadata.veiculoId': id }
 
-        gfs.collection('vehicleDocs')
+        this.gfs.collection('vehicleDocs')
 
         const getIds = await filesModel.filesModel.find(docsToDelete).select('_ids')
-
         const ids = getIds.map(e => new mongoose.mongo.ObjectId(e._id))
 
-        //let chunks
-        gfs.collection('vehicleDocs')
         let r
         ids.forEach(fileId => {
-            gfs.files.deleteOne({ _id: fileId }, (err, result) => {
+            this.gfs.files.deleteOne({ _id: fileId }, (err, result) => {
                 if (err)
                     console.log(err)
                 if (result)

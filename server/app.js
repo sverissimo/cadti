@@ -8,12 +8,10 @@ const router = require('./routes')
 const dbSync = require('./sync/dbSyncAPI')
 const authRouter = require('./auth/authRouter')
 const authToken = require('./auth/authToken')
-const taskManager = require('./taskManager/taskManager')
 const errorHandler = require('./utils/errorHandler')
 const { fileRouter: useFileRouter } = require('./routes/fileRoutes')
 const { setUserPermissions } = require('./auth/setUserPermissions')
 
-taskManager()
 dotenv.config()
 
 const app = express()

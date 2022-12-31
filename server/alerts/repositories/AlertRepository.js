@@ -1,9 +1,7 @@
 //@ts-check
-const mongoose = require("mongoose")
 const
     alertModel = require("../../mongo/models/alertModel")
     , parametrosModel = require("../../mongo/models/parametrosModel/parametrosModel")
-    , { conn } = require("../../mongo/mongoConfig")
     , { pool } = require('../../config/pgConfig')
 
 
@@ -12,9 +10,9 @@ class AlertRepository {
     //Construtor para testes em ambiente de produção apenas
     constructor() {
         if (!process.env.DB && process.env.NODE_ENV !== 'production') {
-            conn.on('error', console.error.bind(console, 'connection error:'))
+            const { conn } = require("../../mongo/mongoConfig")
             conn.once('open', () => {
-                console.log('Testing alert... Mongo connected to the server.')
+                console.log('Running alerts Repository... Mongo connected to the server.')
             })
         }
     }
@@ -41,16 +39,16 @@ class AlertRepository {
 
     /**
      * Recupera os alertas do MongoDB. O filtro é aplicável se fornecido um array de empresas.
-     * @param {number[]} empresas 
+     * @param {number[]} empresas
      * @returns {Promise<Array>}
      */
     async getAlertsFromDB(empresas, deletedMessages) {
 
-        //deletedMessages = deletedMessages.map(m => new mongoose.mongo.ObjectID(m))        
+        //deletedMessages = deletedMessages.map(m => new mongoose.mongo.ObjectID(m))
 
         let filter = { _id: { $nin: deletedMessages } }
         if (empresas instanceof Array && empresas.length)
-            //@ts-ignore    
+            //@ts-ignore
             filter = {
                 _id: { $nin: deletedMessages },
                 $or: [
@@ -65,9 +63,9 @@ class AlertRepository {
 
 
     /**
-    * Busca todos os itens de uma tabela do Postgresql, com base na query de cada child class     
+    * Busca todos os itens de uma tabela do Postgresql, com base na query de cada child class
     * @param {string} dbQuery
-    * @returns {Promise} 
+    * @returns {Promise}
     * @throws {InvalidArgumentException}
     */
     async getCollection(dbQuery) {
@@ -93,7 +91,7 @@ class AlertRepository {
 
     /**
     * Altera o status do aviso (lida ou não lida)
-    * @param {string[]} ids 
+    * @param {string[]} ids
     * @param {boolean} readStatus
     * @returns {Promise<string>}
     */
@@ -140,8 +138,8 @@ class AlertRepository {
     }
 
     /**
-     * 
-     * @param {Array<string>} ids 
+     *
+     * @param {Array<string>} ids
      */
     async deleteAlerts(ids) {
         // @ts-ignore

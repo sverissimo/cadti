@@ -41,8 +41,6 @@ class Controller {
      */
     list = async (req, res, next) => {
         // filtro de permissões de usuário fornecido pelo middleware getRequestFilter.js
-        console.log("🚀 ~ file: ProcuradorDaoImpl.js:16 ~ ProcuradorDaoImpl ~ list= ~ empresas", this.table, this.primaryKey)
-        console.log("🚀 ~ file: ProcuradorDaoImpl.js:16 ~ ProcuradorDaoImpl ~ list= ~ empresas", this.repository)
         const { userSQLFilter } = res.locals
 
         if (req.params.id || Object.keys(req.query).length) {

@@ -10,21 +10,21 @@ const fileRouter = app => {
         prepareBackup,
         empresaUpload.any(),
         uploadMetadata,
-        FileController.empresaUpload
+        (req, res) => new FileController().empresaUpload(req, res)
     )
 
     app.post('/api/vehicleUpload',
         prepareBackup,
         vehicleUpload.any(),
         uploadMetadata,
-        FileController.vehicleUpload
+        new FileController().vehicleUpload
     )
-    app.get('/api/mongoDownload/', FileController.mongoDownload)
-    app.get('/api/getFiles/:collection', FileController.getFiles)
-    app.get('/api/getOneFile/', FileController.getOneFileMetadata)
-    app.put('/api/updateFilesMetadata', FileController.updateFilesMetadata)
-    app.delete('/api/deleteFile', FileController.deleteFile)
-    app.delete('/deleteManyFiles', FileController.deleteMany)
+    app.get('/api/mongoDownload/', new FileController().mongoDownload)
+    app.get('/api/getFiles/:collection', new FileController().getFiles)
+    app.get('/api/getOneFile/', new FileController().getOneFileMetadata)
+    app.put('/api/updateFilesMetadata', new FileController().updateFilesMetadata)
+    app.delete('/api/deleteFile', new FileController().deleteFile)
+    app.delete('/deleteManyFiles', new FileController().deleteMany)
 }
 
 module.exports = { fileRouter }

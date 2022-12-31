@@ -18,7 +18,15 @@ const pool = new Pool({
 const testHeaders = {
     'authorization': process.env.FILE_SECRET,
     'host': 'localhost',
-    'port': 3001
 }
 
-module.exports = { pool, testHeaders }
+const defaultOptions = {
+    host: 'localhost',
+    port: 3001,
+    headers: {
+        ...testHeaders
+    }
+}
+
+
+module.exports = { pool, testHeaders, defaultOptions }

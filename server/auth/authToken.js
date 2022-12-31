@@ -3,7 +3,10 @@ const jwt = require('jsonwebtoken')
 const authToken = (req, res, next) => {
     if (req.headers.authorization === process.env.FILE_SECRET) {
         console.log('Alright, you may pass...')
-        req.user = { role: 'admin' }
+        req.user = {
+            _id: '5fe2375269d14d13906ffe7a',
+            role: 'admin'
+        }
         return next()
     }
 

@@ -38,8 +38,7 @@ const fieldParser = [
         label: 'Procuradores',
         name: 'procuradorId',
         column: 'procurador_id',
-        table: 'procuradores',
-        //codigo_empresa: true
+        table: 'procuradores'
     },
     {
         collection: 'procuracoes',
@@ -103,7 +102,8 @@ const fieldParser = [
         column: 'laudo',
         label: 'Laudos',
         name: 'laudos',
-        table: 'laudos'
+        table: 'laudos',
+        codigo_empresa: true
     },
     {
         collection: 'empresasLaudo',
