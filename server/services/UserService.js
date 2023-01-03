@@ -68,11 +68,13 @@ class UserService {
     }
 
     /**
-     * @param {object[]} procuradores
+     * @param {object[]} representantes - procuradores ou sócios
      * @param {number} codigoEmpresa
      */
-    static addPermissions = async (procuradores, codigoEmpresa) => {
-        const cpfs = procuradores.map(p => p.cpf_procurador)
+    static addPermissions = async (representantes, codigoEmpresa) => {
+        console.log("🚀 ~ file: UserService.js:75 ~ UserService ~ addPermissions= ~ codigoEmpresa", codigoEmpresa)
+        console.log("🚀 ~ file: UserService.js:75 ~ UserService ~ addPermissions= ~ codigoEmpresa", typeof codigoEmpresa)
+        const cpfs = representantes.map(r => r.cpf_procurador || r.cpf_socio)
         const filter = ({ 'cpf': { $in: cpfs } })
         const users = await UserModel.find(filter)
 
@@ -90,6 +92,8 @@ class UserService {
      */
     static removePermissions = async (cpfs, codigoEmpresa) => {
         const filter = ({ 'cpf': { $in: cpfs } })
+        console.log("🚀 ~ file: UserService.js:92 ~ UserService ~ removePermissions= ~ codigoEmpresa", codigoEmpresa)
+        console.log("🚀 ~ file: UserService.js:93 ~ UserService ~ removePermissions= ~ filter", filter)
         const userUpdate = await UserModel.updateMany(filter, { $pull: { 'empresas': Number(codigoEmpresa) } })
         return userUpdate
     }

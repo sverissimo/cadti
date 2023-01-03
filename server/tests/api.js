@@ -39,8 +39,6 @@ const post = (url, data) => new Promise((resolve, reject) => {
     }
     let responseData = ''
     const req = http.request(options, (res) => {
-        console.log(`STATUS: ${res.statusCode}`)
-        console.log(`HEADERS: ${JSON.stringify(res.headers)}`)
         res.setEncoding('utf8')
         res.on('data', chunk => responseData += chunk)
         res.on('end', () => resolve(responseData))

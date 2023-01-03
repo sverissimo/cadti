@@ -31,9 +31,15 @@ class SocioService {
     }
 
     static saveMany = async ({ codigoEmpresa, socios }) => {
+        console.log("🚀 ~ file: SocioService.js:34 ~ SocioService ~ saveMany= ~ codigoEmpresa", codigoEmpresa)
         try {
             const parsedSocios = SocioService.addEmpresaAndShareArray(codigoEmpresa, socios)
             const ids = await new SocioDaoImpl().saveMany(parsedSocios)
+            console.log("🚀 ~ file: SocioService.js:38 ~ SocioService ~ saveMany= ~ codigoEmpresa", codigoEmpresa)
+            if (codigoEmpresa) {
+                await UserService.addPermissions(socios, codigoEmpresa)
+            }
+
             return ids
         } catch (error) {
             throw new Error(error.message)

@@ -4,7 +4,16 @@ const { UserService } = require("../services/UserService");
 class UserController {
 
     getUsers = async (req, res, next) => {
+        const { user } = req
+        if (!user || (user.role === 'empresa' && user._id !== req.query.id)) {
+            res.status(403).send('User not authorized.')
+        }
+
         try {
+            if (req.params.id || Object.keys(req.query).length) {
+                return this.getUser(req, res, next)
+            }
+
             const users = await UserService.list()
             res.send(users)
         }
@@ -16,11 +25,8 @@ class UserController {
     //Retorna o usuário atualizado, seja diretamente para o frontEnd, seja para algum ponto do backEnd
     getUser = async (req, res, next) => {
         const { user } = req
-        if (!user) {
-            res.status(400).send('No user provided.')
-        }
         try {
-            const filter = { _id: user._id }
+            const filter = req.query || { _id: user._id }
             const updatedUser = await UserService.find(filter)
             res.send(updatedUser)
         } catch (error) {
@@ -80,7 +86,7 @@ class UserController {
             await UserService.deleteUser(id)
             const update = { id, tablePK: 'id', collection: 'users' }
             io.sockets.emit('deleteOne', update)
-            res.send('deleted.')
+            res.status(204).end()
         } catch (error) {
             next(error)
         }
