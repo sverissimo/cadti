@@ -57,7 +57,18 @@ class Controller {
 
     find = async (req, res, next) => {
         const { noGetFilterRequired, empresasAllowed } = res.locals
-        const queryFilter = req.params.id || req.query || res.locals.paramsID
+        let queryFilter = req.params.id || req.query || res.locals.paramsID
+        console.log("🚀 ~ file: Controller.js:61 ~ Controller ~ find= ~ queryFilter", queryFilter)
+
+        if (req.params.id && queryFilter.match(',')) {
+            queryFilter = queryFilter.split(',')
+        }
+
+        if (req.query && queryFilter[this.primaryKey]) {
+            queryFilter = queryFilter[this.primaryKey].split(',')
+            console.log("🚀 ~ file: Controller.js:61 ~ Controller ~ find= ~ queryFilter", queryFilter)
+        }
+
         try {
             const entities = await this.repository.find(queryFilter)
             if (noGetFilterRequired) {
@@ -76,26 +87,6 @@ class Controller {
                 res.json(filteredEntities)
                 :
                 res.status(404).send('Registro não encontrado.')
-        } catch (error) {
-            next(error)
-        }
-    }
-
-    findMany = async (req, res, next) => {
-        const { table, primaryKey } = req.query
-        const ids = JSON.parse(req.query.ids)
-
-        if (!Array.isArray(ids) || ids.length === 0) {
-            return res.status(400).send('No valid ids sent to the server.')
-        }
-
-        if (table && primaryKey) {
-            this.repository = new Repository(table, primaryKey)
-        }
-
-        try {
-            const result = await this.repository.find(ids)
-            return res.send(result)
         } catch (error) {
             next(error)
         }

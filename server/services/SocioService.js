@@ -30,8 +30,14 @@ class SocioService {
         }
     }
 
+    /**
+     * @typedef {object} saveManySociosRequest
+     * @property {number} codigoEmpresa
+     * @property {object[]} socios
+     * @param {saveManySociosRequest}  request - array de sócios e códigoEmpresa
+     * @returns {Promise<number[]>} socio_ids
+     */
     static saveMany = async ({ codigoEmpresa, socios }) => {
-        console.log("🚀 ~ file: SocioService.js:34 ~ SocioService ~ saveMany= ~ codigoEmpresa", codigoEmpresa)
         try {
             const parsedSocios = SocioService.addEmpresaAndShareArray(codigoEmpresa, socios)
             const ids = await new SocioDaoImpl().saveMany(parsedSocios)

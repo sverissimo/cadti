@@ -53,7 +53,6 @@ router.get(`/${routes}/:id`, (req, res, next) => {
     controller.list(req, res, next)
 })
 
-router.get('/findMany', new Controller().findMany)
 router.get('/checkIfExists', new Controller().checkIfExists)
 router.post('/addElement', requireSeinfra, (req, res, next) => {
     const { table } = req.body

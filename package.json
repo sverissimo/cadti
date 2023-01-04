@@ -45,6 +45,7 @@
   },
   "devDependencies": {
     "@types/jest": "^29.2.4",
+    "faker-br": "^0.4.1",
     "googleapis": "^105.0.0",
     "jest": "^24.9.0",
     "supertest": "^6.3.1"

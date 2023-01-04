@@ -66,7 +66,7 @@ const deleteOne = (url) => new Promise((resolve, reject) => {
     }
 
     const req = http.request(options, res => {
-        if (res.statusCode !== 204) {
+        if (res.statusCode && res.statusCode > 217) {
             console.error(`Error Code: ${res.statusCode} \n Error Message: ${res.statusMessage}`)
             res.resume()
             return
