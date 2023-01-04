@@ -10,6 +10,9 @@ const authToken = (req, res, next) => {
         return next()
     }
 
+    if (typeof req.headers.cookie !== 'string') {
+        return res.status(403).send('Usuário não logado no CadTI.')
+    }
     const tokens = req.headers.cookie.split(';')
     let token = tokens.find(el => el.match('aToken'))
 

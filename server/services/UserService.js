@@ -98,6 +98,18 @@ class UserService {
         return userUpdate
     }
 
+    /**
+     * Verifica se devem ser removidas as permissões de usuário e call this.removePermissions se for o caso
+     * @typedef {object} updatePermissionsInput
+     * @property {string[]} representantes - cpfs dos representantes
+     * @property {number} codigoEmpresa     *
+     * @param {updatePermissionsInput} updatePermissionsInput
+     */
+    static updatePermissions = async ({ representantes, codigoEmpresa }) => {
+
+
+    }
+
     static deleteUser = async id => {
         const query = { '_id': id }
         UserModel.deleteOne(query, (err, doc) => {

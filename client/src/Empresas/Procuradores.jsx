@@ -416,9 +416,11 @@ class Procuradores extends Component {
                     procuradores: filteredProcs,
                     updateUserPermission: false,
                 }
+                //DESNECESSÁRIO: com refactoring do backEnd, o delete da procuração já atualiza os procuradores
                 axios.put('/api/procuradores', request)
                     .then(r => console.log(r))
                 //Remove a permissão do usuário para a empresa selecionada, caso haja usuário com mesmo cpf cadastrado no sistema
+                //DESNECESSÁRIO: com refactoring do backEnd, o delete da procuração já atualiza os usuários
                 await axios.patch('/api/removeEmpresa', { cpfsToRemove: filteredProcs, codigoEmpresa })
                     .then(r => console.log(r))
             }

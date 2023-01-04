@@ -54,15 +54,22 @@ class PostgresDao {
         if (Array.isArray(filter)) {
             condition = format(`WHERE ${this.table}.${this.primaryKey} IN (%L)`, filter)
             value = ''
-        }
-        else if (typeof filter === 'object') {
+
+        } else if (typeof filter === 'object') {
             [[key, value]] = Object.entries(filter)
-            condition = `WHERE ${this.table}.${key} = '${value}'`
+
+            if (Array.isArray(value)) {
+                condition = format(`WHERE ${this.table}.${key} IN (%L)`, value)
+            } else {
+                condition = `WHERE ${this.table}.${key} = '${value}'`
+            }
+
             value = undefined
-        }
-        else {
+
+        } else {
             value = [filter]
         }
+
         try {
             const queryGenerator = allGetQueries[this.table]
             const query = queryGenerator(condition)

@@ -14,7 +14,7 @@ beforeAll(async () => {
 })
 
 let userId
-
+//Change this test to addProcuracao instead?
 describe('Procuradores -> Testing procuradores permission updates', () => {
     describe('When a authorized user adds a new procurador', () => {
         it('should retrieve userIds', async () => {
@@ -32,28 +32,7 @@ describe('Procuradores -> Testing procuradores permission updates', () => {
     })
 
 })
-/*
-describe('When a authorized user deletes a procurador', () => {
-        it('Should delete the procurador', async () => {
-            (async () => await testApi.deleteOne(`/api/procuradores?id=${procuradorId}&codigoEmpresa=${codigoEmpresa}`))()
-        })
 
-        it('Should not be found on DB', async () => {
-            const result = await testApi.getData(`/api/procuradores?procurador_id=${procuradorId}`)
-            const procuradoresFound = result.data
-            console.log("🚀 ~ file: addProcuradorPermissions.test.js:41 ~ it ~ procuradoresFound", procuradoresFound)
-            expect(procuradoresFound.length).toBe(0)
-        })
-
-        it('Authorization for that codigoEmpresa should be removed from user(s) with same CPF', async () => {
-            const result = await testApi.getData('/api/users?cpf=111')
-            const user = result.data
-            console.log("🚀 ~ file: addProcuradorPermissions.test.js:46 ~ userEmpresas after deleteProcurador: ", user.empresas)
-            expect(user.empresas.some(e => e === codigoEmpresa)).toBe(false)
-        })
-    })
-})
- */
 afterAll(() => {
     testApi.deleteOne(`/api/users?id=${userId}`)
     console.log(`🚀 ~file: addProcuradorPermissions.test.js: 57 - DB CleanUp: ${procuradorId} DELETED!!`)

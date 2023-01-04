@@ -58,15 +58,17 @@ class Controller {
     find = async (req, res, next) => {
         const { noGetFilterRequired, empresasAllowed } = res.locals
         let queryFilter = req.params.id || req.query || res.locals.paramsID
-        console.log("🚀 ~ file: Controller.js:61 ~ Controller ~ find= ~ queryFilter", queryFilter)
+
 
         if (req.params.id && queryFilter.match(',')) {
             queryFilter = queryFilter.split(',')
         }
 
-        if (req.query && queryFilter[this.primaryKey]) {
-            queryFilter = queryFilter[this.primaryKey].split(',')
-            console.log("🚀 ~ file: Controller.js:61 ~ Controller ~ find= ~ queryFilter", queryFilter)
+        if (req.query && Object.keys(req.query).length) {
+            const searchKey = Object.keys(req.query)[0]
+            queryFilter = {
+                [searchKey]: req.query[searchKey].split(',')
+            }
         }
 
         try {

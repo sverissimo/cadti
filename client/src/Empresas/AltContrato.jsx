@@ -452,6 +452,7 @@ const AltContrato = props => {
                     await axios.put('/api/socios', { socios: oldSocios, ...requestInfo })
 
                     //remove as permissões de usuário dos sócios excluídos
+                    //TODO: REFACTOR de oldSocios/new mantendo status e do PUT /api/socios para não precisar desse axios.patch
                     if (cpfsToRemove[0])
                         await axios.patch('/api/removeEmpresa', { cpfsToRemove, codigoEmpresa })
 
