@@ -76,8 +76,6 @@ class SocioService {
     static async deleteSocio(id, codigoEmpresa) {
         const socioRepository = new Repository('socios', 'socio_id')
         const socioToDelete = await socioRepository.find(id)
-        console.log("🚀 ~ file: SocioService.js:79 ~ SocioService ~ deleteSocio ~ socioToDelete", socioToDelete)
-
         if (!socioToDelete.length) {
             return false
         }
@@ -97,7 +95,7 @@ class SocioService {
 
         if (!hasProcuracao) {
             const permissionUpdate = await UserService.removePermissions({ cpfSocios: [cpf_socio], codigoEmpresa })
-            console.log("SocioService.js:100 ~ deleteSocio ~ permissionUpdate: ", permissionUpdate)
+            //console.log("SocioService.js:100 ~ deleteSocio ~ permissionUpdate: ", permissionUpdate)
         }
 
         const result = await socioRepository.delete(id)

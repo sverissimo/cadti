@@ -29,12 +29,22 @@ describe('Socios -> Testing adding new socios', () => {
             console.log("🚀 ~ file: addSocioPermissions.test.js:24 ~ it ~ user", user)
             expect(user.empresas.some(e => e === codigoEmpresa)).toBe(true)
         })
+
+        it('should display inserted Socios', async () => {
+            const result = await testApi.getData(`/api/socios/${socioIds.join()}`)
+            const socios = result.data
+            socios.forEach(s => s.empresas = JSON.parse(s.empresas))
+            console.log("🚀 ~ file: addSocio.test.js:36 ~ it ~ socios", socios)
+            expect(socios.every(socio =>
+                socio.empresas.some((e) => e.codigoEmpresa === codigoEmpresa))
+            ).toBe(true)
+        })
     })
 })
 
 afterAll(async () => {
     testApi.deleteOne(`/api/users?id=${userId}`)
-    for (const id of socioIds.concat([494, 495])) {
+    for (const id of socioIds) {
         testApi.deleteOne(`/api/socios?id=${id}&codigoEmpresa=${codigoEmpresa}`)
     }
     console.log(`🚀 ~file: addSocioPermissions.test.js: 57 - DB CleanUp: ${socioIds} DELETED!!`)

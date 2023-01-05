@@ -202,7 +202,6 @@ class PostgresDao {
 
         const query = ` DELETE FROM public.${this.table} WHERE ${this.primaryKey} = ${id}`
         const result = await pool.query(query)
-        console.log("🚀 ~ file: PostgresDao.js:199 ~ PostgresDao ~ delete ~ query", query)
         return !!result.rowCount
     }
 

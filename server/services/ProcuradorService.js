@@ -73,7 +73,7 @@ class ProcuradorService {
 
         const hasProcuracao = await hasAnyProcuracao(procuradorToDelete[0])
         if (hasProcuracao) {
-            return 'Não foi possível remover pois o procurador possui procurações vigentes.'
+            //return 'Não foi possível remover pois o procurador possui procurações vigentes.'
         }
 
         const { cpf_procurador } = procuradorToDelete[0]

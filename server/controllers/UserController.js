@@ -41,9 +41,10 @@ class UserController {
         const query = [{ email }, { cpf }]
         const alreadyExists = await UserService.find({ $or: query })
 
-        if (alreadyExists) {
+        if (alreadyExists && alreadyExists.length) {
             return res.status(422).send('Usuário já cadastrado no CadTI.')
         }
+
         try {
             const savedUser = await UserService.addUser(user)
             const update = { data: [savedUser], collection: 'users' }

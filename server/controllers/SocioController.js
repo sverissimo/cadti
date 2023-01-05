@@ -73,6 +73,7 @@ class SocioController extends Controller {
     delete = async (req, res, next) => {
         const { user } = req
         const { id, codigoEmpresa } = req.query
+
         if (user.role !== 'admin') {
             return res.status(403).send('É preciso permissão de administrador para acessar essa parte do cadTI.')
         }

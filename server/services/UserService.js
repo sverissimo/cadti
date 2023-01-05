@@ -3,8 +3,6 @@ const bcrypt = require('bcrypt');
 const sendMail = require("../mail/sendMail")
 const newUserTemplate = require("../mail/templates/newUserTemplate")
 const UserModel = require("../mongo/models/userModel");
-const ProcuradorRepository = require('../repositories/ProcuradorRepository');
-const { Repository } = require('../repositories/Repository');
 const { hasOtherProcuracao, isSocio } = require('./utilServices');
 
 class UserService {
@@ -22,7 +20,16 @@ class UserService {
         if (!filter) {
             throw new Error('UserService - No filter provided for the DB query.')
         }
-        const updatedUser = await UserModel.findOne(filter).select('-password -__v').lean()
+        const filterKey = Object.keys(filter)[0]
+        const filterValue = typeof Object.values(filter)[0] === 'string' && Object.values(filter)[0]
+        if (filterValue && filterValue.match(',')) {
+            filter = {
+                ...filter,
+                [filterKey]: { $in: filterValue.split(',') }
+            }
+        }
+
+        const updatedUser = await UserModel.find(filter).select('-password -__v').lean()
         return updatedUser
     }
 
@@ -75,18 +82,20 @@ class UserService {
      * @param {number} codigoEmpresa
      */
     static addPermissions = async (representantes, codigoEmpresa) => {
-        console.log("🚀 ~ file: UserService.js:75 ~ UserService ~ addPermissions= ~ codigoEmpresa", codigoEmpresa)
-        console.log("🚀 ~ file: UserService.js:75 ~ UserService ~ addPermissions= ~ codigoEmpresa", typeof codigoEmpresa)
-        const cpfs = representantes.map(r => r.cpf_procurador || r.cpf_socio)
-        const filter = ({ 'cpf': { $in: cpfs } })
-        const users = await UserModel.find(filter)
+        try {
+            const cpfs = representantes.map(r => r.cpf_procurador || r.cpf_socio)
+            const filter = ({ 'cpf': { $in: cpfs } })
+            const users = await UserModel.find(filter)
 
-        const filteredCpfs = users.filter(user => !user.empresas.includes(codigoEmpresa))
-            .map(user => user.cpf)
+            const filteredCpfs = users.filter(user => !user.empresas.includes(codigoEmpresa))
+                .map(user => user.cpf)
 
-        const updateFilter = ({ 'cpf': { $in: filteredCpfs } })
-        const userUpdate = await UserModel.updateMany(updateFilter, { $push: { 'empresas': codigoEmpresa } })
-        return userUpdate
+            const updateFilter = ({ 'cpf': { $in: filteredCpfs } })
+            const userUpdate = await UserModel.updateMany(updateFilter, { $push: { 'empresas': codigoEmpresa } })
+            return userUpdate
+        } catch (error) {
+            throw new Error(error.message)
+        }
     }
 
     /**

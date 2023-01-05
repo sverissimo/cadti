@@ -65,7 +65,7 @@ class ProcuracaoController extends Controller {
 
         procuracaoSocket.delete(id, codigoEmpresa)
         procuradorSocket.emit('updateAny', updatedProcuradores, codigoEmpresa)
-        res.send(`${id} deleted from ${this.table}`)
+        return res.status(204).end()
     }
 }
 

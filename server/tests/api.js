@@ -24,6 +24,23 @@ const getData = url => new Promise((resolve, reject) => {
     })
 })
 
+const fetch = async (url) => {
+    const result = await getData(url)
+
+    if (!Array.isArray(result.data))
+        return result.data
+
+    result.data.forEach(obj => {
+        if (typeof obj === 'object') {
+            Object.entries(obj).forEach(([k, v]) => {
+                if (typeof v === 'string' && v.match(/\[/)) {
+                    obj[k] = JSON.parse(v)
+                }
+            })
+        }
+    })
+    return result.data
+}
 
 const post = (url, data) => new Promise((resolve, reject) => {
     const options = {
@@ -62,9 +79,10 @@ const deleteOne = (url) => new Promise((resolve, reject) => {
         method: 'DELETE',
         headers: {
             ...testHeaders,
+            'Content-Type': 'application/json'
         }
     }
-
+    let responseData
     const req = http.request(options, res => {
         if (res.statusCode && res.statusCode > 217) {
             console.error(`Error Code: ${res.statusCode} \n Error Message: ${res.statusMessage}`)
@@ -72,9 +90,10 @@ const deleteOne = (url) => new Promise((resolve, reject) => {
             return
         }
         res.on('error', err => reject(err))
+        res.on('data', chunk => responseData += chunk)
         res.on('end', () => resolve({ status: res.statusCode }))
     })
     req.end()
 })
 
-module.exports = { testApi: { getData, post, deleteOne } }
+module.exports = { testApi: { getData, fetch, post, deleteOne } }
