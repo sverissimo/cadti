@@ -54,7 +54,10 @@ class ProcuracaoController extends Controller {
         }
 
         const { procuradorIds, codigoEmpresa } = result
-        const updatedProcuradores = await new ProcuradorRepository().find(procuradorIds)
+        let updatedProcuradores
+        if (procuradorIds.length) {
+            updatedProcuradores = await new ProcuradorRepository().find(procuradorIds)
+        }
 
         const io = req.app.get('io')
         const procuracaoSocket = new CustomSocket(io, this.table, this.primaryKey)
