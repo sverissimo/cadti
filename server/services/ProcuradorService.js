@@ -1,7 +1,7 @@
 //@ts-check
 const ProcuradorRepository = require("../repositories/ProcuradorRepository")
 const { UserService } = require("./UserService")
-const { isSocio, hasOtherProcuracao } = require("./utilServices")
+const { isSocio, hasAnyProcuracao, hasOtherProcuracao } = require("./utilServices")
 
 class ProcuradorService {
     /**
@@ -34,12 +34,19 @@ class ProcuradorService {
     }
 
     /**
-     * @param {any[]} procuradores
+     * @param {object[]} procuradores
      * @param {number} codigoEmpresa
-     * @returns {Promise<object[]|false>} procuradores | false
+     * @returns {Promise<boolean>} result
      */
-    static async removeProcuracao(procuradores, codigoEmpresa) {
-        const updates = procuradores.map(({ procurador_id, empresas }) => {
+    static async removeEmpresa(procuradores, codigoEmpresa) {
+        const cpfsInOtherProcuracoes = await hasOtherProcuracao({
+            cpfs: procuradores.map(p => p.cpf_procurador),
+            codigoEmpresa
+        })
+        const procuradoresToRemove = procuradores.filter(({ cpf_procurador }) => (
+            !cpfsInOtherProcuracoes.includes(cpf_procurador))
+        )
+        const updates = procuradoresToRemove.map(({ procurador_id, empresas }) => {
             const updatedEmpresas = empresas.filter(e => e !== codigoEmpresa)
             return {
                 procurador_id,
@@ -49,13 +56,7 @@ class ProcuradorService {
 
         const procuradorRepository = new ProcuradorRepository()
         const result = await procuradorRepository.updateMany(updates)
-        if (!result) {
-            return false
-        }
-
-        const ids = updates.map(({ procurador_id }) => procurador_id)
-        const updatedProcuradores = await procuradorRepository.find(ids)
-        return updatedProcuradores
+        return result
     }
 
     /**
@@ -70,15 +71,18 @@ class ProcuradorService {
             return false
         }
 
-        const hasProcuracao = await hasOtherProcuracao({ procuradores: procuradorToDelete })
-        if (hasProcuracao.length) {
+        const hasProcuracao = await hasAnyProcuracao(procuradorToDelete[0])
+        if (hasProcuracao) {
             return 'Não foi possível remover pois o procurador possui procurações vigentes.'
         }
 
         const { cpf_procurador } = procuradorToDelete[0]
         const isAlsoSocio = await isSocio(cpf_procurador)
         if (!isAlsoSocio.length) {
-            const permissionUpdate = await UserService.removePermissions([cpf_procurador], codigoEmpresa)
+            const permissionUpdate = await UserService.removePermissions({
+                cpfProcuradores: [cpf_procurador],
+                codigoEmpresa
+            })
             console.log("ProcuradorService.js:79 ~ deleteProcurador ~ permissionUpdate: ", permissionUpdate)
         }
 

@@ -3,6 +3,7 @@ const { request, response } = require('express')
 const { Controller } = require('./Controller')
 const { ProcuracaoService } = require('../services/ProcuracaoService')
 const { CustomSocket } = require('../sockets/CustomSocket')
+const ProcuradorRepository = require('../repositories/ProcuradorRepository')
 
 class ProcuracaoController extends Controller {
 
@@ -45,19 +46,22 @@ class ProcuracaoController extends Controller {
             return res.status(400).send('No id provided.')
         }
 
-        const { procuradores, codigoEmpresa } = await ProcuracaoService.deleteProcuracao(id)
+        const result = await ProcuracaoService.deleteProcuracao(id)
             .catch(err => next(err))
 
-        if (!procuradores) {
+        if (!result) {
             return res.status(404).send('Not found')
         }
+
+        const { procuradorIds, codigoEmpresa } = result
+        const updatedProcuradores = await new ProcuradorRepository().find(procuradorIds)
 
         const io = req.app.get('io')
         const procuracaoSocket = new CustomSocket(io, this.table, this.primaryKey)
         const procuradorSocket = new CustomSocket(io, 'procuradores', 'procurador_id')
 
         procuracaoSocket.delete(id, codigoEmpresa)
-        procuradorSocket.emit('updateAny', procuradores, codigoEmpresa)
+        procuradorSocket.emit('updateAny', updatedProcuradores, codigoEmpresa)
         res.send(`${id} deleted from ${this.table}`)
     }
 }

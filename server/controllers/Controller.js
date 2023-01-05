@@ -59,7 +59,6 @@ class Controller {
         const { noGetFilterRequired, empresasAllowed } = res.locals
         let queryFilter = req.params.id || req.query || res.locals.paramsID
 
-
         if (req.params.id && queryFilter.match(',')) {
             queryFilter = queryFilter.split(',')
         }

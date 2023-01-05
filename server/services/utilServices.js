@@ -32,37 +32,37 @@ const isProcurador = async (cpfs) => {
 }
 
 /**
+ * @param {object} procurador
+ * @return {Promise<boolean>} hasAnyProcuracao
+ */
+const hasAnyProcuracao = async (procurador) => {
+    const procuracoes = await new Repository('procuracoes', 'procuracao_id').list()
+    const hasAnyProcuracao = procuracoes.filter((doc) => doc.procuradores.includes(procurador.procurador_id))
+    return !!hasAnyProcuracao.length
+}
+
+/**
  * @typedef CheckProcuracaoInput
- * @property {any[]} procuradores
- * @property {any[]} [procuracoes]
- * @property {number} [codigoEmpresa]
+ * @property {string[]} cpfs
+ * @property {number} codigoEmpresa
  * @param {CheckProcuracaoInput} checkProcuracaoInput
  * @return {Promise<string[]>} cpfsToKeep
  */
-const hasOtherProcuracao = async ({ procuradores, procuracoes, codigoEmpresa }) => {
-
-    if (!procuracoes || !procuracoes.length) {
-        procuracoes = await new Repository('procuracoes', 'procuracao_id').list()
+const hasOtherProcuracao = async ({ cpfs, codigoEmpresa }) => {
+    const procuracoes = await new Repository('procuracoes', 'procuracao_id').find({ codigo_empresa: codigoEmpresa })
+    if (!procuracoes.length) {
+        return []
+    }
+    //const cpfsToSearch = cpfProcuradores.concat(cpfSocios)
+    const procuradores = await new ProcuradorRepository().find({ cpf_procurador: cpfs })
+    if (!procuradores.length) {
+        return []
     }
 
     const cpfsToKeep = []
     procuradores.forEach(({ procurador_id, cpf_procurador }) => {
-        //@ts-ignore
-        const procuracoesWithThisProcurador = procuracoes
-            .filter(p => {
-                let filterCondition = p.procuradores.includes(procurador_id)
-                if (codigoEmpresa) {
-                    filterCondition = filterCondition && p.codigo_empresa === codigoEmpresa
-                }
-
-                return filterCondition
-            })
-
-        const hasOtherProcuracoes = codigoEmpresa ?
-            procuracoesWithThisProcurador.length >= 2
-            :
-            procuracoesWithThisProcurador.length >= 1
-
+        const procuracoesWithThisProcurador = procuracoes.filter(p => p.procuradores.includes(procurador_id))
+        const hasOtherProcuracoes = procuracoesWithThisProcurador.length >= 1
         if (hasOtherProcuracoes) {
             cpfsToKeep.push(cpf_procurador)
         }
@@ -71,6 +71,7 @@ const hasOtherProcuracao = async ({ procuradores, procuracoes, codigoEmpresa }) 
 }
 
 module.exports = {
+    hasAnyProcuracao,
     hasOtherProcuracao,
     isProcurador,
     isSocio,

@@ -3,6 +3,9 @@ const bcrypt = require('bcrypt');
 const sendMail = require("../mail/sendMail")
 const newUserTemplate = require("../mail/templates/newUserTemplate")
 const UserModel = require("../mongo/models/userModel");
+const ProcuradorRepository = require('../repositories/ProcuradorRepository');
+const { Repository } = require('../repositories/Repository');
+const { hasOtherProcuracao, isSocio } = require('./utilServices');
 
 class UserService {
     static list = async () => {
@@ -87,27 +90,31 @@ class UserService {
     }
 
     /**
-     * @param {string[]} cpfs
-     * @param {number} codigoEmpresa
-     */
-    static removePermissions = async (cpfs, codigoEmpresa) => {
-        const filter = ({ 'cpf': { $in: cpfs } })
-        console.log("🚀 ~ file: UserService.js:92 ~ UserService ~ removePermissions= ~ codigoEmpresa", codigoEmpresa)
-        console.log("🚀 ~ file: UserService.js:93 ~ UserService ~ removePermissions= ~ filter", filter)
-        const userUpdate = await UserModel.updateMany(filter, { $pull: { 'empresas': Number(codigoEmpresa) } })
-        return userUpdate
-    }
-
-    /**
      * Verifica se devem ser removidas as permissões de usuário e call this.removePermissions se for o caso
      * @typedef {object} updatePermissionsInput
-     * @property {string[]} representantes - cpfs dos representantes
+     * @property {string[]} [cpfSocios] - cpfs dos representantes
+     * @property {string[]} [cpfProcuradores] - cpfs dos representantes
      * @property {number} codigoEmpresa     *
      * @param {updatePermissionsInput} updatePermissionsInput
      */
-    static updatePermissions = async ({ representantes, codigoEmpresa }) => {
+    static removePermissions = async ({ cpfSocios, cpfProcuradores, codigoEmpresa }) => {
+        let cpfsToKeep = []
+        let cpfsToRemove = []
 
+        if (cpfProcuradores) {
+            const alsoSocios = await isSocio(cpfProcuradores)
+            const cpfsWithOtherProcuracao = await hasOtherProcuracao({ cpfs: cpfProcuradores, codigoEmpresa })
+            cpfsToKeep = alsoSocios.concat(cpfsWithOtherProcuracao)
+            cpfsToRemove = cpfProcuradores.filter(cpf => !cpfsToKeep.includes(cpf))
+        }
+        else if (cpfSocios) {
+            cpfsToKeep = await hasOtherProcuracao({ cpfs: cpfSocios, codigoEmpresa })
+            cpfsToRemove = cpfSocios.filter(cpf => !cpfsToKeep.includes(cpf))
+        }
 
+        const filter = ({ 'cpf': { $in: cpfsToRemove } })
+        const userUpdate = await UserModel.updateMany(filter, { $pull: { 'empresas': Number(codigoEmpresa) } })
+        return userUpdate
     }
 
     static deleteUser = async id => {
