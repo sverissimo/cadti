@@ -37,7 +37,7 @@ const isProcurador = async (cpfs) => {
  */
 const hasAnyProcuracao = async (procurador) => {
     const procuracoes = await new Repository('procuracoes', 'procuracao_id').list()
-    const hasAnyProcuracao = procuracoes.filter((doc) => doc.procuradores.includes(procurador.procurador_id))
+    const hasAnyProcuracao = procuracoes.filter((doc) => doc.procuradores && doc.procuradores.includes(procurador.procurador_id))
     return !!hasAnyProcuracao.length
 }
 

@@ -24,14 +24,15 @@ class ProcuracaoController extends Controller {
             if (!procuracaoId) {
                 return res.status(400).send('ProcuracaoController: Could not save procuracao.')
             }
-            const savedProcuracao = [{ procuracao_id: procuracaoId, ...procuracao }]
 
+            const savedProcuracao = [{ procuracao_id: procuracaoId, ...procuracao }]
             const io = req.app.get('io')
             const procuracaoSocket = new CustomSocket(io, this.table, this.primaryKey)
             const procuradorSocket = new CustomSocket(io, 'procuradores', 'procurador_id')
 
             procuradorSocket.emit('updateAny', procuradores, codigoEmpresa)
             procuracaoSocket.emit('insertElements', savedProcuracao, codigoEmpresa)
+            console.log("🚀 ~ file: ProcuracaoController.js:36 ~ ProcuracaoController ~ save= ~ procuracaoId", { procuracaoId })
             res.status(201).send(JSON.stringify(procuracaoId))
 
         } catch (error) {

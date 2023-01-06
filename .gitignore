@@ -13,7 +13,7 @@ server/alerts/mockAlertFiles/*.html
 *.docx
 
 ecosystem.config.js
-/server/tests/mockData
+/server/tests/mockData/other
 
 /client/debug.log
 oldVehicles.json
@@ -22,7 +22,6 @@ oldVehiclesDB.json
 
 server/testAPI.rest
 mintty.exe.stackdump
-
 
 *.code-workspace
 certificates/localhost.key

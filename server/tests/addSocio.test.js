@@ -1,7 +1,7 @@
 //ts-check
 const { testApi } = require('./api')
 const { socios } = require('./mockData/addSociosMockData')
-const { userMockData } = require('./mockData/userMockData')
+const { userMockData } = require('./mockData/addUserMockData')
 
 process.env.NODE_ENV = 'test'
 
