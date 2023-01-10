@@ -14,6 +14,7 @@ server/alerts/mockAlertFiles/*.html
 
 ecosystem.config.js
 /server/tests/mockData/other
+/server/database/other
 
 /client/debug.log
 oldVehicles.json
