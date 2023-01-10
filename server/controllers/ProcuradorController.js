@@ -2,8 +2,8 @@
 const { Controller } = require("./Controller");
 const { CustomSocket } = require("../sockets/CustomSocket");
 const ProcuradorRepository = require("../repositories/ProcuradorRepository");
-const insertEmpresa = require("../users/insertEmpresa");
 const { ProcuradorService } = require("../services/ProcuradorService");
+const { UserService } = require("../services/UserService");
 
 class ProcuradorController extends Controller {
     table = 'procuradores'
@@ -55,7 +55,7 @@ class ProcuradorController extends Controller {
             }
 
             if (updateUserPermission === true) {
-                insertEmpresa({ representantes: procuradores, codigoEmpresa })
+                await UserService.addPermissions(procuradores, codigoEmpresa)
             }
 
             const io = req.app.get('io')

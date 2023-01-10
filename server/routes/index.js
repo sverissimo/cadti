@@ -7,17 +7,17 @@ const { procuradorRoutes } = require('./procuradorRoutes')
 const { procuracaoRoutes } = require('./procuracaoRoutes')
 const { seguroRoutes } = require('./seguroRoutes')
 const { socioRoutes } = require('./socioRoutes')
-const { userRoutes } = require('../users/userRoutes')
+const { userRoutes } = require('./userRoutes')
 const veiculoRoutes = require('./veiculoRoutes')
 
 const parametros = require('../parametros/parametros')
 const { lookup } = require('../infrastructure/SQLqueries/queries')
 const { Controller } = require('../controllers/Controller')
-const removeEmpresa = require('../users/removeEmpresa')
 const { requireSeinfra } = require('../auth/checkPermissions')
 const ProcuradorController = require('../controllers/ProcuradorController')
 const { SocioController } = require('../controllers/SocioController')
 const { solicitacoesRoutes } = require('./solicitacoesRoutes')
+const { UserService } = require('../services/UserService')
 
 router.use('/avisos', alertRoutes)
 router.use('/users', userRoutes)
@@ -63,7 +63,7 @@ router.patch('/removeEmpresa', async (req, res) => {
     const { cpfsToRemove, codigoEmpresa } = req.body
 
     if (cpfsToRemove && cpfsToRemove[0]) {
-        await removeEmpresa({ representantes: cpfsToRemove, codigoEmpresa })
+        await UserService.removePermissions({ cpfSocios: cpfsToRemove, codigoEmpresa })
     }
     res.send('permission updated.')
 })

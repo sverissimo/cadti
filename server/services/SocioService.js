@@ -1,7 +1,6 @@
 //@ts-check
 const { SocioDaoImpl } = require("../infrastructure/SocioDaoImpl")
 const { Repository } = require("../repositories/Repository")
-const insertEmpresa = require("../users/insertEmpresa")
 const { UserService } = require("./UserService")
 const { isProcurador, hasOtherProcuracao } = require("./utilServices")
 
@@ -21,7 +20,7 @@ class SocioService {
             const result = await new SocioDaoImpl().updateMany(socios)
             //Atualiza a permissão dos usuários conforme atualização dos sócios
             if (cpfsToAdd && cpfsToAdd[0]) {
-                insertEmpresa({ representantes: cpfsToAdd, codigoEmpresa })
+                await UserService.addPermissions(cpfsToAdd, codigoEmpresa)
             }
 
             return result

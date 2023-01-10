@@ -1,7 +1,6 @@
 //@ts-check
 const { SocioService } = require("../services/SocioService");
 const { CustomSocket } = require("../sockets/CustomSocket");
-const insertEmpresa = require("../users/insertEmpresa");
 const { Controller } = require("./Controller");
 
 class SocioController extends Controller {
