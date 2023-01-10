@@ -1,6 +1,7 @@
 //@ts-check
 const router = require('express').Router()
 const alertRoutes = require('../alerts/alertRoutes')
+const { altContratoRoutes } = require('./altContratoRoutes')
 const { empresaRoutes } = require('./empresaRoutes')
 const { procuradorRoutes } = require('./procuradorRoutes')
 const { procuracaoRoutes } = require('./procuracaoRoutes')
@@ -9,38 +10,27 @@ const { socioRoutes } = require('./socioRoutes')
 const { userRoutes } = require('../users/userRoutes')
 const veiculoRoutes = require('./veiculoRoutes')
 
-const AltContrato = require('../domain/altContrato/AltContrato')
 const parametros = require('../parametros/parametros')
-const Solicitacoes = require('../domain/solicitacoes/Solicitacoes')
 const { lookup } = require('../infrastructure/SQLqueries/queries')
-const { logHandler } = require('../utils/logHandler')
 const { Controller } = require('../controllers/Controller')
 const removeEmpresa = require('../users/removeEmpresa')
 const { requireSeinfra } = require('../auth/checkPermissions')
 const ProcuradorController = require('../controllers/ProcuradorController')
 const { SocioController } = require('../controllers/SocioController')
-
-const altContrato = new AltContrato()
-const solicitacoes = new Solicitacoes()
-
-router.route('/altContrato')
-    .get(altContrato.list)
-    .post(altContrato.create)
-
-router.route('/logs')
-    .get(solicitacoes.list)
-    .post(logHandler, solicitacoes.create)
+const { solicitacoesRoutes } = require('./solicitacoesRoutes')
 
 router.use('/avisos', alertRoutes)
 router.use('/users', userRoutes)
 router.use('/parametros', parametros)
 router.use(/\/veiculos|\/\w+Vehicle(\w+)?|\/baixaVeiculo|\/updateInsurances|\/laudos/, veiculoRoutes)
 
+altContratoRoutes(router)
 empresaRoutes(router)
 procuracaoRoutes(router)
 procuradorRoutes(router)
 seguroRoutes(router)
 socioRoutes(router)
+solicitacoesRoutes(router)
 
 router.get('/lookUpTable/:table', lookup);
 

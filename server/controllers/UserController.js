@@ -11,11 +11,13 @@ class UserController {
 
         try {
             if (req.params.id || Object.keys(req.query).length) {
-                return this.getUser(req, res, next)
+                const filter = req.params.id || req.query
+                const user = await UserService.find(filter)
+                return res.send(user)
             }
 
             const users = await UserService.list()
-            res.send(users)
+            return res.send(users)
         }
         catch (error) {
             next(error)
@@ -26,9 +28,9 @@ class UserController {
     getUser = async (req, res, next) => {
         const { user } = req
         try {
-            const filter = req.query || { _id: user._id }
+            const filter = { _id: user._id }
             const updatedUser = await UserService.find(filter)
-            res.send(updatedUser)
+            res.send(updatedUser[0])
         } catch (error) {
             next(error)
         }
