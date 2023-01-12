@@ -32,7 +32,7 @@ const checkExpiredInsurances = async () => {
             if (t && t.rows) console.log(t.rows)
         })
     })
-    console.log('checkExpiredInsurances: updated expired insurances')
+    //console.log('checkExpiredInsurances: updated expired insurances')
     return
 }
 

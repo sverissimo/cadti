@@ -20,7 +20,7 @@ LEFT JOIN veiculos v
 	ON seguros.apolice = v.apolice
 LEFT JOIN empresas d
 	ON d.codigo_empresa = seguros.codigo_empresa
-LEFT JOIN seguradora s
+LEFT JOIN seguradoras s
 	ON s.id = seguros.seguradora_id
 GROUP BY seguros.apolice, d.razao_social, s.seguradora, d.codigo_empresa, seguros.id
 ORDER BY seguros.vencimento ASC

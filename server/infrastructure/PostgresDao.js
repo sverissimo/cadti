@@ -195,7 +195,6 @@ class PostgresDao {
     }
 
     delete = async (id) => {
-        //REFACTOR!!!
         if (this.table === 'laudos') {
             id = `'${id}'`
         }

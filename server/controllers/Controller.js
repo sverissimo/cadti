@@ -156,6 +156,32 @@ class Controller {
         }
     }
 
+    updateMany = async (req, res, next) => {
+        const { codigoEmpresa, ...entities } = req.body
+        const updates = entities[this.table]
+        if (!updates || !updates.length) {
+            return res.status(400).send('Nothing to update...')
+        }
+
+        try {
+            const result = await this.repository.updateMany(updates)
+            if (!result) {
+                return res.status(404).send('Resource not found.')
+            }
+
+            const io = req.app.get('io')
+            const socket = new CustomSocket(io, this.table, this.primaryKey)
+            const ids = updates.map(u => u[this.primaryKey])
+
+            const updatedData = await this.repository.find(ids)
+            console.log("🚀 ~ file: Controller.js:178 ~ Controller ~ updateMany= ~ updatedData", updatedData)
+            socket.emit('updateAny', updatedData, codigoEmpresa)
+            return res.status(204).end()
+        } catch (error) {
+            next(error)
+        }
+    }
+
     delete = async (req, res, next) => {
         const { user } = req
         const { table, tablePK, id, codigoEmpresa } = req.query

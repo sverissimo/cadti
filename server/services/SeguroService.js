@@ -1,5 +1,6 @@
 //@ts-check
 const { SeguroDaoImpl } = require("../infrastructure/SeguroDaoImpl")
+const { getUpdatedData } = require('../infrastructure/SQLqueries/getUpdatedData')
 const segurosModel = require("../mongo/models/segurosModel")
 const VeiculoRepository = require("../repositories/VeiculoRepository")
 const { VeiculoService } = require("./VeiculoService")
@@ -42,14 +43,31 @@ class SeguroService {
         const role = user && user.role
         const segModel = new segurosModel(body)
 
-        if (role === 'empresa')
+        if (role === 'empresa') {
             return res.status(403).send('O usuário não possui permissões para esse cadastro no cadTI.')
+        }
 
         segModel.save(function (err, doc) {
             if (err) console.log(err)
             if (doc) res.locals = { doc }
             res.send('saved in mongoDB')
         })
+    }
+
+    static checkExpiredInsurances = async () => {
+        try {
+            const condition = 'WHERE seguros.vencimento < current_date'
+            const segurosVencidos = await getUpdatedData('seguros', condition)
+            const updates = segurosVencidos
+                .filter(s => s.situacao !== 'Vencido')
+                .map(s => ({ id: s.id, situacao: 'Vencido' }))
+
+            const seguroDao = new SeguroDaoImpl()
+            const updateResult = await seguroDao.updateMany(updates)
+            return updateResult
+        } catch (error) {
+            throw new Error(error)
+        }
     }
 }
 
