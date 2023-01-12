@@ -1,18 +1,19 @@
-const
-    insertNewInsurances = require('./seguros/insertNewInsurances')
-    , checkExpiredInsurances = require('./seguros/checkExpiredInsurances')
-    , updateVehicleStatus = require('./veiculos/updateVehicleStatus')
-    , moment = require('moment')
+//@ts-check
+const { SeguroService } = require('../services/SeguroService')
+const insertNewInsurances = require('./seguros/insertNewInsurances')
+const updateVehicleStatus = require('./veiculos/updateVehicleStatus')
+const moment = require('moment')
 
 let i = 0
 const updateSystemStatus = async () => {
-    // checa se um seguro registrado com início de vigência futura iniciou sua vigência. Caso positivo, resgata o seguro do MongoDB e insere no Postgresql 
+    // checa se um seguro registrado com início de vigência futura iniciou sua vigência. Caso positivo, resgata o seguro do MongoDB e insere no Postgresql
     await insertNewInsurances()
     console.log('new insurances alright')
 
     //Atualiza a tabela de seguros do Postgresql com aqueles que venceram o seguro, mudando o status de cada seguro para "Vencido"
-    await checkExpiredInsurances()
-    console.log('updated expired insurances alright')
+    const SeguroUpdateResult = await SeguroService.checkExpiredInsurances()
+    console.log(`updated expired insurances alright. Update result: ${SeguroUpdateResult}`)
+
 
     //Atualiza a tabela de veículos do Postgresql de acordo com a situação do seguros do laudo e atualizando a situação de todos os veículos.
     updateVehicleStatus()

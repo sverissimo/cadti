@@ -7,7 +7,7 @@ const
 
 /**
  * Para cada veículo, pega os dados atualizados de getVehicleStatus e faz um request de atualização da situação de todos eles p o DB
- * @param {Array<number>} vehicleIds
+ * @param {Array<number>} [vehicleIds]
  * @returns {Promise<void>}
  */
 const updateVehicleStatus = async (vehicleIds) => {

@@ -3,7 +3,7 @@ const request = require('supertest');
 const app = require('../app');
 const { SeguroService } = require('../services/SeguroService');
 const { testHeaders } = require('./testConfig');
-const { addSegurosMockData } = require('./mockData/other/addSegurosMockData');
+const { addSegurosMockData } = require('./mockData/addSegurosMockData');
 
 process.env.NODE_ENV = 'test'
 
@@ -22,11 +22,10 @@ jest.mock('../sockets/CustomSocket', () => {
 
 jest.mock('../routes/fileRoutes', () => ({ fileRouter: (app) => void 0 }))
 
-let agent
+const agent = request(app)
 const seguroIds = []
-beforeAll(async () => {
-    agent = request(app)
 
+beforeAll(async () => {
     for (const seguro of addSegurosMockData) {
         const addSegurosResult = await agent.post('/api/seguros')
             .set(testHeaders)
@@ -34,28 +33,33 @@ beforeAll(async () => {
         const seguroId = addSegurosResult.body
         seguroIds.push(seguroId)
     }
-    console.log("🚀 ~ file: SeguroService.test.js:16 ~ beforeAll ~ addSegurosResult", seguroIds)
+    console.log("🚀 ~ file: SeguroService.test.js:35 ~ beforeAll ~ seguroIds", seguroIds)
 })
 
-describe('Seguros -> testing checkExpiredInsurances method', () => {
+afterAll((done) => {
+    for (const seguroId of seguroIds) {
+        agent.delete(`/api/delete?table=seguros&tablePK=id&id=${seguroId}`)
+            .set(testHeaders)
+            .end(done)
+    }
+})
+
+describe('Testing SeguroService >> checkExpiredInsurances method', () => {
     describe('When a user query for recently uploaded insurances', () => {
         it('should retrieve insurances with status = null', async () => {
             const response = await agent.get(`/api/seguros?id=${seguroIds.join()}`)
                 .set(testHeaders)
             const insurancesBeforeUpdate = response.body
-            console.log("🚀 ~ file: SeguroService.test.js:46 ~ it ~ insurancesBeforeUpdate", insurancesBeforeUpdate)
             expect(insurancesBeforeUpdate.every(i => i.situacao === "Vigente")).toBe(true)
         })
     })
 
     describe('When a user runs the updateSystemInsurances function', () => {
         it('should update each seguro status accordingly to its expiration date', async () => {
-
             await SeguroService.checkExpiredInsurances()
             const segurosQueryResult = await agent.get(`/api/seguros?id=${seguroIds.join()}`)
                 .set(testHeaders)
             const updatedSeguros = segurosQueryResult.body
-            console.log("🚀 ~ file: SeguroService.test.js:58 ~ it ~ updatedSeguros", updatedSeguros)
 
             expect(updatedSeguros.length).toBe(5)
             expect(updatedSeguros.some(i => i.situacao === 'Vigente')).toBe(true)

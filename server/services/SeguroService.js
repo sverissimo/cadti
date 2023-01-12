@@ -54,6 +54,10 @@ class SeguroService {
         })
     }
 
+    /**
+     * Procura seguros vencidos e atualiza seus status
+     * @returns Promise<boolean>
+     */
     static checkExpiredInsurances = async () => {
         try {
             const condition = 'WHERE seguros.vencimento < current_date'
