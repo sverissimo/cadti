@@ -50,8 +50,8 @@ class VeiculoDaoImpl extends PostgresDao {
     /**
      * @typedef {object} ApoliceUpdate
      * @property {string} apolice
-     * @property {number[]} vehicleIds
-     * @property {number[]} deletedVehicleIds
+     * @property {number[]} [vehicleIds]
+     * @property {number[]} [deletedVehicleIds]
      * @param {ApoliceUpdate} apoliceUpdate
      */
     updateVehiclesInsurance = async ({ apolice, vehicleIds, deletedVehicleIds }) => {
@@ -71,7 +71,6 @@ class VeiculoDaoImpl extends PostgresDao {
         }
 
         const query = addQuery + deleteQuery
-        console.log("🚀 ~ file: VeiculoDaoImpl.js:68 ~ VeiculoDaoImpl ~ updateVehiclesInsurance= ~ query", query)
         const result = await pool.query(query)
         return !!result.rowCount || Array.isArray(result) && result.some(r => !!r.rowCount)
     }

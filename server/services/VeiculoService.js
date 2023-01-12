@@ -53,8 +53,8 @@ class VeiculoService {
     /**
     * @typedef {object} ApoliceUpdate
     * @property {string} apolice
-    * @property {number[]} vehicleIds
-    * @property {number[]} deletedVehicleIds
+    * @property {number[]} [vehicleIds]
+    * @property {number[]} [deletedVehicleIds]
     * @param {ApoliceUpdate} apoliceUpdate
     */
     static async updateVehiclesInsurance(apoliceUpdate) {
@@ -62,7 +62,13 @@ class VeiculoService {
             const result = await new VeiculoRepository().updateVehiclesInsurance(apoliceUpdate)
             if (result) {
                 const { vehicleIds, deletedVehicleIds } = apoliceUpdate
-                const ids = [...vehicleIds, ...deletedVehicleIds]
+                const ids = []
+                if (vehicleIds) {
+                    ids.push(...vehicleIds)
+                }
+                if (deletedVehicleIds) {
+                    ids.push(...deletedVehicleIds)
+                }
                 await updateVehicleStatus(ids)
             }
 

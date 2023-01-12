@@ -46,7 +46,7 @@ afterAll((done) => {
 
 describe('Testing SeguroService >> checkExpiredInsurances method', () => {
     describe('When a user query for recently uploaded insurances', () => {
-        it('should retrieve insurances with status = null', async () => {
+        it('should retrieve insurances with situacao = null', async () => {
             const response = await agent.get(`/api/seguros?id=${seguroIds.join()}`)
                 .set(testHeaders)
             const insurancesBeforeUpdate = response.body

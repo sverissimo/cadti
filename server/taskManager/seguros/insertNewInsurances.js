@@ -1,13 +1,12 @@
+//@ts-check
 const
     { pool } = require('../../config/pgConfig'),
     moment = require('moment'),
     segurosModel = require('../../mongo/models/segurosModel'),
     { seguros } = require('../../infrastructure/SQLqueries/queries'),
-    updateVehicleApolice = require('../veiculos/updateVehicleApolice'),
     markAsUpdated = require('./markAsUpdated'),
     { parseRequestBody } = require('../../utils/parseRequest'),
-    deleteVehiclesInsurance = require('../../deleteVehiclesInsurance')
-
+    { VeiculoService } = require('../../services/VeiculoService')
 
 //Checa todos os seguros no MongoDB e insere no Postgresql caso sua vigência tenha começado
 const insertNewInsurances = async () => {
@@ -75,7 +74,9 @@ const insertNewInsurances = async () => {
                     if (t && t.rows[0]) {
                         const apolice = t.rows[0].apolice
                         if (apolice) {
-                            await updateVehicleApolice(veiculos, apolice)
+                            const update = { apolice, vehicleIds: veiculos }
+                            VeiculoService.updateVehiclesInsurance(update)
+                            //await updateVehicleApolice(veiculos, apolice)
                         }
                         markAsUpdated(apolice)
 
@@ -89,8 +90,11 @@ const insertNewInsurances = async () => {
                         vehiclesToDelete.push(v)
                 })
                 console.log('deleted vehicles: ', vehiclesToDelete)
-                if (vehiclesToDelete[0])
-                    deleteVehiclesInsurance(vehiclesToDelete)
+
+                if (vehiclesToDelete[0]) {
+                    const update = { apolice: apoliceToUpdate, deletedVehicleIds: vehiclesToDelete }
+                    VeiculoService.updateVehiclesInsurance(update)
+                }
             }
 
             //Se não houver nenhum seguro com esse número de apólice no Postgresql, inserir novo seguro.
@@ -101,8 +105,10 @@ const insertNewInsurances = async () => {
                     if (t && t.rows[0]) {
                         const apolice = (t.rows[0].apolice)
                         if (apolice) {
-                            await updateVehicleApolice(veiculos, apolice)
+                            const update = { apolice, vehicleIds: veiculos }
+                            VeiculoService.updateVehiclesInsurance(update)
                             markAsUpdated(seguroObj.apolice)
+                            //await updateVehicleApolice(veiculos, apolice)
                         }
                     }
                 })

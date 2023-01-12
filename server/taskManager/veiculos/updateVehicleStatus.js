@@ -31,7 +31,7 @@ const updateVehicleStatus = async (vehicleIds) => {
 
         //Monitorar o request
         const subQuery = updateQuery.substr(0, 500)
-        console.log(subQuery, '***************************\n', vehicleIds)
+        //console.log(subQuery, '***************************\n', vehicleIds)
 
         await pool.query(updateQuery, (err, t) => {
             if (err)
@@ -45,7 +45,6 @@ const updateVehicleStatus = async (vehicleIds) => {
 
 //Checa o seguro e o laudo (se for o caso) da array de ids de veículos que forem passadas ou de todos os veículos caso nenhuma array de veiculo_ids seja passado
 const getVehicleStatus = async vehicleIds => {
-
     const
         l = await pool.query(laudosQuery),
         laudos = l.rows,
@@ -66,7 +65,6 @@ const getVehicleStatus = async vehicleIds => {
             condition = condition + `veiculos.veiculo_id = '${id}' OR `
         })
         condition = condition.slice(0, condition.length - 3)
-        console.log("🚀 ~ file: updateVehicleStatus.js ~ line 67 ~ condition", condition)
         veiculos = await getUpdatedData('veiculos', `WHERE ${condition}`)
     }
 

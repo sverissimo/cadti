@@ -7,6 +7,37 @@ const { VeiculoService } = require("./VeiculoService")
 
 class SeguroService {
 
+    /**
+     * @param {object} seguroDTO
+     */
+    static save = async (seguroDTO) => {
+        const seguroDao = new SeguroDaoImpl()
+        const veiculoRepository = new VeiculoRepository()
+        try {
+            const { veiculos: veiculoIds, ...seguro } = seguroDTO
+            const { apolice } = seguro
+            const seguroId = await seguroDao.save(seguro)
+            const vehicleUpdateResult = await VeiculoService.updateVehiclesInsurance({
+                apolice,
+                vehicleIds: veiculoIds
+            })
+
+            let updatedVehicles
+            if (vehicleUpdateResult) {
+                updatedVehicles = await veiculoRepository.find(veiculoIds)
+            }
+
+            const updatedInsurance = await seguroDao.find(seguroId)
+            return {
+                updatedInsurance,
+                updatedVehicles
+            }
+
+        } catch (error) {
+            throw new Error(error)
+        }
+    }
+
     /** @returns {Promise<object>} updatedInsurance, updatedVehicles */
     static updateInsurance = async ({ update, vehicleIds, deletedVehicleIds }) => {
         const seguroDao = new SeguroDaoImpl()

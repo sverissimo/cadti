@@ -11,6 +11,27 @@ class SeguroController extends Controller {
     primaryKey = 'id'
     repository = new Repository(this.table, this.primaryKey)
 
+    /** @override */
+    save = async (req, res, next) => {
+        const seguro = req.body
+        if (!seguro.apolice) {
+            return res.status(400).send('O número da apólice é obrigatório.')
+        }
+
+        try {
+            const id = await SeguroService.save(seguro)
+            const io = req.app.get('io')
+            const socket = new CustomSocket(io, this.table, this.primaryKey)
+            const createdEntity = await this.repository.find(id)
+            const { codigo_empresa } = createdEntity[0]
+
+            socket.emit('insertElements', createdEntity, codigo_empresa)
+            res.status(201).json(id)
+        } catch (error) {
+            next(error)
+        }
+    }
+
     /**
      * @param {request} req
      * @param {response} res
@@ -19,7 +40,6 @@ class SeguroController extends Controller {
     updateInsurance = async (req, res, next) => {
         const { update, vehicleIds, deletedVehicleIds } = req.body
         try {
-
             const updated = await SeguroService.updateInsurance({ update, vehicleIds, deletedVehicleIds })
             const { updatedInsurance, updatedVehicles } = updated
             res.status(200).send('Seguro e veículos atualizados.')

@@ -27,8 +27,8 @@ class VeiculoRepository extends Repository {
     /**
      * @typedef {object} ApoliceUpdate
      * @property {string} apolice
-     * @property {number[]} vehicleIds
-     * @property {number[]} deletedVehicleIds
+     * @property {number[]} [vehicleIds]
+     * @property {number[]} [deletedVehicleIds]
      * @param {ApoliceUpdate} apoliceUpdate
      */
     async updateVehiclesInsurance(apoliceUpdate) {

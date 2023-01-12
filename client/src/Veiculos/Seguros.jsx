@@ -591,6 +591,7 @@ class Seguro extends Component {
 
         //A atualização da coluna "apólice" da tabela veículos vai sempre ocorrer. Independente de ser um novo número ou não de apolice,
         //novos veículos podem ser adicionados ou excluídos
+        //DESNECESSÁRIO COM REFACTORING BACKEND --- REFACTOR!!!
         await axios.put('/api/updateInsurances', body)
             .then(res => {
                 console.log(res.data)
