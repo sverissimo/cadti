@@ -1,8 +1,7 @@
 //@ts-check
 const { SeguroService } = require('../services/SeguroService')
 const insertNewInsurances = require('./seguros/insertNewInsurances')
-const updateVehicleStatus = require('./veiculos/updateVehicleStatus')
-const moment = require('moment')
+const { VeiculoService } = require('../services/VeiculoService')
 
 let i = 0
 const updateSystemStatus = async () => {
@@ -14,13 +13,13 @@ const updateSystemStatus = async () => {
     const SeguroUpdateResult = await SeguroService.checkExpiredInsurances()
     console.log(`updated expired insurances alright. Update result: ${SeguroUpdateResult}`)
 
-
     //Atualiza a tabela de veículos do Postgresql de acordo com a situação do seguros do laudo e atualizando a situação de todos os veículos.
-    updateVehicleStatus()
-    console.log('updated vehicle data alright')
+    const VeiculoUpdateResult = await VeiculoService.updateVehicleStatus()
+    console.log(`updated expired vehicles alright. Update result: ${VeiculoUpdateResult}`)
 
     i++
-    console.log(`Updated ${i} times, once a day. ${moment()}`)
+    const currentDate = new Date().toISOString()
+    console.log(`Updated ${i} times, once a day. Last updated: ${currentDate}`)
 }
 
 module.exports = updateSystemStatus

@@ -65,8 +65,8 @@ describe('Testing VeiculoService >> updateVehicleInsurances method', () => {
         it('Then all vehicle apolice should match informed apolice', async () => {
             const veiculos = await new VeiculoRepository().find(veiculoIds)
             console.log("🚀 ~ file: VeicUloService.test.js:67 ~ it ~ vehicles AFTER_ADD", veiculos.map(({ placa, apolice, situacao }) => ({ placa, apolice, situacao })))
-            expect(veiculos.every(v => v.apolice === apolice))
-            expect(veiculos.every(v => v.situacao === 'Ativo'))
+            expect(veiculos.every(v => v.apolice === apolice)).toBe(true)
+            expect(veiculos.every(v => v.situacao === 'Ativo')).toBe(true)
         })
 
         it('When updateVehicleInsurances is called method with deletedVehicleIds (REMOVE args)', async () => {
@@ -78,8 +78,8 @@ describe('Testing VeiculoService >> updateVehicleInsurances method', () => {
             const veiculos = await new VeiculoRepository().find(veiculoIds)
             console.log("🚀 ~ file: VeicUloService.test.js:79 ~ it ~ vehicles AFTER DELETE", veiculos.map(({ placa, apolice, situacao }) => ({ placa, apolice, situacao })))
             expect(veiculos.length).toBe(3)
-            expect(veiculos.every(v => v.apolice === 'Seguro não cadastrado'))
-            //expect(veiculos.every(v => v.situacao === 'Seguro não cadastrado'))
+            expect(veiculos.every(v => v.apolice === 'Seguro não cadastrado')).toBe(true)
+            expect(veiculos.every(v => v.situacao === 'Seguro vencido')).toBe(true)
         })
     })
 })

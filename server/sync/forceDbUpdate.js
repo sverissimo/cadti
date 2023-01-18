@@ -1,5 +1,6 @@
+//@ts-check
 const { SeguroService } = require("../services/SeguroService")
-const updateVehicleStatus = require("../taskManager/veiculos/updateVehicleStatus")
+const { VeiculoService } = require("../services/VeiculoService")
 
 const forceDbUpdate = async (req, res) => {
 
@@ -7,9 +8,9 @@ const forceDbUpdate = async (req, res) => {
     const SeguroUpdateResult = await SeguroService.checkExpiredInsurances()
     console.log(`updated expired insurances alright. Update result: ${SeguroUpdateResult}`)
 
-    //Atualiza a tabela de veículos do Postgresql de acordo com a situação do seguroe do laudo e atualizando a situação de todos os veículos.
-    await updateVehicleStatus()
-    console.log('updated vehicle data alright')
+    //Atualiza a tabela de veículos do Postgresql de acordo com a situação do seguro e do laudo e atualizando a situação de todos os veículos.
+    const VeiculoUpdateResult = await VeiculoService.updateVehicleStatus()
+    console.log(`updated expired vehicles alright. Update result: ${VeiculoUpdateResult}`)
 
     res.send('Postgres update and sync concluded.')
 }

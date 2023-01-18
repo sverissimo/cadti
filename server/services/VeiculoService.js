@@ -1,15 +1,17 @@
 //@ts-check
 const fs = require('fs')
 const xlsx = require('xlsx')
-const updateVehicleStatus = require("../taskManager/veiculos/updateVehicleStatus")
+const moment = require('moment')
+const VeiculoDaoImpl = require('../infrastructure/VeiculoDaoImpl')
 const oldVehiclesModel = require('../mongo/models/oldVehiclesModel')
 const getFormattedDate = require('../utils/getDate')
 const VeiculoRepository = require('../repositories/VeiculoRepository')
 const { Repository } = require('../repositories/Repository')
-const VeiculoDaoImpl = require('../infrastructure/VeiculoDaoImpl')
 
 class VeiculoService {
 
+    static repository = new VeiculoRepository()
+    static entityManager = new VeiculoDaoImpl()
     /**
      * Busca por um veículo entre ativos e baixados.
      * @param {string} placa
@@ -57,9 +59,9 @@ class VeiculoService {
     * @property {number[]} [deletedVehicleIds]
     * @param {ApoliceUpdate} apoliceUpdate
     */
-    static async updateVehiclesInsurance(apoliceUpdate) {
+    static updateVehiclesInsurance = async (apoliceUpdate) => {
         try {
-            const result = await new VeiculoRepository().updateVehiclesInsurance(apoliceUpdate)
+            const result = await this.repository.updateVehiclesInsurance(apoliceUpdate)
             if (result) {
                 const { vehicleIds, deletedVehicleIds } = apoliceUpdate
                 const ids = []
@@ -69,13 +71,78 @@ class VeiculoService {
                 if (deletedVehicleIds) {
                     ids.push(...deletedVehicleIds)
                 }
-                await updateVehicleStatus(ids)
+                await this.updateVehicleStatus(ids)
             }
 
             return result
         } catch (error) {
             throw new Error(error.message)
         }
+    }
+
+    /**
+     * Atualiza o status de todos os veículos ou de um grupo específico, caso seja passada uma array de IDs
+     * @param {number[]} [ids]
+     * @returns {Promise<boolean>} Resultado do update - boolean
+     */
+    static updateVehicleStatus = async (ids) => {
+        try {
+            const vehicleFilter = ids || ''
+            const veiculos = await this.repository.find(vehicleFilter)
+            const updatedStatus = await this._getUpdatedVehicleStatus(veiculos)
+            const result = await this.repository.updateMany(updatedStatus)
+            return result
+        } catch (error) {
+            throw new Error(error)
+        }
+    }
+
+    /**
+     * @param {Array<object>} veiculos
+     * @returns {Promise<any[]>} Array de objetos con veiculo_id e situacao
+     */
+    static _getUpdatedVehicleStatus = async (veiculos) => {
+        const laudos = await new Repository('laudos', 'id').list()
+        const currentDate = new Date()
+        const updates = []
+
+        for (const v of veiculos) {
+            const update = { id: v.veiculo_id }
+            const validDate = v.vencimento && moment(v.vencimento).isValid()
+            const insuranceExpired = moment(v.vencimento).isBefore(moment(), 'day')
+            const noInsurance = v.apolice === 'Seguro não cadastrado'
+            const isOld = currentDate.getFullYear() - v.ano_carroceria >= 16
+            const laudoExpired = laudos.find(l => (
+                l.veiculo_id === v.veiculo_id
+                && moment(l.validade).isBefore(moment(), 'day')
+            ))
+
+            const seguroVencido = (validDate && insuranceExpired) || noInsurance
+            const laudoVencido = isOld && laudoExpired
+
+            if (seguroVencido && laudoVencido) {
+                update.situacao = 'Ambos seguro e laudo vencidos'
+            }
+            else if (seguroVencido) {
+                update.situacao = 'Seguro vencido'
+            }
+            else if (laudoVencido) {
+                update.situacao = 'Laudo inexistente ou vencido'
+            }
+            else {
+                update.situacao = 'Ativo'
+            }
+            if (v.situacao !== update.situacao) {
+                updates.push(update)
+            }
+        }
+
+        const ativos = updates.filter(u => u.situacao === 'Ativo').length
+        const segurosVencidos = updates.filter(u => u.situacao === 'Seguro Vencido').length
+        const laudosVencidos = updates.filter(u => u.situacao === 'Laudo inexistente ou vencido').length
+        const ambosVencidos = updates.filter(u => u.situacao === 'Ambos seguro e laudo vencidos').length
+        console.log('Vehicle update status result: ', { ativos, segurosVencidos, laudosVencidos, ambosVencidos })
+        return updates
     }
 
     /**
@@ -88,7 +155,7 @@ class VeiculoService {
             const createdId = await repository.save(laudo)
             const { veiculo_id } = laudo
 
-            await updateVehicleStatus([veiculo_id])
+            await this.updateVehicleStatus([veiculo_id])
             return createdId
         } catch (error) {
             throw new Error(error)
