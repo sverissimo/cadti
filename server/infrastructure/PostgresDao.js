@@ -99,6 +99,7 @@ class PostgresDao {
 
         } catch (error) {
             client.query('ROLLBACK')
+            console.log("🚀 ~ file: PostgresDao.js:104 ~ PostgresDao ~ save ~ error.message", error.message)
             throw new Error(error.message)
         }
         finally {
@@ -110,7 +111,6 @@ class PostgresDao {
     update = async (requestBody) => {
         const client = await pool.connect()
         const query = this.createUpdateQuery(requestBody)
-
         try {
             await client.query('BEGIN')
             const result = await client.query(query)
@@ -195,7 +195,7 @@ class PostgresDao {
     }
 
     delete = async (id) => {
-        if (this.table === 'laudos') {
+        if (this.table === 'laudos' || this.primaryKey === 'apolice') {
             id = `'${id}'`
         }
 

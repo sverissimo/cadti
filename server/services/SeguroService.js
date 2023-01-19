@@ -2,6 +2,7 @@
 const { SeguroDaoImpl } = require("../infrastructure/SeguroDaoImpl")
 const { getUpdatedData } = require('../infrastructure/SQLqueries/getUpdatedData')
 const segurosModel = require("../mongo/models/segurosModel")
+const { Repository } = require("../repositories/Repository")
 const VeiculoRepository = require("../repositories/VeiculoRepository")
 const { VeiculoService } = require("./VeiculoService")
 
@@ -38,8 +39,16 @@ class SeguroService {
         }
     }
 
-    /** @returns {Promise<object>} updatedInsurance, updatedVehicles */
-    static updateInsurance = async ({ update, vehicleIds, deletedVehicleIds }) => {
+    /**
+     * **
+    * @typedef {object} SeguroUpdate
+    * @property {object} update
+    * @property {number[]} [vehicleIds]
+    * @property {number[]} [deletedVehicleIds]
+    * @param {SeguroUpdate} apoliceUpdate
+    * @returns {Promise<object>} updatedInsurance, updatedVehicles
+    */
+    static updateInsurance = async ({ update, vehicleIds = [], deletedVehicleIds = [] }) => {
         const seguroDao = new SeguroDaoImpl()
         const veiculoRepository = new VeiculoRepository()
 
@@ -103,6 +112,82 @@ class SeguroService {
         } catch (error) {
             throw new Error(error)
         }
+    }
+
+    static insertNewInsurances = async () => {
+        try {
+            const today = new Date()
+            const upcomingInsurances = await segurosModel.find({
+                data_emissao: { $lte: today },
+                vencimento: { $gte: today }
+            }).lean().exec()
+
+            if (!upcomingInsurances.length) {
+                console.log("SeguroService >> insertNewInsurances->false. No insurances to update.")
+                return false
+            }
+
+            const seguroRepository = new Repository('seguros', 'id')
+            const seguros = await seguroRepository.list()
+            const segurosToUpdate = upcomingInsurances.filter(({ apolice }) => seguros.some(s => s.apolice === apolice))
+            const segurosToAdd = upcomingInsurances.filter(({ apolice }) => seguros.every(s => s.apolice !== apolice))
+
+            if (segurosToUpdate.length) {
+                for (const seguroUpdate of segurosToUpdate) {
+                    const { veiculos: veiculoUpdates } = seguroUpdate
+                    const { id, veiculos: oldListOfVehicles } = seguros.find(s => s.apolice === seguroUpdate.apolice)
+
+                    const veiculosToAdd = veiculoUpdates.filter(v => !oldListOfVehicles.includes(v))
+                    const veiculosToDelete = oldListOfVehicles.filter(v => !veiculoUpdates.includes(v))
+                    seguroUpdate.id = id
+                    const seguroModel = this._convertToModel(seguroUpdate)
+
+                    await new SeguroDaoImpl().update(seguroModel)
+                    await VeiculoService.updateVehiclesInsurance({
+                        apolice: seguroUpdate.apolice,
+                        vehicleIds: veiculosToAdd,
+                        deletedVehicleIds: veiculosToDelete
+                    })
+                }
+            }
+
+            if (segurosToAdd.length) {
+                for (const seguro of segurosToAdd) {
+                    const veiculos = seguro.veiculos || []
+                    const seguroModel = this._convertToModel(seguro)
+
+                    await seguroRepository.save(seguroModel)
+                    await VeiculoService.updateVehiclesInsurance({
+                        apolice: seguro.apolice,
+                        vehicleIds: veiculos
+                    })
+                }
+            }
+
+            const cleanUpIDs = upcomingInsurances.map(({ _id }) => _id)
+            const filter = { _id: { $in: cleanUpIDs } }
+            const cleanUpResult = await segurosModel.deleteMany(filter)
+            return cleanUpResult
+
+        } catch (error) {
+            throw new Error(error)
+        }
+    }
+
+    static _convertToModel = (seguroDTO) => {
+        const {
+            _id,
+            __v,
+            veiculos,
+            createdAt,
+            updatedAt,
+            ...seguroModel
+        } = seguroDTO
+
+        seguroModel.data_emissao = seguroModel.data_emissao.toISOString()
+        seguroModel.vencimento = seguroModel.vencimento.toISOString()
+
+        return seguroModel
     }
 }
 

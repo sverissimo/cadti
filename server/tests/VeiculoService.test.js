@@ -3,7 +3,7 @@ const request = require('supertest');
 const app = require('../app');
 const { VeiculoService } = require('../services/VeiculoService');
 const { testHeaders } = require('./testConfig');
-const { addVeiculosMockData } = require('./mockData/other/addVeiculosMockData');
+const { addVeiculosMockData } = require('./mockData/addVeiculosMockData');
 const VeiculoRepository = require('../repositories/VeiculoRepository');
 
 process.env.NODE_ENV = 'test'

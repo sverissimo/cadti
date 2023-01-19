@@ -68,3 +68,4 @@ describe('Testing SeguroService >> checkExpiredInsurances method', () => {
         })
     })
 })
+
