@@ -78,22 +78,6 @@ class SeguroService {
         }
     }
 
-    static saveUpComingInsurances = (req, res) => {
-        const { user, body } = req
-        const role = user && user.role
-        const segModel = new segurosModel(body)
-
-        if (role === 'empresa') {
-            return res.status(403).send('O usuário não possui permissões para esse cadastro no cadTI.')
-        }
-
-        segModel.save(function (err, doc) {
-            if (err) console.log(err)
-            if (doc) res.locals = { doc }
-            res.send('saved in mongoDB')
-        })
-    }
-
     /**
      * Procura seguros vencidos e atualiza seus status
      * @returns Promise<boolean>

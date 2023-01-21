@@ -2,7 +2,6 @@
 const { Router } = require("express")
 const { requireSeinfra } = require("../auth/checkPermissions")
 const { SeguroController } = require("../controllers/SeguroController")
-const { SeguroService } = require("../services/SeguroService")
 
 const seguroController = new SeguroController()
 
@@ -14,7 +13,7 @@ const seguroRoutes = router => {
         .post(requireSeinfra, seguroController.save)
         .put(requireSeinfra, seguroController.updateInsurance)
 
-    router.post('/cadSeguroMongo', requireSeinfra, SeguroService.saveUpComingInsurances)
+    router.post('/upcomingInsurances', requireSeinfra, seguroController.saveUpComingInsurances)
 }
 
 module.exports = { seguroRoutes }

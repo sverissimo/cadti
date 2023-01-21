@@ -4,6 +4,7 @@ const { Controller } = require("./Controller")
 const { SeguroService } = require("../services/SeguroService")
 const { CustomSocket } = require("../sockets/CustomSocket")
 const { Repository } = require("../repositories/Repository")
+const segurosModel = require("../mongo/models/segurosModel")
 
 class SeguroController extends Controller {
 
@@ -61,6 +62,16 @@ class SeguroController extends Controller {
         } catch (error) {
             next(error)
         }
+    }
+
+    /**Salva seguros com data de vigência futura no MongoDB */
+    saveUpComingInsurances = async (req, res, next) => {
+        const seguro = req.body
+        const seguroModel = new segurosModel(seguro)
+        await seguroModel.save()
+            .catch(error => next(error))
+
+        return res.status(201).end()
     }
 }
 
