@@ -58,7 +58,6 @@ class SeguroController extends Controller {
                 veiculoSocket.emit('updateAny', updatedVehicles, codigoEmpresa)
             }
 
-
         } catch (error) {
             next(error)
         }

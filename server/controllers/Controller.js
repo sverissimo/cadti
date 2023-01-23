@@ -107,11 +107,6 @@ class Controller {
     }
 
     save = async (req, res, next) => {
-        const { user } = req
-        if (user.role !== 'admin') {
-            return res.status(403).send('É preciso permissão de administrador para acessar essa parte do cadTI.')
-        }
-
         try {
             const id = await this.repository.save(req.body)
             const io = req.app.get('io')
@@ -183,12 +178,8 @@ class Controller {
     }
 
     delete = async (req, res, next) => {
-        const { user } = req
         const { table, tablePK, id, codigoEmpresa } = req.query
 
-        if (user.role !== 'admin') {
-            return res.status(403).send('É preciso permissão de administrador para acessar essa parte do cadTI.')
-        }
         if (!id || !table) {
             return res.status(400).send('Bad request: ID or table missing.')
         }

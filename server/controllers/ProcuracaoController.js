@@ -1,5 +1,4 @@
 //@ts-check
-const { request, response } = require('express')
 const { Controller } = require('./Controller')
 const { ProcuracaoService } = require('../services/ProcuracaoService')
 const { CustomSocket } = require('../sockets/CustomSocket')
@@ -11,12 +10,7 @@ class ProcuracaoController extends Controller {
         super('procuracoes', 'procuracao_id')
     }
 
-    /**
-     * @override
-     * @param {request} req
-     * @param {response} res
-     * @returns {Promise<void | res>}
-     */
+    /** @override */
     save = async (req, res, next) => {
         const procuracao = req.body
         try {

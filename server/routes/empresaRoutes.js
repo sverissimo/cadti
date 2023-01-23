@@ -1,5 +1,6 @@
 //@ts-check
 const { Router } = require("express")
+const { requireSeinfra } = require("../auth/checkPermissions")
 const { EmpresaController } = require("../controllers/EmpresaController")
 
 const empresaController = new EmpresaController()
@@ -9,8 +10,8 @@ const empresaRoutes = router => {
     router
         .route('/empresas/:id?')
         .get(empresaController.list)
-        .post(empresaController.saveEmpresaAndSocios)
-        .patch(empresaController.update)
+        .post(requireSeinfra, empresaController.saveEmpresaAndSocios)
+        .patch(requireSeinfra, empresaController.update)
 }
 
 module.exports = { empresaRoutes }

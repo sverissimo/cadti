@@ -1,5 +1,6 @@
 //@ts-check
 const router = require('express').Router()
+const { requireSeinfra } = require('../auth/checkPermissions')
 const { Controller } = require('../controllers/Controller')
 const VeiculoController = require('../controllers/VeiculoController')
 const veiculoController = new VeiculoController()
@@ -26,7 +27,7 @@ router.route('/:id?')
         }
     })
 
-    .post((req, res, next) => {
+    .post(requireSeinfra, (req, res, next) => {
         const targetPath = req.baseUrl.replace('/api', '')
         if (targetPath === '/laudos') {
             return veiculoController.addLaudo(req, res, next)
@@ -35,8 +36,8 @@ router.route('/:id?')
         return veiculoController.create(req, res, next)
     })
 
-    .put(veiculoController.update)
-    .patch((req, res) => {
+    .put(requireSeinfra, veiculoController.update)
+    .patch(requireSeinfra, (req, res) => {
         const targetPath = req.baseUrl.replace('/api', '')
 
         switch (targetPath) {

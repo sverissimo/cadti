@@ -1,5 +1,6 @@
 //@ts-check
 const { Router } = require("express")
+const { requireSeinfra } = require("../auth/checkPermissions")
 const ProcuradorController = require("../controllers/ProcuradorController")
 
 const procuradorController = new ProcuradorController()
@@ -11,7 +12,7 @@ const procuradorRoutes = router => {
         .get(procuradorController.list)
         .post(procuradorController.saveMany)
         .put(procuradorController.updateMany)
-        .delete(procuradorController.delete)
+        .delete(requireSeinfra, procuradorController.delete)
 }
 
 module.exports = { procuradorRoutes }

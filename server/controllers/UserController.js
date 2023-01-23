@@ -4,11 +4,6 @@ const { UserService } = require("../services/UserService");
 class UserController {
 
     getUsers = async (req, res, next) => {
-        const { user } = req
-        if (!user || (user.role === 'empresa' && user._id !== req.query.id)) {
-            res.status(403).send('User not authorized.')
-        }
-
         try {
             if (req.params.id || Object.keys(req.query).length) {
                 const filter = req.params.id || req.query

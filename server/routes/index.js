@@ -52,7 +52,7 @@ router.post('/addElement', requireSeinfra, (req, res, next) => {
     new Controller().addElement(req, res, next)
 })
 
-router.put('/editElements', (req, res, next) => {
+router.put('/editElements', requireSeinfra, (req, res, next) => {
     const { table, tablePK: primaryKey, update } = req.body
     const controller = new Controller(table, primaryKey)
     req.body = update

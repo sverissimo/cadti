@@ -1,5 +1,6 @@
 //@ts-check
 const { Router } = require("express")
+const { requireSeinfra } = require("../auth/checkPermissions")
 const { SocioController } = require("../controllers/SocioController")
 
 /** @param {Router} router  */
@@ -8,9 +9,9 @@ const socioRoutes = router => {
     router
         .route('/socios/:id?')
         .get(socioController.list)
-        .post(socioController.saveMany)
+        .post(requireSeinfra, socioController.saveMany)
         .put(socioController.updateSocios)
-        .delete(socioController.delete)
+        .delete(requireSeinfra, socioController.delete)
 
     router.post('/checkSocios', socioController.checkSocios)
 }

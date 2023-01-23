@@ -23,7 +23,7 @@ class AltContratoController {
             const socket = new CustomSocket(io, 'altContrato')
 
             socket.emit('insertElements', [altContrato], codigoEmpresa)
-            //altContratoAlert({ ...body, razaoSocial })
+            altContratoAlert({ ...body, razaoSocial })
             return res.send(_id)
         } catch (error) {
             next(error)
