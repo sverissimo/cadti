@@ -194,7 +194,11 @@ const Header = props => {
                         {
                             title === 'Solicitações ' ?
 
-                                <StyledBadge badgeContent={logCounter} color='secondary'>
+                                <StyledBadge
+                                    badgeContent={logCounter}
+                                    color='secondary'
+                                    overlap='rectangular'
+                                >
                                     <span>
                                         {title}
                                     </span>
@@ -229,7 +233,11 @@ const Header = props => {
                         </Link>
                 }
                 <Link component={RouterLink} to={sections[7].link}>
-                    <StyledBadge2 badgeContent={avisosCounter} color='secondary'>
+                    <StyledBadge2
+                        badgeContent={avisosCounter}
+                        color='secondary'
+                        overlap='rectangular'
+                    >
                         <span
                             className="material-icons avisosLink"
                             style={{ color: 'white', cursor: 'pointer' }}

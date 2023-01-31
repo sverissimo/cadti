@@ -1,0 +1,14 @@
+services:
+  db:
+    container_name: mongodb
+    image: mongo:4.2-bionic
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    #command: docker
+volumes:
+  mongo_data:
+
+

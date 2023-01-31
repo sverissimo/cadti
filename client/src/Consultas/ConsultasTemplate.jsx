@@ -3,25 +3,23 @@ import MaterialTable from 'material-table'
 import { tables } from './tables'
 import exportToXlsx from './exportToXlsx'
 import { setForm } from '../Utils/createFormPattern'
+import { PatchedPagination } from '../Utils/patchedPagination'
 
-export default function ({ tab, collection, user, procuracoes, showDetails, showFiles, showCertificate, confirmDeactivate, del }) {
+export default function ({ tab, collection = [], user, procuracoes, showDetails, showFiles, showCertificate, confirmDeactivate, del }) {
 
     const
         id = ['codigoEmpresa', 'socioId', 'procuradorId', 'veiculoId', 'apolice'][tab],
         subject = ['empresas', 'sócios', 'procuradores', 'veículos', 'seguros'],
         form = setForm(tab)
 
-    if (!Array.isArray(collection))
-        collection = []
-
-    collection = collection.map(obj => ({ ...obj }))
+    const collectionCopy = JSON.parse(JSON.stringify(collection))
 
     return (
         <div style={{ margin: '10px 0' }} className='noPrint'>
             <MaterialTable
                 title={`Pesquisar dados de ${subject[tab]}`}
                 columns={tables[tab]}
-                data={collection}
+                data={collectionCopy}
                 style={{ fontFamily: 'Segoe UI', fontSize: '14px' }}
                 options={{
                     filtering: true,
@@ -97,6 +95,9 @@ export default function ({ tab, collection, user, procuracoes, showDetails, show
                 editable={{
                     isDeleteHidden: rowData => user.role === 'empresa' || tab === 0,
                     onRowDelete: async oldData => await del(oldData)
+                }}
+                components={{
+                    Pagination: PatchedPagination,
                 }}
             />
         </div>

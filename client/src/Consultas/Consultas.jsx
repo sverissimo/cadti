@@ -59,15 +59,15 @@ class ConsultasContainer extends Component {
         removePDF() //Desabilita opção de exportar como PDF do material-table
     }
     componentWillUnmount() {
+        console.log("🚀 ~ file: Consultas.jsx:63 ~ ConsultasContainer ~ componentWillUnmount ~ true", true)
         removePDF(true)
         this.setState({})
     }
-    changeTab = async (e, value) => {
-        await this.setState({ tab: value })
-        return
+    changeTab = (e, value) => {
+        this.setState(prevState => ({ tab: value }))
     }
 
-    showDetails = async (e, elementDetails) => {
+    showDetails = (e, elementDetails) => {
         const
             { redux } = this.props,
             { options, tab, tablePKs } = this.state,
@@ -78,11 +78,10 @@ class ConsultasContainer extends Component {
         if (elementDetails)
             updatedElement = redux[options[tab]].find(e => e[primaryKeys[tab]] === elementDetails[primaryKeys[tab]])
 
-        if (elementDetails !== undefined && updatedElement) {
-            await this.setState({ showDetails: !this.state.showDetails, elementDetails: updatedElement })
-            void 0
+        if (elementDetails && updatedElement) {
+            this.setState(prevState => ({ showDetails: !prevState.showDetails, elementDetails: updatedElement }))
         }
-        else this.setState({ showDetails: !this.state.showDetails, elementDetails: undefined })
+        else this.setState(prevState => ({ showDetails: !prevState.showDetails, elementDetails: undefined }))
     }
 
     closeFiles = () => {

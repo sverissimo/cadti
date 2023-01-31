@@ -1,0 +1,1 @@
+docker exec -i pg_container psql -U ${user} -d sismob_db < ${backupFileName}.sql
