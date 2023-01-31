@@ -9,6 +9,7 @@
     "alertDocs": "jsdoc -c ./docs/alertDocsConfig.json",
     "start": "node server/server.js",
     "server": "nodemon server/server.js",
+    "test_server": "set NODE_ENV=test_production && nodemon server/server.js",
     "client": "npm run start --prefix client",
     "dev": "concurrently \"npm run server\" \"npm run client\"",
     "restoreDB": "node server/database/BackupDB.js"

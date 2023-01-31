@@ -66,6 +66,7 @@ const AvisosTemplate = props => {
                                 }
                                 //propsCopy.actions.find(a => a.name === 'remove').disabled = propsCopy.data.id < 100;
                                 return <MTableBodyRow
+                                    id="SOME-ROW-ID-HERE"
                                     {...propsCopy}
                                 />
                             }
@@ -116,8 +117,8 @@ const AvisosTemplate = props => {
                                 exportTitle: 'Exportar'
                             },
                             pagination: {
-                                labelRowsSelect: 'Resultados por página',
-                                labelDisplayedRows: ' {from}-{to} a {count}',
+                                labelDisplayedRows: 'Resultados por página',
+                                //labelDisplayedRows: ' {from}-{to} a {count}',
                                 firstTooltip: 'Primeira página',
                                 previousTooltip: 'Página anterior',
                                 nextTooltip: 'Próxima Página',
@@ -132,7 +133,7 @@ const AvisosTemplate = props => {
                                 onClick: (event, data) => toggleReadMessage(data),
                                 position: rowsSelected ? 'auto' : 'row'
                                 //iconProps: { color: data?.tableData?.read ? 'disabled' : 'primary' },
-                                //tooltip: !rowData.read ? 'Marcar como lida' : 'Marcar como não lida',                                 
+                                //tooltip: !rowData.read ? 'Marcar como lida' : 'Marcar como não lida',
                             },
                             {
                                 name: 'remove',

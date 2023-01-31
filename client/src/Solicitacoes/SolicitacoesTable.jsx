@@ -1,10 +1,9 @@
 import React from 'react'
-
-import MaterialTable from 'material-table';
-import exportToXlsx from '../Consultas/exportToXlsx';
-
+import MaterialTable from 'material-table'
+import exportToXlsx from '../Consultas/exportToXlsx'
 import { solicitacoesTable } from '../Forms/solicitacoesTable'
-import configTablePermissions from './configTablePermissions';
+import configTablePermissions from './configTablePermissions'
+import { PatchedPagination } from '../Utils/patchedPagination'
 
 export default function ({ tableData, title, showDetails, assessDemand, completed, showInfo, user }) {
 
@@ -79,6 +78,9 @@ export default function ({ tableData, title, showDetails, assessDemand, complete
                         onClick: (event, rowData) => !completed ? assessDemand(rowData['id']) : null
                     })
                 ]}
+                components={{
+                    Pagination: PatchedPagination,
+                }}
             />
         </div>
     )

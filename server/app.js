@@ -31,7 +31,7 @@ app.use('/api', router)
 app.use('/sync', dbSync)
 useFileRouter(app)
 
-if (process.env.NODE_ENV === 'production') {
+if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'test_production') {
     app.get('/*', (req, res) => {
         res.sendFile(path.resolve(__dirname, '../client', 'build', 'index.html'))
     })

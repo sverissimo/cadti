@@ -7,19 +7,16 @@ import { PatchedPagination } from '../Utils/patchedPagination'
 
 export default function ({ tab, collection = [], user, procuracoes, showDetails, showFiles, showCertificate, confirmDeactivate, del }) {
 
-    const
-        id = ['codigoEmpresa', 'socioId', 'procuradorId', 'veiculoId', 'apolice'][tab],
-        subject = ['empresas', 'sócios', 'procuradores', 'veículos', 'seguros'],
-        form = setForm(tab)
-
-    const collectionCopy = JSON.parse(JSON.stringify(collection))
+    const id = ['codigoEmpresa', 'socioId', 'procuradorId', 'veiculoId', 'apolice'][tab]
+    const subject = ['empresas', 'sócios', 'procuradores', 'veículos', 'seguros']
+    const form = setForm(tab)
 
     return (
         <div style={{ margin: '10px 0' }} className='noPrint'>
             <MaterialTable
                 title={`Pesquisar dados de ${subject[tab]}`}
                 columns={tables[tab]}
-                data={collectionCopy}
+                data={collection}
                 style={{ fontFamily: 'Segoe UI', fontSize: '14px' }}
                 options={{
                     filtering: true,
@@ -97,9 +94,10 @@ export default function ({ tab, collection = [], user, procuracoes, showDetails,
                     onRowDelete: async oldData => await del(oldData)
                 }}
                 components={{
-                    Pagination: PatchedPagination,
+                    Pagination: PatchedPagination
                 }}
             />
         </div>
     )
 }
+
