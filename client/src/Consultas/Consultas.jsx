@@ -75,13 +75,17 @@ class ConsultasContainer extends Component {
 
         let updatedElement
 
-        if (elementDetails)
+        if (elementDetails) {
             updatedElement = redux[options[tab]].find(e => e[primaryKeys[tab]] === elementDetails[primaryKeys[tab]])
-
-        if (elementDetails && updatedElement) {
-            this.setState(prevState => ({ showDetails: !prevState.showDetails, elementDetails: updatedElement }))
         }
-        else this.setState(prevState => ({ showDetails: !prevState.showDetails, elementDetails: undefined }))
+
+        if (updatedElement) {
+            this.setState(prevState => ({ showDetails: !!!prevState.showDetails, elementDetails: updatedElement }))
+        }
+        else {
+            this.setState({ showDetails: !this.state.showDetails, elementDetails: undefined })
+            //this.setState({ showDetails: !this.state.showDetails })
+        }
     }
 
     closeFiles = () => {
@@ -260,11 +264,10 @@ class ConsultasContainer extends Component {
 
     render() {
         const
-            { tab, options, items, showDetails, elementDetails, showFiles, selectedElement, filesCollection, typeId, tablePKs, showCertificate, certified,
+            { tab, options, items, showDetails, elementDetails, showFiles, selectedElement, filesCollection, typeId, showCertificate, certified,
                 detailsTitle, detailsHeader, openAlertDialog, openConfirmDialog, alertType, confirmType, customTitle, customMessage } = this.state,
             { redux, user } = this.props,
-            { empresas, procuracoes, procuradores, empresaDocs, altContrato } = redux,
-            primaryKeys = tablePKs.map(pk => humps.camelize(pk))
+            { empresas, procuracoes, procuradores, empresaDocs, altContrato } = redux
         let
             updatedElement,
             collection = [...this.props.redux[options[tab]]]
@@ -272,10 +275,6 @@ class ConsultasContainer extends Component {
         //Caso a aba seja Sócios ou Procuradores, extrai e renderiza o nome das empresas das arrays de codigoEmpresa de cada sócio/procurador
         if (tab === 1 || tab === 2)
             collection = getEmpresas(collection, empresas, tab)
-
-        //Define os dados para a exibição de informações adicionais (ShowDetails)
-        if (elementDetails && showDetails)
-            updatedElement = collection.find(e => e[primaryKeys[tab]] === elementDetails[primaryKeys[tab]])
 
         return <Fragment>
             <TabMenu items={items}

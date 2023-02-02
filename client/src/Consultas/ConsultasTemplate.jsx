@@ -5,12 +5,12 @@ import exportToXlsx from './exportToXlsx'
 import { setForm } from '../Utils/createFormPattern'
 import { PatchedPagination } from '../Utils/patchedPagination'
 
-export default function ({ tab, collection = [], user, procuracoes, showDetails, showFiles, showCertificate, confirmDeactivate, del }) {
+export default function ({ tab, collection: originalCol, user, procuracoes, showDetails, showFiles, showCertificate, confirmDeactivate, del }) {
 
     const id = ['codigoEmpresa', 'socioId', 'procuradorId', 'veiculoId', 'apolice'][tab]
     const subject = ['empresas', 'sócios', 'procuradores', 'veículos', 'seguros']
     const form = setForm(tab)
-
+    const collection = originalCol.map(col => ({ ...col }))
     return (
         <div style={{ margin: '10px 0' }} className='noPrint'>
             <MaterialTable
@@ -94,7 +94,7 @@ export default function ({ tab, collection = [], user, procuracoes, showDetails,
                     onRowDelete: async oldData => await del(oldData)
                 }}
                 components={{
-                    Pagination: PatchedPagination
+                    Pagination: PatchedPagination,
                 }}
             />
         </div>
