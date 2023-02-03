@@ -20,14 +20,21 @@ class SeguroController extends Controller {
         }
 
         try {
-            const id = await SeguroService.save(seguro)
+            const { seguroId, updatedVehicles } = await SeguroService.save(seguro)
             const io = req.app.get('io')
-            const socket = new CustomSocket(io, this.table, this.primaryKey)
-            const createdEntity = await this.repository.find(id)
+            const createdEntity = await this.repository.find(seguroId)
             const { codigo_empresa } = createdEntity[0]
 
-            socket.emit('insertElements', createdEntity, codigo_empresa)
-            res.status(201).json(id)
+            const seguroSocket = new CustomSocket(io, this.table, this.primaryKey)
+            seguroSocket.emit('insertElements', createdEntity, codigo_empresa)
+
+            if (updatedVehicles) {
+                const updatedData = await new Repository('veiculos', 'veiculo_id').find(updatedVehicles)
+                const veiculoSocket = new CustomSocket(io, 'veiculos', 'veiculo_id')
+                veiculoSocket.emit('updateAny', updatedData, codigo_empresa)
+            }
+
+            res.status(201).json(seguroId)
         } catch (error) {
             next(error)
         }

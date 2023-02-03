@@ -417,18 +417,18 @@ class Seguro extends Component {
     }
 
     handleSubmit = async approved => {
-        const
-            { insurance, deletedVehicles, seguradoraId, apolice, numeroDae, selectedEmpresa, demand, apoliceDoc, info, dataEmissao, vencimento } = this.state
-            , { codigoEmpresa } = selectedEmpresa
-            , { veiculos: vehicleIds } = insurance
-            , errorsFound = this.checkForErrors(insurance)
+        const { insurance, deletedVehicles, seguradoraId, apolice, numeroDae, selectedEmpresa, demand, apoliceDoc, info, dataEmissao, vencimento } = this.state
+        const { codigoEmpresa } = selectedEmpresa
+        const { veiculos: vehicleIds } = insurance
+        const errorsFound = this.checkForErrors(insurance)
 
-        if (errorsFound)
+        if (errorsFound) {
             return
+        }
 
-        const
-            seguro = this.setInsuranceStatus({ apolice, seguradoraId, codigoEmpresa, dataEmissao, vencimento })
-            , cadSeguro = humps.decamelizeKeys(seguro)
+        const seguro = this.setInsuranceStatus({ apolice, seguradoraId, codigoEmpresa, dataEmissao, vencimento })
+        const cadSeguro = humps.decamelizeKeys(seguro)
+        cadSeguro.veiculos = vehicleIds
 
         if (!demand) {
             const log = {
@@ -521,39 +521,19 @@ class Seguro extends Component {
         return cadSeguro
     }
 
-    approveInsurance = async cadSeguro => {
-        const
-            { seguros } = this.props.redux
-            , { apolice, vencimento, dataEmissao, seguradoraId, insurance, demand, demandFiles } = this.state
-            , { deletedVehicles } = demand.history[0]
-            , vehicleIds = insurance.veiculos || demand.history[0].vehicleIds
-
-        //****************************** Cria o body para os requests****************************** */
-        const body = {
-            table: 'veiculos',
-            column: 'apolice',
-            value: apolice,
-            tablePK: 'veiculo_id',
-            ids: vehicleIds,
-            deletedVehicles
-        }
-        //********************************** CREATE/UPDATE INSURANCE **********************************
+    approveInsurance = async (cadSeguro) => {
+        const { seguros } = this.props.redux
+        const { apolice, vencimento, dataEmissao, seguradoraId, insurance, demand, demandFiles } = this.state
+        const { deletedVehicles } = demand.history[0]
+        const vehicleIds = insurance.veiculos || demand.history[0].vehicleIds
         const insuranceExists = seguros.find(s => s.apolice === apolice)
-        console.log("🚀 ~ file: Seguros.jsx ~ line 542 ~ Seguro ~ insuranceExists", insuranceExists)
 
         if (insuranceExists) {
-            const
-                de = moment(insuranceExists.dataEmissao).isSame(moment(dataEmissao)),
-                v = moment(insuranceExists.vencimento).isSame(moment(vencimento)),
-                vExists = JSON.stringify(vehicleIds) === JSON.stringify(insuranceExists.veiculos)
-            console.log("🚀 ~ file: Seguros.jsx ~ line 548 ~ Seguro ~ JSON.stringify(insuranceExists.veiculos)", JSON.stringify(insuranceExists.veiculos))
-            console.log("🚀 ~ file: Seguros.jsx ~ line 548 ~ Seguro ~  JSON.stringify(vehicleIds)", JSON.stringify(vehicleIds))
+            const sameEmitDate = moment(insuranceExists.dataEmissao).isSame(moment(dataEmissao))
+            const sameExpireDate = moment(insuranceExists.vencimento).isSame(moment(vencimento))
+            const sameVehicles = JSON.stringify(vehicleIds) === JSON.stringify(insuranceExists.veiculos)
 
-            console.log("🚀 ~ file: Seguros.jsx ~ line 548 ~ Seguro ~ vExists", vExists)
-            console.log("🚀 ~ file: Seguros.jsx ~ line 551 ~ Seguro ~ de && v ", de && v)
-            return
-            //Evitar seguro repetido de ser cadastrado
-            if (de && v && vExists) {
+            if (sameEmitDate && sameExpireDate && sameVehicles) {
                 this.setState({
                     openAlertDialog: true,
                     customTitle: 'Seguro existente',
@@ -561,42 +541,29 @@ class Seguro extends Component {
                 })
                 return
             }
-            //Se o seguro novo tiver o mesmo número de apólice e já estiver vigente, apenas atualiza o registro do Postgresql
-            if (cadSeguro.situacao === 'Vigente') {
 
+            if (cadSeguro.situacao === 'Vigente') {
                 const update = humps.decamelizeKeys({
-                    id: insuranceExists?.id,
                     seguradoraId,
-                    situacao: cadSeguro.situacao,
                     dataEmissao,
-                    vencimento
+                    vencimento,
+                    id: insuranceExists?.id,
+                    situacao: cadSeguro.situacao,
                 })
                 axios.put('/api/seguros', { update, vehicleIds, deletedVehicleIds: deletedVehicles })
             }
         }
-        //console.log(JSON.stringify(body))
         //Se as datas forem diferentes, se trata de cadastrar um novo seguro no MongoDB, ainda que o número da apólice seja o mesmo (caso insuranceExists === true ou false)
-        if (cadSeguro.situacao === 'Aguardando início da vigência') {
-            cadSeguro.veiculos = vehicleIds
-            console.log({ ...cadSeguro })
-            await axios.post('/api/upcomingInsurances', { ...cadSeguro })
-        }
-        //Se o seguro cadastrado já estiver vigente já cadastra direto no PostgreSQL (tabela seguros) e atualiza a tabela de veículos
-        if (cadSeguro.situacao === 'Vigente' && !insuranceExists)
-            await axios.post('/api/seguros', cadSeguro)
-                .then(r => {
-                    if (r.status === 200)
-                        console.log(r.status, 'cadSeguroOk')
-                })
 
-        //A atualização da coluna "apólice" da tabela veículos vai sempre ocorrer. Independente de ser um novo número ou não de apolice,
-        //novos veículos podem ser adicionados ou excluídos
-        //DESNECESSÁRIO COM REFACTORING BACKEND --- REFACTOR!!!
-        await axios.put('/api/updateInsurances', body)
-            .then(res => {
-                console.log(res.data)
-                this.setState({ dontUpdateProps: true })
-            })
+        let cadSeguroRoute
+
+        if (cadSeguro.situacao === 'Aguardando início da vigência') {
+            cadSeguroRoute = '/api/upcomingInsurances'
+        } else if (cadSeguro.situacao === 'Vigente' && !insuranceExists) {
+            cadSeguroRoute = '/api/seguros'
+        }
+
+        await axios.post(cadSeguroRoute, cadSeguro)
 
         //Cria o log de demanda concluída
         const log = {

@@ -13,27 +13,27 @@ class SeguroService {
      */
     static save = async (seguroDTO) => {
         const seguroDao = new SeguroDaoImpl()
-        const veiculoRepository = new VeiculoRepository()
         try {
-            const { veiculos: veiculoIds, ...seguro } = seguroDTO
+            const { veiculos: vehicleIds, ...seguro } = seguroDTO
             const { apolice } = seguro
             const seguroId = await seguroDao.save(seguro)
-            const vehicleUpdateResult = await VeiculoService.updateVehiclesInsurance({
-                apolice,
-                vehicleIds: veiculoIds
-            })
-
             let updatedVehicles
-            if (vehicleUpdateResult) {
-                updatedVehicles = await veiculoRepository.find(veiculoIds)
+            let updateResult
+
+            if (vehicleIds && vehicleIds.length > 0) {
+                updateResult = await VeiculoService.updateVehiclesInsurance({
+                    apolice,
+                    vehicleIds
+                })
+            }
+            if (updateResult) {
+                updatedVehicles = vehicleIds
             }
 
-            const updatedInsurance = await seguroDao.find(seguroId)
             return {
-                updatedInsurance,
+                seguroId,
                 updatedVehicles
             }
-
         } catch (error) {
             throw new Error(error)
         }
