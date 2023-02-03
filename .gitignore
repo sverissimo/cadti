@@ -29,3 +29,4 @@ certificates/localhost.key
 certificates/localhost.crt
 client/src/getEnvironment.js
 *fakeEmail*.*
+client/cypress.env.json
