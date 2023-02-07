@@ -50,6 +50,7 @@ class SeguroController extends Controller {
         try {
             const updated = await SeguroService.updateInsurance({ update, vehicleIds, deletedVehicleIds })
             const { updatedInsurance, updatedVehicles } = updated
+            console.log("🚀 ~ file: SeguroController.js:53 ~ SeguroController ~ updateInsurance= ~ updatedInsurance, updatedVehicles", updatedInsurance, updatedVehicles)
             res.status(200).send('Seguro e veículos atualizados.')
             //@ts-ignore
             const codigoEmpresa = updatedInsurance.codigo_empresa || updatedVehicles.codigo_empresa

@@ -170,7 +170,6 @@ class Seguro extends Component {
     }
 
     handleInput = async e => {
-
         let { value } = e.target
         const
             { name } = e.target,
@@ -331,12 +330,12 @@ class Seguro extends Component {
     }
 
     addPlate = async (placaInput, allSelected) => {
+        if (!placaInput) {
+            return
+        }
 
-        const
-            { apolice, allVehicles, deletedVehicles, insurance } = this.state,
-            vehicleFound = allVehicles.find(v => v.placa === placaInput)
-
-        if (!placaInput || placaInput === '') return
+        const { apolice, allVehicles, deletedVehicles, insurance } = this.state
+        const vehicleFound = allVehicles.find(v => v.placa === placaInput)
 
         //Check if vehicle belongs to frota before add to insurance and  if plate already belongs to apolice
         if (vehicleFound === undefined || vehicleFound.hasOwnProperty('veiculoId') === false) {
@@ -544,13 +543,25 @@ class Seguro extends Component {
 
             if (cadSeguro.situacao === 'Vigente') {
                 const update = humps.decamelizeKeys({
+                    apolice,
                     seguradoraId,
                     dataEmissao,
                     vencimento,
                     id: insuranceExists?.id,
                     situacao: cadSeguro.situacao,
                 })
-                axios.put('/api/seguros', { update, vehicleIds, deletedVehicleIds: deletedVehicles })
+                await axios.put('/api/seguros', { update, vehicleIds, deletedVehicleIds: deletedVehicles })
+                    .catch(e => console.error(e))
+                const log = {
+                    id: demand.id,
+                    demandFiles,
+                    history: {},
+                    metadata: {},
+                    approved: true
+                }
+                logGenerator(log)
+                this.confirmAndResetState()
+                return
             }
         }
         //Se as datas forem diferentes, se trata de cadastrar um novo seguro no MongoDB, ainda que o número da apólice seja o mesmo (caso insuranceExists === true ou false)

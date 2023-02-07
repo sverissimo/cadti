@@ -117,7 +117,7 @@ export default function TextInput({ handleInput, handleBlur, form, data, empresa
                             }}
 
                             multiline={el.multiline || false}
-                            rows={el.rows || null}
+                            minRows={el.rows || null}
                             variant={el.variant || 'filled'}
                             fullWidth={el.fullWidth || false}
                             SelectProps={{
