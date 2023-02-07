@@ -93,7 +93,7 @@ class Seguro extends Component {
             frota = allVehicles.filter(v => v.codigoEmpresa === codigoEmpresa),
             ownedPlacas = frota.map(v => v.placa)
 
-        this.setState({ seguros: filteredInsurances, allVehicles, frota, ownedPlacas, allPlates })
+        this.setState(prev => ({ seguros: filteredInsurances, allVehicles, frota, ownedPlacas, allPlates }))
     }
 
     //Verifica se o seguro já existe e preenche os campos automaticamente (plain obj to state)
@@ -109,6 +109,7 @@ class Seguro extends Component {
 
         if (demand && this.state.insurance)
             insurance = this.state.insurance
+        console.log("🚀 ~ file: Seguros.jsx:112 ~ Seguro ~ insurance", insurance)
 
         const insuranceExists = Object.keys(insurance).length > 0
 
@@ -118,10 +119,11 @@ class Seguro extends Component {
                 vencimento = moment(insurance.vencimento).format('YYYY-MM-DD'),
                 { seguradora, seguradoraId } = insurance
 
-            await this.setState({ seguradora, seguradoraId, dataEmissao, vencimento, insurance })
+            this.setState({ seguradora, seguradoraId, dataEmissao, vencimento, insurance })
             return
+        } else {
+            this.setState({ dataEmissao: '', vencimento: '', deletedVehicles: [], insurance: {} })
         }
-        else this.setState({ dataEmissao: '', vencimento: '', deletedVehicles: [], insurance: {} })
     }
 
     //Marca as placas que possuem compartilhamento por outra empresa. Acionado ao se informar a apólice (caso já exista)
@@ -232,7 +234,7 @@ class Seguro extends Component {
         const fields = ['seguradora', 'apolice', 'dataEmissao', 'vencimento']
         const checkFields = fields.every(f => this.state[f] && this.state[f] !== '')
 
-        if (name !== 'razaoSocial' && !newInsurance && checkFields && !insurance) {
+        if (name !== 'razaoSocial' && !newInsurance && checkFields && !insurance.apolice && !this.state.renderedPlacas) {
             let seguradoraId
             const selectedSeguradora = seguradoras.find(sg => sg.seguradora === this.state.seguradora)
             if (selectedSeguradora) seguradoraId = selectedSeguradora.id
@@ -242,7 +244,7 @@ class Seguro extends Component {
                 codigoEmpresa: selectedEmpresa.codigoEmpresa,
                 apolice, seguradora, seguradoraId, dataEmissao, vencimento, placas: [], veiculos: []
             }
-            await this.setState({ insurance: newInsurance, seguradoraId })
+            this.setState({ insurance: newInsurance, seguradoraId })
         }
     }
 
@@ -298,7 +300,7 @@ class Seguro extends Component {
         this.setState({ allPlatesObj, insuredPlates: placas, showAllPlates: !this.state.showAllPlates })
     }
 
-    handleCheck = async plate => {
+    handleCheck = plate => {
 
         let allPlatesObj = { ...this.state.allPlatesObj }
         allPlatesObj[plate] = !allPlatesObj[plate]
@@ -310,70 +312,54 @@ class Seguro extends Component {
     }
 
     selectAllPlates = () => {
-        const
-            { allPlates, selectAll } = this.state,
-            updatedState = {}
+        const { allPlates, selectAll } = this.state
+        const updatedState = {}
 
-        if (allPlates) {
-            allPlates.forEach(p => {
+        allPlates.forEach(p => {
+            if (selectAll) {
+                updatedState[p] = false
+                this.removeFromInsurance(p)
+            } else {
+                updatedState[p] = true
+                this.addPlate(p)
+            }
+        })
 
-                if (selectAll) {
-                    updatedState[p] = false
-                    this.removeFromInsurance(p)
-                } else {
-                    updatedState[p] = true
-                    this.addPlate(p, true)
-                }
-            })
-        }
         this.setState({ selectAll: !selectAll, allPlatesObj: updatedState })
     }
 
-    addPlate = async (placaInput, allSelected) => {
+    addPlate = (placaInput) => {
         if (!placaInput) {
             return
         }
 
-        const { apolice, allVehicles, deletedVehicles, insurance } = this.state
+        const { allVehicles, deletedVehicles, insurance } = this.state
         const vehicleFound = allVehicles.find(v => v.placa === placaInput)
-
-        //Check if vehicle belongs to frota before add to insurance and  if plate already belongs to apolice
-        if (vehicleFound === undefined || vehicleFound.hasOwnProperty('veiculoId') === false) {
+        if (!vehicleFound) {
             this.setState({ openAlertDialog: true, alertType: 'plateNotFound' })
-            return null
-        } else if (insurance && insurance.placas && vehicleFound.placa && !allSelected) {
-            const check = insurance.placas.find(p => p === vehicleFound.placa)
-            if (check) {
-                this.setState({ openAlertDialog: true, alertType: 'plateExists' })
-                return null
-            }
+            return
         }
-        // Add plates to rendered list
-        if (apolice && insurance) {
-            const
-                update = { ...insurance },
-                { veiculoId } = vehicleFound
 
-            if (!update.placas || !update.placas[0]) update.placas = []
-            if (!update.veiculos || !update.veiculos[0]) update.veiculos = []
+        const update = { ...insurance }
+        const { veiculoId } = vehicleFound
 
-            if (!update.placas.includes(placaInput))
-                update.placas.push(placaInput)
-            if (!update.veiculos.includes(veiculoId))
-                update.veiculos.push(veiculoId)
-
-            //Remove from state.deletedVehicles if its the case
-            if (deletedVehicles.includes(veiculoId)) {
-                const i = deletedVehicles.indexOf(veiculoId)
-                deletedVehicles.splice(i, 1)
-            }
-            this.renderPlacas(update?.placas)
-            console.log("🚀 ~ file: Seguros.jsx ~ line 374 ~ Seguro ~ addPlate= ~ update", update)
-            this.setState({ insurance: update, addedPlaca: '', deletedVehicles })
+        if (!update.placas.includes(placaInput)) {
+            update.placas.push(placaInput)
+            update.veiculos.push(veiculoId)
         }
+        update.placas = [...new Set(update.placas.filter(x => x))]
+        update.veiculos = [...new Set(update.veiculos.filter(x => x))]
+
+        if (deletedVehicles.includes(veiculoId)) {
+            const idx = deletedVehicles.indexOf(veiculoId)
+            deletedVehicles.splice(idx, 1)
+        }
+
+        this.renderPlacas(update?.placas)
+        this.setState({ insurance: update, addedPlaca: '', deletedVehicles })
     }
 
-    removeFromInsurance = async placaInput => {
+    removeFromInsurance = placaInput => {
 
         const
             { apolice, allVehicles } = this.state,
@@ -411,7 +397,7 @@ class Seguro extends Component {
         insurance.placas.splice(i, 1)
         insurance.veiculos.splice(k, 1)
 
-        await this.setState({ insurance })
+        this.setState({ insurance })
         this.renderPlacas()
     }
 
@@ -599,22 +585,23 @@ class Seguro extends Component {
             }, 1500);
     }
 
-    handleFiles = async files => {
+    handleFiles = files => {
         //limit files Size
         if (sizeExceedsLimit(files)) return
 
         let formData = new FormData()
         formData.append('apoliceDoc', files[0])
-        await this.setState({ apoliceDoc: formData, fileToRemove: null })
+        this.setState({ apoliceDoc: formData, fileToRemove: null })
     }
 
-    removeFile = async (name) => {
+    removeFile = (name) => {
         const
             { apoliceDoc } = this.state,
             newState = removeFile(name, apoliceDoc)
 
         this.setState({ ...this.state, ...newState })
     }
+
     addNewElement = () => this.setState({ apolice: this.state.newElement, openAddDialog: false })
     setShowPendencias = () => this.setState({ showPendencias: !this.state.showPendencias })
     toggleDialog = () => this.setState({ openAddDialog: !this.state.openAddDialog })

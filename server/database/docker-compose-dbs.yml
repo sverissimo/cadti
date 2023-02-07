@@ -1,5 +1,5 @@
 services:
-  mongo:
+  mongodb:
     container_name: mongodb
     image: mongo:4.2-bionic
     restart: always

@@ -32,7 +32,7 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts --max_old_space_size=4096 build",
-    "test": "cypress open",
+    "test": "cypress open --e2e -b chrome",
     "eject": "react-scripts eject"
   },
   "proxy": "http://localhost:3001",
