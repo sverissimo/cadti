@@ -17,3 +17,11 @@ Cypress.Commands.add('startSession', () => {
     })
 })
 
+Cypress.Commands.add('approveDemand', () => {
+    cy.visit('/solicitacoes')
+    cy.get('.MuiTableCell-paddingNone > div > :nth-child(2) > .MuiIconButton-label > .material-icons')
+        .last()
+        .click()
+    cy.get('[style="display: flex; width: 100%;"] > div > .MuiButton-containedPrimary > .MuiButton-label')
+        .click()
+})

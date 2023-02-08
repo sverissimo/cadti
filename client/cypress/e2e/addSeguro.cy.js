@@ -4,15 +4,12 @@
 import seguro from '../fixtures/seguro.json'
 const { apolice, seguradora, data_emissao, vencimento, razaoSocial } = seguro
 
-describe('Seguros transactions', () => {
+describe('Adding a new insurance', () => {
     beforeEach(() => {
         //@ts-ignore
         cy.startSession()
     })
     it('Should successfully save insurance approval request', () => {
-        /* cy.visit('/')
-        cy.get('.MuiToolbar-dense > [href="/veiculos"]').click()
-        cy.get('[href="/veiculos/seguros"] > .veiculosHome_card__image___Ethh').click() */
         cy.visit('/veiculos/seguros')
         cy.get('.selectEmpresa').type(razaoSocial, { delay: 0 })
         cy.get('[name=seguradora]').type(seguradora, { delay: 0 })

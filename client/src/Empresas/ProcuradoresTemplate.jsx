@@ -159,7 +159,7 @@ export default function ({ redux, data, handleInput, addProc, removeProc, handle
                                             max: el.max || '',
                                         }}
                                         multiline={el.multiline || false}
-                                        rows={el.rows || null}
+                                        minRows={el.rows || null}
                                         variant={el.variant || 'filled'}
                                         fullWidth={el.fullWidth || false}
                                     >
@@ -238,7 +238,7 @@ export default function ({ redux, data, handleInput, addProc, removeProc, handle
 
                                         <span style={{ color: '#2979ff', fontSize: '0.8em', float: 'right' }}>
                                             Procuração por prazo determinado?
-                                    </span>
+                                        </span>
                                     }
                                 />
                             </div>
@@ -275,7 +275,7 @@ export default function ({ redux, data, handleInput, addProc, removeProc, handle
                         onClick={() => addProc()}
                     >
                         <AddIcon />Cadastrar procuração
-                        </Button>
+                    </Button>
                     : selectedEmpresa && demand ?
                         <StepperButtons
                             uniqueStep={true}
@@ -301,7 +301,7 @@ export default function ({ redux, data, handleInput, addProc, removeProc, handle
                         selectedEmpresa && selectedDocs[0] &&
                         <h2 style={{ margin: '25px 0 0 15px' }}>
                             Procurações cadastradas
-                    </h2>
+                        </h2>
                 }
                 {
                     selectedDocs.length > 0 && selectedDocs.map((procuracao, z) =>
@@ -325,10 +325,10 @@ export default function ({ redux, data, handleInput, addProc, removeProc, handle
                                     </span>
                                     <GetAppIcon style={icon} onClick={() => getFile(procuracao.procuracaoId)} />
                                 </span>
-                                <span style={{ ...divFiles, width: 90, backgroundColor: 'white', border: 0, position: 'absolute', right: 0 }}>
-                                    <DeleteOutlinedIcon color='secondary' style={icon} onClick={() => removeProc(procuracao)} />
+                                <span style={{ ...divFiles, width: 90, backgroundColor: 'white', border: 0, position: 'absolute', right: 0, cursor: 'pointer' }} onClick={() => removeProc(procuracao)}>
+                                    <DeleteOutlinedIcon color='secondary' style={icon} />
                                     Apagar
-                                    </span>
+                                </span>
                             </div>
                         </div>
                     )

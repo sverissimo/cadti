@@ -3,23 +3,19 @@ import axios from 'axios'
 import humps from 'humps'
 
 import StoreHOC from '../Store/StoreHOC'
-
-import valueParser from '../Utils/valueParser'
 //import { checkInputErrors } from '../Utils/checkInputErrors'
-import ReactToast from '../Reusable Components/ReactToast'
-import Crumbs from '../Reusable Components/Crumbs'
-
 import ProcuradoresTemplate from './ProcuradoresTemplate'
 import download from '../Utils/downloadFile'
-import { procuradorForm } from '../Forms/procuradorForm'
-
-import AlertDialog from '../Reusable Components/AlertDialog'
 import { logGenerator } from '../Utils/logGenerator'
 import { setEmpresaDemand } from '../Utils/setEmpresaDemand'
 import { removeFile, sizeExceedsLimit } from '../Utils/handleFiles'
+import valueParser from '../Utils/valueParser'
+import { procuradorForm } from '../Forms/procuradorForm'
+import AlertDialog from '../Reusable Components/AlertDialog'
+import Crumbs from '../Reusable Components/Crumbs'
+import ReactToast from '../Reusable Components/ReactToast'
 
 class Procuradores extends Component {
-
     constructor() {
         super()
         this.escFunction = (e) => {
@@ -61,7 +57,6 @@ class Procuradores extends Component {
             this.setState({ selectedEmpresa, razaoSocial: selectedEmpresa?.razaoSocial, selectedDocs })
         }
 
-        //*************Set demand if any
         if (demand) {
             const
                 originalProcuradores = JSON.parse(JSON.stringify(redux.procuradores)),
@@ -85,6 +80,7 @@ class Procuradores extends Component {
                     })
                 })
             }
+
             if (newMembers[0] || oldMembers[0]) {
                 allDemandProcs = newMembers.concat(oldMembers)
                 allDemandProcs.forEach((p, i) => {
@@ -100,6 +96,7 @@ class Procuradores extends Component {
 
         document.addEventListener('keydown', this.escFunction, false)
     }
+
     componentDidUpdate(prevProps) {
         const
             { selectedEmpresa } = this.state,
@@ -117,6 +114,7 @@ class Procuradores extends Component {
             }
         }
     }
+
     componentWillUnmount() { this.setState({}) }
 
     handleInput = async e => {
@@ -237,16 +235,13 @@ class Procuradores extends Component {
             else
                 newMembers.push(addedProc)
         }
-        //console.log("🚀 ~ file: Procuradores.jsx ~ line 248 ~ Procuradores ~ addProc= ~ oldMembers", oldMembers)
 
         //Se o request não for de aprovação, cria a demanda
         if (approved === undefined) {
-
             const log = {
                 status: 'Aguardando aprovação',
                 empresaId,
                 history: {
-
                     files: procuracao,
                     newMembers,
                     oldMembers,
@@ -294,65 +289,29 @@ class Procuradores extends Component {
     }
 
     approveProc = async (newMembers, oldMembers) => {
+        const { selectedEmpresa, demandFiles, vencimento, demand } = this.state
+        const { codigoEmpresa } = selectedEmpresa
+        const procIdArray = oldMembers.map(m => m.procurador_id)
 
-        const
-            { selectedEmpresa, demandFiles, vencimento, demand } = this.state,
-            { codigoEmpresa } = selectedEmpresa,
-            procIdArray = oldMembers.map(m => m.procurador_id)
-
-        //******************Post newMembers  *****************/
         if (newMembers.length > 0) {
-            newMembers.forEach(m => m.empresas = [codigoEmpresa])  //Adiciona o código da empresa do procurador
+            newMembers.forEach(m => m.empresas = [codigoEmpresa])
             newMembers = humps.decamelizeKeys(newMembers)
 
             await axios.post('/api/procuradores', {
                 codigoEmpresa,
                 procuradores: newMembers,
             })
-                .then(procs => {
-                    procs.data.forEach(p => procIdArray.push(p.procurador_id))
-                })
-        }
-        //***************Update existing members ****************/
-        const request = {
-            procuradores: oldMembers,
-            codigoEmpresa,
-            updateUserPermission: true //Also refactored from updateUser:string to <prop>:boolean
+                .then(ids => ids.data.forEach(id => procIdArray.push(id)))
         }
 
-        if (oldMembers && oldMembers[0]) {
-            request.keys.push('empresas')  //Não está no form, mas é uma key que precisa ser acrescentada para atualizar no DB
-            oldMembers.forEach(m => {
-                let { empresas } = m
-
-                //Inclui a empresa no array de empresas do procurador caso ainda não esteja lá
-                if (empresas && empresas[0]) {
-                    if (!empresas.includes(codigoEmpresa))
-                        m.empresas.push(codigoEmpresa)
-                    m.empresas = empresas.toString()      //Adiciona o código da empresa do procurador
-                }
-            })
-
-            //EndPoint changed from /api/editProc to /api/procuradores
-            axios.put('/api/procuradores', request)
-                .then(r => console.log(r))
-        }
-
-        //***************Create new Procuracao****************/
-        let novaProcuracao = {
+        const novaProcuracao = {
             codigo_empresa: codigoEmpresa,
             vencimento,
             status: 'vigente',
             procuradores: procIdArray
         }
 
-        Object.entries(novaProcuracao).forEach(([k, v]) => {
-            if (!v || v === '') delete novaProcuracao[k]
-        })
-
         const procuracaoId = await axios.post('/api/procuracoes', novaProcuracao)
-
-        novaProcuracao.procuracaoId = procuracaoId
         const log = {
             id: demand.id,
             demandFiles,
@@ -360,16 +319,16 @@ class Procuradores extends Component {
             approved: true
         }
 
-        if (demandFiles)
+        if (demandFiles) {
             log.metadata = {
                 fieldName: 'procuracao',
                 empresaId: selectedEmpresa.codigoEmpresa,
                 procuracaoId: procuracaoId,
                 procuradores: procIdArray,
             }
-        //generate log
-        logGenerator(log)
-            .then(r => console.log(r))
+        }
+
+        logGenerator(log).then(r => console.log(r))
 
         this.toast()
         if (demand)
@@ -380,58 +339,15 @@ class Procuradores extends Component {
     }
 
     removeProc = async proc => {
-        const
-            id = proc.procuracaoId,
-            { procuradores, codigoEmpresa } = proc,
-            procuradoresRedux = this.props.redux.procuradores,
-            { procuracoes } = this.props.redux,
-            selectedFile = this.props.redux.empresaDocs.find(f => Number(f.metadata.procuracaoId) === id)
-
-        //Remove o código da empresa da array de empresas do procurador caso não haja outra procuração da mesma empresa
-        if (procuradores[0]) {
-            //Checa se há outras procurações
-            const
-                outrasProcuracoes = procuracoes.filter(p => p.codigoEmpresa === codigoEmpresa && p.procuracaoId !== id),
-                dontRemove = new Set()
-            //Armazena os ids dos procuradores que estão em outras procurações para que não lhes seja removido o direito de acesso
-            outrasProcuracoes.forEach(op =>
-                op.procuradores.forEach(p => dontRemove.add(p))
-            )
-
-            let filteredProcs = procuradoresRedux.filter(p => procuradores.includes(p.procuradorId) && !dontRemove.has(p.procuradorId))
-
-            filteredProcs.forEach(p => {
-                let empresas = p.empresas || []
-                empresas = empresas.filter(e => e !== codigoEmpresa)
-                p.empresas = empresas
-                if (empresas.length === 0)
-                    p.empresas = [0]
-            })
-            //Se tiver que alterar permissões de um procurador (usuário), altera, senão apenas apaga a procuração
-            if (filteredProcs[0]) {
-                filteredProcs = humps.decamelizeKeys(filteredProcs)
-
-                const request = {
-                    codigoEmpresa,
-                    procuradores: filteredProcs,
-                    updateUserPermission: false,
-                }
-                //DESNECESSÁRIO: com refactoring do backEnd, o delete da procuração já atualiza os procuradores
-                axios.put('/api/procuradores', request)
-                    .then(r => console.log(r))
-                //Remove a permissão do usuário para a empresa selecionada, caso haja usuário com mesmo cpf cadastrado no sistema
-                //DESNECESSÁRIO: com refactoring do backEnd, o delete da procuração já atualiza os usuários
-                await axios.patch('/api/removeEmpresa', { cpfsToRemove: filteredProcs, codigoEmpresa })
-                    .then(r => console.log(r))
-            }
-        }
+        const id = proc.procuracaoId
+        const selectedFile = this.props.redux.empresaDocs.find(f => Number(f.metadata.procuracaoId) === id)
 
         await axios.delete(`/api/procuracoes?id=${id}`)
-            .then(r => console.log(r.data))
 
-        if (selectedFile && selectedFile.hasOwnProperty('id'))
+        if (selectedFile && selectedFile.hasOwnProperty('id')) {
             axios.delete(`/api/deleteFile?collection=empresaDocs&id=${selectedFile.id}`)
                 .then(({ data }) => console.log(data))
+        }
     }
 
     handleFiles = files => {

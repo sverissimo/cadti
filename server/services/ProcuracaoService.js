@@ -7,16 +7,20 @@ const { UserService } = require("./UserService");
 class ProcuracaoService {
 
     static async save(procuracao) {
-        const procuradoresIds = procuracao.procuradores
-        const procuracaoId = await new Repository('procuracoes', 'procuracao_id').save(procuracao)
+        try {
+            const { codigo_empresa: codigoEmpresa } = procuracao
+            const procuradoresIds = procuracao.procuradores
+            const procuracaoId = await new Repository('procuracoes', 'procuracao_id').save(procuracao)
+            const procuradores = await ProcuradorService.addProcuracao(procuradoresIds, codigoEmpresa)
+            if (!procuradores) {
+                return {}
+            }
 
-        const { codigo_empresa: codigoEmpresa } = procuracao
-        const procuradores = await ProcuradorService.addProcuracao(procuradoresIds, codigoEmpresa)
-        if (!procuradores) {
-            return {}
+            await UserService.addPermissions(procuradores, codigoEmpresa)
+            return { procuracaoId, procuradores, codigoEmpresa }
+        } catch (error) {
+            throw new Error(error.message)
         }
-        await UserService.addPermissions(procuradores, codigoEmpresa)
-        return { procuracaoId, procuradores, codigoEmpresa }
     }
 
     /**
