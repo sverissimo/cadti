@@ -15,12 +15,26 @@ class SocioService {
         return socios
     }
 
-    static updateSocios = async ({ socios, codigoEmpresa, cpfsToAdd }) => {
+    static updateSocios = async ({ socios, codigoEmpresa, cpfsToAdd = [], cpfsToRemove = [] }) => {
         try {
+            socios.forEach(s => {
+                if (cpfsToRemove.includes(s.cpf_socio)) {
+                    const idx = s.empresas.indexOf(e => e.codigoEmpresa === codigoEmpresa)
+                    s.empresas.splice(idx, 1)
+                }
+                s.empresas = JSON.stringify(s.empresas)
+            })
+
+            console.log("🚀 ~ file: SocioService.js:27 ~ SocioService ~ updateSocios= ~ socios", socios)
             const result = await new SocioDaoImpl().updateMany(socios)
-            //Atualiza a permissão dos usuários conforme atualização dos sócios
-            if (cpfsToAdd && cpfsToAdd[0]) {
-                await UserService.addPermissions(cpfsToAdd, codigoEmpresa)
+
+            if (cpfsToAdd.length) {
+                const sociosToAdd = socios.filter(s => cpfsToAdd.includes(s.cpf_socio))
+                await UserService.addPermissions(sociosToAdd, codigoEmpresa)
+            }
+
+            if (cpfsToRemove.length) {
+                await this.removeSociosPermissions({ cpfsToRemove, codigoEmpresa })
             }
 
             return result
@@ -40,7 +54,6 @@ class SocioService {
         try {
             const parsedSocios = SocioService.addEmpresaAndShareArray(codigoEmpresa, socios)
             const ids = await new SocioDaoImpl().saveMany(parsedSocios)
-            console.log("🚀 ~ file: SocioService.js:38 ~ SocioService ~ saveMany= ~ codigoEmpresa", codigoEmpresa)
             if (codigoEmpresa) {
                 await UserService.addPermissions(socios, codigoEmpresa)
             }
@@ -71,6 +84,37 @@ class SocioService {
         }
         return socios
     }
+
+    /**
+    * @typedef {object} removeEmpresaRequest
+    * @property {number} codigoEmpresa
+    * @property {string[]} cpfsToRemove
+    * @param {removeEmpresaRequest}  request - array de sócios e códigoEmpresa
+    * @returns {Promise<any>} socio_ids
+    */
+    static async removeSociosPermissions({ codigoEmpresa, cpfsToRemove: cpfs }) {
+        const alsoProcuradores = await isProcurador(cpfs)
+        let hasProcuracao
+
+        if (alsoProcuradores.length) {
+            hasProcuracao = await hasOtherProcuracao({
+                codigoEmpresa,
+                cpfs,
+            })
+        }
+        console.log("🚀 ~ file: SocioService.js:83 ~ SocioService ~ removeSociosFromEmpresa ~ alsoProcuradores", alsoProcuradores)
+        console.log("🚀 ~ file: SocioService.js:102 ~ SocioService ~ removeSociosFromEmpresa ~ hasProcuracao", hasProcuracao)
+
+        const cpfsToRemove = cpfs.filter(cpf => !hasProcuracao.includes(cpf))
+        console.log("🚀 ~ file: SocioService.js:105 ~ SocioService ~ removeSociosFromEmpresa ~ cpfsToRemove", cpfsToRemove)
+        if (cpfsToRemove.length) {
+            const permissionUpdate = await UserService.removePermissions({ cpfSocios: cpfsToRemove, codigoEmpresa })
+            console.log("SocioService.js:100 ~ deleteSocio ~ permissionUpdate: ", permissionUpdate)
+        }
+
+        return cpfsToRemove
+    }
+
 
     static async deleteSocio(id, codigoEmpresa) {
         const socioRepository = new Repository('socios', 'socio_id')

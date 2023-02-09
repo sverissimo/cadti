@@ -358,18 +358,14 @@ const AltContrato = props => {
 
         if (totalShare > 100) {
             socios.pop()
-            await setState({ ...state, alertType: 'overShared', openAlertDialog: true })
+            setState({ ...state, alertType: 'overShared', openAlertDialog: true })
             return
         }
 
         const clearForm = {}
         sociosForm.forEach(obj => clearForm[obj.field] = '')
 
-        await setState({ ...state, ...clearForm, filteredSocios: socios, totalShare })
-        setTimeout(() => {
-            //console.log(state)
-            document.getElementsByName('nomeSocio')[0].focus()
-        }, 200)
+        setState({ ...state, ...clearForm, filteredSocios: socios, totalShare })
     }
 
     const removeSocio = index => {
@@ -437,6 +433,7 @@ const AltContrato = props => {
                         tablePK: 'socio_id',
                         codigoEmpresa,
                         cpfsToAdd,
+                        cpfsToRemove
                     }
 
                 //Post request dos novos sócios
@@ -445,17 +442,9 @@ const AltContrato = props => {
                     socioIds.push(socioIdPromise.data)         //A array de ids de sócios vai para a metadata dos arquivos
                 }
 
-                //Update/delete dos modificados
+                //Atualiza os sócios. Status 'deleted' não são apagados, apenas têm sua coluna 'empresas' atualizada.
                 if (oldSocios[0]) {
-                    console.log("🚀 ~ file: AltContrato.jsx ~ line 442 ~ oldSocios", oldSocios)
-                    //atualiza os sócios. Status 'deleted' não são apagados, apenas têm sua coluna 'empresas' atualizada.
                     await axios.put('/api/socios', { socios: oldSocios, ...requestInfo })
-
-                    //remove as permissões de usuário dos sócios excluídos
-                    //TODO: REFACTOR de oldSocios/new mantendo status e do PUT /api/socios para não precisar desse axios.patch
-                    if (cpfsToRemove[0])
-                        await axios.patch('/api/removeEmpresa', { cpfsToRemove, codigoEmpresa })
-
                     const ids = oldSocios.map(s => s.socio_id)
                     socioIds = socioIds.concat(ids)             //A array de ids de sócios vai para a metadata dos arquivos
                 }
@@ -575,7 +564,7 @@ const AltContrato = props => {
                     delete s.codigoEmpresa
                     delete s.originalStatus
                     delete s.nomeEmpresas
-                    s.empresas = JSON.stringify(s.empresas)
+                    //s.empresas = JSON.stringify(s.empresas)
                 })
                 socioUpdates = humps.decamelizeKeys(socioUpdates)
                 const

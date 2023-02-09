@@ -25,12 +25,13 @@ class SocioController extends Controller {
     }
 
     updateSocios = async (req, res, next) => {
-        const { socios, codigoEmpresa, cpfsToAdd } = req.body
+        const { socios, codigoEmpresa, cpfsToAdd, cpfsToRemove } = req.body
         try {
             const result = await SocioService.updateSocios({
                 socios,
                 codigoEmpresa,
-                cpfsToAdd
+                cpfsToAdd,
+                cpfsToRemove,
             })
 
             if (!result) {

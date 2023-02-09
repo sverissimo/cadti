@@ -1,3 +1,5 @@
+//@ts-check
+/// <reference types="cypress" />
 import { razaoSocial, nomeProcurador, cpfProcurador, emailProcurador, telProcurador, vencimento } from '../fixtures/addProcuracaoInput.json'
 
 describe('Remove Procuracao for selected empresa', () => {
@@ -16,6 +18,7 @@ describe('Remove Procuracao for selected empresa', () => {
         cy.get('input[name=emailProcurador0]').type(emailProcurador) */
         cy.get('[style="display: flex; justify-content: flex-end; width: 100%;"] > .MuiButtonBase-root > .MuiButton-label')
             .click()
+        //@ts-ignore
         cy.approveDemand()
     })
 })
