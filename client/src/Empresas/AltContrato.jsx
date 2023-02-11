@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import axios from 'axios'
 import humps from 'humps'
 
@@ -14,6 +14,7 @@ import { empresasForm } from '../Forms/empresasForm'
 import { sociosForm } from '../Forms/sociosForm'
 import AlertDialog from '../Reusable Components/AlertDialog'
 import altContratoFiles from '../Forms/altContratoFiles'
+import { toInputDate } from '../Utils/formatValues'
 
 
 const
@@ -26,37 +27,32 @@ const
 
 const AltContrato = props => {
 
-    const
-        { empresas } = props.redux,
-        socios = [...props.redux.socios],
-        [state, setState] = useState({
-            razaoSocial: '',
-            activeStep: 0,
-            stepTitles,
-            subtitles,
-            dropDisplay: 'Clique ou arraste para anexar a cópia da alteração do contrato social ',
-            demand: undefined,
-            confirmToast: false,
-            filteredSocios: [],
-            showPendencias: false,
-            openAlertDialog: false
-        })
+    const { empresas } = props.redux
+    const socios = [...props.redux.socios]
+    const [state, setState] = useState({
+        razaoSocial: '',
+        activeStep: 0,
+        stepTitles,
+        subtitles,
+        dropDisplay: 'Clique ou arraste para anexar a cópia da alteração do contrato social ',
+        demand: undefined,
+        confirmToast: false,
+        filteredSocios: [],
+        showPendencias: false,
+        openAlertDialog: false
+    })
 
-    //ComponentDidMount para carregar demand, se houver e selecionar a empresa dependendo do usuário
+    const prevSelectedEmpresa = useRef(state.selectedEmpresa)
+
     useEffect(() => {
         if (empresas && empresas.length === 1) {
-
             const selectedEmpresa = { ...empresas[0] }
-            //Formata data vinda do DB para renderização no browser
-            let venc = selectedEmpresa?.vencimentoContrato
-            if (venc && venc.length > 0)
-                selectedEmpresa.vencimentoContrato = venc.substr(0, 10)
+            selectedEmpresa.vencimentoContrato = toInputDate(selectedEmpresa?.vencimentoContrato)
 
             setState({ ...state, ...selectedEmpresa, selectedEmpresa, filteredSocios: socios })
         }
 
         const demand = props?.location?.state?.demand
-
         if (demand && demand.history[0]) {
             const
                 { empresaDocs } = props.redux,
@@ -103,25 +99,36 @@ const AltContrato = props => {
             if (files)
                 demandFiles = empresaDocs.filter(d => files.includes(d.id))
 
-            setState({
+            setState(() => ({
                 ...state, ...altContrato, ...updatedEmpresa, selectedEmpresa, demand, alteredFields,
                 demandFiles, filteredSocios, activeStep: 3
-            })
+            }))
         }
 
         return () => void 0
-
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
     //Armazena uma cópia dos sócios antes de qualquer edição para avaliar se houve mudança e fazer ou não o request
-    useEffect(() => {
-        if (state.selectedEmpresa) {
-            const
-                codigoEmpresa = state.selectedEmpresa.codigoEmpresa
-                , originalSocios = JSON.parse(JSON.stringify(socios.filter(s => s.empresas && s.empresas[0] && s.empresas.some(e => e.codigoEmpresa === codigoEmpresa)))) || []
 
-            setState({ ...state, originalSocios })
+    useEffect(() => {
+        const { selectedEmpresa } = state
+        if (selectedEmpresa) {
+
+            const { codigoEmpresa, vencimentoContrato } = selectedEmpresa
+            selectedEmpresa.vencimentoContrato = toInputDate(vencimentoContrato)
+
+            const originalSocios = JSON.parse(JSON.stringify(socios.filter(s => s.empresas && s.empresas[0] && s.empresas.some(e => e.codigoEmpresa === codigoEmpresa))))
+            const filteredSocios = socios
+                .filter(s => s.empresas.some(e => e.codigoEmpresa === selectedEmpresa.codigoEmpresa))
+                .map(s => ({ ...s }))
+
+            prevSelectedEmpresa.current = selectedEmpresa
+            setState({ ...state, ...selectedEmpresa, originalSocios, selectedEmpresa, razaoSocialEdit: selectedEmpresa.razaoSocial, filteredSocios })
+        }
+
+        if (prevSelectedEmpresa.current && !state.selectedEmpresa) {
+            unselectEmpresa()
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [state.selectedEmpresa])
@@ -166,79 +173,38 @@ const AltContrato = props => {
     }
 
     const handleBlur = e => {
-        const
-            { name, value } = e.target,
-            { filteredSocios } = state
+        const { name, value } = e.target
+        const { filteredSocios } = state
 
         if (name === 'razaoSocialEdit') {
             setState(s => ({ ...s, razaoSocial: value }))
         }
 
-        if (name !== 'cpfSocio')
-            return
-
-        const duplicate = filteredSocios.some(s => s.cpfSocio === value)
-
-        if (duplicate)
-            setState(
-                {
-                    ...state,
-                    openAlertDialog: true,
-                    customTitle: 'Cpf já cadastrado',
-                    customMessage: 'O cpf informado corresponde a um sócio já cadastrado. Para remover ou editar os dados do sócio, utilize as opções abaixo.',
-                    cpfSocio: ''
-                })
+        if (name === 'cpfSocio') {
+            const duplicate = filteredSocios.some(s => s.cpfSocio === value)
+            if (duplicate)
+                setState(
+                    {
+                        ...state,
+                        openAlertDialog: true,
+                        customTitle: 'Cpf já cadastrado',
+                        customMessage: 'O cpf informado corresponde a um sócio já cadastrado. Para remover ou editar os dados do sócio, utilize as opções abaixo.',
+                        cpfSocio: ''
+                    })
+        }
     }
 
     const handleInput = e => {
         const { name, value } = e.target
-        let
-            selectedEmpresa = {},
-            filteredSocios
-
+        let selectedEmpresa
         if (name === 'razaoSocial') {
             selectedEmpresa = empresas.find(e => e.razaoSocial === value)
-
-            let venc = selectedEmpresa?.vencimentoContrato
-
-            if (venc && venc.length > 0)
-                selectedEmpresa.vencimentoContrato = venc.substr(0, 10)
-
-            if (selectedEmpresa?.codigoEmpresa) {
-
-                filteredSocios = JSON.parse(JSON.stringify(socios.filter(s => s.empresas && s.empresas[0] && s.empresas.some(e => e.codigoEmpresa === selectedEmpresa.codigoEmpresa))))
-                let additionalSocios = JSON.parse(JSON.stringify(socios))
-                additionalSocios = additionalSocios
-                    .filter(s => {
-                        if (s.empresas && s.empresas[0])
-                            return s.empresas.includes(selectedEmpresa.codigoEmpresa)
-                        else return null
-                    })
-
-                additionalSocios = filteredSocios.concat(additionalSocios)
-                const result = new Map()
-                for (const s of additionalSocios) {
-                    result.set(s.socioId, s)
-                }
-                filteredSocios = [...result.values()]
-                filteredSocios.forEach(s => {
-                    let empresa
-                    if (s.empresas[0])
-                        empresa = s.empresas.find(e => e.share && e.codigoEmpresa === selectedEmpresa.codigoEmpresa)
-                    if (empresa && empresa.share)
-                        s.share = empresa.share
-                })
-            }
-
-            if (selectedEmpresa)
-                setState({ ...state, ...selectedEmpresa, selectedEmpresa, razaoSocialEdit: selectedEmpresa.razaoSocial, filteredSocios, [name]: value })
-            else
-                setState({ ...state, selectedEmpresa: undefined, filteredSocios: undefined, [name]: value })
+            setState({ ...state, selectedEmpresa, [name]: value })
+            return
         }
-        else {
-            const parsedValue = valueParser(name, value)
-            setState({ ...state, [name]: parsedValue })
-        }
+
+        const parsedValue = valueParser(name, value)
+        setState({ ...state, [name]: parsedValue })
     }
 
     const enableEdit = index => {
@@ -662,8 +628,6 @@ const AltContrato = props => {
                 returnObj.razaoSocial = state.razaoSocial
             if (state.razaoSocialEdit)
                 returnObj.razaoSocial = state.razaoSocialEdit
-
-            console.log("🚀 ~ file: AltContrato.jsx ~ line 676 ~ returnObj", returnObj)
             return returnObj
 
         }
@@ -748,21 +712,27 @@ const AltContrato = props => {
                 Object.assign(resetForms, { [field]: '' })
             })
         })
-
-        //Se for só uma empresa, volta para o estado inicial (componentDidMount) para procuradores de apenas uma empresa
-        if (empresas && empresas.length === 1)
+        unselectEmpresa()
+        //Se for só uma empresa, volta para o estado inicial (para procuradores de apenas uma empresa)
+        if (empresas && empresas.length === 1) {
             clearedState = { ...empresas[0], selectedEmpresa: empresas[0], filteredSocios: socios }
+        }
 
         setState({
             ...resetForms, activeStep: 0, stepTitles, subtitles, razaoSocial: '', selectedEmpresa: undefined,
             filteredSocios: [], form: undefined, fileToRemove: undefined, ...clearedState
         })
     }
-    const
-        toast = toastMsg => setState({ ...state, confirmToast: !state.confirmToast, toastMsg }),
-        setShowPendencias = () => setState({ ...state, showPendencias: !state.showPendencias }),
-        closeAlert = () => setState({ ...state, openAlertDialog: !state.openAlertDialog }),
-        { filteredSocios, confirmToast, toastMsg, openAlertDialog, alertType, customMessage, customTitle } = state
+    const unselectEmpresa = () => {
+        const clearEmpresaFields = Object.keys(prevSelectedEmpresa.current)
+            .reduce((prev, cur) => ({ ...prev, [cur]: undefined }), {})
+        setState({ ...state, ...clearEmpresaFields, razaoSocial: state.razaoSocial })
+    }
+
+    const toast = toastMsg => setState({ ...state, confirmToast: !state.confirmToast, toastMsg })
+    const setShowPendencias = () => setState({ ...state, showPendencias: !state.showPendencias })
+    const closeAlert = () => setState({ ...state, openAlertDialog: !state.openAlertDialog })
+    const { filteredSocios, confirmToast, toastMsg, openAlertDialog, alertType, customMessage, customTitle } = state
 
     return (
         <>

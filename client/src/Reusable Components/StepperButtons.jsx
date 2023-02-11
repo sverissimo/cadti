@@ -92,7 +92,7 @@ export default function StepperButtons({ activeStep, setActiveStep, lastStep, ha
                             InputLabelProps={{ shrink: true, style: { fontWeight: 600, marginBottom: '5%' } }}
                             inputProps={{ style: { paddingBottom: '2%' }, maxLength: 600 }}
                             multiline
-                            rows={3}
+                            minRows={3}
                             variant='outlined'
                         />
                     }

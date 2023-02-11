@@ -1,5 +1,4 @@
 export const formatDate = (date, min) => {
-
     const minutes = () => {
         if (new Date(date).getMinutes() < 10) {
             return '0' + new Date(date).getMinutes()
@@ -15,6 +14,11 @@ export const formatDate = (date, min) => {
     } else {
         return date
     }
+}
+
+export const toInputDate = (stringDate = '') => {
+    const date = stringDate.slice(0, 10)
+    return date || undefined
 }
 
 export const formatMoney = (value = '') => {

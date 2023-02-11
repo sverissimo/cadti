@@ -17,7 +17,6 @@ const { requireSeinfra } = require('../auth/checkPermissions')
 const ProcuradorController = require('../controllers/ProcuradorController')
 const { SocioController } = require('../controllers/SocioController')
 const { solicitacoesRoutes } = require('./solicitacoesRoutes')
-const { UserService } = require('../services/UserService')
 
 router.use('/avisos', alertRoutes)
 router.use('/users', userRoutes)
@@ -36,7 +35,6 @@ router.get('/lookUpTable/:table', lookup);
 
 const routes = /|modelosChassi|modeloCarroceria|carrocerias|equipamentos|seguradoras|empresasLaudo|acessibilidade|compartilhados|/
 router.get(`/${routes}/:id`, (req, res, next) => {
-
     const [_, table, id] = req.path.split('/')
     req.params.id = id
     const controller = new Controller(table, 'id')
@@ -57,16 +55,6 @@ router.put('/editElements', requireSeinfra, (req, res, next) => {
     const controller = new Controller(table, primaryKey)
     req.body = update
     return controller.update(req, res, next)
-})
-
-router.patch('/removeEmpresa', async (req, res) => {
-    //Refactor frontEnd to remove this route!
-    const { cpfsToRemove, codigoEmpresa } = req.body
-
-    if (cpfsToRemove && cpfsToRemove[0]) {
-        await UserService.removePermissions({ cpfSocios: cpfsToRemove, codigoEmpresa })
-    }
-    res.send('permission updated.')
 })
 
 router.delete('/delete', requireSeinfra, (req, res, next) => {
