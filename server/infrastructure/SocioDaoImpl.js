@@ -7,6 +7,24 @@ class SocioDaoImpl extends PostgresDao {
     primaryKey = 'socio_id'
 
     /**
+    * @override
+    * @param {object} empresas :object, role: string
+    * @returns {Promise<object[]>} Retorna os socios criados.
+    */
+    list = async ({ empresas, role }) => {
+        let condition = ''
+        let emps = ''
+        if (empresas && empresas[0] && role === 'empresa') {
+            condition = 'WHERE '
+            empresas.forEach(e => emps += ` socios.empresas LIKE '%${e}%' or `)
+            condition += emps.slice(0, emps.length - 3)
+        }
+
+        const data = await getUpdatedData('socios', condition)
+        return data
+    }
+
+    /**
      * @param {string[]} cpfs
      * @returns {Promise<object[]>} socios
      */

@@ -11,7 +11,10 @@ class SocioService {
      * @returns {Promise<object[]>} socios
      */
     static async checkSocios(cpfs) {
-        const socios = await new SocioDaoImpl().checkSocios(cpfs)
+        let socios = await new SocioDaoImpl().checkSocios(cpfs)
+        if (socios.length === 1) {
+            socios = socios[0]
+        }
         return socios
     }
 

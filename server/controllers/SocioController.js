@@ -1,4 +1,5 @@
 //@ts-check
+const SocioRepository = require("../repositories/SocioRepository");
 const { SocioService } = require("../services/SocioService");
 const { CustomSocket } = require("../sockets/CustomSocket");
 const { Controller } = require("./Controller");
@@ -7,7 +8,23 @@ class SocioController extends Controller {
 
     constructor() {
         super('socios', 'socio_id')
+        this.repository = new SocioRepository()
     }
+
+    /** @override */
+    list = async (req, res, next) => {
+        if (req.params.id || Object.keys(req.query).length) {
+            return this.find(req, res, next)
+        }
+        try {
+            const { empresas, role } = req.user && req.user
+            const socios = await this.repository.list({ empresas, role });
+            res.send(socios)
+        } catch (e) {
+            next(e)
+        }
+    }
+
 
     /**Verifica existência de sócios */
     checkSocios = async (req, res, next) => {
