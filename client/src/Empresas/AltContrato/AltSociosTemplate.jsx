@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react'
 
-import FormSubtiltle from '../Reusable Components/FormSubtiltle'
+import FormSubtiltle from '../../Reusable Components/FormSubtiltle'
 
 import Button from '@material-ui/core/Button'
 import EditIcon from '@material-ui/icons/Edit';
@@ -9,9 +9,9 @@ import TextField from '@material-ui/core/TextField'
 import AddIcon from '@material-ui/icons/Add';
 import DeleteIcon from '@material-ui/icons/Delete';
 
-import { sociosForm } from '../Forms/sociosForm'
-import TextInput from '../Reusable Components/TextInput'
-import { errorHandler, helper } from '../Utils/checkInputErrors';
+import { sociosForm } from '../../Forms/sociosForm'
+import TextInput from '../../Reusable Components/TextInput'
+import { errorHandler, helper } from '../../Utils/checkInputErrors';
 
 const useStyles = makeStyles(theme => ({
     list: {

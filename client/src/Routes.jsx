@@ -18,7 +18,7 @@ import Socios from './Empresas/Socios'
 import Relatorios from './Relatorios/Relatorios'
 import Solicitacoes from './Solicitacoes/Solicitacoes'
 import PdfTest from './Veiculos/Certificate'
-import AltContrato from './Empresas/AltContrato'
+import AltContrato from './Empresas/AltContrato/AltContrato'
 import Parametros from './Parametros/Parametros'
 import UserAuth from './Auth/UserAuth'
 import Users from './Users/Users'
@@ -26,11 +26,7 @@ import EditAccount from './Users/EditAccount'
 import Compartilhamento from './Veiculos/Compartilhamento'
 import Avisos from './Avisos/Avisos'
 
-//import UnderConstruction from './UnderConstruction'
-
-
 const Routes = ({ user }) => {
-
     return (
         <Switch>
             <Route exact path='/' component={HomeTemplate} />
@@ -70,10 +66,6 @@ const Routes = ({ user }) => {
             <Route path='/users'>
                 {user.role === 'admin' ? <Users /> : <Redirect to='/' />}
             </Route>
-
-
-
-            {/* <Route path='/faleConosco' component={UnderConstruction} /> */}
         </Switch>
     )
 }

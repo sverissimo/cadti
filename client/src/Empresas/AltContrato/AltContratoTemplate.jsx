@@ -1,34 +1,22 @@
 import React from 'react'
-import { altContratoForm } from '../Forms/altContratoForm'
-import { empresasForm } from '../Forms/empresasForm'
-import EmpresaReview from './EmpresaReview'
-
-import Crumbs from '../Reusable Components/Crumbs'
-import FormSubtiltle from '../Reusable Components/FormSubtiltle'
-import SelectEmpresa from '../Reusable Components/SelectEmpresa'
-import CustomStepper from '../Reusable Components/Stepper'
-import TextInput from '../Reusable Components/TextInput'
-import StepperButtons from '../Reusable Components/StepperButtons'
-import DragAndDrop from '../Reusable Components/DragAndDrop'
+import EmpresaReview from '../EmpresaReview'
 import AltSociosTemplate from './AltSociosTemplate'
-import { empresaFiles } from '../Forms/empresaFiles'
-import altContratoFiles from '../Forms/altContratoFiles'
+import { altContratoForm, dadosEmpresaForm, altContratoFiles, empresaFiles } from './forms'
 
+import Crumbs from '../../Reusable Components/Crumbs'
+import FormSubtiltle from '../../Reusable Components/FormSubtiltle'
+import SelectEmpresa from '../../Reusable Components/SelectEmpresa'
+import CustomStepper from '../../Reusable Components/Stepper'
+import TextInput from '../../Reusable Components/TextInput'
+import StepperButtons from '../../Reusable Components/StepperButtons'
+import DragAndDrop from '../../Reusable Components/DragAndDrop'
 
 const AltContratoTemplate = (
-    { empresas, data, setActiveStep, enableEdit, handleEdit, addSocio, removeSocio, handleInput, handleBlur, handleSubmit, handleFiles, removeFile,
+    { empresas, data, activeStep, setActiveStep, enableEdit, handleEdit, addSocio, removeSocio, handleInput, handleBlur, handleSubmit, handleFiles, removeFile,
         setShowPendencias }) => {
-    //Retirados campos número do Contrato e vencimento do CRC a pedido da DGTI (passou p/ próxima tab)
-    const dadosEmpresaForm = JSON.parse(JSON.stringify(empresasForm))
-        .filter(el => el.field !== 'numeroContrato' && el.field !== 'vencimentoContrato')
-        .map(e => {
-            if (e.field === 'razaoSocial' && !data.demand)
-                e.field = 'razaoSocialEdit'
-            return e
-        })
 
     const
-        { selectedEmpresa, demand, demandFiles, activeStep, stepTitles, subtitles, form, fileToRemove, info, showPendencias } = data,
+        { selectedEmpresa, demand, demandFiles, stepTitles, subtitles, form, fileToRemove, info, showPendencias } = data,
         headerTitle = `Alteração de contrato social - ${selectedEmpresa?.razaoSocial}`,
         forms = [dadosEmpresaForm, altContratoForm]
 
@@ -41,7 +29,6 @@ const AltContratoTemplate = (
                     <CustomStepper
                         activeStep={activeStep}
                         steps={stepTitles}
-                        setActiveStep={setActiveStep}
                     />
                 </section>
                 <div className="flex center">

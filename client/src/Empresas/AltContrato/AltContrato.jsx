@@ -2,21 +2,19 @@ import React, { useState, useEffect, useRef } from 'react'
 import axios from 'axios'
 import humps from 'humps'
 
-import StoreHOC from '../Store/StoreHOC'
+import StoreHOC from '../../Store/StoreHOC'
 import AltContratoTemplate from './AltContratoTemplate'
-import ReactToast from '../Reusable Components/ReactToast'
-import { logGenerator } from '../Utils/logGenerator'
-import { handleFiles as globalHandleFiles, removeFile as globalRemoveFile } from '../Utils/handleFiles'
-import valueParser from '../Utils/valueParser'
+import ReactToast from '../../Reusable Components/ReactToast'
+import { logGenerator } from '../../Utils/logGenerator'
+import { handleFiles as globalHandleFiles, removeFile as globalRemoveFile } from '../../Utils/handleFiles'
+import valueParser from '../../Utils/valueParser'
 
-import { altContratoForm } from '../Forms/altContratoForm'
-import { empresasForm } from '../Forms/empresasForm'
-import { sociosForm } from '../Forms/sociosForm'
-import AlertDialog from '../Reusable Components/AlertDialog'
-import altContratoFiles from '../Forms/altContratoFiles'
-import { toInputDate } from '../Utils/formatValues'
-import { useShareSum } from './useShareSum'
-import { useAlertDialog } from './useAlertDialog'
+import { altContratoForm, dadosEmpresaForm, altContratoFiles, empresasForm, sociosForm } from './forms'
+import { toInputDate } from '../../Utils/formatValues'
+import { useShareSum } from './hooks/useShareSum'
+import { useAlertDialog } from './hooks/useAlertDialog'
+import { useStepper } from './hooks/useStepper'
+import AlertDialog from '../../Reusable Components/AlertDialog'
 
 const stepTitles = ['Alterar dados da empresa', 'Informações sobre alteração do contrato social', 'Informações sobre sócios', 'Revisão']
 const subtitles = [
@@ -27,14 +25,12 @@ const subtitles = [
 ]
 
 const AltContrato = props => {
-
     const { empresas } = props.redux
     const socios = [...props.redux.socios]
     const [state, setState] = useState({
         stepTitles,
         subtitles,
         razaoSocial: '',
-        activeStep: 2,
         dropDisplay: 'Clique ou arraste para anexar a cópia da alteração do contrato social ',
         demand: undefined,
         confirmToast: false,
@@ -45,6 +41,8 @@ const AltContrato = props => {
     const prevSelectedEmpresa = useRef(state.selectedEmpresa)
     const shareSum = useShareSum()
     const { alert, createAlert, closeAlert } = useAlertDialog()
+    const { activeStep, setActiveStep } = useStepper()
+
 
     useEffect(() => {
         if (empresas && empresas.length === 1) {
@@ -135,44 +133,23 @@ const AltContrato = props => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [state.selectedEmpresa])
 
-    const setActiveStep = action => {
+    useEffect(() => {
+        const { inputValidation } = props.redux.parametros[0] && props.redux.parametros[0]
+        const forms = [dadosEmpresaForm, altContratoForm]
+        const { checkBlankInputs, checkInputErrors } = props
+        const errors = checkInputErrors('sendState')
+        const blankFields = checkBlankInputs(forms[activeStep], state)
 
-        let activeStep = state.activeStep
-        //Validação de campos em branco ou inválidos
-        const
-            { inputValidation } = props.redux.parametros[0] && props.redux.parametros[0]
-            //Retirados campos número do Contrato e vencimento do CRC a pedido da DGTI (passou p/ próxima tab)
-            , dadosEmpresaForm = JSON.parse(JSON.stringify(empresasForm))
-                .filter(el => el.field !== 'numeroContrato' && el.field !== 'vencimentoContrato')
-                .map(e => {
-                    if (e.field === 'razaoSocial')
-                        e.disabled = true
-                    return e
-                })
-            , forms = [dadosEmpresaForm, altContratoForm]
-
-        if (action === 'next' && inputValidation) {
-            const
-                { checkBlankInputs, checkInputErrors } = props
-                , errors = checkInputErrors('sendState')
-                , blankFields = checkBlankInputs(forms[activeStep], state)
-
-            if (errors) {
-                setState({ ...state, ...errors })
-                return
-            }
-            if (blankFields) {
-                setState({ ...state, ...blankFields })
-                return
-            }
+        if (errors) {
+            setState({ ...state, ...errors })
+            return
+        }
+        if (blankFields) {
+            setState({ ...state, ...blankFields })
+            return
         }
 
-
-        if (action === 'next') activeStep++
-        if (action === 'back') activeStep--
-        if (action === 'reset') activeStep = 0
-        setState({ ...state, activeStep })
-    }
+    }, [activeStep])
 
     const handleBlur = e => {
         const { name, value } = e.target
@@ -728,6 +705,7 @@ const AltContrato = props => {
             <AltContratoTemplate
                 empresas={empresas}
                 data={state}
+                activeStep={activeStep}
                 setActiveStep={setActiveStep}
                 handleInput={handleInput}
                 handleBlur={handleBlur}
