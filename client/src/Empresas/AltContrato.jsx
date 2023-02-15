@@ -15,34 +15,36 @@ import { sociosForm } from '../Forms/sociosForm'
 import AlertDialog from '../Reusable Components/AlertDialog'
 import altContratoFiles from '../Forms/altContratoFiles'
 import { toInputDate } from '../Utils/formatValues'
+import { useShareSum } from './useShareSum'
+import { useAlertDialog } from './useAlertDialog'
 
-
-const
-    stepTitles = ['Alterar dados da empresa', 'Informações sobre alteração do contrato social', 'Informações sobre sócios', 'Revisão'],
-    subtitles = ['Utilize os campos abaixo caso deseje editar os dados da empresa',
-        'Informe as alterações no contrato social ou CRC e anexe uma cópia do documento',
-        'Adicione ou altere sócios e suas respectivas participações.',
-        'Revise os dados informados.'
-    ]
+const stepTitles = ['Alterar dados da empresa', 'Informações sobre alteração do contrato social', 'Informações sobre sócios', 'Revisão']
+const subtitles = [
+    'Utilize os campos abaixo caso deseje editar os dados da empresa',
+    'Informe as alterações no contrato social ou CRC e anexe uma cópia do documento',
+    'Adicione ou altere sócios e suas respectivas participações.',
+    'Revise os dados informados.'
+]
 
 const AltContrato = props => {
 
     const { empresas } = props.redux
     const socios = [...props.redux.socios]
     const [state, setState] = useState({
-        razaoSocial: '',
-        activeStep: 0,
         stepTitles,
         subtitles,
+        razaoSocial: '',
+        activeStep: 2,
         dropDisplay: 'Clique ou arraste para anexar a cópia da alteração do contrato social ',
         demand: undefined,
         confirmToast: false,
         filteredSocios: [],
         showPendencias: false,
-        openAlertDialog: false
     })
 
     const prevSelectedEmpresa = useRef(state.selectedEmpresa)
+    const shareSum = useShareSum()
+    const { alert, createAlert, closeAlert } = useAlertDialog()
 
     useEffect(() => {
         if (empresas && empresas.length === 1) {
@@ -174,23 +176,17 @@ const AltContrato = props => {
 
     const handleBlur = e => {
         const { name, value } = e.target
-        const { filteredSocios } = state
 
         if (name === 'razaoSocialEdit') {
             setState(s => ({ ...s, razaoSocial: value }))
         }
 
         if (name === 'cpfSocio') {
-            const duplicate = filteredSocios.some(s => s.cpfSocio === value)
-            if (duplicate)
-                setState(
-                    {
-                        ...state,
-                        openAlertDialog: true,
-                        customTitle: 'Cpf já cadastrado',
-                        customMessage: 'O cpf informado corresponde a um sócio já cadastrado. Para remover ou editar os dados do sócio, utilize as opções abaixo.',
-                        cpfSocio: ''
-                    })
+            const errors = checkDuplicate()
+            if (errors) {
+                createAlert('cpfExists')
+                setState({ ...state, cpfSocio: '' })
+            }
         }
     }
 
@@ -207,16 +203,18 @@ const AltContrato = props => {
         setState({ ...state, [name]: parsedValue })
     }
 
-    const enableEdit = index => {
-
-        let editSocio = state.filteredSocios
-        if (editSocio[index].edit === true)
-            editSocio[index].edit = false
-        else {
-            editSocio.forEach(s => s.edit = false)
-            editSocio[index].edit = true
+    const enableEdit = (index) => {
+        const { filteredSocios } = state
+        const socio = filteredSocios[index]
+        if (shareSum > 100) {
+            socio.share = ''
+            createAlert('overShared')
+            return
         }
-        setState({ ...state, filteredSocios: editSocio })
+
+        socio.edit = !socio.edit
+        filteredSocios.forEach(s => (s !== socio && s.edit) ? s.edit = false : void 0)
+        setState({ ...state, filteredSocios })
     }
 
     const handleEdit = e => {
@@ -257,81 +255,72 @@ const AltContrato = props => {
                 editSocio.empresas = [{ codigoEmpresa, share: +value }]
         }
 
+        //const errors = checkForErrors() || {}
         setState({ ...state, filteredSocios: fs })
     }
 
+    const checkDuplicate = () => {
+        const { filteredSocios, cpfSocio } = state
+        const duplicateCpf = filteredSocios.some(s => !!cpfSocio && (s.cpfSocio === cpfSocio))
+        return duplicateCpf
+    }
+
+    const checkBlankInputs = () => {
+        const blankInputs = sociosForm.some(({ field }) => !state[field])
+        return blankInputs
+    }
+
     const addSocio = async () => {
-        const
-            { selectedEmpresa } = state,
-            { codigoEmpresa } = selectedEmpresa
-        let
-            socios = [...state.filteredSocios],
-            sObject = {},
-            invalid = 0,
-            totalShare = 0
+        const { selectedEmpresa } = state
+        const { codigoEmpresa } = selectedEmpresa
+        const socios = [...state.filteredSocios]
+        const addedSocio = { status: 'new' }
 
-        //Confere se todos os campos de novos sócios foram preenchidos
-        sociosForm.forEach(obj => {
-            if (state[obj.field] === '' || state[obj.field] === undefined) {
-                invalid += 1
-            }
+        if (shareSum > 100) {
+            createAlert('overShared')
+            setState({ ...state, share: '' })
+            return
+        }
+        sociosForm.forEach(({ field }) => {
+            Object.assign(addedSocio, { [field]: state[field] })
         })
-        if (invalid === 100) {
-            setState({ ...state, alertType: 'fieldsMissing', openAlertDialog: true })
+
+        const errors = checkBlankInputs()
+        if (errors) {
+            createAlert('fieldsMissing')
             return
         }
 
-        sociosForm.forEach(obj => {
-            Object.assign(sObject, { [obj.field]: state[obj.field] })
-        })
-        //Verifica se o sócio já existe
-        const
-            checkSocios = await axios.post('/api/checkSocios', { newCpfs: [sObject?.cpfSocio] }),
-            existingSocios = checkSocios?.data
-
-        sObject.status = 'new'
+        const { data: existingSocio } = await axios.post('/api/checkSocios', { newCpfs: [addedSocio?.cpfSocio] })
         //Se já existe, informar id, empresas e
-        if (existingSocios[0]) {
-            const
-                { socio_id, empresas } = existingSocios[0],
-                update = {
-                    socioId: socio_id,
-                    status: 'modified',
-                    outsider: true,
-                    empresas
-                }
-
-            Object.assign(sObject, { ...update })
+        if (existingSocio) {
+            const { socio_id, empresas } = existingSocio
+            const update = {
+                socioId: socio_id,
+                status: 'modified',
+                outsider: true,
+                empresas
+            }
+            Object.assign(addedSocio, { ...update })
         }
-        if (sObject.share)
-            sObject.share = +sObject.share
 
-        //Insere informações sobre empresa e participação para os sócios
-        const { share } = sObject
-        if (sObject.empresas && sObject.empresas[0])
-            sObject.empresas.push({ codigoEmpresa, share })
-        if ((sObject.empresas && !sObject.empresas[0]) || !sObject.empresas)
-            sObject.empresas = [{ codigoEmpresa, share }]
+        if (addedSocio.share)
+            addedSocio.share = +addedSocio.share
 
-        socios.push(sObject)
+        const { share } = addedSocio
+        if (addedSocio.empresas && addedSocio.empresas.length) {
+            addedSocio.empresas.push({ codigoEmpresa, share })
+        }
+        if (!addedSocio.empresas || !addedSocio.empresas.length) {
+            addedSocio.empresas = [{ codigoEmpresa, share }]
+        }
+
+        socios.push(addedSocio)
         socios.sort((a, b) => a.nomeSocio.localeCompare(b.nomeSocio))
-
-        //Verifica se a soma das participações passou 100%
-        socios.forEach(s => {
-            if (s?.status !== 'deleted')
-                totalShare += Number(s.share)
-        })
-
-        if (totalShare > 100) {
-            socios.pop()
-            setState({ ...state, alertType: 'overShared', openAlertDialog: true })
-            return
-        }
 
         const clearForm = {}
         sociosForm.forEach(obj => clearForm[obj.field] = '')
-
-        setState({ ...state, ...clearForm, filteredSocios: socios, totalShare })
+        setState({ ...state, ...clearForm, filteredSocios: socios })
     }
 
     const removeSocio = index => {
@@ -505,17 +494,17 @@ const AltContrato = props => {
                 }
                 else if (!s.empresas || !s.empresas[0])
                     s.empresas = [{ codigoEmpresa, share: s?.share }]
-                //Se newSocio, incluir cpf para atualizar permissões de usuário
-                if (s.status === 'new' || s.outsider === true)
-                    cpfsToAdd.push({ cpf_socio: s.cpfSocio })
-                //Se deleted, remove o código da empresa da array de empresas do sócio e grava todos os cpfs para retirar permissão de usuário
-                if (s.empresas instanceof Array && s.status === 'deleted') {
-                    s.empresas = s.empresas.filter(e => e.codigoEmpresa !== codigoEmpresa)
-                    cpfsToRemove.push({ cpf_socio: s.cpfSocio }) // Esse é o formato esperado no backEnd (/users/removeEmpresa.js)
-                    //Se após apagada a empresa, não houver nenhuma, registra 0 como único elemento da array empresas (previne erro no posgresql)
-                    if (!s.empresas[0])
-                        s.empresas = []
-                }
+                /*   //Se newSocio, incluir cpf para atualizar permissões de usuário
+                  if (s.status === 'new' || s.outsider === true)
+                      cpfsToAdd.push({ cpf_socio: s.cpfSocio })
+                  //Se deleted, remove o código da empresa da array de empresas do sócio e grava todos os cpfs para retirar permissão de usuário
+                  if (s.empresas instanceof Array && s.status === 'deleted') {
+                      s.empresas = s.empresas.filter(e => e.codigoEmpresa !== codigoEmpresa)
+                      cpfsToRemove.push({ cpf_socio: s.cpfSocio }) // Esse é o formato esperado no backEnd (/users/removeEmpresa.js)
+                      //Se após apagada a empresa, não houver nenhuma, registra 0 como único elemento da array empresas (previne erro no posgresql)
+                      if (!s.empresas[0])
+                          s.empresas = []
+                  } */
             })
 
             //Se não tiver demand, retorna socioUpdates
@@ -524,12 +513,12 @@ const AltContrato = props => {
 
             //Prepara o objeto de resposta
             if (demand && approved) {
+                //Replace with map and destructuring...
                 socioUpdates.forEach(s => {
                     delete s.outsider
                     delete s.razaoSocial
                     delete s.codigoEmpresa
                     delete s.originalStatus
-                    delete s.nomeEmpresas
                     //s.empresas = JSON.stringify(s.empresas)
                 })
                 socioUpdates = humps.decamelizeKeys(socioUpdates)
@@ -731,8 +720,8 @@ const AltContrato = props => {
 
     const toast = toastMsg => setState({ ...state, confirmToast: !state.confirmToast, toastMsg })
     const setShowPendencias = () => setState({ ...state, showPendencias: !state.showPendencias })
-    const closeAlert = () => setState({ ...state, openAlertDialog: !state.openAlertDialog })
-    const { filteredSocios, confirmToast, toastMsg, openAlertDialog, alertType, customMessage, customTitle } = state
+
+    const { filteredSocios, confirmToast, toastMsg } = state
 
     return (
         <>
@@ -754,8 +743,8 @@ const AltContrato = props => {
             />
             <ReactToast open={confirmToast} close={toast} msg={toastMsg} />
             {
-                openAlertDialog &&
-                <AlertDialog open={openAlertDialog} alertType={alertType} close={closeAlert} customMessage={customMessage} customTitle={customTitle} />
+                alert.openAlertDialog &&
+                <AlertDialog open={alert.openAlertDialog} close={closeAlert} customMessage={alert.customMessage} customTitle={alert.customTitle} />
             }
         </>
     )
