@@ -3,7 +3,7 @@ import React from 'react'
 import TextInput from '../Reusable Components/TextInput'
 
 import { empresasForm } from '../Forms/empresasForm'
-import FormSubtitle from '../Reusable Components/FormSubtiltle'
+import FormSubtitle from '../Reusable Components/FormSubtitle'
 import DragAndDrop from '../Reusable Components/DragAndDrop'
 import cadEmpresaForm from '../Forms/cadEmpresaForm'
 

@@ -10,7 +10,7 @@ import SelectEmpresa from '../Reusable Components/SelectEmpresa'
 import CustomTable from '../Reusable Components/CustomTable'
 import DragAndDrop from '../Reusable Components/DragAndDrop'
 import OnClickMenu from '../Reusable Components/OnClickMenu'
-import FormSubtiltle from '../Reusable Components/FormSubtiltle'
+import FormSubtitle from '../Reusable Components/FormSubtitle'
 import ShowLocalFiles from '../Reusable Components/ShowLocalFiles'
 import StepperButtons from '../Reusable Components/StepperButtons'
 
@@ -62,7 +62,7 @@ const LaudosTemplate = (
                         <header className='flex' style={{ marginBottom: '15px', justifyContent: 'space-between' }}>
                             {
                                 !selectedVehicle ?
-                                    <FormSubtiltle
+                                    <FormSubtitle
                                         subtitle='Selecione o veículo para atualizar consultar ou inserir o laudo de segurança veicular.'
                                         style={{ marginTop: '25px' }}
                                     />
@@ -88,7 +88,7 @@ const LaudosTemplate = (
                     }
                     {selectedVehicle && <>
                         <main className='paper' style={demand ? { marginTop: '15px' } : {}}>
-                            <FormSubtiltle
+                            <FormSubtitle
                                 subtitle={
                                     !demand ?
                                         'Para inserir novo laudo, informe o número, a data de vencimento, a empresa que emitiu e anexe o documento referente ao laudo.'

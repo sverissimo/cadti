@@ -12,29 +12,27 @@ const forms = {
 }
 
 export const createUpdateObject = (type, state) => {
-    const { codigoEmpresa } = state.selectedEmpresa
-    const returnObj = { codigoEmpresa }
+    const altEmpresaObj = {}
     const form = forms[type]
 
     form.forEach(({ field }) => {
         for (const prop in state) {
             if (prop === field && state[prop]) {
-                Object.assign(returnObj, { [prop]: state[prop] })
+                Object.assign(altEmpresaObj, { [prop]: state[prop] })
             }
         }
     })
 
-    if (Object.keys(returnObj).length <= 1) {
+    if (type !== 'socios' && Object.keys(altEmpresaObj).length === 0) {
         return null
     }
-    console.log("🚀 ~ file: createUpdateObject.js:28 ~ createUpdateObject ~ returnObj", returnObj)
 
     if (type === 'altEmpresa') {
-        const altEmpresa = createEmpresaUpdate(returnObj, state)
+        const altEmpresa = createEmpresaUpdate(altEmpresaObj, state)
         return !state.demand ? altEmpresa : humps.decamelizeKeys(altEmpresa)
     }
     if (type === 'altContrato') {
-        return createAltContratoUpdate(returnObj, state)
+        return createAltContratoUpdate(altEmpresaObj, state)
     }
     if (type === 'socios') {
         const socioUpdates = createSociosUpdate(state)

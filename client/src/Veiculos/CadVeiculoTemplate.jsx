@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 
 import SelectEmpresa from '../Reusable Components/SelectEmpresa'
 import TextInput from '../Reusable Components/TextInput'
-import FormSubtiltle from '../Reusable Components/FormSubtiltle'
+import FormSubtitle from '../Reusable Components/FormSubtitle'
 
 import Checkbox from '@material-ui/core/Checkbox'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
@@ -89,7 +89,7 @@ export default function ({ redux, data, handleInput, handleBlur, handleEquipa, h
                 <main>
                     {activeStep < 2 &&
                         <section className='paper' style={{ paddingBottom: '25px' }}>
-                            <FormSubtiltle subtitle={conditionalSubtitle} />
+                            <FormSubtitle subtitle={conditionalSubtitle} />
                             <TextInput
                                 form={form}
                                 data={data}
@@ -107,7 +107,7 @@ export default function ({ redux, data, handleInput, handleBlur, handleEquipa, h
                                 onClick={() => handleEquipa('equipamentos')}
                             >
                                 <AddIcon />
-                                                Equipamentos
+                                Equipamentos
                             </Button>
                             <Button
                                 variant="outlined"
@@ -117,7 +117,7 @@ export default function ({ redux, data, handleInput, handleBlur, handleEquipa, h
                                 onClick={() => handleEquipa('acessibilidade')}
                             >
                                 <AddIcon />
-                                        Acessibilidade
+                                Acessibilidade
                             </Button>
                         </section>}
                     {

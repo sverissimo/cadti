@@ -4,21 +4,21 @@ import AltSociosTemplate from './AltSociosTemplate'
 import { altContratoForm, dadosEmpresaForm, altContratoFiles, empresaFiles } from './forms'
 
 import Crumbs from '../../Reusable Components/Crumbs'
-import FormSubtiltle from '../../Reusable Components/FormSubtiltle'
+import FormSubtitle from '../../Reusable Components/FormSubtitle'
 import SelectEmpresa from '../../Reusable Components/SelectEmpresa'
 import CustomStepper from '../../Reusable Components/Stepper'
 import TextInput from '../../Reusable Components/TextInput'
 import StepperButtons from '../../Reusable Components/StepperButtons'
 import DragAndDrop from '../../Reusable Components/DragAndDrop'
+import { stepTitles, subtitles } from './data/stepLabels'
 
 const AltContratoTemplate = (
     { empresas, data, activeStep, setActiveStep, enableEdit, handleEdit, addSocio, removeSocio, handleInput, handleBlur, handleSubmit, handleFiles, removeFile,
         setShowPendencias }) => {
 
-    const
-        { selectedEmpresa, demand, demandFiles, stepTitles, subtitles, form, fileToRemove, info, showPendencias } = data,
-        headerTitle = `Alteração de contrato social - ${selectedEmpresa?.razaoSocial}`,
-        forms = [dadosEmpresaForm, altContratoForm]
+    const { selectedEmpresa, demand, demandFiles, form, fileToRemove, info, showPendencias } = data
+    const headerTitle = `Alteração de contrato social - ${selectedEmpresa?.razaoSocial}`
+    const forms = [dadosEmpresaForm, altContratoForm]
 
     return (
         <main>
@@ -48,7 +48,7 @@ const AltContratoTemplate = (
                     {
                         activeStep !== 2 ?
                             <section className="flex paper">
-                                <FormSubtiltle subtitle={subtitles[activeStep]} />
+                                <FormSubtitle subtitle={subtitles[activeStep || 0] || ''} />
                                 {
                                     activeStep < 2
                                         ?
@@ -90,6 +90,7 @@ const AltContratoTemplate = (
                             <section>
                                 <AltSociosTemplate
                                     data={data}
+                                    activeStep={activeStep}
                                     handleInput={handleInput}
                                     handleBlur={handleBlur}
                                     addSocio={addSocio}

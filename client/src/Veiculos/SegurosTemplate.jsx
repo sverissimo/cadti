@@ -20,7 +20,7 @@ import { seguroForm } from '../Forms/seguroForm'
 import './veiculos.scss'
 import ShowLocalFiles from '../Reusable Components/ShowLocalFiles'
 import { empresaFiles } from '../Forms/empresaFiles'
-import FormSubtiltle from '../Reusable Components/FormSubtiltle'
+import FormSubtitle from '../Reusable Components/FormSubtitle'
 
 const useStyles = makeStyles(theme => ({
     textField: {
@@ -74,7 +74,7 @@ export default function SegurosTemplate({ empresas, data, seguros, seguradoras, 
                 />
                 {selectedEmpresa &&
                     <section className="paper">
-                        <FormSubtiltle subtitle='Informe os dados do seguro.' />
+                        <FormSubtitle subtitle='Informe os dados do seguro.' />
                         <TextInput
                             form={seguroForm}
                             data={data}

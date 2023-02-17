@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react'
 
 import DragAndDrop from '../Reusable Components/DragAndDrop'
-import FormSubtiltle from '../Reusable Components/FormSubtiltle'
+import FormSubtitle from '../Reusable Components/FormSubtitle'
 
 import Grid from '@material-ui/core/Grid'
 import { makeStyles } from '@material-ui/core/styles'
@@ -42,8 +42,8 @@ export default function VehicleDocs({ handleFiles, parentComponent, dropDisplay,
     if (parentComponent === 'altDados') filesForm = altDadosFiles
 
     return (
-        <div className='paper' style={{color: '#555'}} >
-            <FormSubtiltle subtitle='Anexe os documentos solicitados nos campos abaixo' />
+        <div className='paper' style={{ color: '#555' }} >
+            <FormSubtitle subtitle='Anexe os documentos solicitados nos campos abaixo' />
             <Grid container className={root}>
                 {filesForm.map(({ title, name }, k) =>
                     name === 'apoliceDoc' && insuranceExists ? null :

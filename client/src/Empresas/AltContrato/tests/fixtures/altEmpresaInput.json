@@ -1,9 +1,20 @@
-{
-    "razaoSocial": "EMPRESA GONTIJO DE TRANSPORTES LIMITADA",
-    "razaoSocialEdit": "EMPRESA GONTIJO DE TRANSPORTES LIMITADA",
-    "inscricaoEstadual": "9876543210",
-    "telefone": "3134226690",
-    "cidade": "BELO HORIZONTE",
-    "numero": "475",
-    "bairro": "ENGENHO NOGUEIRA"
-}
+[
+    {
+        "razaoSocial": "EMPRESA GONTIJO DE TRANSPORTES LIMITADA",
+        "razaoSocialEdit": "ALTERED_RAZAO_SOCIAL",
+        "inscricaoEstadual": "9876543210",
+        "telefone": "3134226690",
+        "cidade": "BELO HORIZONTE",
+        "numero": "475",
+        "bairro": "ENGENHO NOGUEIRA"
+    },
+    {
+        "razaoSocial": "ALTERED_RAZAO_SOCIAL",
+        "razaoSocialEdit": "EMPRESA GONTIJO DE TRANSPORTES LIMITADA",
+        "inscricaoEstadual": "1234567890",
+        "telefone": "3131111111",
+        "cidade": "BELO HORIZONTE",
+        "numero": "475",
+        "bairro": "ALTERED_BAIRRO"
+    }
+]

@@ -1,7 +1,7 @@
 import React from 'react'
 
 import SelectEmpresa from '../Reusable Components/SelectEmpresa'
-import FormSubtiltle from '../Reusable Components/FormSubtiltle'
+import FormSubtitle from '../Reusable Components/FormSubtitle'
 import TextInput from '../Reusable Components/TextInput'
 import AddEquipa from './AddEquipa'
 
@@ -43,7 +43,7 @@ export default function ({ handleInput, handleBlur, data, handleCheck, handleEqu
                 <main>
                     {activeStep < 2 &&
                         <section className='paper'>
-                            <FormSubtiltle subtitle={subtitle[activeStep]} />
+                            <FormSubtitle subtitle={subtitle[activeStep]} />
                             <TextInput
                                 form={form}
                                 data={data}

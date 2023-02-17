@@ -5,6 +5,7 @@ export const createSociosUpdate = (state) => {
     const cpfsToRemove = []
     const cpfsToAdd = []
     const socioUpdates = filteredSocios.filter(s => !!s.status)
+    console.log("🚀 ~ file: createSociosUpdate.js:8 ~ createSociosUpdate ~ socioUpdates", socioUpdates)
 
     if (!socioUpdates.length) {
         return null

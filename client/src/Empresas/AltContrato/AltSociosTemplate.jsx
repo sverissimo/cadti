@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react'
 
-import FormSubtiltle from '../../Reusable Components/FormSubtiltle'
+import FormSubtitle from '../../Reusable Components/FormSubtitle'
 
 import Button from '@material-ui/core/Button'
 import EditIcon from '@material-ui/icons/Edit';
@@ -12,6 +12,7 @@ import DeleteIcon from '@material-ui/icons/Delete';
 import { sociosForm } from '../../Forms/sociosForm'
 import TextInput from '../../Reusable Components/TextInput'
 import { errorHandler, helper } from '../../Utils/checkInputErrors';
+import { subtitles } from './data/stepLabels'
 
 const useStyles = makeStyles(theme => ({
     list: {
@@ -27,18 +28,16 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
-export default function ({ handleInput, handleBlur, data, addSocio, enableEdit, handleEdit, removeSocio }) {
-
-    const
-        { selectedEmpresa, subtitles, activeStep, filteredSocios } = data,
-        classes = useStyles(), { iconButton, list } = classes
+export default function ({ handleInput, handleBlur, data, activeStep, addSocio, enableEdit, handleEdit, removeSocio }) {
+    const { selectedEmpresa, filteredSocios } = data
+    const classes = useStyles(), { iconButton, list } = classes
 
     return (
         <>
             {
                 selectedEmpresa &&
                 <section className="flex paper">
-                    <FormSubtiltle subtitle={subtitles[activeStep]} />
+                    <FormSubtitle subtitle={subtitles[activeStep]} />
                     <div className="flex center">
                         <div style={{ padding: '10px 0', width: '100%' }}>
                             <TextInput

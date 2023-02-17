@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react'
 
 import SelectEmpresa from '../Reusable Components/SelectEmpresa'
-import FormSubtiltle from '../Reusable Components/FormSubtiltle'
+import FormSubtitle from '../Reusable Components/FormSubtitle'
 
 import Button from '@material-ui/core/Button'
 import EditIcon from '@material-ui/icons/Edit';
@@ -71,7 +71,7 @@ export default function ({ socios, empresas, handleInput, handleBlur, data, addS
                         </>
                         : stepTitles &&
                         <section className="flex center paper">
-                            <FormSubtiltle subtitle={stepTitles[activeStep]} />
+                            <FormSubtitle subtitle={stepTitles[activeStep]} />
                             <div className='flex center' style={{ padding: '10px 0', width: '100%' }}>
                                 <TextInput
                                     form={sociosForm}

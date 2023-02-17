@@ -4,35 +4,28 @@ export const createEmpresaUpdate = (altEmpresaObj, state) => {
 
     /**@type object */
     const empresaUpdate = Object.keys(altEmpresaObj)
-        .filter(key => (altEmpresaObj[key] !== selectedEmpresa[key]))
+        .filter(key => (altEmpresaObj[key].toString() !== '' + selectedEmpresa[key]))
         .reduce((prev, cur) => ({ ...prev, [cur]: altEmpresaObj[cur] }), {})
 
+    if (empresaUpdate.razaoSocialEdit === selectedEmpresa.razaoSocial) {
+        delete empresaUpdate.razaoSocialEdit
+    }
+
+    if (Object.keys(empresaUpdate).length === 0) {
+        console.log("🚀 ~ file: createEmpresaUpdate.js:18 ~ createEmpresaUpdate ~ null", null)
+        return null
+    }
+
+    if (!demand) {
+        return empresaUpdate
+    }
+
     const { razaoSocialEdit } = empresaUpdate
-
-    if (razaoSocialEdit === selectedEmpresa.razaoSocial) {
-        delete empresaUpdate.razaoSocialEdit
+    const approvedUpdate = {
+        ...empresaUpdate,
+        codigoEmpresa: selectedEmpresa.codigoEmpresa,
+        razaoSocial: razaoSocialEdit || undefined,
+        razaoSocialEdit: undefined,
     }
-
-    if (demand) {
-        empresaUpdate.codigoEmpresa = selectedEmpresa.codigoEmpresa
-        empresaUpdate.razaoSocial = razaoSocialEdit ? razaoSocialEdit : undefined
-        delete empresaUpdate.razaoSocialEdit
-    }
-
-    return empresaUpdate
+    return approvedUpdate
 }
-
-/*
-Official docs states:
-
-> It is unsafe to chain further commands that rely on the subject after .clear().
-
-So, a simple alternative woldu be something like:
-
-    cy.get('#my-input-element').clear()
-    cy.get('#my-input-element').type('some-input')
-
-More about clear command:
-
-https://docs.cypress.io/api/commands/clear
-*/

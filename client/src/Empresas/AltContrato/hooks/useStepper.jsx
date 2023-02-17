@@ -5,11 +5,12 @@ export const useStepper = () => {
     const [activeStep, setStep] = useState(0)
 
     const setActiveStep = (action) => {
-        let updatedStep = activeStep
-        if (action === 'next') updatedStep++
-        if (action === 'back') updatedStep--
-        if (action === 'reset') updatedStep = 0
-        setStep(updatedStep)
+        setStep(prevStep => (
+            action === 'next' ? prevStep + 1
+                : action === 'back' ? prevStep - 1
+                    : Number(action) ? action
+                        : prevStep)
+        )
     }
     return { activeStep, setActiveStep }
 }

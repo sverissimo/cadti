@@ -8,7 +8,7 @@ import { compartilhamentoFiles } from '../Forms/compatilhamentoFiles'
 import Crumbs from '../Reusable Components/Crumbs'
 import CustomButton from '../Reusable Components/CustomButton'
 import DragAndDrop from '../Reusable Components/DragAndDrop'
-import FormSubtiltle from '../Reusable Components/FormSubtiltle'
+import FormSubtitle from '../Reusable Components/FormSubtitle'
 import SelectEmpresa from '../Reusable Components/SelectEmpresa'
 import ShowLocalFiles from '../Reusable Components/ShowLocalFiles'
 import TextArea from '../Reusable Components/TextArea'
@@ -39,7 +39,7 @@ const CompartilhamentoTemplate = ({ data, redux, handleInput, handleFiles, remov
                 selectedEmpresa &&
                 <>
                     <main className='paper' style={{ margin: '0.5rem 0' }}>
-                        <FormSubtiltle subtitle={!demand ? 'Insira a placa do veículo para gerenciar seu compartilhamento.' : 'Informações do veículo e do compartilhamento'} />
+                        <FormSubtitle subtitle={!demand ? 'Insira a placa do veículo para gerenciar seu compartilhamento.' : 'Informações do veículo e do compartilhamento'} />
                         {
                             compartilhamentoRemoved &&
                             <p className='smallFont' style={{ color: 'red' }}>
@@ -66,7 +66,7 @@ const CompartilhamentoTemplate = ({ data, redux, handleInput, handleFiles, remov
                         </section>
                         <section className='flexColumn'>
                             <div style={{ margin: '3rem 0 0 0' }}>
-                                <FormSubtiltle
+                                <FormSubtitle
                                     subtitle={!demand ? 'Anexe os arquivos solicitados.' : 'Documentos'}
                                     style={{ margin: 0 }}
                                 />

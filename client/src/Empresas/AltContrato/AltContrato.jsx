@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react'
 import axios from 'axios'
-import humps from 'humps'
 
 import StoreHOC from '../../Store/StoreHOC'
 import AltContratoTemplate from './AltContratoTemplate'
@@ -18,20 +17,11 @@ import { useInputErrorHandler } from './hooks/useInputErrorHandler'
 import { createUpdateObject } from './utils/createUpdateObject'
 import AlertDialog from '../../Reusable Components/AlertDialog'
 
-const stepTitles = ['Alterar dados da empresa', 'Informações sobre alteração do contrato social', 'Informações sobre sócios', 'Revisão']
-const subtitles = [
-    'Utilize os campos abaixo caso deseje editar os dados da empresa',
-    'Informe as alterações no contrato social ou CRC e anexe uma cópia do documento',
-    'Adicione ou altere sócios e suas respectivas participações.',
-    'Revise os dados informados.'
-]
 
 const AltContrato = props => {
     const { empresas } = props.redux
     const socios = [...props.redux.socios]
     const [state, setState] = useState({
-        stepTitles,
-        subtitles,
         razaoSocial: '',
         dropDisplay: 'Clique ou arraste para anexar a cópia da alteração do contrato social ',
         demand: undefined,
@@ -42,7 +32,7 @@ const AltContrato = props => {
 
     const { inputValidation } = props.redux.parametros[0]
     const { checkBlankInputs, checkDuplicate } = useInputErrorHandler()
-    const { alert, alertTypes, createAlert, closeAlert } = useAlertDialog()
+    const { alertObj, alertTypes, createAlert, closeAlert } = useAlertDialog()
     const { activeStep, setActiveStep } = useStepper()
     const shareSum = useShareSum()
     const prevSelectedEmpresa = useRef(state.selectedEmpresa)
@@ -62,6 +52,7 @@ const AltContrato = props => {
 
     useEffect(() => {
         if (demand?.history.length) {
+            console.log("🚀 ~ file: AltContrato.jsx:65 ~ useEffect ~ demand", demand)
             const { empresaDocs } = props.redux
             const { altContrato, altEmpresa, socioUpdates, files } = demand?.history[0]
             const selectedEmpresa = empresas.find(e => e.codigoEmpresa === demand.empresaId)
@@ -97,7 +88,6 @@ const AltContrato = props => {
                 demandFiles = empresaDocs.filter(d => files.includes(d.id))
             }
 
-            console.log("🚀 ~ file: AltContrato.jsx:106 ~ useEffect ~ demandFiles", updatedEmpresa)
             setState(() => ({
                 ...state, ...altContrato, ...updatedEmpresa, selectedEmpresa, demand, alteredFields,
                 demandFiles, filteredSocios
@@ -312,29 +302,21 @@ const AltContrato = props => {
         let socioIds = []
         let toastMsg = 'Solicitação de alteração contratual enviada.'
 
-        //Se não houver nenhuma alteração, alerta e retorna
         if (!demand && !altContrato && !altEmpresa && !form && !socioUpdates) {
             alert('Nenhuma modificação registrada!')
             return
         }
 
-        //Ao aprovar a solicitação(demanda)
         if (demand && approved) {
-            //Registra as alterações de dados da empresa
             if (altEmpresa) {
                 console.log("🚀 ~ file: AltContrato.jsx:334 ~ handleSubmit ~ altEmpresa", altEmpresa)
-                axios.put('/api/editElements', {
-                    table: 'empresas',
-                    tablePK: 'codigo_empresa',
-                    update: altEmpresa
-                })
+                axios.patch('/api/empresas', altEmpresa)
             }
 
-            //Registrar as alterações contratuais
-            if (altContrato)
+            if (altContrato) {
                 axios.post('/api/altContrato', altContrato)
+            }
 
-            //Atualizar os sócios: existentes, novos e a excluir
             if (socioUpdates) {
                 const
                     { newSocios, oldSocios, cpfsToAdd, cpfsToRemove } = socioUpdates,
@@ -346,7 +328,6 @@ const AltContrato = props => {
                         cpfsToRemove
                     }
 
-                //Post request dos novos sócios
                 if (newSocios[0]) {
                     const { data: ids } = await axios.post('/api/socios', { socios: newSocios, codigoEmpresa })
                     socioIds.push(ids)         //A array de ids de sócios vai para a metadata dos arquivos
@@ -497,7 +478,6 @@ const AltContrato = props => {
             { codigoEmpresa } = selectedEmpresa
         let log
 
-        console.log("🚀 ~ file: AltContrato.jsx:515 ~ createLog ~ altEmpresa", altEmpresa)
         //Se não houver demanda, criar demanda/log
         if (!demand) {
             log = {
@@ -624,7 +604,7 @@ const AltContrato = props => {
         }
 
         setState({
-            ...resetForms, activeStep: 0, stepTitles, subtitles, razaoSocial: '', selectedEmpresa: undefined,
+            ...resetForms, activeStep: 0, razaoSocial: '', selectedEmpresa: undefined,
             filteredSocios: [], form: undefined, fileToRemove: undefined, ...clearedState
         })
     }
@@ -661,8 +641,8 @@ const AltContrato = props => {
             />
             <ReactToast open={confirmToast} close={toast} msg={toastMsg} />
             {
-                alert.openAlertDialog &&
-                <AlertDialog open={alert.openAlertDialog} close={closeAlert} customMessage={alert.customMessage} customTitle={alert.customTitle} />
+                alertObj.openAlertDialog &&
+                <AlertDialog open={alertObj.openAlertDialog} close={closeAlert} customMessage={alertObj.customMessage} customTitle={alertObj.customTitle} />
             }
         </>
     )

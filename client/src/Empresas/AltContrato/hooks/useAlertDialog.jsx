@@ -7,7 +7,7 @@ const alertTypes = {
 }
 
 export const useAlertDialog = () => {
-    const [alert, setAlert] = useState({})
+    const [alertObj, setAlert] = useState({})
 
     function createAlert(type) {
         let customTitle
@@ -34,8 +34,8 @@ export const useAlertDialog = () => {
     }
 
     function closeAlert() {
-        setAlert({ ...alert, openAlertDialog: false })
+        setAlert({ openAlertDialog: false })
     }
 
-    return { alert, alertTypes, createAlert, closeAlert }
+    return { alertObj, alertTypes, createAlert, closeAlert }
 }
