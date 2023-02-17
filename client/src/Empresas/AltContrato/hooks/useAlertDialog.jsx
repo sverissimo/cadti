@@ -1,5 +1,10 @@
 //@ts-check
 import { useState } from 'react'
+const alertTypes = {
+    DUPLICATE_CPF: 'duplicateCpf',
+    OVERSHARED: 'overShared',
+    FIELDS_MISSING: 'fieldsMissing',
+}
 
 export const useAlertDialog = () => {
     const [alert, setAlert] = useState({})
@@ -8,10 +13,10 @@ export const useAlertDialog = () => {
         let customTitle
         let customMessage
         switch (type) {
-            case 'cpfExists':
+            case 'duplicateCpf':
                 customTitle = 'CPF já cadastrado.'
-                customMessage = `O CPF informado corresponde a um sócio já cadastrado.
-                Para remover ou editar as informações dos sócios, utilize a respectiva opção abaixo.`
+                customMessage = `O CPF informado corresponde a um sócio já listado.
+                Para remover ou editar informações dos sócios listados, utilize as opções disponíveis à direita da lista de sócios.`
                 break
             case 'overShared':
                 customTitle = 'Participação societária inválida.'
@@ -32,5 +37,5 @@ export const useAlertDialog = () => {
         setAlert({ ...alert, openAlertDialog: false })
     }
 
-    return { alert, createAlert, closeAlert }
+    return { alert, alertTypes, createAlert, closeAlert }
 }

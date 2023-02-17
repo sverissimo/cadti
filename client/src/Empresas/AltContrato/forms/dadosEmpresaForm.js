@@ -47,7 +47,7 @@ export const dadosEmpresaForm = [
         field: 'complemento',
         label: 'Complemento',
         maxLength: 20,
-        notRequired: true
+        required: false
     },
     {
         field: 'bairro',

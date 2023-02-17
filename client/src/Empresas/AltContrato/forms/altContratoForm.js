@@ -17,14 +17,14 @@ export const altContratoForm = [
         field: 'numeroSei',
         label: 'Número do registro SEI (se houver)',
         maxLength: 30,
-        notRequired: true,
+        required: false,
         width
     },
     {
         field: 'dataJunta',
         label: 'Data de registro na Junta Comercial',
         type: 'date',
-        notRequired: true,
+        required: false,
         width
     },
     {

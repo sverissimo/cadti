@@ -12,7 +12,7 @@ const checkBlankInputs = (form, state) => {
 
     form.forEach(element => {
         const value = state[element.field]
-        if (element?.disabled || element.notRequired)
+        if (element?.disabled || element.required === false)
             return
         else if (!value || value === '') {
             customMsg += `${element.label}, `

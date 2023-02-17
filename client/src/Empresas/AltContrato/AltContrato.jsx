@@ -9,12 +9,14 @@ import { logGenerator } from '../../Utils/logGenerator'
 import { handleFiles as globalHandleFiles, removeFile as globalRemoveFile } from '../../Utils/handleFiles'
 import valueParser from '../../Utils/valueParser'
 
-import { altContratoForm, dadosEmpresaForm, altContratoFiles, empresasForm, sociosForm } from './forms'
+import { altContratoForm, altContratoFiles, empresasForm, sociosForm, dadosEmpresaForm } from './forms'
 import { toInputDate } from '../../Utils/formatValues'
 import { useShareSum } from './hooks/useShareSum'
 import { useAlertDialog } from './hooks/useAlertDialog'
 import { useStepper } from './hooks/useStepper'
 import AlertDialog from '../../Reusable Components/AlertDialog'
+import { useInputErrorHandler } from './hooks/useInputErrorHandler'
+import { createRequestObject } from './utils/createRequestObject'
 
 const stepTitles = ['Alterar dados da empresa', 'Informações sobre alteração do contrato social', 'Informações sobre sócios', 'Revisão']
 const subtitles = [
@@ -38,11 +40,12 @@ const AltContrato = props => {
         showPendencias: false,
     })
 
-    const prevSelectedEmpresa = useRef(state.selectedEmpresa)
-    const shareSum = useShareSum()
-    const { alert, createAlert, closeAlert } = useAlertDialog()
+    const { inputValidation } = props.redux.parametros[0]
+    const { checkBlankInputs, checkDuplicate } = useInputErrorHandler()
+    const { alert, alertTypes, createAlert, closeAlert } = useAlertDialog()
     const { activeStep, setActiveStep } = useStepper()
-
+    const shareSum = useShareSum()
+    const prevSelectedEmpresa = useRef(state.selectedEmpresa)
 
     useEffect(() => {
         if (empresas && empresas.length === 1) {
@@ -110,7 +113,6 @@ const AltContrato = props => {
     }, [])
 
     //Armazena uma cópia dos sócios antes de qualquer edição para avaliar se houve mudança e fazer ou não o request
-
     useEffect(() => {
         const { selectedEmpresa } = state
         if (selectedEmpresa) {
@@ -133,35 +135,26 @@ const AltContrato = props => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [state.selectedEmpresa])
 
-    useEffect(() => {
-        const { inputValidation } = props.redux.parametros[0] && props.redux.parametros[0]
-        const forms = [dadosEmpresaForm, altContratoForm]
-        const { checkBlankInputs, checkInputErrors } = props
-        const errors = checkInputErrors('sendState')
-        const blankFields = checkBlankInputs(forms[activeStep], state)
-
-        if (errors) {
-            setState({ ...state, ...errors })
-            return
-        }
-        if (blankFields) {
-            setState({ ...state, ...blankFields })
+    const changeStep = (action) => {
+        const errors = checkBlankInputs(activeStep, state)
+        if (inputValidation && errors && action === 'next') {
+            createAlert(alertTypes.FIELDS_MISSING)
             return
         }
 
-    }, [activeStep])
+        return setActiveStep(action)
+    }
 
     const handleBlur = e => {
         const { name, value } = e.target
-
         if (name === 'razaoSocialEdit') {
             setState(s => ({ ...s, razaoSocial: value }))
         }
 
         if (name === 'cpfSocio') {
-            const errors = checkDuplicate()
+            const errors = checkDuplicate(state.cpfSocio, state.filteredSocios)
             if (errors) {
-                createAlert('cpfExists')
+                createAlert(alertTypes.DUPLICATE_CPF)
                 setState({ ...state, cpfSocio: '' })
             }
         }
@@ -236,17 +229,6 @@ const AltContrato = props => {
         setState({ ...state, filteredSocios: fs })
     }
 
-    const checkDuplicate = () => {
-        const { filteredSocios, cpfSocio } = state
-        const duplicateCpf = filteredSocios.some(s => !!cpfSocio && (s.cpfSocio === cpfSocio))
-        return duplicateCpf
-    }
-
-    const checkBlankInputs = () => {
-        const blankInputs = sociosForm.some(({ field }) => !state[field])
-        return blankInputs
-    }
-
     const addSocio = async () => {
         const { selectedEmpresa } = state
         const { codigoEmpresa } = selectedEmpresa
@@ -254,7 +236,7 @@ const AltContrato = props => {
         const addedSocio = { status: 'new' }
 
         if (shareSum > 100) {
-            createAlert('overShared')
+            createAlert(alertTypes.OVERSHARED)
             setState({ ...state, share: '' })
             return
         }
@@ -262,7 +244,7 @@ const AltContrato = props => {
             Object.assign(addedSocio, { [field]: state[field] })
         })
 
-        const errors = checkBlankInputs()
+        const errors = checkBlankInputs(activeStep, state)
         if (errors) {
             createAlert('fieldsMissing')
             return
@@ -324,16 +306,15 @@ const AltContrato = props => {
     }
 
     const handleSubmit = async approved => {
-        const
-            { demand, form, selectedEmpresa } = state,
-            { codigoEmpresa } = selectedEmpresa,
-            altContrato = createRequestObj(altContratoForm),
-            altEmpresa = createRequestObj(empresasForm),
-            socioUpdates = checkSocioUpdates(approved),
-            log = createLog({ demand, altEmpresa, altContrato, socioUpdates, approved })
-        let
-            socioIds = [],
-            toastMsg = 'Solicitação de alteração contratual enviada.'
+        const { demand, form, selectedEmpresa } = state
+        const { codigoEmpresa } = selectedEmpresa
+        const altContrato = createRequestObject(altContratoForm, state)
+        const altEmpresa = createRequestObject(dadosEmpresaForm, state)
+        const socioUpdates = checkSocioUpdates(approved)
+        const log = createLog({ demand, altEmpresa, altContrato, socioUpdates, approved })
+
+        let socioIds = []
+        let toastMsg = 'Solicitação de alteração contratual enviada.'
 
         //Se não houver nenhuma alteração, alerta e retorna
         if (!demand && !altContrato && !altEmpresa && !form && !socioUpdates) {
@@ -343,7 +324,6 @@ const AltContrato = props => {
 
         //Ao aprovar a solicitação(demanda)
         if (demand && approved) {
-
             //Registra as alterações de dados da empresa
             if (demand.history[0].altEmpresa && altEmpresa)
                 axios.put('/api/editElements', {
@@ -414,11 +394,12 @@ const AltContrato = props => {
             }
         }
 
-        logGenerator(log)                               //Generate the demand
+        /* logGenerator(log)                               //Generate the demand
             .then(r => {
                 console.log(r?.data)
             })
-            .catch(err => console.log(err))
+            .catch(err => console.log(err)) */
+        console.log("🚀 ~ file: AltContrato.jsx:403 ~ handleSubmit ~ log", log)
 
         if (demand)
             setTimeout(() => {
@@ -512,7 +493,6 @@ const AltContrato = props => {
         else return null
     }
 
-
     const createLog = ({ demand, altEmpresa, altContrato, approved, socioUpdates }) => {
         const
             { selectedEmpresa, info } = state,
@@ -560,46 +540,6 @@ const AltContrato = props => {
             }
         }
         return log
-    }
-
-    //Prepara os objetos para o request
-    const createRequestObj = form => {
-        const
-            { selectedEmpresa, demand } = state,
-            { codigoEmpresa, razaoSocial } = selectedEmpresa,
-            createdAt = demand && demand.createdAt
-
-        let returnObj = { codigoEmpresa: selectedEmpresa?.codigoEmpresa }
-
-        form.forEach(({ field }) => {
-            for (let prop in state) {
-                if (prop === field && state[prop])
-                    Object.assign(returnObj, { [prop]: state[prop] })
-            }
-        })
-
-        //Adiciona a data de solicitação (não de cadastro) no sistema, em caso de alteração do contrato é necessário verificar
-        const keys = Object.keys(returnObj)
-
-        if (keys.length > 1) {
-            //Se tiver aprovando, pega o createdAt do log(demanda) e salva, para manter a data da solicitação.
-            if (keys.includes('numeroAlteracao') && demand) {
-                returnObj.createdAt = createdAt
-                returnObj.codigoEmpresa = codigoEmpresa     //Insere codigoEmpresa para userSocket.js filtrar no backEnd
-                returnObj.razaoSocial = razaoSocial         //Insere razão social para o altContratoAlert no backEnd.
-            }
-
-            //Se alterada a razão social, a alteração está salva no state
-            if (state.razaoSocial)
-                returnObj.razaoSocial = state.razaoSocial
-            if (state.razaoSocialEdit)
-                returnObj.razaoSocial = state.razaoSocialEdit
-            return returnObj
-
-        }
-        //Se keys.length não for 2 ou mais, retorna null (uma prop é o codigoEmpresa, acrescentado no início da função(this))
-        else
-            return null
     }
 
     const handleFiles = async (files, name) => {
@@ -689,6 +629,7 @@ const AltContrato = props => {
             filteredSocios: [], form: undefined, fileToRemove: undefined, ...clearedState
         })
     }
+
     const unselectEmpresa = () => {
         const clearEmpresaFields = Object.keys(prevSelectedEmpresa.current)
             .reduce((prev, cur) => ({ ...prev, [cur]: undefined }), {})
@@ -706,7 +647,7 @@ const AltContrato = props => {
                 empresas={empresas}
                 data={state}
                 activeStep={activeStep}
-                setActiveStep={setActiveStep}
+                setActiveStep={changeStep}
                 handleInput={handleInput}
                 handleBlur={handleBlur}
                 handleSubmit={handleSubmit}

@@ -10,6 +10,12 @@ module.exports = defineConfig({
   experimentalStudio: true,
   e2e: {
     baseUrl: 'http://localhost:3000',
+    excludeSpecPattern: "/node_modules",
+    specPattern: [
+      "./src/**/*.{cy,spec}.{js,jsx}",
+      "./cypress/e2e/*.{cy,spec}.{js,jsx}",
+
+    ],
     setupNodeEvents(on, config) {
       // implement node event listeners here
     },
