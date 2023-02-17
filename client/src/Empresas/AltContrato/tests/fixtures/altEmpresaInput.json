@@ -1,6 +1,9 @@
 {
     "razaoSocial": "EMPRESA GONTIJO DE TRANSPORTES LIMITADA",
-    "telefone": "031 34226690",
+    "razaoSocialEdit": "EMPRESA GONTIJO DE TRANSPORTES LIMITADA",
+    "inscricaoEstadual": "9876543210",
+    "telefone": "3134226690",
+    "cidade": "BELO HORIZONTE",
     "numero": "475",
     "bairro": "ENGENHO NOGUEIRA"
 }
