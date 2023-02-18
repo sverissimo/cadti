@@ -42,13 +42,18 @@ class SocioController extends Controller {
     }
 
     updateSocios = async (req, res, next) => {
-        const { socios, codigoEmpresa, cpfsToAdd, cpfsToRemove } = req.body
+        const { socios, codigoEmpresa } = req.body
+
+        const result = await SocioService.updateSocios({
+            socios,
+            codigoEmpresa,
+        })
+        //console.log("🚀 ~ file: SocioController.js:51 ~ SocioController ~ updateSocios= ~ result", result)
+        return res.status(204).end()
         try {
             const result = await SocioService.updateSocios({
                 socios,
                 codigoEmpresa,
-                cpfsToAdd,
-                cpfsToRemove,
             })
 
             if (!result) {
@@ -70,6 +75,11 @@ class SocioController extends Controller {
     saveMany = async (req, res, next) => {
         const { codigo_empresa, codigoEmpresa, socios } = req.body
         try {
+            await SocioService.saveMany({
+                socios,
+                codigoEmpresa: codigoEmpresa || codigo_empresa,
+            })
+            return res.send('ok')
             const ids = await SocioService.saveMany({
                 socios,
                 codigoEmpresa: codigoEmpresa || codigo_empresa,

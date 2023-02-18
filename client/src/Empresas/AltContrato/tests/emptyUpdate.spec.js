@@ -2,12 +2,12 @@
 /// <reference types="cypress" />
 import { razaoSocial, razaoSocialEdit, inscricaoEstadual, telefone, cidade, numero, bairro } from './fixtures/altEmpresaInput.json'
 
-describe('Update empresa data', () => {
+describe('When trying to submit an empty update on AltContrato.jsx', () => {
     beforeEach(() => {
         //@ts-ignore
         cy.startSession()
     })
-    it('Should successfully create updateEmpresa demand with changed data', () => {
+    it('Should NOT send request and ALERT USER that no changes have been made.', () => {
         cy.visit('/altContrato')
         cy.get('.selectEmpresa').type(razaoSocial, { delay: 0 })
         cy.get('input[name=razaoSocialEdit]').clear()

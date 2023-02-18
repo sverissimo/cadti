@@ -9,20 +9,20 @@ const {
     cidade,
     numero,
     bairro,
-} = empresaInputs[0]
+} = empresaInputs[1]
 
-describe('Update empresa data', () => {
+describe('When there are actual changes made to empresa\'s fields.', () => {
     beforeEach(() => {
         //@ts-ignore
         cy.startSession()
     })
-    it('Should successfully create updateEmpresa demand with changed data', () => {
+    it('Should successfully create demand and update empresa with changed data', () => {
         cy.visit('/altContrato')
         cy.get('.selectEmpresa').type(razaoSocial, { delay: 0 })
         cy.get('input[name=telefone]').clear()
         cy.get('input[name=telefone]').type(telefone)
-        /* cy.get('input[name=razaoSocialEdit]').clear()
-        cy.get('input[name=razaoSocialEdit]').type(razaoSocialEdit, { delay: 0 }) */
+        cy.get('input[name=razaoSocialEdit]').clear()
+        cy.get('input[name=razaoSocialEdit]').type(razaoSocialEdit, { delay: 0 })
         cy.get('input[name=inscricaoEstadual]').clear()
         cy.get('input[name=inscricaoEstadual]').type(inscricaoEstadual, { delay: 0 })
         cy.get('input[name=cidade]').clear()

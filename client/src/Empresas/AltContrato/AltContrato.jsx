@@ -52,45 +52,35 @@ const AltContrato = props => {
 
     useEffect(() => {
         if (demand?.history.length) {
-            console.log("🚀 ~ file: AltContrato.jsx:65 ~ useEffect ~ demand", demand)
+            //console.log("🚀 ~ file: AltContrato.jsx:65 ~ useEffect ~ demand", demand)
             const { empresaDocs } = props.redux
             const { altContrato, altEmpresa, socioUpdates, files } = demand?.history[0]
             const selectedEmpresa = empresas.find(e => e.codigoEmpresa === demand.empresaId)
-            const alteredFields = Object.keys(altEmpresa)
+            const alteredFields = altEmpresa && Object.keys(altEmpresa)
 
             const updatedEmpresa = { ...selectedEmpresa, ...altEmpresa }
             const selectSocios = socios.filter(s => s.empresas && s.empresas[0] && s.empresas.some(e => e.codigoEmpresa === selectedEmpresa.codigoEmpresa))
-            let filteredSocios = JSON.parse(JSON.stringify(selectSocios))
-            let demandFiles
+            const filteredSocios = JSON.parse(JSON.stringify(selectSocios))
+            let updatedSocios
 
             if (socioUpdates && socioUpdates[0]) {
-                const newSocios = []
-                socioUpdates.forEach(us => {
-                    //Se é novo, armazena no newSocios
-                    if (us.status === 'new' || us.outsider)
-                        newSocios.push(us)
-                    //Senão, atualiza os existentes com os campos de vieram da demanda
-                    else
-                        filteredSocios.forEach(fs => {
-                            if (us.socioId === fs.socioId) {
-                                const index = filteredSocios.findIndex(s => s.socioId === us.socioId)
-                                if (index !== -1)
-                                    filteredSocios[index] = us
-                            }
-                        })
+                const newSocios = socioUpdates.filter(s => s.status === 'new' || s.outsider)
+                updatedSocios = filteredSocios.map(socio => {
+                    const updatedSocio = socioUpdates.find(({ socioId }) => socioId === socio.socioId) || {}
+                    return { ...socio, ...updatedSocio }
                 })
-
-                filteredSocios = filteredSocios
                     .concat(newSocios)
                     .sort((a, b) => a.nomeSocio.localeCompare(b.nomeSocio))
             }
+
+            let demandFiles
             if (files) {
                 demandFiles = empresaDocs.filter(d => files.includes(d.id))
             }
 
             setState(() => ({
                 ...state, ...altContrato, ...updatedEmpresa, selectedEmpresa, demand, alteredFields,
-                demandFiles, filteredSocios
+                demandFiles, filteredSocios: updatedSocios
             }))
             setActiveStep(3)
         }
@@ -238,7 +228,7 @@ const AltContrato = props => {
 
         const { data: existingSocio } = await axios.post('/api/checkSocios', { newCpfs: [addedSocio?.cpfSocio] })
         //Se já existe, informar id, empresas e
-        if (existingSocio) {
+        if (existingSocio && !Array.isArray(existingSocio)) {
             const { socio_id, empresas } = existingSocio
             const update = {
                 socioId: socio_id,
@@ -261,6 +251,7 @@ const AltContrato = props => {
         }
 
         socios.push(addedSocio)
+        console.log("🚀 ~ file: AltContrato.jsx:264 ~ addSocio ~ addedSocio", addedSocio)
         socios.sort((a, b) => a.nomeSocio.localeCompare(b.nomeSocio))
 
         const clearForm = {}
@@ -302,6 +293,8 @@ const AltContrato = props => {
         let socioIds = []
         let toastMsg = 'Solicitação de alteração contratual enviada.'
 
+        console.log("🚀 ~ file: AltContrato.jsx:320 ~ handleSubmit ~ !demand && !altContrato && !altEmpresa && !form && !socioUpdates", socioUpdates)
+
         if (!demand && !altContrato && !altEmpresa && !form && !socioUpdates) {
             alert('Nenhuma modificação registrada!')
             return
@@ -309,7 +302,6 @@ const AltContrato = props => {
 
         if (demand && approved) {
             if (altEmpresa) {
-                console.log("🚀 ~ file: AltContrato.jsx:334 ~ handleSubmit ~ altEmpresa", altEmpresa)
                 axios.patch('/api/empresas', altEmpresa)
             }
 
@@ -318,33 +310,27 @@ const AltContrato = props => {
             }
 
             if (socioUpdates) {
-                const
-                    { newSocios, oldSocios, cpfsToAdd, cpfsToRemove } = socioUpdates,
-                    requestInfo = {
-                        table: 'socios',
-                        tablePK: 'socio_id',
-                        codigoEmpresa,
-                        cpfsToAdd,
-                        cpfsToRemove
-                    }
-
-                if (newSocios[0]) {
-                    const { data: ids } = await axios.post('/api/socios', { socios: newSocios, codigoEmpresa })
-                    socioIds.push(ids)         //A array de ids de sócios vai para a metadata dos arquivos
+                const newSocios = socioUpdates.filter(s => s.status === 'new')
+                    .map(s => ({ ...s, status: undefined }))
+                if (newSocios.length) {
+                    await axios.post('/api/socios', { socios: newSocios, codigoEmpresa })
+                    // const { data: ids } = await axios.post('/api/socios', { socios: newSocios, codigoEmpresa })
+                    //   socioIds.push(ids)         //A array de ids de sócios vai para a metadata dos arquivos
                 }
 
-                //Atualiza os sócios. Status 'deleted' não são apagados, apenas têm sua coluna 'empresas' atualizada.
-                if (oldSocios[0]) {
-                    await axios.put('/api/socios', { socios: oldSocios, ...requestInfo })
-                    const ids = oldSocios.map(s => s.socio_id)
-                    socioIds = socioIds.concat(ids)             //A array de ids de sócios vai para a metadata dos arquivos
+                //Status 'deleted' não são apagados, apenas têm sua coluna 'empresas' atualizada.
+                const updates = socioUpdates.filter(s => s.status !== 'new')
+                if (updates.length) {
+                    await axios.put('/api/socios', { socios: updates, codigoEmpresa })
+                    /* const ids = updates.map(s => s.socio_id)
+                    socioIds = socioIds.concat(ids)             //A array de ids de sócios vai para a metadata dos arquivos */
                 }
-
-                if (socioIds[0]) {
+                return
+                if (socioIds.length) {
                     const unchangedSociosIds = filteredSocios
                         .filter(s => s?.socioId && !socioIds.includes(s.socioId) && s?.status !== 'deleted')
                         .map(s => s.socioId)
-                        , allSociosIds = socioIds.concat(unchangedSociosIds)
+                    const allSociosIds = socioIds.concat(unchangedSociosIds)
                     Object.assign(log, { metadata: { socios: allSociosIds } })
                 }
                 toastMsg = 'Dados atualizados'
@@ -388,90 +374,7 @@ const AltContrato = props => {
             setTimeout(() => { resetState() }, 900);
         toast(toastMsg)
     }
-    /*
-        const checkSocioUpdates = approved => {
-            const
-                { filteredSocios, selectedEmpresa, demand } = state,
-                { codigoEmpresa } = selectedEmpresa
-            let
-                socioUpdates = [],
-                cpfsToRemove = [],
-                cpfsToAdd = []
 
-            //verifica se houve alteração em sócios existentes e as insere em oldSocios ou se há novos sócios, inseridos em newSocios
-            filteredSocios.forEach(m => {
-                //Apaga campos irrelevantes
-                delete m.edit
-                delete m.createdAt
-                delete m.razaoSocial
-                //Exclui campos nulos ou em branco do request
-                Object.keys(m).forEach(k => {
-                    if (!m[k] || m[k] === '')
-                        delete m[k]
-                })
-                //Se foi modificado, inserido ou removido, insere o objeto socio no socioUpdates
-                if (m.status)
-                    socioUpdates.push(m)
-            })
-
-            //Separa os sócios modificados em novos, alterados e excluídos para que cada o respectivo request seja feito
-            if (socioUpdates[0]) {
-                //Acrescenta o codigoEmpresa na array empresas de cada sócio
-                socioUpdates.forEach(s => {
-                    //Se o sócio ainda não tem a empresa em sua array de empresas, inserir
-                    if (s.empresas && s.empresas[0] && !s.empresas.some(e => e.codigoEmpresa === codigoEmpresa)) {
-                        s.empresas.push({ codigoEmpresa, share: s?.share })
-                        console.log(s, s.empresas)
-                    }
-                    //Se a empresa já existe, atualiza o share
-                    else if (s.empresas && s.empresas[0] && s.empresas.some(e => e.codigoEmpresa === codigoEmpresa)) {
-                        const index = s.empresas.findIndex(e => e.codigoEmpresa === codigoEmpresa)
-                        s.empresas[index].share = +s.share
-                        console.log(s, s.empresas)
-                    }
-                    else if (!s.empresas || !s.empresas[0])
-                        s.empresas = [{ codigoEmpresa, share: s?.share }]
-                      //Se newSocio, incluir cpf para atualizar permissões de usuário
-                      if (s.status === 'new' || s.outsider === true)
-                          cpfsToAdd.push({ cpf_socio: s.cpfSocio })
-                      //Se deleted, remove o código da empresa da array de empresas do sócio e grava todos os cpfs para retirar permissão de usuário
-                      if (s.empresas instanceof Array && s.status === 'deleted') {
-                          s.empresas = s.empresas.filter(e => e.codigoEmpresa !== codigoEmpresa)
-                          cpfsToRemove.push({ cpf_socio: s.cpfSocio }) // Esse é o formato esperado no backEnd (/users/removeEmpresa.js)
-                          //Se após apagada a empresa, não houver nenhuma, registra 0 como único elemento da array empresas (previne erro no posgresql)
-                          if (!s.empresas[0])
-                              s.empresas = []
-                      }
-                })
-
-                //Se não tiver demand, retorna socioUpdates
-                if (!demand)
-                    return { socioUpdates, cpfsToAdd, cpfsToRemove }
-
-                //Prepara o objeto de resposta
-                if (demand && approved) {
-                    //Replace with map and destructuring...
-                    socioUpdates.forEach(s => {
-                        delete s.outsider
-                        delete s.razaoSocial
-                        delete s.codigoEmpresa
-                        delete s.originalStatus
-                        //s.empresas = JSON.stringify(s.empresas)
-                    })
-                    socioUpdates = humps.decamelizeKeys(socioUpdates)
-                    const
-                        newSocios = socioUpdates.filter(s => s.status === 'new'),
-                        oldSocios = socioUpdates.filter(s => s.status === 'modified' || s.status === 'deleted')
-
-                    //Se aprovado, Apaga a prop 'status' de cada sócio antes do request
-                    oldSocios.forEach(s => delete s.status)
-                    newSocios.forEach(s => delete s.status)
-                    return { newSocios, oldSocios, cpfsToAdd, cpfsToRemove }
-                }
-            }
-            else return null
-        }
-     */
     const createLog = ({ demand, altEmpresa, altContrato, approved, socioUpdates }) => {
         const
             { selectedEmpresa, info } = state,

@@ -35,7 +35,6 @@ export const createUpdateObject = (type, state) => {
         return createAltContratoUpdate(altEmpresaObj, state)
     }
     if (type === 'socios') {
-        const socioUpdates = createSociosUpdate(state)
-        return !state.demand ? socioUpdates : humps.decamelizeKeys(socioUpdates)
+        return createSociosUpdate(state)
     }
 }

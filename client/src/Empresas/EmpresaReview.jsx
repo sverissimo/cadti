@@ -7,27 +7,24 @@ import PeopleIcon from '@material-ui/icons/People';
 import './empresasReview.scss'
 
 
-export default function EmpresaReview({ data, forms, filesForm, files, demandFiles }) {
+export function EmpresaReview({ data, forms, filesForm, files, demandFiles }) {
+    const { filteredSocios, selectedEmpresa } = data
+    const tablesSubtitles = ['Dados da empresa', 'Informações sobre a alteração do contrato social']
+    const alteredFields = data.alteredFields || []
 
-    const
-        { filteredSocios, selectedEmpresa } = data
-        , tablesSubtitles = ['Dados da empresa', 'Informações sobre a alteração do contrato social']
-
-    let alteredFields = data.alteredFields || []
-
-    //Identifica campos modificados    
+    //Identifica campos modificados
     if (!alteredFields.length)
         for (let key in selectedEmpresa) {
             if (data[key] !== selectedEmpresa[key] && data[key] !== '')
                 alteredFields.push(key)
         }
 
-    //Para cada formulário, roda o State do componente(container) e atribui a propriedade value em cada campo 
+    //Para cada formulário, roda o State do componente(container) e atribui a propriedade value em cada campo
     forms.forEach(form => {
         form.forEach(objField => {
             Object.entries(data).forEach(([k, v]) => {
                 if (objField.field === k) {
-                    if (objField.type === 'date') {                 //Formatando as datas                        
+                    if (objField.type === 'date') {                 //Formatando as datas
                         if (v && moment(v, true).isValid())
                             objField.value = moment(v).format('DD/MM/YYYY')
                     }
@@ -117,24 +114,3 @@ export default function EmpresaReview({ data, forms, filesForm, files, demandFil
         </>
     )
 }
-
-/* {
-    filteredSocios && filteredSocios[0] && filteredSocios.some(s => s.status) &&
-    <section className='flexColumn'>
-        <h3 style={{ margin: '30px 0 0 25px' }}> <FileCopyOutlinedIcon style={{ verticalAlign: 'middle', padding: '0 0 0 8px' }} /> Documentos </h3>
-        {filteredSocios.map(socio =>
-            <div
-                className='flex socio__review__div'
-                style={{
-                    width: '1000px',
-                    justifyContent: 'space-between',
-                    color: socio.status === 'new' ? 'green' : socio.status === 'modified' ? 'orange' : socio.status === 'deleted' ? 'red' : ''
-                }}>
-                <span className='socio__review__prop' >{socio.nomeSocio}</span>
-                <span className='socio__review__prop' >{socio.cpfSocio}</span>
-                <span className='socio__review__prop' >{socio.telSocio}</span>
-                <span className='socio__review__prop' >{socio.emailSocio}</span>
-            </div>
-        )}
-    </section>
-} */

@@ -1,5 +1,5 @@
 import React from 'react'
-import EmpresaReview from '../EmpresaReview'
+import { EmpresaReview } from '../EmpresaReview'
 import AltSociosTemplate from './AltSociosTemplate'
 import { altContratoForm, dadosEmpresaForm, altContratoFiles, empresaFiles } from './forms'
 

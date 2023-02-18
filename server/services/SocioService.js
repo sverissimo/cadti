@@ -1,4 +1,5 @@
 //@ts-check
+const humps = require("humps")
 const { SocioDaoImpl } = require("../infrastructure/SocioDaoImpl")
 const { Repository } = require("../repositories/Repository")
 const { UserService } = require("./UserService")
@@ -18,29 +19,33 @@ class SocioService {
         return socios
     }
 
-    static updateSocios = async ({ socios, codigoEmpresa, cpfsToAdd = [], cpfsToRemove = [] }) => {
+    static updateSocios = async ({ socios, codigoEmpresa }) => {
         try {
-            socios.forEach(s => {
-                if (cpfsToRemove.includes(s.cpf_socio)) {
-                    const idx = s.empresas.indexOf(e => e.codigoEmpresa === codigoEmpresa)
-                    s.empresas.splice(idx, 1)
-                }
-                s.empresas = JSON.stringify(s.empresas)
-            })
+            const updatedSocios = this.updateEmpresas(socios, codigoEmpresa)
+            console.log("🚀 ~ file: SocioService.js:26 ~ SocioService ~ updateSocios= ~ updatedSocios", humps.decamelizeKeys(updatedSocios))
 
-            console.log("🚀 ~ file: SocioService.js:27 ~ SocioService ~ updateSocios= ~ socios", socios)
-            const result = await new SocioDaoImpl().updateMany(socios)
+            //const result = await new SocioDaoImpl().updateMany(updatedSocios)
+
+            const cpfsToAdd = socios
+                .filter(s => s.outsider)
+                .map(s => s.cpfSocio)
 
             if (cpfsToAdd.length) {
-                const sociosToAdd = socios.filter(s => cpfsToAdd.includes(s.cpf_socio))
-                await UserService.addPermissions(sociosToAdd, codigoEmpresa)
+                console.log("🚀 ~ file: SocioService.js:33 ~ SocioService ~ updateSocios= ~ cpfsToAdd", cpfsToAdd)
+                //await UserService.addPermissions(cpfsToAdd, codigoEmpresa)
             }
+
+            const cpfsToRemove = socios
+                .filter(s => s.status === 'deleted')
+                .map(s => s.cpfSocio)
 
             if (cpfsToRemove.length) {
-                await this.removeSociosPermissions({ cpfsToRemove, codigoEmpresa })
+                console.log("🚀 ~ file: SocioService.js:41 ~ SocioService ~ updateSocios= ~ cpfsToRemove", cpfsToRemove)
+                //await this.removeSociosPermissions({ cpfsToRemove, codigoEmpresa })
             }
 
-            return result
+            //return result
+            return true
         } catch (error) {
             throw new Error(error.message)
         }
@@ -56,7 +61,9 @@ class SocioService {
     static saveMany = async ({ codigoEmpresa, socios }) => {
         try {
             const parsedSocios = SocioService.addEmpresaAndShareArray(codigoEmpresa, socios)
-            const ids = await new SocioDaoImpl().saveMany(parsedSocios)
+            console.log("🚀 ~ file: SocioService.js:64 ~ SocioService ~ saveMany= ~ parsedSocios", parsedSocios)
+            return [1, 2, 3]
+            const ids = await new SocioDaoImpl().saveMany(humps.decamelizeKeys(parsedSocios))
             if (codigoEmpresa) {
                 await UserService.addPermissions(socios, codigoEmpresa)
             }
@@ -73,19 +80,40 @@ class SocioService {
        * @returns {Array<any>} socios
        */
     static addEmpresaAndShareArray(codigoEmpresa, socios) {
-        for (let socio of socios) {
-            //Os sócios podem já ter cadastro no sistema (outra empresa) ou ser novos
-            let { empresas, share } = socio
-            if (empresas && empresas instanceof Array)
-                empresas.push({ codigoEmpresa, share })
-            //Os novos não vêm com a coluna 'empresas' do frontEnd (req.body)
-            else
-                empresas = [{ codigoEmpresa, share }]
-
-            socio.empresas = empresas
+        for (const socio of socios) {
+            const { share } = socio
+            const empresas = [{ codigoEmpresa, share }]
             socio.empresas = JSON.stringify(empresas)
+            delete socio.share
         }
+
         return socios
+    }
+
+    static updateEmpresas(socios, codigoEmpresa) {
+        socios.forEach(s => {
+            console.log("🚀 ~ file: SocioService.js:95 ~ SocioService ~ updateEmpresas ~ s", s)
+            const idx = s.empresas.indexOf(e => e.codigoEmpresa === codigoEmpresa)
+            console.log("🚀 ~ file: SocioService.js:96 ~ SocioService ~ updateEmpresas ~ idx", idx, s.cpfSocio)
+            if (s.outsider) {
+                s.empresas.push({ codigoEmpresa, share: s.share })
+            }
+            else if (s.status === 'deleted') {
+                s.empresas.splice(idx, 1)
+            } else {
+                s.empresas[idx] = { ...s.empresas[idx], share: s.share }
+            }
+
+            s.empresas = JSON.stringify(s.empresas)
+            console.log("🚀 ~ file: SocioService.js:107 ~ SocioService ~ updateEmpresas ~ s", s)
+        })
+
+        const updatedSocios = socios.map(s => {
+            const { share, outsider, status, ...socio } = s
+            return socio
+        })
+
+        return updatedSocios
     }
 
     /**

@@ -1,0 +1,100 @@
+{
+    "_id": "63effc56e9373b4098b1d772",
+    "completed": false,
+    "history": [
+        {
+            "altContrato": null,
+            "altEmpresa": null,
+            "socioUpdates": [
+                {
+                    "status": "modified",
+                    "nomeSocio": "120",
+                    "cpfSocio": "003.893.586-49",
+                    "telSocio": "(12) ",
+                    "emailSocio": "12",
+                    "share": 10,
+                    "socioId": 279,
+                    "outsider": true,
+                    "empresas": [
+                        {
+                            "codigoEmpresa": 9380
+                        },
+                        {
+                            "codigoEmpresa": 9060,
+                            "share": 10
+                        }
+                    ]
+                },
+                {
+                    "status": "new",
+                    "nomeSocio": "43",
+                    "cpfSocio": "43",
+                    "telSocio": "(43) ",
+                    "emailSocio": "43",
+                    "share": 43,
+                    "empresas": [
+                        {
+                            "codigoEmpresa": 9060,
+                            "share": 43
+                        }
+                    ]
+                },
+                {
+                    "socioId": 297,
+                    "cpfSocio": "55",
+                    "nomeSocio": "8BallZ",
+                    "codigoEmpresa": null,
+                    "emailSocio": "ball@pool.com",
+                    "telSocio": "31 98801-8888",
+                    "share": "42.00",
+                    "empresas": [],
+                    "createdAt": "2023-02-09T19:25:33.631Z",
+                    "razaoSocial": "EMPRESA GONTIJO DE TRANSPORTES LIMITADA",
+                    "status": "deleted"
+                },
+                {
+                    "socioId": 90,
+                    "cpfSocio": null,
+                    "nomeSocio": "GONTIJO PARTICIPAÇÕES S/A.",
+                    "codigoEmpresa": 9060,
+                    "emailSocio": "22",
+                    "telSocio": null,
+                    "share": "22",
+                    "empresas": [
+                        {
+                            "codigoEmpresa": 9060,
+                            "share": 22
+                        }
+                    ],
+                    "createdAt": "2021-07-06T13:49:38.987Z",
+                    "razaoSocial": "EMPRESA GONTIJO DE TRANSPORTES LIMITADA",
+                    "edit": true,
+                    "status": "modified"
+                }
+            ],
+            "cpfsToAdd": [
+                {
+                    "cpf_socio": "003.893.586-49"
+                },
+                {
+                    "cpf_socio": "43"
+                }
+            ],
+            "cpfsToRemove": [
+                {
+                    "cpf_socio": "55"
+                }
+            ],
+            "user": "Gontijo User",
+            "createdAt": "2023-02-17T22:14:46.081Z",
+            "action": "Alteração estatutária solicitada"
+        }
+    ],
+    "empresaId": 9060,
+    "status": "Aguardando análise",
+    "subject": "Alteração estatutária",
+    "createdAt": "2023-02-17T22:14:46.114+0000",
+    "updatedAt": "2023-02-17T22:14:46.114+0000",
+    "numero": 704,
+    "__v": 0
+}
