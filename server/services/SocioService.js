@@ -6,7 +6,6 @@ const { UserService } = require("./UserService")
 const { isProcurador, hasOtherProcuracao } = require("./utilServices")
 
 class SocioService {
-
     /**
      * @param {string[]} cpfs
      * @returns {Promise<object[]>} socios
@@ -22,9 +21,8 @@ class SocioService {
     static updateSocios = async ({ socios, codigoEmpresa }) => {
         try {
             const updatedSocios = this.updateEmpresas(socios, codigoEmpresa)
-            console.log("🚀 ~ file: SocioService.js:26 ~ SocioService ~ updateSocios= ~ updatedSocios", humps.decamelizeKeys(updatedSocios))
-
-            //const result = await new SocioDaoImpl().updateMany(updatedSocios)
+            const update = humps.decamelizeKeys(updatedSocios)
+            const result = await new SocioDaoImpl().updateMany(update)
 
             const cpfsToAdd = socios
                 .filter(s => s.outsider)
@@ -32,7 +30,7 @@ class SocioService {
 
             if (cpfsToAdd.length) {
                 console.log("🚀 ~ file: SocioService.js:33 ~ SocioService ~ updateSocios= ~ cpfsToAdd", cpfsToAdd)
-                //await UserService.addPermissions(cpfsToAdd, codigoEmpresa)
+                await UserService.addPermissions(cpfsToAdd, codigoEmpresa)
             }
 
             const cpfsToRemove = socios
@@ -41,11 +39,10 @@ class SocioService {
 
             if (cpfsToRemove.length) {
                 console.log("🚀 ~ file: SocioService.js:41 ~ SocioService ~ updateSocios= ~ cpfsToRemove", cpfsToRemove)
-                //await this.removeSociosPermissions({ cpfsToRemove, codigoEmpresa })
+                await this.removeSociosPermissions({ cpfsToRemove, codigoEmpresa })
             }
 
-            //return result
-            return true
+            return result
         } catch (error) {
             throw new Error(error.message)
         }
@@ -61,8 +58,6 @@ class SocioService {
     static saveMany = async ({ codigoEmpresa, socios }) => {
         try {
             const parsedSocios = SocioService.addEmpresaAndShareArray(codigoEmpresa, socios)
-            console.log("🚀 ~ file: SocioService.js:64 ~ SocioService ~ saveMany= ~ parsedSocios", parsedSocios)
-            return [1, 2, 3]
             const ids = await new SocioDaoImpl().saveMany(humps.decamelizeKeys(parsedSocios))
             if (codigoEmpresa) {
                 await UserService.addPermissions(socios, codigoEmpresa)
@@ -91,25 +86,22 @@ class SocioService {
     }
 
     static updateEmpresas(socios, codigoEmpresa) {
-        socios.forEach(s => {
-            console.log("🚀 ~ file: SocioService.js:95 ~ SocioService ~ updateEmpresas ~ s", s)
-            const idx = s.empresas.indexOf(e => e.codigoEmpresa === codigoEmpresa)
-            console.log("🚀 ~ file: SocioService.js:96 ~ SocioService ~ updateEmpresas ~ idx", idx, s.cpfSocio)
+
+        for (const s of socios) {
+            const idx = s.empresas.findIndex(e => e.codigoEmpresa === codigoEmpresa)
             if (s.outsider) {
-                s.empresas.push({ codigoEmpresa, share: s.share })
+                s.empresas.push({ codigoEmpresa, share: Number(s.share) })
             }
             else if (s.status === 'deleted') {
                 s.empresas.splice(idx, 1)
             } else {
-                s.empresas[idx] = { ...s.empresas[idx], share: s.share }
+                s.empresas[idx] = { ...s.empresas[idx], share: Number(s.share) }
             }
-
-            s.empresas = JSON.stringify(s.empresas)
-            console.log("🚀 ~ file: SocioService.js:107 ~ SocioService ~ updateEmpresas ~ s", s)
-        })
+        }
 
         const updatedSocios = socios.map(s => {
-            const { share, outsider, status, ...socio } = s
+            const { share, outsider, status, empresas, ...socio } = s
+            socio.empresas = JSON.stringify(empresas)
             return socio
         })
 
@@ -145,7 +137,6 @@ class SocioService {
 
         return cpfsToRemove
     }
-
 
     static async deleteSocio(id, codigoEmpresa) {
         const socioRepository = new Repository('socios', 'socio_id')

@@ -41,15 +41,28 @@ class SocioController extends Controller {
         }
     }
 
+    saveMany = async (req, res, next) => {
+        const { codigo_empresa, codigoEmpresa, socios } = req.body
+        try {
+            const ids = await SocioService.saveMany({
+                socios,
+                codigoEmpresa: codigoEmpresa || codigo_empresa,
+            })
+            //console.log("🚀 ~ file: SocioController.js:87 ~ SocioController ~ saveMany= ~ ids", ids)
+
+            const createdSocios = await this.repository.find(ids)
+            const io = req.app.get('io')
+            const socket = new CustomSocket(io, this.table, this.primaryKey)
+
+            socket.emit('insertElements', createdSocios, codigoEmpresa)
+            return res.status(201).send(ids)
+        } catch (error) {
+            next(error)
+        }
+    }
+
     updateSocios = async (req, res, next) => {
         const { socios, codigoEmpresa } = req.body
-
-        const result = await SocioService.updateSocios({
-            socios,
-            codigoEmpresa,
-        })
-        //console.log("🚀 ~ file: SocioController.js:51 ~ SocioController ~ updateSocios= ~ result", result)
-        return res.status(204).end()
         try {
             const result = await SocioService.updateSocios({
                 socios,
@@ -60,37 +73,13 @@ class SocioController extends Controller {
                 return res.status(404).send('No socios found with request ids.')
             }
 
-            const ids = socios.map(s => s.socio_id)
+            const ids = socios.map(s => s.socioId)
             const updates = await this.repository.find(ids)
             const io = req.app.get('io')
             const socket = new CustomSocket(io, this.table, this.primaryKey)
 
             socket.emit('updateAny', updates, codigoEmpresa)
             return res.status(204).end()
-        } catch (error) {
-            next(error)
-        }
-    }
-
-    saveMany = async (req, res, next) => {
-        const { codigo_empresa, codigoEmpresa, socios } = req.body
-        try {
-            await SocioService.saveMany({
-                socios,
-                codigoEmpresa: codigoEmpresa || codigo_empresa,
-            })
-            return res.send('ok')
-            const ids = await SocioService.saveMany({
-                socios,
-                codigoEmpresa: codigoEmpresa || codigo_empresa,
-            })
-
-            const createdSocios = await this.repository.find(ids)
-            const io = req.app.get('io')
-            const socket = new CustomSocket(io, this.table, this.primaryKey)
-
-            socket.emit('insertElements', createdSocios, codigoEmpresa)
-            return res.status(201).send(ids)
         } catch (error) {
             next(error)
         }

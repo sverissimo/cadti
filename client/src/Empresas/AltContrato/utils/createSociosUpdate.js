@@ -8,6 +8,7 @@ export const createSociosUpdate = (state) => {
 
     const socioUpdates = socios.map(s => {
         const { edit, createdAt, razaoSocial, ...socio } = s
+        Object.keys(socio).forEach(k => { if (!socio[k]) delete socio[k] })
         return socio
     })
 

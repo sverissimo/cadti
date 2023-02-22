@@ -1,0 +1,29 @@
+[
+    {
+        "razaoSocial": "EMPRESA GONTIJO DE TRANSPORTES LIMITADA",
+        "cpfSocio": "2222",
+        "nomeSocio": "Aabdhul",
+        "codigoEmpresa": 9060,
+        "emailSocio": "AABD@GMAIL.COM",
+        "telSocio": "(31) 9999-5555",
+        "share": "15.00"
+    },
+    {
+        "razaoSocial": "EMPRESA GONTIJO DE TRANSPORTES LIMITADA",
+        "nomeSocio": "JOSÉ SOUZA",
+        "cpfSocio": "546.471.429-49",
+        "codigoEmpresa": 9060,
+        "emailSocio": "JOSE@GMAIL.COM",
+        "telSocio": "(31) 9999-5454",
+        "share": "15.00"
+    },
+    {
+        "razaoSocial": "EMPRESA GONTIJO DE TRANSPORTES LIMITADA",
+        "nomeSocio": "GONTIJO PARTICIPAÇÕES S/A.",
+        "cpfSocio": "9876543210",
+        "codigoEmpresa": 9060,
+        "emailSocio": "GJO@GMAIL.COM",
+        "telSocio": "(31) 9999-5454",
+        "share": "20.00"
+    }
+]

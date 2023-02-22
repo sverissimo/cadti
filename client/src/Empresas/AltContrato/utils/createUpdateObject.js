@@ -24,7 +24,7 @@ export const createUpdateObject = (type, state) => {
     })
 
     if (type !== 'socios' && Object.keys(altEmpresaObj).length === 0) {
-        return null
+        return
     }
 
     if (type === 'altEmpresa') {
