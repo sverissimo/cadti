@@ -53,10 +53,8 @@ const seguros = (condition = '') => `
         `
 
 const socios = (condition = '') => `
-        SELECT public.socios.*, public.empresas.razao_social
-            FROM public.socios
-        LEFT JOIN public.empresas
-            ON empresas.codigo_empresa = socios.codigo_empresa OR socios.empresas like '%' || empresas.codigo_empresa || '%'
+        SELECT public.socios.*
+        FROM public.socios
         ${condition}
         ORDER BY nome_socio ASC
         `

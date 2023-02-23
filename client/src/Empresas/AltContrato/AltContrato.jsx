@@ -8,7 +8,7 @@ import { logGenerator } from '../../Utils/logGenerator'
 import { handleFiles as globalHandleFiles, removeFile as globalRemoveFile } from '../../Utils/handleFiles'
 import valueParser from '../../Utils/valueParser'
 
-import { altContratoForm, altContratoFiles, empresasForm, sociosForm, dadosEmpresaForm } from './forms'
+import { altContratoForm, altContratoFiles, sociosForm } from './forms'
 import { toInputDate } from '../../Utils/formatValues'
 import { useShareSum } from './hooks/useShareSum'
 import { useAlertDialog } from './hooks/useAlertDialog'
