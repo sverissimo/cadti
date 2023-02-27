@@ -93,21 +93,19 @@ export const useManageSocios = (socios) => {
         const { socioUpdates } = demand?.history[0]
         const filteredSocios = filterSocios(selectedEmpresa)
 
-        if (socioUpdates && socioUpdates.length) {
-            const newSocios = socioUpdates.filter(s => s.status === 'new' || s.outsider)
-            const updatedSocios = filteredSocios.map(socio => {
-                const updatedSocio = socioUpdates.find(({ socioId }) => socioId === socio.socioId) || {}
-                return { ...socio, ...updatedSocio }
-            })
-                .concat(newSocios)
-                .sort((a, b) => a.nomeSocio.localeCompare(b.nomeSocio))
-            setSocios(updatedSocios)
-
-            console.log("🚀 ~ file: useManageSocios.jsx:34 ~ updateSocios ~ updatedSocios:", updatedSocios)
-        }
-        else {
+        if (!socioUpdates || !socioUpdates.length) {
             setSocios(filteredSocios)
         }
+
+        const newSocios = socioUpdates.filter(s => s.status === 'new' || s.outsider)
+        const updatedSocios = filteredSocios.map(socio => {
+            const updatedSocio = socioUpdates.find(({ socioId }) => socioId === socio.socioId) || {}
+            return { ...socio, ...updatedSocio }
+        })
+            .concat(newSocios)
+            .sort((a, b) => a.nomeSocio.localeCompare(b.nomeSocio))
+
+        setSocios(updatedSocios)
     }
 
     const removeSocio = index => {

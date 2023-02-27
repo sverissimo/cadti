@@ -2,24 +2,26 @@ import React, { useState, useEffect, useRef, useMemo } from 'react'
 import axios from 'axios'
 
 import StoreHOC from '../../Store/StoreHOC'
+
+import { useAlertDialog } from './hooks/useAlertDialog'
+import { useInputErrorHandler } from './hooks/useInputErrorHandler'
+import { useManageSocios } from './hooks/useManageSocios'
+import { useShareSum } from './hooks/useShareSum'
+import { useStepper } from './hooks/useStepper'
+
 import AltContratoTemplate from './AltContratoTemplate'
+import AlertDialog from '../../Reusable Components/AlertDialog'
 import ReactToast from '../../Reusable Components/ReactToast'
+import { altContratoForm, altContratoFiles, sociosForm } from './forms'
+import { createUpdateObject } from './utils/createUpdateObject'
+import { createLog } from './utils/createLog'
 import { logGenerator } from '../../Utils/logGenerator'
 import { handleFiles as globalHandleFiles, removeFile as globalRemoveFile } from '../../Utils/handleFiles'
 import valueParser from '../../Utils/valueParser'
-
-import { altContratoForm, altContratoFiles, sociosForm } from './forms'
 import { toInputDate } from '../../Utils/formatValues'
-import { useShareSum } from './hooks/useShareSum'
-import { useAlertDialog } from './hooks/useAlertDialog'
-import { useStepper } from './hooks/useStepper'
-import { useInputErrorHandler } from './hooks/useInputErrorHandler'
-import { createUpdateObject } from './utils/createUpdateObject'
-import AlertDialog from '../../Reusable Components/AlertDialog'
-import { useManageSocios } from './hooks/useManageSocios'
 
 const AltContrato = props => {
-    const socios = useMemo(() => [...props.redux.socios])
+    const socios = useMemo(() => [...props.redux.socios], [props.redux.socios])
     const { empresas } = props.redux
     const [state, setState] = useState({
         razaoSocial: '',
@@ -156,10 +158,8 @@ const AltContrato = props => {
         const altEmpresa = createUpdateObject('altEmpresa', state)
         const altContrato = createUpdateObject('altContrato', state)
         const socioUpdates = createUpdateObject('socios', { filteredSocios, demand })
-
-        const log = createLog({ demand, altEmpresa, altContrato, socioUpdates, approved })
-
-        let socioIds = []
+        const log = createLog({ state, demand, altEmpresa, altContrato, socioUpdates, approved })
+        const socioIds = []
         let toastMsg = 'Solicitação de alteração contratual enviada.'
 
         if (!demand && !altContrato && !altEmpresa && !form && !socioUpdates) {
@@ -171,29 +171,26 @@ const AltContrato = props => {
             if (altEmpresa) {
                 axios.patch('/api/empresas', altEmpresa)
             }
-
             if (altContrato) {
                 axios.post('/api/altContrato', altContrato)
             }
-
             if (socioUpdates) {
                 const newSocios = socioUpdates.filter(s => s.status === 'new')
                     .map(s => ({ ...s, status: undefined }))
                 if (newSocios.length) {
-                    await axios.post('/api/socios', { socios: newSocios, codigoEmpresa })
-                    // const { data: ids } = await axios.post('/api/socios', { socios: newSocios, codigoEmpresa })
-                    //   socioIds.push(ids)         //A array de ids de sócios vai para a metadata dos arquivos
+                    const { data: ids } = await axios.post('/api/socios', { socios: newSocios, codigoEmpresa })
+                    socioIds.push(...ids)         //A array de ids de sócios vai para a metadata dos arquivos
                 }
 
-                //Status 'deleted' não são apagados, apenas têm sua coluna 'empresas' atualizada.
                 const updates = socioUpdates.filter(s => s.status !== 'new')
                 if (updates.length) {
                     await axios.put('/api/socios', { socios: updates, codigoEmpresa })
-                    /* const ids = updates.map(s => s.socio_id)
-                    socioIds = socioIds.concat(ids)             //A array de ids de sócios vai para a metadata dos arquivos */
+                    const ids = updates.map(s => s.socioId)
+                    socioIds.push(...ids)
                 }
-
+                //A array de ids de sócios vai para a metadata dos arquivos
                 if (socioIds.length) {
+                    console.log("🚀 ~ file: AltContrato.jsx:196 ~ handleSubmit ~ socioIds:", socioIds)
                     const unchangedSociosIds = filteredSocios
                         .filter(s => s?.socioId && !socioIds.includes(s.socioId) && s?.status !== 'deleted')
                         .map(s => s.socioId)
@@ -203,86 +200,31 @@ const AltContrato = props => {
                 toastMsg = 'Dados atualizados'
             }
         }
-        let files, fileIds
-        if (approved === false)
-            toastMsg = 'Solicitação indeferida.'
-
-        //***********************ERROR --- Se for p aprovar, o filesIds vai sempre ser undefined */
         // AO CRIAR A DEMANDA, NÃO ESTÁ PREENCHENDO A ARRAY DE SÓCIOS E ESTÁ DANDO TEMP: FALSE DE CARA
-
-        else if (!approved) {
+        if (!approved) {
             //Adiciona os demais sócios para o metadata dos arquivos, para relacionar as alterações contratuais com todos os sócios
             const unchangedSociosIds = filteredSocios
                 .filter(s => s?.socioId && !socioIds.includes(s.socioId) && s?.status !== 'deleted')
                 .map(s => s.socioId)
             const allSociosIds = socioIds.concat(unchangedSociosIds)
 
-            files = await submitFile(codigoEmpresa, allSociosIds) //A função deve retornar o array de ids dos files para incorporar no log.
+            const files = await submitFile(codigoEmpresa, allSociosIds) //A função deve retornar o array de ids dos files para incorporar no log.
 
             if (files instanceof Array) {
-                fileIds = files.map(f => f.id)
-                log.history.files = fileIds
+                log.history.files = files.map(f => f.id)
             }
         }
 
-        logGenerator(log)                               //Generate the demand
-            .then(r => {
-                console.log(r?.data)
-            })
+        logGenerator(log).then(r => console.log(r?.data))
             .catch(err => console.log(err))
+
         if (demand)
-            setTimeout(() => {
-                props.history.push('/solicitacoes')
-            }, 1500);
+            setTimeout(() => { props.history.push('/solicitacoes') }, 1500);
         else
             setTimeout(() => { resetState() }, 900);
+
+        if (approved === false) toastMsg = 'Solicitação indeferida.'
         toast(toastMsg)
-    }
-
-    const createLog = ({ demand, altEmpresa, altContrato, approved, socioUpdates }) => {
-        const { selectedEmpresa, info } = state
-        const { codigoEmpresa } = selectedEmpresa
-        let log
-
-        if (!demand) {
-            log = {
-                history: {
-                    altContrato,
-                    info,
-                    altEmpresa,
-                    socioUpdates
-                },
-                empresaId: codigoEmpresa,
-                historyLength: 0,
-                approved
-            }
-            if (approved === false)
-                log.declined = true
-        }
-
-        if (demand && approved === false) {
-            const { id, empresaId } = demand
-            log = {
-                id,
-                empresaId,
-                history: {
-                    info
-                },
-                declined: true
-            }
-        }
-
-        if (demand && approved === true) {
-            const { id } = demand
-            const { demandFiles } = state
-            log = {
-                id,
-                demandFiles,
-                history: {},
-                approved
-            }
-        }
-        return log
     }
 
     const handleFiles = async (files, name) => {

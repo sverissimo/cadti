@@ -7,8 +7,7 @@ export const createAltContratoUpdate = (altContratoObj, state) => {
     }
 
     if (Object.keys(altContratoObj).length === 0) {
-        console.log("🚀 ~ file: createAltContratoUpdate.js:13 ~ createAltContratoUpdate ~ null", null)
-        return null
+        return
     }
 
     //Mantém createdAt da demanda (log) e insere razão social, para fins de alerta de prazo(altContratoAlert).

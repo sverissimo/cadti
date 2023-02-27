@@ -2,7 +2,7 @@
 export const createSociosUpdate = (filteredSocios, demand) => {
     const socios = filteredSocios.filter(s => !!s.status)
     if (!socios.length) {
-        return null
+        return
     }
 
     const socioUpdates = socios.map(s => {

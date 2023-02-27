@@ -12,8 +12,7 @@ export const createEmpresaUpdate = (altEmpresaObj, state) => {
     }
 
     if (Object.keys(empresaUpdate).length === 0) {
-        console.log("🚀 ~ file: createEmpresaUpdate.js:18 ~ createEmpresaUpdate ~ null", null)
-        return null
+        return
     }
 
     if (!demand) {
