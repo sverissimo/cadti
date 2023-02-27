@@ -12,11 +12,10 @@ describe('Remove Socio for selected empresa', () => {
         cy.get('.selectEmpresa').type(razaoSocial, { delay: 0 })
         cy.contains('Avançar').click()
         cy.contains('Avançar').click()
-        cy.get('section.flex.center.paper > div:first > button.MuiButton-textSecondary').click()
-
+        cy.get('section.flex.center.paper > div:nth-child(7) > button.MuiButton-textSecondary').click()
         cy.contains('Avançar').click()
-        /* cy.contains('Enviar solicitação').click()
-         //@ts-ignore
-         cy.approveDemand() */
+        cy.contains('Enviar solicitação').click()
+        //@ts-ignore
+        cy.approveDemand()
     })
 })

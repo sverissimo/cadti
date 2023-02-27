@@ -24,7 +24,6 @@ const AltContrato = props => {
     const [state, setState] = useState({
         razaoSocial: '',
         dropDisplay: 'Clique ou arraste para anexar a cópia da alteração do contrato social ',
-        demand: undefined,
         confirmToast: false,
         filteredSocios: [],
         showPendencias: false,
@@ -45,8 +44,6 @@ const AltContrato = props => {
 
             setState({ ...state, ...selectedEmpresa, selectedEmpresa, filteredSocios: socios })
         }
-
-        return () => void 0
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
 
@@ -82,7 +79,7 @@ const AltContrato = props => {
             }
 
             setState(() => ({
-                ...state, ...altContrato, ...updatedEmpresa, selectedEmpresa, demand, alteredFields,
+                ...state, ...altContrato, ...updatedEmpresa, selectedEmpresa, alteredFields,
                 demandFiles, filteredSocios: updatedSocios
             }))
             setActiveStep(3)
@@ -94,7 +91,6 @@ const AltContrato = props => {
         if (!demand) {
             const { selectedEmpresa } = state
             if (selectedEmpresa) {
-
                 const { codigoEmpresa, vencimentoContrato } = selectedEmpresa
                 selectedEmpresa.vencimentoContrato = toInputDate(vencimentoContrato)
 
@@ -243,30 +239,29 @@ const AltContrato = props => {
     }
 
     const removeSocio = index => {
-        const
-            { filteredSocios, demand } = state,
-            socioToRemove = filteredSocios[index]
+        const { filteredSocios } = state
+        const socioToRemove = filteredSocios[index]
 
         if (socioToRemove?.status === 'new' || (!demand && socioToRemove.outsider)) {
             filteredSocios.splice(index, 1)
             setState({ ...state, filteredSocios })
-        }
-        else {
+        } else {
             if (socioToRemove?.status && socioToRemove?.status !== 'deleted') {
                 socioToRemove.originalStatus = socioToRemove.status
                 socioToRemove.status = 'deleted'
-            }
-            else if (socioToRemove?.status === 'deleted')
+            } else if (socioToRemove?.status === 'deleted') {
                 socioToRemove.status = socioToRemove?.originalStatus
-            else
+            }
+            else {
                 socioToRemove.status = 'deleted'
+            }
 
             setState({ ...state, filteredSocios })
         }
     }
 
     const handleSubmit = async approved => {
-        const { demand, form, selectedEmpresa } = state
+        const { form, selectedEmpresa } = state
         const { codigoEmpresa } = selectedEmpresa
         const altEmpresa = createUpdateObject('altEmpresa', state)
         const altContrato = createUpdateObject('altContrato', state)
@@ -275,8 +270,6 @@ const AltContrato = props => {
 
         let socioIds = []
         let toastMsg = 'Solicitação de alteração contratual enviada.'
-
-        console.log("🚀 ~ file: AltContrato.jsx:320 ~ handleSubmit ~ !demand && !altContrato && !altEmpresa && !form && !socioUpdates", socioUpdates)
 
         if (!demand && !altContrato && !altEmpresa && !form && !socioUpdates) {
             alert('Nenhuma modificação registrada!')
@@ -328,11 +321,10 @@ const AltContrato = props => {
 
         else if (!approved) {
             //Adiciona os demais sócios para o metadata dos arquivos, para relacionar as alterações contratuais com todos os sócios
-            const
-                unchangedSociosIds = filteredSocios
-                    .filter(s => s?.socioId && !socioIds.includes(s.socioId) && s?.status !== 'deleted')
-                    .map(s => s.socioId)
-                , allSociosIds = socioIds.concat(unchangedSociosIds)
+            const unchangedSociosIds = filteredSocios
+                .filter(s => s?.socioId && !socioIds.includes(s.socioId) && s?.status !== 'deleted')
+                .map(s => s.socioId)
+            const allSociosIds = socioIds.concat(unchangedSociosIds)
 
             files = await submitFile(codigoEmpresa, allSociosIds) //A função deve retornar o array de ids dos files para incorporar no log.
 
@@ -359,12 +351,10 @@ const AltContrato = props => {
     }
 
     const createLog = ({ demand, altEmpresa, altContrato, approved, socioUpdates }) => {
-        const
-            { selectedEmpresa, info } = state,
-            { codigoEmpresa } = selectedEmpresa
+        const { selectedEmpresa, info } = state
+        const { codigoEmpresa } = selectedEmpresa
         let log
 
-        //Se não houver demanda, criar demanda/log
         if (!demand) {
             log = {
                 history: {
@@ -380,7 +370,7 @@ const AltContrato = props => {
             if (approved === false)
                 log.declined = true
         }
-        //Se houver demand, mas for rejeitada, indeferir demanda
+
         if (demand && approved === false) {
             const { id, empresaId } = demand
             log = {
@@ -392,11 +382,10 @@ const AltContrato = props => {
                 declined: true
             }
         }
-        //Se aprovado
+
         if (demand && approved === true) {
-            const
-                { id } = demand,
-                { demandFiles } = state
+            const { id } = demand
+            const { demandFiles } = state
             log = {
                 id,
                 demandFiles,
@@ -408,20 +397,17 @@ const AltContrato = props => {
     }
 
     const handleFiles = async (files, name) => {
-
         if (files && files[0]) {
-            const
-                fileObj = { ...state, [name]: files[0] },
-                newState = globalHandleFiles(files, fileObj, altContratoFiles)
+            const fileObj = { ...state, [name]: files[0] }
+            const newState = globalHandleFiles(files, fileObj, altContratoFiles)
             setState({ ...state, ...newState, [name]: files[0], fileToRemove: null })
         }
     }
 
     const submitFile = async (empresaId, socioIds) => {
         //Essa função só é chamada ao CRIAR a demanda. Por isso, tempFile é true e o SocioIds deve ser preenchido aqui
-        const
-            { form, numeroAlteracao } = state,
-            files = []
+        const { form, numeroAlteracao } = state
+        const files = []
 
         if (form instanceof FormData) {
             const metadata = {
@@ -511,6 +497,7 @@ const AltContrato = props => {
             <AltContratoTemplate
                 empresas={empresas}
                 data={state}
+                demand={demand}
                 activeStep={activeStep}
                 setActiveStep={changeStep}
                 handleInput={handleInput}
@@ -528,10 +515,16 @@ const AltContrato = props => {
             <ReactToast open={confirmToast} close={toast} msg={toastMsg} />
             {
                 alertObj.openAlertDialog &&
-                <AlertDialog open={alertObj.openAlertDialog} close={closeAlert} customMessage={alertObj.customMessage} customTitle={alertObj.customTitle} />
+                <AlertDialog
+                    open={alertObj.openAlertDialog}
+                    close={closeAlert}
+                    customMessage={alertObj.customMessage}
+                    customTitle={alertObj.customTitle}
+                />
             }
         </>
     )
 }
+
 const collections = ['empresas', 'socios', 'getFiles/empresaDocs']
 export default (StoreHOC(collections, AltContrato))

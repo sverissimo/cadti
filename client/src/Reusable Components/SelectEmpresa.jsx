@@ -5,33 +5,31 @@ import AutoComplete from '../Utils/autoComplete'
 import './commonStyles.css'
 
 function SelectEmpresa(props) {
+    const [enableSelect, setEnabled] = useState(true)
+    const { empresas: allEmpresas, compartilhados, handleInput, handleBlur, shared, headerTitle } = props
+    const { razaoSocial, compartilhado } = props.data
+    const empresas = allEmpresas.filter(e => e.situacao !== 'Desativada')
+    const singleEmpresaUser = empresas.length === 1
+    const activeStep = props.data.activeStep || props.activeStep
+    const demand = props.data.demand || props.demand
 
-    const
-        [enableSelect, setEnabled] = useState(true),
-        { empresas: allEmpresas, compartilhados, handleInput, handleBlur, shared, headerTitle } = props,
-        { razaoSocial, compartilhado, activeStep, demand } = props.data,
-        empresas = allEmpresas.filter(e => e.situacao !== 'Desativada'),
-        singleEmpresaUser = empresas.length === 1
-
-
-    //Configure the form. If shared is present in state, another form will be pusshed into the array (CadVehicles)
+    //Configure the form. If shared is present in state, another form will be pushed into the array (CadVehicles)
     let headerTitles = [{ title: 'Selecione a Viação', name: 'razaoSocial', field: 'razaoSocial', value: razaoSocial }]
-    if (shared)
+    if (shared) {
         headerTitles.push({ title: 'Empresa autorizada a compartilhar', field: 'compartilhado', name: 'compartilhado', itemProp: 'razaoSocial', value: compartilhado })
+    }
 
-
-    //Render field or title conditionally
     useEffect(() => {
-        //|| user?.empresas.length === 1
-        if (demand || activeStep > 0 || singleEmpresaUser)
+        if (demand || activeStep > 0 || singleEmpresaUser) {
             setEnabled(false)
-        else if (activeStep === 0)
+        } else if (activeStep === 0) {
             setEnabled(true)
+        }
 
-        //focus no campo de preencher o nome da empresa
         const selectInput = document.getElementsByName('razaoSocial')
-        if (enableSelect && selectInput[0])
+        if (enableSelect && selectInput[0]) {
             selectInput[0].focus()
+        }
 
     }, [demand, activeStep, enableSelect, singleEmpresaUser])
 

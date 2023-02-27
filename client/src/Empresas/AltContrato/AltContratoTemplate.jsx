@@ -14,9 +14,9 @@ import { stepTitles, subtitles } from './data/stepLabels'
 
 const AltContratoTemplate = (
     { empresas, data, activeStep, setActiveStep, enableEdit, handleEdit, addSocio, removeSocio, handleInput, handleBlur, handleSubmit, handleFiles, removeFile,
-        setShowPendencias }) => {
+        demand, setShowPendencias }) => {
 
-    const { selectedEmpresa, demand, demandFiles, form, fileToRemove, info, showPendencias } = data
+    const { selectedEmpresa, demandFiles, form, fileToRemove, info, showPendencias } = data
     const headerTitle = `Alteração de contrato social - ${selectedEmpresa?.razaoSocial}`
     const forms = [dadosEmpresaForm, altContratoForm]
 
@@ -37,6 +37,8 @@ const AltContratoTemplate = (
                         data={data}
                         headerTitle={headerTitle}
                         handleInput={handleInput}
+                        activeStep={activeStep}
+                        demand={demand}
                     />
                 </div>
             </header>
