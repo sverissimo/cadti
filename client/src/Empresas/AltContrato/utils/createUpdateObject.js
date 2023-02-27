@@ -35,6 +35,7 @@ export const createUpdateObject = (type, state) => {
         return createAltContratoUpdate(altEmpresaObj, state)
     }
     if (type === 'socios') {
-        return createSociosUpdate(state)
+        const { filteredSocios, demand } = state
+        return createSociosUpdate(filteredSocios, demand)
     }
 }

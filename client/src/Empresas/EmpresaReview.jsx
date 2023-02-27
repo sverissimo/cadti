@@ -7,8 +7,8 @@ import PeopleIcon from '@material-ui/icons/People';
 import './empresasReview.scss'
 
 
-export function EmpresaReview({ data, forms, filesForm, files, demandFiles }) {
-    const { filteredSocios, selectedEmpresa } = data
+export function EmpresaReview({ data, forms, filesForm, files, demandFiles, filteredSocios }) {
+    const { selectedEmpresa } = data
     const tablesSubtitles = ['Dados da empresa', 'Informações sobre a alteração do contrato social']
     const alteredFields = data.alteredFields || []
 

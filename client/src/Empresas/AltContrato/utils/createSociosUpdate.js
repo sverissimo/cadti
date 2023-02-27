@@ -1,6 +1,5 @@
 //@ts-check
-export const createSociosUpdate = (state) => {
-    const { filteredSocios, demand } = state
+export const createSociosUpdate = (filteredSocios, demand) => {
     const socios = filteredSocios.filter(s => !!s.status)
     if (!socios.length) {
         return null
