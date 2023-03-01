@@ -47,14 +47,6 @@ const dataReducer = (state = {}, action) => {
             return state
         }
 
-        case 'UPDATE_COLLECTION': {
-            const { data, collection } = payload
-            // console.log(payload)
-            return {
-                ...state, [collection]: data
-            }
-        }
-
         case 'REMOVE_FROM_INSURANCE':
             const { apolice, placaIndex, vehicleIndex } = payload
 

@@ -21,7 +21,8 @@ class SocioDaoImpl extends PostgresDao {
         }
 
         const data = await getUpdatedData('socios', condition)
-        return data
+        const socios = data && data.map(s => ({ ...s, empresas: JSON.parse(s.empresas) }))
+        return socios
     }
 
     /**

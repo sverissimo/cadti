@@ -4,8 +4,6 @@ import humps from 'humps'
 import moment from 'moment'
 
 import StoreHOC from '../Store/StoreHOC'
-import { connect } from 'react-redux'
-import { updateCollection } from '../Store/dataActions'
 
 import ConsultasTemplate from './ConsultasTemplate'
 import { TabMenu } from '../Layouts'
@@ -348,4 +346,4 @@ class ConsultasContainer extends Component {
 const collections = ['veiculos', 'empresas', 'socios', 'procuradores', 'seguros', 'seguradoras', 'procuracoes',
     'getFiles/vehicleDocs', 'getFiles/empresaDocs', 'equipamentos', 'acessibilidade', 'laudos', 'altContrato', 'parametros']
 
-export default connect(null, { updateCollection })(StoreHOC(collections, ConsultasContainer))
+export default StoreHOC(collections, ConsultasContainer)

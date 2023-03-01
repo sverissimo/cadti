@@ -4,7 +4,7 @@ import Axios from 'axios'
 
 import { bindActionCreators } from 'redux'
 import { connect } from 'react-redux'
-import { getData, insertData, updateData, updateCollection, deleteOne, updateDocs } from './dataActions'
+import { getData, insertData, updateData, deleteOne, updateDocs } from './dataActions'
 
 import Loading from '../Layouts/Loading'
 import ReactToast from '../Reusable Components/ReactToast'
@@ -115,7 +115,7 @@ export default function (requestArray, WrappedComponent) {
     }
 
     function mapDispatchToProps(dispatch) {
-        return bindActionCreators({ getData, insertData, updateData, updateCollection, deleteOne, updateDocs, logUser, editUser, logUserOut }, dispatch)
+        return bindActionCreators({ getData, insertData, updateData, deleteOne, updateDocs, logUser, editUser, logUserOut }, dispatch)
     }
 
     return connect(mapStateToProps, mapDispatchToProps)(With)

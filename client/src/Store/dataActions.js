@@ -59,24 +59,6 @@ export const getData = (collectionsArray = []) => {
             }
         }
 
-        //JSON Parsing do array de empresas dos sócios, que são strings no postgresql
-        if (globalState.socios && Array.isArray(globalState.socios)) {
-            const socs = [...globalState.socios]
-            socs.forEach(s => {
-                if (s.empresas && typeof s.empresas === 'string')
-                    if (s.empresas.match('object'))
-                        console.log(s)
-                    else
-                        try {
-                            s.empresas = JSON.parse(s.empresas)
-                        }
-                        catch (e) {
-                            console.log('invalid socio id' + s.socioId + e.message)
-                        }
-            })
-            globalState.socios = socs
-        }
-
         dispatch({
             type: 'GET_DATA',
             payload: globalState
@@ -86,27 +68,11 @@ export const getData = (collectionsArray = []) => {
 
 export const insertData = (dataFromServer, collection) => (dispatch, getState) => {
 
-    let data = humps.camelizeKeys(dataFromServer)
-    console.log("🚀 ~ file: dataActions.js ~ line 73 ~ insertData ~ data", data)
+    const data = humps.camelizeKeys(dataFromServer)
+    const payload = { collection, data }
+    const seguradoras = getState().data.seguradoras
 
-    const
-        payload = { collection, data },
-        seguradoras = getState().data.seguradoras
-
-    if (collection === 'socios') {
-        data.forEach(s => {
-            if (s.empresas && typeof s.empresas === 'string')
-                if (s.empresas.match('object'))
-                    console.log(s)
-                else
-                    try {
-                        s.empresas = JSON.parse(s.empresas)
-                    }
-                    catch (e) {
-                        console.log('invalid socio id' + s.socioId + e.message)
-                    }
-        })
-    }
+    console.log("🚀 ~ file: dataActions.js:72 ~ insertData ~ data:", data)
 
     if (!seguradoras) {
         dispatch({ type: 'INSERT_DATA', payload })
@@ -210,33 +176,6 @@ export const updateDocs = (ids, metadata, collection, primaryKey) => (dispatch, 
         dispatch({ type: 'UPDATE_DATA', payload })
     }
 
-}
-
-export const updateCollection = (data, collection) => dispatch => {
-
-    data = humps.camelizeKeys(data)
-    const payload = { data, collection }
-
-    //Parse do coluna empresas na tabela sócios de string p JSON
-    if (collection === 'socios') {
-        data.forEach(s => {
-            if (s.empresas && typeof s.empresas === 'string')
-                if (s.empresas.match('object'))
-                    console.log(s)
-                else
-                    try {
-                        s.empresas = JSON.parse(s.empresas)
-                    }
-                    catch (e) {
-                        console.log('invalid socio id' + s.socioId + e.message)
-                    }
-        })
-    }
-
-    dispatch({
-        type: 'UPDATE_COLLECTION',
-        payload
-    })
 }
 
 export const updateInsurance = ({ value, ids }) => (dispatch, getState) => {
