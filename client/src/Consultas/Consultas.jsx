@@ -13,7 +13,7 @@ import ShowDetails from '../Reusable Components/ShowDetails'
 import ShowFiles from '../Reusable Components/ShowFiles'
 import AlertDialog from '../Reusable Components/AlertDialog'
 import removePDF from '../Utils/removePDFButton'
-import getEmpresas from './getEmpresas'
+import { getEmpresas } from './getEmpresas'
 import ConfirmDialog from '../Reusable Components/ConfirmDialog'
 
 const format = {
@@ -34,7 +34,7 @@ class ConsultasContainer extends Component {
         }
     }
     state = {
-        tab: 0,
+        tab: 1,
         items: ['Empresas', 'Sócios', 'Procuradores', 'Veículos', 'Seguros'],
         tablePKs: ['codigo_empresa', 'socio_id', 'procurador_id', 'veiculo_id', 'id'],
         dbTables: ['empresas', 'socios', 'procuradores', 'veiculos', 'seguros'],
@@ -57,7 +57,6 @@ class ConsultasContainer extends Component {
         removePDF() //Desabilita opção de exportar como PDF do material-table
     }
     componentWillUnmount() {
-        console.log("🚀 ~ file: Consultas.jsx:63 ~ ConsultasContainer ~ componentWillUnmount ~ true", true)
         removePDF(true)
         this.setState({})
     }
@@ -65,24 +64,19 @@ class ConsultasContainer extends Component {
         this.setState(prevState => ({ tab: value }))
     }
 
+    //TODO: Identificar e corrigir erro ao abrir details da empresa BARRACA
     showDetails = (e, elementDetails) => {
-        const
-            { redux } = this.props,
-            { options, tab, tablePKs } = this.state,
-            primaryKeys = tablePKs.map(pk => humps.camelize(pk))
-
-        let updatedElement
-
-        if (elementDetails) {
-            updatedElement = redux[options[tab]].find(e => e[primaryKeys[tab]] === elementDetails[primaryKeys[tab]])
+        if (!elementDetails) {
+            this.setState({ showDetails: !this.state.showDetails })
+            return
         }
 
+        const { redux } = this.props
+        const { options, tab, tablePKs } = this.state
+        const primaryKeys = tablePKs.map(pk => humps.camelize(pk))
+        const updatedElement = redux[options[tab]].find(e => e[primaryKeys[tab]] === elementDetails[primaryKeys[tab]])
         if (updatedElement) {
             this.setState(prevState => ({ showDetails: !!!prevState.showDetails, elementDetails: updatedElement }))
-        }
-        else {
-            this.setState({ showDetails: !this.state.showDetails, elementDetails: undefined })
-            //this.setState({ showDetails: !this.state.showDetails })
         }
     }
 
@@ -261,18 +255,18 @@ class ConsultasContainer extends Component {
     closeConfirmDialog = () => this.setState({ openConfirmDialog: false })
 
     render() {
-        const
-            { tab, options, items, showDetails, elementDetails, showFiles, selectedElement, filesCollection, typeId, showCertificate, certified,
-                detailsTitle, detailsHeader, openAlertDialog, openConfirmDialog, alertType, confirmType, customTitle, customMessage } = this.state,
-            { redux, user } = this.props,
-            { empresas, procuracoes, procuradores, empresaDocs, altContrato } = redux
-        let
-            updatedElement,
-            collection = [...this.props.redux[options[tab]]]
+        const { tab, options, items, showDetails, elementDetails, showFiles, selectedElement, filesCollection, typeId, showCertificate, certified,
+            detailsTitle, detailsHeader, openAlertDialog, openConfirmDialog, alertType, confirmType, customTitle, customMessage } = this.state
+
+        const { redux, user } = this.props
+        const { empresas, procuracoes, procuradores, empresaDocs, altContrato } = redux
+        let updatedElement
+        let collection = [...this.props.redux[options[tab]]]
 
         //Caso a aba seja Sócios ou Procuradores, extrai e renderiza o nome das empresas das arrays de codigoEmpresa de cada sócio/procurador
-        if (tab === 1 || tab === 2)
+        if (tab === 1 || tab === 2) {
             collection = getEmpresas(collection, empresas, tab)
+        }
 
         return <Fragment>
             <TabMenu items={items}

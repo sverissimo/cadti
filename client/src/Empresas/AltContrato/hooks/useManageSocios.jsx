@@ -2,6 +2,7 @@
 import axios from 'axios'
 import { useCallback } from 'react'
 import { useState } from 'react'
+import { getCodigoEmpresaAndShare } from '../../../Utils/getEmpresasAndShare'
 import valueParser from '../../../Utils/valueParser'
 import { sociosForm } from '../forms'
 
@@ -19,13 +20,12 @@ export const useManageSocios = (socios) => {
 
         const { codigoEmpresa } = selectedEmpresa
         const filteredSocios = socios
-            .filter(s => s.empresas.some(e => e.codigoEmpresa === selectedEmpresa.codigoEmpresa))
-            .map(s => {
-                const { share } = s.empresas.find(e => e.codigoEmpresa === codigoEmpresa)
-                return { ...s, share }
-            })
+            .map(socio => getCodigoEmpresaAndShare(socio, codigoEmpresa))
+            .filter(s => s.codigoEmpresa === codigoEmpresa)
+
         setSocios(filteredSocios)
         return filteredSocios
+
     }, [socios])
 
     const addNewSocio = async (state) => {

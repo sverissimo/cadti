@@ -6,7 +6,7 @@ export const createSociosUpdate = (filteredSocios, demand) => {
     }
 
     const socioUpdates = socios.map(s => {
-        const { edit, createdAt, razaoSocial, ...socio } = s
+        const { edit, createdAt, razaoSocial, nomeEmpresas, ...socio } = s
         Object.keys(socio).forEach(k => { if (!socio[k]) delete socio[k] })
         return socio
     })

@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import axios from 'axios'
-import humps from 'humps'
 
 import StoreHOC from '../Store/StoreHOC'
 
@@ -10,9 +9,9 @@ import valueParser from '../Utils/valueParser'
 
 import Crumbs from '../Reusable Components/Crumbs'
 import AlertDialog from '../Reusable Components/AlertDialog'
+import { getCodigoEmpresaAndShare } from '../Utils/getEmpresasAndShare'
 
 class AltSocios extends Component {
-
     state = {
         razaoSocial: '',
         toastMsg: 'Dados atualizados!',
@@ -24,41 +23,64 @@ class AltSocios extends Component {
     }
 
     componentDidMount() {
-        const
-            { socios, empresas } = this.props.redux,
-            originalSocios = JSON.parse(JSON.stringify(socios))
+        const { socios, empresas } = this.props.redux
+        const originalSocios = JSON.parse(JSON.stringify(socios))
 
-        if (empresas && empresas.length === 1)
-            this.setState({ selectedEmpresa: empresas[0], razaoSocial: empresas[0]?.razaoSocial, filteredSocios: socios, originalSocios })
+        if (empresas && empresas.length === 1) {
+            const filteredSocios = socios.map(s => getCodigoEmpresaAndShare(s, empresas[0]?.codigoEmpresa))
+            this.setState({
+                originalSocios,
+                filteredSocios,
+                selectedEmpresa: empresas[0],
+                razaoSocial: empresas[0]?.razaoSocial,
+            })
+        }
         else
             this.setState({ originalSocios })
     }
 
+    componentDidUpdate(prevProps) {
+        if (prevProps && JSON.stringify(prevProps.redux.socios) !== JSON.stringify(this.props.redux.socios)) {
+            const { selectedEmpresa } = this.state
+            if (selectedEmpresa) {
+                const { codigoEmpresa } = selectedEmpresa
+                const { socios } = this.props.redux
+                const filteredSocios = socios
+                    .filter(s => s.empresas
+                        && s.empresas[0]
+                        && s.empresas.some(e => e.codigoEmpresa === selectedEmpresa.codigoEmpresa)
+                    )
+                    .map(s => getCodigoEmpresaAndShare(s, codigoEmpresa))
+                this.setState({ filteredSocios })
+                this.toast()
+            }
+        }
+    }
+
     handleInput = e => {
-        const
-            { empresas, socios } = this.props.redux,
-            { name } = e.target
-
+        const { empresas, socios } = this.props.redux
+        const { name } = e.target
         let { value } = e.target
-        const parsedValue = valueParser(name, value)
 
+        const parsedValue = valueParser(name, value)
         this.setState({ [name]: parsedValue })
 
         if (name === 'razaoSocial') {
-            const
-                selectedEmpresa = empresas.find(e => e.razaoSocial === value)
-
+            const selectedEmpresa = empresas.find(e => e.razaoSocial === value)
             if (selectedEmpresa) {
-                const
-                    reduxSocios = JSON.parse(JSON.stringify(socios)),
-                    filteredSocios = reduxSocios.filter(s => s.empresas && s.empresas[0] && s.empresas.some(e => e.codigoEmpresa === selectedEmpresa.codigoEmpresa))
+                const { codigoEmpresa, razaoSocial } = selectedEmpresa
+                const reduxSocios = JSON.parse(JSON.stringify(socios))
+                const filteredSocios = reduxSocios
+                    .filter(s => s.empresas
+                        && s.empresas[0]
+                        && s.empresas.some(e => e.codigoEmpresa === selectedEmpresa.codigoEmpresa)
+                    )
+                    .map(socio => getCodigoEmpresaAndShare(socio, codigoEmpresa))
 
-                this.setState({ razaoSocial: selectedEmpresa.razaoSocial, selectedEmpresa, filteredSocios })
-                if (value !== selectedEmpresa.razaoSocial)
-                    this.setState({ selectedEmpresa: undefined })
-            }
-            else
+                this.setState({ razaoSocial, selectedEmpresa, filteredSocios })
+            } else {
                 this.setState({ selectedEmpresa: undefined, filteredSocios: [] })
+            }
         }
     }
 
@@ -97,19 +119,13 @@ class AltSocios extends Component {
     }
 
     handleSubmit = async index => {
-        const
-            { filteredSocios, selectedEmpresa } = this.state,
-            { codigoEmpresa } = selectedEmpresa,
-            table = 'socios',
-            keys = ['telSocio', 'emailSocio'],
-            editSocio = filteredSocios[index]
+        const { filteredSocios, selectedEmpresa } = this.state
+        const { codigoEmpresa } = selectedEmpresa
+        const editSocio = filteredSocios[index]
+        const { socioId, telSocio, emailSocio, empresas } = editSocio
+        const socios = [{ socioId, telSocio, emailSocio, empresas }]
 
-        const requestObject = { socioId: editSocio.socioId }
-        keys.forEach(k => { if (editSocio[k]) requestObject[k] = editSocio[k] })
-        const requestArray = [humps.decamelizeKeys(requestObject)]
-
-        await axios.put('/api/socios', { socios: requestArray, table, keys, codigoEmpresa })  //O envio do codigoEmpresa é para uso do userSockets.js
-            .then(r => console.log(r.data))
+        axios.put('/api/socios', { socios, codigoEmpresa })
             .catch(err => console.log(err))
     }
 
