@@ -1,5 +1,6 @@
 //@ts-check
 import axios from 'axios'
+import { useCallback } from 'react'
 import { useState } from 'react'
 import valueParser from '../../../Utils/valueParser'
 import { sociosForm } from '../forms'
@@ -11,19 +12,21 @@ export const useManageSocios = (socios) => {
 
     sociosForm.forEach(obj => clearedForm[obj.field] = '')
 
-    const filterSocios = (selectedEmpresa) => {
-        if (selectedEmpresa) {
-            const { codigoEmpresa } = selectedEmpresa
-            const filteredSocios = socios
-                .filter(s => s.empresas.some(e => e.codigoEmpresa === selectedEmpresa.codigoEmpresa))
-                .map(s => {
-                    const { share } = s.empresas.find(e => e.codigoEmpresa === codigoEmpresa)
-                    return { ...s, share }
-                })
-            setSocios(filteredSocios)
-            return filteredSocios
+    const filterSocios = useCallback((selectedEmpresa) => {
+        if (!selectedEmpresa) {
+            return
         }
-    }
+
+        const { codigoEmpresa } = selectedEmpresa
+        const filteredSocios = socios
+            .filter(s => s.empresas.some(e => e.codigoEmpresa === selectedEmpresa.codigoEmpresa))
+            .map(s => {
+                const { share } = s.empresas.find(e => e.codigoEmpresa === codigoEmpresa)
+                return { ...s, share }
+            })
+        setSocios(filteredSocios)
+        return filteredSocios
+    }, [socios])
 
     const addNewSocio = async (state) => {
         const socios = [...filteredSocios]
@@ -88,8 +91,7 @@ export const useManageSocios = (socios) => {
         setSocios(fs)
     }
 
-
-    const updateSocios = (selectedEmpresa, demand) => {
+    const updateSocios = useCallback((selectedEmpresa, demand) => {
         const { socioUpdates } = demand?.history[0]
         const filteredSocios = filterSocios(selectedEmpresa)
 
@@ -106,7 +108,8 @@ export const useManageSocios = (socios) => {
             .sort((a, b) => a.nomeSocio.localeCompare(b.nomeSocio))
 
         setSocios(updatedSocios)
-    }
+    }, [filterSocios])
+
 
     const removeSocio = index => {
         const updatedSocios = [...filteredSocios]
