@@ -25,7 +25,6 @@ export const useManageSocios = (socios) => {
 
         setSocios(filteredSocios)
         return filteredSocios
-
     }, [socios])
 
     const addNewSocio = async (state) => {
@@ -97,6 +96,7 @@ export const useManageSocios = (socios) => {
 
         if (!socioUpdates || !socioUpdates.length) {
             setSocios(filteredSocios)
+            return
         }
 
         const newSocios = socioUpdates.filter(s => s.status === 'new' || s.outsider)

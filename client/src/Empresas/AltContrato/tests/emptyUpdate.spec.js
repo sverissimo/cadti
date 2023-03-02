@@ -1,6 +1,9 @@
 //@ts-check
 /// <reference types="cypress" />
-import { razaoSocial, razaoSocialEdit, inscricaoEstadual, telefone, cidade, numero, bairro } from './fixtures/altEmpresaInput.json'
+import altEmpresaInput from './fixtures/altEmpresaInput.json'
+const { razaoSocial } = altEmpresaInput[1]
+const { inscricaoEstadual } = altEmpresaInput[0]
+//import { razaoSocial, razaoSocialEdit, inscricaoEstadual, telefone, cidade, numero, bairro } from './fixtures/altEmpresaInput.json'
 
 describe('When trying to submit an empty update on AltContrato.jsx', () => {
     beforeEach(() => {

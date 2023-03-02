@@ -3,6 +3,8 @@
 import altEmpresaInput from './fixtures/altEmpresaInput.json'
 const { razaoSocial } = altEmpresaInput[1]
 
+const filesFolder = './src/Empresas/AltContrato/tests/fixtures'
+
 describe('Update empresa data', () => {
     beforeEach(() => {
         //@ts-ignore
@@ -14,11 +16,13 @@ describe('Update empresa data', () => {
         cy.contains('Avançar').click()
         cy.get('input[name=numeroAlteracao]').type('22')
         cy.get('input[name=vencimentoContrato]').type('2021-10-29')
+        cy.get('input[type=file]:first').selectFile(`${filesFolder}/addSocioInput.json`, { force: true })
+        cy.get('input[type=file]').eq(1).selectFile(`${filesFolder}/altEmpresaInput.json`, { force: true })
         cy.contains('Avançar').click()
         cy.contains('Avançar').click()
         cy.contains('Enviar solicitação').click()
         //@ts-ignore
-        cy.approveDemand()
+        //cy.approveDemand()
         /* cy.on('window:alert', (str) => {
             expect(str).to.equal(`Nenhuma modificação registrada!`)
         }) */

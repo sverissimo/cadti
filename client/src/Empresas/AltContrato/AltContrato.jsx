@@ -19,6 +19,7 @@ import { logGenerator } from '../../Utils/logGenerator'
 import { handleFiles as globalHandleFiles, removeFile as globalRemoveFile } from '../../Utils/handleFiles'
 import valueParser from '../../Utils/valueParser'
 import { toInputDate } from '../../Utils/formatValues'
+import { submitFiles } from './utils/submitFiles'
 
 const AltContrato = (props) => {
     const socios = useMemo(() => [...props.redux.socios], [props.redux.socios])
@@ -74,6 +75,7 @@ const AltContrato = (props) => {
             const alteredFields = altEmpresa && Object.keys(altEmpresa)
             const updatedEmpresa = { ...selectedEmpresa, ...altEmpresa }
             const demandFiles = files && empresaDocs.filter(d => files.includes(d.id))
+            selectedEmpresa.vencimentoContrato = toInputDate(selectedEmpresa.vencimentoContrato)
             updateSocios(selectedEmpresa, demand)
             setActiveStep(3)
             setState(state => ({ ...state, ...altContrato, ...updatedEmpresa, selectedEmpresa, alteredFields, demandFiles }))
@@ -150,7 +152,7 @@ const AltContrato = (props) => {
             return
         }
 
-        const { form, selectedEmpresa } = state
+        const { form, selectedEmpresa, numeroAlteracao } = state
         const { codigoEmpresa } = selectedEmpresa
         const altEmpresa = createUpdateObject('altEmpresa', state)
         const altContrato = createUpdateObject('altContrato', state)
@@ -170,9 +172,14 @@ const AltContrato = (props) => {
                 .filter(s => s?.socioId && !socioIds.includes(s.socioId) && s?.status !== 'deleted')
                 .map(s => s.socioId)
             const allSociosIds = socioIds.concat(unchangedSociosIds)
-            const files = await submitFile(codigoEmpresa, allSociosIds)
+            const files = await submitFiles({
+                numeroAlteracao,
+                empresaId: codigoEmpresa,
+                socioIds: allSociosIds,
+                formData: form,
+            })
 
-            if (files instanceof Array) {
+            if (files.length) {
                 log.history.files = files.map(f => f.id)
             }
 
@@ -225,41 +232,6 @@ const AltContrato = (props) => {
             const newState = globalHandleFiles(files, fileObj, altContratoFiles)
             setState({ ...state, ...newState, [name]: files[0], fileToRemove: null })
         }
-    }
-
-    //Essa função só é chamada ao CRIAR a demanda. Por isso, tempFile é true e o SocioIds deve ser preenchido aqui
-    const submitFile = async (empresaId, socioIds) => {
-        const { form, numeroAlteracao } = state
-        if (!(form instanceof FormData)) {
-            return
-        }
-
-        const files = []
-        const metadata = {
-            empresaId,
-            tempFile: true
-        }
-        let filesToSend = new FormData()
-
-        for (const pair of form) {
-            const name = pair[0]
-            const fileMetadata = {
-                ...metadata,
-                fieldName: name,
-                socios: name === "altContratoDoc" ? socioIds : undefined,
-                numeroAlteracao: name === "altContratoDoc" ? numeroAlteracao : undefined,
-            }
-
-            filesToSend.set('metadata', JSON.stringify(fileMetadata))
-            filesToSend.set(name, pair[1])
-
-            const { data } = await axios.post('/api/empresaUpload', filesToSend)
-            if (data?.file instanceof Array) {
-                files.push(...data?.file)
-            }
-            filesToSend = new FormData()
-        }
-        return files
     }
 
     const removeFile = async (name) => {
