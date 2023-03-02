@@ -10,7 +10,6 @@ import { stringBR } from '../Veiculos/checkWeight'
 import { getAltContratuaisTable, getProcuracoesTable, getProcuradoresTable } from '../Consultas/getAccessoryTables'
 
 export default function ShowDetails({ data, tab, title, header, close, empresas, procuracoes, procuradores, empresaDocs, altContrato }) {
-
     //data é o objeto (row) do campo de dados de uma determinada tabela
     /**@type {Array} useState<>      */
     const [tables, setTables] = useState([])
@@ -19,18 +18,19 @@ export default function ShowDetails({ data, tab, title, header, close, empresas,
     const equipamentos = element.find(el => el.field === 'equipamentos')
     const acessibilidade = element.find(el => el.field === 'acessibilidade')
 
+
     useEffect(() => {
         //Cria tabela secundária de procuradores e altContrato se o elemento for empresa
         if (tab === 0) {
             const table = getProcuradoresTable({ tab, data, empresas, procuradores, procuracoes, empresaDocs })
             const table2 = getAltContratuaisTable({ altContrato, data, empresaDocs })
-            setTables([table, table2])
+            const validTables = [table, table2].filter(t => !!t)
+            setTables(validTables)
         }
-
         //Se o elemento for Procurador, exibir tabela com procurações
         if (tab === 2) {
             const procuracoesTable = getProcuracoesTable({ data, procuracoes, empresaDocs })
-            setTables([procuracoesTable])
+            procuracoesTable && setTables([procuracoesTable])
         }
         return () => { setTables([]) }
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -70,9 +70,7 @@ export default function ShowDetails({ data, tab, title, header, close, empresas,
                     )}
             </main>
             {
-                //As tabelas aparecem nos detalhes das empresas, caso tenham procuradores e/ou alterações de contrato cadastrados
-                tables[0] &&
-                tables.map((table, i) =>
+                !!tables.length && tables.map((table, i) => (
                     <section key={i}>
                         <hr style={{ margin: '12px 0' }} />
                         {//@ts-ignore
@@ -87,7 +85,7 @@ export default function ShowDetails({ data, tab, title, header, close, empresas,
                             />
                         }
                     </section>
-                )
+                ))
             }
             {
                 //Se a tab for Veículos, há 3 textAreas depois dos detalhes: obs, equip e access.
