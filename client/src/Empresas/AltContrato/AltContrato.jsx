@@ -20,6 +20,7 @@ import { handleFiles as globalHandleFiles, removeFile as globalRemoveFile } from
 import valueParser from '../../Utils/valueParser'
 import { toInputDate } from '../../Utils/formatValues'
 import { submitFiles } from './utils/submitFiles'
+import { createSociosUpdate } from './utils/createSociosUpdate'
 
 const AltContrato = (props) => {
     const socios = useMemo(() => [...props.redux.socios], [props.redux.socios])
@@ -34,11 +35,12 @@ const AltContrato = (props) => {
 
     const demand = props?.location?.state?.demand
     const { inputValidation } = props.redux.parametros[0]
+    const prevSelectedEmpresa = useRef(state.selectedEmpresa)
+
     const { activeStep, setActiveStep } = useStepper()
     const shareSum = useShareSum()
     const { checkBlankInputs, checkDuplicate } = useInputErrorHandler()
     const { alertObj, alertTypes, createAlert, closeAlert } = useAlertDialog()
-    const prevSelectedEmpresa = useRef(state.selectedEmpresa)
     const { filterSocios, filteredSocios, updateSocios, clearedForm, addNewSocio,
         enableEdit, handleEdit, removeSocio } = useManageSocios(socios)
 
@@ -76,9 +78,10 @@ const AltContrato = (props) => {
             const updatedEmpresa = { ...selectedEmpresa, ...altEmpresa }
             const demandFiles = files && empresaDocs.filter(d => files.includes(d.id))
             selectedEmpresa.vencimentoContrato = toInputDate(selectedEmpresa.vencimentoContrato)
+
             updateSocios(selectedEmpresa, demand)
             setActiveStep(3)
-            setState(state => ({ ...state, ...altContrato, ...updatedEmpresa, selectedEmpresa, alteredFields, demandFiles }))
+            setState(state => ({ ...state, ...updatedEmpresa, ...altContrato, selectedEmpresa, alteredFields, demandFiles }))
         }
     }, [demand, empresas, setActiveStep, updateSocios, empresaDocs])
 
@@ -145,80 +148,78 @@ const AltContrato = (props) => {
         setState({ ...state, ...clearedForm })
     }
 
-    const handleSubmit = async (approved) => {
-        if (approved === false) {
-            toast('Solicitação indeferida.')
-            setTimeout(() => { props.history.push('/solicitacoes') }, 1500);
-            return
-        }
-
-        const { form, selectedEmpresa, numeroAlteracao } = state
-        const { codigoEmpresa } = selectedEmpresa
-        const altEmpresa = createUpdateObject('altEmpresa', state)
-        const altContrato = createUpdateObject('altContrato', state)
-        const socioUpdates = createUpdateObject('socios', { filteredSocios, demand })
-        const log = createLog({ state, demand, altEmpresa, altContrato, socioUpdates, approved })
-        const socioIds = []
-
-        if (!demand && !altContrato && !altEmpresa && !form && !socioUpdates) {
-            alert('Nenhuma modificação registrada!')
-            return
-        }
-
-        // AO CRIAR A DEMANDA, NÃO ESTÁ PREENCHENDO A ARRAY DE SÓCIOS E ESTÁ DANDO TEMP: FALSE DE CARA
-        if (!approved) {
-            //Adiciona os demais sócios para o metadata dos arquivos, para relacionar as alterações contratuais com todos os sócios
-            const unchangedSociosIds = filteredSocios
-                .filter(s => s?.socioId && !socioIds.includes(s.socioId) && s?.status !== 'deleted')
-                .map(s => s.socioId)
-            const allSociosIds = socioIds.concat(unchangedSociosIds)
+    const createDemand = async (log) => {
+        const { numeroAlteracao, selectedEmpresa, form } = state
+        if (form) {
             const files = await submitFiles({
                 numeroAlteracao,
-                empresaId: codigoEmpresa,
-                socioIds: allSociosIds,
+                empresaId: selectedEmpresa.codigoEmpresa,
                 formData: form,
             })
 
             if (files.length) {
                 log.history.files = files.map(f => f.id)
             }
-
-            logGenerator(log).catch(err => console.log(err))
-            toast('Solicitação de alteração contratual enviada.')
-            setTimeout(() => {
-                resetState()
-                setActiveStep(0)
-            }, 900);
-            return
         }
 
+        logGenerator(log).catch(err => console.log(err))
+        toast('Solicitação de alteração contratual enviada.')
+        await new Promise(resolve => {
+            resetState()
+            setActiveStep(0)
+            setTimeout(() => resolve(), 900);
+        })
+        return
+    }
+
+    const handleSubmit = async (approved) => {
+        if (approved === false) {
+            toast('Solicitação indeferida.')
+            setTimeout(() => { props.history.push('/solicitacoes') }, 1500);
+            return
+        }
+        const { form, selectedEmpresa } = state
+        const { codigoEmpresa } = selectedEmpresa
+        const altEmpresa = createUpdateObject('altEmpresa', state, demand)
+        const altContrato = createUpdateObject('altContrato', state, demand)
+        const socioUpdates = createSociosUpdate(filteredSocios, demand)
+        const log = createLog({ state, demand, altEmpresa, altContrato, socioUpdates, approved })
+
+        demand && console.log("🚀 ~ file: AltContrato.jsx:185 ~ handleSubmit ~ altContrato:", { altContrato, altEmpresa })
+
+        if (!demand && !altContrato && !altEmpresa && !form && !socioUpdates) {
+            alert('Nenhuma modificação registrada!')
+            return
+        }
+        if (!demand) {
+            await createDemand(log)
+            return
+        }
         if (altEmpresa) {
             axios.patch('/api/empresas', altEmpresa)
         }
         if (altContrato) {
             axios.post('/api/altContrato', altContrato)
         }
-        if (socioUpdates) {
-            const newSocios = socioUpdates
-                .filter(s => s.status === 'new')
-                .map(s => ({ ...s, status: undefined }))
-            if (newSocios.length) {
-                const { data: ids } = await axios.post('/api/socios', { socios: newSocios, codigoEmpresa })
-                socioIds.push(...ids)         //A array de ids de sócios vai para a metadata dos arquivos
-            }
 
-            const updates = socioUpdates.filter(s => s.status !== 'new')
-            if (updates.length) {
-                await axios.put('/api/socios', { socios: updates, codigoEmpresa })
-                const ids = updates.map(s => s.socioId)
-                socioIds.push(...ids)
+        if (socioUpdates) {
+            const { newSocios, modifiedSocios } = socioUpdates
+            const newIDs = []
+
+            if (!!newSocios.length) {
+                const { data: ids } = await axios.post('/api/socios', { socios: newSocios, codigoEmpresa })
+                newIDs.push(...ids)
             }
-            //A array de ids de sócios vai para a metadata dos arquivos
-            const unchangedSociosIds = filteredSocios
-                .filter(s => s?.socioId && !socioIds.includes(s.socioId) && s?.status !== 'deleted')
-                .map(s => s.socioId)
-            const allSociosIds = socioIds.concat(unchangedSociosIds)
-            Object.assign(log, { metadata: { socios: allSociosIds } })
+            if (!!modifiedSocios.length) {
+                await axios.put('/api/socios', { socios: modifiedSocios, codigoEmpresa })
+            }
+            if (state.demandFiles) {
+                const sociosIds = filteredSocios
+                    .filter(s => !!s.socioId && s.status !== 'deleted')
+                    .map(s => s.socioId)
+                    .concat(newIDs)
+                Object.assign(log, { metadata: { socios: sociosIds } })
+            }
         }
 
         logGenerator(log).catch(err => console.log(err))
@@ -270,8 +271,6 @@ const AltContrato = (props) => {
     const toast = toastMsg => setState({ ...state, confirmToast: !state.confirmToast, toastMsg })
     const setShowPendencias = () => setState({ ...state, showPendencias: !state.showPendencias })
 
-    const { confirmToast, toastMsg } = state
-
     return (
         <>
             <AltContratoTemplate
@@ -292,7 +291,7 @@ const AltContrato = (props) => {
                 handleEdit={handleEdit}
                 setShowPendencias={setShowPendencias}
             />
-            <ReactToast open={confirmToast} close={toast} msg={toastMsg} />
+            <ReactToast open={state.confirmToast} close={toast} msg={state.toastMsg} />
             {
                 alertObj.openAlertDialog &&
                 <AlertDialog

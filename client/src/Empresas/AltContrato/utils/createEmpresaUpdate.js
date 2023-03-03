@@ -1,6 +1,6 @@
 //@ts-check
-export const createEmpresaUpdate = (altEmpresaObj, state) => {
-    const { selectedEmpresa, demand } = state
+export const createEmpresaUpdate = (altEmpresaObj, state, demand) => {
+    const { selectedEmpresa, vencimentoContrato } = state
 
     /**@type object */
     const empresaUpdate = Object.keys(altEmpresaObj)
@@ -11,7 +11,12 @@ export const createEmpresaUpdate = (altEmpresaObj, state) => {
         delete empresaUpdate.razaoSocialEdit
     }
 
-    if (Object.keys(empresaUpdate).length === 0) {
+    const updatedVencimento = vencimentoContrato
+        && selectedEmpresa.vencimentoContrato !== vencimentoContrato
+        ? vencimentoContrato
+        : undefined
+
+    if (Object.keys(empresaUpdate).length === 0 && !updatedVencimento) {
         return
     }
 
@@ -25,6 +30,8 @@ export const createEmpresaUpdate = (altEmpresaObj, state) => {
         codigoEmpresa: selectedEmpresa.codigoEmpresa,
         razaoSocial: razaoSocialEdit || undefined,
         razaoSocialEdit: undefined,
+        vencimentoContrato: updatedVencimento
     }
+
     return approvedUpdate
 }

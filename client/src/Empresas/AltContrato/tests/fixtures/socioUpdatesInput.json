@@ -25,5 +25,14 @@
         "emailSocio": "GJO@GMAIL.COM",
         "telSocio": "(31) 9999-5454",
         "share": "20.00"
+    },
+    {
+        "razaoSocial": "EMPRESA GONTIJO DE TRANSPORTES LIMITADA",
+        "nomeSocio": "8Ballzzy",
+        "cpfSocio": "55",
+        "codigoEmpresa": 9060,
+        "emailSocio": "baz@foo.com",
+        "telSocio": "55",
+        "share": "8.00"
     }
 ]

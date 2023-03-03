@@ -2,7 +2,7 @@
 /// <reference types="cypress" />
 //import { razaoSocial, nomeSocio, cpfSocio, emailSocio, telSocio, share } from './fixtures/addSocioInput.json'
 import socioUpdates from './fixtures/socioUpdatesInput.json'
-const { razaoSocial, nomeSocio, cpfSocio, emailSocio, telSocio, share } = socioUpdates[0]
+const { razaoSocial, nomeSocio, cpfSocio, emailSocio, telSocio, share } = socioUpdates[3]
 
 describe('Adding a new Socio for a existing Empresa', () => {
     beforeEach(() => {

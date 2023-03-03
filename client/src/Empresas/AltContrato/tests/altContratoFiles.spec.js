@@ -4,6 +4,7 @@ import altEmpresaInput from './fixtures/altEmpresaInput.json'
 const { razaoSocial } = altEmpresaInput[1]
 
 const filesFolder = './src/Empresas/AltContrato/tests/fixtures'
+const numeroAlteracao = Math.round(Math.random() * 100).toString()
 
 describe('Update empresa data', () => {
     beforeEach(() => {
@@ -14,7 +15,7 @@ describe('Update empresa data', () => {
         cy.visit('/altContrato')
         cy.get('.selectEmpresa').type(razaoSocial, { delay: 0 })
         cy.contains('Avançar').click()
-        cy.get('input[name=numeroAlteracao]').type('22')
+        cy.get('input[name=numeroAlteracao]').type(numeroAlteracao)
         cy.get('input[name=vencimentoContrato]').type('2021-10-29')
         cy.get('input[type=file]:first').selectFile(`${filesFolder}/addSocioInput.json`, { force: true })
         cy.get('input[type=file]').eq(1).selectFile(`${filesFolder}/altEmpresaInput.json`, { force: true })

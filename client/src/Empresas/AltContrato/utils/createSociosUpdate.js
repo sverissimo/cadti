@@ -15,10 +15,14 @@ export const createSociosUpdate = (filteredSocios, demand) => {
         return socioUpdates
     }
 
-    const update = socioUpdates.map(s => {
-        const { originalStatus, ...socio } = s
-        return socio
-    })
+    socioUpdates.forEach(s => delete s.originalStatus)
 
-    return update
+    const newSocios = socioUpdates
+        .filter(s => s.status === 'new')
+        .map(s => ({ ...s, status: undefined }))
+
+    const modifiedSocios = socioUpdates
+        .filter(s => s.status !== 'new')
+
+    return { newSocios, modifiedSocios }
 }

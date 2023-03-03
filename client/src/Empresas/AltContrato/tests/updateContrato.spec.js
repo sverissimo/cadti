@@ -2,6 +2,7 @@
 /// <reference types="cypress" />
 import altEmpresaInput from './fixtures/altEmpresaInput.json'
 const { razaoSocial } = altEmpresaInput[1]
+const numeroAlteracao = Math.round(Math.random() * 265).toString()
 
 describe('Update empresa data', () => {
     beforeEach(() => {
@@ -12,15 +13,13 @@ describe('Update empresa data', () => {
         cy.visit('/altContrato')
         cy.get('.selectEmpresa').type(razaoSocial, { delay: 0 })
         cy.contains('Avançar').click()
-        cy.get('input[name=numeroAlteracao]').type('22')
-        cy.get('input[name=vencimentoContrato]').type('2021-10-29')
+        cy.get('input[name=numeroAlteracao]').type(numeroAlteracao)
+        cy.get('input[name=numeroRegistro]').type(numeroAlteracao)
+        cy.get('input[name=vencimentoContrato]').type('2025-03-19')
         cy.contains('Avançar').click()
         cy.contains('Avançar').click()
         cy.contains('Enviar solicitação').click()
         //@ts-ignore
         cy.approveDemand()
-        /* cy.on('window:alert', (str) => {
-            expect(str).to.equal(`Nenhuma modificação registrada!`)
-        }) */
     })
 })
