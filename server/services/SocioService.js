@@ -27,6 +27,7 @@ class SocioService {
             const cpfsToAdd = socios
                 .filter(s => s.outsider)
                 .map(s => s.cpfSocio)
+            console.log("🚀 ~ file: SocioService.js:30 ~ SocioService ~ updateSocios= ~ socios:", socios)
 
             if (cpfsToAdd.length) {
                 console.log("🚀 ~ file: SocioService.js:33 ~ SocioService ~ updateSocios= ~ cpfsToAdd", cpfsToAdd)

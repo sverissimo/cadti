@@ -185,8 +185,6 @@ const AltContrato = (props) => {
         const socioUpdates = createSociosUpdate(filteredSocios, demand)
         const log = createLog({ state, demand, altEmpresa, altContrato, socioUpdates, approved })
 
-        demand && console.log("🚀 ~ file: AltContrato.jsx:185 ~ handleSubmit ~ altContrato:", { altContrato, altEmpresa })
-
         if (!demand && !altContrato && !altEmpresa && !form && !socioUpdates) {
             alert('Nenhuma modificação registrada!')
             return
