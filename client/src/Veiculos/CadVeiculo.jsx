@@ -421,7 +421,7 @@ class VeiculosContainer extends PureComponent {
             oldHistoryLength = demand?.history?.length || 0
 
         let
-            veiculoId,
+            veiculoId = existingVeiculoId,
             situacao = 'Cadastro solicitado'
 
         //**********Prepare the request Object************* */

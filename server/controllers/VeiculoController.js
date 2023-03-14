@@ -125,7 +125,7 @@ class VeiculoController extends Controller {
         try {
             const vehicleFound = await VeiculoService.checkVehicleExistence(placa)
             if (!vehicleFound) {
-                return res.send('Veículo não encontrado.')
+                return res.send(false)
             }
 
             return res.send(vehicleFound)

@@ -27,7 +27,7 @@ router.route('/:id?')
         }
     })
 
-    .post(requireSeinfra, (req, res, next) => {
+    .post((req, res, next) => {
         const targetPath = req.baseUrl.replace('/api', '')
         if (targetPath === '/laudos') {
             return veiculoController.addLaudo(req, res, next)

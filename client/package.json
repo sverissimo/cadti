@@ -33,6 +33,7 @@
     "start": "react-scripts start",
     "build": "react-scripts --max_old_space_size=4096 build",
     "test": "cypress open --e2e -b chrome",
+    "test-prod": "cypress open --e2e -b chrome --config baseUrl=https://www.cadti.mg.gov.br/",
     "eject": "react-scripts eject"
   },
   "proxy": "http://localhost:3001",
