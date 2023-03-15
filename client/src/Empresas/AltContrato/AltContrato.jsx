@@ -102,11 +102,7 @@ const AltContrato = (props) => {
     }
 
     const handleBlur = e => {
-        const { name, value } = e.target
-        if (name === 'razaoSocialEdit') {
-            setState(s => ({ ...s, razaoSocial: value }))
-        }
-
+        const { name } = e.target
         if (name === 'cpfSocio') {
             const errors = checkDuplicate(state.cpfSocio, filteredSocios)
             if (errors) {
