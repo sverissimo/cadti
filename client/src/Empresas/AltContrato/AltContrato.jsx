@@ -1,34 +1,25 @@
-import React, { useState, useEffect, useRef, useMemo } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import axios from 'axios'
 
 import StoreHOC from '../../Store/StoreHOC'
 
-import { useAlertDialog } from './hooks/useAlertDialog'
-import { useInputErrorHandler } from './hooks/useInputErrorHandler'
-import { useManageSocios } from './hooks/useManageSocios'
-import { useShareSum } from './hooks/useShareSum'
-import { useStepper } from './hooks/useStepper'
+import { useAlertDialog, useInputErrorHandler, useManageSocios, useSelectEmpresa, useShareSum, useStepper } from './hooks'
+import { altContratoForm, altContratoFiles, sociosForm, dadosEmpresaForm } from './forms'
+import { createLog, createSociosUpdate, createUpdateObject, submitFiles } from './utils'
 
 import AltContratoTemplate from './AltContratoTemplate'
 import AlertDialog from '../../Reusable Components/AlertDialog'
 import ReactToast from '../../Reusable Components/ReactToast'
-import { altContratoForm, altContratoFiles, sociosForm, dadosEmpresaForm } from './forms'
-import { createUpdateObject } from './utils/createUpdateObject'
-import { createLog } from './utils/createLog'
 import { logGenerator } from '../../Utils/logGenerator'
 import { handleFiles as globalHandleFiles, removeFile as globalRemoveFile } from '../../Utils/handleFiles'
 import valueParser from '../../Utils/valueParser'
 import { toInputDate } from '../../Utils/formatValues'
-import { submitFiles } from './utils/submitFiles'
-import { createSociosUpdate } from './utils/createSociosUpdate'
-import { useSelectEmpresa } from './hooks/useSelectEmpresa'
 
 const AltContrato = (props) => {
     const socios = useMemo(() => [...props.redux.socios], [props.redux.socios])
     const empresas = useMemo(() => props.redux.empresas, [props.redux.empresas])
     const empresaDocs = useMemo(() => props.redux.empresaDocs, [props.redux.empresaDocs])
     const [state, setState] = useState({
-        razaoSocial: '',
         dropDisplay: 'Clique ou arraste para anexar a cópia da alteração do contrato social ',
         confirmToast: false,
         showPendencias: false,
@@ -36,9 +27,7 @@ const AltContrato = (props) => {
 
     const demand = props?.location?.state?.demand
     const { inputValidation } = props.redux.parametros[0]
-    const prevSelectedEmpresa = useRef(state.selectedEmpresa)
-
-    const { selectedEmpresa, selectEmpresa, unselectEmpresa } = useSelectEmpresa(empresas)
+    const { selectedEmpresa, selectEmpresa, prevSelectedEmpresa, unselectEmpresa } = useSelectEmpresa(empresas)
     const { activeStep, setActiveStep } = useStepper()
     const shareSum = useShareSum()
     const { checkBlankInputs, checkDuplicate } = useInputErrorHandler()
@@ -46,33 +35,22 @@ const AltContrato = (props) => {
     const { filterSocios, filteredSocios, updateSocios, clearedForm, addNewSocio,
         enableEdit, handleEdit, removeSocio } = useManageSocios(socios)
 
-    /* useEffect(() => {
-        if (empresas?.length === 1 && !state.selectedEmpresa) {
-            const selectedEmpresa = { ...empresas[0] }
-            selectedEmpresa.vencimentoContrato = toInputDate(selectedEmpresa.vencimentoContrato)
-            setState(state => ({ ...state, ...selectedEmpresa, selectedEmpresa, razaoSocialEdit: selectedEmpresa.razaoSocial }))
-        }
-    }, [empresas, state.selectedEmpresa]) */
-
     useEffect(() => {
         if (demand) {
             return
         }
 
-        //const selectedEmpresa = state.selectedEmpresa
         if (selectedEmpresa) {
-            prevSelectedEmpresa.current = selectedEmpresa
             filterSocios(selectedEmpresa)
-            console.log("🚀 ~ file: AltContrato.jsx:67 ~ useEffect ~ selectedEmpresa.razaoSocial:", { ...selectedEmpresa })
             setState({ ...state, ...selectedEmpresa, razaoSocialEdit: selectedEmpresa.razaoSocial })
         }
 
-        if (prevSelectedEmpresa.current && !selectedEmpresa) {
+        if (prevSelectedEmpresa && !selectedEmpresa) {
             const clearedFields = unselectEmpresa()
-            setState(s => ({ ...s, ...clearedFields }))
+            setState(s => ({ ...s, ...clearedFields, razaoSocial: state.razaoSocial }))
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [selectedEmpresa, demand, filterSocios])
+    }, [selectedEmpresa, demand, filterSocios, prevSelectedEmpresa])
 
     useEffect(() => {
         if (demand?.history.length) {
@@ -124,19 +102,6 @@ const AltContrato = (props) => {
 
         const parsedValue = valueParser(name, value)
         setState(s => ({ ...s, [name]: parsedValue }))
-
-        //console.log("🚀 ~ file: AltContrato.jsx:123 ~ handleInput ~ empresaInfo:", empresaInfo)
-        //setState(s => ({ ...s, ...empresaInfo, [name]: value, razaoSocialEdit: value }))
-
-        //razaoSocialEdit = empresaInfo?.razaoSocial
-        /* selectedEmpresa = empresas.find(e => e.razaoSocial === value)
-        if (selectedEmpresa) {
-            selectedEmpresa.vencimentoContrato = toInputDate(selectedEmpresa.vencimentoContrato)
-        }
-        setState({ ...state, selectedEmpresa, [name]: value })
-        return */
-
-
     }
 
     const addSocio = async () => {
@@ -187,6 +152,7 @@ const AltContrato = (props) => {
         }
         const { form } = state
         const { codigoEmpresa } = selectedEmpresa
+        state.selectedEmpresa = selectedEmpresa
         const altEmpresa = createUpdateObject('altEmpresa', state, demand)
         const altContrato = createUpdateObject('altContrato', state, demand)
         const socioUpdates = createSociosUpdate(filteredSocios, demand)
@@ -206,7 +172,6 @@ const AltContrato = (props) => {
         if (altContrato) {
             axios.post('/api/altContrato', altContrato)
         }
-
         if (socioUpdates) {
             const { newSocios, modifiedSocios } = socioUpdates
             const newIDs = []
@@ -228,8 +193,8 @@ const AltContrato = (props) => {
         }
 
         logGenerator(log).catch(err => console.log(err))
-        setTimeout(() => { props.history.push('/solicitacoes') }, 1500);
         toast('Dados atualizados')
+        setTimeout(() => { props.history.push('/solicitacoes') }, 1500);
     }
 
     const handleFiles = async (files, name) => {
@@ -249,9 +214,6 @@ const AltContrato = (props) => {
     const resetState = () => {
         const resetForms = {}
         const forms = [altContratoForm, sociosForm, dadosEmpresaForm]
-
-        let clearedState = {}
-
         forms.forEach(form => {
             form.forEach(({ field }) => {
                 Object.assign(resetForms, { [field]: '' })
@@ -259,19 +221,8 @@ const AltContrato = (props) => {
         })
 
         setActiveStep(0)
-        setState({
-            ...resetForms, razaoSocial: '', selectedEmpresa: undefined, form: undefined,
-            fileToRemove: undefined, ...clearedState
-        })
+        setState({ ...resetForms, razaoSocial: '', form: undefined, fileToRemove: undefined, })
     }
-
-    /* const unselectEmpresa = () => {
-        if (!demand && prevSelectedEmpresa.current) {
-            const clearEmpresaFields = Object.keys(prevSelectedEmpresa.current)
-                .reduce((prev, cur) => ({ ...prev, [cur]: undefined }), {})
-            setState({ ...state, ...clearEmpresaFields, razaoSocial: state.razaoSocial })
-        }
-    } */
 
     const toast = toastMsg => setState({ ...state, confirmToast: !state.confirmToast, toastMsg })
     const setShowPendencias = () => setState({ ...state, showPendencias: !state.showPendencias })
