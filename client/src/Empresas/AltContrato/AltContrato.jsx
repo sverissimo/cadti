@@ -21,6 +21,7 @@ import valueParser from '../../Utils/valueParser'
 import { toInputDate } from '../../Utils/formatValues'
 import { submitFiles } from './utils/submitFiles'
 import { createSociosUpdate } from './utils/createSociosUpdate'
+import { useSelectEmpresa } from './hooks/useSelectEmpresa'
 
 const AltContrato = (props) => {
     const socios = useMemo(() => [...props.redux.socios], [props.redux.socios])
@@ -37,6 +38,7 @@ const AltContrato = (props) => {
     const { inputValidation } = props.redux.parametros[0]
     const prevSelectedEmpresa = useRef(state.selectedEmpresa)
 
+    const { selectedEmpresa, selectEmpresa, unselectEmpresa } = useSelectEmpresa(empresas)
     const { activeStep, setActiveStep } = useStepper()
     const shareSum = useShareSum()
     const { checkBlankInputs, checkDuplicate } = useInputErrorHandler()
@@ -44,31 +46,33 @@ const AltContrato = (props) => {
     const { filterSocios, filteredSocios, updateSocios, clearedForm, addNewSocio,
         enableEdit, handleEdit, removeSocio } = useManageSocios(socios)
 
-    useEffect(() => {
+    /* useEffect(() => {
         if (empresas?.length === 1 && !state.selectedEmpresa) {
             const selectedEmpresa = { ...empresas[0] }
             selectedEmpresa.vencimentoContrato = toInputDate(selectedEmpresa.vencimentoContrato)
             setState(state => ({ ...state, ...selectedEmpresa, selectedEmpresa, razaoSocialEdit: selectedEmpresa.razaoSocial }))
         }
-    }, [empresas, state.selectedEmpresa])
+    }, [empresas, state.selectedEmpresa]) */
 
     useEffect(() => {
         if (demand) {
             return
         }
 
-        const selectedEmpresa = state.selectedEmpresa
+        //const selectedEmpresa = state.selectedEmpresa
         if (selectedEmpresa) {
             prevSelectedEmpresa.current = selectedEmpresa
             filterSocios(selectedEmpresa)
-            setState(state => ({ ...state, ...selectedEmpresa, selectedEmpresa, razaoSocialEdit: selectedEmpresa.razaoSocial }))
+            console.log("🚀 ~ file: AltContrato.jsx:67 ~ useEffect ~ selectedEmpresa.razaoSocial:", { ...selectedEmpresa })
+            setState({ ...state, ...selectedEmpresa, razaoSocialEdit: selectedEmpresa.razaoSocial })
         }
 
         if (prevSelectedEmpresa.current && !selectedEmpresa) {
-            unselectEmpresa()
+            const clearedFields = unselectEmpresa()
+            setState(s => ({ ...s, ...clearedFields }))
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [state.selectedEmpresa, demand, filterSocios])
+    }, [selectedEmpresa, demand, filterSocios])
 
     useEffect(() => {
         if (demand?.history.length) {
@@ -114,18 +118,25 @@ const AltContrato = (props) => {
 
     const handleInput = e => {
         const { name, value } = e.target
-        let selectedEmpresa
         if (name === 'razaoSocial') {
-            selectedEmpresa = empresas.find(e => e.razaoSocial === value)
-            if (selectedEmpresa) {
-                selectedEmpresa.vencimentoContrato = toInputDate(selectedEmpresa.vencimentoContrato)
-            }
-            setState({ ...state, selectedEmpresa, [name]: value })
-            return
+            selectEmpresa(value)
         }
 
         const parsedValue = valueParser(name, value)
-        setState({ ...state, [name]: parsedValue })
+        setState(s => ({ ...s, [name]: parsedValue }))
+
+        //console.log("🚀 ~ file: AltContrato.jsx:123 ~ handleInput ~ empresaInfo:", empresaInfo)
+        //setState(s => ({ ...s, ...empresaInfo, [name]: value, razaoSocialEdit: value }))
+
+        //razaoSocialEdit = empresaInfo?.razaoSocial
+        /* selectedEmpresa = empresas.find(e => e.razaoSocial === value)
+        if (selectedEmpresa) {
+            selectedEmpresa.vencimentoContrato = toInputDate(selectedEmpresa.vencimentoContrato)
+        }
+        setState({ ...state, selectedEmpresa, [name]: value })
+        return */
+
+
     }
 
     const addSocio = async () => {
@@ -145,7 +156,7 @@ const AltContrato = (props) => {
     }
 
     const createDemand = async (log) => {
-        const { numeroAlteracao, selectedEmpresa, form } = state
+        const { numeroAlteracao, form } = state
         if (form) {
             const files = await submitFiles({
                 numeroAlteracao,
@@ -174,7 +185,7 @@ const AltContrato = (props) => {
             setTimeout(() => { props.history.push('/solicitacoes') }, 1500);
             return
         }
-        const { form, selectedEmpresa } = state
+        const { form } = state
         const { codigoEmpresa } = selectedEmpresa
         const altEmpresa = createUpdateObject('altEmpresa', state, demand)
         const altContrato = createUpdateObject('altContrato', state, demand)
@@ -254,13 +265,13 @@ const AltContrato = (props) => {
         })
     }
 
-    const unselectEmpresa = () => {
+    /* const unselectEmpresa = () => {
         if (!demand && prevSelectedEmpresa.current) {
             const clearEmpresaFields = Object.keys(prevSelectedEmpresa.current)
                 .reduce((prev, cur) => ({ ...prev, [cur]: undefined }), {})
             setState({ ...state, ...clearEmpresaFields, razaoSocial: state.razaoSocial })
         }
-    }
+    } */
 
     const toast = toastMsg => setState({ ...state, confirmToast: !state.confirmToast, toastMsg })
     const setShowPendencias = () => setState({ ...state, showPendencias: !state.showPendencias })
@@ -269,6 +280,7 @@ const AltContrato = (props) => {
         <>
             <AltContratoTemplate
                 empresas={empresas}
+                selectedEmpresa={selectedEmpresa}
                 data={state}
                 demand={demand}
                 activeStep={activeStep}

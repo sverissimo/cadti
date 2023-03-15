@@ -13,10 +13,10 @@ import DragAndDrop from '../../Reusable Components/DragAndDrop'
 import { stepTitles, subtitles } from './data/stepLabels'
 
 const AltContratoTemplate = (
-    { empresas, data, activeStep, setActiveStep, enableEdit, handleEdit, addSocio, removeSocio, handleInput, handleBlur, handleSubmit, handleFiles, removeFile,
+    { empresas, selectedEmpresa, data, activeStep, setActiveStep, enableEdit, handleEdit, addSocio, removeSocio, handleInput, handleBlur, handleSubmit, handleFiles, removeFile,
         filteredSocios, demand, setShowPendencias }) => {
 
-    const { selectedEmpresa, demandFiles, form, fileToRemove, info, showPendencias } = data
+    const { demandFiles, form, fileToRemove, info, showPendencias } = data
     const headerTitle = `Alteração de contrato social - ${selectedEmpresa?.razaoSocial}`
     const forms = [dadosEmpresaForm, altContratoForm]
 
