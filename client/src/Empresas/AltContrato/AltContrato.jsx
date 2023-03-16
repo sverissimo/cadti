@@ -13,7 +13,6 @@ import ReactToast from '../../Reusable Components/ReactToast'
 import { logGenerator } from '../../Utils/logGenerator'
 import { handleFiles as globalHandleFiles, removeFile as globalRemoveFile } from '../../Utils/handleFiles'
 import valueParser from '../../Utils/valueParser'
-import { toInputDate } from '../../Utils/formatValues'
 
 const AltContrato = (props) => {
     const socios = useMemo(() => [...props.redux.socios], [props.redux.socios])
@@ -27,7 +26,7 @@ const AltContrato = (props) => {
 
     const demand = props?.location?.state?.demand
     const { inputValidation } = props.redux.parametros[0]
-    const { selectedEmpresa, selectEmpresa, prevSelectedEmpresa, unselectEmpresa } = useSelectEmpresa(empresas)
+    const { selectedEmpresa, selectEmpresa, setEmpresaFromDemand, prevSelectedEmpresa, unselectEmpresa } = useSelectEmpresa(empresas, demand)
     const { activeStep, setActiveStep } = useStepper()
     const shareSum = useShareSum()
     const { checkBlankInputs, checkDuplicate } = useInputErrorHandler()
@@ -54,18 +53,15 @@ const AltContrato = (props) => {
 
     useEffect(() => {
         if (demand?.history.length) {
-            const { altContrato, altEmpresa, files } = demand?.history[0]
-            const selectedEmpresa = empresas.find(e => e.codigoEmpresa === demand.empresaId)
-            const alteredFields = altEmpresa && Object.keys(altEmpresa)
-            const updatedEmpresa = { ...selectedEmpresa, ...altEmpresa }
+            const { altContrato, files } = demand?.history[0]
             const demandFiles = files && empresaDocs.filter(d => files.includes(d.id))
-            selectedEmpresa.vencimentoContrato = toInputDate(selectedEmpresa.vencimentoContrato)
+            const { selectedEmpresa, alteredFields, updatedEmpresa } = setEmpresaFromDemand()
 
             updateSocios(selectedEmpresa, demand)
             setActiveStep(3)
-            setState(state => ({ ...state, ...updatedEmpresa, ...altContrato, selectedEmpresa, alteredFields, demandFiles }))
+            setState(state => ({ ...state, ...updatedEmpresa, ...altContrato, alteredFields, demandFiles }))
         }
-    }, [demand, empresas, setActiveStep, updateSocios, empresaDocs])
+    }, [demand, setEmpresaFromDemand, setActiveStep, updateSocios, empresaDocs])
 
     const changeStep = (action) => {
         const errors = checkBlankInputs(activeStep, state)

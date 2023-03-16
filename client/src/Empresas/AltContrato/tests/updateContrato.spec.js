@@ -16,6 +16,7 @@ describe('Update empresa data', () => {
         cy.get('input[name=numeroAlteracao]').type(numeroAlteracao)
         cy.get('input[name=numeroRegistro]').type(numeroAlteracao)
         cy.get('input[name=vencimentoContrato]').type('2025-03-19')
+        cy.get('input[name=vencimentoContrato]').type('2023-03-15')
         cy.contains('Avançar').click()
         cy.contains('Avançar').click()
         cy.contains('Enviar solicitação').click()
