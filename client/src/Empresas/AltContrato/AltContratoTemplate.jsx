@@ -2,6 +2,7 @@ import React from 'react'
 import { EmpresaReview } from '../EmpresaReview'
 import AltSociosTemplate from './AltSociosTemplate'
 import { altContratoForm, dadosEmpresaForm, altContratoFiles, empresaFiles } from './forms'
+import StoreHOC from '../../Store/StoreHOC'
 
 import Crumbs from '../../Reusable Components/Crumbs'
 import FormSubtitle from '../../Reusable Components/FormSubtitle'
@@ -11,20 +12,22 @@ import TextInput from '../../Reusable Components/TextInput'
 import StepperButtons from '../../Reusable Components/StepperButtons'
 import DragAndDrop from '../../Reusable Components/DragAndDrop'
 import { stepTitles, subtitles } from './data/stepLabels'
+import AlertDialog from '../../Reusable Components/AlertDialog'
+import ReactToast from '../../Reusable Components/ReactToast'
+import AltContrato from './AltContrato'
 
-const AltContratoTemplate = (
-    { empresas, selectedEmpresa, data, activeStep, setActiveStep, enableEdit, handleEdit, addSocio, removeSocio, handleInput, handleBlur, handleSubmit, handleFiles, removeFile,
-        filteredSocios, demand, setShowPendencias }) => {
+const AltContratoTemplate = (props) => {
+    const { empresas, selectedEmpresa, data, activeStep, setActiveStep, enableEdit, handleEdit, addSocio, removeSocio, handleInput, handleBlur, handleSubmit, handleFiles, removeFile,
+        filteredSocios, demand, setShowPendencias, alertObj, closeAlert, toast } = AltContrato(props)
 
-    const { demandFiles, form, fileToRemove, info, showPendencias } = data
+    const { demandFiles, form, fileToRemove, info, showPendencias, confirmToast, toastMsg } = data
     const headerTitle = `Alteração de contrato social - ${selectedEmpresa?.razaoSocial}`
     const forms = [dadosEmpresaForm, altContratoForm]
 
     return (
-        <main>
+        <>
             <header>
                 <Crumbs links={['Empresas', '/empresas']} text='Alteração de dados e contrato social' demand={demand} selectedEmpresa={selectedEmpresa} />
-                {/*--------------------- Steppers ------------------------------*/}
                 <section>
                     <CustomStepper
                         activeStep={activeStep}
@@ -43,10 +46,8 @@ const AltContratoTemplate = (
                 </div>
             </header>
             {
-                //selectedEmpresa?.cnpj &&
                 selectedEmpresa instanceof Object &&
                 <>
-                    {/*--------------------- Form / inputs -------------------------*/}
                     {
                         activeStep !== 2 ?
                             <section className="flex paper">
@@ -122,8 +123,19 @@ const AltContratoTemplate = (
                     </footer>
                 </>
             }
-        </main>
+            {
+                alertObj?.openAlertDialog &&
+                <AlertDialog
+                    open={alertObj.openAlertDialog}
+                    close={closeAlert}
+                    customMessage={alertObj.customMessage}
+                    customTitle={alertObj.customTitle}
+                />
+            }
+            <ReactToast open={confirmToast} close={toast} msg={toastMsg} />
+        </>
     )
 }
 
-export default AltContratoTemplate
+const collections = ['empresas', 'socios', 'getFiles/empresaDocs']
+export default (StoreHOC(collections, AltContratoTemplate))

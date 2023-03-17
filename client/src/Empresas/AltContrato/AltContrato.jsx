@@ -1,15 +1,9 @@
-import React, { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import axios from 'axios'
-
-import StoreHOC from '../../Store/StoreHOC'
 
 import { useAlertDialog, useInputErrorHandler, useManageSocios, useSelectEmpresa, useShareSum, useStepper } from './hooks'
 import { altContratoForm, altContratoFiles, sociosForm, dadosEmpresaForm } from './forms'
 import { createLog, createSociosUpdate, createUpdateObject, submitFiles } from './utils'
-
-import AltContratoTemplate from './AltContratoTemplate'
-import AlertDialog from '../../Reusable Components/AlertDialog'
-import ReactToast from '../../Reusable Components/ReactToast'
 import { logGenerator } from '../../Utils/logGenerator'
 import { handleFiles as globalHandleFiles, removeFile as globalRemoveFile } from '../../Utils/handleFiles'
 import valueParser from '../../Utils/valueParser'
@@ -132,11 +126,9 @@ const AltContrato = (props) => {
 
         logGenerator(log).catch(err => console.log(err))
         toast('Solicitação de alteração contratual enviada.')
-        await new Promise(resolve => {
-            resetState()
-            setActiveStep(0)
-            setTimeout(() => resolve(), 900);
-        })
+        await new Promise(resolve => setTimeout(() => resolve(), 900))
+        resetState()
+        setActiveStep(0)
         return
     }
 
@@ -219,43 +211,31 @@ const AltContrato = (props) => {
         setState({ ...resetForms, razaoSocial: '', form: undefined, fileToRemove: undefined, })
     }
 
-    const toast = toastMsg => setState({ ...state, confirmToast: !state.confirmToast, toastMsg })
+    const toast = toastMsg => setState(s => ({ ...s, confirmToast: !s.confirmToast, toastMsg }))
     const setShowPendencias = () => setState({ ...state, showPendencias: !state.showPendencias })
 
-    return (
-        <>
-            <AltContratoTemplate
-                empresas={empresas}
-                selectedEmpresa={selectedEmpresa}
-                data={state}
-                demand={demand}
-                activeStep={activeStep}
-                setActiveStep={changeStep}
-                handleInput={handleInput}
-                handleBlur={handleBlur}
-                handleSubmit={handleSubmit}
-                handleFiles={handleFiles}
-                removeFile={removeFile}
-                filteredSocios={filteredSocios}
-                addSocio={addSocio}
-                removeSocio={removeSocio}
-                enableEdit={enableEdit}
-                handleEdit={handleEdit}
-                setShowPendencias={setShowPendencias}
-            />
-            <ReactToast open={state.confirmToast} close={toast} msg={state.toastMsg} />
-            {
-                alertObj.openAlertDialog &&
-                <AlertDialog
-                    open={alertObj.openAlertDialog}
-                    close={closeAlert}
-                    customMessage={alertObj.customMessage}
-                    customTitle={alertObj.customTitle}
-                />
-            }
-        </>
-    )
+    return {
+        empresas,
+        selectedEmpresa,
+        demand,
+        handleInput,
+        handleBlur,
+        handleSubmit,
+        handleFiles,
+        removeFile,
+        filteredSocios,
+        addSocio,
+        removeSocio,
+        enableEdit,
+        handleEdit,
+        setShowPendencias,
+        alertObj,
+        closeAlert,
+        toast,
+        activeStep,
+        data: state,
+        setActiveStep: changeStep,
+    }
 }
 
-const collections = ['empresas', 'socios', 'getFiles/empresaDocs']
-export default (StoreHOC(collections, AltContrato))
+export default AltContrato
