@@ -28,8 +28,7 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
-export default function ({ filteredSocios, handleInput, handleBlur, data, activeStep, addSocio, enableEdit, handleEdit, removeSocio }) {
-    const { selectedEmpresa } = data
+export default function ({ selectedEmpresa, filteredSocios, handleInput, handleBlur, data, activeStep, addSocio, enableEdit, handleEdit, removeSocio }) {
     const classes = useStyles(), { iconButton, list } = classes
 
     return (

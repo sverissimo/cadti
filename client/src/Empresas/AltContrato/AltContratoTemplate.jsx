@@ -93,6 +93,7 @@ const AltContratoTemplate = (
                             <section>
                                 <AltSociosTemplate
                                     data={data}
+                                    selectedEmpresa={selectedEmpresa}
                                     filteredSocios={filteredSocios}
                                     activeStep={activeStep}
                                     handleInput={handleInput}

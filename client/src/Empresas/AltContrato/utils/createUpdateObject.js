@@ -9,23 +9,23 @@ const forms = {
     altContrato: altContratoForm,
 }
 
-export const createUpdateObject = (type, state, demand) => {
+export const createUpdateObject = (type, data, demand) => {
     const altEmpresaObj = {}
     const form = forms[type]
 
     form.forEach(({ field }) => {
-        for (const prop in state) {
-            if (prop === field && state[prop]) {
-                Object.assign(altEmpresaObj, { [prop]: state[prop] })
+        for (const prop in data) {
+            if (prop === field && data[prop]) {
+                Object.assign(altEmpresaObj, { [prop]: data[prop] })
             }
         }
     })
 
     if (type === 'altEmpresa') {
-        const altEmpresa = createEmpresaUpdate(altEmpresaObj, state, demand)
+        const altEmpresa = createEmpresaUpdate(altEmpresaObj, data, demand)
         return !demand ? altEmpresa : humps.decamelizeKeys(altEmpresa)
     }
     if (type === 'altContrato') {
-        return createAltContratoUpdate(altEmpresaObj, state, demand)
+        return createAltContratoUpdate(altEmpresaObj, data, demand)
     }
 }

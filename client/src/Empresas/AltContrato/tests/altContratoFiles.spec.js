@@ -24,8 +24,5 @@ describe('Update empresa data', () => {
         cy.contains('Enviar solicitação').click()
         //@ts-ignore
         //cy.approveDemand()
-        /* cy.on('window:alert', (str) => {
-            expect(str).to.equal(`Nenhuma modificação registrada!`)
-        }) */
     })
 })

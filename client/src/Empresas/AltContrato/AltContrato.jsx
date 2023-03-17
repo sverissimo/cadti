@@ -146,15 +146,14 @@ const AltContrato = (props) => {
             setTimeout(() => { props.history.push('/solicitacoes') }, 1500);
             return
         }
-        const { form } = state
+        const data = { ...state, selectedEmpresa }
         const { codigoEmpresa } = selectedEmpresa
-        state.selectedEmpresa = selectedEmpresa
-        const altEmpresa = createUpdateObject('altEmpresa', state, demand)
-        const altContrato = createUpdateObject('altContrato', state, demand)
+        const altEmpresa = createUpdateObject('altEmpresa', data, demand)
+        const altContrato = createUpdateObject('altContrato', data, demand)
         const socioUpdates = createSociosUpdate(filteredSocios, demand)
-        const log = createLog({ state, demand, altEmpresa, altContrato, socioUpdates, approved })
+        const log = createLog({ state: data, demand, altEmpresa, altContrato, socioUpdates, approved })
 
-        if (!demand && !altContrato && !altEmpresa && !form && !socioUpdates) {
+        if (!demand && !altContrato && !altEmpresa && !state.form && !socioUpdates) {
             alert('Nenhuma modificação registrada!')
             return
         }

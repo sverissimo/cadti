@@ -32,7 +32,7 @@ export const useSelectEmpresa = (empresas, demand) => {
     }
 
     const setEmpresaFromDemand = useCallback(() => {
-        const { altEmpresa } = demand?.history[0] || {}
+        const altEmpresa = demand?.history[0].altEmpresa || {}
         const alteredFields = Object.keys(altEmpresa)
         const selectedEmpresa = { ...empresas.find(e => e.codigoEmpresa === demand.empresaId) }
         selectedEmpresa.vencimentoContrato = toInputDate(selectedEmpresa.vencimentoContrato)
@@ -40,7 +40,7 @@ export const useSelectEmpresa = (empresas, demand) => {
         const updatedEmpresa = { ...selectedEmpresa, ...altEmpresa }
         setSelectedEmpresa(selectedEmpresa)
         return { selectedEmpresa, alteredFields, updatedEmpresa }
-    }, [demand?.empresaId, demand?.history, empresas])
+    }, [demand, empresas])
 
     function unselectEmpresa() {
         //@ts-ignore
