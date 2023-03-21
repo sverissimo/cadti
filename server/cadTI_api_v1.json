@@ -1,0 +1,2264 @@
+{
+	"info": {
+		"_postman_id": "745d312d-4038-445e-89e6-688f1481adf1",
+		"name": "Components",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "15533625"
+	},
+	"item": [
+		{
+			"name": "AltContrato",
+			"item": [
+				{
+					"name": "altContrato",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3001/api/altContrato",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"altContrato"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "altContrato",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"codigoEmpresa\": 9060,\r\n    \"numeroAlteracao\": \"11\",\r\n    \"numeroRegistro\": \"11\",\r\n    \"numeroSei\": \"11\",\r\n    \"numeroContrato\": \"11\",\r\n    \"dataJunta\": \"2021-12-01\",\r\n    \"vencimentoContrato\": \"2016-01-13\",    \r\n    \"razaoSocial\": \"GONTIJO\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/api/altContrato",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"altContrato"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Empresas",
+			"item": [
+				{
+					"name": "getEmpresas",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3001/api/empresas",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"empresas"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ADDEmpresas",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"empresa\": {\r\n        \"razao_social\": \"Whatever LTDA\",\r\n        \"situacao\": \"Ativo\",\r\n        \"cnpj\": \"17.283.151/0001-05\",\r\n        \"rua\": \"R. JOSE ILDEU GRAMISCELLI ,120 ,LAGOINHA\",\r\n        \"cidade\": \"BELO HORIZONTE\",\r\n        \"uf\": \"MG\",\r\n        \"telefone\": \"031 34226690\",\r\n        \"email\": \"penhaassessoria@gmail.com\",\r\n        \"numero\": \"\",\r\n        \"complemento\": \"\",\r\n        \"bairro\": null,\r\n        \"cep\": \"31210190\"\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/api/empresas",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"empresas"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "EDITEmpresas",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"codigo_empresa\": 71022,\r\n    \"razao_social\": \"Cool\",\r\n    \"email\": \"\",\r\n    \"cep\": \"1407\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/api/empresas",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"empresas"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ADDEmpresasAndSocios",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"empresa\": {\r\n        \"razao_social\": \"qqq\",\r\n        \"situacao\": \"Ativo\"\r\n    },\r\n    \"socios\": [\r\n        {\r\n            \"nome_socio\": \"88\",\r\n            \"cpf_socio\": \"88\",\r\n            \"tel_socio\": \"(88) \",\r\n            \"email_socio\": \"88\",\r\n            \"share\": \"88\"\r\n        },\r\n {\r\n            \"nome_socio\": \"87\",\r\n            \"cpf_socio\": \"87\",\r\n            \"tel_socio\": \"(87) \",\r\n            \"email_socio\": \"87\",\r\n            \"share\": \"87\"\r\n        }\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/api/empresas",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"empresas"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "empresaExists",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3001/api/checkIfExists?table=empresas&column=cnpj&value=03.308.232/0001-082",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"checkIfExists"
+							],
+							"query": [
+								{
+									"key": "table",
+									"value": "empresas"
+								},
+								{
+									"key": "column",
+									"value": "cnpj"
+								},
+								{
+									"key": "value",
+									"value": "03.308.232/0001-082"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Laudos",
+			"item": [
+				{
+					"name": "getLaudos",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3001/api/laudos",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"laudos"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ADDLaudo",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{        \r\n        \"id\": \"660011\",\r\n        \"codigo_empresa\": 9038,\r\n        \"empresa_id\": 12,\r\n        \"veiculo_id\": 3419,        \r\n        \"validade\": \"2022-12-01\"\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/api/laudos",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"laudos"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "EDITSeguros",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"update\": {\r\n        \"id\": 173,\r\n        \"apolice\": \"1002899967\",\r\n        \"seguradora_id\": 2,\r\n        \"situacao\": \"Damn!\",\r\n        \"vencimento\": \"2022-12-31\"\r\n    },\r\n    \"vehicleIds\": [\r\n        3418        \r\n    ],\r\n    \"deletedVehicleIds\": [        \r\n        3419\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/api/seguros",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"seguros"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETELaudo",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3001/api/delete?codigoEmpresa=9038&table=laudos&tablePK=id&id=660011",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"delete"
+							],
+							"query": [
+								{
+									"key": "codigoEmpresa",
+									"value": "9038"
+								},
+								{
+									"key": "table",
+									"value": "laudos"
+								},
+								{
+									"key": "tablePK",
+									"value": "id"
+								},
+								{
+									"key": "id",
+									"value": "660011"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Lookup tables",
+			"item": [
+				{
+					"name": "lookupTables",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3001/api/acessibilidade",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"acessibilidade"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "EDITElements",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"table\": \"equipamentos\",\r\n    \"tablePK\": \"id\",\r\n    \"id\": 30,\r\n    \"item\": \"ABA\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/api/editElements",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"editElements"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "DB Update status",
+			"item": [
+				{
+					"name": "Update DB Status",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3001/sync/forceDbUpdate",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"sync",
+								"forceDbUpdate"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Procuracoes",
+			"item": [
+				{
+					"name": "getProcuracoes",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/api/procuracoes/57",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"procuracoes",
+								"57"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getOneProcuracao",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/api/procuracoes/74",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"procuracoes",
+								"74"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "addProcuracoes",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"codigo_empresa\": 9060,\r\n    \"status\": \"vigente\",\r\n    \"procuradores\": [\r\n        13,15,31,32,\r\n        47,\r\n        48\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/api/procuracoes",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"procuracoes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteProcuracao",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3001/api/procuracoes?id=90",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"procuracoes"
+							],
+							"query": [
+								{
+									"key": "codigoEmpresa",
+									"value": "9038",
+									"disabled": true
+								},
+								{
+									"key": "table",
+									"value": "procuradores",
+									"disabled": true
+								},
+								{
+									"key": "tablePK",
+									"value": "procurador_id",
+									"disabled": true
+								},
+								{
+									"key": "id",
+									"value": "90"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Procuradores",
+			"item": [
+				{
+					"name": "GETProcuradores",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3001/api/procuradores",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"procuradores"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "FINDProcuradorCPF",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3001/api/procuradores/50,56",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"procuradores",
+								"50,56"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ADDProcuradores",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"procuradores\": [\r\n        {\r\n            \"nome_procurador\": \"abcZz\",\r\n            \"cpf_procurador\": \"1234\",\r\n            \"tel_procurador\": \"5678\",\r\n            \"email_procurador\": \"a@b.c\",\r\n            \"empresas\": [\r\n                9030\r\n            ]\r\n        },\r\n        {\r\n            \"nome_procurador\": \"defZz\",\r\n            \"cpf_procurador\": \"9874\",\r\n            \"tel_procurador\": \"31 987654321\",\r\n            \"empresas\": [\r\n                9030\r\n            ]\r\n        }\r\n    ],\r\n    \"codigoEmpresa\": 9030\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/api/procuradores",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"procuradores"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ADDProcuradores_old",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"table\": \"procuradores\",\r\n    \"tablePK\": \"procurador_id\",\r\n    \"procuradores\": [\r\n        {\r\n            \"nome_procurador\": \"abc\",\r\n            \"cpf_procurador\": \"1234\",\r\n            \"tel_procurador\": \"5678\",\r\n            \"email_procurador\": \"a@b.c\"\r\n        },\r\n         {\r\n            \"nome_procurador\": \"def\",\r\n            \"cpf_procurador\": \"9874\",\r\n            \"tel_procurador\": \"31 987654321\"            \r\n        }\r\n    ],\r\n    \"empresas\": [\r\n        9060,\r\n        9030,\r\n        9029\r\n    ]\r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/api/procuradores",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"procuradores"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "EDITProcuradores",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"table\": \"procuradores--DontNeed\",\r\n    \"tablePK\": \"procurador_id--AlsoDont\",\r\n    \"procuradores\": [\r\n        {\r\n            \"procurador_id\": 49,\r\n            \"nome_procurador\": \"abcEFk00\",\r\n            \"tel_procurador\": \"001122330445\",\r\n            \"empresas\": [\r\n                9030, 9060                \r\n            ]\r\n        },\r\n        {\r\n            \"procurador_id\": 50,\r\n            \"nome_procurador\": \"AnnaAahZZ\",\r\n            \"email_procurador\": \"Aan@lepard.com\",\r\n            \"empresas\": [                \r\n                9030\r\n            ]\r\n        }\r\n    ],\r\n    \"codigoEmpresa\": 9030,\r\n    \"keys\": \"Some garbage\",\r\n    \"empresas\": \"[codEmpresa] --> REFACTOR frontEnd\",\r\n    \"updateUserPermission\": \"REFACTOR frontEnd\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/api/procuradores",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"procuradores"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Seguradoras",
+			"item": [
+				{
+					"name": "GETSeguradoras",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3001/api/seguradoras/14",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"seguradoras",
+								"14"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Seguros",
+			"item": [
+				{
+					"name": "getSeguros",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3001/api/seguros?apolice=1002306095102",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"seguros"
+							],
+							"query": [
+								{
+									"key": "situacao",
+									"value": "Vencido",
+									"disabled": true
+								},
+								{
+									"key": "apolice",
+									"value": "1002306095102"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "EDITSeguros",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"update\": {\r\n        \"id\": 173,\r\n        \"apolice\": \"1002899967\",\r\n        \"seguradora_id\": 2,\r\n        \"situacao\": \"Damn!\",\r\n        \"vencimento\": \"2022-12-31\"\r\n    },\r\n    \"vehicleIds\": [\r\n        3418        \r\n    ],\r\n    \"deletedVehicleIds\": [        \r\n        3419\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/api/seguros",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"seguros"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "EDIT_MANY_Seguros",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "[\r\n    {\r\n        \"id\": 83,\r\n        \"apolice\": \"28.82.0092919.12\",\r\n        \"vencimento\": \"2022-12-01T03:00:00.000Z\",\r\n        \"codigo_empresa\": 70025,\r\n        \"situacao\": \"Vencido\"\r\n    },\r\n    {\r\n        \"id\": 85,\r\n        \"apolice\": \"288200921912\",\r\n        \"vencimento\": \"2022-12-01T03:00:00.000Z\",\r\n        \"codigo_empresa\": 70025,\r\n        \"situacao\": \"Vencido\"\r\n    },\r\n    {\r\n        \"id\": 81,\r\n        \"apolice\": \"1002306086005\",\r\n        \"seguradora_id\": 3,\r\n        \"vencimento\": \"2022-12-11T03:00:00.000Z\",\r\n        \"codigo_empresa\": 70008,\r\n        \"situacao\": \"Vencido\"\r\n    },\r\n    {\r\n        \"id\": 80,\r\n        \"apolice\": \"1002306085997\",\r\n        \"seguradora_id\": 3,\r\n        \"vencimento\": \"2022-12-11T03:00:00.000Z\",\r\n        \"codigo_empresa\": 70008,\r\n        \"situacao\": \"Vencido\"\r\n    },\r\n    {\r\n        \"id\": 181,\r\n        \"apolice\": \"0982.598630\",\r\n        \"seguradora_id\": 6,\r\n        \"vencimento\": \"2022-12-24T03:00:00.000Z\",\r\n        \"codigo_empresa\": 9808,\r\n        \"situacao\": \"Vencido\"\r\n    },\r\n    {\r\n        \"id\": 49,\r\n        \"apolice\": \"1002800117833\",\r\n        \"seguradora_id\": 23,\r\n        \"vencimento\": \"2022-12-31T03:00:00.000Z\",\r\n        \"codigo_empresa\": 9349,\r\n        \"situacao\": \"Vencido\"\r\n    },\r\n    {\r\n        \"id\": 54,\r\n        \"apolice\": \"1002300057895\",\r\n        \"seguradora_id\": 23,\r\n        \"vencimento\": \"2022-12-31T03:00:00.000Z\",\r\n        \"codigo_empresa\": 9099,\r\n        \"situacao\": \"Vencido\"\r\n    },\r\n    {\r\n        \"id\": 91,\r\n        \"apolice\": \"1002806013247\",\r\n        \"seguradora_id\": 1,\r\n        \"vencimento\": \"2023-01-02T03:00:00.000Z\",\r\n        \"codigo_empresa\": 9351,\r\n        \"situacao\": \"Vencido\"\r\n    },\r\n    {\r\n        \"id\": 150,\r\n        \"apolice\": \"1002806013249\",\r\n        \"seguradora_id\": 1,\r\n        \"vencimento\": \"2023-01-02T03:00:00.000Z\",\r\n        \"codigo_empresa\": 9351,\r\n        \"situacao\": \"Vencido\"\r\n    },\r\n    {\r\n        \"id\": 154,\r\n        \"apolice\": \"1002306003797\",\r\n        \"seguradora_id\": 1,\r\n        \"vencimento\": \"2023-01-02T03:00:00.000Z\",\r\n        \"codigo_empresa\": 9351,\r\n        \"situacao\": \"Vencido\"\r\n    },\r\n    {\r\n        \"id\": 116,\r\n        \"apolice\": \"2002660\",\r\n        \"seguradora_id\": 8,\r\n        \"vencimento\": \"2023-01-05T03:00:00.000Z\",\r\n        \"codigo_empresa\": 5032,\r\n        \"situacao\": \"Vencido\"\r\n    },\r\n    {\r\n        \"id\": 162,\r\n        \"apolice\": \"1002300053977\",\r\n        \"seguradora_id\": 23,\r\n        \"vencimento\": \"2023-01-07T03:00:00.000Z\",\r\n        \"codigo_empresa\": 5418,\r\n        \"situacao\": \"Vencido\",\r\n        \"seguradora\": \"KOVR SEGURADORA S.A. (Investprev)\"\r\n    }\r\n]",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/api/seguros",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"seguros"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ADDSeguro",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{        \r\n        \"apolice\": \"660011\",\r\n        \"codigo_empresa\": 9038,\r\n        \"seguradora_id\": 12,        \r\n        \"data_emissao\": \"2022-12-01\",\r\n        \"vencimento\": \"2022-12-31\" \r\n}\r\n\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/api/seguros",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"seguros"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ADDUpcomingSeguro",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"apolice\": \"99993\",\r\n    \"seguradora_id\": 3,\r\n    \"codigo_empresa\": 70008,\r\n    \"data_emissao\": \"2023-01-15\",\r\n    \"vencimento\": \"2023-01-12\",\r\n    \"situacao\": \"Vigente\",\r\n    \"veiculos\": []\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/api/upcomingInsurances",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"upcomingInsurances"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Socios",
+			"item": [
+				{
+					"name": "GETSocios",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3001/api/socios?socio_id=314,340",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"socios"
+							],
+							"query": [
+								{
+									"key": "socio_id",
+									"value": "314,340"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ADDSocios",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"codigo_empresa\": 9060,\r\n    \"socios\":[\r\n    {\r\n        \"cpf_socio\": \"12.000-34\",\r\n        \"nome_socio\": \"Aabdhul Mohamed\",\r\n        \"codigo_empresa\": 9060,\r\n        \"email_socio\": \"aammh@whatever.com\",\r\n        \"tel_socio\": \"31 98801-5432\",\r\n        \"share\": 22\r\n    },\r\n    {\r\n        \"cpf_socio\": \"19.555.000\",\r\n        \"nome_socio\": \"AABRAHAM LINCOLN\",\r\n        \"codigo_empresa\": 9060,\r\n        \"email_socio\": null,        \r\n        \"share\": 11\r\n    }]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/api/socios",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"socios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "EDITsocios",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"socios\": [  \r\n        {\r\n            \"socio_id\": 291,\r\n            \"cpf_socio\": \"011.772\",\r\n            \"nome_socio\": \"AAWhatupa\",\r\n            \"email_socio\": \"ze@whateverIsUp.com\",\r\n            \"tel_socio\": \"31 98801-5432\",\r\n            \"share\": 33,\r\n            \"empresas\": \"[{\\\"codigoEmpresa\\\": 9038}]\"\r\n        },\r\n        {\r\n            \"socio_id\": 297,\r\n            \"cpf_socio\": \"990011\",\r\n            \"nome_socio\": \"8BallZ\",\r\n            \"email_socio\": \"ball@pool.com\",\r\n            \"tel_socio\": \"31 98801-8888\",\r\n            \"share\": 33,\r\n            \"empresas\": \"[{\\\"codigoEmpresa\\\": 9038, \\\"share\\\": 44}]\"\r\n        }\r\n    ],\r\n    \"table\": \"socios\",\r\n    \"tablePK\": \"socio_id\",\r\n    \"codigoEmpresa\": 71024,\r\n    \"cpfsToAdd\": []\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/api/socios",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"socios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "EDITsocios2",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"socios\": [      \r\n        {\r\n            \"socioId\": 296,\r\n            \"cpfSocio\": \"546.471.429-49\",\r\n            \"outsider\": true,\r\n            \"share\": 15,            \r\n            \"empresas\": [\r\n                {\r\n                    \"codigoEmpresa\": 71021,\r\n                    \"share\": 35\r\n                }                \r\n                ]\r\n        }\r\n    ],  \r\n    \"codigoEmpresa\": 9060 \r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/api/socios",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"socios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "checkSocios",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"newCpfs\": [\r\n        \"129.772.686-34\", \"051.423.966-26\"\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/api/checkSocios",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"checkSocios"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteSocio",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3001/api/socios?id=90&codigoEmpresa=9029",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"socios"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "90"
+								},
+								{
+									"key": "codigoEmpresa",
+									"value": "9029"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Veiculos",
+			"item": [
+				{
+					"name": "getVeiculos",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://www.cadti.mg.gov.br/api/veiculos",
+							"protocol": "https",
+							"host": [
+								"www",
+								"cadti",
+								"mg",
+								"gov",
+								"br"
+							],
+							"path": [
+								"api",
+								"veiculos"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getOneVehicle",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3001/api/veiculos?veiculo_id=48,49",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"veiculos"
+							],
+							"query": [
+								{
+									"key": "veiculo_id",
+									"value": "48,49"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "vehicleExists",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3001/api/checkVehicleExistence?placa=RNU-5A44",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"checkVehicleExistence"
+							],
+							"query": [
+								{
+									"key": "table",
+									"value": "veiculos",
+									"disabled": true
+								},
+								{
+									"key": "column",
+									"value": "placa",
+									"disabled": true
+								},
+								{
+									"key": "placa",
+									"value": "RNU-5A44",
+									"description": "regular vehicle search"
+								},
+								{
+									"key": "placa",
+									"value": "GLH-4313",
+									"description": "Old vehicle search",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "vehicleExists",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:3001/api/checkVehicleExistence?placa=RNU-5A44",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3001",
+									"path": [
+										"api",
+										"checkVehicleExistence"
+									],
+									"query": [
+										{
+											"key": "table",
+											"value": "veiculos",
+											"disabled": true
+										},
+										{
+											"key": "column",
+											"value": "placa",
+											"disabled": true
+										},
+										{
+											"key": "placa",
+											"value": "RNU-5A44",
+											"description": "regular vehicle search"
+										},
+										{
+											"key": "placa",
+											"value": "GLH-4313",
+											"description": "Old vehicle search",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "POST, PUT, OPTIONS, DELETE, GET"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "102"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"66-t/YOTkI8vH5ISimWs5f96Bvs3+Y\""
+								},
+								{
+									"key": "Date",
+									"value": "Thu, 08 Dec 2022 16:31:40 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "{\n    \"vehicleFound\": {\n        \"veiculoId\": 3415,\n        \"placa\": \"RNU-5A44\",\n        \"situacao\": \"Seguro vencido\"\n    },\n    \"status\": \"existing\"\n}"
+						}
+					]
+				},
+				{
+					"name": "getOldVehicle",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3001/api/getOldVehicles?placa=GLH-4313",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"getOldVehicles"
+							],
+							"query": [
+								{
+									"key": "placa",
+									"value": "GLH-4313"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getVeiculosLocal",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3001/api/veiculos/2156",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"veiculos",
+								"2156"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getAllVehicles",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3001/api/allVehicles?codigoEmpresa=9066",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"allVehicles"
+							],
+							"query": [
+								{
+									"key": "codigoEmpresa",
+									"value": "9066"
+								}
+							]
+						}
+					},
+					"response": [
+						{
+							"name": "getAllVehicles",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:3001/api/allVehicles?codigoEmpresa=9066",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3001",
+									"path": [
+										"api",
+										"allVehicles"
+									],
+									"query": [
+										{
+											"key": "codigoEmpresa",
+											"value": "9066"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "POST, PUT, OPTIONS, DELETE, GET"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "1237"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"4d5-eotMb1cobQQtYckZlL7Olkuf7Zg\""
+								},
+								{
+									"key": "Date",
+									"value": "Fri, 09 Dec 2022 02:01:56 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "[\n    {\n        \"veiculo_id\": 261,\n        \"placa\": \"GXS-3850\",\n        \"codigo_empresa\": 9066,\n        \"empresa\": \"TRANSPORTADORA BELA VISTA DE MINAS LTDA\",\n        \"compartilhado\": null\n    },\n    {\n        \"veiculo_id\": 262,\n        \"placa\": \"GXS-3851\",\n        \"codigo_empresa\": 9066,\n        \"empresa\": \"TRANSPORTADORA BELA VISTA DE MINAS LTDA\",\n        \"compartilhado\": null\n    },\n    {\n        \"veiculo_id\": 1443,\n        \"placa\": \"HJD-4901\",\n        \"codigo_empresa\": 9066,\n        \"empresa\": \"TRANSPORTADORA BELA VISTA DE MINAS LTDA\",\n        \"compartilhado\": null\n    },\n    {\n        \"veiculo_id\": 2815,\n        \"placa\": \"QQC-8883\",\n        \"codigo_empresa\": 9066,\n        \"empresa\": \"TRANSPORTADORA BELA VISTA DE MINAS LTDA\",\n        \"compartilhado\": null\n    },\n    {\n        \"veiculo_id\": 2814,\n        \"placa\": \"QQC-7175\",\n        \"codigo_empresa\": 9066,\n        \"empresa\": \"TRANSPORTADORA BELA VISTA DE MINAS LTDA\",\n        \"compartilhado\": null\n    },\n    {\n        \"veiculo_id\": 2811,\n        \"placa\": \"QQC-1203\",\n        \"codigo_empresa\": 9066,\n        \"empresa\": \"TRANSPORTADORA BELA VISTA DE MINAS LTDA\",\n        \"compartilhado\": null\n    },\n    {\n        \"veiculo_id\": 2812,\n        \"placa\": \"QQC-1186\",\n        \"codigo_empresa\": 9066,\n        \"empresa\": \"TRANSPORTADORA BELA VISTA DE MINAS LTDA\",\n        \"compartilhado\": null\n    },\n    {\n        \"veiculo_id\": 542,\n        \"placa\": \"GXS-4041\",\n        \"codigo_empresa\": 9066,\n        \"empresa\": \"TRANSPORTADORA BELA VISTA DE MINAS LTDA\",\n        \"compartilhado\": \"LOPES E FILHOS LTDA\"\n    },\n    {\n        \"veiculo_id\": 543,\n        \"placa\": \"GXS-4042\",\n        \"codigo_empresa\": 9066,\n        \"empresa\": \"TRANSPORTADORA BELA VISTA DE MINAS LTDA\",\n        \"compartilhado\": \"LOPES E FILHOS LTDA\"\n    }\n]"
+						}
+					]
+				},
+				{
+					"name": "ADDVeiculo",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{ \r\n    \"placa\": \"AAA-0001\",\r\n    \"utilizacao\": \"Comercial\",\r\n    \"ano_chassi\": \"2015\",\r\n    \"ano_carroceria\": \"2016\",\r\n    \"dominio\": \"Veículo próprio\",\r\n    \"cores\": \"SRN\",\r\n    \"cilindros\": \"5\",\r\n    \"potencia\": \"5\",\r\n    \"eixos\": \"5\",\r\n    \"pneumaticos_dianteiro\": \"5\",\r\n    \"pneumaticos_traseiro\": \"5\",\r\n    \"peso_dianteiro\": \"2\",\r\n    \"peso_traseiro\": \"2\",\r\n    \"poltronas\": \"30\",\r\n    \"piques_poltrona\": \"4\",\r\n    \"codigo_empresa\": 9060,\r\n    \"situacao\": \"Cadastro solicitado\",\r\n    \"pbt\": 6.4,\r\n    \"modelo_chassi_id\": 5,\r\n    \"modelo_carroceria_id\": 109,\r\n    \"equipamentos_id\": [\r\n        1,\r\n        4,\r\n        8\r\n    ],\r\n    \"acessibilidade_id\": [\r\n        1,\r\n        2,\r\n        10        \r\n    ],\r\n    \"apolice\": \"Seguro não cadastrado\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/api/veiculos",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"veiculos"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "updateVeiculo",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"veiculo_id\": \"3420\",\r\n    \"situacao\": \"For sure!\",\r\n    \"acessibilidade_id\": [\r\n        1,\r\n        2,\r\n        10\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/api/veiculos",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"veiculos"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "reactivateVehicle",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{ \r\n    \"placa\": \"GLH4313\"\r\n\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/api/reactivateVehicle",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"reactivateVehicle"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "baixaVeiculo",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{ \r\n    \"placa\": \"GLH4313\",\r\n    \"Situação\": \"Baixado\",\r\n    \"Motivo da Baixa\": \"IDADE\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/api/baixaVeiculo",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"baixaVeiculo"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteVeiculo",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3001/api/delete?id=3422&codigoEmpresa=9060&table=veiculos&tablePK=veiculo_id",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"delete"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "3422"
+								},
+								{
+									"key": "codigoEmpresa",
+									"value": "9060"
+								},
+								{
+									"key": "table",
+									"value": "veiculos"
+								},
+								{
+									"key": "tablePK",
+									"value": "veiculo_id"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "General requests",
+			"item": [
+				{
+					"name": "LIST_Elements",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3001/api/compartilhados",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"compartilhados"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "FIND_elements",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3001/api/equipamentos/2,3",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"equipamentos",
+								"2,3"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "DELETE_ANY",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3001/api/delete?codigoEmpresa=9029&table=socios&tablePK=socio_id&id=313",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"delete"
+							],
+							"query": [
+								{
+									"key": "table",
+									"value": "seguros",
+									"disabled": true
+								},
+								{
+									"key": "tablePK",
+									"value": "id",
+									"disabled": true
+								},
+								{
+									"key": "id",
+									"value": "170",
+									"disabled": true
+								},
+								{
+									"key": "codigoEmpresa",
+									"value": "9038",
+									"disabled": true
+								},
+								{
+									"key": "table",
+									"value": "procuradores",
+									"disabled": true
+								},
+								{
+									"key": "tablePK",
+									"value": "procurador_id",
+									"disabled": true
+								},
+								{
+									"key": "id",
+									"value": "50",
+									"disabled": true
+								},
+								{
+									"key": "codigoEmpresa",
+									"value": "9029"
+								},
+								{
+									"key": "table",
+									"value": "socios"
+								},
+								{
+									"key": "tablePK",
+									"value": "socio_id"
+								},
+								{
+									"key": "id",
+									"value": "313"
+								},
+								{
+									"key": "codigoEmpresa",
+									"value": "9030",
+									"disabled": true
+								},
+								{
+									"key": "table",
+									"value": "procuracoes",
+									"disabled": true
+								},
+								{
+									"key": "tablePK",
+									"value": "procuracao_id",
+									"disabled": true
+								},
+								{
+									"key": "id",
+									"value": "112",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "CHECK_IF_EXISTS",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3001/api/checkIfExists?table=empresas&column=cnpj&value=03.308.232/0001-08",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"checkIfExists"
+							],
+							"query": [
+								{
+									"key": "table",
+									"value": "veiculos",
+									"disabled": true
+								},
+								{
+									"key": "column",
+									"value": "placa",
+									"disabled": true
+								},
+								{
+									"key": "value",
+									"value": "RNU-5A44",
+									"disabled": true
+								},
+								{
+									"key": "table",
+									"value": "empresas"
+								},
+								{
+									"key": "column",
+									"value": "cnpj"
+								},
+								{
+									"key": "value",
+									"value": "03.308.232/0001-08"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ADD_ELEMENT",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"table\": \"modelo_carroceria\",\r\n    \"requestElement\": {\r\n        \"marca_id\": 2,\r\n        \"modelo\": \"AAAAAARGH!\"        \r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/api/addElement",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"addElement"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "ADD_ELEMENT Copy",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"table\": \"modelo_chassi\",\r\n    \"requestElement\": {\r\n        \"marca_id\": 2,\r\n        \"modelo_chassi\": \"AAAAAARGH!\",\r\n        \"cmt\": 10\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/api/addElement",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"addElement"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "VEHICLE_FILES",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "CRLV do Veículo",
+									"type": "file",
+									"src": "/C:/Users/m1107819/Downloads/tableDownload.csv"
+								},
+								{
+									"key": "Declaração de Responsabilidade",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "Certificado de Vistoria",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "Laudo de Pesagem",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "Nota Fiscal Carroceria",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "Nota Fiscal Chassi",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "Layout do Veículo",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "Contrato', name",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "Outros Anexos'",
+									"value": "",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:3001/api/cadSeguroMongo",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"cadSeguroMongo"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Parametros",
+			"item": [
+				{
+					"name": "getParamentros",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3001/api/parametros",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"parametros"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "getUser",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3001/api/users/getUser",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"users",
+								"getUser"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getUsers",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3001/api/users",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"users"
+							],
+							"query": [
+								{
+									"key": "cpf",
+									"value": "111",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "addUsers",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"wtver Fker\",\r\n    \"cpf\": \"9876540999\",\r\n    \"email\": \"456@aslYY\",\r\n    \"role\": \"empresa\",\r\n    \"empresas\": [\r\n        9060\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/api/users",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"users"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "editUser",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": \"638f46caeade3b32c00bbf59\",\r\n    \"name\": \"TOODOAZZz!!\",\r\n    \"cpf\": \"9876540\",\r\n    \"email\": \"456@asl\",\r\n    \"role\": \"tecnico\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/api/users",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"users"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Avisos",
+			"item": [
+				{
+					"name": "getAvisos",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3001/api/avisos",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"avisos"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "addUsers",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"wtver Fker\",\r\n    \"cpf\": \"9876540\",\r\n    \"email\": \"456@asl\",\r\n    \"role\": \"tecnico\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/api/avisos",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"avisos"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "changeReadStatus",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"cpf\": \"012.345.678-90\",\r\n    \"messagesRead\": [\r\n        \"62aa9d7843ae6cdf0179356e\",\r\n        \"62a7fa7643ae6cdf01793568\",\r\n        \"623a8df8d781e4a588fe48b0\",\r\n        \"61a988f4f499d6118472850c\",\r\n        \"617187d717e841cbfc608d09\",\r\n        \"6161c6aefa57f215e40e6df5\",\r\n        \"614bb7ec167d410a8013cd79\",\r\n        \"612e4f9773d1bb338c153ad3\",\r\n        \"612d8766409c8411983611a5\",\r\n        \"612d8764409c8411983611a4\",\r\n        \"60f0e9dcceaf792a3c873e78\"\r\n    ],\r\n    \"id\": \"6387a78a43733d18a0d44864\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/api/avisos/changeReadStatus",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"avisos",
+								"changeReadStatus"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "editUser",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"id\": \"638f46caeade3b32c00bbf59\",\r\n    \"name\": \"wtver| TOO\",\r\n    \"cpf\": \"9876540\",\r\n    \"email\": \"456@asl\",\r\n    \"role\": \"tecnico\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/api/users",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"users"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Solicitações",
+			"item": [
+				{
+					"name": "getSolicitaoes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3001/api/logs",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"logs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "addSolicitacoes",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"collection\": \"logs\",\r\n    \"codigoEmpresa\": 9060,\r\n     \"log\": {\r\n        \"completed\": false,\r\n        \"history\": [\r\n            {\r\n                \"newMembers\": [\r\n                    {\r\n                        \"nomeProcurador\": \"asd\",\r\n                        \"cpfProcurador\": \"123\",\r\n                        \"telProcurador\": \"(12) 2\",\r\n                        \"emailProcurador\": \"12\"\r\n                    }\r\n                ],\r\n                \"oldMembers\": [],\r\n                \"expires\": false,\r\n                \"user\": \"Gontijo User\",\r\n                \"createdAt\": \"2021-12-10T12:44:17.242Z\",\r\n                \"action\": \"Cadastro de procuração solicitado\"\r\n            }\r\n        ],\r\n        \"status\": \"Aguardando análise\",\r\n        \"empresaId\": 9060,\r\n        \"subject\": \"Cadastro de procurações/procuradores\"        \r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/api/logs",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"logs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "addSolicitacoes_DONE",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"collection\": \"logs\",\r\n    \"codigoEmpresa\": 9060,\r\n     \"log\": {\r\n        \"completed\": false,\r\n        \"history\": [\r\n            {\r\n                \"newMembers\": [\r\n                    {\r\n                        \"nomeProcurador\": \"asd\",\r\n                        \"cpfProcurador\": \"123\",\r\n                        \"telProcurador\": \"(12) 2\",\r\n                        \"emailProcurador\": \"12\"\r\n                    }\r\n                ],\r\n                \"oldMembers\": [],\r\n                \"expires\": false,\r\n                \"user\": \"Amdmin User\",\r\n                \"createdAt\": \"2022-12-19T12:44:17.242Z\",\r\n                \"action\": \"Pendências encontradas\"\r\n            }\r\n        ],\r\n        \"status\": \"Pendências\",\r\n        \"empresaId\": 9060,\r\n        \"subject\": \"Cadastro de procurações/procuradores\",                \r\n        \"id\": \"63bca84e5576a72ac4082843\"\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/api/logs",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"logs"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "editSolicitacoes",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"collection\": \"logs\",\r\n    \"codigoEmpresa\": 9060,\r\n     \"log\": {\r\n        \"completed\": false,\r\n        \"history\": [\r\n            {\r\n                \"newMembers\": [\r\n                    {\r\n                        \"nomeProcurador\": \"asd\",\r\n                        \"cpfProcurador\": \"123\",\r\n                        \"telProcurador\": \"(12) 2\",\r\n                        \"emailProcurador\": \"12\"\r\n                    }\r\n                ],\r\n                \"oldMembers\": [],\r\n                \"expires\": false,\r\n                \"user\": \"Amdmin User\",\r\n                \"createdAt\": \"2022-12-19T12:44:17.242Z\",\r\n                \"action\": \"Pendências encontradas\"\r\n            }\r\n        ],\r\n        \"status\": \"Pendências\",\r\n        \"empresaId\": 9060,\r\n        \"subject\": \"Cadastro de procurações/procuradores\",                \r\n        \"id\": \"63bca84e5576a72ac4082843\"\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/api/logs",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"logs"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"pm.request.headers.add({key: 'authorization', value: 'mengo' });"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}

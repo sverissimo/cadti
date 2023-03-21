@@ -4,7 +4,7 @@
   "description": "Sistema de informações de mobilidade - MG / by Sandro Veríssimo",
   "main": "index.js",
   "scripts": {
-    "test": "jest --verbose=true --maxWorkers=1 --forceExit",
+    "test-backend": "jest --verbose=true --maxWorkers=1 --forceExit",
     "testAlerts": "node server/alerts/runAlerts.js",
     "alertDocs": "jsdoc -c ./docs/alertDocsConfig.json",
     "start": "node server/server.js",
@@ -50,6 +50,8 @@
     "faker-br": "^0.4.1",
     "googleapis": "^105.0.0",
     "jest": "^24.9.0",
-    "supertest": "^6.3.1"
+    "postman-to-openapi": "^3.0.1",
+    "supertest": "^6.3.1",
+    "swagger-autogen": "^2.23.1"
   }
 }

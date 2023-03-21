@@ -9,7 +9,17 @@ const socioRoutes = router => {
     router
         .route('/socios/:id?')
         .get(socioController.list)
-        .post(requireSeinfra, socioController.saveMany)
+        .post(
+            /*  #swagger.parameters['obj'] = {
+               in: 'body',
+               description: 'Save socios...',
+               schema: {
+                   $name: 'Jhon Doe',
+                   $age: 29,
+                   about: ''
+               }
+       } */
+            requireSeinfra, socioController.saveMany)
         .put(socioController.updateSocios)
         .delete(requireSeinfra, socioController.delete)
 
