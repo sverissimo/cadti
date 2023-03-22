@@ -1,0 +1,216 @@
+'1':
+  tags:
+    - AltContrato
+  summary: altContrato
+'2':
+  tags:
+    - AltContrato
+  summary: altContrato
+'3':
+  tags:
+    - Empresas
+  summary: getEmpresas
+'4':
+  tags:
+    - Empresas
+  summary: ADDEmpresasAndSocios
+'5':
+  tags:
+    - Empresas
+  summary: EDITEmpresas
+'6':
+  tags:
+    - General requests
+  summary: CHECK_IF_EXISTS
+'7':
+  tags:
+    - Laudos
+  summary: getLaudos
+'8':
+  tags:
+    - Laudos
+  summary: ADDLaudo
+'9':
+  tags:
+    - Seguros
+  summary: EDIT_MANY_Seguros
+'10':
+  tags:
+    - Seguros
+  summary: getSeguros
+'11':
+  tags:
+    - Seguros
+  summary: ADDSeguro
+'12':
+  tags:
+    - General requests
+  summary: DELETE_ANY
+'13':
+  tags:
+    - Lookup tables
+  summary: lookupTables
+'14':
+  tags:
+    - Lookup tables
+  summary: EDITElements
+'15':
+  tags:
+    - DB Update status
+  summary: Update DB Status
+'16':
+  tags:
+    - Procuracoes
+  summary: getProcuracoes
+'17':
+  tags:
+    - Procuracoes
+  summary: getOneProcuracao
+'18':
+  tags:
+    - Procuracoes
+  summary: addProcuracoes
+'19':
+  tags:
+    - Procuracoes
+  summary: deleteProcuracao
+'20':
+  tags:
+    - Procuradores
+  summary: GETProcuradores
+'21':
+  tags:
+    - Procuradores
+  summary: ADDProcuradores_old
+'22':
+  tags:
+    - Procuradores
+  summary: EDITProcuradores
+'23':
+  tags:
+    - Procuradores
+  summary: FINDProcuradorCPF
+'24':
+  tags:
+    - Seguradoras
+  summary: GETSeguradoras
+'25':
+  tags:
+    - Seguros
+  summary: ADDUpcomingSeguro
+'26':
+  tags:
+    - Socios
+  summary: GETSocios
+'27':
+  tags:
+    - Socios
+  summary: ADDSocios
+'28':
+  tags:
+    - Socios
+  summary: EDITsocios2
+'29':
+  tags:
+    - Socios
+  summary: deleteSocio
+'30':
+  tags:
+    - Socios
+  summary: checkSocios
+'31':
+  tags:
+    - Veiculos
+  summary: getOneVehicle
+'32':
+  tags:
+    - Veiculos
+  summary: ADDVeiculo
+'33':
+  tags:
+    - Veiculos
+  summary: updateVeiculo
+'34':
+  tags:
+    - Veiculos
+  summary: vehicleExists
+'35':
+  tags:
+    - Veiculos
+  summary: getOldVehicle
+'36':
+  tags:
+    - Veiculos
+  summary: getVeiculosLocal
+'37':
+  tags:
+    - Veiculos
+  summary: getAllVehicles
+'38':
+  tags:
+    - Veiculos
+  summary: reactivateVehicle
+'39':
+  tags:
+    - Veiculos
+  summary: baixaVeiculo
+'40':
+  tags:
+    - General requests
+  summary: LIST_Elements
+'41':
+  tags:
+    - General requests
+  summary: FIND_elements
+'42':
+  tags:
+    - General requests
+  summary: ADD_ELEMENT Copy
+'43':
+  tags:
+    - General requests
+  summary: VEHICLE_FILES
+'44':
+  tags:
+    - Parametros
+  summary: getParamentros
+'45':
+  tags:
+    - Users
+  summary: getUser
+'46':
+  tags:
+    - Users
+  summary: getUsers
+'47':
+  tags:
+    - Users
+  summary: addUsers
+'48':
+  tags:
+    - Avisos
+  summary: editUser
+'49':
+  tags:
+    - Avisos
+  summary: getAvisos
+'50':
+  tags:
+    - Avisos
+  summary: addUsers
+'51':
+  tags:
+    - Avisos
+  summary: changeReadStatus
+'52':
+  tags:
+    - Solicitações
+  summary: getSolicitaoes
+'53':
+  tags:
+    - Solicitações
+  summary: addSolicitacoes_DONE
+'54':
+  tags:
+    - Solicitações
+  summary: editSolicitacoes

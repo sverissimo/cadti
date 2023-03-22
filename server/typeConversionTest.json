@@ -1,0 +1,82 @@
+{
+    "definitions": {
+        "numbersMock": {
+            "type": "object",
+            "properties": {
+                "smallInt": {
+                    "type": "integer",
+                    "format": "int32"
+                },
+                "bigInt": {
+                    "type": "integer",
+                    "format": "int64"
+                },
+                "unsafeInt": {
+                    "type": "integer",
+                    "format": "unsafe"
+                },
+                "notInt": {
+                    "type": "number"
+                }
+            }
+        },
+        "stringsMock": {
+            "type": "object",
+            "properties": {
+                "stringTest": {
+                    "type": "string"
+                },
+                "isoDate": {
+                    "type": "string",
+                    "format": "date"
+                },
+                "isoDateTime": {
+                    "type": "string",
+                    "format": "date-time"
+                }
+            }
+        },
+        "objectsMock": {
+            "type": "object",
+            "properties": {
+                "child": {
+                    "type": "object",
+                    "properties": {
+                        "child": {
+                            "type": "boolean"
+                        }
+                    }
+                },
+                "childList": {
+                    "type": "array",
+                    "items": {
+                        "type": "object",
+                        "properties": {
+                            "child": {
+                                "type": "boolean"
+                            }
+                        }
+                    }
+                },
+                "childMatrix": {
+                    "type": "array",
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "child": {
+                                    "type": "boolean"
+                                }
+                            }
+                        }
+                    }
+                },
+                "nullable": {
+                    "type": "string",
+                    "format": "nullable"
+                }
+            }
+        }
+    }
+}

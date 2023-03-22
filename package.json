@@ -50,6 +50,7 @@
     "faker-br": "^0.4.1",
     "googleapis": "^105.0.0",
     "jest": "^24.9.0",
+    "js-yaml": "^4.1.0",
     "postman-to-openapi": "^3.0.1",
     "supertest": "^6.3.1",
     "swagger-autogen": "^2.23.1"
