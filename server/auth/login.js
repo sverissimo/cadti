@@ -29,10 +29,8 @@ const login = async (req, res) => {
         accessToken = jwt.sign({ user }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '60m' })
 
     res.cookie('aToken', accessToken, { maxAge: 1000 * 60 * 60, httpOnly: true })
-    res.status(200).json({ accessToken })
-
-    //refreshToken = jwt.sign({ user }, process.env.REFRESH_TOKEN_SECRET)
-    //res.cookie('rToken', refreshToken, { maxAge: 1000 * 60 * 60 * 2, httpOnly: true })
+    const rToken = process.env.REFRESH_TOKEN_SECRET
+    res.status(200).send(rToken)
 }
 
 module.exports = login
