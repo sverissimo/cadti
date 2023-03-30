@@ -1,0 +1,2046 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "Components",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:3001"
+        },
+        {
+            "url": "https://www.cadti.mg.gov.br"
+        }
+    ],
+    "tags": [
+        {
+            "name": "AltContrato"
+        },
+        {
+            "name": "Empresas"
+        },
+        {
+            "name": "Laudos"
+        },
+        {
+            "name": "Lookup tables"
+        },
+        {
+            "name": "DB Update status"
+        },
+        {
+            "name": "Procuracoes"
+        },
+        {
+            "name": "Procuradores"
+        },
+        {
+            "name": "Seguradoras"
+        },
+        {
+            "name": "Seguros"
+        },
+        {
+            "name": "Socios"
+        },
+        {
+            "name": "Veiculos"
+        },
+        {
+            "name": "General requests"
+        },
+        {
+            "name": "Parametros"
+        },
+        {
+            "name": "Users"
+        },
+        {
+            "name": "Avisos"
+        },
+        {
+            "name": "Solicitações"
+        }
+    ],
+    "paths": {
+        "/api/altContrato": {
+            "get": {
+                "tags": [
+                    "AltContrato"
+                ],
+                "summary": "altContrato",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "AltContrato"
+                ],
+                "summary": "altContrato",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "codigoEmpresa": {
+                                        "type": "number"
+                                    },
+                                    "numeroAlteracao": {
+                                        "type": "string"
+                                    },
+                                    "numeroRegistro": {
+                                        "type": "string"
+                                    },
+                                    "numeroSei": {
+                                        "type": "string"
+                                    },
+                                    "numeroContrato": {
+                                        "type": "string"
+                                    },
+                                    "dataJunta": {
+                                        "type": "string"
+                                    },
+                                    "vencimentoContrato": {
+                                        "type": "string"
+                                    },
+                                    "razaoSocial": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/api/empresas": {
+            "get": {
+                "tags": [
+                    "Empresas"
+                ],
+                "summary": "getEmpresas",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Empresas"
+                ],
+                "summary": "ADDEmpresasAndSocios",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "empresa": {
+                                        "type": "object",
+                                        "properties": {
+                                            "razao_social": {
+                                                "type": "string"
+                                            },
+                                            "situacao": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    },
+                                    "socios": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "tags": [
+                    "Empresas"
+                ],
+                "summary": "EDITEmpresas",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "codigo_empresa": {
+                                        "type": "number"
+                                    },
+                                    "razao_social": {
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "type": "string"
+                                    },
+                                    "cep": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/api/checkIfExists": {
+            "get": {
+                "tags": [
+                    "General requests"
+                ],
+                "summary": "CHECK_IF_EXISTS",
+                "parameters": [
+                    {
+                        "name": "table",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "properties": {
+                                "type": "string"
+                            }
+                        },
+                        "example": "empresas"
+                    },
+                    {
+                        "name": "column",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "properties": {
+                                "type": "string"
+                            }
+                        },
+                        "example": "cnpj"
+                    },
+                    {
+                        "name": "value",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "properties": {
+                                "type": "string"
+                            }
+                        },
+                        "example": "03.308.232/0001-08"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/api/laudos": {
+            "get": {
+                "tags": [
+                    "Laudos"
+                ],
+                "summary": "getLaudos",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Laudos"
+                ],
+                "summary": "ADDLaudo",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "id": {
+                                        "type": "string"
+                                    },
+                                    "codigo_empresa": {
+                                        "type": "number"
+                                    },
+                                    "empresa_id": {
+                                        "type": "number"
+                                    },
+                                    "veiculo_id": {
+                                        "type": "number"
+                                    },
+                                    "validade": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/api/seguros": {
+            "put": {
+                "tags": [
+                    "Seguros"
+                ],
+                "summary": "EDIT_MANY_Seguros",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "id": {
+                                                "type": "number"
+                                            },
+                                            "apolice": {
+                                                "type": "string"
+                                            },
+                                            "vencimento": {
+                                                "type": "string"
+                                            },
+                                            "codigo_empresa": {
+                                                "type": "number"
+                                            },
+                                            "situacao": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "Seguros"
+                ],
+                "summary": "getSeguros",
+                "parameters": [
+                    {
+                        "name": "apolice",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "properties": {
+                                "type": "string"
+                            }
+                        },
+                        "example": "1002306095102"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Seguros"
+                ],
+                "summary": "ADDSeguro",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "apolice": {
+                                        "type": "string"
+                                    },
+                                    "codigo_empresa": {
+                                        "type": "number"
+                                    },
+                                    "seguradora_id": {
+                                        "type": "number"
+                                    },
+                                    "data_emissao": {
+                                        "type": "string"
+                                    },
+                                    "vencimento": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/api/delete": {
+            "delete": {
+                "tags": [
+                    "General requests"
+                ],
+                "summary": "DELETE_ANY",
+                "parameters": [
+                    {
+                        "name": "codigoEmpresa",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "properties": {
+                                "type": "string"
+                            }
+                        },
+                        "example": "9029"
+                    },
+                    {
+                        "name": "table",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "properties": {
+                                "type": "string"
+                            }
+                        },
+                        "example": "socios"
+                    },
+                    {
+                        "name": "tablePK",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "properties": {
+                                "type": "string"
+                            }
+                        },
+                        "example": "socio_id"
+                    },
+                    {
+                        "name": "id",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "properties": {
+                                "type": "string"
+                            }
+                        },
+                        "example": "313"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/api/acessibilidade": {
+            "get": {
+                "tags": [
+                    "Lookup tables"
+                ],
+                "summary": "lookupTables",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/api/editElements": {
+            "put": {
+                "tags": [
+                    "Lookup tables"
+                ],
+                "summary": "EDITElements",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "table": {
+                                        "type": "string"
+                                    },
+                                    "tablePK": {
+                                        "type": "string"
+                                    },
+                                    "id": {
+                                        "type": "number"
+                                    },
+                                    "item": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/sync/forceDbUpdate": {
+            "get": {
+                "tags": [
+                    "DB Update status"
+                ],
+                "summary": "Update DB Status",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/api/procuracoes/57": {
+            "get": {
+                "tags": [
+                    "Procuracoes"
+                ],
+                "summary": "getProcuracoes",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/api/procuracoes/74": {
+            "get": {
+                "tags": [
+                    "Procuracoes"
+                ],
+                "summary": "getOneProcuracao",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/api/procuracoes": {
+            "post": {
+                "tags": [
+                    "Procuracoes"
+                ],
+                "summary": "addProcuracoes",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "codigo_empresa": {
+                                        "type": "number"
+                                    },
+                                    "status": {
+                                        "type": "string"
+                                    },
+                                    "procuradores": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "number"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Procuracoes"
+                ],
+                "summary": "deleteProcuracao",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "properties": {
+                                "type": "string"
+                            }
+                        },
+                        "example": "90"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/api/procuradores": {
+            "get": {
+                "tags": [
+                    "Procuradores"
+                ],
+                "summary": "GETProcuradores",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Procuradores"
+                ],
+                "summary": "ADDProcuradores_old",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "table": {
+                                        "type": "string"
+                                    },
+                                    "tablePK": {
+                                        "type": "string"
+                                    },
+                                    "procuradores": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "empresas": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "number"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Procuradores"
+                ],
+                "summary": "EDITProcuradores",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "table": {
+                                        "type": "string"
+                                    },
+                                    "tablePK": {
+                                        "type": "string"
+                                    },
+                                    "procuradores": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "codigoEmpresa": {
+                                        "type": "number"
+                                    },
+                                    "keys": {
+                                        "type": "string"
+                                    },
+                                    "empresas": {
+                                        "type": "string"
+                                    },
+                                    "updateUserPermission": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/api/procuradores/50,56": {
+            "get": {
+                "tags": [
+                    "Procuradores"
+                ],
+                "summary": "FINDProcuradorCPF",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/api/seguradoras/14": {
+            "get": {
+                "tags": [
+                    "Seguradoras"
+                ],
+                "summary": "GETSeguradoras",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/api/upcomingInsurances": {
+            "post": {
+                "tags": [
+                    "Seguros"
+                ],
+                "summary": "ADDUpcomingSeguro",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "apolice": {
+                                        "type": "string"
+                                    },
+                                    "seguradora_id": {
+                                        "type": "number"
+                                    },
+                                    "codigo_empresa": {
+                                        "type": "number"
+                                    },
+                                    "data_emissao": {
+                                        "type": "string"
+                                    },
+                                    "vencimento": {
+                                        "type": "string"
+                                    },
+                                    "situacao": {
+                                        "type": "string"
+                                    },
+                                    "veiculos": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/api/socios": {
+            "get": {
+                "tags": [
+                    "Socios"
+                ],
+                "summary": "GETSocios",
+                "parameters": [
+                    {
+                        "name": "socio_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "properties": {
+                                "type": "string"
+                            }
+                        },
+                        "example": "314,340"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Socios"
+                ],
+                "summary": "ADDSocios",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "codigo_empresa": {
+                                        "type": "number"
+                                    },
+                                    "socios": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Socios"
+                ],
+                "summary": "EDITsocios2",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "socios": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "codigoEmpresa": {
+                                        "type": "number"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Socios"
+                ],
+                "summary": "deleteSocio",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "properties": {
+                                "type": "string"
+                            }
+                        },
+                        "example": "90"
+                    },
+                    {
+                        "name": "codigoEmpresa",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "properties": {
+                                "type": "string"
+                            }
+                        },
+                        "example": "9029"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/api/checkSocios": {
+            "post": {
+                "tags": [
+                    "Socios"
+                ],
+                "summary": "checkSocios",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "newCpfs": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/api/veiculos": {
+            "get": {
+                "tags": [
+                    "Veiculos"
+                ],
+                "summary": "getOneVehicle",
+                "parameters": [
+                    {
+                        "name": "veiculo_id",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "properties": {
+                                "type": "string"
+                            }
+                        },
+                        "example": "48,49"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Veiculos"
+                ],
+                "summary": "ADDVeiculo",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "placa": {
+                                        "type": "string"
+                                    },
+                                    "utilizacao": {
+                                        "type": "string"
+                                    },
+                                    "ano_chassi": {
+                                        "type": "string"
+                                    },
+                                    "ano_carroceria": {
+                                        "type": "string"
+                                    },
+                                    "dominio": {
+                                        "type": "string"
+                                    },
+                                    "cores": {
+                                        "type": "string"
+                                    },
+                                    "cilindros": {
+                                        "type": "string"
+                                    },
+                                    "potencia": {
+                                        "type": "string"
+                                    },
+                                    "eixos": {
+                                        "type": "string"
+                                    },
+                                    "pneumaticos_dianteiro": {
+                                        "type": "string"
+                                    },
+                                    "pneumaticos_traseiro": {
+                                        "type": "string"
+                                    },
+                                    "peso_dianteiro": {
+                                        "type": "string"
+                                    },
+                                    "peso_traseiro": {
+                                        "type": "string"
+                                    },
+                                    "poltronas": {
+                                        "type": "string"
+                                    },
+                                    "piques_poltrona": {
+                                        "type": "string"
+                                    },
+                                    "codigo_empresa": {
+                                        "type": "number"
+                                    },
+                                    "situacao": {
+                                        "type": "string"
+                                    },
+                                    "pbt": {
+                                        "type": "number"
+                                    },
+                                    "modelo_chassi_id": {
+                                        "type": "number"
+                                    },
+                                    "modelo_carroceria_id": {
+                                        "type": "number"
+                                    },
+                                    "equipamentos_id": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "number"
+                                        }
+                                    },
+                                    "acessibilidade_id": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "number"
+                                        }
+                                    },
+                                    "apolice": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Veiculos"
+                ],
+                "summary": "updateVeiculo",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "veiculo_id": {
+                                        "type": "string"
+                                    },
+                                    "situacao": {
+                                        "type": "string"
+                                    },
+                                    "acessibilidade_id": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "number"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/api/checkVehicleExistence": {
+            "get": {
+                "tags": [
+                    "Veiculos"
+                ],
+                "summary": "vehicleExists",
+                "parameters": [
+                    {
+                        "name": "placa",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "properties": {
+                                "type": "string"
+                            }
+                        },
+                        "description": "regular vehicle search",
+                        "example": "RNU-5A44"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "headers": {
+                            "X-Powered-By": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "Express"
+                                }
+                            },
+                            "Access-Control-Allow-Methods": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "POST, PUT, OPTIONS, DELETE, GET"
+                                }
+                            },
+                            "Access-Control-Allow-Origin": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "*"
+                                }
+                            },
+                            "Access-Control-Allow-Headers": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+                                }
+                            },
+                            "Access-Control-Allow-Credentials": {
+                                "schema": {
+                                    "type": "boolean",
+                                    "example": "true"
+                                }
+                            },
+                            "Content-Type": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "application/json; charset=utf-8"
+                                }
+                            },
+                            "Content-Length": {
+                                "schema": {
+                                    "type": "integer",
+                                    "example": "102"
+                                }
+                            },
+                            "ETag": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "W/\"66-t/YOTkI8vH5ISimWs5f96Bvs3+Y\""
+                                }
+                            },
+                            "Date": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "Thu, 08 Dec 2022 16:31:40 GMT"
+                                }
+                            },
+                            "Connection": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "keep-alive"
+                                }
+                            },
+                            "Keep-Alive": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "timeout=5"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "vehicleFound": {
+                                            "type": "object",
+                                            "properties": {
+                                                "veiculoId": {
+                                                    "type": "number"
+                                                },
+                                                "placa": {
+                                                    "type": "string"
+                                                },
+                                                "situacao": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/getOldVehicles": {
+            "get": {
+                "tags": [
+                    "Veiculos"
+                ],
+                "summary": "getOldVehicle",
+                "parameters": [
+                    {
+                        "name": "placa",
+                        "in": "query",
+                        "schema": {
+                            "type": "string",
+                            "properties": {
+                                "type": "string"
+                            }
+                        },
+                        "example": "GLH-4313"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/api/veiculos/2156": {
+            "get": {
+                "tags": [
+                    "Veiculos"
+                ],
+                "summary": "getVeiculosLocal",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/api/allVehicles": {
+            "get": {
+                "tags": [
+                    "Veiculos"
+                ],
+                "summary": "getAllVehicles",
+                "parameters": [
+                    {
+                        "name": "codigoEmpresa",
+                        "in": "query",
+                        "schema": {
+                            "type": "integer",
+                            "properties": {
+                                "type": "string"
+                            }
+                        },
+                        "example": "9066"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "headers": {
+                            "X-Powered-By": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "Express"
+                                }
+                            },
+                            "Access-Control-Allow-Methods": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "POST, PUT, OPTIONS, DELETE, GET"
+                                }
+                            },
+                            "Access-Control-Allow-Origin": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "*"
+                                }
+                            },
+                            "Access-Control-Allow-Headers": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+                                }
+                            },
+                            "Access-Control-Allow-Credentials": {
+                                "schema": {
+                                    "type": "boolean",
+                                    "example": "true"
+                                }
+                            },
+                            "Content-Type": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "application/json; charset=utf-8"
+                                }
+                            },
+                            "Content-Length": {
+                                "schema": {
+                                    "type": "integer",
+                                    "example": "1237"
+                                }
+                            },
+                            "ETag": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "W/\"4d5-eotMb1cobQQtYckZlL7Olkuf7Zg\""
+                                }
+                            },
+                            "Date": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "Fri, 09 Dec 2022 02:01:56 GMT"
+                                }
+                            },
+                            "Connection": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "keep-alive"
+                                }
+                            },
+                            "Keep-Alive": {
+                                "schema": {
+                                    "type": "string",
+                                    "example": "timeout=5"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "properties": {
+                                                "veiculo_id": {
+                                                    "type": "number"
+                                                },
+                                                "placa": {
+                                                    "type": "string"
+                                                },
+                                                "codigo_empresa": {
+                                                    "type": "number"
+                                                },
+                                                "empresa": {
+                                                    "type": "string"
+                                                },
+                                                "compartilhado": {
+                                                    "type": "object",
+                                                    "properties": {}
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/api/reactivateVehicle": {
+            "patch": {
+                "tags": [
+                    "Veiculos"
+                ],
+                "summary": "reactivateVehicle",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "placa": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/api/baixaVeiculo": {
+            "patch": {
+                "tags": [
+                    "Veiculos"
+                ],
+                "summary": "baixaVeiculo",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "placa": {
+                                        "type": "string"
+                                    },
+                                    "Situação": {
+                                        "type": "string"
+                                    },
+                                    "Motivo da Baixa": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/api/compartilhados": {
+            "get": {
+                "tags": [
+                    "General requests"
+                ],
+                "summary": "LIST_Elements",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/api/equipamentos/2,3": {
+            "get": {
+                "tags": [
+                    "General requests"
+                ],
+                "summary": "FIND_elements",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/api/addElement": {
+            "post": {
+                "tags": [
+                    "General requests"
+                ],
+                "summary": "ADD_ELEMENT Copy",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "table": {
+                                        "type": "string"
+                                    },
+                                    "requestElement": {
+                                        "type": "object",
+                                        "properties": {
+                                            "marca_id": {
+                                                "type": "number"
+                                            },
+                                            "modelo_chassi": {
+                                                "type": "string"
+                                            },
+                                            "cmt": {
+                                                "type": "number"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/api/cadSeguroMongo": {
+            "post": {
+                "tags": [
+                    "General requests"
+                ],
+                "summary": "VEHICLE_FILES",
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "CRLV do Veículo": {
+                                        "type": "string",
+                                        "format": "binary"
+                                    },
+                                    "Declaração de Responsabilidade": {
+                                        "type": "string"
+                                    },
+                                    "Certificado de Vistoria": {
+                                        "type": "string"
+                                    },
+                                    "Laudo de Pesagem": {
+                                        "type": "string"
+                                    },
+                                    "Nota Fiscal Carroceria": {
+                                        "type": "string"
+                                    },
+                                    "Nota Fiscal Chassi": {
+                                        "type": "string"
+                                    },
+                                    "Layout do Veículo": {
+                                        "type": "string"
+                                    },
+                                    "Contrato', name": {
+                                        "type": "string"
+                                    },
+                                    "Outros Anexos'": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/api/parametros": {
+            "get": {
+                "tags": [
+                    "Parametros"
+                ],
+                "summary": "getParamentros",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/api/users/getUser": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "getUser",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/api/users": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "getUsers",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "addUsers",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "cpf": {
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "type": "string"
+                                    },
+                                    "role": {
+                                        "type": "string"
+                                    },
+                                    "empresas": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "number"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Avisos"
+                ],
+                "summary": "editUser",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "id": {
+                                        "type": "string"
+                                    },
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "cpf": {
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "type": "string"
+                                    },
+                                    "role": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/api/avisos": {
+            "get": {
+                "tags": [
+                    "Avisos"
+                ],
+                "summary": "getAvisos",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Avisos"
+                ],
+                "summary": "addUsers",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "cpf": {
+                                        "type": "string"
+                                    },
+                                    "email": {
+                                        "type": "string"
+                                    },
+                                    "role": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/api/avisos/changeReadStatus": {
+            "patch": {
+                "tags": [
+                    "Avisos"
+                ],
+                "summary": "changeReadStatus",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "cpf": {
+                                        "type": "string"
+                                    },
+                                    "messagesRead": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "id": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        },
+        "/api/logs": {
+            "get": {
+                "tags": [
+                    "Solicitações"
+                ],
+                "summary": "getSolicitaoes",
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Solicitações"
+                ],
+                "summary": "addSolicitacoes_DONE",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "collection": {
+                                        "type": "string"
+                                    },
+                                    "codigoEmpresa": {
+                                        "type": "number"
+                                    },
+                                    "log": {
+                                        "type": "object",
+                                        "properties": {
+                                            "completed": {
+                                                "type": "boolean"
+                                            },
+                                            "history": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "status": {
+                                                "type": "string"
+                                            },
+                                            "empresaId": {
+                                                "type": "number"
+                                            },
+                                            "subject": {
+                                                "type": "string"
+                                            },
+                                            "id": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "tags": [
+                    "Solicitações"
+                ],
+                "summary": "editSolicitacoes",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "collection": {
+                                        "type": "string"
+                                    },
+                                    "codigoEmpresa": {
+                                        "type": "number"
+                                    },
+                                    "log": {
+                                        "type": "object",
+                                        "properties": {
+                                            "completed": {
+                                                "type": "boolean"
+                                            },
+                                            "history": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "status": {
+                                                "type": "string"
+                                            },
+                                            "empresaId": {
+                                                "type": "number"
+                                            },
+                                            "subject": {
+                                                "type": "string"
+                                            },
+                                            "id": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Successful response",
+                        "content": {
+                            "application/json": {}
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
