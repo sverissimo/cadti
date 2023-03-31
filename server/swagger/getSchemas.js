@@ -3,6 +3,7 @@ const fs = require('fs');
 const jsonSnippet = require('./postmanSwagger.json')
 
 function updateJson(json) {
+    json.info.version = '2.4.2'
     // Loop through the paths
     for (const path in json.paths) {
         const methods = json.paths[path];
@@ -13,7 +14,6 @@ function updateJson(json) {
 
             if (operation.responses && operation.responses['200'] && operation.responses['200'].content['application/json'] && operation.responses['200'].content['application/json'].example) {
                 const { schema, example } = operation.responses['200'].content['application/json']
-                //const example = schema.example;
                 if (Array.isArray(example)) {
                     schema.type = 'array'
                     schema.items = getProperties(example);
@@ -21,8 +21,8 @@ function updateJson(json) {
                     delete schema.example;
                     schema.properties = getProperties(example);
                 }
+                delete operation.responses['200'].headers
                 delete operation.responses['200'].content['application/json'].example
-                console.log("🚀 ~ file: getSchema81.js:19 ~ updateJson ~ operation.responses['200'].content['application/json'].schema.properties:", schema)
             }
 
             if (operation.requestBody && operation.requestBody.content['application/json']) {
@@ -142,3 +142,5 @@ function getArrayDataType(array) {
 
 const updatedJson = updateJson(jsonSnippet);
 fs.writeFileSync('newTest_v12.json', JSON.stringify(updatedJson));
+
+module.exports = { updateJson };

@@ -7,9 +7,8 @@ const { EmpresaService } = require("../services/EmpresaService")
 
 class EmpresaController extends Controller {
 
-    constructor() {
-        super('empresas', 'codigo_empresa')
-    }
+    table = 'empresas'
+    primaryKey = 'codigo_empresa'
 
     /**
      * @param {request} req

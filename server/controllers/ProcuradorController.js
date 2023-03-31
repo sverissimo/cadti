@@ -43,6 +43,7 @@ class ProcuradorController extends Controller {
         }
     }
 
+    /**@deprecated */
     updateMany = async (req, res, next) => {
         const { procuradores, codigoEmpresa, updateUserPermission } = req.body
         if (!procuradores || !procuradores.length) {

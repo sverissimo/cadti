@@ -1,19 +1,16 @@
 openapi: 3.0.0
 info:
-  title: Components
+  title: CadTI API
   version: 1.0.0
 servers:
   - url: http://localhost:3001
-  - url: https://www.cadti.mg.gov.br
 tags:
   - name: AltContrato
   - name: Empresas
   - name: Laudos
   - name: Lookup tables
-  - name: DB Update status
   - name: Procuracoes
   - name: Procuradores
-  - name: Seguradoras
   - name: Seguros
   - name: Socios
   - name: Veiculos
@@ -42,34 +39,15 @@ paths:
           application/json:
             schema:
               type: object
-              properties:
-                codigoEmpresa:
-                  type: integer
-                numeroAlteracao:
-                  type: string
-                numeroRegistro:
-                  type: string
-                numeroSei:
-                  type: string
-                numeroContrato:
-                  type: string
-                dataJunta:
-                  type: string
-                  format: date
-                vencimentoContrato:
-                  type: string
-                  format: date
-                razaoSocial:
-                  type: string
-              required:
-                - codigoEmpresa
-                - numeroAlteracao
-                - numeroRegistro
-                - numeroSei
-                - numeroContrato
-                - dataJunta
-                - vencimentoContrato
-                - razaoSocial
+              example:
+                codigoEmpresa: 9060
+                numeroAlteracao: '11'
+                numeroRegistro: '11'
+                numeroSei: '11'
+                numeroContrato: '11'
+                dataJunta: '2021-12-01'
+                vencimentoContrato: '2016-01-13'
+                razaoSocial: GONTIJO
       responses:
         '200':
           description: Successful response
@@ -80,35 +58,6 @@ paths:
       tags:
         - Empresas
       summary: getEmpresas
-      responses:
-        '200':
-          description: Successful response
-          content:
-            application/json: {}
-    post:
-      tags:
-        - Empresas
-      summary: ADDEmpresasAndSocios
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              example:
-                empresa:
-                  razao_social: qqq
-                  situacao: Ativo
-                socios:
-                  - nome_socio: '88'
-                    cpf_socio: '88'
-                    tel_socio: '(88) '
-                    email_socio: '88'
-                    share: '88'
-                  - nome_socio: '87'
-                    cpf_socio: '87'
-                    tel_socio: '(87) '
-                    email_socio: '87'
-                    share: '87'
       responses:
         '200':
           description: Successful response
@@ -133,27 +82,40 @@ paths:
           description: Successful response
           content:
             application/json: {}
-  /api/checkIfExists:
-    get:
+    post:
       tags:
-        - General requests
-      summary: CHECK_IF_EXISTS
-      parameters:
-        - name: table
-          in: query
-          schema:
-            type: string
-          example: empresas
-        - name: column
-          in: query
-          schema:
-            type: string
-          example: cnpj
-        - name: value
-          in: query
-          schema:
-            type: string
-          example: 03.308.232/0001-08
+        - Empresas
+      summary: saveEmpresasAndSocios
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                empresa:
+                  razao_social: Whatever LTDA
+                  situacao: Ativo
+                  cnpj: 17.283.151/0001-05
+                  rua: R. JOSE ILDEU GRAMISCELLI ,120 ,LAGOINHA
+                  cidade: BELO HORIZONTE
+                  uf: MG
+                  telefone: 031 34226690
+                  email: penhaassessoria@gmail.com
+                  numero: ''
+                  complemento: ''
+                  bairro: null
+                  cep: '31210190'
+                socios:
+                  - nome_socio: '88'
+                    cpf_socio: '88'
+                    tel_socio: '(88) '
+                    email_socio: '88'
+                    share: '88'
+                  - nome_socio: '87'
+                    cpf_socio: '87'
+                    tel_socio: '(87) '
+                    email_socio: '87'
+                    share: '87'
       responses:
         '200':
           description: Successful response
@@ -193,84 +155,23 @@ paths:
     put:
       tags:
         - Seguros
-      summary: EDIT_MANY_Seguros
+      summary: EDITSeguros
       requestBody:
         content:
           application/json:
             schema:
               type: object
               example:
-                - id: 83
-                  apolice: 28.82.0092919.12
-                  vencimento: '2022-12-01T03:00:00.000Z'
-                  codigo_empresa: 70025
-                  situacao: Vencido
-                - id: 85
-                  apolice: '288200921912'
-                  vencimento: '2022-12-01T03:00:00.000Z'
-                  codigo_empresa: 70025
-                  situacao: Vencido
-                - id: 81
-                  apolice: '1002306086005'
-                  seguradora_id: 3
-                  vencimento: '2022-12-11T03:00:00.000Z'
-                  codigo_empresa: 70008
-                  situacao: Vencido
-                - id: 80
-                  apolice: '1002306085997'
-                  seguradora_id: 3
-                  vencimento: '2022-12-11T03:00:00.000Z'
-                  codigo_empresa: 70008
-                  situacao: Vencido
-                - id: 181
-                  apolice: '0982.598630'
-                  seguradora_id: 6
-                  vencimento: '2022-12-24T03:00:00.000Z'
-                  codigo_empresa: 9808
-                  situacao: Vencido
-                - id: 49
-                  apolice: '1002800117833'
-                  seguradora_id: 23
-                  vencimento: '2022-12-31T03:00:00.000Z'
-                  codigo_empresa: 9349
-                  situacao: Vencido
-                - id: 54
-                  apolice: '1002300057895'
-                  seguradora_id: 23
-                  vencimento: '2022-12-31T03:00:00.000Z'
-                  codigo_empresa: 9099
-                  situacao: Vencido
-                - id: 91
-                  apolice: '1002806013247'
-                  seguradora_id: 1
-                  vencimento: '2023-01-02T03:00:00.000Z'
-                  codigo_empresa: 9351
-                  situacao: Vencido
-                - id: 150
-                  apolice: '1002806013249'
-                  seguradora_id: 1
-                  vencimento: '2023-01-02T03:00:00.000Z'
-                  codigo_empresa: 9351
-                  situacao: Vencido
-                - id: 154
-                  apolice: '1002306003797'
-                  seguradora_id: 1
-                  vencimento: '2023-01-02T03:00:00.000Z'
-                  codigo_empresa: 9351
-                  situacao: Vencido
-                - id: 116
-                  apolice: '2002660'
-                  seguradora_id: 8
-                  vencimento: '2023-01-05T03:00:00.000Z'
-                  codigo_empresa: 5032
-                  situacao: Vencido
-                - id: 162
-                  apolice: '1002300053977'
-                  seguradora_id: 23
-                  vencimento: '2023-01-07T03:00:00.000Z'
-                  codigo_empresa: 5418
-                  situacao: Vencido
-                  seguradora: KOVR SEGURADORA S.A. (Investprev)
+                update:
+                  id: 173
+                  apolice: '1002899967'
+                  seguradora_id: 2
+                  situacao: Damn!
+                  vencimento: '2022-12-31'
+                vehicleIds:
+                  - 3418
+                deletedVehicleIds:
+                  - 3419
       responses:
         '200':
           description: Successful response
@@ -315,7 +216,7 @@ paths:
     delete:
       tags:
         - General requests
-      summary: DELETE_ANY
+      summary: deleteAny
       parameters:
         - name: codigoEmpresa
           in: query
@@ -349,6 +250,239 @@ paths:
       summary: lookupTables
       responses:
         '200':
+          description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+                example: POST, PUT, OPTIONS, DELETE, GET
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: '*'
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
+                example: Origin, X-Requested-With, Content-Type, Accept, Authorization
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+                example: 'true'
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '855'
+            ETag:
+              schema:
+                type: string
+                example: W/"357-JNgTtxwDmqKV3BiiZGey2MIKs5w"
+            Date:
+              schema:
+                type: string
+                example: Thu, 30 Mar 2023 20:42:17 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                - id: 2
+                  item: Banheiro
+                - id: 3
+                  item: Bar
+                - id: 4
+                  item: Bebedouro
+                - id: 5
+                  item: Cabine separada motorista
+                - id: 6
+                  item: Câmera
+                - id: 7
+                  item: Cafeteira elétrica
+                - id: 8
+                  item: Caixa térmica
+                - id: 9
+                  item: Carregador de celular
+                - id: 10
+                  item: Cofre
+                - id: 11
+                  item: Cortinas
+                - id: 12
+                  item: Descanso de pernas
+                - id: 13
+                  item: DVD
+                - id: 14
+                  item: Geladeira
+                - id: 15
+                  item: Lixeira
+                - id: 16
+                  item: Mesa de jogos
+                - id: 17
+                  item: Monitor DVD
+                - id: 18
+                  item: Rádio
+                - id: 19
+                  item: Roleta
+                - id: 20
+                  item: Som ambiente
+                - id: 21
+                  item: Televisão
+                - id: 22
+                  item: Validador
+                - id: 23
+                  item: Vídeo cassete
+                - id: 24
+                  item: Wi-fi
+                - id: 25
+                  item: Radiofone
+                - id: 26
+                  item: Cinto de Segurança
+                - id: 27
+                  item: Climatizador
+                - id: 30
+                  item: Lalala
+                - id: 1
+                  item: Ar condicionado
+  /api/equipamentos:
+    get:
+      tags:
+        - Lookup tables
+      summary: lookupTables
+      description: >-
+        StartFragment
+
+
+        As tabelas lookup são: modelosChassi, modeloCarroceria, carrocerias,
+        equipamentos, seguradoras, empresasLaudo e acessibilidade.
+
+
+        Os objetos "request body" dos métodos PUT e POST variam conforme a
+        estrutura de cada tabela (ver diagrama de entidades em docs).
+
+
+        EndFragment
+      parameters:
+        - name: id
+          in: query
+          schema:
+            type: integer
+          example: '20'
+      responses:
+        '200':
+          description: OK
+          headers:
+            X-Powered-By:
+              schema:
+                type: string
+                example: Express
+            Access-Control-Allow-Methods:
+              schema:
+                type: string
+                example: POST, PUT, OPTIONS, DELETE, GET
+            Access-Control-Allow-Origin:
+              schema:
+                type: string
+                example: '*'
+            Access-Control-Allow-Headers:
+              schema:
+                type: string
+                example: Origin, X-Requested-With, Content-Type, Accept, Authorization
+            Access-Control-Allow-Credentials:
+              schema:
+                type: boolean
+                example: 'true'
+            Content-Type:
+              schema:
+                type: string
+                example: application/json; charset=utf-8
+            Content-Length:
+              schema:
+                type: integer
+                example: '33'
+            ETag:
+              schema:
+                type: string
+                example: W/"21-jZYmg1secAJF7rdMocFa8oekjUY"
+            Date:
+              schema:
+                type: string
+                example: Thu, 30 Mar 2023 21:18:07 GMT
+            Connection:
+              schema:
+                type: string
+                example: keep-alive
+            Keep-Alive:
+              schema:
+                type: string
+                example: timeout=5
+          content:
+            application/json:
+              schema:
+                type: object
+              example:
+                - id: 20
+                  item: Som ambiente
+  /api/modelosChassi:
+    get:
+      tags:
+        - Lookup tables
+      summary: lookupTables
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/empresasLaudo:
+    get:
+      tags:
+        - Lookup tables
+      summary: lookupTables
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/seguradoras/14:
+    get:
+      tags:
+        - Lookup tables
+      summary: GETSeguradoras
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/addElement:
+    post:
+      tags:
+        - Lookup tables
+      summary: addElement
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                table: modelo_carroceria
+                requestElement:
+                  marca_id: 2
+                  modelo: AAAAAARGH!
+      responses:
+        '200':
           description: Successful response
           content:
             application/json: {}
@@ -356,7 +490,7 @@ paths:
     put:
       tags:
         - Lookup tables
-      summary: EDITElements
+      summary: editElement
       requestBody:
         content:
           application/json:
@@ -367,16 +501,6 @@ paths:
                 tablePK: id
                 id: 30
                 item: ABA
-      responses:
-        '200':
-          description: Successful response
-          content:
-            application/json: {}
-  /sync/forceDbUpdate:
-    get:
-      tags:
-        - DB Update status
-      summary: Update DB Status
       responses:
         '200':
           description: Successful response
@@ -455,27 +579,26 @@ paths:
     post:
       tags:
         - Procuradores
-      summary: ADDProcuradores_old
+      summary: ADDProcuradores
       requestBody:
         content:
           application/json:
             schema:
               type: object
               example:
-                table: procuradores
-                tablePK: procurador_id
                 procuradores:
-                  - nome_procurador: abc
+                  - nome_procurador: abcZz
                     cpf_procurador: '1234'
                     tel_procurador: '5678'
                     email_procurador: a@b.c
-                  - nome_procurador: def
+                    empresas:
+                      - 9030
+                  - nome_procurador: defZz
                     cpf_procurador: '9874'
                     tel_procurador: 31 987654321
-                empresas:
-                  - 9060
-                  - 9030
-                  - 9029
+                    empresas:
+                      - 9030
+                codigoEmpresa: 9030
       responses:
         '200':
           description: Successful response
@@ -524,16 +647,6 @@ paths:
           description: Successful response
           content:
             application/json: {}
-  /api/seguradoras/14:
-    get:
-      tags:
-        - Seguradoras
-      summary: GETSeguradoras
-      responses:
-        '200':
-          description: Successful response
-          content:
-            application/json: {}
   /api/upcomingInsurances:
     post:
       tags:
@@ -551,7 +664,8 @@ paths:
                 data_emissao: '2023-01-15'
                 vencimento: '2023-01-12'
                 situacao: Vigente
-                veiculos: []
+                veiculos:
+                  - 3290
       responses:
         '200':
           description: Successful response
@@ -604,7 +718,7 @@ paths:
     put:
       tags:
         - Socios
-      summary: EDITsocios2
+      summary: EDITsocios
       requestBody:
         content:
           application/json:
@@ -668,13 +782,7 @@ paths:
     get:
       tags:
         - Veiculos
-      summary: getOneVehicle
-      parameters:
-        - name: veiculo_id
-          in: query
-          schema:
-            type: string
-          example: 48,49
+      summary: getVeiculos
       responses:
         '200':
           description: Successful response
@@ -831,16 +939,6 @@ paths:
           description: Successful response
           content:
             application/json: {}
-  /api/veiculos/2156:
-    get:
-      tags:
-        - Veiculos
-      summary: getVeiculosLocal
-      responses:
-        '200':
-          description: Successful response
-          content:
-            application/json: {}
   /api/allVehicles:
     get:
       tags:
@@ -986,52 +1084,71 @@ paths:
           description: Successful response
           content:
             application/json: {}
-  /api/compartilhados:
+  /api/checkIfExists:
     get:
       tags:
         - General requests
-      summary: LIST_Elements
+      summary: checkIfElementExists
+      parameters:
+        - name: table
+          in: query
+          schema:
+            type: string
+          example: empresas
+        - name: column
+          in: query
+          schema:
+            type: string
+          example: cnpj
+        - name: value
+          in: query
+          schema:
+            type: string
+          example: 03.308.232/0001-08
       responses:
         '200':
           description: Successful response
           content:
             application/json: {}
-  /api/equipamentos/2,3:
-    get:
-      tags:
-        - General requests
-      summary: FIND_elements
-      responses:
-        '200':
-          description: Successful response
-          content:
-            application/json: {}
-  /api/addElement:
+  /api/empresaUpload:
     post:
       tags:
         - General requests
-      summary: ADD_ELEMENT Copy
+      summary: uploadEmpresaFiles
       requestBody:
         content:
-          application/json:
+          multipart/form-data:
             schema:
               type: object
-              example:
-                table: modelo_chassi
-                requestElement:
-                  marca_id: 2
-                  modelo_chassi: AAAAAARGH!
-                  cmt: 10
+              properties:
+                metadata:
+                  type: string
+                  example: |-
+                    {
+                            "fieldName" : "apoliceDoc",
+                            "apolice" : "111",
+                            "empresaId" : 9066,
+                            "tempFile" : false
+                        }
+                files:
+                  type: string
+                  format: binary
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: mengo
       responses:
         '200':
           description: Successful response
           content:
             application/json: {}
-  /api/cadSeguroMongo:
+  /api/vehicleUpload:
     post:
       tags:
         - General requests
-      summary: VEHICLE_FILES
+      summary: uploadVehicleFiles
       requestBody:
         content:
           multipart/form-data:

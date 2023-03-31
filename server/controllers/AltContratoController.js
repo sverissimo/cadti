@@ -7,8 +7,9 @@ class AltContratoController {
 
     async list(req, res) {
         //@ts-ignore
-        const { filter } = req
-        altContratoModel.find(filter)
+        const { filter, query } = req
+        const search = { ...query, ...filter }
+        altContratoModel.find(search)
             .then(doc => res.send(doc))
             .catch(err => console.log(err))
     }

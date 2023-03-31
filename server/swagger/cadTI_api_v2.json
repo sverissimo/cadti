@@ -1,7 +1,7 @@
 {
 	"info": {
 		"_postman_id": "745d312d-4038-445e-89e6-688f1481adf1",
-		"name": "Components",
+		"name": "CadTI API",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
 		"_exporter_id": "15533625"
 	},
@@ -84,35 +84,6 @@
 					"response": []
 				},
 				{
-					"name": "ADDEmpresas",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"empresa\": {\r\n        \"razao_social\": \"Whatever LTDA\",\r\n        \"situacao\": \"Ativo\",\r\n        \"cnpj\": \"17.283.151/0001-05\",\r\n        \"rua\": \"R. JOSE ILDEU GRAMISCELLI ,120 ,LAGOINHA\",\r\n        \"cidade\": \"BELO HORIZONTE\",\r\n        \"uf\": \"MG\",\r\n        \"telefone\": \"031 34226690\",\r\n        \"email\": \"penhaassessoria@gmail.com\",\r\n        \"numero\": \"\",\r\n        \"complemento\": \"\",\r\n        \"bairro\": null,\r\n        \"cep\": \"31210190\"\r\n    }\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://localhost:3001/api/empresas",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3001",
-							"path": [
-								"api",
-								"empresas"
-							]
-						}
-					},
-					"response": []
-				},
-				{
 					"name": "EDITEmpresas",
 					"request": {
 						"method": "PATCH",
@@ -142,13 +113,13 @@
 					"response": []
 				},
 				{
-					"name": "ADDEmpresasAndSocios",
+					"name": "saveEmpresasAndSocios",
 					"request": {
 						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"empresa\": {\r\n        \"razao_social\": \"qqq\",\r\n        \"situacao\": \"Ativo\"\r\n    },\r\n    \"socios\": [\r\n        {\r\n            \"nome_socio\": \"88\",\r\n            \"cpf_socio\": \"88\",\r\n            \"tel_socio\": \"(88) \",\r\n            \"email_socio\": \"88\",\r\n            \"share\": \"88\"\r\n        },\r\n {\r\n            \"nome_socio\": \"87\",\r\n            \"cpf_socio\": \"87\",\r\n            \"tel_socio\": \"(87) \",\r\n            \"email_socio\": \"87\",\r\n            \"share\": \"87\"\r\n        }\r\n    ]\r\n}",
+							"raw": "{\r\n    \"empresa\": {\r\n        \"razao_social\": \"Whatever LTDA\",\r\n        \"situacao\": \"Ativo\",\r\n        \"cnpj\": \"17.283.151/0001-05\",\r\n        \"rua\": \"R. JOSE ILDEU GRAMISCELLI ,120 ,LAGOINHA\",\r\n        \"cidade\": \"BELO HORIZONTE\",\r\n        \"uf\": \"MG\",\r\n        \"telefone\": \"031 34226690\",\r\n        \"email\": \"penhaassessoria@gmail.com\",\r\n        \"numero\": \"\",\r\n        \"complemento\": \"\",\r\n        \"bairro\": null,\r\n        \"cep\": \"31210190\"\r\n    },\r\n    \"socios\": [\r\n        {\r\n            \"nome_socio\": \"88\",\r\n            \"cpf_socio\": \"88\",\r\n            \"tel_socio\": \"(88) \",\r\n            \"email_socio\": \"88\",\r\n            \"share\": \"88\"\r\n        },\r\n {\r\n            \"nome_socio\": \"87\",\r\n            \"cpf_socio\": \"87\",\r\n            \"tel_socio\": \"(87) \",\r\n            \"email_socio\": \"87\",\r\n            \"share\": \"87\"\r\n        }\r\n    ]\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -165,40 +136,6 @@
 							"path": [
 								"api",
 								"empresas"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "empresaExists",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:3001/api/checkIfExists?table=empresas&column=cnpj&value=03.308.232/0001-082",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3001",
-							"path": [
-								"api",
-								"checkIfExists"
-							],
-							"query": [
-								{
-									"key": "table",
-									"value": "empresas"
-								},
-								{
-									"key": "column",
-									"value": "cnpj"
-								},
-								{
-									"key": "value",
-									"value": "03.308.232/0001-082"
-								}
 							]
 						}
 					},
@@ -348,10 +285,286 @@
 							]
 						}
 					},
+					"response": [
+						{
+							"name": "lookupTables",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:3001/api/equipamentos",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3001",
+									"path": [
+										"api",
+										"equipamentos"
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "POST, PUT, OPTIONS, DELETE, GET"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "855"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"357-JNgTtxwDmqKV3BiiZGey2MIKs5w\""
+								},
+								{
+									"key": "Date",
+									"value": "Thu, 30 Mar 2023 20:42:17 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "[\n    {\n        \"id\": 2,\n        \"item\": \"Banheiro\"\n    },\n    {\n        \"id\": 3,\n        \"item\": \"Bar\"\n    },\n    {\n        \"id\": 4,\n        \"item\": \"Bebedouro\"\n    },\n    {\n        \"id\": 5,\n        \"item\": \"Cabine separada motorista\"\n    },\n    {\n        \"id\": 6,\n        \"item\": \"Câmera\"\n    },\n    {\n        \"id\": 7,\n        \"item\": \"Cafeteira elétrica\"\n    },\n    {\n        \"id\": 8,\n        \"item\": \"Caixa térmica\"\n    },\n    {\n        \"id\": 9,\n        \"item\": \"Carregador de celular\"\n    },\n    {\n        \"id\": 10,\n        \"item\": \"Cofre\"\n    },\n    {\n        \"id\": 11,\n        \"item\": \"Cortinas\"\n    },\n    {\n        \"id\": 12,\n        \"item\": \"Descanso de pernas\"\n    },\n    {\n        \"id\": 13,\n        \"item\": \"DVD\"\n    },\n    {\n        \"id\": 14,\n        \"item\": \"Geladeira\"\n    },\n    {\n        \"id\": 15,\n        \"item\": \"Lixeira\"\n    },\n    {\n        \"id\": 16,\n        \"item\": \"Mesa de jogos\"\n    },\n    {\n        \"id\": 17,\n        \"item\": \"Monitor DVD\"\n    },\n    {\n        \"id\": 18,\n        \"item\": \"Rádio\"\n    },\n    {\n        \"id\": 19,\n        \"item\": \"Roleta\"\n    },\n    {\n        \"id\": 20,\n        \"item\": \"Som ambiente\"\n    },\n    {\n        \"id\": 21,\n        \"item\": \"Televisão\"\n    },\n    {\n        \"id\": 22,\n        \"item\": \"Validador\"\n    },\n    {\n        \"id\": 23,\n        \"item\": \"Vídeo cassete\"\n    },\n    {\n        \"id\": 24,\n        \"item\": \"Wi-fi\"\n    },\n    {\n        \"id\": 25,\n        \"item\": \"Radiofone\"\n    },\n    {\n        \"id\": 26,\n        \"item\": \"Cinto de Segurança\"\n    },\n    {\n        \"id\": 27,\n        \"item\": \"Climatizador\"\n    },\n    {\n        \"id\": 30,\n        \"item\": \"Lalala\"\n    },\n    {\n        \"id\": 1,\n        \"item\": \"Ar condicionado\"\n    }\n]"
+						}
+					]
+				},
+				{
+					"name": "lookupTables",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3001/api/equipamentos?id=20",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"equipamentos"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "20"
+								}
+							]
+						},
+						"description": "StartFragment\n\nAs tabelas lookup são: modelosChassi, modeloCarroceria, carrocerias, equipamentos, seguradoras, empresasLaudo e acessibilidade.\n\nOs objetos \"request body\" dos métodos PUT e POST variam conforme a estrutura de cada tabela (ver diagrama de entidades em docs).\n\nEndFragment"
+					},
+					"response": [
+						{
+							"name": "lookupTables",
+							"originalRequest": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "http://localhost:3001/api/equipamentos?id=20",
+									"protocol": "http",
+									"host": [
+										"localhost"
+									],
+									"port": "3001",
+									"path": [
+										"api",
+										"equipamentos"
+									],
+									"query": [
+										{
+											"key": "id",
+											"value": "20"
+										}
+									]
+								}
+							},
+							"status": "OK",
+							"code": 200,
+							"_postman_previewlanguage": "json",
+							"header": [
+								{
+									"key": "X-Powered-By",
+									"value": "Express"
+								},
+								{
+									"key": "Access-Control-Allow-Methods",
+									"value": "POST, PUT, OPTIONS, DELETE, GET"
+								},
+								{
+									"key": "Access-Control-Allow-Origin",
+									"value": "*"
+								},
+								{
+									"key": "Access-Control-Allow-Headers",
+									"value": "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+								},
+								{
+									"key": "Access-Control-Allow-Credentials",
+									"value": "true"
+								},
+								{
+									"key": "Content-Type",
+									"value": "application/json; charset=utf-8"
+								},
+								{
+									"key": "Content-Length",
+									"value": "33"
+								},
+								{
+									"key": "ETag",
+									"value": "W/\"21-jZYmg1secAJF7rdMocFa8oekjUY\""
+								},
+								{
+									"key": "Date",
+									"value": "Thu, 30 Mar 2023 21:18:07 GMT"
+								},
+								{
+									"key": "Connection",
+									"value": "keep-alive"
+								},
+								{
+									"key": "Keep-Alive",
+									"value": "timeout=5"
+								}
+							],
+							"cookie": [],
+							"body": "[\n    {\n        \"id\": 20,\n        \"item\": \"Som ambiente\"\n    }\n]"
+						}
+					]
+				},
+				{
+					"name": "lookupTables",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3001/api/modelosChassi",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"modelosChassi"
+							]
+						}
+					},
 					"response": []
 				},
 				{
-					"name": "EDITElements",
+					"name": "lookupTables",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3001/api/empresasLaudo",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"empresasLaudo"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "GETSeguradoras",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3001/api/seguradoras/14",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"seguradoras",
+								"14"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "addElement",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"table\": \"modelo_carroceria\",\r\n    \"requestElement\": {\r\n        \"marca_id\": 2,\r\n        \"modelo\": \"AAAAAARGH!\"        \r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:3001/api/addElement",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"addElement"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "editElement",
 					"request": {
 						"method": "PUT",
 						"header": [],
@@ -374,31 +587,6 @@
 							"path": [
 								"api",
 								"editElements"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "DB Update status",
-			"item": [
-				{
-					"name": "Update DB Status",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:3001/sync/forceDbUpdate",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3001",
-							"path": [
-								"sync",
-								"forceDbUpdate"
 							]
 						}
 					},
@@ -621,35 +809,6 @@
 					"response": []
 				},
 				{
-					"name": "ADDProcuradores_old",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"table\": \"procuradores\",\r\n    \"tablePK\": \"procurador_id\",\r\n    \"procuradores\": [\r\n        {\r\n            \"nome_procurador\": \"abc\",\r\n            \"cpf_procurador\": \"1234\",\r\n            \"tel_procurador\": \"5678\",\r\n            \"email_procurador\": \"a@b.c\"\r\n        },\r\n         {\r\n            \"nome_procurador\": \"def\",\r\n            \"cpf_procurador\": \"9874\",\r\n            \"tel_procurador\": \"31 987654321\"            \r\n        }\r\n    ],\r\n    \"empresas\": [\r\n        9060,\r\n        9030,\r\n        9029\r\n    ]\r\n}\r\n\r\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://localhost:3001/api/procuradores",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3001",
-							"path": [
-								"api",
-								"procuradores"
-							]
-						}
-					},
-					"response": []
-				},
-				{
 					"name": "EDITProcuradores",
 					"request": {
 						"method": "PUT",
@@ -673,32 +832,6 @@
 							"path": [
 								"api",
 								"procuradores"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Seguradoras",
-			"item": [
-				{
-					"name": "GETSeguradoras",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:3001/api/seguradoras/14",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3001",
-							"path": [
-								"api",
-								"seguradoras",
-								"14"
 							]
 						}
 					},
@@ -741,13 +874,13 @@
 					"response": []
 				},
 				{
-					"name": "EDITSeguros",
+					"name": "EDIT_MANY_Seguros",
 					"request": {
 						"method": "PUT",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"update\": {\r\n        \"id\": 173,\r\n        \"apolice\": \"1002899967\",\r\n        \"seguradora_id\": 2,\r\n        \"situacao\": \"Damn!\",\r\n        \"vencimento\": \"2022-12-31\"\r\n    },\r\n    \"vehicleIds\": [\r\n        3418        \r\n    ],\r\n    \"deletedVehicleIds\": [        \r\n        3419\r\n    ]\r\n}",
+							"raw": "[\r\n    {\r\n        \"id\": 83,\r\n        \"apolice\": \"28.82.0092919.12\",\r\n        \"vencimento\": \"2022-12-01T03:00:00.000Z\",\r\n        \"codigo_empresa\": 70025,\r\n        \"situacao\": \"Vencido\"\r\n    },\r\n    {\r\n        \"id\": 85,\r\n        \"apolice\": \"288200921912\",\r\n        \"vencimento\": \"2022-12-01T03:00:00.000Z\",\r\n        \"codigo_empresa\": 70025,\r\n        \"situacao\": \"Vencido\"\r\n    },\r\n    {\r\n        \"id\": 81,\r\n        \"apolice\": \"1002306086005\",\r\n        \"seguradora_id\": 3,\r\n        \"vencimento\": \"2022-12-11T03:00:00.000Z\",\r\n        \"codigo_empresa\": 70008,\r\n        \"situacao\": \"Vencido\"\r\n    },\r\n    {\r\n        \"id\": 80,\r\n        \"apolice\": \"1002306085997\",\r\n        \"seguradora_id\": 3,\r\n        \"vencimento\": \"2022-12-11T03:00:00.000Z\",\r\n        \"codigo_empresa\": 70008,\r\n        \"situacao\": \"Vencido\"\r\n    },\r\n    {\r\n        \"id\": 181,\r\n        \"apolice\": \"0982.598630\",\r\n        \"seguradora_id\": 6,\r\n        \"vencimento\": \"2022-12-24T03:00:00.000Z\",\r\n        \"codigo_empresa\": 9808,\r\n        \"situacao\": \"Vencido\"\r\n    },\r\n    {\r\n        \"id\": 49,\r\n        \"apolice\": \"1002800117833\",\r\n        \"seguradora_id\": 23,\r\n        \"vencimento\": \"2022-12-31T03:00:00.000Z\",\r\n        \"codigo_empresa\": 9349,\r\n        \"situacao\": \"Vencido\"\r\n    },\r\n    {\r\n        \"id\": 54,\r\n        \"apolice\": \"1002300057895\",\r\n        \"seguradora_id\": 23,\r\n        \"vencimento\": \"2022-12-31T03:00:00.000Z\",\r\n        \"codigo_empresa\": 9099,\r\n        \"situacao\": \"Vencido\"\r\n    },\r\n    {\r\n        \"id\": 91,\r\n        \"apolice\": \"1002806013247\",\r\n        \"seguradora_id\": 1,\r\n        \"vencimento\": \"2023-01-02T03:00:00.000Z\",\r\n        \"codigo_empresa\": 9351,\r\n        \"situacao\": \"Vencido\"\r\n    },\r\n    {\r\n        \"id\": 150,\r\n        \"apolice\": \"1002806013249\",\r\n        \"seguradora_id\": 1,\r\n        \"vencimento\": \"2023-01-02T03:00:00.000Z\",\r\n        \"codigo_empresa\": 9351,\r\n        \"situacao\": \"Vencido\"\r\n    },\r\n    {\r\n        \"id\": 154,\r\n        \"apolice\": \"1002306003797\",\r\n        \"seguradora_id\": 1,\r\n        \"vencimento\": \"2023-01-02T03:00:00.000Z\",\r\n        \"codigo_empresa\": 9351,\r\n        \"situacao\": \"Vencido\"\r\n    },\r\n    {\r\n        \"id\": 116,\r\n        \"apolice\": \"2002660\",\r\n        \"seguradora_id\": 8,\r\n        \"vencimento\": \"2023-01-05T03:00:00.000Z\",\r\n        \"codigo_empresa\": 5032,\r\n        \"situacao\": \"Vencido\"\r\n    },\r\n    {\r\n        \"id\": 162,\r\n        \"apolice\": \"1002300053977\",\r\n        \"seguradora_id\": 23,\r\n        \"vencimento\": \"2023-01-07T03:00:00.000Z\",\r\n        \"codigo_empresa\": 5418,\r\n        \"situacao\": \"Vencido\",\r\n        \"seguradora\": \"KOVR SEGURADORA S.A. (Investprev)\"\r\n    }\r\n]",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -770,13 +903,13 @@
 					"response": []
 				},
 				{
-					"name": "EDIT_MANY_Seguros",
+					"name": "EDITSeguros",
 					"request": {
 						"method": "PUT",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "[\r\n    {\r\n        \"id\": 83,\r\n        \"apolice\": \"28.82.0092919.12\",\r\n        \"vencimento\": \"2022-12-01T03:00:00.000Z\",\r\n        \"codigo_empresa\": 70025,\r\n        \"situacao\": \"Vencido\"\r\n    },\r\n    {\r\n        \"id\": 85,\r\n        \"apolice\": \"288200921912\",\r\n        \"vencimento\": \"2022-12-01T03:00:00.000Z\",\r\n        \"codigo_empresa\": 70025,\r\n        \"situacao\": \"Vencido\"\r\n    },\r\n    {\r\n        \"id\": 81,\r\n        \"apolice\": \"1002306086005\",\r\n        \"seguradora_id\": 3,\r\n        \"vencimento\": \"2022-12-11T03:00:00.000Z\",\r\n        \"codigo_empresa\": 70008,\r\n        \"situacao\": \"Vencido\"\r\n    },\r\n    {\r\n        \"id\": 80,\r\n        \"apolice\": \"1002306085997\",\r\n        \"seguradora_id\": 3,\r\n        \"vencimento\": \"2022-12-11T03:00:00.000Z\",\r\n        \"codigo_empresa\": 70008,\r\n        \"situacao\": \"Vencido\"\r\n    },\r\n    {\r\n        \"id\": 181,\r\n        \"apolice\": \"0982.598630\",\r\n        \"seguradora_id\": 6,\r\n        \"vencimento\": \"2022-12-24T03:00:00.000Z\",\r\n        \"codigo_empresa\": 9808,\r\n        \"situacao\": \"Vencido\"\r\n    },\r\n    {\r\n        \"id\": 49,\r\n        \"apolice\": \"1002800117833\",\r\n        \"seguradora_id\": 23,\r\n        \"vencimento\": \"2022-12-31T03:00:00.000Z\",\r\n        \"codigo_empresa\": 9349,\r\n        \"situacao\": \"Vencido\"\r\n    },\r\n    {\r\n        \"id\": 54,\r\n        \"apolice\": \"1002300057895\",\r\n        \"seguradora_id\": 23,\r\n        \"vencimento\": \"2022-12-31T03:00:00.000Z\",\r\n        \"codigo_empresa\": 9099,\r\n        \"situacao\": \"Vencido\"\r\n    },\r\n    {\r\n        \"id\": 91,\r\n        \"apolice\": \"1002806013247\",\r\n        \"seguradora_id\": 1,\r\n        \"vencimento\": \"2023-01-02T03:00:00.000Z\",\r\n        \"codigo_empresa\": 9351,\r\n        \"situacao\": \"Vencido\"\r\n    },\r\n    {\r\n        \"id\": 150,\r\n        \"apolice\": \"1002806013249\",\r\n        \"seguradora_id\": 1,\r\n        \"vencimento\": \"2023-01-02T03:00:00.000Z\",\r\n        \"codigo_empresa\": 9351,\r\n        \"situacao\": \"Vencido\"\r\n    },\r\n    {\r\n        \"id\": 154,\r\n        \"apolice\": \"1002306003797\",\r\n        \"seguradora_id\": 1,\r\n        \"vencimento\": \"2023-01-02T03:00:00.000Z\",\r\n        \"codigo_empresa\": 9351,\r\n        \"situacao\": \"Vencido\"\r\n    },\r\n    {\r\n        \"id\": 116,\r\n        \"apolice\": \"2002660\",\r\n        \"seguradora_id\": 8,\r\n        \"vencimento\": \"2023-01-05T03:00:00.000Z\",\r\n        \"codigo_empresa\": 5032,\r\n        \"situacao\": \"Vencido\"\r\n    },\r\n    {\r\n        \"id\": 162,\r\n        \"apolice\": \"1002300053977\",\r\n        \"seguradora_id\": 23,\r\n        \"vencimento\": \"2023-01-07T03:00:00.000Z\",\r\n        \"codigo_empresa\": 5418,\r\n        \"situacao\": \"Vencido\",\r\n        \"seguradora\": \"KOVR SEGURADORA S.A. (Investprev)\"\r\n    }\r\n]",
+							"raw": "{\r\n    \"update\": {\r\n        \"id\": 173,\r\n        \"apolice\": \"1002899967\",\r\n        \"seguradora_id\": 2,\r\n        \"situacao\": \"Damn!\",\r\n        \"vencimento\": \"2022-12-31\"\r\n    },\r\n    \"vehicleIds\": [\r\n        3418        \r\n    ],\r\n    \"deletedVehicleIds\": [        \r\n        3419\r\n    ]\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -834,7 +967,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"apolice\": \"99993\",\r\n    \"seguradora_id\": 3,\r\n    \"codigo_empresa\": 70008,\r\n    \"data_emissao\": \"2023-01-15\",\r\n    \"vencimento\": \"2023-01-12\",\r\n    \"situacao\": \"Vigente\",\r\n    \"veiculos\": []\r\n}",
+							"raw": "{\r\n    \"apolice\": \"99993\",\r\n    \"seguradora_id\": 3,\r\n    \"codigo_empresa\": 70008,\r\n    \"data_emissao\": \"2023-01-15\",\r\n    \"vencimento\": \"2023-01-12\",\r\n    \"situacao\": \"Vigente\",\r\n    \"veiculos\": [3290]\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -918,35 +1051,6 @@
 				},
 				{
 					"name": "EDITsocios",
-					"request": {
-						"method": "PUT",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"socios\": [  \r\n        {\r\n            \"socio_id\": 291,\r\n            \"cpf_socio\": \"011.772\",\r\n            \"nome_socio\": \"AAWhatupa\",\r\n            \"email_socio\": \"ze@whateverIsUp.com\",\r\n            \"tel_socio\": \"31 98801-5432\",\r\n            \"share\": 33,\r\n            \"empresas\": \"[{\\\"codigoEmpresa\\\": 9038}]\"\r\n        },\r\n        {\r\n            \"socio_id\": 297,\r\n            \"cpf_socio\": \"990011\",\r\n            \"nome_socio\": \"8BallZ\",\r\n            \"email_socio\": \"ball@pool.com\",\r\n            \"tel_socio\": \"31 98801-8888\",\r\n            \"share\": 33,\r\n            \"empresas\": \"[{\\\"codigoEmpresa\\\": 9038, \\\"share\\\": 44}]\"\r\n        }\r\n    ],\r\n    \"table\": \"socios\",\r\n    \"tablePK\": \"socio_id\",\r\n    \"codigoEmpresa\": 71024,\r\n    \"cpfsToAdd\": []\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://localhost:3001/api/socios",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3001",
-							"path": [
-								"api",
-								"socios"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "EDITsocios2",
 					"request": {
 						"method": "PUT",
 						"header": [],
@@ -1039,29 +1143,6 @@
 			"name": "Veiculos",
 			"item": [
 				{
-					"name": "getVeiculos",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "https://www.cadti.mg.gov.br/api/veiculos",
-							"protocol": "https",
-							"host": [
-								"www",
-								"cadti",
-								"mg",
-								"gov",
-								"br"
-							],
-							"path": [
-								"api",
-								"veiculos"
-							]
-						}
-					},
-					"response": []
-				},
-				{
 					"name": "getOneVehicle",
 					"request": {
 						"method": "GET",
@@ -1082,6 +1163,26 @@
 									"key": "veiculo_id",
 									"value": "48,49"
 								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getVeiculos",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:3001/api/veiculos",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"veiculos"
 							]
 						}
 					},
@@ -1245,27 +1346,6 @@
 									"key": "placa",
 									"value": "GLH-4313"
 								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "getVeiculosLocal",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:3001/api/veiculos/2156",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3001",
-							"path": [
-								"api",
-								"veiculos",
-								"2156"
 							]
 						}
 					},
@@ -1534,12 +1614,12 @@
 			"name": "General requests",
 			"item": [
 				{
-					"name": "LIST_Elements",
+					"name": "checkIfElementExists",
 					"request": {
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:3001/api/compartilhados",
+							"raw": "http://localhost:3001/api/checkIfExists?table=empresas&column=cnpj&value=03.308.232/0001-08",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -1547,19 +1627,69 @@
 							"port": "3001",
 							"path": [
 								"api",
-								"compartilhados"
+								"checkIfExists"
+							],
+							"query": [
+								{
+									"key": "table",
+									"value": "veiculos",
+									"disabled": true
+								},
+								{
+									"key": "column",
+									"value": "placa",
+									"disabled": true
+								},
+								{
+									"key": "value",
+									"value": "RNU-5A44",
+									"disabled": true
+								},
+								{
+									"key": "table",
+									"value": "empresas"
+								},
+								{
+									"key": "column",
+									"value": "cnpj"
+								},
+								{
+									"key": "value",
+									"value": "03.308.232/0001-08"
+								}
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "FIND_elements",
+					"name": "uploadEmpresaFiles",
 					"request": {
-						"method": "GET",
-						"header": [],
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "mengo",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "metadata",
+									"value": "{\n        \"fieldName\" : \"apoliceDoc\",\n        \"apolice\" : \"111\",\n        \"empresaId\" : 9066,\n        \"tempFile\" : false\n    }",
+									"type": "text"
+								},
+								{
+									"key": "files",
+									"type": "file",
+									"src": "/C:/Users/m1107819/Downloads/Débito empresas - 10_11_2022.xlsx"
+								}
+							]
+						},
 						"url": {
-							"raw": "http://localhost:3001/api/equipamentos/2,3",
+							"raw": "http://localhost:3001/api/empresaUpload",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -1567,15 +1697,95 @@
 							"port": "3001",
 							"path": [
 								"api",
-								"equipamentos",
-								"2,3"
+								"empresaUpload"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "DELETE_ANY",
+					"name": "uploadVehicleFiles",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "CRLV do Veículo",
+									"type": "file",
+									"src": "/C:/Users/m1107819/Downloads/tableDownload.csv"
+								},
+								{
+									"key": "Declaração de Responsabilidade",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "Certificado de Vistoria",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "Laudo de Pesagem",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "Nota Fiscal Carroceria",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "Nota Fiscal Chassi",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "Layout do Veículo",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "Contrato', name",
+									"value": "",
+									"type": "text"
+								},
+								{
+									"key": "Outros Anexos'",
+									"value": "",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:3001/api/vehicleUpload",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "3001",
+							"path": [
+								"api",
+								"vehicleUpload"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteAny",
 					"request": {
 						"method": "DELETE",
 						"header": [],
@@ -1662,216 +1872,6 @@
 									"value": "112",
 									"disabled": true
 								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "CHECK_IF_EXISTS",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "http://localhost:3001/api/checkIfExists?table=empresas&column=cnpj&value=03.308.232/0001-08",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3001",
-							"path": [
-								"api",
-								"checkIfExists"
-							],
-							"query": [
-								{
-									"key": "table",
-									"value": "veiculos",
-									"disabled": true
-								},
-								{
-									"key": "column",
-									"value": "placa",
-									"disabled": true
-								},
-								{
-									"key": "value",
-									"value": "RNU-5A44",
-									"disabled": true
-								},
-								{
-									"key": "table",
-									"value": "empresas"
-								},
-								{
-									"key": "column",
-									"value": "cnpj"
-								},
-								{
-									"key": "value",
-									"value": "03.308.232/0001-08"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "ADD_ELEMENT",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"table\": \"modelo_carroceria\",\r\n    \"requestElement\": {\r\n        \"marca_id\": 2,\r\n        \"modelo\": \"AAAAAARGH!\"        \r\n    }\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://localhost:3001/api/addElement",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3001",
-							"path": [
-								"api",
-								"addElement"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "ADD_ELEMENT Copy",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"table\": \"modelo_chassi\",\r\n    \"requestElement\": {\r\n        \"marca_id\": 2,\r\n        \"modelo_chassi\": \"AAAAAARGH!\",\r\n        \"cmt\": 10\r\n    }\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://localhost:3001/api/addElement",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3001",
-							"path": [
-								"api",
-								"addElement"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "VEHICLE_FILES",
-					"event": [
-						{
-							"listen": "test",
-							"script": {
-								"exec": [
-									""
-								],
-								"type": "text/javascript"
-							}
-						}
-					],
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "formdata",
-							"formdata": [
-								{
-									"key": "CRLV do Veículo",
-									"type": "file",
-									"src": "/C:/Users/m1107819/Downloads/tableDownload.csv"
-								},
-								{
-									"key": "Declaração de Responsabilidade",
-									"value": "",
-									"type": "text"
-								},
-								{
-									"key": "Certificado de Vistoria",
-									"value": "",
-									"type": "text"
-								},
-								{
-									"key": "Laudo de Pesagem",
-									"value": "",
-									"type": "text"
-								},
-								{
-									"key": "Nota Fiscal Carroceria",
-									"value": "",
-									"type": "text"
-								},
-								{
-									"key": "Nota Fiscal Chassi",
-									"value": "",
-									"type": "text"
-								},
-								{
-									"key": "Layout do Veículo",
-									"value": "",
-									"type": "text"
-								},
-								{
-									"key": "Contrato', name",
-									"value": "",
-									"type": "text"
-								},
-								{
-									"key": "Outros Anexos'",
-									"value": "",
-									"type": "text"
-								}
-							]
-						},
-						"url": {
-							"raw": "http://localhost:3001/api/cadSeguroMongo",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "3001",
-							"path": [
-								"api",
-								"cadSeguroMongo"
 							]
 						}
 					},

@@ -1,13 +1,16 @@
 const postmanToOpenApi = require('postman-to-openapi')
 
 const postmanCollection = './cadTI_api_v1.json'
-const outputFile = './collection.yml'
+const outputFile = './docsRaw_v2.yml'
 
-    ; (async function () {
-        try {
-            const result = await postmanToOpenApi(postmanCollection, outputFile, { defaultTag: 'General' })
-            console.log(`OpenAPI specs: ${typeof result}`)
-        } catch (err) {
-            console.log(err)
-        }
-    }())
+async function getOpenApiDocs(postmanCollection) {
+    try {
+        //const result = await postmanToOpenApi(postmanCollection, outputFile, { defaultTag: 'General' })
+        const result = await postmanToOpenApi(postmanCollection)
+        return result
+    } catch (err) {
+        console.log(err)
+    }
+}
+
+module.exports = { getOpenApiDocs }

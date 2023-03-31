@@ -1,9 +1,11 @@
 //@ts-check
 const { Router } = require("express")
 const { requireSeinfra } = require("../auth/checkPermissions")
+const { Repository } = require("../repositories/Repository")
 const { EmpresaController } = require("../controllers/EmpresaController")
 
-const empresaController = new EmpresaController()
+const empresaRepository = new Repository('empresas', 'codigo_empresa')
+const empresaController = new EmpresaController('', '', empresaRepository)
 
 /** @param {Router} router  */
 const empresaRoutes = router => {
