@@ -1,4 +1,5 @@
 //@ts-check
+const mongoose = require("mongoose")
 const
     alertModel = require("../../mongo/models/alertModel")
     , parametrosModel = require("../../mongo/models/parametrosModel/parametrosModel")
@@ -121,20 +122,12 @@ class AlertRepository {
     }
 
 
-    async saveUserAlert(req) {
-        const
-            //io = req.app.get('io')
-            //, { codigo_empresa, from, subject, vocativo, message } = req.body
-            //, alertObject = { codigo_empresa, from, subject, vocativo, message: JSON.stringify(message) }
-            { alertObject } = req.body
-            , alertDoc = new alertModel(alertObject)
-
-        try {
-            const result = await alertDoc.save()
-            return result
-        } catch (error) {
-            console.log(error)
-        }
+    async saveAlert(alert) {
+        const alertDoc = new alertModel(alert)
+        const result = await alertDoc.save()
+        console.log("🚀 ~ file: AlertRepository.js:131 ~ AlertRepository ~ saveAlert ~ result:", result)
+        console.log("🚀 ~ file: AlertRepository.js:128 ~ AlertRepository ~ saveAlert ~ alertDoc:", alertDoc)
+        return alertDoc
     }
 
     /**
@@ -142,13 +135,14 @@ class AlertRepository {
      * @param {Array<string>} ids
      */
     async deleteAlerts(ids) {
-        // @ts-ignore
-        alertModel.deleteMany({ _id: { $in: ids } }, (err, doc) => {
-            if (err)
-                console.log(err)
-            return doc
-        })
+        const mongoIds = ids.map(id => new mongoose.mongo.ObjectID(id))
+        const { deletedCount } = await alertModel.deleteMany({ _id: { $in: mongoIds } })
+        if (!deletedCount) {
+            return 'No alerts found with the given IDs...'
+        }
+        return `${deletedCount} entries (messages) removed from MongoDB...`
     }
 }
+
 
 module.exports = AlertRepository

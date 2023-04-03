@@ -48,7 +48,9 @@ const Avisos = props => {
     //Atualiza a prop allAreUnread do state para a correta renderização e modificação do status de múltiplas mensagens (read: true ou false)
     useEffect(() => {
         let avisos = [...originalAvisos]
+            .filter(({ id }) => !deletedMessages.includes(id))
             .sort((a, b) => new Date(b?.createdAt) - new Date(a?.createdAt)) //ordena por mais recente primeiro
+
         for (let a of avisos) {
             //Marca como lida o não lida dependendo do usuário logado
             if (Array.isArray(messagesRead) && messagesRead.includes(a.id))
@@ -147,9 +149,6 @@ const Avisos = props => {
 
         //Esse método não apaga o aviso, apenas armazena o id do aviso na prop deletedMessages do usuário
         axios.patch('/api/avisos/deleteUserMessages', { id: id || _id, cpf, deletedMessages: allDeletedMessages })
-        /*  axios.delete(`/api/avisos/`, { data: ids })
-             .then(r => console.log(r))
-             .catch(err => console.log(err)) */
 
         for (let id of ids) {
             props.deleteOne(id, 'id', 'avisos')
@@ -199,7 +198,7 @@ const Avisos = props => {
             from = 'Equipe técnica'
 
         const requestObject = { from, to, vocativo, subject, message: avisoText }
-        axios.post('/api/avisos/userAlerts/?type=saveAlert', requestObject)
+        axios.post('/api/avisos', requestObject)
             .then(r => console.log(r))
             .catch(err => console.log(err))
         setState({ ...state, writeNewAviso: false, toast: true, subject: undefined, avisoText: undefined })

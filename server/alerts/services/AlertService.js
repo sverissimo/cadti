@@ -20,13 +20,13 @@ class AlertService {
     dbQuery;
 
     /**Constructor
-     * @param {object} alertObject Objeto instanciado da de uma subclasse herdada da classe Alert.js
+     * @param {object} [alertObject] Objeto instanciado da de uma subclasse herdada da classe Alert.js
      */
     constructor(alertObject) {
         /**
          * @property {String} dbQuery - script de SQL para buscar as entradas no banco Postgresql
          */
-        this.dbQuery = alertObject.dbQuery
+        this.dbQuery = alertObject && alertObject.dbQuery
     }
 
     async getAllAlerts(user) {
@@ -123,27 +123,16 @@ class AlertService {
     }
 
     //Salva os avisos criados manualmente pelos usuários de role admin ou tecnico
-    async saveUserAlert(req) {
-        const
-            io = req.app.get('io')
-            , alertObject = new UserAlert(req.body)
-            , alertRepository = new AlertRepository()
-        if (alertObject.message)
+    async saveAlert(alert) {
+        try {
+            const alertObject = new UserAlert(alert)
             alertObject.message = JSON.stringify(alertObject.message)
+            const newAlert = await new AlertRepository().saveAlert(alertObject)
+            return newAlert
 
-        req.body.alertObject = alertObject
-        const newAlert = await alertRepository.saveUserAlert(req)
-        console.log("🚀 ~ file: AlertService.js ~ line 130 ~ AlertService ~ saveUserAlert ~ newAlert", newAlert)
-
-        io.sockets.emit('insertElements', { data: [newAlert], collection: 'avisos', })
-    }
-
-    saveAlert({ codigo_empresa, from, subject, vocativo, message }) {
-        const
-            alertObject = { codigo_empresa, from, subject, vocativo, message: JSON.stringify(message) }
-            , alertRepository = new AlertRepository()
-
-        alertRepository.save(alertObject)
+        } catch (err) {
+            throw new Error(err)
+        }
     }
 
     /**
