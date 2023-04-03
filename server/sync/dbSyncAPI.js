@@ -1,32 +1,27 @@
-const
-    express = require('express'),
-    router = express.Router(),
-    { pool } = require('../config/pgConfig'),
-    { BackupDB } = require('../database/BackupDB'),
-    getCompartilhadoId = require('./getCompartilhadoID'),
-    { accessParseDB, equipamentsParseDB } = require('./getEquip'),
-    forceDbUpdate = require('./forceDbUpdate'),
-    { oldVehicles } = require('./oldVehicles'),
-    sendMail = require('../mail/sendMail')
+//@ts-check
+const express = require('express')
+const router = express.Router()
+const { pool } = require('../config/pgConfig')
+const { BackupDB } = require('../database/BackupDB')
+const { requireAdmin } = require('../auth/checkPermissions')
+const getCompartilhadoId = require('./getCompartilhadoID')
+const { accessParseDB, equipamentsParseDB } = require('./getEquip')
+const forceDbUpdate = require('./forceDbUpdate')
+const { oldVehicles } = require('./oldVehicles')
+const sendMail = require('../mail/sendMail')
 
-
-router.post('/createTable', (req, res) => {
-    const
-        { query } = req.body
-        , backupDB = new BackupDB()
-
+router.post('/createTable', requireAdmin, (req, res) => {
+    const { query } = req.body
+    const backupDB = new BackupDB()
     backupDB.createSafetyBackup()
-    //console.log(query.substring(0, 150))
-
     pool.query(query).then(() => res.send('createTable alright'))
 })
 
-router.post('/updateTable', (req, res) => {
-    const
-        { sgti_data, table } = req.body,
-        keys = Object.keys(sgti_data[0])
+router.post('/updateTable', requireAdmin, (req, res) => {
+    const { sgti_data, table } = req.body
+    const keys = Object.keys(sgti_data[0])
 
-    values = ''
+    let values = ''
     sgti_data.forEach(d => {
         values += '('
         Object.values(d).forEach(v => {
@@ -57,9 +52,9 @@ router.post('/updateTable', (req, res) => {
     res.send(`${table} updated alright`)
 })
 
-router.get('/forceDbUpdate', forceDbUpdate)
+router.get('/forceDbUpdate', requireAdmin, forceDbUpdate)
 
-router.get('/createRestorePoint', (req, res) => {
+router.get('/createRestorePoint', requireAdmin, (req, res) => {
     const backupDB = new BackupDB()
     backupDB.createNewBackup()
     console.log('###### Postgresql: new restore point created.')
@@ -72,7 +67,7 @@ router.post('/notifyError', (req, res) => {
     res.send('wtv')
 })
 
-router.get('/restoreDB', (req, res) => {
+router.get('/restoreDB', requireAdmin, (req, res) => {
     console.log('req')
     try {
         const backupDB = new BackupDB()
@@ -94,9 +89,9 @@ async function getEquipaIds() {
         eqIds = equipamentsParseDB(veiculos.rows, equipamentos.rows),
         access = accessParseDB(veiculos.rows, acessibilidade.rows)
 
-    let equipQuery = ` 
-        UPDATE veiculos 
-        SET equipamentos_id = CASE veiculo_id 
+    let equipQuery = `
+        UPDATE veiculos
+        SET equipamentos_id = CASE veiculo_id
     `
     eqIds.forEach(({ v_id, ids }) => {
         ids = JSON.parse(ids)
@@ -106,9 +101,9 @@ async function getEquipaIds() {
     })
     equipQuery += 'END; '
 
-    let accessQuery = ` 
-        UPDATE veiculos 
-        SET acessibilidade_id = CASE veiculo_id      
+    let accessQuery = `
+        UPDATE veiculos
+        SET acessibilidade_id = CASE veiculo_id
     `
 
     access.forEach(({ v_id, ids }) => {
