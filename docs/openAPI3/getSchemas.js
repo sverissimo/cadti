@@ -1,9 +1,9 @@
 //@ts-check
-const fs = require('fs');
-const jsonSnippet = require('./postmanSwagger.json')
+const aboutDocs = require('./aboutDocs');
 
 function updateJson(json) {
-    json.info.version = '2.4.2'
+    json.info.description = aboutDocs
+    json.info.version = '3.1.2'
     // Loop through the paths
     for (const path in json.paths) {
         const methods = json.paths[path];
@@ -81,8 +81,10 @@ function getProperties(example) {
                 properties: getProperties(value)
             };
         } else {
+            const format = field.match(/vencimento|validade|created_at|updated_at/) ? 'date' : undefined
             properties[field] = {
-                type: dataType
+                type: dataType,
+                format
             };
         }
 
@@ -139,8 +141,5 @@ function getArrayDataType(array) {
     // If all elements are undefined, return string as the data type
     return 'string';
 }
-
-const updatedJson = updateJson(jsonSnippet);
-fs.writeFileSync('newTest_v12.json', JSON.stringify(updatedJson));
 
 module.exports = { updateJson };

@@ -1,0 +1,2250 @@
+openapi: 3.0.0
+info:
+  title: CadTI API
+  version: 3.1.2
+  description: >
+    ### Documentação do API do Sistema do Cadastro do Transporte Intermunicipal
+    de Minas Gerais.
+
+
+    #### Informações úteis:
+
+    * O acesso endpoints são protegidos por autenticação. Para ter acesso, ao
+    sistema, visite [https://www.cadti.mg.gov.br](https://www.cadti.mg.gov.br)
+
+
+    * Todos os métodos GET aceitam como request parameters o ID e como query
+    qualquer par chave-valor de cada entidade.
+
+
+    * O método DELETE é único para todas as entidades, passando como query a
+    entidade, a chave primária e o ID, mas é exclusivo de usuários com permissão
+    de administrador.
+
+
+    * Para ter acesso aos tipos de dados de cada endidade e a relação entre
+    elas, consulte a documentação em
+    [https://github.com/sverissimo/cadti](https://github.com/sverissimo/cadti)
+servers:
+  - url: http://localhost:3001
+tags:
+  - name: AltContrato
+  - name: Empresas
+  - name: Laudos
+  - name: Lookup tables
+    description: >-
+      As tabelas lookup são: modelosChassi, modeloCarroceria, carrocerias,
+      equipamentos, seguradoras, empresasLaudo e acessibilidade.
+
+
+      Para cada um dos métodos PUT e POST há um respectivo endpoint (addElement
+      e editElement) que abrange todas as entidades das tabelas lookup. Os
+      objetos passados como "request body" variam conforme a estrutura de cada
+      tabela (ver diagrama de entidades em docs).
+  - name: Procuracoes
+  - name: Procuradores
+  - name: Seguros
+  - name: Socios
+  - name: Veiculos
+  - name: General requests
+  - name: Parametros
+  - name: Users
+  - name: Avisos
+  - name: Solicitações
+    description: >-
+      A entidade "Solicitações" é schemaless, armazenada em banco NOSQL. A
+      estrutura de dados pode variar, especialmente os elementos da propriedade
+      "history".
+paths:
+  /api/altContrato:
+    get:
+      tags:
+        - AltContrato
+      summary: altContrato
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    codigoEmpresa:
+                      type: number
+                    numeroAlteracao:
+                      type: string
+                    numeroRegistro:
+                      type: string
+                    numeroSei:
+                      type: string
+                    dataJunta:
+                      type: string
+                    createdAt:
+                      type: string
+                    updatedAt:
+                      type: string
+                    __v:
+                      type: number
+                    id:
+                      type: string
+    post:
+      tags:
+        - AltContrato
+      summary: altContrato
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                codigoEmpresa:
+                  type: number
+                numeroAlteracao:
+                  type: string
+                numeroRegistro:
+                  type: string
+                numeroSei:
+                  type: string
+                numeroContrato:
+                  type: string
+                dataJunta:
+                  type: string
+                vencimentoContrato:
+                  type: string
+                  format: date
+                razaoSocial:
+                  type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/empresas:
+    get:
+      tags:
+        - Empresas
+      summary: getEmpresas
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    codigo_empresa:
+                      type: number
+                    razao_social:
+                      type: string
+                    situacao:
+                      type: string
+                    vencimento_contrato:
+                      type: string
+                      format: date
+                    cnpj:
+                      type: string
+                    inscricao_estadual:
+                      type: string
+                    numero_contrato:
+                      type: object
+                      properties: {}
+                    rua:
+                      type: string
+                    cidade:
+                      type: string
+                    uf:
+                      type: string
+                    telefone:
+                      type: string
+                    email:
+                      type: string
+                    numero:
+                      type: number
+                    complemento:
+                      type: object
+                      properties: {}
+                    bairro:
+                      type: string
+                    created_at:
+                      type: string
+                      format: date
+                    cep:
+                      type: string
+                    frota:
+                      type: number
+    post:
+      tags:
+        - Empresas
+      summary: saveEmpresasAndSocios
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                empresa:
+                  type: object
+                  properties:
+                    razao_social:
+                      type: string
+                    situacao:
+                      type: string
+                    cnpj:
+                      type: string
+                    rua:
+                      type: string
+                    cidade:
+                      type: string
+                    uf:
+                      type: string
+                    telefone:
+                      type: string
+                    email:
+                      type: string
+                    numero:
+                      type: number
+                    complemento:
+                      type: string
+                    bairro:
+                      type: object
+                      properties: {}
+                    cep:
+                      type: string
+                socios:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      nome_socio:
+                        type: string
+                      cpf_socio:
+                        type: string
+                      tel_socio:
+                        type: string
+                      email_socio:
+                        type: string
+                      share:
+                        type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    patch:
+      tags:
+        - Empresas
+      summary: editEmpresas
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                codigo_empresa:
+                  type: number
+                razao_social:
+                  type: string
+                vencimento_contrato:
+                  type: string
+                  format: date
+                numero_contrato:
+                  type: string
+                rua:
+                  type: string
+                cidade:
+                  type: string
+                uf:
+                  type: string
+                telefone:
+                  type: string
+                email:
+                  type: string
+                numero:
+                  type: number
+                complemento:
+                  type: object
+                  properties: {}
+                bairro:
+                  type: string
+                cep:
+                  type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/laudos:
+    get:
+      tags:
+        - Laudos
+      summary: getLaudos
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    validade:
+                      type: string
+                      format: date
+                    empresa_id:
+                      type: number
+                    codigo_empresa:
+                      type: number
+                    veiculo_id:
+                      type: number
+                    created_at:
+                      type: string
+                      format: date
+                    empresa_laudo:
+                      type: string
+                    razao_social:
+                      type: string
+                    placa:
+                      type: string
+    post:
+      tags:
+        - Laudos
+      summary: ADDLaudo
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                codigo_empresa:
+                  type: number
+                empresa_id:
+                  type: number
+                veiculo_id:
+                  type: number
+                validade:
+                  type: string
+                  format: date
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/seguros:
+    put:
+      tags:
+        - Seguros
+      summary: editSeguros
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                update:
+                  type: object
+                  properties:
+                    id:
+                      type: number
+                    apolice:
+                      type: string
+                    seguradora_id:
+                      type: number
+                    situacao:
+                      type: string
+                    vencimento:
+                      type: string
+                      format: date
+                vehicleIds:
+                  type: array
+                  items:
+                    type: number
+                deletedVehicleIds:
+                  type: array
+                  items:
+                    type: number
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    get:
+      tags:
+        - Seguros
+      summary: getSeguros
+      parameters:
+        - name: apolice
+          in: query
+          schema:
+            type: integer
+          example: '288200921912'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: number
+                    apolice:
+                      type: string
+                    seguradora_id:
+                      type: number
+                    data_emissao:
+                      type: string
+                    vencimento:
+                      type: string
+                      format: date
+                    codigo_empresa:
+                      type: number
+                    created_at:
+                      type: string
+                      format: date
+                    situacao:
+                      type: string
+                    seguradora:
+                      type: string
+                    veiculos:
+                      type: array
+                      items:
+                        type: number
+                    placas:
+                      type: array
+                      items:
+                        type: string
+                    empresa:
+                      type: string
+                    segurados:
+                      type: number
+    post:
+      tags:
+        - Seguros
+      summary: addSeguro
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                apolice:
+                  type: string
+                codigo_empresa:
+                  type: number
+                seguradora_id:
+                  type: number
+                data_emissao:
+                  type: string
+                vencimento:
+                  type: string
+                  format: date
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/delete:
+    delete:
+      tags:
+        - General requests
+      summary: deleteAny
+      description: >-
+        Esse método é reutilizável para diversas entidades do sistema. Acesso
+        restrito ao usuário administrador.
+      parameters:
+        - name: codigoEmpresa
+          in: query
+          schema:
+            type: integer
+          example: '9029'
+        - name: table
+          in: query
+          schema:
+            type: string
+          example: socios
+        - name: tablePK
+          in: query
+          schema:
+            type: string
+          example: socio_id
+        - name: id
+          in: query
+          schema:
+            type: integer
+          example: '313'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/acessibilidade:
+    get:
+      tags:
+        - Lookup tables
+      summary: acessibilidade
+      parameters:
+        - name: item
+          in: query
+          schema:
+            type: string
+          example: Elevador
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: number
+                    item:
+                      type: string
+  /api/equipamentos:
+    get:
+      tags:
+        - Lookup tables
+      summary: equipamentos
+      parameters:
+        - name: id
+          in: query
+          schema:
+            type: integer
+          example: '20'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: number
+                    item:
+                      type: string
+  /api/lookupTable/marca_carroceria:
+    get:
+      tags:
+        - Lookup tables
+      summary: marca_carroceria
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: number
+                    marca:
+                      type: string
+  /api/carrocerias:
+    get:
+      tags:
+        - Lookup tables
+      summary: carrocerias
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: number
+                    modelo:
+                      type: string
+                    marca:
+                      type: string
+  /api/lookupTable/marca_chassi:
+    get:
+      tags:
+        - Lookup tables
+      summary: marca_chassi
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: number
+                    marca:
+                      type: string
+  /api/modelosChassi:
+    get:
+      tags:
+        - Lookup tables
+      summary: modelosChassi
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: number
+                    marca_id:
+                      type: number
+                    modelo_chassi:
+                      type: string
+                    cmt:
+                      type: string
+                    marca:
+                      type: string
+  /api/empresasLaudo:
+    get:
+      tags:
+        - Lookup tables
+      summary: empresasLaudo
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: number
+                    empresa:
+                      type: string
+  /api/seguradoras:
+    get:
+      tags:
+        - Lookup tables
+      summary: seguradoras
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: number
+                    seguradora:
+                      type: string
+  /api/addElement:
+    post:
+      tags:
+        - Lookup tables
+      summary: addElement
+      description: >-
+        Esse endpoint brange todas as entidades das tabelas lookup. Os objetos
+        passados como "request body" variam conforme a estrutura de cada tabela
+        (vide schema nos GET requests da respectiva tabela).
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                table:
+                  type: string
+                requestElement:
+                  type: object
+                  properties:
+                    marca_id:
+                      type: number
+                    modelo:
+                      type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/editElements:
+    put:
+      tags:
+        - Lookup tables
+      summary: editElement
+      description: >-
+        Esse endpoint brange todas as entidades das tabelas lookup. Os objetos
+        passados como "request body" variam conforme a estrutura de cada tabela
+        (vide schema nos GET requests da respectiva tabela).
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                table:
+                  type: string
+                tablePK:
+                  type: string
+                id:
+                  type: number
+                item:
+                  type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/procuracoes/:
+    get:
+      tags:
+        - Procuracoes
+      summary: getProcuracoes
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    procuracao_id:
+                      type: number
+                    codigo_empresa:
+                      type: number
+                    status:
+                      type: string
+                    vencimento:
+                      type: object
+                      properties: {}
+                    procuradores:
+                      type: array
+                      items:
+                        type: number
+                    created_at:
+                      type: string
+                      format: date
+                    razao_social:
+                      type: object
+                      properties: {}
+  /api/procuracoes:
+    post:
+      tags:
+        - Procuracoes
+      summary: addProcuracoes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                codigo_empresa:
+                  type: number
+                status:
+                  type: string
+                vencimento:
+                  type: string
+                  format: date
+                procuradores:
+                  type: array
+                  items:
+                    type: number
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    delete:
+      tags:
+        - Procuracoes
+      summary: deleteProcuracao
+      description: >-
+        A entidade "Procuração" possui endpoint próprio com o método DELETE,
+        pois além de apagar o objeto, o API atualiza as tabelas de procuradores
+        e usuários, editando as propriedades dos procuradores e atualizando as
+        permissões de uso no sistema.
+      parameters:
+        - name: id
+          in: query
+          schema:
+            type: integer
+          example: '90'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/procuradores:
+    get:
+      tags:
+        - Procuradores
+      summary: getProcuradores
+      parameters:
+        - name: cpf_procurador
+          in: query
+          schema:
+            type: string
+          example: 045.045.546-74,546.471.429-49
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    post:
+      tags:
+        - Procuradores
+      summary: postProcuradores
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                procuradores:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      nome_procurador:
+                        type: string
+                      cpf_procurador:
+                        type: string
+                      tel_procurador:
+                        type: string
+                      email_procurador:
+                        type: string
+                      empresas:
+                        type: array
+                        items:
+                          type: number
+                codigoEmpresa:
+                  type: number
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/upcomingInsurances:
+    post:
+      tags:
+        - Seguros
+      summary: addUpcomingSeguro
+      description: >-
+        Esse endpoint permite salvar seguros com vigência futura. O seguro é
+        salvo no banco NoSQL e é automaticamente alimentado para o banco SQL na
+        data do início de sua vigência.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                apolice:
+                  type: string
+                seguradora_id:
+                  type: number
+                codigo_empresa:
+                  type: number
+                data_emissao:
+                  type: string
+                vencimento:
+                  type: string
+                  format: date
+                situacao:
+                  type: string
+                veiculos:
+                  type: array
+                  items:
+                    type: number
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/socios:
+    get:
+      tags:
+        - Socios
+      summary: getSocios
+      parameters:
+        - name: socio_id
+          in: query
+          schema:
+            type: string
+          example: 14,240
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    socio_id:
+                      type: number
+                    cpf_socio:
+                      type: string
+                    nome_socio:
+                      type: string
+                    codigo_empresa:
+                      type: number
+                    email_socio:
+                      type: object
+                      properties: {}
+                    tel_socio:
+                      type: object
+                      properties: {}
+                    share:
+                      type: object
+                      properties: {}
+                    empresas:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          codigoEmpresa:
+                            type: number
+                    created_at:
+                      type: string
+                      format: date
+    post:
+      tags:
+        - Socios
+      summary: addSocios
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                codigo_empresa:
+                  type: number
+                socios:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      cpf_socio:
+                        type: string
+                      nome_socio:
+                        type: string
+                      codigo_empresa:
+                        type: number
+                      email_socio:
+                        type: string
+                      tel_socio:
+                        type: string
+                      share:
+                        type: number
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    put:
+      tags:
+        - Socios
+      summary: editsocios
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                socios:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      socioId:
+                        type: number
+                      cpfSocio:
+                        type: string
+                      outsider:
+                        type: boolean
+                      share:
+                        type: number
+                      empresas:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            codigoEmpresa:
+                              type: number
+                            share:
+                              type: number
+                codigoEmpresa:
+                  type: number
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    delete:
+      tags:
+        - Socios
+      summary: deleteSocio
+      description: >-
+        A entidade "Sócios" possui endpoint próprio com o método DELETE, pois
+        além de apagar o objeto, o API atualiza as tabelas de sócios e usuários,
+        editando as propriedades dos sócios e atualizando as permissões de uso
+        no sistema.
+      parameters:
+        - name: id
+          in: query
+          schema:
+            type: integer
+          example: '90'
+        - name: codigoEmpresa
+          in: query
+          schema:
+            type: integer
+          example: '9029'
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/checkSocios:
+    post:
+      tags:
+        - Socios
+      summary: checkSocios
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                newCpfs:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/veiculos:
+    get:
+      tags:
+        - Veiculos
+      summary: getVeiculos
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    veiculo_id:
+                      type: number
+                    placa:
+                      type: string
+                    renavam:
+                      type: object
+                      properties: {}
+                    data_registro:
+                      type: string
+                    codigo_empresa:
+                      type: number
+                    situacao:
+                      type: string
+                    utilizacao:
+                      type: object
+                      properties: {}
+                    dominio:
+                      type: object
+                      properties: {}
+                    apolice:
+                      type: string
+                    cilindros:
+                      type: object
+                      properties: {}
+                    potencia:
+                      type: object
+                      properties: {}
+                    n_chassi:
+                      type: object
+                      properties: {}
+                    ano_chassi:
+                      type: object
+                      properties: {}
+                    valor_chassi:
+                      type: object
+                      properties: {}
+                    modelo_chassi_id:
+                      type: object
+                      properties: {}
+                    ano_carroceria:
+                      type: number
+                    valor_carroceria:
+                      type: object
+                      properties: {}
+                    modelo_carroceria_id:
+                      type: object
+                      properties: {}
+                    poltronas:
+                      type: object
+                      properties: {}
+                    piques_poltrona:
+                      type: object
+                      properties: {}
+                    distancia_minima:
+                      type: object
+                      properties: {}
+                    distancia_maxima:
+                      type: object
+                      properties: {}
+                    eixos:
+                      type: object
+                      properties: {}
+                    pneumaticos_dianteiro:
+                      type: object
+                      properties: {}
+                    pneumaticos_traseiro:
+                      type: object
+                      properties: {}
+                    peso_dianteiro:
+                      type: object
+                      properties: {}
+                    peso_traseiro:
+                      type: object
+                      properties: {}
+                    pbt:
+                      type: object
+                      properties: {}
+                    cores:
+                      type: object
+                      properties: {}
+                    compartilhado_id:
+                      type: object
+                      properties: {}
+                    equipamentos_id:
+                      type: object
+                      properties: {}
+                    acessibilidade_id:
+                      type: object
+                      properties: {}
+                    sipro:
+                      type: object
+                      properties: {}
+                    obs:
+                      type: object
+                      properties: {}
+                    indicador_idade:
+                      type: number
+                    marca_chassi:
+                      type: object
+                      properties: {}
+                    modelo_chassi:
+                      type: object
+                      properties: {}
+                    cmt:
+                      type: object
+                      properties: {}
+                    marca_carroceria:
+                      type: object
+                      properties: {}
+                    modelo_carroceria:
+                      type: object
+                      properties: {}
+                    empresa:
+                      type: string
+                    compartilhado:
+                      type: object
+                      properties: {}
+                    seguradora:
+                      type: string
+                    data_emissao:
+                      type: string
+                    vencimento:
+                      type: string
+                      format: date
+    post:
+      tags:
+        - Veiculos
+      summary: addVeiculo
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                placa:
+                  type: string
+                utilizacao:
+                  type: string
+                ano_chassi:
+                  type: string
+                ano_carroceria:
+                  type: string
+                dominio:
+                  type: string
+                cores:
+                  type: string
+                cilindros:
+                  type: string
+                potencia:
+                  type: string
+                eixos:
+                  type: string
+                pneumaticos_dianteiro:
+                  type: string
+                pneumaticos_traseiro:
+                  type: string
+                peso_dianteiro:
+                  type: string
+                peso_traseiro:
+                  type: string
+                poltronas:
+                  type: string
+                piques_poltrona:
+                  type: string
+                codigo_empresa:
+                  type: number
+                situacao:
+                  type: string
+                pbt:
+                  type: number
+                modelo_chassi_id:
+                  type: number
+                modelo_carroceria_id:
+                  type: number
+                equipamentos_id:
+                  type: array
+                  items:
+                    type: number
+                acessibilidade_id:
+                  type: array
+                  items:
+                    type: number
+                apolice:
+                  type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    put:
+      tags:
+        - Veiculos
+      summary: updateVeiculo
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                veiculo_id:
+                  type: number
+                utilizacao:
+                  type: string
+                dominio:
+                  type: string
+                cores:
+                  type: string
+                situacao:
+                  type: string
+                acessibilidade_id:
+                  type: array
+                  items:
+                    type: number
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/checkVehicleExistence:
+    get:
+      tags:
+        - Veiculos
+      summary: vehicleExists
+      parameters:
+        - name: placa
+          in: query
+          schema:
+            type: string
+          description: regular vehicle search
+          example: RNU-5A44
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  vehicleFound:
+                    type: object
+                    properties:
+                      veiculoId:
+                        type: number
+                      placa:
+                        type: string
+                      situacao:
+                        type: string
+                  status:
+                    type: string
+  /api/getOldVehicles:
+    get:
+      tags:
+        - Veiculos
+      summary: getOldVehicle
+      parameters:
+        - name: placa
+          in: query
+          schema:
+            type: string
+          example: GLH-4313
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    Número:
+                      type: string
+                    Placa:
+                      type: string
+                    RENAVAM:
+                      type: string
+                    Data de Registro:
+                      type: string
+                    Utilização:
+                      type: string
+                    Código:
+                      type: string
+                    Delegatário:
+                      type: string
+                    Leasing:
+                      type: string
+                    Seguradora:
+                      type: string
+                    Apólice:
+                      type: string
+                    Data Inicio:
+                      type: string
+                    Data Fim:
+                      type: string
+                    Empresa Laudo:
+                      type: string
+                    Número Laudo:
+                      type: string
+                    Validade Laudo:
+                      type: string
+                    Empresas autorizadas a compartilhar:
+                      type: string
+                    Poltronas:
+                      type: string
+                    Eixos:
+                      type: string
+                    PBT:
+                      type: string
+                    Marca chassi:
+                      type: string
+                    Modelo chassi:
+                      type: string
+                    Ano chassi:
+                      type: string
+                    Número chassi:
+                      type: string
+                    Valor Chassi:
+                      type: string
+                    Situação:
+                      type: string
+                    Data baixa:
+                      type: string
+                    Protocolo Nº:
+                      type: string
+                    Cilindros:
+                      type: string
+                    Potência:
+                      type: string
+                    Marca carroceria:
+                      type: string
+                    Modelo carroceria:
+                      type: string
+                    Ano carroceria:
+                      type: string
+                    Valor carroceria:
+                      type: string
+                    Piques Poltrona:
+                      type: string
+                    Peso Dianteiro:
+                      type: string
+                    Peso Traseiro:
+                      type: string
+                    Cores:
+                      type: string
+                    Equipamentos:
+                      type: string
+                    Nota Fiscal:
+                      type: string
+                    Data Nota Fiscal:
+                      type: string
+                    Motivo da Baixa:
+                      type: string
+                    Combustível:
+                      type: string
+                    Peso dos Passageiros e Bagagens:
+                      type: string
+                    Autenticação:
+                      type: string
+                    Data da Autenticação:
+                      type: string
+                    Observação:
+                      type: string
+                    Indicador de Idade:
+                      type: string
+                    Distância Mínima:
+                      type: string
+                    Distância Máxima:
+                      type: string
+                    __v:
+                      type: number
+                    id:
+                      type: string
+  /api/allVehicles:
+    get:
+      tags:
+        - Veiculos
+      summary: getAllVehicles
+      description: >-
+        Retorna todos os veíuculos utilizados por determinada empresa, inclusive
+        os que não as pertence mas são de uso compartilhado. Esse endpoint
+        retorna apenas informações básicas de cada veículo.
+      parameters:
+        - name: codigoEmpresa
+          in: query
+          schema:
+            type: integer
+          example: '9066'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    veiculo_id:
+                      type: number
+                    placa:
+                      type: string
+                    codigo_empresa:
+                      type: number
+                    empresa:
+                      type: string
+                    compartilhado:
+                      type: object
+                      properties: {}
+  /api/reactivateVehicle:
+    patch:
+      tags:
+        - Veiculos
+      summary: reactivateVehicle
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                placa:
+                  type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/baixaVeiculo:
+    patch:
+      tags:
+        - Veiculos
+      summary: baixaVeiculo
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                placa:
+                  type: string
+                Situação:
+                  type: string
+                Motivo da Baixa:
+                  type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/checkIfExists:
+    get:
+      tags:
+        - General requests
+      summary: checkIfElementExists
+      parameters:
+        - name: table
+          in: query
+          schema:
+            type: string
+          example: empresas
+        - name: column
+          in: query
+          schema:
+            type: string
+          example: cnpj
+        - name: value
+          in: query
+          schema:
+            type: string
+          example: 03.308.232/0001-08
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties: {}
+  /api/empresaUpload:
+    post:
+      tags:
+        - General requests
+      summary: uploadEmpresaFiles
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                metadata:
+                  type: string
+                  example: |-
+                    {
+                            "fieldName" : "apoliceDoc",
+                            "apolice" : "111",
+                            "empresaId" : 9066,
+                            "tempFile" : false
+                        }
+                files:
+                  type: string
+                  format: binary
+      parameters:
+        - name: Authorization
+          in: header
+          schema:
+            type: string
+          example: mengo
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/vehicleUpload:
+    post:
+      tags:
+        - General requests
+      summary: uploadVehicleFiles
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                CRLV do Veículo:
+                  type: string
+                  format: binary
+                Declaração de Responsabilidade:
+                  type: string
+                Certificado de Vistoria:
+                  type: string
+                Laudo de Pesagem:
+                  type: string
+                Nota Fiscal Carroceria:
+                  type: string
+                Nota Fiscal Chassi:
+                  type: string
+                Layout do Veículo:
+                  type: string
+                Contrato', name:
+                  type: string
+                Outros Anexos':
+                  type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/parametros:
+    get:
+      tags:
+        - Parametros
+      summary: getParamentros
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    distanciaPoltronas:
+                      type: object
+                      properties:
+                        comercial:
+                          type: number
+                        comercialExecutivo:
+                          type: number
+                        convencional:
+                          type: number
+                        convencionalExecutivo:
+                          type: number
+                        leito:
+                          type: number
+                        leitoExecutivo:
+                          type: number
+                        semiLeito:
+                          type: number
+                        semiLeitoExecutivo:
+                          type: number
+                    idadeBaixa:
+                      type: object
+                      properties:
+                        idadeMaxCad:
+                          type: number
+                        difIdade:
+                          type: number
+                        idadeBaixaAut:
+                          type: number
+                        diaBaixaAut:
+                          type: string
+                        prazoAvisoBaixa:
+                          type: number
+                    nomes:
+                      type: object
+                      properties:
+                        secretaria:
+                          type: string
+                        subsecretaria:
+                          type: string
+                        superintendencia:
+                          type: string
+                        diretoria:
+                          type: string
+                        sistema:
+                          type: string
+                        siglaSecretaria:
+                          type: string
+                        siglaSistema:
+                          type: string
+                    motivosBaixa:
+                      type: array
+                      items:
+                        type: string
+                    prazosAlerta:
+                      type: object
+                      properties:
+                        prazoAlertaLaudo:
+                          type: array
+                          items:
+                            type: number
+                        prazoAlertaProcuracao:
+                          type: array
+                          items:
+                            type: number
+                        prazoAlertaSeguro:
+                          type: array
+                          items:
+                            type: number
+                    adminEmails:
+                      type: array
+                      items:
+                        type: string
+                    inputValidation:
+                      type: boolean
+                    createdAt:
+                      type: string
+                    updatedAt:
+                      type: string
+                    __v:
+                      type: number
+                    id:
+                      type: string
+    patch:
+      tags:
+        - Parametros
+      summary: editParamentros
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                distanciaPoltronas:
+                  type: object
+                  properties:
+                    comercial:
+                      type: number
+                    comercialExecutivo:
+                      type: number
+                    convencional:
+                      type: number
+                    convencionalExecutivo:
+                      type: number
+                    leito:
+                      type: number
+                    leitoExecutivo:
+                      type: number
+                    semiLeito:
+                      type: number
+                    semiLeitoExecutivo:
+                      type: number
+                idadeBaixa:
+                  type: object
+                  properties:
+                    idadeMaxCad:
+                      type: number
+                    difIdade:
+                      type: number
+                    idadeBaixaAut:
+                      type: number
+                    diaBaixaAut:
+                      type: string
+                    prazoAvisoBaixa:
+                      type: number
+                nomes:
+                  type: object
+                  properties:
+                    secretaria:
+                      type: string
+                    subsecretaria:
+                      type: string
+                    superintendencia:
+                      type: string
+                    diretoria:
+                      type: string
+                    sistema:
+                      type: string
+                    siglaSecretaria:
+                      type: string
+                    siglaSistema:
+                      type: string
+                motivosBaixa:
+                  type: array
+                  items:
+                    type: string
+                prazosAlerta:
+                  type: object
+                  properties:
+                    prazoAlertaLaudo:
+                      type: array
+                      items:
+                        type: number
+                    prazoAlertaProcuracao:
+                      type: array
+                      items:
+                        type: number
+                    prazoAlertaSeguro:
+                      type: array
+                      items:
+                        type: number
+                adminEmails:
+                  type: array
+                  items:
+                    type: string
+                inputValidation:
+                  type: boolean
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/users/getUser:
+    get:
+      tags:
+        - Users
+      summary: getUser
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/users:
+    get:
+      tags:
+        - Users
+      summary: getUsers
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    verified:
+                      type: boolean
+                    empresas:
+                      type: array
+                      items:
+                        type: string
+                    messagesRead:
+                      type: array
+                      items:
+                        type: string
+                    deletedMessages:
+                      type: array
+                      items:
+                        type: string
+                    name:
+                      type: string
+                    cpf:
+                      type: string
+                    email:
+                      type: string
+                    role:
+                      type: string
+                    updatedAt:
+                      type: string
+                    id:
+                      type: string
+    post:
+      tags:
+        - Users
+      summary: addUsers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                cpf:
+                  type: string
+                email:
+                  type: string
+                role:
+                  type: string
+                empresas:
+                  type: array
+                  items:
+                    type: number
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    put:
+      tags:
+        - Users
+      summary: editUser
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                name:
+                  type: string
+                cpf:
+                  type: string
+                email:
+                  type: string
+                role:
+                  type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    delete:
+      tags:
+        - Users
+      summary: deleteUser
+      parameters:
+        - name: id
+          in: query
+          schema:
+            type: string
+          example: 638f46caeade3b32c00bbf59
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/avisos:
+    get:
+      tags:
+        - Avisos
+      summary: getAvisos
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    read:
+                      type: boolean
+                    codigo_empresa:
+                      type: number
+                    subject:
+                      type: string
+                    vocativo:
+                      type: string
+                    message:
+                      type: string
+                    createdAt:
+                      type: string
+                    updatedAt:
+                      type: string
+                    __v:
+                      type: number
+                    id:
+                      type: string
+    post:
+      tags:
+        - Avisos
+      summary: addAvisos
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                cpf:
+                  type: string
+                email:
+                  type: string
+                role:
+                  type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/avisos/changeReadStatus:
+    patch:
+      tags:
+        - Avisos
+      summary: changeReadStatus
+      description: >-
+        Altera o status da mensagem (lida / não lida) apenas para o usuário que
+        acionar o endpoint. O ID da mensagem é registrado (ou removido) na array
+        de mensagens lidas do usuário no banco NOSQL.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                cpf:
+                  type: string
+                messagesRead:
+                  type: array
+                  items:
+                    type: string
+                id:
+                  type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/avisos/deleteUserMessages:
+    patch:
+      tags:
+        - Avisos
+      summary: deleteUserMessages
+      description: >-
+        StartFragment
+
+
+        Esse endPoint não remove a mensagem do banco de dados. Apenas altera o
+        status da mensagem para "apagada" para o usuário que acionar o endpoint.
+        O ID da mensagem é registrado na array de mensagens apagadas do usuário
+        no banco NOSQL.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                cpf:
+                  type: string
+                messagesRead:
+                  type: array
+                  items:
+                    type: string
+                id:
+                  type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/avisos/642b396c91f92533e4fe1d03,642b393791f92533e4fe1cfc,642b379142d43b13cc3a5c1d:
+    delete:
+      tags:
+        - Avisos
+      summary: deleteAvisos
+      description: >-
+        Esse endPoint não é exposto no frontEnd, serve para o serviço
+        taskManager limpar definitivamente avisos entre determinados períodos de
+        tempo.
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+  /api/logs:
+    get:
+      tags:
+        - Solicitações
+      summary: getSolicitaoes
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    completed:
+                      type: boolean
+                    history:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          alteracoes:
+                            type: object
+                            properties:
+                              placa:
+                                type: string
+                              utilizacao:
+                                type: string
+                              dominio:
+                                type: string
+                              poltronas:
+                                type: string
+                              piquesPoltrona:
+                                type: number
+                              pesoDianteiro:
+                                type: string
+                              pesoTraseiro:
+                                type: string
+                              codigoEmpresa:
+                                type: number
+                              compartilhadoId:
+                                type: object
+                                properties: {}
+                              pbt:
+                                type: number
+                              equipamentosId:
+                                type: array
+                                items:
+                                  type: string
+                              acessibilidadeId:
+                                type: array
+                                items:
+                                  type: string
+                          user:
+                            type: string
+                          createdAt:
+                            type: string
+                          action:
+                            type: string
+                    empresaId:
+                      type: number
+                    veiculoId:
+                      type: number
+                    status:
+                      type: string
+                    subject:
+                      type: string
+                    createdAt:
+                      type: string
+                    updatedAt:
+                      type: string
+                    numero:
+                      type: number
+                    __v:
+                      type: number
+                    id:
+                      type: string
+    post:
+      tags:
+        - Solicitações
+      summary: addSolicitacoes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                collection:
+                  type: string
+                codigoEmpresa:
+                  type: number
+                log:
+                  type: object
+                  properties:
+                    completed:
+                      type: boolean
+                    history:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          newMembers:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                nomeProcurador:
+                                  type: string
+                                cpfProcurador:
+                                  type: string
+                                telProcurador:
+                                  type: string
+                                emailProcurador:
+                                  type: string
+                          oldMembers:
+                            type: array
+                            items:
+                              type: string
+                          expires:
+                            type: boolean
+                          user:
+                            type: string
+                          createdAt:
+                            type: string
+                          action:
+                            type: string
+                    status:
+                      type: string
+                    empresaId:
+                      type: number
+                    subject:
+                      type: string
+                    id:
+                      type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
+    patch:
+      tags:
+        - Solicitações
+      summary: editSolicitacoes
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                collection:
+                  type: string
+                codigoEmpresa:
+                  type: number
+                log:
+                  type: object
+                  properties:
+                    completed:
+                      type: boolean
+                    history:
+                      type: array
+                      items:
+                        type: object
+                        properties:
+                          newMembers:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                nomeProcurador:
+                                  type: string
+                                cpfProcurador:
+                                  type: string
+                                telProcurador:
+                                  type: string
+                                emailProcurador:
+                                  type: string
+                          oldMembers:
+                            type: array
+                            items:
+                              type: string
+                          expires:
+                            type: boolean
+                          user:
+                            type: string
+                          createdAt:
+                            type: string
+                          action:
+                            type: string
+                    status:
+                      type: string
+                    empresaId:
+                      type: number
+                    subject:
+                      type: string
+                    id:
+                      type: string
+      responses:
+        '200':
+          description: Successful response
+          content:
+            application/json: {}
