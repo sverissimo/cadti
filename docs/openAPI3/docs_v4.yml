@@ -22,7 +22,7 @@ info:
     de administrador.
 
 
-    * Para ter acesso aos tipos de dados de cada endidade e a relação entre
+    * Para ter acesso aos tipos de dados de cada entidade e a relação entre
     elas, consulte a documentação em
     [https://github.com/sverissimo/cadti](https://github.com/sverissimo/cadti)
 servers:
@@ -666,7 +666,7 @@ paths:
         - Lookup tables
       summary: addElement
       description: >-
-        Esse endpoint brange todas as entidades das tabelas lookup. Os objetos
+        Esse endpoint abrange todas as entidades das tabelas lookup. Os objetos
         passados como "request body" variam conforme a estrutura de cada tabela
         (vide schema nos GET requests da respectiva tabela).
       requestBody:
@@ -695,7 +695,7 @@ paths:
         - Lookup tables
       summary: editElement
       description: >-
-        Esse endpoint brange todas as entidades das tabelas lookup. Os objetos
+        Esse endpoint abrange todas as entidades das tabelas lookup. Os objetos
         passados como "request body" variam conforme a estrutura de cada tabela
         (vide schema nos GET requests da respectiva tabela).
       requestBody:
