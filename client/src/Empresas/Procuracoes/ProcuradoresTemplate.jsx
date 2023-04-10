@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react'
 import moment from 'moment'
 
-import SelectEmpresa from '../Reusable Components/SelectEmpresa'
+import SelectEmpresa from '../../Reusable Components/SelectEmpresa'
 import Button from '@material-ui/core/Button'
 import { makeStyles } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
@@ -14,14 +14,14 @@ import AddIcon from '@material-ui/icons/Add';
 import DeleteOutlinedIcon from '@material-ui/icons/DeleteOutlined';
 
 import Procurador from './Procurador'
-import DragAndDrop from '../Reusable Components/DragAndDrop'
-import { procuradorForm } from '../Forms/procuradorForm'
-import StepperButtons from '../Reusable Components/StepperButtons'
+import DragAndDrop from '../../Reusable Components/DragAndDrop'
+import { procuradorForm } from '../../Forms/procuradorForm'
+import StepperButtons from '../../Reusable Components/StepperButtons'
 
 import GetAppIcon from '@material-ui/icons/GetApp';
 import InsertDriveFileOutlinedIcon from '@material-ui/icons/InsertDriveFileOutlined';
-import ShowLocalFiles from '../Reusable Components/ShowLocalFiles'
-import { empresaFiles } from '../Forms/empresaFiles'
+import ShowLocalFiles from '../../Reusable Components/ShowLocalFiles'
+import { empresaFiles } from '../../Forms/empresaFiles'
 
 const divFiles = {
     textAlign: 'center',
@@ -65,13 +65,14 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
-export default function ({ redux, data, handleInput, addProc, removeProc, handleFiles, getFile, plusOne, minusOne, checkExpires, setShowPendencias, removeFile }) {
+export default function ({ redux, data, selectedEmpresa, handleInput, addProc, deleteProcuracao, handleFiles, getFile, plusOne, minusOne, checkExpires, setShowPendencias, removeFile }) {
 
     const
-        { dropDisplay, selectedEmpresa, procsToAdd, selectedDocs, procuracao, expires, demand, showPendencias, info, demandFiles, fileToRemove } = data,
+        { dropDisplay, procsToAdd, selectedDocs, procuracao, expires, demand, showPendencias, info, demandFiles, fileToRemove } = data,
         { empresas, procuradores } = redux,
 
         classes = useStyles(), { addButton, textField } = classes
+    console.log("🚀 ~ file: ProcuradoresTemplate.jsx:72 ~ selectedDocs:", selectedDocs)
 
     const errorHandler = (el, index) => {
 
@@ -325,7 +326,7 @@ export default function ({ redux, data, handleInput, addProc, removeProc, handle
                                     </span>
                                     <GetAppIcon style={icon} onClick={() => getFile(procuracao.procuracaoId)} />
                                 </span>
-                                <span style={{ ...divFiles, width: 90, backgroundColor: 'white', border: 0, position: 'absolute', right: 0, cursor: 'pointer' }} onClick={() => removeProc(procuracao)}>
+                                <span style={{ ...divFiles, width: 90, backgroundColor: 'white', border: 0, position: 'absolute', right: 0, cursor: 'pointer' }} onClick={() => deleteProcuracao(procuracao)}>
                                     <DeleteOutlinedIcon color='secondary' style={icon} />
                                     Apagar
                                 </span>
