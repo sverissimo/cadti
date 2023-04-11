@@ -25,7 +25,7 @@ const featuredPosts = [
     {
         title: 'Procurações',
         description: 'Cadastrar procurações e procuradores',
-        link: '/empresas/procuradores',
+        link: '/empresas/procuracoes',
         imageUrl: '/images/procuradores31.png'
     },
 ]

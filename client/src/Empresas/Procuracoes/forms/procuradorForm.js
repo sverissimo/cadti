@@ -1,4 +1,4 @@
-import { cpf, email, phone } from './commonFields'
+import { cpf, email, phone } from '../../../Forms/commonFields'
 
 export const procuradorForm = [{
     field: 'nomeProcurador',

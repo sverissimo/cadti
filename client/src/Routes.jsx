@@ -13,7 +13,7 @@ import Config from './Veiculos/Config'
 import Consultas from './Consultas/Consultas'
 import Empresas from './Empresas/EmpresasContainer'
 import EmpresasHome from './Empresas/EmpresasHome'
-import Procuradores from './Empresas/Procuradores'
+import { Procuracoes } from './Empresas/Procuracoes'
 import Socios from './Empresas/Socios'
 import Relatorios from './Relatorios/Relatorios'
 import Solicitacoes from './Solicitacoes/Solicitacoes'
@@ -43,7 +43,7 @@ const Routes = ({ user }) => {
             <Route path='/altContrato' exact component={AltContratoTemplate} />
             <Route path='/empresas/cadastro' component={Empresas} />
             <Route path='/empresas/socios' component={Socios} />
-            <Route path='/empresas/procuradores' component={Procuradores} />
+            <Route path='/empresas/procuracoes' component={Procuracoes} />
             <Route path='/relatorios' component={Relatorios} />
             <Route path='/crv' component={PdfTest} />
             <Route path='/solicitacoes' exact component={Solicitacoes} />
@@ -55,7 +55,7 @@ const Routes = ({ user }) => {
             <Route path='/solicitacoes/laudos' exact component={Laudos} />
             <Route path='/solicitacoes/altContrato' exact component={AltContratoTemplate} />
             <Route path='/solicitacoes/socios' exact component={Socios} />
-            <Route path='/solicitacoes/procuradores' exact component={Procuradores} />
+            <Route path='/solicitacoes/procuracoes' exact component={Procuracoes} />
             <Route path='/userAuth' exact component={UserAuth} />
             <Route path='/editAccount' exact component={EditAccount} />
             <Route path='/avisos' exact component={Avisos} />

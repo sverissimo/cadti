@@ -1,27 +1,22 @@
 import React, { Fragment } from 'react'
 import moment from 'moment'
 
-import SelectEmpresa from '../../Reusable Components/SelectEmpresa'
 import Button from '@material-ui/core/Button'
 import { makeStyles } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
 import Checkbox from '@material-ui/core/Checkbox'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
-
 import AddCircleOutlineSharpIcon from '@material-ui/icons/AddCircleOutlineSharp';
 import RemoveCircleOutlineIcon from '@material-ui/icons/RemoveCircleOutline';
 import AddIcon from '@material-ui/icons/Add';
 import DeleteOutlinedIcon from '@material-ui/icons/DeleteOutlined';
-
-import Procurador from './Procurador'
-import DragAndDrop from '../../Reusable Components/DragAndDrop'
-import { procuradorForm } from '../../Forms/procuradorForm'
-import StepperButtons from '../../Reusable Components/StepperButtons'
-
 import GetAppIcon from '@material-ui/icons/GetApp';
 import InsertDriveFileOutlinedIcon from '@material-ui/icons/InsertDriveFileOutlined';
-import ShowLocalFiles from '../../Reusable Components/ShowLocalFiles'
+
+import Procurador from './Procurador'
+import { procuradorForm } from './forms/procuradorForm'
 import { empresaFiles } from '../../Forms/empresaFiles'
+import { DragAndDrop, SelectEmpresa, ShowLocalFiles, StepperButtons } from '../../Reusable Components'
 
 const divFiles = {
     textAlign: 'center',
@@ -65,7 +60,7 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
-export default function ({ redux, data, selectedEmpresa, handleInput, addProc, deleteProcuracao, handleFiles, getFile, plusOne, minusOne, checkExpires, setShowPendencias, removeFile }) {
+export function ProcuracoesTemplate({ redux, data, selectedEmpresa, handleInput, addProc, deleteProcuracao, handleFiles, getFile, plusOne, minusOne, checkExpires, setShowPendencias, removeFile }) {
 
     const
         { dropDisplay, procsToAdd, selectedDocs, procuracao, expires, demand, showPendencias, info, demandFiles, fileToRemove } = data,

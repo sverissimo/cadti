@@ -1,6 +1,6 @@
 //@ts-check
 import altContratoTable from '../Forms/altContratoTable'
-import { procuracaoForm } from '../Forms/procuracaoForm'
+import { procuracaoForm } from '../Empresas/Procuracoes/forms/procuracaoForm'
 import { procuradorEmpresaTable as procTable } from '../Forms/procuradorEmpresaTable'
 import createFormPattern from "../Utils/createFormPattern"
 

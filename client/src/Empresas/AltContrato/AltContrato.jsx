@@ -4,9 +4,7 @@ import axios from 'axios'
 import { useAlertDialog, useInputErrorHandler, useManageSocios, useSelectEmpresa, useShareSum, useStepper } from './hooks'
 import { altContratoForm, altContratoFiles, sociosForm, dadosEmpresaForm } from './forms'
 import { createLog, createSociosUpdate, createUpdateObject, submitFiles } from './utils'
-import { logGenerator } from '../../Utils/logGenerator'
-import { handleFiles as globalHandleFiles, removeFile as globalRemoveFile } from '../../Utils/handleFiles'
-import valueParser from '../../Utils/valueParser'
+import { logGenerator, valueParser, globalHandleFiles, globalRemoveFile } from '../../Utils'
 
 const AltContrato = (props) => {
     const socios = useMemo(() => [...props.redux.socios], [props.redux.socios])

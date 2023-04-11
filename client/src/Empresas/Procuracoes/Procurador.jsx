@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { procuradorForm } from '../Forms/procuradorForm'
+import { procuradorForm } from './forms/procuradorForm'
 import Typography from '@material-ui/core/Typography'
 
 import { withStyles, makeStyles } from '@material-ui/core/styles';
@@ -96,7 +96,7 @@ export default function Procurador({ procuracao, procuradores }) {
                         {procuradorForm.map((s, i) => <StyledTableCell key={i}>{s.label}</StyledTableCell>)}
                     </StyledTableRow>
                 </TableHead>
-                { procArray.map((d, j) =>
+                {procArray.map((d, j) =>
                     d ?
                         <TableBody key={j}>
                             <TableRow>

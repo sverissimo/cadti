@@ -2,21 +2,14 @@ import React, { useState, useEffect } from 'react'
 import axios from 'axios'
 import humps from 'humps'
 
-import StoreHOC from '../Store/StoreHOC'
-//import { checkInputErrors } from '../Utils/checkInputErrors'
-import ProcuradoresTemplate from './ProcuradoresTemplate'
-import download from '../Utils/downloadFile'
-import { logGenerator } from '../Utils/logGenerator'
-import { setEmpresaDemand } from '../Utils/setEmpresaDemand'
-import { removeFile as globalRemoveFile, sizeExceedsLimit } from '../Utils/handleFiles'
-import valueParser from '../Utils/valueParser'
-import { procuradorForm } from '../Forms/procuradorForm'
-import AlertDialog from '../Reusable Components/AlertDialog'
-import Crumbs from '../Reusable Components/Crumbs'
-import ReactToast from '../Reusable Components/ReactToast'
-import { useSelectEmpresa } from './../hooks/useSelectEmpresa'
+import StoreHOC from '../../Store/StoreHOC'
+import { checkInputErrors, download, logGenerator, setEmpresaDemand, globalRemoveFile, sizeExceedsLimit, valueParser } from '../../Utils'
+import { AlertDialog, Crumbs, ReactToast } from '../../Reusable Components'
+import { ProcuracoesTemplate } from './ProcuracoesTemplate'
+import { useSelectEmpresa } from '../hooks/useSelectEmpresa'
+import { procuradorForm } from './forms/procuradorForm'
 
-const Procuradores = (props) => {
+const ProcuradoresContainer = (props) => {
 
     const [state, setState] = useState({
         empresas: [],
@@ -399,7 +392,7 @@ const Procuradores = (props) => {
     return (
         <React.Fragment>
             <Crumbs links={['Empresas', '/empresas']} text='Cadastro de procurações' demand={demand} />
-            <ProcuradoresTemplate
+            <ProcuracoesTemplate
                 data={state}
                 redux={props.redux}
                 selectedEmpresa={selectedEmpresa}
@@ -425,4 +418,5 @@ const Procuradores = (props) => {
 
 const collections = ['empresas', 'procuradores', 'procuracoes', 'getFiles/empresaDocs']
 
-export default (StoreHOC(collections, Procuradores))
+export const Procuracoes = (StoreHOC(collections, ProcuradoresContainer))
+

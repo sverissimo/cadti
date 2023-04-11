@@ -104,7 +104,7 @@ export const logRoutesConfig = [
     {
         subject: 'Cadastro de procurações/procuradores',
         collection,
-        path: '/solicitacoes/procuradores',
+        path: '/solicitacoes/procuracoes',
         docs: 'empresaDocs',
         primaryKey: 'empresaId',
         requestAction: 'Cadastro de procuração solicitado',

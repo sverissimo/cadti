@@ -1,0 +1,1 @@
+export { Procuracoes } from './Procuracoes'
