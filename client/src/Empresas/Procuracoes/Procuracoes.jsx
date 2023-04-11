@@ -8,8 +8,9 @@ import { AlertDialog, Crumbs, ReactToast } from '../../Reusable Components'
 import { ProcuracoesTemplate } from './ProcuracoesTemplate'
 import { useSelectEmpresa } from '../hooks/useSelectEmpresa'
 import { procuradorForm } from './forms/procuradorForm'
+import { useManageProcuradores } from './hooks/useManageProcuradores'
 
-const ProcuradoresContainer = (props) => {
+const ProcuracoesContainer = (props) => {
 
     const [state, setState] = useState({
         empresas: [],
@@ -38,7 +39,8 @@ const ProcuradoresContainer = (props) => {
     const { redux } = props
     const { empresas, procuracoes } = redux
     const demand = props?.location?.state?.demand
-    const { selectedEmpresa, selectEmpresa, setEmpresaFromDemand, prevSelectedEmpresa } = useSelectEmpresa(empresas, demand)
+    const { selectedEmpresa, selectEmpresa } = useSelectEmpresa(empresas, demand)
+    const { procuradores, setProcuradores, handleProcuradorChange, addProcurador, removeProcurador } = useManageProcuradores()
 
     useEffect(() => {
         if (demand) {
@@ -55,36 +57,20 @@ const ProcuradoresContainer = (props) => {
         if (demand?.history.length) {
             const originalProcuradores = JSON.parse(JSON.stringify(redux.procuradores))
             const demandState = setEmpresaDemand(demand, redux, originalProcuradores)
+
             const { latestDoc, ...updatedState } = demandState
             const { history } = demand
             const { vencimento, expires } = history[0]
             const newMembers = history[0].newMembers || []
             const oldMembers = history[0].oldMembers || []
+            const filteredProcuradores = [...newMembers, ...oldMembers]
+            //.sort((a, b) => a.nomeProcurador.toLowerCase() > b.nomeProcurador.toLowerCase() ? 1 : -1)
 
-            let allDemandProcs, procsToAdd = []
+            const selectedEmpresa = empresas.find(e => e.codigoEmpresa === demand.empresaId)
 
-            if (oldMembers[0]) {
-                oldMembers.forEach(m => {
-                    originalProcuradores.forEach(op => {
-                        Object.keys(op).forEach(key => {
-                            if (m?.procuradorId === op?.procuradorId && !m[key]) {
-                                m[key] = op[key]
-                            }
-                        })
-                    })
-                })
-            }
-
-            if (newMembers[0] || oldMembers[0]) {
-                allDemandProcs = newMembers.concat(oldMembers)
-                allDemandProcs.forEach((p, i) => {
-                    procsToAdd.push(i)
-                    procuradorForm.forEach(({ field }) => {
-                        setState({ ...state, [field + i]: p[field] })
-                    })
-                })
-            }
-            setState({ ...state, ...updatedState, vencimento, expires, procsToAdd, demandFiles: [latestDoc] })
+            selectEmpresa(selectedEmpresa.razaoSocial)
+            setProcuradores(filteredProcuradores)
+            setState({ ...state, ...updatedState, vencimento, expires, filteredProcuradores, ...filteredProcuradores, demandFiles: [latestDoc] })
         }
 
         document.addEventListener('keydown', escFunction, false)
@@ -95,42 +81,20 @@ const ProcuradoresContainer = (props) => {
         };
     }, [redux, empresas, redux.procuradores, procuracoes, demand])
 
-    const handleInput = async e => {
+    const handleInput = async (e, index) => {
+        e.preventDefault()
         const { name, value } = e.target
-        const procuradores = [...redux.procuradores]
-
         if (name === 'razaoSocial') {
             selectEmpresa(value)
+            return
         }
 
-        if (name.match('cpfProcurador')) {
-            const proc = procuradores.find(p => p.cpfProcurador === value)
-            if (proc) {
-                const index = name.charAt(name.length - 1)
-                let cpfExists
-                Object.keys(state).forEach(stateKey => {
-                    if (stateKey !== name && state[stateKey] === value) {
-                        alert('Este CPF já foi informado.')
-                        setState({ ...state, [name]: '' })
-                        cpfExists = true
-                    }
-                })
-
-                if (!cpfExists)
-                    procuradorForm.forEach(({ field }) => {
-                        const key = field + index
-                        setState({ ...state, [key]: proc[field] })
-                    })
-            }
-        }
-
-        const parsedValue = valueParser(name, value)
-        setState(s => ({ ...s, [name]: parsedValue }))
+        handleProcuradorChange(e, index)
     }
 
-    const addProc = async (approved) => {
+    const handleSubmit = async (approved) => {
         const
-            { selectedEmpresa, demand, procuracao, vencimento, expires, info } = state,
+            { demand, procuracao, vencimento, expires, info } = state,
             empresaId = selectedEmpresa.codigoEmpresa,
             nProc = [...state.procsToAdd]
         let
@@ -251,7 +215,7 @@ const ProcuradoresContainer = (props) => {
     }
 
     const approveProc = async (newMembers, oldMembers) => {
-        const { selectedEmpresa, demandFiles, vencimento, demand } = state
+        const { demandFiles, vencimento, demand } = state
         const { codigoEmpresa } = selectedEmpresa
         const procIdArray = oldMembers.map(m => m.procurador_id)
 
@@ -342,18 +306,6 @@ const ProcuradoresContainer = (props) => {
         }
     }
 
-    const plusOne = () => {
-        let i = [...state.procsToAdd]
-        i.push(1)
-        setState({ ...state, procsToAdd: i })
-    }
-
-    const minusOne = () => {
-        let i = [...state.procsToAdd]
-        i.pop()
-        setState({ ...state, procsToAdd: i })
-    }
-
     const checkExpires = () => {
         if (state.expires === true) {
             setState({ ...state, vencimento: '' })
@@ -396,13 +348,14 @@ const ProcuradoresContainer = (props) => {
                 data={state}
                 redux={props.redux}
                 selectedEmpresa={selectedEmpresa}
+                procuradoresEdit={procuradores}
                 handleInput={handleInput}
                 deleteProcuracao={deleteProcuracao}
                 handleFiles={handleFiles}
                 removeFile={removeFile}
-                addProc={addProc}
-                plusOne={plusOne}
-                minusOne={minusOne}
+                addProc={handleSubmit}
+                addProcurador={addProcurador}
+                removeProcurador={removeProcurador}
                 getFile={getFile}
                 checkExpires={checkExpires}
                 setShowPendencias={setShowPendencias}
@@ -418,5 +371,4 @@ const ProcuradoresContainer = (props) => {
 
 const collections = ['empresas', 'procuradores', 'procuracoes', 'getFiles/empresaDocs']
 
-export const Procuracoes = (StoreHOC(collections, ProcuradoresContainer))
-
+export const Procuracoes = (StoreHOC(collections, ProcuracoesContainer))

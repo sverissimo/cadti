@@ -60,18 +60,20 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
-export function ProcuracoesTemplate({ redux, data, selectedEmpresa, handleInput, addProc, deleteProcuracao, handleFiles, getFile, plusOne, minusOne, checkExpires, setShowPendencias, removeFile }) {
+export function ProcuracoesTemplate({ redux, data, selectedEmpresa, handleInput, procuradoresEdit, addProc, addProcurador, removeProcurador, deleteProcuracao, handleFiles, getFile, checkExpires, setShowPendencias, removeFile }) {
+    console.log("🚀 ~ file: ProcuracoesTemplate.jsx:64 ~ ProcuracoesTemplate ~ procuradoresEdit:", procuradoresEdit)
 
     const
-        { dropDisplay, procsToAdd, selectedDocs, procuracao, expires, demand, showPendencias, info, demandFiles, fileToRemove } = data,
+        { filteredProcuradores, dropDisplay, procsToAdd, selectedDocs, procuracao, expires, demand, showPendencias, info, demandFiles, fileToRemove } = data,
         { empresas, procuradores } = redux,
 
         classes = useStyles(), { addButton, textField } = classes
-    console.log("🚀 ~ file: ProcuradoresTemplate.jsx:72 ~ selectedDocs:", selectedDocs)
+
+    //console.log("🚀 ~ file: ProcuracoesTemplate.jsx:67 ~ ProcuracoesTemplate ~ procsToAdd:", { filteredProcuradores, procuradorForm })
 
     const errorHandler = (el, index) => {
 
-        const value = data[el.field + index]
+        const value = procuradoresEdit[index][el.field]
 
         if (el.errorHandler && el.errorHandler(value)) return false
         else if (value && el.errorHandler && !el.errorHandler(value)) return true
@@ -85,7 +87,7 @@ export function ProcuracoesTemplate({ redux, data, selectedEmpresa, handleInput,
     }
 
     const helper = (el, index) => {
-        const value = data[el.field + index]
+        const value = procuradoresEdit[index][el.field]
 
         if (el.errorHandler && el.errorHandler(value)) return '✓'
         else if (value && el.errorHandler && !el.errorHandler(value)) return '✘'
@@ -106,6 +108,11 @@ export function ProcuracoesTemplate({ redux, data, selectedEmpresa, handleInput,
         else return ''
     }
 
+    const fk = (pr, j, el) => {
+        console.log('fkkkk', pr[el.field])
+        return pr[el.field]
+    }
+
     //************CRIAR FUNÇÃO PARA IMPEDIR QUE O PROCURADOR QUE TENHA ALGUMA PROCURAÇÃO SEJA APAGADO NA TELA 'CONSULTAS' */
     return (
         <div className='flex'>
@@ -122,21 +129,21 @@ export function ProcuracoesTemplate({ redux, data, selectedEmpresa, handleInput,
                         <h6> Cadastrar nova procuração </h6>
                         <h4 style={{ fontWeight: 400, fontSize: '0.9em' }}> Se a procuração abranger mais de um procurador, clique em "+" para adicionar e anexe apenas 1 vez.</h4>
                     </div>
-                    {procsToAdd.map((p, j) =>
-                        <div className="flex" key={j} >
+                    {procuradoresEdit.map((pr, j) =>
+                        <div className="flex" key={j * 54} >
                             {procuradorForm.map((el, i) =>
-                                <Fragment key={i}>
+                                <Fragment key={i * 11}>
                                     <TextField
-                                        name={el.field + j}
+                                        name={el.field}
                                         label={el.label}
                                         margin='normal'
                                         className={textField}
-                                        onChange={e => handleInput(e)}
+                                        onChange={(e) => handleInput(e, j)}
                                         type={el.type || ''}
                                         error={errorHandler(el, j)}
                                         helperText={helper(el, j)}
                                         select={el.select || false}
-                                        value={data[el.field + j] || ''}
+                                        value={pr[el.field]}
                                         disabled={el.disabled || false}
                                         InputLabelProps={{
                                             className: textField,
@@ -148,7 +155,6 @@ export function ProcuracoesTemplate({ redux, data, selectedEmpresa, handleInput,
                                                 background: el.disabled && data.disable ? '#fff' : '#fafafa',
                                                 fontSize: '0.9rem', textAlign: 'center', color: '#000', width: el.width || 150, height: '7px'
                                             },
-                                            value: `${data[el.field + j] || ''}`,
                                             list: el.datalist || '',
                                             maxLength: el.maxLength || '',
                                             minLength: el.minLength || '',
@@ -160,10 +166,10 @@ export function ProcuracoesTemplate({ redux, data, selectedEmpresa, handleInput,
                                         fullWidth={el.fullWidth || false}
                                     >
                                     </TextField>
-                                    {j === procsToAdd.length - 1 && i === 3 &&
+                                    {j === procuradoresEdit.length - 1 && i === 3 &&
                                         <>
                                             <AddCircleOutlineSharpIcon
-                                                onClick={() => plusOne()}
+                                                onClick={() => addProcurador()}
                                                 style={{
                                                     verticalAlign: 'middle',
                                                     position: 'absolute',
@@ -176,7 +182,7 @@ export function ProcuracoesTemplate({ redux, data, selectedEmpresa, handleInput,
                                                 }}
                                             />
                                             {j > 0 && <RemoveCircleOutlineIcon
-                                                onClick={() => minusOne()}
+                                                onClick={() => removeProcurador()}
                                                 style={{
                                                     verticalAlign: 'middle',
                                                     position: 'absolute',

@@ -9,6 +9,7 @@ export async function logGenerator(obj) {
         userName = store.getState()?.user?.name || 'Usuário não identificado',
         codigoEmpresa = obj.empresaId
 
+    console.log("🚀 ~ file: logGenerator.js:9 ~ logGenerator ~ path:", { path, obj })
     let logRoutes = JSON.parse(JSON.stringify(logRoutesConfig))
     logRoutes.forEach((el, i) => el.path = logRoutesConfig[i].path.replace('/veiculos', '').replace('/solicitacoes', '').replace('/empresas', ''))
 
@@ -57,14 +58,14 @@ export async function logGenerator(obj) {
         }
     }
 
-    //**********************if log already exists, no need to inform veiculoId **********************    
+    //**********************if log already exists, no need to inform veiculoId **********************
     if (obj?.id && log.veiculoId) delete log.veiculoId
     delete log.historyLength
 
     //**********************If given by the component which called this function, overwrite logRoutesConfig*/
     if (!obj.id || obj.subject) log.subject = obj?.subject || logConfig?.subject
 
-    //*************************IF DECLINED, UPDATE LOG AND RETURN LOG*/    
+    //*************************IF DECLINED, UPDATE LOG AND RETURN LOG*/
     if (obj.declined) {
         log.history.action = 'Solicitação indeferida'
         log.status = 'Solicitação indeferida'
@@ -74,7 +75,7 @@ export async function logGenerator(obj) {
         return post
     }
 
-    //*************************CASO APROVADO, CONCLUI A SOLICITAÇÃO E ALTERA METADADOS DOS ARQUIVOS PARA TEMP:FALSE*/    
+    //*************************CASO APROVADO, CONCLUI A SOLICITAÇÃO E ALTERA METADADOS DOS ARQUIVOS PARA TEMP:FALSE*/
     if (obj.approved && !obj.declined) {
         log.history.action = logConfig?.concludedAction || 'Solicitação concluída'
         log.status = 'Solicitação concluída'
@@ -82,7 +83,7 @@ export async function logGenerator(obj) {
         updateFilesMetadata(obj, filesCollection)
     }
 
-    //********************** Upload files and get their Ids***********************/    
+    //********************** Upload files and get their Ids***********************/
     const filesIds = await postFilesReturnIds(obj?.history?.files, obj?.metadata, log?.completed, filesEndPoint)
 
     if (filesIds)

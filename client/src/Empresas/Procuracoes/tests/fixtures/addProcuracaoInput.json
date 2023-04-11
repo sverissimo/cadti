@@ -1,0 +1,33 @@
+{
+    "vencimento": "2025-10-24",
+    "codigoEmpresa": 9030,
+    "razaoSocial": "EMPRESA GONTIJO DE TRANSPORTES LIMITADA",
+    "procuradores": [
+        {
+            "nome_procurador": "abcZz",
+            "cpf_procurador": "1234",
+            "tel_procurador": "5678",
+            "email_procurador": "a@b.c",
+            "empresas": [
+                9030
+            ]
+        },
+        {
+            "nome_procurador": "defZz",
+            "cpf_procurador": "9874",
+            "tel_procurador": "31 987654321",
+            "empresas": [
+                9030
+            ]
+        },
+        {
+            "nome_procurador": "Wilson",
+            "cpf_procurador": "55",
+            "tel_procurador": "31 987654321",
+            "email_procurador": "ww@b.c",
+            "empresas": [
+                9030
+            ]
+        }
+    ]
+}

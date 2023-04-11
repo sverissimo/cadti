@@ -3,7 +3,7 @@ export const setEmpresaDemand = (demand, redux, socios) => {
     const { pathname } = document.location
     let associateKeys = { name: 'nomeSocio', id: 'socioId' }
 
-    if (pathname.match('procurador'))
+    if (pathname.match('procuracoes'))
         associateKeys = { name: 'nomeProcurador', id: 'procuradorId' }
 
     const
