@@ -1,37 +1,37 @@
 //@ts-check
-import { useEffect, useState } from 'react'
+import axios from 'axios'
+import { useState } from 'react'
 import { valueParser } from '../../../Utils'
 import { procuradorForm } from '../forms/procuradorForm'
 
-const createProcurador = () => procuradorForm.reduce((prev, curr) => ({ ...prev, [curr.field]: '' }), {})
-
+/**@returns {object} */
+const createProcurador = () => procuradorForm.reduce((prev, curr) => ({ ...prev, [curr.field]: undefined }), {})
 
 export const useManageProcuradores = () => {
 
     const [procuradores, setProcuradores] = useState([createProcurador()])
 
-    const setIndexedProcuradores = (procuradores) => {
-        const indexedProcuradores = procuradores.map((p, i) => {
-            const updatedProc = {}
-            for (const key in p) {
-                updatedProc[key + i] = p[key]
-            }
-            return updatedProc
-        })
-        return indexedProcuradores.sort((a, b) => a.nomeProcurador > b.nomeProcurador)
-    }
-
     const handleProcuradorChange = (event, index) => {
         const { name, value } = event.target
         const parsedValue = valueParser(name, value)
-        const f = [...procuradores]
-        f[index][name] = parsedValue
-        setProcuradores(f)
+        const updatedProcuradores = [...procuradores]
+        updatedProcuradores[index][name] = parsedValue
+        setProcuradores(updatedProcuradores)
     }
 
     const addProcurador = () => {
         const updatedProcuradores = [...procuradores, createProcurador()]
         setProcuradores(updatedProcuradores)
+    }
+
+    const setProcuradoresFromDemand = (demand) => {
+        const { empresaId, history } = demand
+        const newProcuradores = history[0]?.newMembers || []
+        const oldProcuradores = history[0]?.oldMembers || []
+
+        newProcuradores.forEach(member => member.empresas = [empresaId])
+        const parsedProcuradores = [...newProcuradores, ...oldProcuradores]
+        setProcuradores(parsedProcuradores)
     }
 
     const removeProcurador = () => {
@@ -40,32 +40,53 @@ export const useManageProcuradores = () => {
         setProcuradores(updatedProcuradores)
     }
 
-    const _checkCpf = (name, value) => {
-        /*  if (name.match('cpfProcurador')) {
-             const proc = procuradores.find(p => p.cpfProcurador === value)
-             if (proc) {
-                 const index = name.charAt(name.length - 1)
-                 let cpfExists
-                 Object.keys(state).forEach(stateKey => {
-                     if (stateKey !== name && state[stateKey] === value) {
-                         alert('Este CPF já foi informado.')
-                         setState({ ...state, [name]: '' })
-                         cpfExists = true
-                     }
-                 })
+    const checkCpf = async (event, index) => {
+        const updatedProcuradores = [...procuradores]
+        let { value } = event.target
 
-                 if (!cpfExists)
-                     procuradorForm.forEach(({ field }) => {
-                         const key = field + index
-                         setState({ ...state, [key]: proc[field] })
-                     })
-             }
-         }  */
+        if (!value) {
+            delete updatedProcuradores[index].procuradorId
+            setProcuradores(updatedProcuradores)
+            return
+        }
+
+        const cpfAlreadyListed = procuradores.filter(p => p.cpfProcurador === value).length > 1
+        if (cpfAlreadyListed) {
+            alert('O cpf inserido já consta na lista de procuradores.')
+            updatedProcuradores[index].cpfProcurador = ''
+            delete updatedProcuradores[index].procuradorId
+            setProcuradores(updatedProcuradores)
+            event.target.focus()
+            return
+        }
+
+        const { data: procurador } = await axios.get(`/api/procuradores/findByCpf/${value}`)
+        if (!procurador) {
+            delete updatedProcuradores[index].procuradorId
+            setProcuradores(updatedProcuradores)
+            return
+        }
+
+        if (procurador) {
+            const updatedProcuradores = [...procuradores]
+            updatedProcuradores[index] = procurador
+            setProcuradores(updatedProcuradores)
+        }
+
     }
 
-    return { procuradores, setProcuradores, handleProcuradorChange, addProcurador, removeProcurador }
+    const resetProcuradoresState = () => {
+        const clearedProcuradorForm = createProcurador()
+        setProcuradores([clearedProcuradorForm])
+    }
+
+    return {
+        procuradores,
+        handleProcuradorChange,
+        addProcurador,
+        checkCpf,
+        setProcuradoresFromDemand,
+        removeProcurador,
+        resetProcuradoresState
+    }
 }
-
-
-
-

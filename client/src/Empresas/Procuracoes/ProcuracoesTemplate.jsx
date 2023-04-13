@@ -60,19 +60,12 @@ const useStyles = makeStyles(theme => ({
     }
 }))
 
-export function ProcuracoesTemplate({ redux, data, selectedEmpresa, handleInput, procuradoresEdit, addProc, addProcurador, removeProcurador, deleteProcuracao, handleFiles, getFile, checkExpires, setShowPendencias, removeFile }) {
-    console.log("🚀 ~ file: ProcuracoesTemplate.jsx:64 ~ ProcuracoesTemplate ~ procuradoresEdit:", procuradoresEdit)
+export function ProcuracoesTemplate({ data, empresas, allProcuradores, selectedEmpresa, demand, handleInput, handleBlur, procuradoresEdit, addProc, addProcurador, removeProcurador, deleteProcuracao, handleFiles, getFile, checkExpires, setShowPendencias, removeFile }) {
 
-    const
-        { filteredProcuradores, dropDisplay, procsToAdd, selectedDocs, procuracao, expires, demand, showPendencias, info, demandFiles, fileToRemove } = data,
-        { empresas, procuradores } = redux,
-
-        classes = useStyles(), { addButton, textField } = classes
-
-    //console.log("🚀 ~ file: ProcuracoesTemplate.jsx:67 ~ ProcuracoesTemplate ~ procsToAdd:", { filteredProcuradores, procuradorForm })
+    const { dropDisplay, filteredProcuracoes, procuracao, expires, showPendencias, info, demandFiles, fileToRemove } = data
+    const classes = useStyles(), { addButton, textField } = classes
 
     const errorHandler = (el, index) => {
-
         const value = procuradoresEdit[index][el.field]
 
         if (el.errorHandler && el.errorHandler(value)) return false
@@ -103,14 +96,8 @@ export function ProcuracoesTemplate({ redux, data, selectedEmpresa, handleInput,
     }
 
     const handleDates = (date) => {
-
         if (date) return moment(date).format('DD-MM-YYYY')
         else return ''
-    }
-
-    const fk = (pr, j, el) => {
-        console.log('fkkkk', pr[el.field])
-        return pr[el.field]
     }
 
     //************CRIAR FUNÇÃO PARA IMPEDIR QUE O PROCURADOR QUE TENHA ALGUMA PROCURAÇÃO SEJA APAGADO NA TELA 'CONSULTAS' */
@@ -120,7 +107,8 @@ export function ProcuracoesTemplate({ redux, data, selectedEmpresa, handleInput,
                 <SelectEmpresa
                     data={data}
                     empresas={empresas}
-                    handleInput={handleInput}
+                    handleInput={e => handleInput(e, null)}
+                    demand={demand}
                 />
             </header>
             {selectedEmpresa &&
@@ -130,20 +118,21 @@ export function ProcuracoesTemplate({ redux, data, selectedEmpresa, handleInput,
                         <h4 style={{ fontWeight: 400, fontSize: '0.9em' }}> Se a procuração abranger mais de um procurador, clique em "+" para adicionar e anexe apenas 1 vez.</h4>
                     </div>
                     {procuradoresEdit.map((pr, j) =>
-                        <div className="flex" key={j * 54} >
+                        <div className="flex" key={j} >
                             {procuradorForm.map((el, i) =>
-                                <Fragment key={i * 11}>
+                                <Fragment key={i * 1.31}>
                                     <TextField
                                         name={el.field}
                                         label={el.label}
                                         margin='normal'
                                         className={textField}
                                         onChange={(e) => handleInput(e, j)}
-                                        type={el.type || ''}
+                                        onBlur={(e) => handleBlur(e, j)}
+                                        type={el.type || 'text'}
                                         error={errorHandler(el, j)}
                                         helperText={helper(el, j)}
                                         select={el.select || false}
-                                        value={pr[el.field]}
+                                        value={pr[el.field] || ''}
                                         disabled={el.disabled || false}
                                         InputLabelProps={{
                                             className: textField,
@@ -166,7 +155,7 @@ export function ProcuracoesTemplate({ redux, data, selectedEmpresa, handleInput,
                                         fullWidth={el.fullWidth || false}
                                     >
                                     </TextField>
-                                    {j === procuradoresEdit.length - 1 && i === 3 &&
+                                    {j === procuradoresEdit.length - 1 && i === 3 && !demand &&
                                         <>
                                             <AddCircleOutlineSharpIcon
                                                 onClick={() => addProcurador()}
@@ -295,18 +284,18 @@ export function ProcuracoesTemplate({ redux, data, selectedEmpresa, handleInput,
 
             <section className="flexColumn" style={{ width: '100%', paddingRight: '0' }}>
                 {
-                    selectedEmpresa && !selectedDocs[0] && !demand ?
+                    selectedEmpresa && !demand && (!filteredProcuracoes || !filteredProcuracoes[0]) ?
                         <div className="flex paper">
                             Nenhum procurador cadastrado para {selectedEmpresa.razaoSocial}
                         </div>
                         :
-                        selectedEmpresa && selectedDocs[0] &&
+                        selectedEmpresa && filteredProcuracoes[0] &&
                         <h2 style={{ margin: '25px 0 0 15px' }}>
                             Procurações cadastradas
                         </h2>
                 }
                 {
-                    selectedDocs.length > 0 && selectedDocs.map((procuracao, z) =>
+                    filteredProcuracoes?.length > 0 && filteredProcuracoes.map((procuracao, z) =>
                         <div key={z * 0.01} className='flexColumn paper' style={{ padding: '10px 15px 20px 15px' }}>
                             <h5>
                                 Procuração {
@@ -317,7 +306,7 @@ export function ProcuracoesTemplate({ redux, data, selectedEmpresa, handleInput,
                                 }
                             </h5>
 
-                            <Procurador procuradores={procuradores} procuracao={procuracao} />
+                            <Procurador allProcuradores={allProcuradores} procuracao={procuracao} />
 
                             <div className='flex center' style={{ position: 'relative' }}>
                                 <span style={divFiles}>

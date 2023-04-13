@@ -1,7 +1,7 @@
 //@ts-check
 import { useCallback } from 'react'
 import { useState, useEffect, useRef } from 'react'
-import { toInputDate } from '../../Utils/formatValues'
+import { toInputDate } from '../../Utils'
 
 export const useSelectEmpresa = (empresas, demand) => {
     /**@type object */

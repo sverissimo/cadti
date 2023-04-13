@@ -12,10 +12,10 @@ describe('Adding a new Socio for a existing Empresa', () => {
         cy.visit('/empresas/procuracoes')
         cy.get('.selectEmpresa').type(razaoSocial, { delay: 10 })
         procuradores.forEach((p, i) => {
-            cy.get(`input[name=nomeProcurador${i}]`).type(p.nome_procurador)
-            cy.get(`input[name=cpfProcurador${i}]`).type(p.cpf_procurador)
-            cy.get(`input[name=telProcurador${i}]`).type(p.tel_procurador)
-            p.email_procurador && cy.get(`input[name=emailProcurador${i}]:first`).type(p.email_procurador, { delay: 10 })
+            cy.get('input[name=nomeProcurador]').eq(i).type(p.nome_procurador)
+            cy.get('input[name=cpfProcurador]').eq(i).type(p.cpf_procurador)
+            cy.get('input[name=telProcurador]').eq(i).type(p.tel_procurador)
+            p.email_procurador && cy.get('input[name=emailProcurador]').eq(i).type(p.email_procurador, { delay: 10 })
             cy.get('div.flex > svg.MuiSvgIcon-root:first').click()
         })
 

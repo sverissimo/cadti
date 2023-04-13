@@ -13,6 +13,8 @@ const procuradorRoutes = router => {
         .post(procuradorController.saveMany)
         .put(procuradorController.updateMany)
         .delete(requireSeinfra, procuradorController.delete)
+
+    router.get('/procuradores/findByCpf/:cpfProcurador', procuradorController.findByCpf)
 }
 
 module.exports = { procuradorRoutes }

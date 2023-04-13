@@ -4,6 +4,7 @@ const { CustomSocket } = require("../sockets/CustomSocket");
 const ProcuradorRepository = require("../repositories/ProcuradorRepository");
 const { ProcuradorService } = require("../services/ProcuradorService");
 const { UserService } = require("../services/UserService");
+const humps = require("humps");
 
 class ProcuradorController extends Controller {
     table = 'procuradores'
@@ -21,6 +22,26 @@ class ProcuradorController extends Controller {
             res.send(procuradores)
         } catch (e) {
             next(e)
+        }
+    }
+
+    /**
+     * Recebe o cpf do procurador como req.params
+     * @returns {Promise<(object| undefined)>} procurador
+     */
+    findByCpf = async (req, res, next) => {
+        try {
+            const { cpfProcurador } = req.params
+            console.log("🚀 ~ file: ProcuradorController.js:35 ~ ProcuradorController ~ findByCpf= ~ cpfProcurador:", cpfProcurador)
+            const result = await this.repository.find({ cpf_procurador: cpfProcurador })
+            if (!result.length) {
+                return res.status(204).end()
+            }
+
+            const { created_at, ...procurador } = result[0]
+            return res.send(humps.camelizeKeys(procurador))
+        } catch (error) {
+            next(error)
         }
     }
 

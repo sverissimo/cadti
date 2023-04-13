@@ -1,15 +1,13 @@
 import React from 'react'
 
-import { procuradorForm } from './forms/procuradorForm'
-import Typography from '@material-ui/core/Typography'
-
-import { withStyles, makeStyles } from '@material-ui/core/styles';
-
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
 import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
+import Typography from '@material-ui/core/Typography'
+import { withStyles, makeStyles } from '@material-ui/core/styles';
+import { procuradorForm } from './forms/procuradorForm'
 
 const StyledTableCell = withStyles(theme => ({
     head: {
@@ -19,8 +17,7 @@ const StyledTableCell = withStyles(theme => ({
         fontSize: 14,
     },
     body: {
-        fontSize: 14,
-
+        fontSize: 14
     },
 }))(TableCell);
 
@@ -30,8 +27,7 @@ const StyledCell = withStyles(theme => ({
         color: '#00000',
     },
     body: {
-        fontSize: 13,
-
+        fontSize: 13
     },
 }))(TableCell);
 
@@ -73,46 +69,42 @@ const useStyles = makeStyles(theme => ({
 }))
 
 
-export default function Procurador({ procuracao, procuradores }) {
-
-    const classes = useStyles(),
-        { title, table } = classes
-
-    let procArray = []
-
-    procuracao.procuradores.forEach(id => {
-        const pro = procuradores.find(p => p.procuradorId === id)
-        procArray.push(pro)
-    })
+export default function Procurador({ procuracao, allProcuradores }) {
+    const classes = useStyles()
+    const { title, table } = classes
+    const procuradores = procuracao.procuradores.map(
+        procuradorId => allProcuradores.find(p => p.procuradorId === procuradorId)
+    )
 
     return (
-        <React.Fragment>
-            <div style={{ width: '100%', align: 'left' }}>
+        <>
+            <header style={{ width: '100%', align: 'left' }}>
                 <Typography className={title}> Procuradores cadastrados </Typography>
-            </div>
+            </header>
             <Table className={table}>
                 <TableHead>
                     <StyledTableRow>
                         {procuradorForm.map((s, i) => <StyledTableCell key={i}>{s.label}</StyledTableCell>)}
                     </StyledTableRow>
                 </TableHead>
-                {procArray.map((d, j) =>
-                    d ?
-                        <TableBody key={j}>
-                            <TableRow>
-                                {
-                                    procuradorForm.map((obj, l) =>
-                                        <StyledCell key={l}>
-                                            {d[obj.field]}
-                                        </StyledCell>
-                                    )
-                                }
-                            </TableRow>
-                        </TableBody>
-                        :
-                        null
-                )}
+                {
+                    procuradores.map((d, j) =>
+                        d ?
+                            <TableBody key={j}>
+                                <TableRow>
+                                    {
+                                        procuradorForm.map((obj, l) =>
+                                            <StyledCell key={l}>
+                                                {d[obj.field]}
+                                            </StyledCell>
+                                        )
+                                    }
+                                </TableRow>
+                            </TableBody>
+                            :
+                            null
+                    )}
             </Table>
-        </ React.Fragment>
+        </>
     )
 }
