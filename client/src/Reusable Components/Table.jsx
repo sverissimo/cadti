@@ -18,7 +18,7 @@ export default function StandardTable({ tableData, staticFields, title, tableSty
         }
         else return value
     }
-    console.log(tableData[0].numeroDae || undefined)
+
     const createButton = (action, index, files) => {
         const disable = !tableData[index]?.info ? true : false
         const dStyle = { cursor: 'default' }

@@ -104,7 +104,7 @@ class FileController {
 
         this.gfs.files.deleteOne({ _id: fileId }, (err, result) => {
             if (err) console.log(err)
-            if (result) console.log(result)
+            //if (result) console.log(result)
         })
 
         if (collection === 'empresaDocs') chunks = empresaChunks

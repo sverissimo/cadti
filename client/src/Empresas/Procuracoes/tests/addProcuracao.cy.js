@@ -2,6 +2,7 @@
 /// <reference types="cypress" />
 import addProcuracaoInput from './fixtures/addProcuracaoInput.json'
 const { razaoSocial, vencimento, procuradores } = addProcuracaoInput
+const filesFolder = './src/Empresas/Procuracoes/tests/fixtures'
 
 describe('Adding a new Socio for a existing Empresa', () => {
     beforeEach(() => {
@@ -18,9 +19,9 @@ describe('Adding a new Socio for a existing Empresa', () => {
             p.email_procurador && cy.get('input[name=emailProcurador]').eq(i).type(p.email_procurador, { delay: 10 })
             cy.get('div.flex > svg.MuiSvgIcon-root:first').click()
         })
-
         cy.get('input[type=checkbox]').click()
         cy.get('input[name=vencimento]').type(vencimento)
+        //cy.get('input[type=file]:first').selectFile(`${filesFolder}/addProcuracaoInput.json`, { force: true })
         cy.contains('Cadastrar procuração').click()
         //@ts-ignore
         //cy.approveDemand()

@@ -48,9 +48,10 @@ const ProcuracoesContainer = (props) => {
             const selectedEmpresa = empresas.find(e => e.codigoEmpresa === demand.empresaId)
             const { vencimento: vencimentoISODate, expires, files } = demand.history[0]
             const vencimento = toInputDate(vencimentoISODate)
+            const demandFiles = files && empresaDocs.filter(f => f.id === files[0])
             selectEmpresa(selectedEmpresa.razaoSocial)
             setProcuradoresFromDemand(demand)
-            setState(state => ({ ...state, vencimento, expires, demandFiles: files }))
+            setState(state => ({ ...state, vencimento, expires, demandFiles }))
         }
 
         return () => setState(initialState)
@@ -59,12 +60,14 @@ const ProcuracoesContainer = (props) => {
 
     const handleInput = async (e, index) => {
         const { name, value } = e.target
+        const procuradorKeys = Object.keys(procuradores[0])
+
         if (name === 'razaoSocial') {
             selectEmpresa(value)
             setState(s => ({ ...s, [name]: value }))
             return
         }
-        if (name !== 'vencimento') {
+        if (procuradorKeys.includes(name)) {
             handleProcuradorChange(e, index)
             return
         }
@@ -84,7 +87,7 @@ const ProcuracoesContainer = (props) => {
             return
         }
 
-        const { procuracao, vencimento, expires, info, demandFiles } = state
+        const { procuracao, vencimento, expires, info } = state
         const empresaId = selectedEmpresa.codigoEmpresa
         const oldMembers = procuradores.filter(p => !!p.procuradorId)
         const newMembers = procuradores.filter(
@@ -108,13 +111,12 @@ const ProcuracoesContainer = (props) => {
                     empresaId,
                 },
             }
-            if (!demandFiles) delete log.metadata
+            if (!procuracao) delete log.metadata
             Object.entries(log).forEach(([k, v]) => { if (!v) delete log[k] })
             log.approved = approved
             log.historyLength = 0
 
-            logGenerator(log)
-                .then(r => console.log(r))
+            await logGenerator(log).catch(e => console.log(e))
 
             setState({ ...state, toastMsg: 'Solicitação de cadastro enviada', confirmToast: true })
             setTimeout(() => { resetState() }, 1500);
@@ -129,9 +131,9 @@ const ProcuracoesContainer = (props) => {
                 },
                 declined: true
             }
-            logGenerator(log)
-                .then(r => console.log(r))
-            setState({ ...state, toastMsg: 'Solicitação indeferida!', confirmToast: true })
+
+            await logGenerator(log).catch(e => console.log(e))
+            setState({ ...state, toastMsg: 'Solicitação indeferida!', confirmToast: true, status: 'warning' })
             setTimeout(() => {
                 props.history.push('/solicitacoes')
             }, 1500);
@@ -139,13 +141,15 @@ const ProcuracoesContainer = (props) => {
 
         if (approved === true) {
             approveProc(newMembers, oldMembers)
+            toast()
+            setTimeout(() => { props.history.push('/solicitacoes') }, 1500)
         }
     }
 
     const approveProc = async (newMembers, oldMembers) => {
         const { demandFiles, vencimento } = state
         const { codigoEmpresa } = selectedEmpresa
-        const procuradoresIDs = oldMembers.map(m => m.procurador_id)
+        const procuradoresIDs = oldMembers.map(m => m.procuradorId)
 
         if (newMembers.length > 0) {
             newMembers.forEach(m => m.empresas = [codigoEmpresa])
@@ -164,7 +168,7 @@ const ProcuracoesContainer = (props) => {
             procuradores: procuradoresIDs
         }
 
-        const procuracaoId = await axios.post('/api/procuracoes', novaProcuracao)
+        const { data: procuracaoId } = await axios.post('/api/procuracoes', novaProcuracao)
         const log = {
             id: demand.id,
             demandFiles,
@@ -181,12 +185,7 @@ const ProcuracoesContainer = (props) => {
             }
         }
 
-        logGenerator(log).then(r => console.log(r))
-        if (!demandFiles) delete log.metadata
-
-        toast()
-        resetState()
-        setTimeout(() => { props.history.push('/solicitacoes') }, 1500)
+        await logGenerator(log).catch(e => console.log(e))
     }
 
     const deleteProcuracao = async proc => {
@@ -211,28 +210,28 @@ const ProcuracoesContainer = (props) => {
     }
 
     const removeFile = async (name) => {
-        const
-            { procuracao } = state,
-            newState = globalRemoveFile(name, procuracao)
-
+        const { procuracao } = state
+        const newState = globalRemoveFile(name, procuracao)
         setState({ ...state, ...newState })
     }
 
     const getFile = id => {
         const selectedFile = empresaDocs.find(f => Number(f.metadata.procuracaoId) === id)
-        if (selectedFile) {
-            const { id, filename } = selectedFile
-            download(id, filename, 'empresaDocs')
-        } else {
+        if (!selectedFile) {
             setState({ ...state, alertType: 'filesNotFound', openAlertDialog: true })
+            return
         }
+
+        const { id, filename } = selectedFile
+        download(id, filename, 'empresaDocs')
     }
 
     const checkExpires = () => {
+        let vencimento
         if (state.expires === true) {
-            setState({ ...state, vencimento: '' })
+            vencimento = ''
         }
-        setState({ ...state, expires: !state.expires })
+        setState({ ...state, vencimento, expires: !state.expires })
     }
 
     const resetState = () => {
@@ -272,7 +271,7 @@ const ProcuracoesContainer = (props) => {
                 checkExpires={checkExpires}
                 setShowPendencias={setShowPendencias}
             />
-            <ReactToast open={state.confirmToast} close={toast} msg={state.toastMsg} />
+            <ReactToast open={state.confirmToast} close={toast} msg={state.toastMsg} status={state.status} />
             {
                 openAlertDialog &&
                 <AlertDialog open={openAlertDialog} close={closeAlert} alertType={alertType} customMessage={state.customMsg} />
