@@ -21,9 +21,9 @@ describe('Adding a new Socio for a existing Empresa', () => {
         })
         cy.get('input[type=checkbox]').click()
         cy.get('input[name=vencimento]').type(vencimento)
-        //cy.get('input[type=file]:first').selectFile(`${filesFolder}/addProcuracaoInput.json`, { force: true })
+        cy.get('input[type=file]:first').selectFile(`${filesFolder}/addProcuracaoInput.json`, { force: true })
         cy.contains('Cadastrar procuração').click()
         //@ts-ignore
-        //cy.approveDemand()
+        cy.approveDemand()
     })
 })

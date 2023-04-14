@@ -4,7 +4,7 @@ import humps from 'humps'
 
 import StoreHOC from '../../Store/StoreHOC'
 import { download, logGenerator, globalRemoveFile, sizeExceedsLimit, toInputDate } from '../../Utils'
-import { AlertDialog, Crumbs, ReactToast } from '../../Reusable Components'
+import { } from '../../Reusable Components'
 import { ProcuracoesTemplate } from './ProcuracoesTemplate'
 import { useSelectEmpresa } from '../hooks/useSelectEmpresa'
 import { useManageProcuradores } from './hooks/useManageProcuradores'
@@ -23,7 +23,8 @@ const initialState = {
 const ProcuracoesContainer = (props) => {
     const [state, setState] = useState(initialState)
 
-    const { empresas, procuracoes, empresaDocs, inputValidation, procuradores: allProcuradores } = props.redux
+    const { empresas, procuracoes, empresaDocs, parametros, procuradores: allProcuradores } = props.redux
+    const { inputValidation } = parametros[0]
     const demand = props?.location?.state?.demand
     const { selectedEmpresa, selectEmpresa } = useSelectEmpresa(empresas, demand)
     const { procuradores, handleProcuradorChange, addProcurador, checkCpf, setProcuradoresFromDemand, removeProcurador, resetProcuradoresState } = useManageProcuradores()
@@ -91,8 +92,7 @@ const ProcuracoesContainer = (props) => {
         const empresaId = selectedEmpresa.codigoEmpresa
         const oldMembers = procuradores.filter(p => !!p.procuradorId)
         const newMembers = procuradores.filter(
-            p => !p.procuradorId
-                && !Object.keys(p).every(key => !p[key])
+            p => !p.procuradorId && !Object.keys(p).every(key => !p[key])
         )
 
         if (approved === undefined) {
@@ -111,39 +111,35 @@ const ProcuracoesContainer = (props) => {
                     empresaId,
                 },
             }
-            if (!procuracao) delete log.metadata
+
             Object.entries(log).forEach(([k, v]) => { if (!v) delete log[k] })
-            log.approved = approved
-            log.historyLength = 0
+            Object.assign(log, { approved, historyLength: 0 })
 
             await logGenerator(log).catch(e => console.log(e))
 
             setState({ ...state, toastMsg: 'Solicitação de cadastro enviada', confirmToast: true })
-            setTimeout(() => { resetState() }, 1500);
+            setTimeout(() => { resetState() }, 1500)
+            return
         }
 
         if (approved === false) {
             const log = {
                 id: demand.id,
                 empresaId,
-                history: {
-                    info
-                },
+                history: { info },
                 declined: true
             }
 
             await logGenerator(log).catch(e => console.log(e))
             setState({ ...state, toastMsg: 'Solicitação indeferida!', confirmToast: true, status: 'warning' })
-            setTimeout(() => {
-                props.history.push('/solicitacoes')
-            }, 1500);
         }
 
         if (approved === true) {
             approveProc(newMembers, oldMembers)
             toast()
-            setTimeout(() => { props.history.push('/solicitacoes') }, 1500)
         }
+
+        setTimeout(() => { props.history.push('/solicitacoes') }, 1500)
     }
 
     const approveProc = async (newMembers, oldMembers) => {
@@ -188,15 +184,15 @@ const ProcuracoesContainer = (props) => {
         await logGenerator(log).catch(e => console.log(e))
     }
 
-    const deleteProcuracao = async proc => {
-        const id = proc.procuracaoId
-        const selectedFile = empresaDocs.find(f => Number(f.metadata.procuracaoId) === id)
+    const deleteProcuracao = async procuracao => {
+        const { procuracaoId } = procuracao
+        const selectedFile = empresaDocs.find(f => Number(f.metadata.procuracaoId) === procuracaoId)
 
-        await axios.delete(`/api/procuracoes?id=${id}`)
+        await axios.delete(`/api/procuracoes?id=${procuracaoId}`)
 
-        if (selectedFile && selectedFile.hasOwnProperty('id')) {
+        if (selectedFile?.id) {
             axios.delete(`/api/deleteFile?collection=empresaDocs&id=${selectedFile.id}`)
-                .then(({ data }) => console.log(data))
+                .catch(e => console.log(e))
         }
     }
 
@@ -222,8 +218,8 @@ const ProcuracoesContainer = (props) => {
             return
         }
 
-        const { id, filename } = selectedFile
-        download(id, filename, 'empresaDocs')
+        const { id: fileId, filename } = selectedFile
+        download(fileId, filename, 'empresaDocs')
     }
 
     const checkExpires = () => {
@@ -248,35 +244,29 @@ const ProcuracoesContainer = (props) => {
     const setShowPendencias = () => setState({ ...state, showPendencias: !state.showPendencias })
     const closeAlert = () => setState({ ...state, openAlertDialog: !state.openAlertDialog })
     const toast = () => setState({ ...state, confirmToast: !state.confirmToast })
-    const { openAlertDialog, alertType } = state
+
     return (
-        <>
-            <Crumbs links={['Empresas', '/empresas']} text='Cadastro de procurações' demand={demand} />
-            <ProcuracoesTemplate
-                data={state}
-                empresas={empresas}
-                allProcuradores={allProcuradores}
-                selectedEmpresa={selectedEmpresa}
-                procuradoresEdit={procuradores}
-                demand={demand}
-                handleInput={handleInput}
-                handleBlur={handleBlur}
-                deleteProcuracao={deleteProcuracao}
-                handleFiles={handleFiles}
-                removeFile={removeFile}
-                addProc={handleSubmit}
-                addProcurador={addProcurador}
-                removeProcurador={removeProcurador}
-                getFile={getFile}
-                checkExpires={checkExpires}
-                setShowPendencias={setShowPendencias}
-            />
-            <ReactToast open={state.confirmToast} close={toast} msg={state.toastMsg} status={state.status} />
-            {
-                openAlertDialog &&
-                <AlertDialog open={openAlertDialog} close={closeAlert} alertType={alertType} customMessage={state.customMsg} />
-            }
-        </>
+        <ProcuracoesTemplate
+            data={state}
+            empresas={empresas}
+            allProcuradores={allProcuradores}
+            selectedEmpresa={selectedEmpresa}
+            procuradoresEdit={procuradores}
+            demand={demand}
+            handleInput={handleInput}
+            handleBlur={handleBlur}
+            deleteProcuracao={deleteProcuracao}
+            handleFiles={handleFiles}
+            removeFile={removeFile}
+            addProc={handleSubmit}
+            addProcurador={addProcurador}
+            removeProcurador={removeProcurador}
+            getFile={getFile}
+            checkExpires={checkExpires}
+            setShowPendencias={setShowPendencias}
+            closeAlert={closeAlert}
+            toast={toast}
+        />
     )
 }
 
