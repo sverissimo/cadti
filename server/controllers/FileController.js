@@ -56,43 +56,37 @@ class FileController {
 
     getOneFileMetadata = (req, res) => getOneFileMetadata(req, res)
 
-    updateFilesMetadata = async (req, res) => {
-        const
-            { collection, ids, metadata, id, md5 } = req.body,
-            update = {}
+    updateFilesMetadata = async (req, res, next) => {
+        const { collection, ids, metadata } = req.body
+        const update = { metadata }
 
         if (!ids) {
-            res.send('no file sent to the server')
-            return
+            return res.send('no file sent to the server')
         }
-        Object.entries(metadata).forEach(([k, v]) => {
-            update['metadata.' + k] = v
-        })
-        const parsedIds = ids.map(id => new mongoose.mongo.ObjectId(id))
         res.locals.fileIds = ids
         res.locals.collection = collection
 
-        permanentBackup(req, res)
-        this.gfs.collection(collection)
-        this.gfs.files.updateMany(
-            { "_id": { $in: parsedIds } },
-            { $set: { ...update } },
-            async (err, doc) => {
-                if (err) console.log(err)
-                if (doc) {
-                    const data = {
-                        collection,
-                        metadata,
-                        ids,
-                        primaryKey: 'id'
-                    }
-                    const io = req.app.get('io')
-                    io.sockets.emit('updateDocs', data)
-                    res.send({ doc, ids })
-                    return
-                }
+        try {
+            const parsedIds = ids.map(id => new mongoose.mongo.ObjectId(id))
+            permanentBackup(req, res)
+            this.gfs.collection(collection)
+            const result = await this.gfs.files.updateMany(
+                { "_id": { $in: parsedIds } },
+                { $set: { ...update } }
+            )
+
+            const data = {
+                collection,
+                metadata,
+                ids,
+                primaryKey: 'id'
             }
-        )
+            const io = req.app.get('io')
+            io.sockets.emit('updateDocs', data)
+            return res.send({ doc: result, ids })
+        } catch (err) {
+            next(err)
+        }
     }
 
     deleteFile = async (req, res) => {
