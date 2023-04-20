@@ -4,8 +4,8 @@ const { getUpdatedData } = require("../infrastructure/SQLqueries/getUpdatedData"
 
 
 const fileBackup = async (req, fields) => {
-    const
-        backupSocket = req.app.get('backupSocket')
+    // ************* REFACTOR: No need to get this, backuUser room is set, just emit().to() ****************
+    const backupSocket = req.app.get('backupSocket')
         //, filesToBackup = req.app.get('filesToBackup')
         , binaryFiles = req.app.get('binaryFiles')
         , filesToSend = []

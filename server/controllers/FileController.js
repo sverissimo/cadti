@@ -20,7 +20,7 @@ class FileController {
         //Passa os arquivos para a função fileBackup que envia por webSocket para a máquina local.
         const io = req.app.get('io')
         const { filesArray } = req
-        fileBackup(req, filesArray)
+        //fileBackup(req, filesArray)
 
         if (filesArray && filesArray[0]) {
             io.sockets.emit('insertFiles', { insertedObjects: filesArray, collection: 'empresaDocs' })
@@ -63,12 +63,9 @@ class FileController {
         if (!ids) {
             return res.send('no file sent to the server')
         }
-        res.locals.fileIds = ids
-        res.locals.collection = collection
 
         try {
             const parsedIds = ids.map(id => new mongoose.mongo.ObjectId(id))
-            permanentBackup(req, res)
             this.gfs.collection(collection)
             const result = await this.gfs.files.updateMany(
                 { "_id": { $in: parsedIds } },
@@ -81,8 +78,11 @@ class FileController {
                 ids,
                 primaryKey: 'id'
             }
+
             const io = req.app.get('io')
+            //REFACTOR: Should recipients be filtered???
             io.sockets.emit('updateDocs', data)
+            await permanentBackup(parsedIds, collection, io)
             return res.send({ doc: result, ids })
         } catch (err) {
             next(err)

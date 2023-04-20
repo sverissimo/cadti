@@ -1,10 +1,6 @@
 const mongoose = require('mongoose');
 
 const filesSchema = mongoose.Schema({
-    _id: {
-        type: String,
-        trim: true
-    },
     uploadDate: {
         type: String,
         trim: true
@@ -16,8 +12,7 @@ const filesSchema = mongoose.Schema({
     metadata: {
         type: {},
     }
-
-});
+})
 
 const empresaModel = mongoose.model('empresaDocs.files', filesSchema, 'empresaDocs.files');
 

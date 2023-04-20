@@ -1,56 +1,34 @@
-const
-    { request, response } = require('express')
-    , mongoose = require('mongoose')
-    , { empresaModel } = require('../mongo/models/empresaModel')
-    , { filesModel } = require('../mongo/models/filesModel')
-    , { addMetadata } = require('./addMetadata')
-    , dotenv = require('dotenv')
+//@ts-check
+const { empresaModel } = require('../mongo/models/empresaModel')
+const { filesModel } = require('../mongo/models/filesModel')
+const { addMetadata } = require('./addMetadata')
 
 /**
- * 
- * @param {request} req 
- * @param {response} res
+ * @param {string[]} ids
+ * @param {string} collection
+ * @returns {Promise<void>}
  */
-const permanentBackup = async (req, res) => {
-    if (!process.env.AUTH)
-        dotenv.config({ path: './..' })
+const permanentBackup = async (ids, collection, backupSocket) => {
 
-    const
-        backupSocket = req.app.get('backupSocket')
-        , ids = res.locals.fileIds
-        , collection = res.locals.collection
-        , filesMetadata = []
-    let
-        razaoSocial
-        , placa
-
-    if (!backupSocket) //cancela o backup se não houver socket definido
+    if (!backupSocket) {
         return
-
-    for (let id of ids) {
-        let fileRequest
-        if (collection === 'empresaDocs')
-            fileRequest = await empresaModel.find(new mongoose.mongo.ObjectId(id))
-        else
-            fileRequest = await filesModel.find(new mongoose.mongo.ObjectId(id))
-        //console.log("🚀 ~ file: permanentBackup.js ~ line 42 ~ permanentBackup ~ file", collection, fileRequest, ids, res.locals)
-
-        if (fileRequest.length) {
-            const
-                file = fileRequest[0]
-                , { metadata } = file
-
-            if (!razaoSocial) {
-                const fieldsToAdd = await addMetadata(metadata)
-                razaoSocial = fieldsToAdd.razaoSocial
-                placa = fieldsToAdd.placa
-                empresaId = fieldsToAdd.codigoEmpresa
-            }
-            Object.assign(metadata, { empresaId, razaoSocial, placa })
-            filesMetadata.push(file)
-        }
     }
-    backupSocket.emit('permanentBackup', filesMetadata)
+
+    const filesMetadata = []
+    const entityManager = collection === 'empresaDocs' ? empresaModel : filesModel
+    for (const id of ids) {
+        const file = await entityManager.findById(id)
+        if (!file) continue
+
+        const { metadata } = file
+        const { razaoSocial, placa, codigoEmpresa } = await addMetadata(metadata)
+        Object.assign(metadata, { razaoSocial, placa, codigoEmpresa })
+        filesMetadata.push(file)
+    }
+    console.log("🚀 ~ file: permanentBackup.js:27 ~ permanentBackup ~ filesMetadata:", filesMetadata)
+
+    backupSocket.to('backupService').emit('permanentBackup', filesMetadata)
+    return
 }
 
 module.exports = { permanentBackup }
