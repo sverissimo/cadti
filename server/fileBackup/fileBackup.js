@@ -1,57 +1,40 @@
 //const fs = require('fs')
-
 const { getUpdatedData } = require("../infrastructure/SQLqueries/getUpdatedData")
 
-
-const fileBackup = async (req, fields) => {
-    // ************* REFACTOR: No need to get this, backuUser room is set, just emit().to() ****************
-    const backupSocket = req.app.get('backupSocket')
-        //, filesToBackup = req.app.get('filesToBackup')
-        , binaryFiles = req.app.get('binaryFiles')
-        , filesToSend = []
-        , addMetadata = {}
+const fileBackup = async (binaryFiles, fields, backupSocket) => {
+    const filesToSend = []
+    const addMetadata = {}
 
     if (!backupSocket) //cancela o backup se não houver socket definido
         return
 
     //adiciona metadata para o backup
     if (fields.length) {
-        const
-            { metadata } = fields[0]
-            , { empresaId, veiculoId } = metadata
-        console.log("🚀 ~ file: fileBackup.js ~ line 19 ~ fileBackup ~ metadata", metadata)
+        const { metadata } = fields[0]
+        const { empresaId, veiculoId } = metadata
 
         if (empresaId) {
-            const
-                condition = `WHERE empresas.codigo_empresa = ${empresaId}`
-                , request = await getUpdatedData('empresas', condition)
-                , empresa = request[0]
-                , { razao_social } = empresa
+            const condition = `WHERE empresas.codigo_empresa = ${empresaId}`
+            const request = await getUpdatedData('empresas', condition)
+            const empresa = request[0]
+            const { razao_social } = empresa
             Object.assign(addMetadata, { empresaId, razaoSocial: razao_social })
         }
         if (veiculoId) {
-            const
-                condition = `WHERE veiculos.veiculo_id = ${veiculoId}`
-                , request = await getUpdatedData('veiculos', condition)
-                , veiculo = request[0]
-                , { codigo_empresa: empresaId, empresa: razaoSocial, placa } = veiculo
+            const condition = `WHERE veiculos.veiculo_id = ${veiculoId}`
+            const request = await getUpdatedData('veiculos', condition)
+            const veiculo = request[0]
+            const { codigo_empresa: empresaId, empresa: razaoSocial, placa } = veiculo
             Object.assign(addMetadata, { empresaId, razaoSocial, placa })
         }
     }
 
-
     //Cria uma array de files em formato de string bas464
-    let i = 0
-    for (let file of binaryFiles) {
+    for (const file of binaryFiles) {
         const fileString64 = file.toString('base64')
         filesToSend.push(fileString64)
-        console.log(typeof fields[i] === 'object')
-        typeof fields[i] === 'object' && fields[i].metadata && Object.assign(fields[i].metadata, addMetadata)
-        console.log("🚀 ~ file: fileBackup.js ~ line 44 ~ fileBackup ~ addMetadata", addMetadata)
-        console.log("🚀 ~ file: fileBackup.js ~ line 45 ~ fileBackup ~ fields[i]", fields[i])
-        i++
     }
-
+    return { files: filesToSend, fields }
     backupSocket.emit('fileBackup', { files: filesToSend, fields })
 
     /*

@@ -9,7 +9,6 @@ const { addMetadata } = require('./addMetadata')
  * @returns {Promise<void>}
  */
 const permanentBackup = async (ids, collection, backupSocket) => {
-
     if (!backupSocket) {
         return
     }

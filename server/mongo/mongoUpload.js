@@ -81,7 +81,7 @@ const uploadMetadata = (req, res, next) => {
             metadata: f.metadata
         })
     })
-    req.filesArray = filesArray
+    res.locals.filesArray = filesArray
     next()
 }
 

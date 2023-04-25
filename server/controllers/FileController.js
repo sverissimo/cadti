@@ -6,6 +6,7 @@ const { mongoDownload, getFilesMetadata, getOneFileMetadata } = require("../mong
 const { empresaChunks, vehicleChunks } = require('../mongo/models/chunksModel')
 const { filesModel } = require('../mongo/models/filesModel')
 const Grid = require('gridfs-stream')
+const { request } = require('express')
 
 
 class FileController {
@@ -16,11 +17,15 @@ class FileController {
         mongoose.connection.once('open', () => this.gfs = Grid(mongoose.connection.db, mongoose.mongo))
     }
 
-    empresaUpload = (req, res) => {
+    empresaUpload = async (req, res) => {
         //Passa os arquivos para a função fileBackup que envia por webSocket para a máquina local.
         const io = req.app.get('io')
-        const { filesArray } = req
-        //fileBackup(req, filesArray)
+        const { binaryFiles, filesMetadata: filesArray } = res.locals
+        console.log("🚀 ~ file: FileController.js:23 ~ FileController ~ empresaUpload= ~ filesArray:", filesArray)
+
+        const { files, fields } = await fileBackup(binaryFiles, filesArray, io) || {}
+        io.to('backupService').emit('fileBackup', { files, fields })
+        return res.send({ files, fields })
 
         if (filesArray && filesArray[0]) {
             io.sockets.emit('insertFiles', { insertedObjects: filesArray, collection: 'empresaDocs' })

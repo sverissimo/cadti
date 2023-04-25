@@ -4,27 +4,28 @@ const prepareBackup = require("../fileBackup/prepareBackup")
 const { storage, uploadMetadata } = require("../mongo/mongoUpload")
 const { vehicleUpload, empresaUpload } = storage()
 
+const fileController = new FileController()
 const fileRouter = app => {
 
     app.post('/api/empresaUpload',
         prepareBackup,
         empresaUpload.any(),
         uploadMetadata,
-        (req, res) => new FileController().empresaUpload(req, res)
+        (req, res) => fileController.empresaUpload(req, res)
     )
 
     app.post('/api/vehicleUpload',
         prepareBackup,
         vehicleUpload.any(),
         uploadMetadata,
-        new FileController().vehicleUpload
+        fileController.vehicleUpload
     )
-    app.get('/api/mongoDownload/', new FileController().mongoDownload)
-    app.get('/api/getFiles/:collection', new FileController().getFiles)
-    app.get('/api/getOneFile/', new FileController().getOneFileMetadata)
-    app.put('/api/updateFilesMetadata', new FileController().updateFilesMetadata)
-    app.delete('/api/deleteFile', new FileController().deleteFile)
-    app.delete('/deleteManyFiles', new FileController().deleteMany)
+    app.get('/api/mongoDownload/', fileController.mongoDownload)
+    app.get('/api/getFiles/:collection', fileController.getFiles)
+    app.get('/api/getOneFile/', fileController.getOneFileMetadata)
+    app.put('/api/updateFilesMetadata', fileController.updateFilesMetadata)
+    app.delete('/api/deleteFile', fileController.deleteFile)
+    app.delete('/deleteManyFiles', fileController.deleteMany)
 }
 
 module.exports = { fileRouter }

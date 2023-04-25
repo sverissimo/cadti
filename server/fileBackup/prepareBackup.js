@@ -1,25 +1,27 @@
-const
-    formidable = require('formidable')
-    , fs = require('fs')
+//@ts-check
+const formidable = require('formidable')
+const fs = require('fs');
 
-
-const prepareBackup = (req, res, next) => {
+const prepareBackup = async (req, res, next) => {
     const form = formidable({ multiples: true });
-    let binaryFiles = []
-    form.parse(req, (err, fields, files) => {
-        if (err) {
-            next(err);
-            return
-        }
-        for (let f in files) {
-            let
-                file = files[f]
-                , fBinary = fs.readFileSync(file.path)
+    const { files, filesMetadata } = await new Promise((resolve, reject) => {
+        const binaryFiles = []
+        form.parse(req, (err, fields, files) => {
+            console.log("🚀 ~ file: prepareBackup.js:10 ~ form.parse ~ fields:", fields)
+            if (err) {
+                reject(err)
+            }
 
-            binaryFiles.push(fBinary)
-        }
-        req.app.set('binaryFiles', binaryFiles)
+            for (const f in files) {
+                const file = files[f]
+                const fBinary = fs.readFileSync(file.path)
+                binaryFiles.push(fBinary)
+            }
+            resolve({ files: binaryFiles, filesMetadata: fields })
+        })
     })
+    res.locals.binaryFiles = files
+    res.locals.filesMetadata = filesMetadata
     next()
 }
 
