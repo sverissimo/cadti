@@ -15,7 +15,6 @@ conn.once('open', () => {
 })
 //*********************************CREATE STORAGE CLASS AND EXPORT TWO INSTANCES OF IT!!!!********************************  */
 const storage = () => {
-
     const vehicleStorage = new GridFsStorage({
 
         url: mongoURI,
@@ -40,49 +39,50 @@ const storage = () => {
         }
     })
 
-    const empresaStorage = new GridFsStorage({
-        url: mongoURI,
-        file: (req, file) => {
-            gfs.collection('empresaDocs')
-
-            let { metadata } = req.body
-            console.log("🚀 ~ file: mongoUpload.js:50 ~ storage ~ metadata", metadata)
-            metadata = JSON.parse(metadata)
-
-            let fileInfo = {
-                filename: file.originalname,
-                metadata,
-                bucketName: 'empresaDocs',
-            }
-            return fileInfo
-        }
-    })
 
     const
         vehicleUpload = multer({ storage: vehicleStorage }),
-        empresaUpload = multer({ storage: empresaStorage, inMemory: true }),
         memoryStorage = multer({ dest: 'uploads/', inMemory: true })
 
-    return { empresaUpload, vehicleUpload, memoryStorage }
+    return { vehicleUpload, memoryStorage }
 }
 
+const empresaStorage = new GridFsStorage({
+    url: mongoURI,
+    file: (req, file) => {
+        gfs.collection('empresaDocs')
+
+        const metadata = JSON.parse(req.body.metadata)
+        const fileInfo = {
+            filename: file.originalname,
+            metadata,
+            bucketName: 'empresaDocs',
+        }
+        return fileInfo
+    }
+})
+
+const empresaUpload = multer({ storage: empresaStorage, inMemory: true })
 
 const uploadMetadata = (req, res, next) => {
     let filesArray = []
-    if (req.files) req.files.forEach(f => {
-        filesArray.push({
-            id: f.id,
-            length: f.size,
-            chunkSize: f.chunkSize,
-            uploadDate: f.uploadDate,
-            filename: f.originalname,
-            md5: f.md5,
-            contentType: f.contentType,
-            metadata: f.metadata
+    console.log("🚀 ~ file: mongoUpload.js:89 ~ uploadMetadata ~ req.files:", req.files)
+    if (req.files) {
+        req.files.forEach(f => {
+            filesArray.push({
+                id: f.id,
+                length: f.size,
+                chunkSize: f.chunkSize,
+                uploadDate: f.uploadDate,
+                filename: f.originalname,
+                md5: f.md5,
+                contentType: f.contentType,
+                metadata: f.metadata
+            })
         })
-    })
+    }
     res.locals.filesArray = filesArray
     next()
 }
 
-module.exports = { storage, uploadMetadata }
+module.exports = { storage, uploadMetadata, empresaUpload }

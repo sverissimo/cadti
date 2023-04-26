@@ -1,13 +1,11 @@
 //@ts-check
 const mongoose = require('mongoose')
-const fileBackup = require("../fileBackup/fileBackup")
 const { permanentBackup } = require("../fileBackup/permanentBackup")
 const { mongoDownload, getFilesMetadata, getOneFileMetadata } = require("../mongo/mongoDownload")
 const { empresaChunks, vehicleChunks } = require('../mongo/models/chunksModel')
 const { filesModel } = require('../mongo/models/filesModel')
 const Grid = require('gridfs-stream')
-const { request } = require('express')
-
+const { Repository } = require('../repositories/Repository')
 
 class FileController {
 
@@ -18,25 +16,24 @@ class FileController {
     }
 
     empresaUpload = async (req, res) => {
-        //Passa os arquivos para a função fileBackup que envia por webSocket para a máquina local.
+        if (!req.files || !req.files.length) {
+            return res.status(400).send('No files to upload')
+        }
+
         const io = req.app.get('io')
-        const { binaryFiles, filesMetadata: filesArray } = res.locals
-        console.log("🚀 ~ file: FileController.js:23 ~ FileController ~ empresaUpload= ~ filesArray:", filesArray)
+        const codigo_empresa = parseInt(req.files[0].metadata.empresaId)
+        const empresas = await new Repository('empresas', 'codigo_empresa').find(codigo_empresa)
+        const { razao_social: razaoSocial } = empresas[0]
+        const filesMetadata = req.files.map(f => ({ ...f, length: f.size, metadata: { ...f.metadata, razaoSocial } }))
 
-        const { files, fields } = await fileBackup(binaryFiles, filesArray, io) || {}
-        io.to('backupService').emit('fileBackup', { files, fields })
-        return res.send({ files, fields })
-
-        if (filesArray && filesArray[0]) {
-            io.sockets.emit('insertFiles', { insertedObjects: filesArray, collection: 'empresaDocs' })
-            res.json({ file: filesArray })
-        } else res.send('No uploads whatsoever...')
+        io.sockets.emit('insertFiles', { insertedObjects: filesMetadata, collection: 'empresaDocs' })
+        io.to('backupService').emit('newFileSaved', filesMetadata)
+        return res.json({ file: filesMetadata })
     }
 
     vehicleUpload = (req, res) => {
-        //Passa os arquivos para a função fileBackup que envia por webSocket para a máquina local.
+
         const { filesArray } = req
-        fileBackup(req, filesArray)
 
         if (filesArray && filesArray[0]) {
             const io = req.app.get('io')

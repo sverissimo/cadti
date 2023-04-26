@@ -116,7 +116,7 @@ const ShowFiles = ({ filesCollection, close, typeId, empresas, filesIds, razaoSo
                                     {formatDate(file.uploadDate, true)}
                                 </div>
                                 <div className="col s3">
-                                    {formatFileSize(file.length)}
+                                    {formatFileSize(file?.length || file?.size)}
                                 </div>
                             </div>
                         </div>

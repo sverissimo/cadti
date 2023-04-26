@@ -1,23 +1,19 @@
 //@ts-check
 const FileController = require('../controllers/FileController')
-const prepareBackup = require("../fileBackup/prepareBackup")
-const { storage, uploadMetadata } = require("../mongo/mongoUpload")
-const { vehicleUpload, empresaUpload } = storage()
+const { storage, uploadMetadata, empresaUpload } = require("../mongo/mongoUpload")
+const { vehicleUpload } = storage()
 
 const fileController = new FileController()
 const fileRouter = app => {
 
     app.post('/api/empresaUpload',
-        prepareBackup,
         empresaUpload.any(),
-        uploadMetadata,
-        (req, res) => fileController.empresaUpload(req, res)
+        fileController.empresaUpload
     )
 
     app.post('/api/vehicleUpload',
-        prepareBackup,
-        vehicleUpload.any(),
         uploadMetadata,
+        vehicleUpload.any(),
         fileController.vehicleUpload
     )
     app.get('/api/mongoDownload/', fileController.mongoDownload)
