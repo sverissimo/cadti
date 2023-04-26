@@ -15,44 +15,33 @@ class FileController {
         mongoose.connection.once('open', () => this.gfs = Grid(mongoose.connection.db, mongoose.mongo))
     }
 
-    empresaUpload = async (req, res) => {
-        if (!req.files || !req.files.length) {
+    backupAndSendUpdate = async (req, res) => {
+        const { files } = req
+        if (!files || !files.length) {
             return res.status(400).send('No files to upload')
         }
 
-        const io = req.app.get('io')
-        const codigo_empresa = parseInt(req.files[0].metadata.empresaId)
-        const empresas = await new Repository('empresas', 'codigo_empresa').find(codigo_empresa)
-        const { razao_social: razaoSocial } = empresas[0]
-        const filesMetadata = req.files.map(f => ({ ...f, length: f.size, metadata: { ...f.metadata, razaoSocial } }))
+        const razaoSocial = await this._getRazaoSocial(files[0].metadata)
+        const filesMetadata = files.map(f => ({ ...f, length: f.size, metadata: { ...f.metadata, razaoSocial } }))
 
-        io.sockets.emit('insertFiles', { insertedObjects: filesMetadata, collection: 'empresaDocs' })
+        const io = req.app.get('io')
+        io.sockets.emit('insertFiles', { insertedObjects: files, collection: 'empresaDocs' })
         io.to('backupService').emit('newFileSaved', filesMetadata)
         return res.json({ file: filesMetadata })
     }
 
-    vehicleUpload = (req, res) => {
-
-        const { filesArray } = req
-
-        if (filesArray && filesArray[0]) {
-            const io = req.app.get('io')
-            io.sockets.emit('insertFiles', { insertedObjects: filesArray, collection: 'vehicleDocs' })
-            res.json({ file: filesArray })
-        } else res.send('No uploads whatsoever...')
-    }
-
     mongoDownload = (req, res) => mongoDownload(req, res, this.gfs)
+
     getFiles = async (req, res) => {
         const { user } = req
         const { collection } = req.params
         const { fieldName } = req.query
-
         const files = await getFilesMetadata({
             user,
             collection,
             fieldName
         })
+
         return res.send(files)
     }
 
@@ -149,6 +138,25 @@ class FileController {
         })
         res.send(r || 'no files deleted.')
         //    io.sockets.emit('deleteOne', { tablePK: '_id', id, collection })
+    }
+
+    _getRazaoSocial = async (metadata) => {
+        const { empresaId, veiculoId } = metadata
+        if (empresaId) {
+            const codigo_empresa = parseInt(metadata.empresaId)
+            const empresasFound = await new Repository('empresas', 'codigo_empresa').find(codigo_empresa)
+            const { razao_social: razaoSocial } = empresasFound[0]
+            return razaoSocial
+        }
+        if (veiculoId) {
+            const veiculo_id = parseInt(metadata.veiculoId)
+            const veiculosFound = await new Repository('veiculos', 'veiculo_id').find(veiculo_id)
+            const { placa, codigo_empresa, empresa: razaoSocial } = veiculosFound[0]
+            metadata.empresaId = codigo_empresa
+            metadata.placa = placa
+
+            return razaoSocial
+        }
     }
 }
 
