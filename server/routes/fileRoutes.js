@@ -1,6 +1,7 @@
 //@ts-check
 const FileController = require('../controllers/FileController')
 const { empresaUpload, vehicleUpload } = require("../mongo/mongoUpload")
+const { requireSeinfra } = require('../auth/checkPermissions')
 
 const fileController = new FileController()
 const fileRouter = app => {
@@ -17,9 +18,8 @@ const fileRouter = app => {
     app.get('/api/mongoDownload/', fileController.mongoDownload)
     app.get('/api/getFiles/:collection', fileController.getFiles)
     app.get('/api/getOneFile/', fileController.getOneFileMetadata)
-    app.put('/api/updateFilesMetadata', fileController.updateFilesMetadata)
+    app.put('/api/updateFilesMetadata', requireSeinfra, fileController.updateFilesMetadata)
     app.delete('/api/deleteFile', fileController.deleteFile)
-    app.delete('/deleteManyFiles', fileController.deleteMany)
 }
 
 module.exports = { fileRouter }

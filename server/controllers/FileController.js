@@ -1,11 +1,10 @@
 //@ts-check
 const mongoose = require('mongoose')
 const { permanentBackup } = require("../fileBackup/permanentBackup")
-const { mongoDownload, getFilesMetadata, getOneFileMetadata } = require("../mongo/mongoDownload")
-const { empresaChunks, vehicleChunks } = require('../mongo/models/chunksModel')
-const { filesModel } = require('../mongo/models/filesModel')
+const { mongoDownload, getOneFileMetadata } = require("../mongo/mongoDownload")
 const Grid = require('gridfs-stream')
-const { Repository } = require('../repositories/Repository')
+const { FileService } = require('../services/FileService')
+const { CustomSocket } = require('../sockets/CustomSocket')
 
 class FileController {
 
@@ -21,28 +20,39 @@ class FileController {
             return res.status(400).send('No files to upload')
         }
 
-        const razaoSocial = await this._getRazaoSocial(files[0].metadata)
-        const filesMetadata = files.map(f => ({ ...f, length: f.size, metadata: { ...f.metadata, razaoSocial } }))
-
         const io = req.app.get('io')
-        io.sockets.emit('insertFiles', { insertedObjects: files, collection: 'empresaDocs' })
+        const filesMetadata = await FileService.createBackupMetadata(files)
+        console.log("🚀 ~ file: FileController.js:25 ~ FileController ~ backupAndSendUpdate= ~ filesMetadata:", filesMetadata)
+        const { metadata } = filesMetadata[0]
+        const { empresaId, veiculoId } = metadata && metadata
+        console.log("🚀 ~ file: FileController.js:28 ~ FileController ~ backupAndSendUpdate= ~ { empresaId, veiculoId }:", { empresaId, veiculoId })
+
+        //io.sockets.emit('insertFiles', { insertedObjects: files, collection: 'empresaDocs' })
+        const collection = veiculoId ? 'vehicleDocs' : 'empresaDocs'
+        console.log("🚀 ~ file: FileController.js:31 ~ FileController ~ backupAndSendUpdate= ~ collection:", collection)
+        const filesSocket = new CustomSocket(io, collection)
+
+        filesSocket.emit('insertFiles', { insertedObjects: files, collection }, empresaId)
         io.to('backupService').emit('newFileSaved', filesMetadata)
         return res.json({ file: filesMetadata })
     }
 
     mongoDownload = (req, res) => mongoDownload(req, res, this.gfs)
 
-    getFiles = async (req, res) => {
-        const { user } = req
-        const { collection } = req.params
-        const { fieldName } = req.query
-        const files = await getFilesMetadata({
-            user,
-            collection,
-            fieldName
-        })
+    getFiles = async (req, res, next) => {
+        try {
+            const { user } = req
+            const { collection } = req.params
+            const { fieldName } = req.query
+            const files = await new FileService(collection).getFilesMetadata({
+                user,
+                fieldName
+            })
 
-        return res.send(files)
+            return res.send(files)
+        } catch (error) {
+            next(error)
+        }
     }
 
     getOneFileMetadata = (req, res) => getOneFileMetadata(req, res)
@@ -80,82 +90,23 @@ class FileController {
         }
     }
 
-    deleteFile = async (req, res) => {
-        const { id, collection } = req.query
-        const fileId = new mongoose.mongo.ObjectId(id)
+    deleteFile = async (req, res, next) => {
+        const { collection } = req.query
+        const ids = req.query.id.split(',')
 
-        let chunks
-        this.gfs.collection(collection)
-
-        this.gfs.files.deleteOne({ _id: fileId }, (err, result) => {
-            if (err) console.log(err)
-            //if (result) console.log(result)
-        })
-
-        if (collection === 'empresaDocs') chunks = empresaChunks
-        if (collection === 'vehicleDocs') chunks = vehicleChunks
-
-        chunks.deleteMany({ files_id: fileId }, (err, result) => {
-            if (err) console.log(err)
-            if (result) {
-                console.log(result)
-                res.json(result)
-            }
-        })
-        const io = req.app.get('io')
-        io.sockets.emit('deleteOne', { tablePK: '_id', id, collection })
-    }
-
-    //REFACTOR! Obs: no frondEnd client is requesting this. Keep it?
-    deleteMany = async (req, res) => {
-        const
-            { id } = req.query
-
-        console.log(id, typeof id)
-        const docsToDelete = { 'metadata.veiculoId': id }
-
-        this.gfs.collection('vehicleDocs')
-
-        const getIds = await filesModel.filesModel.find(docsToDelete).select('_ids')
-        const ids = getIds.map(e => new mongoose.mongo.ObjectId(e._id))
-
-        let r
-        ids.forEach(fileId => {
-            this.gfs.files.deleteOne({ _id: fileId }, (err, result) => {
-                if (err)
-                    console.log(err)
-                if (result)
-                    r = result
-            })
-            //        if (collection === 'empresaDocs') chunks = empresaChunks
-            //      if (collection === 'vehicleDocs') chunks = vehicleChunks
-
-            vehicleChunks.deleteMany({ files_id: fileId }, (err, result) => {
-                if (err) console.log(err)
-                if (result) {
-                }
-            })
-        })
-        res.send(r || 'no files deleted.')
-        //    io.sockets.emit('deleteOne', { tablePK: '_id', id, collection })
-    }
-
-    _getRazaoSocial = async (metadata) => {
-        const { empresaId, veiculoId } = metadata
-        if (empresaId) {
-            const codigo_empresa = parseInt(metadata.empresaId)
-            const empresasFound = await new Repository('empresas', 'codigo_empresa').find(codigo_empresa)
-            const { razao_social: razaoSocial } = empresasFound[0]
-            return razaoSocial
+        const role = req.user && req.user.role
+        if (role && role !== 'admin' && ids.length > 1) {
+            return res.status(403).send('O usuário não possui acesso para esta parte do CadTI.')
         }
-        if (veiculoId) {
-            const veiculo_id = parseInt(metadata.veiculoId)
-            const veiculosFound = await new Repository('veiculos', 'veiculo_id').find(veiculo_id)
-            const { placa, codigo_empresa, empresa: razaoSocial } = veiculosFound[0]
-            metadata.empresaId = codigo_empresa
-            metadata.placa = placa
 
-            return razaoSocial
+        try {
+            const io = req.app.get('io')
+            const { deletedFiles, deletedChunks } = await new FileService(collection).deleteFile(ids)
+
+            io.sockets.emit('deleteOne', { tablePK: '_id', id: ids[0], collection })
+            res.send(`${deletedFiles.deletedCount} files and ${deletedChunks.deletedCount} chunks deleted.`)
+        } catch (error) {
+            next(error)
         }
     }
 }
