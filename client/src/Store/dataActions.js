@@ -139,9 +139,7 @@ export const insertData = (dataFromServer, collection) => (dispatch, getState) =
             dispatch({ type: 'UPDATE_COLLECTION', payload: collectionPayload })
         })
     }
-
     else dispatch({ type: 'INSERT_DATA', payload })
-
 }
 
 export const updateData = (dataFromServer, collection, id) => (dispatch, getState) => {
@@ -160,22 +158,21 @@ export const updateData = (dataFromServer, collection, id) => (dispatch, getStat
     return
 }
 
-export const updateDocs = (ids, metadata, collection, primaryKey) => (dispatch, getState) => {
-
+export const updateDocs = (data, collection, primaryKey = 'id') => (dispatch, getState) => {
+    const { ids, metadata } = data
     const stateCollection = getState().data[collection]
 
     if (ids && ids[0] && metadata) {
-        let selectedDocs = stateCollection.filter(doc => ids.some(id => id === doc[primaryKey]))
+        const selectedDocs = stateCollection.filter(doc => ids.includes(doc[primaryKey]))
 
         selectedDocs.forEach(doc => {
-            const meta = Object.assign({}, doc.metadata, metadata)
+            const meta = Object.assign({}, doc?.metadata, metadata)
             doc.metadata = meta
         })
 
         const payload = { collection, data: selectedDocs, id: primaryKey }
         dispatch({ type: 'UPDATE_DATA', payload })
     }
-
 }
 
 export const updateInsurance = ({ value, ids }) => (dispatch, getState) => {
@@ -203,7 +200,6 @@ export const updateInsurance = ({ value, ids }) => (dispatch, getState) => {
     seguro = [seguro]
 
     const payload = { collection: 'seguros', data: seguro, id: 'apolice' }
-
     dispatch({ type: 'UPDATE_DATA', payload })
 }
 

@@ -52,39 +52,62 @@ class FileService {
      * @returns {Promise<object[]>}
     */
     static createBackupMetadata = async (files) => {
-        const razaoSocial = await FileService._getRazaoSocial(files[0].metadata)
+        const additionalMetadata = await FileService._getPlacaAndEmpresa(files[0].metadata)
         const filesMetadata = files.map(f => ({
             ...f,
-            length: f.size,
+            length: f.size || f.length,
             metadata: {
                 ...f.metadata,
-                razaoSocial,
-                fieldName: f.metadata.fieldName || f.fieldname
+                ...additionalMetadata,
             }
         }))
         return filesMetadata
     }
 
     /**
+     * @param {string[]}  ids
+     * @param {object}  metadata
+     * @returns {Promise<object[]|boolean> }
+     */
+    updateFilesMetadata = async (ids, metadata) => {
+        const update = Object.keys(metadata)
+            .map(key => ({
+                ['metadata.' + key]: metadata[key]
+            }))
+            .reduce((prev, curr) => ({ ...prev, ...curr }), {})
+
+        const filter = { "_id": { $in: ids } }
+        const { nModified } = await this.model.updateMany(
+            filter,
+            { "$set": update }
+        )
+
+        if (!!!nModified) {
+            return false
+        }
+
+        const updatedDocs = this.model.find(filter)
+        return updatedDocs
+    }
+
+    /**
     * @param {object} metadata
-    * @returns {Promise<string>}
+    * @returns {Promise<object>}
     */
-    static _getRazaoSocial = async (metadata) => {
+    static _getPlacaAndEmpresa = async (metadata) => {
         const { empresaId, veiculoId } = metadata
         if (empresaId) {
             const codigo_empresa = parseInt(metadata.empresaId)
             const empresasFound = await new Repository('empresas', 'codigo_empresa').find(codigo_empresa)
             const { razao_social: razaoSocial } = empresasFound[0]
-            return razaoSocial
+            return { razaoSocial }
         }
         if (veiculoId) {
             const veiculo_id = parseInt(metadata.veiculoId)
             const veiculosFound = await new Repository('veiculos', 'veiculo_id').find(veiculo_id)
-            const { placa, codigo_empresa, empresa: razaoSocial } = veiculosFound[0]
-            metadata.empresaId = codigo_empresa
-            metadata.placa = placa
+            const { placa, codigo_empresa: empresaId, empresa: razaoSocial } = veiculosFound[0]
 
-            return razaoSocial
+            return { razaoSocial, empresaId, placa }
         }
         return ''
     }

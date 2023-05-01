@@ -1,17 +1,13 @@
 /// <reference types="cypress" />
-//import { razaoSocial, nomeSocio, cpfSocio, emailSocio, telSocio, share } from './fixtures/addSocioInput.json'
-import humps from 'humps'
 import addVeiculoInput from './fixtures/addVeiculoInput.json'
 const { placa, razaoSocial, utilizacao, dominio, ...veiculo } = addVeiculoInput
-/* const veiculo = humps.camelizeKeys(addVeiculoInput)
-const { placa, razaoSocial } = veiculo */
 
-describe('Adding a new Socio for a existing Empresa', () => {
+describe('Adding a new Vehicle', () => {
     beforeEach(() => {
         //@ts-ignore
         cy.startSession()
     })
-    it('Should successfully create demand and save new socio', async () => {
+    it('Should successfully create demand and save new socio', () => {
         cy.visit('/veiculos/cadastro')
         cy.get('.selectEmpresa').type(razaoSocial, { delay: 10 })
         cy.get('input[name=placa]:first').type(placa)
@@ -23,10 +19,8 @@ describe('Adding a new Socio for a existing Empresa', () => {
         cy.contains('Avançar').click()
         cy.contains('Avançar').click()
         cy.get('textarea:first').type('teste')
-
         cy.contains('Enviar solicitação').click()
         cy.wait(2000)
-        //@ts-ignore
         cy.approveDemand()
     })
 })

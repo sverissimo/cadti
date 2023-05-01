@@ -3,14 +3,14 @@
 import addVeiculoInput from './fixtures/addVeiculoInput.json'
 const { razaoSocial, utilizacao, dominio } = addVeiculoInput
 const filesFolder = './src/Empresas/AltContrato/tests/fixtures'
-const randomPlate = 'AAA-' + Math.round(Math.random() * 10000)
+const randomPlate = 'AAA' + Math.round(Math.random() * 10000)
 
-describe('Adding a new Socio for a existing Empresa', () => {
+describe('Adding a new Vehicle and uploading files', () => {
     beforeEach(() => {
         //@ts-ignore
         cy.startSession()
     })
-    it('Should successfully create demand and save new socio', async () => {
+    it('Should successfully create demand and save new socio', () => {
         cy.visit('/veiculos/cadastro')
         cy.get('.selectEmpresa').type(razaoSocial, { delay: 10 })
         cy.get('input[name=placa]:first').type(randomPlate)
@@ -24,9 +24,9 @@ describe('Adding a new Socio for a existing Empresa', () => {
         cy.get('textarea:first').type('teste')
 
         cy.contains('Enviar solicitação').click()
-        cy.wait(2000)
+        /* cy.wait(2000)
         //@ts-ignore
-        //cy.approveDemand()
+        cy.approveDemand() */
     })
 })
 

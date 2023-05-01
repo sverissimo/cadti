@@ -8,7 +8,6 @@ export const sizeExceedsLimit = files => {
 }
 
 export const handleFiles = (files, state, filesFormTemplate) => {
-
     const formData = new FormData()
 
     if (files && files[0]) {
@@ -24,40 +23,28 @@ export const handleFiles = (files, state, filesFormTemplate) => {
                 else void 0
             }
         })
-        //for (let p of formData) { console.log(p[0], p[1]) }
+
         return { form: formData }
     }
 }
 
 export const postFilesReturnIds = async (formData, metadata = {}, completed, filesEndPoint) => {
-    let
-        files,
-        filesIds
-
-    if (formData instanceof FormData) {
-        let filesToSend = new FormData()
-
-        if (completed)                              //Se a demanda for aprovada é considerada completed, e então o arquivo deixa de ser temporário.
-            metadata.tempFile = false
-        else
-            metadata.tempFile = true
-        console.log(metadata)
-
-        filesToSend.append('metadata', JSON.stringify(metadata))
-        for (let pair of formData) {
-            filesToSend.set(pair[0], pair[1])
-            console.log("🚀 ~ file: handleFiles.js ~ line 49 ~ postFilesReturnIds ~ pair[0], pair[1]", pair[0], pair[1])
-        }
-
-        files = await axios.post(`/api/${filesEndPoint}`, filesToSend)
+    if (formData instanceof FormData === false) {
+        return null
     }
 
-    if (files?.data?.file) {
-        const filesArray = files.data.file
-        filesIds = filesArray.map(f => f.id)
-        return filesIds
+    const filesToSend = new FormData()
+
+    metadata.tempFile = completed ? false : true
+    filesToSend.append('metadata', JSON.stringify(metadata))
+
+    for (let pair of formData) {
+        filesToSend.set(pair[0], pair[1])
     }
-    else return null
+
+    const { data } = await axios.post(`/api/${filesEndPoint}`, filesToSend) || []
+    const filesIDs = data?.files.map(f => f.id)
+    return filesIDs
 }
 
 export const updateFilesMetadata = async (obj, filesCollection) => {
@@ -86,7 +73,7 @@ export const updateFilesMetadata = async (obj, filesCollection) => {
     }
 
     await axios.put('/api/updateFilesMetadata', { ids, collection: filesCollection, metadata })
-        .then(r => console.log(r.data))
+        .catch(err => console.log(err))
 }
 
 export const removeFile = (name, form) => {

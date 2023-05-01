@@ -14,9 +14,6 @@ conn.once('open', () => {
     gfs.collection('vehicleDocs')
 })
 
-const empresaUpload = uploadHandler('empresaDocs')
-const vehicleUpload = uploadHandler('vehicleDocs')
-
 function uploadHandler(collection) {
     const storage = new GridFsStorage({
         url: mongoURI,
@@ -24,6 +21,8 @@ function uploadHandler(collection) {
             gfs.collection(collection)
 
             const metadata = JSON.parse(req.body.metadata)
+            metadata.fieldName = metadata.fieldName || file.fieldname
+
             const fileInfo = {
                 filename: file.originalname,
                 metadata,
@@ -36,5 +35,8 @@ function uploadHandler(collection) {
     const upload = multer({ storage })
     return upload
 }
+
+const empresaUpload = uploadHandler('empresaDocs')
+const vehicleUpload = uploadHandler('vehicleDocs')
 
 module.exports = { empresaUpload, vehicleUpload }

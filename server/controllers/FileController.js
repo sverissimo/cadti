@@ -22,19 +22,16 @@ class FileController {
 
         const io = req.app.get('io')
         const filesMetadata = await FileService.createBackupMetadata(files)
-        console.log("🚀 ~ file: FileController.js:25 ~ FileController ~ backupAndSendUpdate= ~ filesMetadata:", filesMetadata)
+
         const { metadata } = filesMetadata[0]
         const { empresaId, veiculoId } = metadata && metadata
-        console.log("🚀 ~ file: FileController.js:28 ~ FileController ~ backupAndSendUpdate= ~ { empresaId, veiculoId }:", { empresaId, veiculoId })
 
-        //io.sockets.emit('insertFiles', { insertedObjects: files, collection: 'empresaDocs' })
         const collection = veiculoId ? 'vehicleDocs' : 'empresaDocs'
-        console.log("🚀 ~ file: FileController.js:31 ~ FileController ~ backupAndSendUpdate= ~ collection:", collection)
         const filesSocket = new CustomSocket(io, collection)
 
-        filesSocket.emit('insertFiles', { insertedObjects: files, collection }, empresaId)
+        filesSocket.emit('insertFiles', filesMetadata, empresaId)
         io.to('backupService').emit('newFileSaved', filesMetadata)
-        return res.json({ file: filesMetadata })
+        return res.json({ files: filesMetadata })
     }
 
     mongoDownload = (req, res) => mongoDownload(req, res, this.gfs)
@@ -59,19 +56,17 @@ class FileController {
 
     updateFilesMetadata = async (req, res, next) => {
         const { collection, ids, metadata } = req.body
-        const update = { metadata }
 
         if (!ids) {
-            return res.send('no file sent to the server')
+            return res.status(400).send('no file sent to the server')
         }
 
         try {
-            const parsedIds = ids.map(id => new mongoose.mongo.ObjectId(id))
-            this.gfs.collection(collection)
-            const result = await this.gfs.files.updateMany(
-                { "_id": { $in: parsedIds } },
-                { $set: { ...update } }
-            )
+            const fileService = new FileService(collection)
+            const files = await fileService.updateFilesMetadata(ids, metadata)
+            if (!files || !Array.isArray(files)) {
+                return res.status(404).send('No files found with the IDs sent.')
+            }
 
             const data = {
                 collection,
@@ -81,10 +76,13 @@ class FileController {
             }
 
             const io = req.app.get('io')
-            //REFACTOR: Should recipients be filtered???
-            io.sockets.emit('updateDocs', data)
-            await permanentBackup(parsedIds, collection, io)
-            return res.send({ doc: result, ids })
+            const filesMetadata = FileService.createBackupMetadata(files)
+            io.to('backupService').emit('newFileSaved', filesMetadata)
+
+            const { empresaId } = filesMetadata[0].metadata
+            const filesSocket = new CustomSocket(io, collection)
+            filesSocket.emit('updateDocs', data, empresaId)
+            return res.status(204).end()
         } catch (err) {
             next(err)
         }

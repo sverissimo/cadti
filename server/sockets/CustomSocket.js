@@ -21,7 +21,7 @@ class CustomSocket {
     }
 
     /**
-    * @param {'insertElements'|'addElements'|'updateAny'|'insertFiles'} event
+    * @param {'insertElements'|'addElements'|'updateAny'|'insertFiles'|'updateDocs'} event
     * @param {Object | any[]} data
     * @param {number | string} [codigoEmpresa ]
      */

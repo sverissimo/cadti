@@ -5,7 +5,7 @@ const { razaoSocial, nomeSocio, cpfSocio, emailSocio, telSocio, share } = socioU
 const { nomeSocio: nomeSocio2, cpfSocio: cpfSocio2, emailSocio: emailSocio2, share: share2 } = socioUpdates[1]
 const { cpfSocio: cpfSocio3, emailSocio: emailSocio3, share: share3 } = socioUpdates[2]
 
-describe('Adding a new Socio for a existing Empresa', () => {
+describe('Adding a new and existing Socios for an existing Empresa', () => {
     beforeEach(() => {
         //@ts-ignore
         cy.startSession()

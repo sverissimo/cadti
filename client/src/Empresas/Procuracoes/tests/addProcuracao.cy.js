@@ -4,7 +4,7 @@ import addProcuracaoInput from './fixtures/addProcuracaoInput.json'
 const { razaoSocial, vencimento, procuradores } = addProcuracaoInput
 const filesFolder = './src/Empresas/Procuracoes/tests/fixtures'
 
-describe('Adding a new Socio for a existing Empresa', () => {
+describe('Adding a new Procuracao with new and existing procuradores', () => {
     beforeEach(() => {
         //@ts-ignore
         cy.startSession()

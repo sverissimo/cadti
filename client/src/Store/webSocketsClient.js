@@ -18,16 +18,13 @@ const startSocket = ({ insertData, updateData, deleteOne, updateDocs, user, edit
         insertData(insertedObjects, collection)
     })
     socket.on('updateAny', ({ data, collection, primaryKey }) => updateData(data, collection, primaryKey))
-    socket.on('updateDocs', ({ ids, metadata, collection, primaryKey }) => updateDocs(ids, metadata, collection, primaryKey))
+    socket.on('updateDocs', ({ data, collection, primaryKey }) => updateDocs(data, collection, primaryKey))
     socket.on('updateUser', updatedUser => editUser(updatedUser))
     socket.on('deleteOne', ({ id, tablePK, collection }) => {
         console.log({ id, tablePK, collection })
         deleteOne(id, tablePK, collection)
     })
-    socket.on('insertFiles', object => {
-        const { insertedObjects, collection } = object
-        insertData(insertedObjects, collection)
-    })
+    socket.on('insertFiles', ({ data, collection }) => { insertData(data, collection) })
 
     return socket
 }
