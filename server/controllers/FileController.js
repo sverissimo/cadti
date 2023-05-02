@@ -1,40 +1,66 @@
 //@ts-check
 const mongoose = require('mongoose')
-const { permanentBackup } = require("../fileBackup/permanentBackup")
-const { mongoDownload, getOneFileMetadata } = require("../mongo/mongoDownload")
 const Grid = require('gridfs-stream')
 const { FileService } = require('../services/FileService')
 const { CustomSocket } = require('../sockets/CustomSocket')
+const { conn } = require('../mongo/mongoConfig')
 
 class FileController {
 
     /** @type {Grid.Grid} gfs     */
     gfs
-    constructor() {
-        mongoose.connection.once('open', () => this.gfs = Grid(mongoose.connection.db, mongoose.mongo))
+    constructor(collection) {
+        this.collection = collection
+        if (!this.gfs) {
+            mongoose.connection.once('open', () => { this.gfs = Grid(conn.db, mongoose.mongo) })
+        }
     }
 
-    backupAndSendUpdate = async (req, res) => {
+    backupAndSendUpdate = async (req, res, next) => {
         const { files } = req
         if (!files || !files.length) {
             return res.status(400).send('No files to upload')
         }
 
-        const io = req.app.get('io')
-        const filesMetadata = await FileService.createBackupMetadata(files)
+        try {
+            const io = req.app.get('io')
+            const filesMetadata = await FileService.createBackupMetadata(files)
+            const { metadata } = filesMetadata[0]
+            const { empresaId } = metadata && metadata
 
-        const { metadata } = filesMetadata[0]
-        const { empresaId, veiculoId } = metadata && metadata
+            const filesSocket = new CustomSocket(io, this.collection)
 
-        const collection = veiculoId ? 'vehicleDocs' : 'empresaDocs'
-        const filesSocket = new CustomSocket(io, collection)
-
-        filesSocket.emit('insertFiles', filesMetadata, empresaId)
-        io.to('backupService').emit('newFileSaved', filesMetadata)
-        return res.json({ files: filesMetadata })
+            filesSocket.emit('insertFiles', filesMetadata, empresaId)
+            io.to('backupService').emit('newFileSaved', filesMetadata)
+            return res.json({ files: filesMetadata })
+        } catch (error) {
+            next(error)
+        }
     }
 
-    mongoDownload = (req, res) => mongoDownload(req, res, this.gfs)
+    download = async (req, res, next) => {
+        try {
+            const { id } = req.query
+            const collection = req.query.collection
+
+            const queryResult = await new FileService(collection).download(id, this.gfs)
+            if (!queryResult) {
+                return res.status(404).send('File not found')
+            }
+
+            const { file, fileStream } = queryResult
+
+            res.set({
+                'Content-Type': file.contentType,
+                'Content-Disposition': 'attachment',
+            })
+
+            return fileStream.pipe(res)
+
+        } catch (error) {
+            next(error)
+        }
+    }
 
     getFiles = async (req, res, next) => {
         try {
@@ -52,7 +78,16 @@ class FileController {
         }
     }
 
-    getOneFileMetadata = (req, res) => getOneFileMetadata(req, res)
+    getFileMetadata = async (req, res, next) => {
+        try {
+            const { collection, ...filter } = req.query
+            const fileService = new FileService(collection)
+            const file = await fileService.getFileMetadata({ ...filter })
+            res.send(file)
+        } catch (error) {
+            next(error)
+        }
+    }
 
     updateFilesMetadata = async (req, res, next) => {
         const { collection, ids, metadata } = req.body
@@ -76,10 +111,13 @@ class FileController {
             }
 
             const io = req.app.get('io')
-            const filesMetadata = FileService.createBackupMetadata(files)
+
+            //### TODO: avaliar se é preciso o backup do arquivo novamente ao se alterar a metadata (Procurações)
+            const filesMetadata = await FileService.createBackupMetadata(files)
             io.to('backupService').emit('newFileSaved', filesMetadata)
 
             const { empresaId } = filesMetadata[0].metadata
+            console.log("🚀 ~ file: FileController.js:118 ~ FileController ~ updateFilesMetadata= ~ empresaId:", empresaId)
             const filesSocket = new CustomSocket(io, collection)
             filesSocket.emit('updateDocs', data, empresaId)
             return res.status(204).end()

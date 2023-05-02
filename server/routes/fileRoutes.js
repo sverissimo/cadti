@@ -7,17 +7,17 @@ const fileController = new FileController()
 const fileRouter = app => {
     app.post('/api/empresaUpload',
         empresaUpload.any(),
-        fileController.backupAndSendUpdate
+        new FileController('empresaDocs').backupAndSendUpdate
     )
 
     app.post('/api/vehicleUpload',
         vehicleUpload.any(),
-        fileController.backupAndSendUpdate
+        new FileController('vehicleDocs').backupAndSendUpdate
     )
 
-    app.get('/api/mongoDownload/', fileController.mongoDownload)
+    app.get('/api/download/', fileController.download)
     app.get('/api/getFiles/:collection', fileController.getFiles)
-    app.get('/api/getOneFile/', fileController.getOneFileMetadata)
+    app.get('/api/getOneFile/', fileController.getFileMetadata)
     app.put('/api/updateFilesMetadata', requireSeinfra, fileController.updateFilesMetadata)
     app.delete('/api/deleteFile', fileController.deleteFile)
 }

@@ -21,6 +21,28 @@ class FileService {
     }
 
     /**
+    * @param {string} id
+    * @param {any} gfs
+    * @returns {Promise<object|null>}
+    */
+    download = async (id, gfs) => {
+        const _id = new mongoose.mongo.ObjectId(id)
+
+        gfs.collection(this.collection)
+        const file = await gfs.files.findOne({ _id })
+        if (!file) {
+            return null
+        }
+        const fileStream = gfs.createReadStream({ filename: file.filename })
+        return { file, fileStream }
+    }
+
+    getFileMetadata = async (filter) => {
+        const file = await this.model.findOne(filter)
+        return file
+    }
+
+    /**
     * @param {object} inputObject
     * @returns {Promise<object[]>}
     */
@@ -52,7 +74,9 @@ class FileService {
      * @returns {Promise<object[]>}
     */
     static createBackupMetadata = async (files) => {
+        console.log("🚀 ~ file: FileService.js:77 ~ FileService ~ createBackupMetadata= ~ files:", files)
         const additionalMetadata = await FileService._getPlacaAndEmpresa(files[0].metadata)
+        console.log("🚀 ~ file: FileService.js:79 ~ FileService ~ createBackupMetadata= ~ additionalMetadata:", additionalMetadata)
         const filesMetadata = files.map(f => ({
             ...f,
             length: f.size || f.length,
@@ -77,16 +101,19 @@ class FileService {
             .reduce((prev, curr) => ({ ...prev, ...curr }), {})
 
         const filter = { "_id": { $in: ids } }
-        const { nModified } = await this.model.updateMany(
+        const result = await this.model.updateMany(
             filter,
             { "$set": update }
         )
+        console.log("🚀 ~ file: FileService.js:107 ~ FileService ~ updateFilesMetadata= ~ result:", result)
 
-        if (!!!nModified) {
+        const { n, nModified } = result
+        if (!!!nModified && !n) {
             return false
         }
 
-        const updatedDocs = this.model.find(filter)
+        const updatedDocs = await this.model.find(filter).lean()
+        console.log("🚀 ~ file: FileService.js:116 ~ FileService ~ updateFilesMetadata= ~ updatedDocs:", updatedDocs)
         return updatedDocs
     }
 

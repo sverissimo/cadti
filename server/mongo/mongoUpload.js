@@ -11,7 +11,6 @@ let gfs
 conn.on('error', console.error.bind(console, 'connection error:'))
 conn.once('open', () => {
     gfs = Grid(conn.db);
-    gfs.collection('vehicleDocs')
 })
 
 function uploadHandler(collection) {

@@ -1,6 +1,6 @@
 //@ts-check
 /// <reference types="cypress" />
-import addVeiculoInput from './fixtures/addVeiculoInput.json'
+import addVeiculoInput from './fixtures/addVeiculoInput2.json'
 const { razaoSocial, utilizacao, dominio } = addVeiculoInput
 const filesFolder = './src/Empresas/AltContrato/tests/fixtures'
 const randomPlate = 'AAA' + Math.round(Math.random() * 10000)

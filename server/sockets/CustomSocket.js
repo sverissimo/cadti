@@ -26,6 +26,7 @@ class CustomSocket {
     * @param {number | string} [codigoEmpresa ]
      */
     emit(event, data, codigoEmpresa) {
+        console.log("🚀 ~ file: CustomSocket.js:29 ~ CustomSocket ~ emit ~ codigoEmpresa:", codigoEmpresa)
         const formattedData = {
             data,
             primaryKey: this.primaryKey,
