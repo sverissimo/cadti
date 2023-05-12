@@ -1,7 +1,7 @@
 {
-  "name": "sismob",
-  "version": "1.0.0",
-  "description": "Sistema de informações de mobilidade - MG / by Sandro Veríssimo",
+  "name": "cadti",
+  "version": "2.3.1",
+  "description": "Sistema de Gestão do Cadastro do Transporte Intermunicipal - MG",
   "main": "index.js",
   "scripts": {
     "client": "npm run start --prefix client",

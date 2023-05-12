@@ -1,3 +1,3 @@
 Echo Starting cadTI NodeJS server in 5 seconds...
 TIMEOUT /T 5
-cd\sismob && pm2 start c:\sismob\ecosystem.config.js
+cd\cadti && pm2 start c:\cadti\ecosystem.config.js
