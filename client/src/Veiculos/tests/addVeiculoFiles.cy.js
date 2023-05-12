@@ -3,7 +3,7 @@
 import addVeiculoInput from './fixtures/addVeiculoInput2.json'
 const { razaoSocial, utilizacao, dominio } = addVeiculoInput
 const filesFolder = './src/Empresas/AltContrato/tests/fixtures'
-const randomPlate = 'AAA' + Math.round(Math.random() * 10000)
+const randomPlate = 'ZZZ' + Math.round(Math.random() * 10000)
 
 describe('Adding a new Vehicle and uploading files', () => {
     beforeEach(() => {

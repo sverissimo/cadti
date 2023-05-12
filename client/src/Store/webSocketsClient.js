@@ -3,14 +3,13 @@ import { getEnvironment } from '../getEnvironment'
 const socketIO = require('socket.io-client')
 const { webSocketHost, options } = getEnvironment()
 
-
 const startSocket = ({ insertData, updateData, deleteOne, updateDocs, user, editUser }) => {
     let socket
     if (!socket) {
         socket = socketIO({ url: webSocketHost, options })
     }
-
-    socket.on('connect', () => socket.emit('userDetails', user))
+    const { deletedMessages, messagesRead, ...userSocket } = user
+    socket.on('connect', () => socket.emit('userDetails', userSocket))
 
     socket.on('insertElements', ({ data, collection }) => insertData(data, collection))
     socket.on('addElements', ({ insertedObjects, table }) => {
@@ -28,6 +27,5 @@ const startSocket = ({ insertData, updateData, deleteOne, updateDocs, user, edit
 
     return socket
 }
-
 
 export default startSocket

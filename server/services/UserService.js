@@ -3,6 +3,8 @@ const bcrypt = require('bcrypt');
 const sendMail = require("../mail/sendMail")
 const newUserTemplate = require("../mail/templates/newUserTemplate")
 const UserModel = require("../mongo/models/userModel");
+const ProcuradorRepository = require('../repositories/ProcuradorRepository');
+const SocioRepository = require('../repositories/SocioRepository');
 const { hasOtherProcuracao, isSocio } = require('./utilServices');
 
 class UserService {
@@ -42,21 +44,17 @@ class UserService {
      *
      * @param {User} user     */
     static addUser = async (user) => {
-        const { name, email, password, passwordHash } = user
-        const subject = 'CadTI - usuário cadastrado com sucesso.'
+        const { name, email, passwordHash } = user;
 
-        user.password = passwordHash
-        const newUser = new UserModel(user)
+        const userToSave = { ...user, password: passwordHash };
+        const createdUser = await UserModel.create(userToSave);
 
-        newUser.save((err, savedUser) => {
-            if (err) {
-                throw new Error(err.message)
-            }
-            const message = newUserTemplate(email, password)
-            //@ts-ignore
-            sendMail({ to: email, subject, vocativo: name, message })
-            return savedUser
-        })
+        const subject = 'CadTI - usuário cadastrado com sucesso.';
+        const message = newUserTemplate(email, passwordHash);
+        await sendMail({ to: email, subject, vocativo: name, message });
+
+        const { password, ...userWithoutPassword } = createdUser.toObject();
+        return userWithoutPassword;
     }
 
     static editUser = async (user) => {
@@ -76,6 +74,35 @@ class UserService {
             throw new Error(error.message)
         }
     }
+
+    /**
+     * Recebe um sócio ou procurador a ser apagado e atualiza as permissões de usuários
+     * @param {object} data - props: cpf e table
+     */
+    static softDeleteUser = async ({ cpf, table }) => {
+        const user = await UserService.find({ cpf })
+        if (!user) {
+            return false
+        }
+
+        let empresas = []
+        if (table === 'procuradores') {
+            const socio = await new SocioRepository().find({ cpf_socio: cpf })
+            //@ts-ignore
+            if (socio.length) empresas = socio.empresas.map(e => e.codigoEmpresa)
+        }
+
+        if (table === 'socios') {
+            const procurador = await new ProcuradorRepository().find({ cpf_procurador: cpf })
+            //@ts-ignore
+            if (procurador.length) empresas = procurador.empresas
+        }
+
+        const updateUser = await UserService.editUser({ cpf, empresas })
+        return updateUser
+    }
+
+
 
     /**
      * @param {object[]} representantes - procuradores ou sócios

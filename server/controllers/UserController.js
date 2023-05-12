@@ -46,7 +46,7 @@ class UserController {
             const savedUser = await UserService.addUser(user)
             const update = { data: [savedUser], collection: 'users' }
 
-            io.sockets.emit('insertElements', update)
+            io.sockets.to('admin').to('tecnico').emit('insertElements', update)
             res.status(201).send('saved.')
         } catch (error) {
             next(error)
@@ -70,7 +70,7 @@ class UserController {
 
             const io = req.app.get('io')
             const update = { data: [updatedUser], collection: 'users', primaryKey: 'id' }
-            await io.sockets.emit('updateAny', update)
+            await io.sockets.to('admin').to('tecnico').emit('updateAny', update)
             res.status(200).send('Dados de usuário atualizados com sucesso!')
         } catch (error) {
             next(error)
@@ -83,8 +83,28 @@ class UserController {
         try {
             await UserService.deleteUser(id)
             const update = { id, tablePK: 'id', collection: 'users' }
-            io.sockets.emit('deleteOne', update)
+            io.sockets.to('admin').to('tecnico').emit('deleteOne', update)
             res.status(204).end()
+        } catch (error) {
+            next(error)
+        }
+    }
+
+    softDelete = async (req, res, next) => {
+        const { cpf, table } = req.body
+        try {
+            const updatedUser = await UserService.softDeleteUser({ cpf, table })
+            if (!updatedUser) {
+                return res.status(404).send('Usuário não encontrado na base do CADTI.')
+            }
+
+            const io = req.app.get('io')
+            const update = { data: [updatedUser], collection: 'users', primaryKey: 'id' }
+            await io.sockets
+                .to('admin')
+                .to('tecnico')
+                .emit('updateAny', update)
+            res.status(200).send('Dados de usuário atualizados com sucesso!')
         } catch (error) {
             next(error)
         }

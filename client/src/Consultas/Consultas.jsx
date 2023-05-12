@@ -173,36 +173,51 @@ class ConsultasContainer extends Component {
         })
     }
 
-    deleteHandler = data => {
-        const { dbTables, tablePKs, tab } = this.state,
-            table = dbTables[tab],
-            tablePK = tablePKs[tab],
-            itemId = humps.camelize(tablePK)
+    deactivateEmpresa = async data => {
+        const { codigoEmpresa } = data
+        const reqBody = {
+            table: 'empresas',
+            tablePK: 'codigo_empresa',
+            update: {
+                codigo_empresa: codigoEmpresa,
+                situacao: 'Desativada'
+            }
+        }
+        await axios.put('/api/editElements', reqBody)
+        this.closeConfirmDialog()
+    }
 
-        let { codigoEmpresa } = data
-
-        //Socios e procuradores não possuem codigoEmpresa, mas array de empresa
-        if (table === 'socios' || table === 'procuradores')
-            codigoEmpresa = JSON.stringify(data?.empresas)
-
+    deleteHandler = async data => {
         //Demanda da SGTI para não apagar as empresas, mas alterar o status para "inativo"
         if (tab === 0) {
-            codigoEmpresa = data
-            const reqBody = {
-                table,
-                tablePK: 'codigo_empresa',
-                update: {
-                    codigo_empresa: codigoEmpresa,
-                    situacao: 'Desativada'
-                }
-            }
-
-            axios.put('/api/editElements', reqBody)
-            this.closeConfirmDialog()
+            await this.deactivateEmpresa(data)
+            return
         }
-        else
-            axios.delete(`/api/delete?table=${table}&tablePK=${tablePK}&id=${data[itemId]}&codigoEmpresa=${codigoEmpresa}&cpf_socio=${data.cpfSocio}&cpf_procurador=${data.cpfProcurador}`)
-                .then(r => console.log(r.data))
+
+        const { codigoEmpresa } = data
+        const { dbTables, tablePKs, tab } = this.state
+        const table = dbTables[tab]
+        const tablePK = tablePKs[tab]
+        const itemId = humps.camelize(tablePK)
+
+        //Métodos especiais de DELETE, pois também removem permissão de usuário
+        if (tab === 1) {
+            const update = { cpf: data.cpfSocio || data.cpfProcurador, table }
+            await axios.patch(`/api/users/softDelete`, update)
+                .catch(err => console.log(err))
+        }
+
+        if (tab === 2) {
+            const { procuracoes } = this.props.redux
+            const procuracaoActive = procuracoes.find(p => p.procuradores.includes(data.procuradorId))
+            if (procuracaoActive) {
+                alert(`Não é possível remover o procurador ${data.nomeProcurador}. Motivo: procuração vigente na empresa ${procuracaoActive.razaoSocial}.`)
+                return
+            }
+        }
+
+        axios.delete(`/api/delete?table=${table}&tablePK=${tablePK}&id=${data[itemId]}&codigoEmpresa=${codigoEmpresa}`)
+            .catch(err => console.log(err))
     }
 
     showCertificate = async vehicle => {

@@ -57,16 +57,6 @@ router.put('/editElements', requireSeinfra, (req, res, next) => {
     return controller.update(req, res, next)
 })
 
-router.delete('/delete', requireSeinfra, (req, res, next) => {
-    const { table } = req.query
-    if (table === 'procuradores') {
-        return new ProcuradorController().delete(req, res, next)
-    }
-    if (table === 'socios') {
-        return new SocioController().delete(req, res, next)
-    }
-
-    new Controller().delete(req, res, next)
-})
+router.delete('/delete', requireSeinfra, new Controller().delete)
 
 module.exports = router

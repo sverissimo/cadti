@@ -12,6 +12,8 @@ router.route('/')
     .post(requireAdmin, generatePass, userController.addUser)
     .put(userController.editUser)
     .delete(requireAdmin, userController.deleteUser)
+
+router.patch('/softDelete', requireAdmin, userController.softDelete)
 //A rota PUT não possui autenticação padrão porque o próprio usuário pode alterar seus dados.
 
 module.exports = { userRoutes: router }

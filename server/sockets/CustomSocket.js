@@ -62,7 +62,7 @@ class CustomSocket {
             return
         }
 
-        const authorizedUsers = this._getSocketRecipients(codigoEmpresa)
+        const authorizedUsers = codigoEmpresa ? this._getSocketRecipients(codigoEmpresa) : []
         this._filterAndEmitSockets({
             data,
             event: 'deleteOne',

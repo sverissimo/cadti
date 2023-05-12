@@ -6,10 +6,8 @@ import ReactToast from '../Reusable Components/ReactToast'
 import removePDF from '../Utils/removePDFButton'
 
 const Users = props => {
-
-    const
-        { users, socios } = props.redux,
-        [state, setState] = useState({ confirmToast: false })
+    const { users, socios, procuradores } = props.redux
+    const [state, setState] = useState({ confirmToast: false })
 
     //Desabilita opção de exportar como PDF do material-table
     useEffect(() => {
@@ -18,18 +16,22 @@ const Users = props => {
     }, [])
 
     const addUser = async user => {
+        const empresas = []
+        const { cpf } = user
+        const socio = socios.find(s => s.cpfSocio === cpf)
+        const procurador = procuradores.find(p => p.cpfProcurador === cpf)
+        const socioEmpresas = socio?.empresas || []
+        const procuradorEmpresas = procurador?.empresas || []
 
-        const
-            { cpf } = user,
-            socio = socios.find(s => s.cpfSocio === cpf)
-
-        if (socio)
-            user.empresas = [socio.codigoEmpresa]
+        if (socioEmpresas) empresas.push(...socioEmpresas.map(e => e.codigoEmpresa))
+        if (procuradorEmpresas) empresas.push(...procuradorEmpresas)
+        user.empresas = empresas
 
         axios.post('/api/users', user)
             .then(r => console.log(r.data))
             .catch(err => toast(' Erro!'))
     }
+
     const editUsers = user => {
         axios.put('/api/users', user)
             .then(r => console.log(r.data))
@@ -60,6 +62,6 @@ const Users = props => {
     )
 }
 
-const collection = ['users', 'socios']
+const collection = ['users', 'socios', 'procuradores']
 
 export default StoreHOC(collection, Users)
