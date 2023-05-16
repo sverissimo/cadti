@@ -87,8 +87,7 @@ class VeiculoService {
      */
     static updateVehicleStatus = async (ids) => {
         try {
-            const vehicleFilter = ids || ''
-            const veiculos = await this.repository.find(vehicleFilter)
+            const veiculos = ids ? await this.repository.find(ids) : await this.repository.list()
             const updatedStatus = await this._getUpdatedVehicleStatus(veiculos)
             const result = await this.repository.updateMany(updatedStatus)
             return result
