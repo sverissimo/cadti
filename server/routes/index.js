@@ -14,8 +14,6 @@ const parametros = require('../parametros/parametros')
 const { lookup } = require('../infrastructure/SQLqueries/queries')
 const { Controller } = require('../controllers/Controller')
 const { requireSeinfra } = require('../auth/checkPermissions')
-const ProcuradorController = require('../controllers/ProcuradorController')
-const { SocioController } = require('../controllers/SocioController')
 const { solicitacoesRoutes } = require('./solicitacoesRoutes')
 
 router.use('/avisos', alertRoutes)

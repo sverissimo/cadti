@@ -117,7 +117,7 @@ class ProcuradorController extends Controller {
         const io = req.app.get('io')
         const socket = new CustomSocket(io, this.table, this.primaryKey)
         socket.delete(id, codigoEmpresa)
-        return res.status(204).end()
+        res.status(204).end()
     }
 }
 

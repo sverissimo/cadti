@@ -3,6 +3,7 @@ const { Controller } = require('./Controller')
 const { ProcuracaoService } = require('../services/ProcuracaoService')
 const { CustomSocket } = require('../sockets/CustomSocket')
 const ProcuradorRepository = require('../repositories/ProcuradorRepository')
+const { Repository } = require('../repositories/Repository')
 
 class ProcuracaoController extends Controller {
 
@@ -19,14 +20,13 @@ class ProcuracaoController extends Controller {
                 return res.status(400).send('ProcuracaoController: Could not save procuracao.')
             }
 
-            const savedProcuracao = [{ procuracao_id: procuracaoId, ...procuracao }]
+            const savedProcuracao = await new Repository('procuracoes', 'procuracao_id').find(procuracaoId)
             const io = req.app.get('io')
             const procuracaoSocket = new CustomSocket(io, this.table, this.primaryKey)
             const procuradorSocket = new CustomSocket(io, 'procuradores', 'procurador_id')
 
             procuradorSocket.emit('updateAny', procuradores, codigoEmpresa)
             procuracaoSocket.emit('insertElements', savedProcuracao, codigoEmpresa)
-            console.log("🚀 ~ file: ProcuracaoController.js:36 ~ ProcuracaoController ~ save= ~ procuracaoId", { procuracaoId })
             res.status(201).send(JSON.stringify(procuracaoId))
 
         } catch (error) {

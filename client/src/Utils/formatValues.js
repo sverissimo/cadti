@@ -17,8 +17,11 @@ export const formatDate = (date, min) => {
 }
 
 export const toInputDate = (stringDate = '') => {
+    if (!stringDate) {
+        return undefined
+    }
     const date = stringDate.slice(0, 10)
-    return date || undefined
+    return date
 }
 
 export const formatMoney = (value = '') => {

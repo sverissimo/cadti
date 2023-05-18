@@ -149,12 +149,21 @@ const ProcuracoesContainer = (props) => {
 
         if (newMembers.length > 0) {
             newMembers.forEach(m => m.empresas = [codigoEmpresa])
-            const procuradores = humps.decamelizeKeys(newMembers)
-            const { data: ids } = await axios.post('/api/procuradores', {
-                codigoEmpresa,
-                procuradores,
-            })
-            procuradoresIDs.push(...ids)
+            //TEMPORARY, to fix old entries
+            const newMembersCpfs = newMembers.map(m => m.cpfProcurador)
+            const { data: notNewMembers } = await axios.get(`api/procuradores?cpf_procurador=${newMembersCpfs.join()}`)
+            const notNewMembersCpfs = notNewMembers.map(m => m.cpf_procurador)
+            const realNewMembers = newMembers.filter(m => !notNewMembersCpfs.includes(m.cpfProcurador))
+
+            const procuradores = humps.decamelizeKeys(realNewMembers)
+            if (procuradores.length) {
+                const { data: ids } = await axios.post('/api/procuradores', {
+                    codigoEmpresa,
+                    procuradores,
+                })
+                procuradoresIDs.push(...ids)
+            }
+            procuradoresIDs.push(...notNewMembers.map(m => m.procurador_id))
         }
 
         const novaProcuracao = {
