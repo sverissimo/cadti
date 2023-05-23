@@ -1,32 +1,29 @@
 import React, { useEffect, useState, useCallback } from 'react'
-import StoreHOC from '../Store/StoreHOC'
 import axios from 'axios'
-import { bindActionCreators } from 'redux'
-import { deleteOne } from '../Store/dataActions'
 import { connect } from 'react-redux'
-import AvisosTemplate from './AvisosTemplate'
-import removePDF from '../Utils/removePDFButton'
-import ConfirmDialog from '../Reusable Components/ConfirmDialog'
-import NewAviso from './NewAviso'
+import { bindActionCreators } from 'redux'
+import StoreHOC from '../Store/StoreHOC'
 import { editUser } from '../Store/userActions'
+import { deleteOne } from '../Store/dataActions'
+import removePDF from '../Utils/removePDFButton'
+import NewAviso from './NewAviso'
+import AvisosTemplate from './AvisosTemplate'
+import ConfirmDialog from '../Reusable Components/ConfirmDialog'
 import ReactToast from '../Reusable Components/ReactToast'
 
 const Avisos = props => {
-    const
-        originalAvisos = props.redux.avisos
-        , remetentePadrao = props.redux.parametros[0]?.nomes?.siglaSistema
-        , { name, role: userRole } = props?.user
-        , messagesRead = props?.user?.messagesRead || []
-        , deletedMessages = props?.user?.deletedMessages || []
-        , [state, setState] = useState({
-            unreadOnly: false,
-            showAviso: false,
-            writeNewAviso: false,
-            rowsSelected: false,
-            toast: false,
-            from: name
-        })
-
+    const originalAvisos = props.redux.avisos
+    const remetentePadrao = props.redux.parametros[0]?.nomes?.siglaSistema
+    const { name, role: userRole } = props?.user
+    const deletedMessages = props?.user?.deletedMessages || []
+    const [state, setState] = useState({
+        unreadOnly: false,
+        showAviso: false,
+        writeNewAviso: false,
+        rowsSelected: false,
+        toast: false,
+        from: name
+    })
 
     //Adiciona tecla de atalho ('Esc') para fechar o aviso
     const escFunction = useCallback(e => {
@@ -45,35 +42,22 @@ const Avisos = props => {
         return () => document.removeEventListener('keydown', escFunction, false)
     }, [escFunction])
 
-    //Atualiza a prop allAreUnread do state para a correta renderização e modificação do status de múltiplas mensagens (read: true ou false)
     useEffect(() => {
-        let avisos = [...originalAvisos]
+        let avisos = JSON.parse(JSON.stringify(originalAvisos))
             .filter(({ id }) => !deletedMessages.includes(id))
-            .sort((a, b) => new Date(b?.createdAt) - new Date(a?.createdAt)) //ordena por mais recente primeiro
+            .sort((a, b) => new Date(b?.createdAt) - new Date(a?.createdAt))
 
-        for (let a of avisos) {
-            //Marca como lida o não lida dependendo do usuário logado
-            if (Array.isArray(messagesRead) && messagesRead.includes(a.id))
-                a.read = true
-            else
-                a.read = false
-        }
+        const messagesRead = props?.user?.messagesRead || []
+        avisos.forEach(a => a.read = messagesRead && messagesRead.includes(a.id))
 
-        const
-            allAreUnread = avisos.every(a => a.read === false)
-            , unreadOnly = state.unreadOnly
-
-        if (allAreUnread)
-            setState(s => ({ ...s, allAreUnread: true }))
-
-        if (unreadOnly)
+        if (state.unreadOnly) {
             avisos = avisos.filter(a => a.read === false)
+        }
+        const allAreUnread = avisos.every(a => a.read === false)
 
-        setState(s => ({ ...s, avisos }))
-    }, [props.redux.avisos, state.unreadOnly, messagesRead, originalAvisos])
+        setState(s => ({ ...s, avisos, allAreUnread }))
+    }, [props?.user?.messagesRead, state.unreadOnly, originalAvisos])
 
-
-    //Abre o aviso
     const openAviso = (event, rowData) => {
 
         const
@@ -87,16 +71,14 @@ const Avisos = props => {
         setState({ ...state, aviso, showAviso: true })
     }
 
-    //Marca todos os avisos como lidos ou não lidos
     const toggleReadMessage = data => {
         //Se for selecionado apenas um aviso, o arg é objeto, transformar em array
         if (data instanceof Array === false)
             data = [data]
 
-        const
-            updatedAvisos = [...state.avisos]
-            , allAreUnread = data.every(aviso => aviso.read === false)
-            , ids = data.map(d => d.id)
+        const updatedAvisos = [...state.avisos]
+        const allAreUnread = data.every(aviso => aviso.read === false)
+        const ids = data.map(d => d.id)
 
         let updatedReadStatus
 
@@ -113,11 +95,10 @@ const Avisos = props => {
                 a.read = updatedReadStatus
         }
 
-        const
-            { id, cpf } = props.user
-            , messagesRead = updatedAvisos
-                .filter(a => a.read === true)
-                .map(a => a.id)
+        const { id, cpf } = props.user
+        const messagesRead = updatedAvisos
+            .filter(a => a.read === true)
+            .map(a => a.id)
 
         axios.patch(`/api/avisos/changeReadStatus`, { id, cpf, messagesRead })
             .catch(err => {
@@ -125,7 +106,6 @@ const Avisos = props => {
                 throw new Error(err)
             })
 
-        //Atualiza a prop messagesRead do user no store (redux)
         props.editUser({ ...props.user, messagesRead })
     }
 
@@ -187,10 +167,9 @@ const Avisos = props => {
     }
 
     const handleSubmit = () => {
-        const
-            { to, subject, avisoText } = state
-            , vocativo = to
-            , { user } = props
+        const { to, subject, avisoText } = state
+        const vocativo = to
+        const { user } = props
         let from
         if (user.role === 'admin')
             from = 'Administrador do sistema'
@@ -205,12 +184,11 @@ const Avisos = props => {
 
     }
 
-    const
-        showUnreadOnly = () => setState({ ...state, unreadOnly: !state.unreadOnly })
-        , toggleAviso = () => setState({ ...state, showAviso: !state.showAviso })
-        , closeConfirmDialog = () => setState({ ...state, openConfirmDialog: false })
-        , toggleNewAviso = () => setState({ ...state, writeNewAviso: !state.writeNewAviso })
-        , toggleToast = () => setState({ ...state, toast: !state.toast })
+    const showUnreadOnly = () => setState({ ...state, unreadOnly: !state.unreadOnly })
+    const toggleAviso = () => setState({ ...state, showAviso: !state.showAviso })
+    const closeConfirmDialog = () => setState({ ...state, openConfirmDialog: false })
+    const toggleNewAviso = () => setState({ ...state, writeNewAviso: !state.writeNewAviso })
+    const toggleToast = () => setState({ ...state, toast: !state.toast })
 
     return (
         <>

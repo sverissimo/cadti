@@ -9,7 +9,11 @@ class AlertController {
         try {
             const filter = { _id: req.user._id }
             const user = await UserService.find(filter)
-            const alerts = await new AlertService({}).getAllAlerts(user)
+            if (!user.length) {
+                return res.json([])
+            }
+
+            const alerts = await new AlertService({}).getAllAlerts(user[0])
             res.send(alerts)
         } catch (error) {
             next(error)

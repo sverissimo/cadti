@@ -1,16 +1,11 @@
 //@ts-check
-/**
- * @module AlertService
- */
-
-const
-    fs = require('fs')
-    , path = require('path')
-    , htmlGenerator = require('../../mail/htmlGenerator')
-    , AlertRepository = require('../repositories/AlertRepository')
-    , moment = require('moment')
-    , UserAlert = require('../userAlerts/UserAlert')
-    , sendMail = require('../../mail/sendMail')
+const fs = require('fs')
+const path = require('path')
+const moment = require('moment')
+const htmlGenerator = require('../../mail/htmlGenerator')
+const sendMail = require('../../mail/sendMail')
+const AlertRepository = require('../repositories/AlertRepository')
+const UserAlert = require('../userAlerts/UserAlert')
 
 /**
 * Classe responsável por gerenciar e oferecer serviços de envio (ex: email) e armazenamento de alertas, além de método de testes.
@@ -30,10 +25,8 @@ class AlertService {
     }
 
     async getAllAlerts(user) {
-
-        const
-            { empresas, deletedMessages } = user
-            , allAlerts = await new AlertRepository().getAlertsFromDB(empresas, deletedMessages)
+        const { empresas, deletedMessages } = user
+        const allAlerts = await new AlertRepository().getAlertsFromDB(empresas, deletedMessages)
         return allAlerts
     }
 
