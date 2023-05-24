@@ -6,6 +6,7 @@ const htmlGenerator = require('../../mail/htmlGenerator')
 const sendMail = require('../../mail/sendMail')
 const AlertRepository = require('../repositories/AlertRepository')
 const UserAlert = require('../userAlerts/UserAlert')
+const { UserService } = require('../../services/UserService')
 
 /**
 * Classe responsável por gerenciar e oferecer serviços de envio (ex: email) e armazenamento de alertas, além de método de testes.
@@ -26,6 +27,10 @@ class AlertService {
 
     async getAllAlerts(user) {
         const { empresas, deletedMessages } = user
+        if (user.role === 'empresa' && (!user.empresas || !user.empresas.length)) {
+            return []
+        }
+
         const allAlerts = await new AlertRepository().getAlertsFromDB(empresas, deletedMessages)
         return allAlerts
     }
@@ -166,8 +171,22 @@ class AlertService {
         sendMail({ to, subject, vocativo: 'Equipe DGTI', message, sendMail: true })
         //console.log("🚀 ~ file: AlertService.js ~ line 180 ~ AlertService ~ sendAlertsToAdmin ~ html", html)
     }
+
+    /**
+     * Apaga avisos antigos. Padrão é anteriores a 3 meses da data atual
+     *  @param {number} monthsOld
+     */
+    static async removeOldAlerts(monthsOld = 3) {
+        const oldMessages = await new AlertRepository().getOldAlerts(monthsOld)
+        const oldMessageIds = oldMessages.map(doc => doc._id.toString())
+
+        const result = await UserService.removeOldMessages(oldMessageIds)
+        console.log("### Removed users deleted and read messages:", result)
+
+        const deleteResult = await new AlertRepository().deleteAlerts(oldMessageIds)
+        console.log(`### Removed ${monthsOld} months old alerts and older from MongoDB:`, deleteResult)
+        return deleteResult
+    }
 }
 
-//unifiedTable = tableGenerator(allTableData, tableHeaders)
 module.exports = AlertService
-

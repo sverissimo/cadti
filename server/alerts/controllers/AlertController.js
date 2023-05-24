@@ -22,8 +22,7 @@ class AlertController {
 
     async save(req, res, next) {
         try {
-            const newAlert
-                = await new AlertService().saveAlert(req.body)
+            const newAlert = await new AlertService().saveAlert(req.body)
             const io = req.app.get('io')
             io.sockets.emit('insertElements', { data: [newAlert], collection: 'avisos', })
             res.status(204).end()

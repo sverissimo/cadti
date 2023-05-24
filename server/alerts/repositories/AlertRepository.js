@@ -142,7 +142,24 @@ class AlertRepository {
         }
         return `${deletedCount} entries (messages) removed from MongoDB...`
     }
-}
 
+    async getOldAlerts(monthsOld = 3) {
+        const monthsAgo = new Date()
+        monthsAgo.setMonth(monthsAgo.getMonth() - monthsOld)
+
+        try {
+            const oldDocuments = await alertModel.find({
+                createdAt: {
+                    $lt: monthsAgo
+                }
+            }).exec()
+
+            return oldDocuments
+        } catch (error) {
+            console.error(error)
+            return null
+        }
+    }
+}
 
 module.exports = AlertRepository

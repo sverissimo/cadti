@@ -76,9 +76,9 @@ class UserService {
     }
 
     /**
-     * Recebe um sócio ou procurador a ser apagado e atualiza as permissões de usuários
-     * @param {object} data - props: cpf e table
-     */
+    * Recebe um sócio ou procurador a ser apagado e atualiza as permissões de usuários
+    * @param {object} data - props: cpf e table
+    */
     static softDeleteUser = async ({ cpf, table }) => {
         const user = await UserService.find({ cpf })
         if (!user) {
@@ -149,7 +149,12 @@ class UserService {
         }
 
         const filter = ({ 'cpf': { $in: cpfsToRemove } })
-        const userUpdate = await UserModel.updateMany(filter, { $pull: { 'empresas': Number(codigoEmpresa) } })
+        const userUpdate = await UserModel.updateMany(filter,
+            {
+                $pull: {
+                    'empresas': Number(codigoEmpresa)
+                }
+            })
         return userUpdate
     }
 
@@ -161,6 +166,16 @@ class UserService {
             }
             return 'deleted.'
         })
+    }
+
+    static removeOldMessages = async (oldDocumentIds) => {
+        const result = await UserModel.updateMany({}, {
+            $pull: {
+                messagesRead: { $in: oldDocumentIds },
+                deletedMessages: { $in: oldDocumentIds }
+            }
+        })
+        return result
     }
 }
 

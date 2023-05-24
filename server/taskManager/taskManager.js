@@ -1,9 +1,9 @@
-const
-    CronJob = require('cron').CronJob
-    , runAlerts = require('../alerts/runAlerts')
-    , runDbSync = require('../sync/runDbSync')
-    , updateSystemStatus = require('./updateSystemStatus')
-    , runMongoQuery = require('../database/runMongoQuery')
+const CronJob = require('cron').CronJob
+const runAlerts = require('../alerts/runAlerts')
+const runDbSync = require('../sync/runDbSync')
+const updateSystemStatus = require('./updateSystemStatus')
+const runMongoQuery = require('../database/runMongoQuery')
+const AlertService = require('../alerts/services/AlertService')
 
 function taskManager() {
 
@@ -34,12 +34,16 @@ function taskManager() {
         runMongoQuery('backup')
     }, null, true, 'America/Sao_Paulo');
 
+    const removeOldAlerts = new CronJob('0 30 0 * * *', () => {
+        console.log(`---- removeOldAlerts CALLED at ${d} ----`)
+        AlertService.removeOldAlerts()
+    }, null, true, 'America/Sao_Paulo');
+
     dbSyncRoutine.start()
     updateStatus.start()
     createAlerts.start()
     backupMongo.start()
-
-    void 0
+    removeOldAlerts.start()
 }
 
 module.exports = taskManager
