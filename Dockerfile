@@ -1,17 +1,6 @@
-FROM node:12
-
+FROM node:18
 WORKDIR /app
-
-COPY package*.json /app/
-
-RUN npm install
-
-COPY . /app/
-
-EXPOSE 3001
-
-#WORKDIR /app/client
-#RUN npm install
-#RUN npm build
-
+COPY . .
+RUN npm install --legacy-peer-deps
 CMD [ "npm", "run", "server" ]
+EXPOSE 3002
