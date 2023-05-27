@@ -149,8 +149,9 @@ export const updateData = (dataFromServer, collection, id) => (dispatch, getStat
     id = humps.camelize(id)
 
     const { equipamentos, acessibilidade } = getState().data
-    if (collection === 'veiculos' && equipamentos && acessibilidade)
+    if (collection === 'veiculos' && equipamentos && acessibilidade) {
         data = idsToString(data, equipamentos, acessibilidade)
+    }
 
     const payload = { collection, data, id }
 

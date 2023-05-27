@@ -12,8 +12,8 @@ class SolicitacoesController {
     }
 
     create = async (req, res, next) => {
-        const { log } = req.body
-        const { id, codigoEmpresa } = log
+        const { log, codigoEmpresa } = req.body
+        const { id } = log
         if (id) {
             return this.update(req, res, next)
         }
@@ -34,7 +34,8 @@ class SolicitacoesController {
 
     update = async (req, res, next) => {
         const { log } = req.body
-        const { id, codigoEmpresa, subject, history, status, completed } = log
+        const { id, subject, history, status, completed } = log
+        let { codigoEmpresa } = req.body
 
         let updatedObject = { status, subject, completed: completed || false }
         if (!subject) {
@@ -50,6 +51,11 @@ class SolicitacoesController {
                 },
                 { new: true }
             )
+
+            if (!codigoEmpresa) {
+                const { empresaId } = await logsModel.findById(id)
+                codigoEmpresa = empresaId && Number(empresaId)
+            }
 
             const io = req.app.get('io')
             const socket = new CustomSocket(io, 'logs', 'id')

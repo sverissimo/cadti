@@ -188,6 +188,7 @@ class ConsultasContainer extends Component {
     }
 
     deleteHandler = async data => {
+        const { tab } = this.state
         //Demanda da SGTI para não apagar as empresas, mas alterar o status para "inativo"
         if (tab === 0) {
             await this.deactivateEmpresa(data)
@@ -195,7 +196,7 @@ class ConsultasContainer extends Component {
         }
 
         const { codigoEmpresa } = data
-        const { dbTables, tablePKs, tab } = this.state
+        const { dbTables, tablePKs } = this.state
         const table = dbTables[tab]
         const tablePK = tablePKs[tab]
         const itemId = humps.camelize(tablePK)

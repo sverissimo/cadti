@@ -111,16 +111,10 @@ class FileController {
             }
 
             const io = req.app.get('io')
-            const filesMetadata = await FileService.createBackupMetadata(files)
-
-            //### TODO: avaliar se é preciso o backup do arquivo novamente ao se alterar a metadata (Procurações)
-            if (!metadata.veiculoId) {
-                io.to('backupService').emit('newFileSaved', filesMetadata)
-            }
-
-            const { empresaId } = filesMetadata[0].metadata
-            console.log("🚀 ~ file: FileController.js:118 ~ FileController ~ updateFilesMetadata= ~ empresaId:", empresaId)
             const filesSocket = new CustomSocket(io, collection)
+            const filesMetadata = await FileService.createBackupMetadata(files)
+            const { empresaId } = filesMetadata[0].metadata
+
             filesSocket.emit('updateDocs', data, empresaId)
             return res.status(204).end()
         } catch (err) {

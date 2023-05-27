@@ -74,9 +74,7 @@ class FileService {
      * @returns {Promise<object[]>}
     */
     static createBackupMetadata = async (files) => {
-        console.log("🚀 ~ file: FileService.js:77 ~ FileService ~ createBackupMetadata= ~ files:", files)
         const additionalMetadata = await FileService._getPlacaAndEmpresa(files[0].metadata)
-        console.log("🚀 ~ file: FileService.js:79 ~ FileService ~ createBackupMetadata= ~ additionalMetadata:", additionalMetadata)
         const filesMetadata = files.map(f => ({
             ...f,
             length: f.size || f.length,
@@ -113,7 +111,6 @@ class FileService {
         }
 
         const updatedDocs = await this.model.find(filter).lean()
-        console.log("🚀 ~ file: FileService.js:116 ~ FileService ~ updateFilesMetadata= ~ updatedDocs:", updatedDocs)
         return updatedDocs
     }
 

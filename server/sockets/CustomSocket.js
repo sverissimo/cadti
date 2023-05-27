@@ -23,7 +23,7 @@ class CustomSocket {
     /**
     * @param {'insertElements'|'addElements'|'updateAny'|'insertFiles'|'updateDocs'} event
     * @param {Object | any[]} data
-    * @param {number | string} [codigoEmpresa ]
+    * @param {number} [codigoEmpresa ]
      */
     emit(event, data, codigoEmpresa) {
         const formattedData = {
@@ -37,8 +37,8 @@ class CustomSocket {
             return
         }
 
-        const authorizedUsers = this._getSocketRecipients(codigoEmpresa)
-        this._filterAndEmitSockets({
+        const authorizedUsers = codigoEmpresa ? this._getSocketRecipients(codigoEmpresa) : []
+        this._emitSockets({
             event,
             data: formattedData,
             recipients: authorizedUsers,
@@ -62,7 +62,7 @@ class CustomSocket {
         }
 
         const authorizedUsers = codigoEmpresa ? this._getSocketRecipients(codigoEmpresa) : []
-        this._filterAndEmitSockets({
+        this._emitSockets({
             data,
             event: 'deleteOne',
             recipients: authorizedUsers,
@@ -80,13 +80,11 @@ class CustomSocket {
     _getSocketRecipients(codigoEmpresa) {
         const { sockets } = this.io.sockets
         const socketIds = Object.keys(sockets)
-        const authorizedSockets = socketIds.filter(id => sockets[id].empresas
-            && sockets[id].empresas.includes(codigoEmpresa))
-
+        const authorizedSockets = socketIds.filter(id => sockets[id].empresas && sockets[id].empresas.includes(codigoEmpresa))
         return authorizedSockets
     }
 
-    _filterAndEmitSockets({ event, recipients, data }) {
+    _emitSockets({ event, recipients, data }) {
         this.io.sockets
             .to('admin')
             .to('tecnico')

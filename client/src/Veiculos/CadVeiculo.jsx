@@ -26,6 +26,7 @@ import validateDist from '../Utils/validaDistanciaMinima'
 import { dischargedForm } from '../Forms/dischargedForm'
 import checkWeight, { getCMT } from './checkWeight'
 
+
 class VeiculosContainer extends PureComponent {
     constructor() {
         super()
@@ -413,16 +414,12 @@ class VeiculosContainer extends PureComponent {
     }
 
     handleCadastro = async approved => {
-        const
-            { equipamentosId, acessibilidadeId, pbt, compartilhadoId, modeloChassiId, originalVehicle, getUpdatedValues,
-                modeloCarroceriaId, selectedEmpresa, showPendencias, obs, form, demand, demandFiles, reactivated } = this.state,
-            { codigoEmpresa } = selectedEmpresa,
-            existingVeiculoId = demand?.veiculoId,
-            oldHistoryLength = demand?.history?.length || 0
+        const { equipamentosId, acessibilidadeId, pbt, compartilhadoId, modeloChassiId, originalVehicle, getUpdatedValues,
+            modeloCarroceriaId, selectedEmpresa, showPendencias, obs, form, demand, demandFiles, reactivated } = this.state
+        const { codigoEmpresa } = selectedEmpresa
+        const oldHistoryLength = demand?.history?.length || 0
 
-        let
-            veiculoId = existingVeiculoId,
-            situacao = 'Cadastro solicitado'
+        let veiculoId = demand?.veiculoId
 
         //**********Prepare the request Object************* */
         let review = {}
@@ -440,8 +437,8 @@ class VeiculosContainer extends PureComponent {
 
         //Adiciona campos que não estão no formulário ao objeto do request
         Object.assign(vReview, {
-            codigoEmpresa, situacao, pbt, modeloChassiId, modeloCarroceriaId, obs,
-            equipamentosId, acessibilidadeId, apolice: 'Seguro não cadastrado'
+            codigoEmpresa, pbt, modeloChassiId, modeloCarroceriaId, obs,
+            equipamentosId, acessibilidadeId, situacao: 'Cadastro solicitado', apolice: 'Seguro não cadastrado'
         })
 
         //Elimina chaves com empty string
@@ -456,24 +453,17 @@ class VeiculosContainer extends PureComponent {
             vReview = getUpdatedValues(originalVehicle, vReview)
 
         const vehicle = humps.decamelizeKeys(vReview)
-        //console.log(vReview, '437')
 
-        //***************If it doesn't exist, post the new vehicle Object **************** */
-        if (!existingVeiculoId)
-            await axios.post('/api/veiculos', vehicle)
-                .then(res => {
-                    veiculoId = res.data
-                })
-                .catch(err => console.log(err))
+        if (!veiculoId) {
+            const { data } = await axios.post('/api/veiculos', vehicle).catch(err => console.log(err))
+            veiculoId = data
+        } else {
+            vehicle.veiculo_id = veiculoId
+            vehicle.situacao = approved && !showPendencias ? 'Seguro não cadastrado' : 'Cadastro solicitado'
 
-        //***************Else, if it exists, get existing Id and update status******************* */
-        else {
-            if (demand && approved && !showPendencias)
-                situacao = 'Seguro não cadastrado'
-            vehicle.veiculo_id = existingVeiculoId
-            vehicle.situacao = situacao
-
-            await axios.put('/api/veiculos', vehicle) //CodigoEmpresa para F5 sockets
+            await axios.put('/api/veiculos', vehicle)
+            const { codigoEmpresa, createdAt } = this.state.selectedEmpresa
+            await axios.patch('/api/empresas', humps.decamelizeKeys({ codigoEmpresa, createdAt })) // Não altera empresa, só para atualizar a frota da empresa
         }
 
         //******************Inserir número da DAE na info da solicitação************** */

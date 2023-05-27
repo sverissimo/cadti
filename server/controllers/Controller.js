@@ -122,7 +122,7 @@ class Controller {
     }
 
     update = async (req, res, next) => {
-        const { codigo_empresa } = req.body
+        let { codigo_empresa } = req.body
 
         if (Object.keys(req.body).length <= 1) {
             return res.status(400).send('Nothing to update...')
@@ -143,8 +143,11 @@ class Controller {
             const io = req.app.get('io')
             const socket = new CustomSocket(io, this.table, this.primaryKey)
             const updates = await this.repository.find(filter)
+            if (!codigo_empresa) {
+                codigo_empresa = updates.length ? updates[0].codigo_empresa : null
+            }
 
-            socket.emit('updateAny', updates, codigo_empresa)
+            socket.emit('updateAny', updates, Number(codigo_empresa))
             res.status(204).end()
         } catch (error) {
             next(error)
@@ -179,6 +182,7 @@ class Controller {
 
     delete = async (req, res, next) => {
         const { table, tablePK, id, codigoEmpresa } = req.query
+        console.log("🚀 ~ file: Controller.js:182 ~ Controller ~ delete ~ codigoEmpresa:", codigoEmpresa)
 
         if (!id || !table) {
             return res.status(400).send('Bad request: ID or table missing.')
@@ -195,8 +199,11 @@ class Controller {
         const io = req.app.get('io')
         //@ts-ignore
         const { collection } = fieldParser.find(f => f.table === table)
-        const socket = new CustomSocket(io, collection, tablePK)
-        socket.delete(id, codigoEmpresa)
+        if (codigoEmpresa) {
+            const socket = new CustomSocket(io, collection, tablePK)
+            socket.delete(id, Number(codigoEmpresa))
+        }
+
         return res.send(`${id} deleted from ${table}`)
     }
 

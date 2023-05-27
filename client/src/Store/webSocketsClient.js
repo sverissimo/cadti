@@ -25,6 +25,15 @@ const startSocket = ({ insertData, updateData, deleteOne, updateDocs, user, edit
     })
     socket.on('insertFiles', ({ data, collection }) => { insertData(data, collection) })
 
+    socket.on('disconnect', reason => {
+        console.log('Disconnected:', reason);
+        /*  if (reason === 'io server disconnect') {
+             // The disconnection was initiated by the server
+             socket.connect(); // attempt to reconnect
+         } */
+        // else the socket will automatically try to reconnect
+    });
+
     return socket
 }
 

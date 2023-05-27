@@ -64,12 +64,10 @@ const Relatorios = props => {
 
     // **************************MÉDIA****************************
 
-    const
-        idades =
-            selectedVehicles
-                .map(({ anoCarroceria }) => anoCarroceria)
-                .filter(ano => ano !== null)
-                .sort()
+    const idades = selectedVehicles
+        .filter(v => v.anoCarroceria !== null && v.situacao !== 'Cadastro solicitado')
+        .map(({ anoCarroceria }) => anoCarroceria)
+        .sort()
 
     let mediaIdades = idades.reduce((a, b) => a + b / idades.length, 0)
     mediaIdades = (new Date().getFullYear() - mediaIdades).toFixed(2)
