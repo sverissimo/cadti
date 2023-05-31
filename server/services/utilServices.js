@@ -1,6 +1,7 @@
 //@ts-check
 const ProcuradorRepository = require("../repositories/ProcuradorRepository")
 const { Repository } = require("../repositories/Repository")
+const { isDateExpired } = require("../utils/checkExpiredDate")
 
 // Módulo criado para evitar circular references de importações entre serviços
 /**
@@ -61,7 +62,11 @@ const hasOtherProcuracao = async ({ cpfs, codigoEmpresa }) => {
 
     const cpfsToKeep = []
     procuradores.forEach(({ procurador_id, cpf_procurador }) => {
-        const procuracoesWithThisProcurador = procuracoes.filter(p => p.procuradores.includes(procurador_id))
+        const procuracoesWithThisProcurador = procuracoes.filter(p => (
+            p.procuradores.includes(procurador_id)
+            && !isDateExpired(p.vencimento)
+        ))
+
         const hasOtherProcuracoes = procuracoesWithThisProcurador.length >= 1
         if (hasOtherProcuracoes) {
             cpfsToKeep.push(cpf_procurador)

@@ -1,5 +1,6 @@
 //@ts-check
 const PostgresDao = require("./PostgresDao");
+const { getUpdatedData } = require("./SQLqueries/getUpdatedData");
 
 class ProcuracaoDaoImpl extends PostgresDao {
     /**
@@ -24,26 +25,33 @@ class ProcuracaoDaoImpl extends PostgresDao {
         parseProc = '[' + parseProc + ']'
         procuracao.procuradores = parseProc
 
-        const
-            client = await this.pool.connect()
-            , { keys, values } = this.parseRequestBody(procuracao)
-            , query = `INSERT INTO ${this.table} (${keys}) VALUES (${values}) RETURNING ${this.primaryKey}`
+        const client = await ProcuracaoDaoImpl.pool.connect()
+        const { keys, values } = this.parseRequestBody(procuracao)
+        const query = `INSERT INTO ${this.table} (${keys}) VALUES (${values}) RETURNING ${this.primaryKey}`
 
         try {
-            client.query('BEGIN')
-            const
-                res = await client.query(query)
-                , id = res.rows[0][this.primaryKey]
-
+            await client.query('BEGIN')
+            const queryResult = await client.query(query)
+            const id = queryResult.rows[0][this.primaryKey]
             await client.query('COMMIT')
             return id
 
         } catch (error) {
-            client.query('ROLLBACK')
+            await client.query('ROLLBACK')
             this.handleError(error)
         }
         finally {
             client.release()
+        }
+    }
+
+    static async getExpiredProcuracoes() {
+        try {
+            const condition = 'WHERE procuracoes.vencimento < current_date'
+            const expiredItems = await getUpdatedData('procuracoes', condition)
+            return expiredItems
+        } catch (error) {
+            throw new Error(error)
         }
     }
 }

@@ -1,4 +1,5 @@
 //@ts-check
+const { ProcuracaoService } = require('../services/ProcuracaoService')
 const { SeguroService } = require('../services/SeguroService')
 const { VeiculoService } = require('../services/VeiculoService')
 
@@ -15,6 +16,9 @@ const updateSystemStatus = async () => {
     //Atualiza a tabela de veículos do Postgresql de acordo com a situação do seguros do laudo e atualizando a situação de todos os veículos.
     const VeiculoUpdateResult = await VeiculoService.updateVehicleStatus()
     console.log(`updated expired vehicles alright. Update result: ${VeiculoUpdateResult}`)
+
+    const procuracaoUpdateResult = await ProcuracaoService.softDeleteExpired()
+    console.log(`updated expired vehicles alright. Update result: ${procuracaoUpdateResult}`)
 
     i++
     const currentDate = new Date().toISOString()

@@ -96,9 +96,10 @@ export function ProcuracoesTemplate({ data, empresas, allProcuradores, selectedE
         else return undefined
     }
 
-    const handleDates = (date) => {
-        if (date) return moment(date).format('DD-MM-YYYY')
-        else return ''
+    const handleDates = (date, status) => {
+        if (!date) return ''
+        const dateString = status === 'vigente' ? moment(date).format('DD-MM-YYYY') : moment(date).format('DD-MM-YYYY') + ' (vencida)'
+        return dateString
     }
 
     //************CRIAR FUNÇÃO PARA IMPEDIR QUE O PROCURADOR QUE TENHA ALGUMA PROCURAÇÃO SEJA APAGADO NA TELA 'CONSULTAS' */
@@ -300,13 +301,16 @@ export function ProcuracoesTemplate({ data, empresas, allProcuradores, selectedE
                     }
                     {
                         filteredProcuracoes?.length > 0 && filteredProcuracoes.map((procuracao, z) =>
-                            <div key={z * 0.01} className='flexColumn paper' style={{ padding: '10px 15px 20px 15px' }}>
-                                <h5>
+                            <div
+                                key={z * 0.01}
+                                className='flexColumn paper'
+                                style={{ padding: '10px 15px 20px 15px' }}>
+                                <h5 style={{ color: procuracao.status === 'vencida' ? 'red' : '#000' }}>
                                     Procuração {
                                         !procuracao.vencimento ?
                                             'por prazo indeterminado'
                                             :
-                                            'com vencimento em ' + handleDates(procuracao.vencimento)
+                                            'com vencimento em ' + handleDates(procuracao.vencimento, procuracao.status)
                                     }
                                 </h5>
 

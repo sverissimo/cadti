@@ -21,7 +21,6 @@ app.use(express.json({ limit: '50mb' }))
 app.use(express.urlencoded({ extended: true }))
 app.use(express.static('client/build'))
 app.use(setCorsHeader)
-app.use(morgan('dev'))
 
 if (process.env.NODE_ENV === 'production') {
     app.set('trust proxy', true);
@@ -34,6 +33,8 @@ if (process.env.NODE_ENV === 'production') {
         return header
     })
     app.use(morgan(':method :url :status :response-time ms [:date] - :x-forwarded-for'))
+} else {
+    app.use(morgan('dev'))
 }
 
 app.use('/auth', authRouter)
