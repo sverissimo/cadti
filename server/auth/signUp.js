@@ -1,30 +1,48 @@
-const
-    bcrypt = require('bcrypt'),
-    UserModel = require('../mongo/models/userModel'),
-    { getUpdatedData } = require('../infrastructure/SQLqueries/getUpdatedData')
+//@ts-check
+const bcrypt = require('bcrypt')
+const UserModel = require('../mongo/models/userModel')
+const { getUpdatedData } = require('../infrastructure/SQLqueries/getUpdatedData')
+const { UserService } = require('../services/UserService')
+
+const hashPassword = async (password) => {
+    const salt = await bcrypt.genSalt(10)
+    const hashedPassword = await bcrypt.hash(password, salt)
+    return hashedPassword
+}
+
+const confirmPassword = (confirmPassword, hashedPassword) => {
+    return bcrypt.compareSync(confirmPassword, hashedPassword)
+}
 
 //Cria um hash para a password e salva o usuário
 const signUp = async (req, res) => {
+    const { password, confirmPassword, ...user } = req.body
+    const userExists = await UserService.find(user)
 
-    const
-        { password, confirmPassword, ...user } = req.body,
-        result = await UserModel.find({ $or: [{ 'email': user.email }, { 'cpf': user.cpf }] }),
-        userExists = result[0],
-        //Busca todos os sócios e procuradores
-        procuradores = await getUpdatedData('procuradores'),
-        socios = await getUpdatedData('socios'),
-        //Pesquisa se o usuário é um sócio ou procurador ja cadastrado no sistema
-        proc = procuradores.find(p => p.cpf_procurador === user.cpf),
-        socio = socios.find(s => s.cpf_socio === user.cpf)
-    let
-        empresasProcuracao = [],
-        empresasSocio = []
+    //Verifica se o usuário já existe
+    if (userExists)
+        return res.status(422).send('Usuário já cadastrado.')
+
+    const hashedPassword = await hashPassword(password)
+
+    // confere confirmação de senha
+    const confirmPass = confirmPassword(confirmPassword, hashedPassword)
+    if (!confirmPass)
+        return res.status(422).send('Senhas não conferem.')
+
+    const procuradores = await getUpdatedData('procuradores')
+    const socios = await getUpdatedData('socios')
+    const proc = procuradores.find(p => p.cpf_procurador === user.cpf)
+    const socio = socios.find(s => s.cpf_socio === user.cpf)
+
+    let empresasProcuracao = []
+    let empresasSocio = []
 
     //Retorna o array de códigos das empresas nas quais o usuário possui vínculo de procurador
-    if (proc && proc.empresas)
+    if (proc && proc.empresas) {
         empresasProcuracao = proc.empresas
+    }
 
-    //Parse do array de empresas
     if (socio && socio.empresas)
         try {
             empresasSocio = (JSON.parse(socio.empresas))
@@ -39,25 +57,9 @@ const signUp = async (req, res) => {
     if (empresas && empresas[0])
         user.empresas = empresas
 
-    //Verifica se o usuário já existe
-    if (userExists)
-        return res.status(422).send('Usuário já cadastrado.')
+    const newUser = await UserModel.create({ ...user, password: hashedPassword })
 
-    //Cria o hash da password
-    const
-        salt = await bcrypt.genSalt(10),
-        hashedPassword = await bcrypt.hash(password, salt),
-        confirmPass = bcrypt.compareSync(confirmPassword, hashedPassword)
-
-    // confere confirmação de senha
-    if (!confirmPass)
-        return res.status(422).send('Senhas não conferem.')
-
-    //Salva o usuário no DB
-    newUser = new UserModel({ ...user, password: hashedPassword }),
-        storedUser = await newUser.save()
-
-    res.send(storedUser)
+    res.send(newUser)
 }
 
 module.exports = signUp
