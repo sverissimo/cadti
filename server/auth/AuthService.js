@@ -10,12 +10,15 @@ class AuthService {
     }
 
     findByCpfOrEmail = async (user) => {
-        const result = await this.userModel.find({ $or: [{ 'email': user.email }, { 'cpf': user.cpf }] })
-        if (!result.length) return false
-        return result[0]
+        const result = await this.userModel
+            .findOne({ $or: [{ 'email': user.email }, { 'cpf': user.cpf }] })
+            .lean()
+            .select('-deletedMessages -messagesRead -__v')
+        return result
     }
 
     async signUp(user) {
+        console.log("🚀 ~ file: AuthService.js:21 ~ AuthService ~ signUp ~ user:", user)
         let { password } = user
         if (!password) {
             password = this.generatePassword()
@@ -34,19 +37,18 @@ class AuthService {
                 const empresasSocio = JSON.parse(socio.empresas).map(e => e.codigoEmpresa)
                 empresas.push(...empresasSocio)
             } catch (error) {
-                console.log("🚀 ~ file: AuthService.js:42 ~ AuthService ~ signUp ~ error:", error)
+                console.log("🚀 ~ file: AuthService.js:39 ~ AuthService ~ signUp ~ error:", error)
             }
         }
 
         user.empresas = empresas
+        console.log("🚀 ~ file: AuthService.js:45 ~ AuthService ~ signUp ~ password:", password)
         user.password = await this._hashPassword(password)
-        console.log("🚀 ~ file: AuthService.js:44 ~ AuthService ~ signUp ~ user:", user)
         const newUser = await UserModel.create(user);
         return newUser
     }
 
     async _hashPassword(password) {
-        console.log("🚀 ~ file: AuthService.js:48 ~ AuthService ~ _hashPassword ~ password:", password)
         const salt = await bcrypt.genSalt(10)
         const hashedPassword = await bcrypt.hash(password, salt)
         return hashedPassword
@@ -62,8 +64,35 @@ class AuthService {
         return password
     }
 
-    async confirmPassword(password, hashedPassword) {
+    checkPassword = (password, hashedPassword) => {
         return bcrypt.compareSync(password, hashedPassword)
+    }
+
+    retrievePassword = async (email) => {
+        const password = this.generatePassword()
+        const passwordHash = this._hashPassword(password)
+
+        const user = await this.userModel.findOneAndUpdate(
+            { 'email': email },
+            { $set: { password: passwordHash } },
+            { new: true }
+        );
+
+        if (!user) {
+            throw new Error('E-mail not found.');
+        }
+
+        return { ...user, password };
+    }
+
+    /**
+     * @param {string} id
+     * @returns {Promise<boolean>}
+     */
+    verifyUser = async (id) => {
+        const filter = { _id: id }
+        const user = await this.userModel.findOneAndUpdate(filter, { verified: true })
+        return !!user
     }
 }
 

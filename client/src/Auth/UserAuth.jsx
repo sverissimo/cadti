@@ -8,15 +8,11 @@ import { connect } from 'react-redux'
 import { bindActionCreators } from 'redux'
 import { setCookie } from "../Utils/documentCookies";
 import valueParser from "../Utils/valueParser";
-import confirmEmailMsg from "./confirmEmailMsg";
 
 const UserAuth = props => {
-
-  const
-    [state, setState] = useState({ tab: 0, ...userAuthForms[0] })
-    , { tab, endPoint, toastMsg, toastStatus, confirmToast } = state
-    , webBrowser = window.navigator.userAgent
-
+  const [state, setState] = useState({ tab: 0, ...userAuthForms[0] })
+  const { tab, toastMsg, toastStatus, confirmToast } = state
+  const webBrowser = window.navigator.userAgent
 
   useEffect(() => {
     //Detecta o Browser do usuário e muda estado para renderizar sugestão caso não seja compatível
@@ -25,29 +21,23 @@ const UserAuth = props => {
     //eslint-disable-next-line
   }, [])
 
-
   const changeTab = tab => setState({ ...state, tab, ...userAuthForms[tab] })
 
   const handleInput = e => {
-    const
-      { name, value } = e.target,
-      parsedValue = valueParser(name, value)
+    const { name, value } = e.target
+    const parsedValue = valueParser(name, value)
 
     setState({ ...state, [name]: parsedValue })
   }
 
   const login = async () => {
-    //Efetua o login com as informações preenchidas pelo usuário
     try {
-      await axios.post(endPoint, state)
       //caso as credenciais (usuário/senha) estejam certas, um token foi armazenado. Faz-se então uma requisição GET dos dados do usuário
-      const
-        getUser = await axios.get('/api/users/getUser'),
-        userFound = getUser?.data
-
+      await axios.post('/auth/login', state)
+      const { data: loggedUser } = await axios.get('/api/users/getUser')
       //Ao se descodificar o token, se as credenciais estiverem certas e o token válido, retorna o usuário, armazena na globalStore e cria cookie local.
       setCookie('loggedIn', true)
-      props.logUser(userFound)
+      props.logUser(loggedUser)
     }
     catch (err) {
       toast(err?.response?.data, 'error')
@@ -55,61 +45,30 @@ const UserAuth = props => {
   }
 
   const signUp = async () => {
-    const { form, endPoint, confirmToast, toastMsg, ...request } = state
-    let
-      error,
-      tab = 1
-    if (request instanceof Object)
-      request.role = 'empresa'
-    const
-      { email, name } = request,
-      mail = {
-        to: email,
-        subject: 'Confirmação de e-mail',
-        vocativo: name
-      }
-
-    await axios.post(endPoint, request)
-      .then(r => {
-        const
-          userId = r?.data?.id,
-          message = confirmEmailMsg(email, userId)
-
-        mail.message = message
-        axios.post(`/alerts/mail`, mail)
-      })
-      .catch(err => {
-        toast(err?.response?.data, 'error')
-        error = true
-      })
-
-    if (!error) {
-      tab = 0
+    const user = state.form.reduce((prev, curr) => ({ ...prev, [curr.name]: state[curr.name] }), {})
+    try {
+      await axios.post('/auth/signUp', user)
       toast('Usuário cadastrado.')
-      setTimeout(() => setState({ tab, ...userAuthForms[tab] }), 1250)
+      setTimeout(() => setState(prevState => ({ ...prevState, tab: 0, ...userAuthForms[0] })), 1250)
+    } catch (error) {
+      toast(error?.response?.data, 'error')
     }
-
   }
 
   const retrievePassword = async () => {
-    const
-      { email } = state
-      , recoveryMail = email
-
-    axios.post(endPoint, { recoveryMail })
-      .then(r => {
-        toast(r.data)
-        setTimeout(() => setState({ tab: 0, ...userAuthForms[0] }), 1250)
-      })
-      .catch(err => {
-        toast(err?.response?.data, 'error')
-      })
+    const { email } = state
+    try {
+      const { data: message } = await axios.post('/auth/retrievePassword', { email })
+      toast(message)
+      setTimeout(() => setState({ tab: 0, ...userAuthForms[0] }), 1750)
+    } catch (error) {
+      toast(error?.response?.data, 'error')
+    }
   }
 
   const handleSubmit = () => {
     if (tab === 0)
       login()
-
     if (tab === 1)
       signUp()
     if (tab === 2)
@@ -125,8 +84,7 @@ const UserAuth = props => {
     return () => document.removeEventListener('keypress', signIn)
   })
 
-  const toast = (toastMsg, toastStatus) => setState({ ...state, confirmToast: !state.confirmToast, toastMsg, toastStatus })
-
+  const toast = (toastMsg, toastStatus) => setState(prevState => ({ ...prevState, confirmToast: !state.confirmToast, toastMsg, toastStatus }))
 
   return (
     <>

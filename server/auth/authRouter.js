@@ -1,10 +1,6 @@
 //@ts-check
 const express = require('express')
 const router = express.Router()
-const signUp = require('./signUp')
-const login = require('./login')
-const logout = require('./logout')
-const verifyUser = require('./verifyUser')
 const { generatePass, changePass, sendPass } = require('./changePass')
 const { AuthController } = require('./AuthController')
 const { AuthService } = require('./AuthService')
@@ -17,12 +13,12 @@ const procuradorRepository = new ProcuradorRepository()
 const socioRepository = new SocioRepository()
 
 const authService = new AuthService({ UserModel, procuradorRepository, socioRepository })
-const authController = new AuthController(authService, testMailSender)
+const authController = new AuthController({ authService, mailService: testMailSender })
 
 router.post('/signUp', authController.signUp)
-router.post('/login', login)
-router.get('/logout', logout)
-router.get('/verifyUser/:id', verifyUser)
-router.post('/forgotPassword', generatePass, changePass, sendPass)
+router.post('/login', authController.login)
+router.get('/logout', authController.logout)
+router.get('/verifyUser/:id', authController.verifyUser)
+router.post('/retrievePassword', authController.retrievePassword)
 
 module.exports = router
