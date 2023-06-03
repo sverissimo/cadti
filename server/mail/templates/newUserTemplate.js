@@ -1,27 +1,24 @@
-const
-    linkParaCadTI = require("../config/linkParaCadTI")
-    , footer = require("./footer")
+const linkParaCadTI = require("../config/linkParaCadTI")
 
-
-const newUserTemplate = (email, password) => {
-
-    return `    
+const newUserTemplate = ({ id, email, tempPassword }) => {
+    const host = process.env.HOST
+    return `
             <p>
-                Um novo usuário foi criado com sucesso no 
+                Um novo usuário foi criado com sucesso no
                 Sistema de Cadastro do Transporte Intermunicipal - CadTI/Seinfra-MG.
             </p>
             <p>
                 Login: <i> ${email}</i>
             </p>
             <p>
-                Senha: <i> ${password} </i>
-            </p>            
+                Senha: <i> ${tempPassword} </i>
+            </p>
             <p>
-                Para alterar sua senha, visite ${linkParaCadTI}, efetue o login e selecione 
+                Esta é uma senha temporária. Para alterar sua senha, visite ${linkParaCadTI}, efetue o login e selecione
                 a opção disponível no canto superior direito do menu do sistema.
-            </p>                         
+            </p>
             <p>
-                ${footer}
+                Para confirmar o endereço de e-mail e liberar o acesso ao sistema, <a href= ${host}/auth/verifyUser/${id}> clique aqui </a>.
             </p>
     `
 }

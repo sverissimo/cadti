@@ -2,6 +2,9 @@
 const { UserService } = require("../services/UserService");
 
 class UserController {
+    constructor({ mailService }) {
+        this.mailService = mailService
+    }
 
     getUsers = async (req, res, next) => {
         try {
@@ -37,20 +40,23 @@ class UserController {
         const { cpf, email } = user
         const query = [{ email }, { cpf }]
         const alreadyExists = await UserService.find({ $or: query })
-
         if (alreadyExists && alreadyExists.length) {
-            return res.status(422).send('Usuário já cadastrado no CadTI.')
+            return res.status(409).send('Usuário já cadastrado no CadTI.')
         }
-
         try {
             const savedUser = await UserService.addUser(user)
-            const update = { data: [savedUser], collection: 'users' }
+            await this.mailService
+                .setUser(savedUser)
+                .createMessage('newUserTemplate')
+                .sendMessage()
 
+            const update = { data: [savedUser], collection: 'users' }
             io.sockets.to('admin').to('tecnico').emit('insertElements', update)
-            res.status(201).send('saved.')
+            res.status(201).send(savedUser)
         } catch (error) {
             next(error)
         }
+
     }
 
     editUser = async (req, res, next) => {

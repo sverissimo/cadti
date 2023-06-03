@@ -1,68 +1,37 @@
 //@ts-check
+const { MessageBuilder } = require('./MessageBuilder')
 const simpleMsgGenerator = require('./simpleMsgGenerator')
-const templates = require('./templates')
-const testMailSender = require('./testMailSender')
 
 class MailService {
-    constructor(user, mailService) {
-        this.user = user
+
+    constructor(mailSender) {
         this.message = {}
-        this.mailService = mailService || testMailSender
+        this.mailSender = mailSender
     }
 
-    createMessage(subject) {
-        const content = this.messageFactory(subject)
+    setUser = (user) => {
+        this.user = user
+        return this
+    }
 
+    createMessage = (subject) => {
         const messageBuilder = new MessageBuilder()
+
         messageBuilder
             .setRecipient(this.user.email)
             .setSubject(subject)
-            .setMessage(content)
+            .createMessage({ subject, user: this.user })
 
         this.message = messageBuilder.build()
         return this
     }
 
-    messageFactory = (subject) => {
-        if (subject in templates) {
-            console.log("🚀 ~ file: MailService.js:29 ~ MailService ~ templates[subject]:", templates[subject](this.user))
-            return templates[subject](this.user)
-        }
-        return '**** something wrong...'
-    }
-
-    sendMessage(sender) {
+    sendMessage = async () => {
         const { message } = this.message
-        const { name: vocativo } = this.user
-        const html = simpleMsgGenerator(vocativo, message, true)
-        this.mailService({ vocativo, html })
+        const { name } = this.user
+        const html = simpleMsgGenerator(name, message, true)
+        await this.mailSender({ to: name, html })
         return this
-    }
-}
-
-
-class MessageBuilder {
-    setRecipient(recipient) {
-        this.recipient = recipient
-        return this
-    }
-
-    setSubject(subject) {
-        this.subject = subject
-        return this
-    }
-
-    setMessage(message) {
-        this.message = message
-        return this
-    }
-
-    build() {
-        return {
-            to: this.recipient,
-            subject: this.subject,
-            message: this.message,
-        }
     }
 }
 

@@ -1,6 +1,14 @@
 //@ts-check
-const changePassTemplate = require("./changePassTemplate");
+const header = require("./header")
+const footer = require("./footer")
+const { retrievePassTemplate } = require("./retrievePassTemplate");
 const { confirmEmailTemplate } = require("./confirmEmailTemplate");
 const newUserTemplate = require("./newUserTemplate");
 
-module.exports = { changePassTemplate, confirmEmailTemplate, newUserTemplate }
+module.exports = {
+    header,
+    footer,
+    confirmEmailTemplate,
+    retrievePassTemplate,
+    newUserTemplate
+}

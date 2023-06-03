@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt')
 const UserModel = require('../mongo/models/userModel')
 
 class AuthService {
+    /**@param{any} Repositories injection */
     constructor({ UserModel, procuradorRepository, socioRepository }) {
         this.userModel = UserModel
         this.procuradorRepository = procuradorRepository
@@ -18,7 +19,6 @@ class AuthService {
     }
 
     async signUp(user) {
-        console.log("🚀 ~ file: AuthService.js:21 ~ AuthService ~ signUp ~ user:", user)
         let { password } = user
         if (!password) {
             password = this.generatePassword()
@@ -37,12 +37,11 @@ class AuthService {
                 const empresasSocio = JSON.parse(socio.empresas).map(e => e.codigoEmpresa)
                 empresas.push(...empresasSocio)
             } catch (error) {
-                console.log("🚀 ~ file: AuthService.js:39 ~ AuthService ~ signUp ~ error:", error)
+                console.error("🚀 ~ file: AuthService.js:39 ~ AuthService ~ signUp ~ error:", error)
             }
         }
 
         user.empresas = empresas
-        console.log("🚀 ~ file: AuthService.js:45 ~ AuthService ~ signUp ~ password:", password)
         user.password = await this._hashPassword(password)
         const newUser = await UserModel.create(user);
         return newUser
@@ -64,19 +63,26 @@ class AuthService {
         return password
     }
 
+    static async createPasswordAndHash() {
+        const authService = new AuthService({})
+        const password = authService.generatePassword()
+        const passwordHash = await authService._hashPassword(password)
+        return { password, passwordHash }
+    }
+
     checkPassword = (password, hashedPassword) => {
         return bcrypt.compareSync(password, hashedPassword)
     }
 
     retrievePassword = async (email) => {
         const password = this.generatePassword()
-        const passwordHash = this._hashPassword(password)
+        const passwordHash = await this._hashPassword(password)
 
         const user = await this.userModel.findOneAndUpdate(
             { 'email': email },
             { $set: { password: passwordHash } },
             { new: true }
-        );
+        ).lean()
 
         if (!user) {
             throw new Error('E-mail not found.');

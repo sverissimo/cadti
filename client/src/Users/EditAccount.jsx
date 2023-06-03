@@ -6,95 +6,65 @@ import ReactToast from '../Reusable Components/ReactToast'
 import { connect } from 'react-redux'
 import { editUser } from '../Store/userActions'
 
-const EditAccount = props => {
-
-    const
-        data = props.user,
-        [state, setState] = useState({ initState: { confirmToast: false }, modified: false }),
-        { toastMsg, toastStatus, confirmToast } = state
-
+const EditAccount = ({ user, editUser }) => {
+    const initialState = { confirmToast: false }
+    const [state, setState] = useState({ initState: initialState, modified: false })
+    const { toastMsg, toastStatus, confirmToast } = state
 
     useEffect(() => {
-        if (data instanceof Object)
-            setState({ ...state, ...data, initState: data })
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [])
+        if (user instanceof Object)
+            setState(prevState => ({ ...prevState, ...user, initState: user }))
+    }, [user])
 
-    /**
-     * @param {{ target: { name: any; value: any; }; }} e
-     */
-    function handleInput(e) {
-        const
-            { name, value } = e.target
-            , modified = checkForChanges(name, value)
-
-        setState({ ...state, [name]: value, modified })
+    const handleInput = ({ target: { name, value } }) => {
+        const modified = checkForChanges(name, value)
+        setState(prevState => ({ ...prevState, [name]: value, modified }))
     }
 
     const checkForChanges = (name, value, newArray) => {
         const { initState } = state
-        let
-            modified = false,
-            stateChanged,
-            fieldChanged,
-            passChanged,
-            changedArray
+        const passChanged = name === 'password' && state[name] && value !== ''
 
-        if (name === 'confirmPassword')
-            modified = state.modified
-        //Se for passada uma array, compara a array com a array inicial do estado
-        if (newArray)
-            changedArray = initState.toString() !== newArray.toString()
+        const changedArray = newArray && initState.toString() !== newArray.toString()
+        const fieldChanged = initState[name] && initState[name].toString() !== value
 
-        //Senão, compara cada campo input (...com props spreaded no state) com o estado inicial
-        else {
-            Object.keys(initState).forEach(k => {
-                if (state[k] && initState[k])
-                    if (k !== name && state[k].toString() !== initState[k].toString())
-                        stateChanged = true
-            })
-            fieldChanged = initState[name] && initState[name].toString() !== value
-            passChanged = name === 'password' && state[name] && value !== ''
-        }
+        const stateChanged = Object.keys(initState).some(key =>
+            state[key]
+            && initState[key]
+            && key !== name
+            && state[key].toString() !== initState[key].toString()
+        )
 
-        if (fieldChanged || stateChanged || changedArray || passChanged)
-            modified = true
-        return modified
+        return name === 'confirmPassword' ? state.modified : fieldChanged || stateChanged || changedArray || passChanged
     }
 
-    const handleSubmit = () => {
-        const
-            modified = checkForChanges(null, null, state),
-            { name, cpf, email, password, confirmPassword } = state,
-            requestObj = { name, cpf, email, password }
+    const handleSubmit = async () => {
+        const { name, cpf, email, password, confirmPassword, _id } = state
+        const modified = checkForChanges(null, null, state)
 
         if (password !== confirmPassword) {
-            toast('Senhas não conferem', 'error')
+            showToastMessage('Senhas não conferem', 'error')
             return
         }
-
-        requestObj.id = state._id
-        axios
-            .put('/users/editUser', requestObj)
-            .then(r => {
-                if (r.status === 200) {
-                    toast(r.data)
-                    props.editUser({ name, email })
-                    setTimeout(() => {
-                        setState({
-                            ...state,
-                            initState: state,
-                            modified,
-                            password: undefined,
-                            confirmPassword: undefined
-                        })
-                    }, 1200);
-                }
-            })
-            .catch(err => toast(err.message, 'error'))
+        try {
+            const { data: message } = await axios.put('/api/users', { name, cpf, email, password, id: _id })
+            showToastMessage(message)
+            editUser({ name, email })
+            setState(prevState => ({
+                ...prevState,
+                initState: state,
+                modified,
+                password: undefined,
+                confirmPassword: undefined
+            }))
+        } catch (error) {
+            showToastMessage(error?.message, 'error')
+        }
     }
 
-    const toast = (toastMsg, toastStatus) => setState({ ...state, confirmToast: !state.confirmToast, toastMsg, toastStatus })
+    const showToastMessage = (message, status) => {
+        setState(prevState => ({ ...prevState, confirmToast: !prevState.confirmToast, toastMsg: message, toastStatus: status }))
+    }
 
     return (
         <>
@@ -103,7 +73,7 @@ const EditAccount = props => {
                 handleInput={handleInput}
                 handleSubmit={handleSubmit}
             />
-            <ReactToast open={confirmToast} close={toast} msg={toastMsg} status={toastStatus} />
+            <ReactToast open={confirmToast} close={showToastMessage} msg={toastMsg} status={toastStatus} />
         </>
     )
 }

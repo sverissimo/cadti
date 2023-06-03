@@ -1,6 +1,5 @@
 //@ts-check
 const jwt = require('jsonwebtoken')
-const { MailService } = require('../mail/MailService')
 
 class AuthController {
 
@@ -24,40 +23,41 @@ class AuthController {
             }
 
             const newUser = await this.authService.signUp({ ...user, role: 'empresa' })
-            const message = new MailService(newUser, this.mailService)
+            await this.mailService
+                .setUser(newUser)
                 .createMessage('confirmEmailTemplate')
                 .sendMessage()
-            res.send(message)
+
+            res.send('User created. An confirmation email has been sent.')
         } catch (error) {
             next(error)
         }
     }
 
     login = async (req, res, next) => {
-        const { email, password } = req.body
+        const { email, password: passwordInput } = req.body
         try {
             const userFound = await this.authService.findByCpfOrEmail({ email })
             if (!userFound) {
                 return res.status(401).send('Usuário ou senha inválidos.')
             }
 
-            const validPass = this.authService.checkPassword(password, userFound.password)
-            console.log("🚀 ~ file: AuthController.js:45 ~ AuthController ~ login= ~ password, userFound.password:", validPass)
-
-            delete userFound.password
-
+            const validPass = this.authService.checkPassword(passwordInput, userFound.password)
             if (!validPass) {
                 return res.status(401).send('Usuário ou senha inválidos.')
             }
+
             if (!userFound.verified) {
-                return res.status(403).send('Aguardando aprovação do usuário.')
+                return res.status(403).send('Aguardando confirmação de e-mail.')
             }
+
             if (userFound.role === 'empresa' && !userFound.empresas.length) {
                 return res.status(403).send('O usuário não possui vinculação com nenhuma empresa do sistema.')
             }
 
+            const { password, ...user } = userFound
             //@ts-ignore
-            const accessToken = jwt.sign({ user: userFound }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '60m' })
+            const accessToken = jwt.sign({ user }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: '60m' })
             res.cookie('aToken', accessToken, { maxAge: 1000 * 60 * 60, httpOnly: true })
             const rToken = process.env.REFRESH_TOKEN_SECRET
             res.status(200).send(rToken)
@@ -79,9 +79,8 @@ class AuthController {
         try {
             const { id } = req.params
             const verified = await this.authService.verifyUser(id)
-
             if (!verified) {
-                return res.status(404).send('Usuário não encontrado.')
+                return res.status(404).sendFile(__dirname + '/userNotFound.html')
             }
 
             return res.sendFile(__dirname + '/verifiedUser.html')
@@ -94,14 +93,20 @@ class AuthController {
         try {
             const { email } = req.body
             const user = await this.authService.retrievePassword(email)
-            const message = new MailService(user, this.mailService)
-                .createMessage('changePassTemplate')
+
+            if (!user) {
+                return res.status(404).send('Usuário não cadastrado.')
+            }
+
+            await this.mailService
+                .setUser(user)
+                .createMessage('retrievePassTemplate')
                 .sendMessage()
 
-            res.send(message)
-            //res.send('New password sent to registered email.')
+            res.send('Instruções enviadas para o e-mail cadastrado.')
         } catch (error) {
-            next(error)
+            console.log(error)
+            res.status(400).send(error.message || 'Erro ao tentar recuperar a senha.')
         }
     }
 }

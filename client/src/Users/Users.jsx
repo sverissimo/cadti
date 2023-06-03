@@ -28,8 +28,8 @@ const Users = props => {
         user.empresas = empresas
 
         axios.post('/api/users', user)
-            .then(r => console.log(r.data))
-            .catch(err => toast(' Erro!'))
+            .then(r => toast('Usuário cadastrado! Aguardando confirmação de e-mail.', 'success'))
+            .catch(err => { console.log(err?.response?.data); toast(` Erro: ${err?.response?.data}`) })
     }
 
     const editUsers = user => {
@@ -57,7 +57,7 @@ const Users = props => {
                 editUser={editUsers}
                 deleteUser={deleteUser}
             />
-            <ReactToast open={confirmToast} close={toast} msg={state.toastMsg} status='warning' />
+            <ReactToast open={confirmToast} close={toast} msg={state.toastMsg} status={state.toastStatus || 'warning'} />
         </div>
     )
 }

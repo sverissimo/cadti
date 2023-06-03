@@ -1,7 +1,6 @@
 //@ts-check
 const bcrypt = require('bcrypt');
-const sendMail = require("../mail/sendMail")
-const newUserTemplate = require("../mail/templates/newUserTemplate")
+const { AuthService } = require('../auth/AuthService');
 const UserModel = require("../mongo/models/userModel");
 const ProcuradorRepository = require('../repositories/ProcuradorRepository');
 const SocioRepository = require('../repositories/SocioRepository');
@@ -39,22 +38,15 @@ class UserService {
      * @typedef {Object} User
      * @property {string} name
      * @property {string} email
-     * @property {string} password
-     * @property {string} passwordHash
+     * @property {string} cpf
+     * @property {string} role
      *
      * @param {User} user     */
     static addUser = async (user) => {
-        const { name, email, passwordHash } = user;
-
-        const userToSave = { ...user, password: passwordHash };
-        const createdUser = await UserModel.create(userToSave);
-
-        const subject = 'CadTI - usuário cadastrado com sucesso.';
-        const message = newUserTemplate(email, passwordHash);
-        await sendMail({ to: email, subject, vocativo: name, message });
-
-        const { password, ...userWithoutPassword } = createdUser.toObject();
-        return userWithoutPassword;
+        const { password: tempPassword, passwordHash } = await AuthService.createPasswordAndHash()
+        const createResult = await UserModel.create({ ...user, password: passwordHash })
+        const { _id: id } = createResult.toObject()
+        return { ...user, id, tempPassword }
     }
 
     static editUser = async (user) => {
@@ -101,8 +93,6 @@ class UserService {
         const updateUser = await UserService.editUser({ cpf, empresas })
         return updateUser
     }
-
-
 
     /**
      * @param {object[]} representantes - procuradores ou sócios

@@ -1,10 +1,7 @@
 //@ts-check
-const
-  nodeMailerSender = require("./nodeMailerSender"),
-  htmlGenerator = require("./htmlGenerator")
-  , testMailSender = require("./testMailSender")
-  , simpleMsgGenerator = require("./simpleMsgGenerator")
-
+const htmlGenerator = require("./htmlGenerator")
+const { nodeMailerSender, testMailSender } = require("./mailSender")
+const simpleMsgGenerator = require("./simpleMsgGenerator")
 
 /**
  * Formata a mensagem chamando a função htmlGenerator e envia e-mail utilizando o nodeMailer
@@ -22,8 +19,7 @@ async function sendMail({ to, subject, vocativo, message, footer = null, sendMai
   if (sendMail)
     nodeMailerSender({ to, subject, html })
   else
-    testMailSender({ vocativo, html })
+    testMailSender({ to: vocativo, html })
 }
-
 
 module.exports = sendMail

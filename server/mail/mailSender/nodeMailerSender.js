@@ -1,5 +1,6 @@
 const createTransporter = require("./createTransporter")
 
+/**@param{any} Object with to, subject and html props*/
 async function nodeMailerSender({ to, subject, html }) {
 
     const transporter = await createTransporter()
@@ -14,9 +15,6 @@ async function nodeMailerSender({ to, subject, html }) {
         if (info)
             console.log({ info })
     })
-    //console.log({ to, subject, html })
 }
 
 module.exports = nodeMailerSender
-
-//const recipients = ['sandroverissimo@live.com','sverissimo2@gmail.com', 'sandro.verissimo@infraestrutura.mg.gov.br']
