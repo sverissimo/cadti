@@ -25,6 +25,7 @@ import Users from './Users/Users'
 import EditAccount from './Users/EditAccount'
 import Compartilhamento from './Veiculos/Compartilhamento'
 import Avisos from './Avisos/Avisos'
+import RelatoriosTemplate from './Relatorios/RelatoriosTemplate'
 
 const Routes = ({ user }) => {
     return (
@@ -44,7 +45,7 @@ const Routes = ({ user }) => {
             <Route path='/empresas/cadastro' component={Empresas} />
             <Route path='/empresas/socios' component={Socios} />
             <Route path='/empresas/procuracoes' component={Procuracoes} />
-            <Route path='/relatorios' component={Relatorios} />
+            <Route path='/relatorios' component={RelatoriosTemplate} />
             <Route path='/crv' component={PdfTest} />
             <Route path='/solicitacoes' exact component={Solicitacoes} />
             <Route path='/solicitacoes/cadastro' exact component={CadVeiculos} />
