@@ -2,7 +2,7 @@ services:
   backend:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile-dev
     ports:
       - "3001:3001"
     depends_on:
@@ -12,11 +12,19 @@ services:
       - postgres
       - mongodb
     volumes:
-      - type: bind
-        source: ./server
-        target: /app/server
-    networks:
-      - webnet
+      - ${PWD}/:/cadti/
+
+  frontend:
+    build:
+      context: ./client
+      dockerfile: client-dev.Dockerfile
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    volumes:
+      - ${PWD}/client/:/cadti/client/
+    stdin_open: true
 
   mongodb:
     container_name: mongodb
@@ -26,8 +34,6 @@ services:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
-    networks:
-      - webnet
 
   postgres:
     container_name: pg_container
@@ -41,8 +47,6 @@ services:
       - "5432:5432"
     volumes:
       - pg_data:/var/lib/postgresql/data
-    networks:
-      - webnet
 
   pgadmin:
     container_name: pgadmin4_container
@@ -55,8 +59,6 @@ services:
       - "5050:80"
     volumes:
       - pgadmin_data:/var/lib/pgadmin
-    networks:
-      - webnet
 
 volumes:
   pg_data:
@@ -65,6 +67,3 @@ volumes:
     external: true
   mongo_data:
     external: true
-
-networks:
-  webnet:
