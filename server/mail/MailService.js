@@ -27,10 +27,10 @@ class MailService {
     }
 
     sendMessage = async () => {
-        const { message } = this.message
-        const { name } = this.user
+        const { message, subject } = this.message
+        const { name, email } = this.user
         const html = simpleMsgGenerator(name, message, true)
-        await this.mailSender({ to: name, html })
+        await this.mailSender({ to: email, subject, html })
         return this
     }
 }

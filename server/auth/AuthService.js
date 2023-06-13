@@ -24,8 +24,8 @@ class AuthService {
             password = this.generatePassword()
         }
 
-        const procurador = await this.procuradorRepository.find({ cpf_procurador: user.cpf })
-        const socio = await this.socioRepository.find({ cpf_socio: user.cpf })
+        const [procurador] = await this.procuradorRepository.find({ cpf_procurador: user.cpf })
+        const [socio] = await this.socioRepository.find({ cpf_socio: user.cpf })
         const empresas = []
 
         if (procurador && procurador.empresas && Array.isArray(procurador.empresas)) {

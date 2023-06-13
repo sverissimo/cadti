@@ -9,7 +9,7 @@ class MessageBuilder {
     }
 
     setSubject(subject) {
-        this.subject = subject
+        this.subject = this._createEmailSubject(subject)
         return this
     }
 
@@ -29,6 +29,23 @@ class MessageBuilder {
             subject: this.subject,
             message: this.message,
         }
+    }
+
+    _createEmailSubject(subject) {
+        let emailSubject = ''
+        switch (subject) {
+            case 'confirmEmailTemplate':
+                emailSubject = 'Confirmação de e-mail'
+                break;
+            case 'newUserTemplate':
+                emailSubject = 'Novo usuário criado no CadTI'
+                break;
+            case 'retrievePassTemplate':
+                emailSubject = 'Instruções para recuperação de senha'
+                break;
+            default: return ''
+        }
+        return emailSubject
     }
 }
 

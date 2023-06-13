@@ -1,5 +1,6 @@
 services:
   backend:
+    container_name: backend
     build:
       context: .
       dockerfile: Dockerfile-dev
@@ -8,13 +9,11 @@ services:
     depends_on:
       - postgres
       - mongodb
-    links:
-      - postgres
-      - mongodb
     volumes:
       - ${PWD}/:/cadti/
 
   frontend:
+    container_name: frontend
     build:
       context: ./client
       dockerfile: client-dev.Dockerfile
@@ -24,7 +23,7 @@ services:
       - backend
     volumes:
       - ${PWD}/client/:/cadti/client/
-    stdin_open: true
+    #stdin_open: true
 
   mongodb:
     container_name: mongodb
@@ -62,8 +61,5 @@ services:
 
 volumes:
   pg_data:
-    external: true
   pgadmin_data:
-    external: true
   mongo_data:
-    external: true

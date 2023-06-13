@@ -9,7 +9,7 @@
     "test-prod": "cypress open --e2e -b chrome --config baseUrl=https://www.cadti.mg.gov.br/",
     "eject": "react-scripts eject"
   },
-  "proxy": "http://backend:3001",
+  "proxy": "http://localhost:3001",
   "eslintConfig": {
     "extends": "react-app"
   },
