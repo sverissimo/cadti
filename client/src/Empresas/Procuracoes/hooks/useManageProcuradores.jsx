@@ -1,6 +1,6 @@
 //@ts-check
 import axios from 'axios'
-import { useState } from 'react'
+import { useCallback, useState } from 'react'
 import { valueParser } from '../../../Utils'
 import { procuradorForm } from '../forms/procuradorForm'
 
@@ -24,7 +24,7 @@ export const useManageProcuradores = () => {
         setProcuradores(updatedProcuradores)
     }
 
-    const setProcuradoresFromDemand = (demand) => {
+    const setProcuradoresFromDemand = useCallback((demand) => {
         const { empresaId, history } = demand
         const newProcuradores = history[0]?.newMembers || []
         const oldProcuradores = history[0]?.oldMembers || []
@@ -32,7 +32,7 @@ export const useManageProcuradores = () => {
         newProcuradores.forEach(member => member.empresas = [empresaId])
         const parsedProcuradores = [...newProcuradores, ...oldProcuradores]
         setProcuradores(parsedProcuradores)
-    }
+    }, [])
 
     const removeProcurador = () => {
         const updatedProcuradores = [...procuradores]

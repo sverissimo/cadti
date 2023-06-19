@@ -16,7 +16,7 @@ export const useSelectEmpresa = (empresas, demand) => {
         }
     }, [empresas, selectedEmpresa])
 
-    function selectEmpresa(inputValue) {
+    const selectEmpresa = useCallback((inputValue) => {
         const empresa = empresas.find(e => e.razaoSocial === inputValue)
         if (empresa) {
             const selectedEmpresa = { ...empresa }
@@ -29,7 +29,7 @@ export const useSelectEmpresa = (empresas, demand) => {
         if (prevSelectedEmpresa.current) {
             unselectEmpresa()
         }
-    }
+    }, [empresas])
 
     const setEmpresaFromDemand = useCallback(() => {
         const altEmpresa = demand?.history[0].altEmpresa || {}

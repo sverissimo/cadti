@@ -16,7 +16,16 @@ import InsertDriveFileOutlinedIcon from '@material-ui/icons/InsertDriveFileOutli
 import Procurador from './Procurador'
 import { procuradorForm } from './forms/procuradorForm'
 import { empresaFiles } from '../../Forms/empresaFiles'
-import { AlertDialog, Crumbs, DragAndDrop, SelectEmpresa, ShowLocalFiles, StepperButtons, ReactToast } from '../../Reusable Components'
+import {
+    AlertDialog,
+    ConfirmDialog,
+    Crumbs,
+    DragAndDrop,
+    SelectEmpresa,
+    ShowLocalFiles,
+    StepperButtons,
+    ReactToast
+} from '../../Reusable Components'
 
 const divFiles = {
     textAlign: 'center',
@@ -61,9 +70,9 @@ const useStyles = makeStyles(theme => ({
 }))
 
 export function ProcuracoesTemplate({ data, empresas, allProcuradores, selectedEmpresa, demand, handleInput, handleBlur, procuradoresEdit, addProc, addProcurador,
-    removeProcurador, deleteProcuracao, handleFiles, getFile, checkExpires, setShowPendencias, removeFile, closeAlert, toast }) {
+    removeProcurador, userRole, confirmDelete, closeConfirmDelete, deleteProcuracao, handleFiles, getFile, checkExpires, setShowPendencias, removeFile, closeAlert, toast }) {
 
-    const { dropDisplay, filteredProcuracoes, procuracao, expires, showPendencias, info, demandFiles, fileToRemove } = data
+    const { dropDisplay, filteredProcuracoes, procuracao, expires, showPendencias, info, demandFiles, openConfirmDelete, idToDelete, fileToRemove } = data
     const classes = useStyles(), { addButton, textField } = classes
 
     const errorHandler = (el, index) => {
@@ -324,16 +333,31 @@ export function ProcuracoesTemplate({ data, empresas, allProcuradores, selectedE
                                         </span>
                                         <GetAppIcon style={icon} onClick={() => getFile(procuracao.procuracaoId)} />
                                     </span>
-                                    <span style={{ ...divFiles, width: 90, backgroundColor: 'white', border: 0, position: 'absolute', right: 0, cursor: 'pointer' }} onClick={() => deleteProcuracao(procuracao)}>
-                                        <DeleteOutlinedIcon color='secondary' style={icon} />
-                                        Apagar
-                                    </span>
+                                    {userRole !== 'empresa' &&
+                                        <span
+                                            style={{ ...divFiles, width: 90, backgroundColor: 'white', border: 0, position: 'absolute', right: 0, cursor: 'pointer' }}
+                                            onClick={() => confirmDelete(procuracao)}
+                                        >
+                                            <DeleteOutlinedIcon color='secondary' style={icon} />
+                                            Apagar
+                                        </span>
+                                    }
                                 </div>
                             </div>
                         )
                     }
                 </section>
             </div >
+            {
+                openConfirmDelete &&
+                <ConfirmDialog
+                    open={openConfirmDelete}
+                    close={closeConfirmDelete}
+                    confirm={deleteProcuracao}
+                    type='delete'
+                    id={idToDelete}
+                />
+            }
             <ReactToast open={data.confirmToast} close={toast} msg={data.toastMsg} status={data.status} />
             {
                 openAlertDialog &&

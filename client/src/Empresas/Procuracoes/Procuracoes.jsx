@@ -4,7 +4,6 @@ import humps from 'humps'
 
 import StoreHOC from '../../Store/StoreHOC'
 import { download, logGenerator, globalRemoveFile, sizeExceedsLimit, toInputDate } from '../../Utils'
-import { } from '../../Reusable Components'
 import { ProcuracoesTemplate } from './ProcuracoesTemplate'
 import { useSelectEmpresa } from '../hooks/useSelectEmpresa'
 import { useManageProcuradores } from './hooks/useManageProcuradores'
@@ -57,7 +56,7 @@ const ProcuracoesContainer = (props) => {
 
         return () => setState(initialState)
 
-    }, [demand, empresas])
+    }, [demand, empresas, empresaDocs, selectEmpresa, setProcuradoresFromDemand])
 
     const handleInput = async (e, index) => {
         const { name, value } = e.target
@@ -193,12 +192,22 @@ const ProcuracoesContainer = (props) => {
         await logGenerator(log).catch(e => console.log(e))
     }
 
-    const deleteProcuracao = async procuracao => {
+    const confirmDelete = procuracao => {
         const { procuracaoId } = procuracao
+        setState({
+            ...state,
+            openConfirmDelete: true,
+            confirmType: 'delete',
+            idToDelete: procuracaoId
+        })
+    }
+
+    const deleteProcuracao = async () => {
+        const { idToDelete: procuracaoId } = state
         const selectedFile = empresaDocs.find(f => Number(f.metadata.procuracaoId) === procuracaoId)
 
         await axios.delete(`/api/procuracoes?id=${procuracaoId}`)
-
+        closeConfirmDelete()
         if (selectedFile?.id) {
             axios.delete(`/api/deleteFile?collection=empresaDocs&id=${selectedFile.id}`)
                 .catch(e => console.log(e))
@@ -251,6 +260,7 @@ const ProcuracoesContainer = (props) => {
     }
 
     const setShowPendencias = () => setState({ ...state, showPendencias: !state.showPendencias })
+    const closeConfirmDelete = () => setState(prevState => ({ ...prevState, openConfirmDelete: false }))
     const closeAlert = () => setState({ ...state, openAlertDialog: !state.openAlertDialog })
     const toast = () => setState({ ...state, confirmToast: !state.confirmToast })
 
@@ -264,7 +274,10 @@ const ProcuracoesContainer = (props) => {
             demand={demand}
             handleInput={handleInput}
             handleBlur={handleBlur}
+            userRole={props?.user?.role}
+            confirmDelete={confirmDelete}
             deleteProcuracao={deleteProcuracao}
+            closeConfirmDelete={closeConfirmDelete}
             handleFiles={handleFiles}
             removeFile={removeFile}
             addProc={handleSubmit}

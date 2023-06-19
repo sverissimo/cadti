@@ -10,10 +10,9 @@ let debounceTimer
 const Relatorios = props => {
     const { veiculos, empresas } = props.redux;
     const [state, dispatch] = useReducer(relatoriosReducer, initialState)
-    const [razaoSocial, setRazaoSocial] = useState('');
-    const [selectedEmpresa, setEmpresa] = useState();
-    const [selectedVehicles, setSelectedVehicles] = useState([]);
-    const currentYear = new Date().getFullYear()
+    const [razaoSocial, setRazaoSocial] = useState('')
+    const [selectedEmpresa, setEmpresa] = useState()
+    const [selectedVehicles, setSelectedVehicles] = useState([])
 
     const {
         anosLabel,
@@ -39,6 +38,7 @@ const Relatorios = props => {
     }, [selectedEmpresa, veiculos])
 
     useEffect(() => {
+        const currentYear = new Date().getFullYear()
         const segurosVencidos = countExpired(selectedVehicles)
         const segurosVigentes = selectedVehicles.length - segurosVencidos
         const veiculosAntigos = selectedVehicles.filter(v => currentYear - v.anoCarroceria > 14 && v.anoCarroceria !== null).length

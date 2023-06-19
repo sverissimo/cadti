@@ -15,6 +15,7 @@ const Avisos = props => {
     const originalAvisos = props.redux.avisos
     const remetentePadrao = props.redux.parametros[0]?.nomes?.siglaSistema
     const { name, role: userRole } = props?.user
+    const messagesRead = props?.user?.messagesRead || []
     const deletedMessages = props?.user?.deletedMessages || []
     const [state, setState] = useState({
         unreadOnly: false,
@@ -47,7 +48,6 @@ const Avisos = props => {
             .filter(({ id }) => !deletedMessages.includes(id))
             .sort((a, b) => new Date(b?.createdAt) - new Date(a?.createdAt))
 
-        const messagesRead = props?.user?.messagesRead || []
         avisos.forEach(a => a.read = messagesRead && messagesRead.includes(a.id))
 
         if (state.unreadOnly) {
@@ -56,7 +56,7 @@ const Avisos = props => {
         const allAreUnread = avisos.every(a => a.read === false)
 
         setState(s => ({ ...s, avisos, allAreUnread }))
-    }, [props?.user?.messagesRead, state.unreadOnly, originalAvisos])
+    }, [messagesRead, deletedMessages, state.unreadOnly, originalAvisos])
 
     const openAviso = (event, rowData) => {
 

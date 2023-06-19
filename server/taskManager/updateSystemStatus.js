@@ -18,7 +18,7 @@ const updateSystemStatus = async () => {
     console.log(`updated expired vehicles alright. Update result: ${VeiculoUpdateResult}`)
 
     const procuracaoUpdateResult = await ProcuracaoService.softDeleteExpired()
-    console.log(`updated expired vehicles alright. Update result: ${procuracaoUpdateResult}`)
+    console.log(`updated expired procuracoes alright. Update result: ${procuracaoUpdateResult}`)
 
     i++
     const currentDate = new Date().toISOString()

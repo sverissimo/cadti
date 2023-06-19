@@ -8,7 +8,6 @@ import DialogTitle from '@material-ui/core/DialogTitle';
 import { Fragment } from 'react';
 
 export default function ConfirmDialog({ open, type, close, confirm, element, id, index, customTitle = '', customMessage = '' }) {
-    console.log("🚀 ~ file: ConfirmDialog.jsx ~ line 11 ~ ConfirmDialog ~ id", id)
 
     let title, message
     if (type === 'delete') {

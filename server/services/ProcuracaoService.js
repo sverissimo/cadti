@@ -46,7 +46,7 @@ class ProcuracaoService {
             }
 
             const { codigo_empresa: codigoEmpresa, procuradores: procuradorIds } = procuracoes[0]
-            const procuradores = await new ProcuradorRepository().find(procuradorIds)
+            const procuradores = await new ProcuradorRepository().find(procuradorIds || [0])
             if (procuradores.length === 0) {
                 return { codigoEmpresa, procuradorIds: [] }
             }
