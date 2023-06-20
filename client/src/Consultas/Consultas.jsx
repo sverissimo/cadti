@@ -155,8 +155,14 @@ class ConsultasContainer extends Component {
             this.setState({ filesCollection: selectedFiles, showFiles: true, typeId, selectedElement: id })
 
         } else {
-            this.setState({ alertType: 'filesNotFound', openAlertDialog: true, subject: typeId })
-            this.setState({ filesCollection: [] })
+            this.setState({
+                alertType: 'filesNotFound',
+                openAlertDialog: true,
+                subject: typeId,
+                customMessage: '',
+                customTitle: '',
+                filesCollection: []
+            })
         }
     }
 
@@ -169,6 +175,8 @@ class ConsultasContainer extends Component {
             openConfirmDialog: true,
             confirmType: 'deactivateEmpresa',
             element: data?.razaoSocial || '',
+            customMessage: '',
+            customTitle: '',
             empresaToDeactivate: data?.codigoEmpresa
         })
     }
@@ -221,20 +229,18 @@ class ConsultasContainer extends Component {
             .catch(err => console.log(err))
     }
 
-    showCertificate = async vehicle => {
-
-        const
-            { parametros } = this.props.redux,
-            { anoCarroceria, situacao, vencimento } = vehicle,
-            seguroVencido = moment(vencimento).isBefore(),
-            currentYear = new Date().getFullYear(),
-            isOld = currentYear - anoCarroceria >= 16
+    showCertificate = vehicle => {
+        const { parametros } = this.props.redux
+        const { anoCarroceria, situacao, vencimento } = vehicle
+        const seguroVencido = moment(vencimento).isBefore()
+        const currentYear = new Date().getFullYear()
+        const isOld = currentYear - anoCarroceria >= 16
 
         if (isOld) {
             const validLaudo = moment(vehicle.vencimentoLaudo).isAfter(moment())
 
             if (!validLaudo) {
-                await this.setState({
+                this.setState({
                     openAlertDialog: true,
                     customTitle: 'Certificado de segurança veicular pendente.',
                     customMessage: 'O laudo de segurança veicular não está registrado no sistema ou se encontra vencido. Para regularizar, acesse Veículos -> Laudos.'
@@ -243,12 +249,19 @@ class ConsultasContainer extends Component {
             }
         }
 
+        const openAlertProps = {
+            openAlertDialog: true,
+            customMessage: '',
+            customTitle: '',
+        }
         if (situacao !== 'Ativo') {
-            await this.setState({ alertType: 'veiculoPendente', openAlertDialog: true })
+            openAlertProps.alertType = 'veiculoPendente'
+            this.setState({ ...openAlertProps })
             return
         }
         if (seguroVencido) {
-            await this.setState({ alertType: 'seguroVencido', openAlertDialog: true })
+            openAlertProps.alertType = 'seguroVencido'
+            this.setState({ ...openAlertProps })
             return
         }
 
@@ -257,10 +270,8 @@ class ConsultasContainer extends Component {
 
         //Envia os nomes da Secretaria, sub, etc para o certificado com base no DB>GlobalState
         if (parametros && parametros[0]) {
-            const
-                { nomes } = parametros[0]
+            const { nomes } = parametros[0]
             localStorage.setItem('nomes', JSON.stringify(nomes))
-
         }
         window.open(url, 'noopener')
     }

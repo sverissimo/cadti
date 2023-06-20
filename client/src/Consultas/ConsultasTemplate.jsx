@@ -6,11 +6,12 @@ import { setForm } from '../Utils/createFormPattern'
 import { PatchedPagination } from '../Utils/patchedPagination'
 
 export default function ({ tab, collection: originalCol, user, procuracoes, showDetails, showFiles, showCertificate, confirmDeactivate, del }) {
-
     const id = ['codigoEmpresa', 'socioId', 'procuradorId', 'veiculoId', 'apolice'][tab]
     const subject = ['empresas', 'sócios', 'procuradores', 'veículos', 'seguros']
+    const deleteSubject = ['codigoEmpresa', 'nomeSocio', 'nomeProcurador', 'placa', 'apolice']
     const form = setForm(tab)
     const collection = originalCol.map(col => ({ ...col }))
+
     return (
         <div style={{ margin: '10px 0' }} className='noPrint'>
             <MaterialTable
@@ -34,7 +35,6 @@ export default function ({ tab, collection: originalCol, user, procuracoes, show
                         fontSize: '0.5rem',
                     }
                 }}
-
                 localization={{
                     header: { actions: 'Opções' },
                     body: {
@@ -87,12 +87,19 @@ export default function ({ tab, collection: originalCol, user, procuracoes, show
                         tooltip: 'Desativar empresa',
                         hidden: tab !== 0 || user.role === 'empresa',
                         onClick: (event, rowData) => confirmDeactivate(rowData)
+                    },
+                    {
+                        icon: 'delete_outline',
+                        iconProps: { color: 'black' },
+                        tooltip: 'Delete',
+                        onClick: async (event, oldData) => {
+                            if (window.confirm(`Tem certeza que deseja remover ${oldData[deleteSubject[tab]]} ?`)) {
+                                await del(oldData);
+                            }
+                        },
+                        hidden: tab === 0 || user.role === 'empresa'
                     }
                 ]}
-                editable={{
-                    isDeleteHidden: rowData => user.role === 'empresa' || tab === 0,
-                    onRowDelete: async oldData => await del(oldData)
-                }}
                 components={{
                     Pagination: PatchedPagination,
                 }}

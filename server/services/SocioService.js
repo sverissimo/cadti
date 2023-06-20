@@ -118,16 +118,17 @@ class SocioService {
     */
     static async removeSociosPermissions({ codigoEmpresa, cpfsToRemove: cpfs }) {
         const alsoProcuradores = await isProcurador(cpfs)
-        let hasProcuracao
-
-        if (alsoProcuradores.length) {
-            hasProcuracao = await hasOtherProcuracao({
-                codigoEmpresa,
-                cpfs,
-            })
+        if (!alsoProcuradores.length) {
+            return []
         }
-        console.log("🚀 ~ file: SocioService.js:83 ~ SocioService ~ removeSociosFromEmpresa ~ alsoProcuradores", alsoProcuradores)
-        console.log("🚀 ~ file: SocioService.js:102 ~ SocioService ~ removeSociosFromEmpresa ~ hasProcuracao", hasProcuracao)
+
+        const hasProcuracao = await hasOtherProcuracao({
+            codigoEmpresa,
+            cpfs,
+        })
+
+        console.log("🚀 ~ file: SocioService.js:129 ~ SocioService ~ removeSociosFromEmpresa ~ alsoProcuradores", alsoProcuradores)
+        console.log("🚀 ~ file: SocioService.js:130 ~ SocioService ~ removeSociosFromEmpresa ~ hasProcuracao", hasProcuracao)
 
         const cpfsToRemove = cpfs.filter(cpf => !hasProcuracao.includes(cpf))
         console.log("🚀 ~ file: SocioService.js:105 ~ SocioService ~ removeSociosFromEmpresa ~ cpfsToRemove", cpfsToRemove)

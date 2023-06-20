@@ -17,7 +17,7 @@ export default function ConfirmDialog({ open, type, close, confirm, element, id,
     }
     if (type === 'deactivateEmpresa') {
         title = 'Desativar empresa'
-        message = `Tem certeza que deseja desativar a empresa ${element}?`
+        message = `Tem certeza que deseja desativar a empresa `
     }
 
     if (title && message) return (
