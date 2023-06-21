@@ -56,15 +56,21 @@ class VeiculoController extends Controller {
 
     addLaudo = async (req, res, next) => {
         const laudo = req.body
-        const { codigo_empresa } = laudo
+        const { id, codigo_empresa, veiculo_id } = laudo
+        if (!veiculo_id || !id) {
+            return res.status(422).end()
+        }
         const laudoId = await VeiculoService.addLaudo(laudo)
             .catch(err => next(err))
 
         const savedElement = await new Repository('laudos', 'id').find(laudoId)
+        const updatedVehicle = await this.repository.find(veiculo_id)
         const io = req.app.get('io')
         const socket = new CustomSocket(io, 'laudos', 'id')
+        const vehicleSocket = new CustomSocket(io, this.table, this.primaryKey)
 
         socket.emit('insertElements', savedElement, codigo_empresa)
+        vehicleSocket.emit('updateAny', updatedVehicle, codigo_empresa)
         return res.status(201).send(laudoId)
     }
 
