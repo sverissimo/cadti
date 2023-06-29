@@ -28,6 +28,7 @@ class AltSocios extends Component {
 
         if (empresas && empresas.length === 1) {
             const filteredSocios = socios.map(s => getCodigoEmpresaAndShare(s, empresas[0]?.codigoEmpresa))
+                .filter(s => s.empresas && s.empresas.some(e => e?.codigoEmpresa === empresas[0]?.codigoEmpresa))
             this.setState({
                 originalSocios,
                 filteredSocios,
@@ -51,6 +52,7 @@ class AltSocios extends Component {
                         && s.empresas.some(e => e.codigoEmpresa === selectedEmpresa.codigoEmpresa)
                     )
                     .map(s => getCodigoEmpresaAndShare(s, codigoEmpresa))
+                console.log("🚀 ~ file: Socios.jsx:54 ~ AltSocios ~ componentDidUpdate ~ filteredSocios:", filteredSocios)
                 this.setState({ filteredSocios })
                 this.toast()
             }

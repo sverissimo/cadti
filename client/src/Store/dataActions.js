@@ -147,6 +147,12 @@ export const updateData = (dataFromServer, collection, id) => (dispatch, getStat
     //Se a collection for vehicleDocs, o que vem do servidor são os ids
     let data = humps.camelizeKeys(dataFromServer)
     id = humps.camelize(id)
+    const state = getState().data[collection] || []
+    const ids = state.map(el => el[id].toString())
+    const elementsToInsert = data.filter(e => !ids.includes(e[id].toString()))
+    if (elementsToInsert.length) {
+        dispatch({ type: 'INSERT_DATA', payload: { collection, data: elementsToInsert } })
+    }
 
     const { equipamentos, acessibilidade } = getState().data
     if (collection === 'veiculos' && equipamentos && acessibilidade) {

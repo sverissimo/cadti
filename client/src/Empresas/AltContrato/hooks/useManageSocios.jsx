@@ -21,7 +21,7 @@ export const useManageSocios = (socios) => {
         const { codigoEmpresa } = selectedEmpresa
         const filteredSocios = socios
             .map(socio => getCodigoEmpresaAndShare(socio, codigoEmpresa))
-            .filter(s => s.codigoEmpresa === codigoEmpresa)
+            .filter(s => s.empresas && s.empresas.some(e => e?.codigoEmpresa === codigoEmpresa))
 
         setSocios(filteredSocios)
         return filteredSocios

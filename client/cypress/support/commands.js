@@ -19,6 +19,8 @@ Cypress.Commands.add('startSession', () => {
 
 Cypress.Commands.add('approveDemand', () => {
     cy.visit('/solicitacoes')
+    cy.contains('last_page')
+        .click()
     cy.get('.MuiTableCell-paddingNone > div > :nth-child(2) > .MuiIconButton-label > .material-icons')
         .last()
         .click()
